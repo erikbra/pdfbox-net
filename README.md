@@ -113,3 +113,22 @@ Skill definitions are split into focused files in [`SKILLS.md`](SKILLS.md), incl
 2. Build a representative PDF test corpus (happy path + malformed/security cases).
 3. Implement a minimal vertical slice: open PDF -> read metadata/text -> save PDF.
 4. Decide early whether public API parity or .NET idioms take priority for v1.
+
+## Pilot conversion slice #1 (A -> F -> E)
+
+- Upstream baseline commit: `ccd281cfecedcc0ad39709bece5e67b19a54e8db`
+- Scoped file list (`io`, 4 files):
+  - `io/src/main/java/org/apache/pdfbox/io/RandomAccessRead.java` -> `src/PdfBox.Net/IO/RandomAccessRead.cs`
+  - `io/src/main/java/org/apache/pdfbox/io/RandomAccessWrite.java` -> `src/PdfBox.Net/IO/RandomAccessWrite.cs`
+  - `io/src/main/java/org/apache/pdfbox/io/RandomAccess.java` -> `src/PdfBox.Net/IO/RandomAccess.cs`
+  - `io/src/main/java/org/apache/pdfbox/io/RandomAccessReadView.java` -> `src/PdfBox.Net/IO/RandomAccessReadView.cs`
+- Skill artifacts:
+  - Skill A conversion records: `reports/conversion-records.json`
+  - Skill F normalization records: `reports/normalization-records.json`
+  - Skill E traceability/parity report: `reports/traceability-parity-report.json`
+
+### Lessons learned (pilot)
+
+- A tiny `io` interface-first slice keeps dependency fan-out low and makes process validation faster.
+- Skill F should explicitly call out Java default interface methods as a common compile-normalization item for C#.
+- Skill E schema was sufficient for this slice; next iteration could add an optional `slice_id` field to group batches.

@@ -1,0 +1,48 @@
+[
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessRead.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessRead.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Primitive/collection/type alias fixes required by C# type system"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted Java default methods/exceptions to C# interface defaults and .NET IO exception types."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessWrite.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessWrite.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted Java interface declaration to C# interface declaration."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccess.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccess.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted Java multi-interface inheritance to C# interface inheritance."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadView.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadView.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted class syntax and constructor shape to compilable C# while preserving method behavior intent."
+  }
+]

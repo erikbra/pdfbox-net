@@ -1,0 +1,34 @@
+[
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessRead.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessRead.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Initial one-to-one conversion for pilot slice 1"
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessWrite.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessWrite.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Initial one-to-one conversion for pilot slice 1"
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccess.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccess.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Initial one-to-one conversion for pilot slice 1"
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadView.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadView.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Initial one-to-one conversion for pilot slice 1"
+  }
+]
