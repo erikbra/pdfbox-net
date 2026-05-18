@@ -9,7 +9,8 @@ This index splits the conversion workflow into small, focused skills.
    - **Skill B** for rewrites/updates
    - **Skill C** for deletions
    - **Skill D** for newly added upstream files
-3. Run **Skill E** after updates to produce traceability/parity status.
+3. Run **Skill F** to apply compile-oriented normalization where needed.
+4. Run **Skill E** after updates/normalization to produce traceability/parity status.
 
 ## Skill files
 
@@ -18,7 +19,8 @@ This index splits the conversion workflow into small, focused skills.
 - [Skill C - Upstream deletion handling](skills/skill-c-upstream-delete.md)
 - [Skill D - Upstream new-file intake](skills/skill-d-upstream-new-file.md)
 - [Skill E - Traceability and parity reporting](skills/skill-e-traceability-report.md)
-- [Worked example - end-to-end flow A->E](skills/worked-example-a-to-e.md)
+- [Skill F - Compile-oriented normalization pass](skills/skill-f-compile-oriented-normalization.md)
+- [Worked example - end-to-end flow A->F->E](skills/worked-example-a-to-e.md)
 
 ## Pilot evaluation
 

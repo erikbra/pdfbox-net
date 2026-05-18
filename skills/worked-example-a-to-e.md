@@ -1,4 +1,4 @@
-# Worked example (Skills A -> E)
+# Worked example (Skills A -> F -> E)
 
 This is a concrete mini-flow showing required inputs/outputs.
 
@@ -53,6 +53,13 @@ If upstream adds `Matrix.java`:
 - create `src/PdfBox/Util/Matrix.cs`
 - stamp required provenance header
 - record intake status (`converted` or `backlog`)
+
+## Skill F (compile-oriented normalization)
+
+If `dotnet build` shows syntax/type errors in `Vector.cs`:
+- apply limited compile-oriented fixes (syntax/type/API compatibility),
+- keep provenance header fields unchanged,
+- log normalization categories and semantic risk.
 
 ## Skill E (report row example)
 
