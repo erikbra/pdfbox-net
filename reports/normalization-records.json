@@ -56,7 +56,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Converted ByteBuffer-based chunk handling to C# byte[] chunk storage and replaced Java close-quietly helper usage with equivalent local close guarding."
+    "note": "Converted ByteBuffer-based chunk handling to C# byte[] chunk storage, replaced Java close-quietly helper usage, and added ArraySegment<byte> constructor to preserve ByteBuffer-limit semantics."
   },
   {
     "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
@@ -80,6 +80,6 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Converted JUnit assertions/annotations to xUnit v3 and adapted Java try-with-resources to explicit close patterns. Upstream tests requiring ByteBuffer ctor and remote PDF fixture are tracked as follow-up parity work."
+    "note": "Converted JUnit assertions/annotations to xUnit v3, adapted Java try-with-resources to explicit close patterns, replaced remote fixture usage with deterministic local fixture, and added PDFBOX-5764 parity coverage."
   }
 ]

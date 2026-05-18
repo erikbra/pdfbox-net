@@ -150,6 +150,6 @@ Skill definitions are split into focused files in [`SKILLS.md`](SKILLS.md), incl
 
 ### Workflow triage and follow-ups
 
-- Remaining parity gap: upstream `testPDFBOX5764` depends on a `ByteBuffer` constructor not yet present in `RandomAccessReadBuffer`.
-- Remaining parity gap: upstream `testPDFBOX5111` reads a remote fixture URL; this should be replaced with a local deterministic fixture in .NET tests.
+- Addressed parity gap: added `ArraySegment<byte>` constructor support in `RandomAccessReadBuffer` to preserve ByteBuffer-like limit semantics used by upstream `testPDFBOX5764`.
+- Addressed parity gap: replaced upstream `testPDFBOX5111` remote URL dependency with a deterministic local fixture in .NET tests.
 - Next package candidates for mechanical expansion: continue in `io` with adjacent low fan-out implementations/tests, then move to `cos` primitives once IO parity is stable.

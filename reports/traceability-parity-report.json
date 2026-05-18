@@ -46,8 +46,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-18T20:52:14Z",
-    "note": "Added to support RandomAccessReadView mechanical test parity using production code."
+    "last_checked_utc": "2026-05-18T21:46:00Z",
+    "note": "Expanded parity support with ArraySegment<byte> constructor for ByteBuffer-limit semantics used by upstream PDFBOX-5764 coverage."
   },
   {
     "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
@@ -66,7 +66,7 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-18T21:40:00Z",
-    "note": "Mechanically ported from upstream JUnit to xUnit v3 for expanded RandomAccessReadBuffer parity; upstream ByteBuffer/remote fixture cases queued as follow-up."
+    "last_checked_utc": "2026-05-18T21:46:00Z",
+    "note": "Mechanically ported from upstream JUnit to xUnit v3 with expanded parity including deterministic local fixture for PDFBOX-5111 and ByteBuffer-limit semantics test PDFBOX-5764."
   }
 ]

@@ -252,4 +252,45 @@ public class RandomAccessReadBufferTest
             randomAccessRead.Close();
         }
     }
+
+    [Fact]
+    public void TestPDFBOX5111()
+    {
+        byte[] fixtureBytes = new byte[34060];
+        for (int i = 0; i < fixtureBytes.Length; i++)
+        {
+            fixtureBytes[i] = (byte)(i % 251);
+        }
+
+        var randomAccessRead = new RandomAccessReadBuffer(new MemoryStream(fixtureBytes));
+        try
+        {
+            Assert.Equal(34060, randomAccessRead.Length());
+            randomAccessRead.Seek(34059);
+            Assert.Equal(fixtureBytes[34059], randomAccessRead.Read());
+        }
+        finally
+        {
+            randomAccessRead.Close();
+        }
+    }
+
+    [Fact]
+    public void TestPDFBOX5764()
+    {
+        int bufferSize = 4096;
+        int limit = 2048;
+        byte[] buffer = new byte[bufferSize];
+        var randomAccessRead = new RandomAccessReadBuffer(new ArraySegment<byte>(buffer, 0, limit));
+        try
+        {
+            byte[] buf = new byte[bufferSize];
+            int bytesRead = ((RandomAccessRead)randomAccessRead).Read(buf);
+            Assert.Equal(limit, bytesRead);
+        }
+        finally
+        {
+            randomAccessRead.Close();
+        }
+    }
 }

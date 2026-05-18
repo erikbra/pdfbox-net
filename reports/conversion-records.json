@@ -37,7 +37,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added production RandomAccessReadBuffer to support mechanically ported RandomAccessReadView tests without test-only doubles."
+    "conversion_notes": "Added production RandomAccessReadBuffer to support mechanically ported tests and expanded with ArraySegment<byte> constructor for ByteBuffer-limit parity (PDFBOX-5764)."
   },
   {
     "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
@@ -53,6 +53,6 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Expanded mechanical xUnit v3 parity coverage for RandomAccessReadBuffer (including PDFBOX-5158 and PDFBOX-5161 regression scenarios)."
+    "conversion_notes": "Expanded mechanical xUnit v3 parity coverage for RandomAccessReadBuffer, including PDFBOX-5111 local deterministic fixture, PDFBOX-5158, PDFBOX-5161, and PDFBOX-5764 scenarios."
   }
 ]
