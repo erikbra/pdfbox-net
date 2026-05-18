@@ -69,5 +69,17 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Converted JUnit assertions/annotations to xUnit v3 and switched to production RandomAccessReadBuffer usage with inline value initializations for closer parity."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadBufferTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted JUnit assertions/annotations to xUnit v3 and adapted Java try-with-resources to explicit close patterns. Upstream tests requiring ByteBuffer ctor and remote PDF fixture are tracked as follow-up parity work."
   }
 ]

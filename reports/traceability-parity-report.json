@@ -58,5 +58,15 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-18T20:21:17Z",
     "note": "Mechanically ported from upstream JUnit to xUnit v3 using production RandomAccessReadBuffer."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadBufferTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T21:40:00Z",
+    "note": "Mechanically ported from upstream JUnit to xUnit v3 for expanded RandomAccessReadBuffer parity; upstream ByteBuffer/remote fixture cases queued as follow-up."
   }
 ]
