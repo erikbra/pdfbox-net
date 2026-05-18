@@ -153,3 +153,54 @@ Skill definitions are split into focused files in [`SKILLS.md`](SKILLS.md), incl
 - Addressed parity gap: added `ArraySegment<byte>` constructor support in `RandomAccessReadBuffer` to preserve ByteBuffer-like limit semantics used by upstream `testPDFBOX5764`.
 - Addressed parity gap: replaced upstream `testPDFBOX5111` remote URL dependency with a deterministic local fixture in .NET tests.
 - Next package candidates for mechanical expansion: continue in `io` with adjacent low fan-out implementations/tests, then move to `cos` primitives once IO parity is stable.
+
+## Full `io` + `pdfbox` conversion roadmap
+
+The full upstream `io` and `pdfbox` folders are too large for a single PR, so the practical approach is to keep mechanical traceability but break the work into dependency-ordered slices.
+
+### Main porting challenges
+
+- `io` is the lowest-level foundation, but several classes are coupled to Java stream/NIO APIs (`InputStream`, `OutputStream`, `FileChannel`, `MappedByteBuffer`) that need careful .NET equivalents.
+- `pdfbox` is much broader: `cos` and `util` are good early targets, while `filter`, `pdfparser`, `pdfwriter`, `pdmodel`, `text`, and `rendering` fan out quickly.
+- Some tests assume Java-specific behavior and need adaptation instead of literal translation:
+  - EOF handling differences between Java streams and .NET `Stream`
+  - temp file lifecycle assumptions in scratch-file tests
+  - AWT/ImageIO dependencies in rendering and image filters
+  - `BigDecimal` formatting semantics in numeric COS tests
+
+### Suggested staged sub-issues
+
+1. **Finish low-fanout `io` in-memory classes/tests**
+   - `RandomAccessReadWriteBuffer`
+   - `RandomAccessStreamCache`
+   - `SequenceRandomAccessRead`
+2. **Finish `io` adapters/configuration**
+   - `MemoryUsageSetting`
+   - `RandomAccessInputStream`
+   - `RandomAccessOutputStream`
+3. **Finish `io` file-backed implementations**
+   - `ScratchFile`
+   - `ScratchFileBuffer`
+   - `RandomAccessReadBufferedFile`
+   - `RandomAccessReadMemoryMappedFile`
+4. **Start `pdfbox` with leaf utilities and COS primitives**
+   - `pdfbox/util/*` low-dependency helpers such as `Vector`
+   - `pdfbox/cos/*` interfaces/value types before containers and streams
+5. **Climb to parser/writer layers only after `io` + `cos` stabilize**
+   - `filter`
+   - `pdfparser`
+   - `pdfwriter`
+   - `pdmodel`, `text`, `rendering` last
+
+### Conventions and automation to keep using
+
+- Keep provenance headers (`PDFBOX_SOURCE_PATH`, commit, mode, last sync commit) on every ported file.
+- Record each slice in `reports/conversion-records.json`, `reports/normalization-records.json`, and `reports/traceability-parity-report.json`.
+- Prefer mechanical test ports first; only redesign tests when they depend on Java-only APIs or non-deterministic external resources.
+- Break work into folder-level or class-cluster issues so each PR has a clear upstream scope and passing test slice.
+
+### Current issue slice delivered here
+
+- Added `io` source/test parity for `RandomAccessReadWriteBuffer`.
+- Added the first `pdfbox` source slice with `pdfbox/util/Vector.java` ported to `src/PdfBox.Net/Util/Vector.cs`.
+- Extended traceability records so the next conversion slices can build on this dependency-ordered plan.

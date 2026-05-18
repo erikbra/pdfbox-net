@@ -81,5 +81,40 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Converted JUnit assertions/annotations to xUnit v3, adapted Java try-with-resources to explicit close patterns, replaced remote fixture usage with deterministic local fixture, and added PDFBOX-5764 parity coverage."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadWriteBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadWriteBuffer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "ByteBuffer-style writes mapped onto existing byte[] chunk storage"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped Java ByteBuffer put operations to Array.Copy and indexed byte[] writes while preserving RandomAccessReadBuffer paging semantics."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadWriteBufferTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadWriteBufferTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "JUnit assertions/annotations converted to xUnit v3"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted upstream try-with-resources usage to explicit close patterns because the current RandomAccess interfaces expose Close() without IDisposable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java",
+    "target_path": "src/PdfBox.Net/Util/Vector.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Straight mechanical conversion of a low-dependency pdfbox utility class."
   }
 ]

@@ -54,5 +54,29 @@
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Expanded mechanical xUnit v3 parity coverage for RandomAccessReadBuffer, including PDFBOX-5111 local deterministic fixture, PDFBOX-5158, PDFBOX-5161, and PDFBOX-5764 scenarios."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadWriteBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadWriteBuffer.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of the in-memory read/write buffer implementation, reusing the existing RandomAccessReadBuffer chunk storage model."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadWriteBufferTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadWriteBufferTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical xUnit v3 conversion of upstream RandomAccessReadWriteBuffer tests covering close, clear, paging, seek, and EOF scenarios."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java",
+    "target_path": "src/PdfBox.Net/Util/Vector.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Initial pdfbox utility port for a low-fanout leaf type to seed the broader pdfbox conversion backlog."
   }
 ]

@@ -68,5 +68,35 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-18T21:46:00Z",
     "note": "Mechanically ported from upstream JUnit to xUnit v3 with expanded parity including deterministic local fixture for PDFBOX-5111 and ByteBuffer-limit semantics test PDFBOX-5764."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadWriteBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadWriteBuffer.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T21:48:54Z",
+    "note": "Mechanical parity port for the next low-fanout io write-capable buffer implementation."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadWriteBufferTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadWriteBufferTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T21:48:54Z",
+    "note": "Mechanical xUnit v3 test parity for RandomAccessReadWriteBuffer close, clear, paging, and EOF behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java",
+    "target_path": "src/PdfBox.Net/Util/Vector.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T21:48:54Z",
+    "note": "First pdfbox utility leaf port used to seed the wider pdfbox conversion backlog."
   }
 ]

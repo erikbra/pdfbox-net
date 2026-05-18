@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
- * PDFBOX_SOURCE_PATH: io/src/main/java/org/apache/pdfbox/io/RandomAccessWrite.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -24,37 +24,52 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.IO;
+namespace PdfBox.Net.Util;
 
 /// <summary>
-/// An interface allowing random access write operations.
+/// A 2D vector.
 /// </summary>
-public interface RandomAccessWrite
+public sealed class Vector
 {
-    /// <summary>
-    /// Write a byte to the stream.
-    /// </summary>
-    /// <param name="b">The byte to write.</param>
-    void Write(int b);
+    private readonly float _x;
+    private readonly float _y;
+
+    public Vector(float x, float y)
+    {
+        _x = x;
+        _y = y;
+    }
 
     /// <summary>
-    /// Write a buffer of data to the stream.
+    /// Returns the x magnitude.
     /// </summary>
-    /// <param name="b">The buffer to get the data from.</param>
-    void Write(byte[] b);
+    /// <returns>the x magnitude</returns>
+    public float GetX()
+    {
+        return _x;
+    }
 
     /// <summary>
-    /// Write a buffer of data to the stream.
+    /// Returns the y magnitude.
     /// </summary>
-    /// <param name="b">The buffer to get the data from.</param>
-    /// <param name="offset">An offset into the buffer to get the data from.</param>
-    /// <param name="length">The length of data to write.</param>
-    void Write(byte[] b, int offset, int length);
+    /// <returns>the y magnitude</returns>
+    public float GetY()
+    {
+        return _y;
+    }
 
     /// <summary>
-    /// Clears all data of the buffer.
+    /// Returns a new vector scaled by both x and y.
     /// </summary>
-    void Clear();
+    /// <param name="scale">x and y scale</param>
+    /// <returns>a new vector scaled by both x and y</returns>
+    public Vector Scale(float scale)
+    {
+        return new Vector(_x * scale, _y * scale);
+    }
 
-    void Close();
+    public override string ToString()
+    {
+        return $"({_x}, {_y})";
+    }
 }

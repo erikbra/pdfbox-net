@@ -1,10 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Mechanically converted from Apache PDFBox Java source with AI assistance.
- * PDFBOX_SOURCE_PATH: io/src/main/java/org/apache/pdfbox/io/RandomAccess.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * Added focused xUnit coverage for the C# port of Apache PDFBox Vector behavior.
  */
 
 /*
@@ -24,13 +20,24 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.IO;
+using PdfBox.Net.Util;
+using Xunit;
 
-/// <summary>
-/// An interface to allow data to be stored completely in memory or
-/// to use a scratch file on the disk.
-/// </summary>
-public interface RandomAccess : RandomAccessRead, RandomAccessWrite
+namespace PdfBox.Net.Tests;
+
+public class VectorTest
 {
-    // super interface for both read and write
+    [Fact]
+    public void TestScaleAndStringRepresentation()
+    {
+        var vector = new Vector(2, 3);
+
+        Assert.Equal(2, vector.GetX());
+        Assert.Equal(3, vector.GetY());
+
+        Vector scaled = vector.Scale(4);
+        Assert.Equal(8, scaled.GetX());
+        Assert.Equal(12, scaled.GetY());
+        Assert.Equal("(8, 12)", scaled.ToString());
+    }
 }
