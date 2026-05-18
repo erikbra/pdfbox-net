@@ -138,3 +138,18 @@ Skill definitions are split into focused files in [`SKILLS.md`](SKILLS.md), incl
 - For mechanical test ports, keep data initializations inline when they are inline upstream to preserve near-verbatim parity.
 - Prefer production ports in tests over test-only doubles; if a dependency is missing, port the nearest low-fanout production class.
 - For mechanically ported files, keep the Apache license header verbatim and add a separate AI conversion note and JavaDoc-derived XML docs.
+
+## Expansion slice #2 (io test parity extension)
+
+- Upstream baseline commit: `ccd281cfecedcc0ad39709bece5e67b19a54e8db`
+- Expanded test conversion scope:
+  - `io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferTest.java` -> `tests/PdfBox.Net.Tests/RandomAccessReadBufferTest.cs` (xUnit v3)
+- Coverage expansion outcome:
+  - Added position, EOF/seek, empty-buffer, view, and regression scenarios (`PDFBOX-5158`, `PDFBOX-5161`) for `RandomAccessReadBuffer`.
+  - Traceability/compliance artifacts updated in `reports/conversion-records.json`, `reports/normalization-records.json`, and `reports/traceability-parity-report.json`.
+
+### Workflow triage and follow-ups
+
+- Addressed parity gap: added `ArraySegment<byte>` constructor support in `RandomAccessReadBuffer` to preserve ByteBuffer-like limit semantics used by upstream `testPDFBOX5764`.
+- Addressed parity gap: replaced upstream `testPDFBOX5111` remote URL dependency with a deterministic local fixture in .NET tests.
+- Next package candidates for mechanical expansion: continue in `io` with adjacent low fan-out implementations/tests, then move to `cos` primitives once IO parity is stable.

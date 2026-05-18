@@ -98,6 +98,15 @@ public class RandomAccessReadBuffer : RandomAccessRead
     }
 
     /// <summary>
+    /// Create a random access buffer using a byte array segment. The segment count is used as the readable length.
+    /// </summary>
+    /// <param name="input">the byte array segment to be read</param>
+    public RandomAccessReadBuffer(ArraySegment<byte> input)
+        : this(CopySegment(input))
+    {
+    }
+
+    /// <summary>
     /// Create a random access read buffer of the given input stream by copying the data to the memory.
     /// </summary>
     /// <param name="input">the input stream to be read</param>
@@ -127,6 +136,18 @@ public class RandomAccessReadBuffer : RandomAccessRead
         }
 
         Seek(0);
+    }
+
+    private static byte[] CopySegment(ArraySegment<byte> input)
+    {
+        if (input.Count == 0)
+        {
+            return Array.Empty<byte>();
+        }
+
+        byte[] copy = new byte[input.Count];
+        Array.Copy(input.Array!, input.Offset, copy, 0, input.Count);
+        return copy;
     }
 
     private RandomAccessReadBuffer(RandomAccessReadBuffer parent)
