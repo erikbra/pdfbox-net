@@ -14,13 +14,19 @@ Create a first-pass C# file from an upstream PDFBox Java file and stamp required
   - `PDFBOX_SOURCE_COMMIT`
   - `PORT_MODE` (`mechanical` or `adapted`)
   - `PORT_LAST_SYNC_COMMIT`
+- Apache 2.0 license header copied verbatim from upstream file (for mechanically ported files)
+- Small separate note that the file was converted mechanically to C# using AI
+- Documentation-style comments ported from JavaDoc where present
 
 ## Notes
 - Default `PORT_MODE` should be `mechanical` for one-to-one conversion output.
 - Set `PORT_MODE` to `adapted` only when behavior/API is intentionally changed from upstream mechanical parity.
+- Keep the Apache license block verbatim and place it before provenance metadata.
+- Keep the AI conversion note separate from the license text.
+- Prefer preserving upstream inline test data setup over refactoring/extracting helpers when doing mechanical test conversions.
 
 ## Required provenance header format
-Place this block at the top of every converted C# file (after license header if present):
+Place this block at the top of every converted C# file (after license header and AI conversion note):
 
 ```csharp
 // PDFBOX_SOURCE_PATH: <upstream relative path>

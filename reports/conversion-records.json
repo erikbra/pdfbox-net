@@ -32,6 +32,14 @@
     "conversion_notes": "Initial one-to-one conversion for pilot slice 1"
   },
   {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadBuffer.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added production RandomAccessReadBuffer to support mechanically ported RandomAccessReadView tests without test-only doubles."
+  },
+  {
     "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
     "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",

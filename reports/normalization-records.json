@@ -46,6 +46,19 @@
     "note": "Converted class syntax and constructor shape to compilable C# while preserving method behavior intent."
   },
   {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadBuffer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation",
+      "Primitive/collection/type alias fixes required by C# type system"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted ByteBuffer-based chunk handling to C# byte[] chunk storage and replaced Java close-quietly helper usage with equivalent local close guarding."
+  },
+  {
     "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
     "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs",
     "normalization_applied": true,
@@ -55,6 +68,6 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Converted JUnit assertions/annotations to xUnit and invoked interface default methods through the interface type."
+    "note": "Converted JUnit assertions/annotations to xUnit v3 and switched to production RandomAccessReadBuffer usage with inline value initializations for closer parity."
   }
 ]

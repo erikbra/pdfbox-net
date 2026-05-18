@@ -1,3 +1,20 @@
+/*
+ * Copyright 2014 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// This file was converted mechanically to C# using AI.
 // PDFBOX_SOURCE_PATH: io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java
 // PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 // PORT_MODE: mechanical
@@ -18,8 +35,8 @@ public class RandomAccessReadViewTest
     [Fact]
     public void TestPositionSkip()
     {
-        byte[] values = CreateValues();
-        var randomAccessSource = new ArrayBackedRandomAccessRead(values);
+        byte[] values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        var randomAccessSource = new RandomAccessReadBuffer(new MemoryStream(values));
         var randomAccessReadView = new RandomAccessReadView(randomAccessSource, 10, 20);
 
         Assert.Equal(0, randomAccessReadView.GetPosition());
@@ -35,8 +52,8 @@ public class RandomAccessReadViewTest
     [Fact]
     public void TestPositionRead()
     {
-        byte[] values = CreateValues();
-        var randomAccessSource = new ArrayBackedRandomAccessRead(values);
+        byte[] values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        var randomAccessSource = new RandomAccessReadBuffer(new MemoryStream(values));
         var randomAccessReadView = new RandomAccessReadView(randomAccessSource, 10, 20);
 
         Assert.Equal(0, randomAccessReadView.GetPosition());
@@ -45,6 +62,7 @@ public class RandomAccessReadViewTest
         Assert.Equal(12, randomAccessReadView.Read());
         Assert.Equal(3, randomAccessReadView.GetPosition());
 
+        // also test double close
         Assert.False(randomAccessReadView.IsClosed());
         randomAccessReadView.Close();
         Assert.True(randomAccessReadView.IsClosed());
@@ -56,21 +74,26 @@ public class RandomAccessReadViewTest
     [Fact]
     public void TestSeekEOF()
     {
-        byte[] values = CreateValues();
-        var randomAccessSource = new ArrayBackedRandomAccessRead(values);
-        var randomAccessReadView = new RandomAccessReadView(randomAccessSource, 10, 20);
-
-        randomAccessReadView.Seek(3);
-        Assert.Equal(3, randomAccessReadView.GetPosition());
-        Assert.Throws<IOException>(() => randomAccessReadView.Seek(-1));
-        Assert.False(randomAccessReadView.IsEOF());
-        randomAccessReadView.Seek(20);
-        Assert.True(randomAccessReadView.IsEOF());
-        Assert.Equal(-1, randomAccessReadView.Read());
-        Assert.Equal(-1, randomAccessReadView.Read(new byte[1], 0, 1));
-        randomAccessReadView.Close();
-
-        randomAccessSource.Close();
+        byte[] values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        RandomAccessReadView randomAccessReadView;
+        var randomAccessSource = new RandomAccessReadBuffer(new MemoryStream(values));
+        try
+        {
+            randomAccessReadView = new RandomAccessReadView(randomAccessSource, 10, 20);
+            randomAccessReadView.Seek(3);
+            Assert.Equal(3, randomAccessReadView.GetPosition());
+            Assert.Throws<IOException>(() => randomAccessReadView.Seek(-1));
+            Assert.False(randomAccessReadView.IsEOF());
+            randomAccessReadView.Seek(20);
+            Assert.True(randomAccessReadView.IsEOF());
+            Assert.Equal(-1, randomAccessReadView.Read());
+            Assert.Equal(-1, randomAccessReadView.Read(new byte[1], 0, 1));
+            randomAccessReadView.Close();
+        }
+        finally
+        {
+            randomAccessSource.Close();
+        }
 
         Assert.Throws<IOException>(() => randomAccessReadView.Read());
     }
@@ -78,8 +101,8 @@ public class RandomAccessReadViewTest
     [Fact]
     public void TestPositionReadBytes()
     {
-        byte[] values = CreateValues();
-        var randomAccessSource = new ArrayBackedRandomAccessRead(values);
+        byte[] values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        var randomAccessSource = new RandomAccessReadBuffer(new MemoryStream(values));
         var randomAccessReadView = new RandomAccessReadView(randomAccessSource, 10, 20);
 
         Assert.Equal(0, randomAccessReadView.GetPosition());
@@ -103,8 +126,8 @@ public class RandomAccessReadViewTest
     [Fact]
     public void TestPositionPeek()
     {
-        byte[] values = CreateValues();
-        var randomAccessSource = new ArrayBackedRandomAccessRead(values);
+        byte[] values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        var randomAccessSource = new RandomAccessReadBuffer(new MemoryStream(values));
         var randomAccessReadView = new RandomAccessReadView(randomAccessSource, 10, 20);
 
         Assert.Equal(0, randomAccessReadView.GetPosition());
@@ -121,8 +144,8 @@ public class RandomAccessReadViewTest
     [Fact]
     public void TestPositionUnreadBytes()
     {
-        byte[] values = CreateValues();
-        var randomAccessSource = new ArrayBackedRandomAccessRead(values);
+        byte[] values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        var randomAccessSource = new RandomAccessReadBuffer(new MemoryStream(values));
         var randomAccessReadView = new RandomAccessReadView(randomAccessSource, 10, 20);
 
         Assert.Equal(0, randomAccessReadView.GetPosition());
@@ -150,108 +173,13 @@ public class RandomAccessReadViewTest
     [Fact]
     public void TestCreateView()
     {
-        byte[] values = CreateValues();
-        var randomAccessSource = new ArrayBackedRandomAccessRead(values);
+        byte[] values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        var randomAccessSource = new RandomAccessReadBuffer(new MemoryStream(values));
         var randomAccessReadView = new RandomAccessReadView(randomAccessSource, 10, 20);
 
         Assert.Throws<IOException>(() => randomAccessReadView.CreateView(0, 20));
 
         randomAccessReadView.Close();
         randomAccessSource.Close();
-    }
-
-    private static byte[] CreateValues()
-    {
-        return
-        [
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-            10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-            20
-        ];
-    }
-
-    private sealed class ArrayBackedRandomAccessRead(byte[] source) : RandomAccessRead
-    {
-        private readonly byte[] _source = source;
-        private long _position;
-        private bool _closed;
-
-        public int Read()
-        {
-            CheckClosed();
-            if (IsEOF())
-            {
-                return -1;
-            }
-
-            return _source[_position++];
-        }
-
-        public int Read(byte[] b, int offset, int length)
-        {
-            CheckClosed();
-            if (IsEOF())
-            {
-                return -1;
-            }
-
-            int toRead = (int)Math.Min(length, _source.Length - _position);
-            Array.Copy(_source, _position, b, offset, toRead);
-            _position += toRead;
-            return toRead;
-        }
-
-        public long GetPosition()
-        {
-            CheckClosed();
-            return _position;
-        }
-
-        public void Seek(long position)
-        {
-            CheckClosed();
-            if (position < 0)
-            {
-                throw new IOException($"Invalid position {position}");
-            }
-
-            _position = Math.Min(position, _source.Length);
-        }
-
-        public long Length()
-        {
-            CheckClosed();
-            return _source.Length;
-        }
-
-        public bool IsClosed()
-        {
-            return _closed;
-        }
-
-        public bool IsEOF()
-        {
-            CheckClosed();
-            return _position >= _source.Length;
-        }
-
-        public RandomAccessReadView CreateView(long startPosition, long streamLength)
-        {
-            CheckClosed();
-            return new RandomAccessReadView(this, startPosition, streamLength);
-        }
-
-        public void Close()
-        {
-            _closed = true;
-        }
-
-        private void CheckClosed()
-        {
-            if (_closed)
-            {
-                throw new IOException("ArrayBackedRandomAccessRead already closed");
-            }
-        }
     }
 }

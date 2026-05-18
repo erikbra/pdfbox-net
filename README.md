@@ -117,20 +117,24 @@ Skill definitions are split into focused files in [`SKILLS.md`](SKILLS.md), incl
 ## Pilot conversion slice #1 (A -> F -> E)
 
 - Upstream baseline commit: `ccd281cfecedcc0ad39709bece5e67b19a54e8db`
-- Scoped file list (`io`, 4 files):
+- Scoped file list (`io`, 5 files):
   - `io/src/main/java/org/apache/pdfbox/io/RandomAccessRead.java` -> `src/PdfBox.Net/IO/RandomAccessRead.cs`
   - `io/src/main/java/org/apache/pdfbox/io/RandomAccessWrite.java` -> `src/PdfBox.Net/IO/RandomAccessWrite.cs`
   - `io/src/main/java/org/apache/pdfbox/io/RandomAccess.java` -> `src/PdfBox.Net/IO/RandomAccess.cs`
   - `io/src/main/java/org/apache/pdfbox/io/RandomAccessReadView.java` -> `src/PdfBox.Net/IO/RandomAccessReadView.cs`
+  - `io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java` -> `src/PdfBox.Net/IO/RandomAccessReadBuffer.cs`
 - Skill artifacts:
   - Skill A conversion records: `reports/conversion-records.json`
   - Skill F normalization records: `reports/normalization-records.json`
   - Skill E traceability/parity report: `reports/traceability-parity-report.json`
 - Converted upstream tests (`io/src/test/...`):
-  - `io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java` -> `tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs` (xUnit)
+  - `io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java` -> `tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs` (xUnit v3)
 
 ### Lessons learned (pilot)
 
 - A tiny `io` interface-first slice keeps dependency fan-out low and makes process validation faster.
 - Skill F should explicitly call out Java default interface methods as a common compile-normalization item for C#.
 - Skill E schema was sufficient for this slice; next iteration could add an optional `slice_id` field to group batches.
+- For mechanical test ports, keep data initializations inline when they are inline upstream to preserve near-verbatim parity.
+- Prefer production ports in tests over test-only doubles; if a dependency is missing, port the nearest low-fanout production class.
+- For mechanically ported files, keep the Apache license header verbatim and add a separate AI conversion note and JavaDoc-derived XML docs.

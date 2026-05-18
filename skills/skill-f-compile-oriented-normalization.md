@@ -22,11 +22,13 @@ Apply a constrained, post-mechanical normalization pass so converted files are c
 - Namespace/type qualification fixes needed for C# compilation.
 - Primitive/collection/type alias fixes required by C# type system.
 - Exception/using/disposable pattern adjustments only when required to compile.
+- Framework/test harness upgrades required by repository policy (for example .NET target framework updates and xUnit major version migration).
 
 ## Disallowed changes in this skill
 - Functional redesign of behavior.
 - Public API redesign for ".NET-feeling" ergonomics.
 - Silent semantic changes without note.
+- Removing upstream license/provenance/doc traceability content from mechanically ported files.
 
 ## Required normalization record fields (per file)
 - `source_path`
