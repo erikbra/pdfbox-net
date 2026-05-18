@@ -71,6 +71,35 @@ Yes — that is a practical and recommended architecture.
 
 Main trade-off: some extra indirection/allocation can occur, but this is usually manageable if wrappers are thin and performance-critical paths can still access lower-level primitives directly.
 
+### Proposed conversion "skills" (automation-ready)
+
+To keep the mechanical port maintainable over time, split automation into focused skills:
+
+1. **Skill A: Initial mechanical convert + provenance stamp**
+   - Input: upstream Java file + target module mapping.
+   - Output: C# file with a required provenance header:
+     - `PDFBOX_SOURCE_PATH`
+     - `PDFBOX_SOURCE_COMMIT`
+     - `PORT_MODE` (`mechanical`/`adapted`)
+     - `PORT_LAST_SYNC_COMMIT`
+2. **Skill B: Upstream change sync (rewrite/update)**
+   - Detect upstream diffs for tracked source files.
+   - Re-run mechanical conversion for changed files.
+   - Preserve local managed regions (if any) and update `PORT_LAST_SYNC_COMMIT`.
+   - Flag conflicts when local adapted code diverges from mechanical baseline.
+3. **Skill C: Upstream delete handling**
+   - If upstream file is deleted, mark mapped C# file as deprecated or remove it based on policy.
+   - Update parity matrix and emit a deletion record for review.
+4. **Skill D: Upstream new-file intake**
+   - Detect newly added upstream files in tracked modules.
+   - Create new mapped C# files with provenance headers.
+   - Add them to backlog/parity tracking automatically.
+5. **Skill E: Traceability + parity report**
+   - Emit a machine-readable report (e.g., JSON/CSV) of source→target mappings and sync state.
+   - Include status categories: `in-sync`, `needs-sync`, `deleted-upstream`, `new-upstream`.
+
+This split keeps each update mode (rewrite/update, delete, add) explicit and auditable.
+
 ## Proposed project plan
 
 ### Phase 0 - Discovery and guardrails (1-2 weeks)
