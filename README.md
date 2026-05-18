@@ -49,6 +49,28 @@ Use a **hybrid phased strategy**:
 
 This reduces initial risk while still converging on an idiomatic .NET library.
 
+## Design notes from review feedback
+
+### Source traceability for one-to-one conversion
+
+Yes — each converted file should include a small provenance header that references the upstream PDFBox source path (and ideally commit SHA) it came from. For example:
+
+- Upstream path: `pdfbox/src/main/java/org/apache/pdfbox/.../Foo.java`
+- Upstream commit: `<sha>`
+- Port status: `mechanical` / `adapted`
+
+This makes later upstream sync work much easier and enables tooling to diff .NET files against their Java origin.
+
+### .NET-feeling wrapper on top of mechanical port
+
+Yes — that is a practical and recommended architecture.
+
+- Keep a lower-level compatibility layer close to PDFBox semantics.
+- Add a higher-level .NET API wrapper that exposes idiomatic types/patterns.
+- Translate exceptions and resource lifetimes at the wrapper boundary.
+
+Main trade-off: some extra indirection/allocation can occur, but this is usually manageable if wrappers are thin and performance-critical paths can still access lower-level primitives directly.
+
 ## Proposed project plan
 
 ### Phase 0 - Discovery and guardrails (1-2 weeks)
