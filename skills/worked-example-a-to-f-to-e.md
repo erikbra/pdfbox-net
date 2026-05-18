@@ -15,7 +15,8 @@ Required header:
 
 ```csharp
 // [Apache 2.0 license header copied verbatim from upstream]
-// This file was converted mechanically to C# using AI.
+// Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+// Mechanically converted from Apache PDFBox Java source with AI assistance.
 // PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java
 // PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 // PORT_MODE: mechanical
