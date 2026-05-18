@@ -18,3 +18,7 @@ This index splits the conversion workflow into small, focused skills.
 - [Skill C - Upstream deletion handling](skills/skill-c-upstream-delete.md)
 - [Skill D - Upstream new-file intake](skills/skill-d-upstream-new-file.md)
 - [Skill E - Traceability and parity reporting](skills/skill-e-traceability-report.md)
+
+## Pilot evaluation
+
+- [Delegated pilot run against Apache PDFBox (`pdfbox` module)](skills/pilot-evaluation-apache-pdfbox.md)
