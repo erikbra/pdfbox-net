@@ -30,5 +30,13 @@
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Initial one-to-one conversion for pilot slice 1"
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Initial mechanical xUnit conversion of upstream RandomAccessReadView tests."
   }
 ]

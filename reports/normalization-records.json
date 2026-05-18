@@ -44,5 +44,17 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Converted class syntax and constructor shape to compilable C# while preserving method behavior intent."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted JUnit assertions/annotations to xUnit and invoked interface default methods through the interface type."
   }
 ]

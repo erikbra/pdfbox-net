@@ -126,6 +126,8 @@ Skill definitions are split into focused files in [`SKILLS.md`](SKILLS.md), incl
   - Skill A conversion records: `reports/conversion-records.json`
   - Skill F normalization records: `reports/normalization-records.json`
   - Skill E traceability/parity report: `reports/traceability-parity-report.json`
+- Converted upstream tests (`io/src/test/...`):
+  - `io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java` -> `tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs` (xUnit)
 
 ### Lessons learned (pilot)
 
