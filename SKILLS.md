@@ -20,7 +20,7 @@ This index splits the conversion workflow into small, focused skills.
 - [Skill D - Upstream new-file intake](skills/skill-d-upstream-new-file.md)
 - [Skill E - Traceability and parity reporting](skills/skill-e-traceability-report.md)
 - [Skill F - Compile-oriented normalization pass](skills/skill-f-compile-oriented-normalization.md)
-- [Worked example - end-to-end flow A->F->E](skills/worked-example-a-to-e.md)
+- [Worked example - end-to-end flow A->F->E](skills/worked-example-a-to-f-to-e.md)
 
 ## Pilot evaluation
 

@@ -9,7 +9,7 @@ Apply a constrained, post-mechanical normalization pass so converted files are c
 
 ## Inputs
 - Mechanically converted C# files (with provenance headers)
-- Current compile diagnostics (for example `dotnet build` output)
+- Current compile diagnostics (such as `dotnet build` output)
 - Mapping/provenance records
 
 ## Output
