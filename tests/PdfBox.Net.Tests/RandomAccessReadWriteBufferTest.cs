@@ -1,4 +1,13 @@
 /*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
+ * PDFBOX_SOURCE_PATH: io/src/test/java/org/apache/pdfbox/io/RandomAccessReadWriteBufferTest.java
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_MODE: mechanical
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ */
+
+/*
  * Copyright 2014 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +22,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
-// Mechanically converted from Apache PDFBox Java source with AI assistance.
-// PDFBOX_SOURCE_PATH: io/src/test/java/org/apache/pdfbox/io/RandomAccessReadWriteBufferTest.java
-// PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
-// PORT_MODE: mechanical
-// PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 
 using System.IO;
 using PdfBox.Net.IO;

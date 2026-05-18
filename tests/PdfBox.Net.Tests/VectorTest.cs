@@ -1,4 +1,9 @@
 /*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Added focused xUnit coverage for the C# port of Apache PDFBox Vector behavior.
+ */
+
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,9 +19,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
-// Added focused xUnit coverage for the C# port of Apache PDFBox Vector behavior.
 
 using PdfBox.Net.Util;
 using Xunit;
