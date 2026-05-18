@@ -95,7 +95,12 @@ public class SequenceRandomAccessRead : RandomAccessRead
 
     private RandomAccessRead GetCurrentReader()
     {
-        if (_currentRandomAccessRead!.IsEOF() && _currentIndex < _numberOfReader - 1)
+        if (_currentRandomAccessRead is null)
+        {
+            throw new IOException("No current reader available");
+        }
+
+        if (_currentRandomAccessRead.IsEOF() && _currentIndex < _numberOfReader - 1)
         {
             _currentIndex++;
             _currentRandomAccessRead = _readerList[_currentIndex];
@@ -210,7 +215,7 @@ public class SequenceRandomAccessRead : RandomAccessRead
     {
         if (_isClosed)
         {
-            throw new IOException("RandomAccessBuffer already closed");
+            throw new IOException("SequenceRandomAccessRead already closed");
         }
     }
 
