@@ -145,17 +145,8 @@ public class RandomAccessReadBuffer : RandomAccessRead
             return Array.Empty<byte>();
         }
 
-        if (input.Array is not null && input.Offset == 0 && input.Count == input.Array.Length)
-        {
-            return input.Array;
-        }
-
         byte[] copy = new byte[input.Count];
-        if (input.Array is not null)
-        {
-            Array.Copy(input.Array, input.Offset, copy, 0, input.Count);
-        }
-
+        Array.Copy(input.Array!, input.Offset, copy, 0, input.Count);
         return copy;
     }
 
