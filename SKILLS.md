@@ -11,6 +11,8 @@ This index splits the conversion workflow into small, focused skills.
    - **Skill D** for newly added upstream files
 3. Run **Skill F** to apply compile-oriented normalization where needed.
 4. Run **Skill E** after updates/normalization to produce traceability/parity status.
+5. Consult **Skill G** whenever the Java source uses NIO, `BitSet`, `LinkedHashMap` LRU,
+   `IOUtils`, Log4j, or any other API with a non-obvious C# mapping.
 
 ## Skill files
 
@@ -20,6 +22,7 @@ This index splits the conversion workflow into small, focused skills.
 - [Skill D - Upstream new-file intake](skills/skill-d-upstream-new-file.md)
 - [Skill E - Traceability and parity reporting](skills/skill-e-traceability-report.md)
 - [Skill F - Compile-oriented normalization pass](skills/skill-f-compile-oriented-normalization.md)
+- [Skill G - Java → C# API and type mapping reference](skills/skill-g-java-csharp-api-mappings.md)
 - [Worked example - end-to-end flow A->F->E](skills/worked-example-a-to-f-to-e.md)
 
 ## Pilot evaluation

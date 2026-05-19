@@ -28,16 +28,30 @@ Create a first-pass C# file from an upstream PDFBox Java file and stamp required
 - Prefer preserving upstream inline test data setup over refactoring/extracting helpers when doing mechanical test conversions.
 - **Closeable → IDisposable**: Java's `java.io.Closeable` maps to .NET's `System.IDisposable`. Any interface or class extending `Closeable` in Java must also extend `IDisposable` in C#. Add a default implementation `void IDisposable.Dispose() => Close();` to the C# interface so concrete classes satisfy `IDisposable` automatically through the interface default method. If multiple `IDisposable`-bearing interfaces are combined (e.g. a read+write super-interface), only one of them should provide the default `Dispose()` implementation to avoid diamond ambiguity — typically the read interface.
 - **Header blank line**: In the provenance comment block at the top of each mechanically converted file, add a blank comment line (` *`) immediately after the "Mechanically converted..." line and before the `PDFBOX_SOURCE_*` fields.
+- **API/type substitutions**: Before starting the conversion, consult **Skill G** for the authoritative Java→C# mapping table. Critical areas: `java.nio.ByteBuffer`, `FileChannel`, memory-mapped files, `BitSet`, `LinkedHashMap` LRU cache, `IOUtils`, threading helpers, exception types, and test assertion char-literal widening.
 
 ## Required provenance header format
-Place this block at the top of every converted C# file (after license header and AI conversion note):
+Place this block at the **very top** of every converted C# file, before the Apache license header:
 
 ```csharp
-// PDFBOX_SOURCE_PATH: <upstream relative path>
-// PDFBOX_SOURCE_COMMIT: <upstream commit sha>
-// PORT_MODE: mechanical|adapted
-// PORT_LAST_SYNC_COMMIT: <upstream commit sha>
+/*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
+ *
+ * PDFBOX_SOURCE_PATH: <upstream relative path>
+ * PDFBOX_SOURCE_COMMIT: <upstream commit sha>
+ * PORT_MODE: mechanical|adapted
+ * PORT_LAST_SYNC_COMMIT: <upstream commit sha>
+ */
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. ...
+ */
 ```
+
+> **Note**: all existing C# files in this port use block comment (`/* ... */`) format.
+> Do **not** use single-line `//` comments for the provenance block.
 
 ## Required conversion record fields (per file)
 - `source_path`
