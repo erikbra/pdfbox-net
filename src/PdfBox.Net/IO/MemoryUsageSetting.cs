@@ -41,7 +41,6 @@ public sealed class MemoryUsageSetting
     private DirectoryInfo? _tempDir;
 
     public readonly RandomAccessStreamCache.StreamCacheCreateFunction StreamCache;
-    public RandomAccessStreamCache.StreamCacheCreateFunction streamCache => StreamCache;
 
     private MemoryUsageSetting(bool useMainMemory, bool useTempFile, long maxMainMemoryBytes, long maxStorageBytes)
     {
