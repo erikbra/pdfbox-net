@@ -78,5 +78,77 @@
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Initial pdfbox utility port for a low-fanout leaf type to seed the broader pdfbox conversion backlog."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSObjectable.java",
+    "target_path": "src/PdfBox.Net/COS/COSObjectable.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported low-dependency COS objectability interface to support foundational COS primitives."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java",
+    "target_path": "src/PdfBox.Net/COS/ICOSVisitor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Initial visitor interface slice constrained to currently ported low-dependency COS primitives."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObjectKey.java",
+    "target_path": "src/PdfBox.Net/COS/COSObjectKey.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported indirect object identity value type used by COSBase and parser-facing references."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBase.java",
+    "target_path": "src/PdfBox.Net/COS/COSBase.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added foundational COS base class with direct/indirect metadata support."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNumber.java",
+    "target_path": "src/PdfBox.Net/COS/COSNumber.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported numeric primitive abstraction and parser-side number factory."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInteger.java",
+    "target_path": "src/PdfBox.Net/COS/COSInteger.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported integer primitive including PDFBox static cache window and invalid-range sentinels."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSFloat.java",
+    "target_path": "src/PdfBox.Net/COS/COSFloat.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported float primitive including malformed lexical recovery cases from upstream PDFBOX fixes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBoolean.java",
+    "target_path": "src/PdfBox.Net/COS/COSBoolean.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported boolean primitive singleton instances and PDF serialization output."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
+    "target_path": "src/PdfBox.Net/COS/COSNull.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported null primitive singleton and PDF serialization output."
   }
 ]

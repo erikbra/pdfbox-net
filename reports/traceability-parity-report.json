@@ -158,5 +158,105 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-19T18:58:00Z",
     "note": "xUnit v3 port of upstream JUnit tests; test resources generated inline as temp files rather than embedded classpath resources."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSObjectable.java",
+    "target_path": "src/PdfBox.Net/COS/COSObjectable.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Low-dependency COS interface needed by COSBase and higher PD model layers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java",
+    "target_path": "src/PdfBox.Net/COS/ICOSVisitor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Visitor methods currently include only the COS primitive types ported in this low-dependency slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObjectKey.java",
+    "target_path": "src/PdfBox.Net/COS/COSObjectKey.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Indirect object reference key type for COS graph identity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBase.java",
+    "target_path": "src/PdfBox.Net/COS/COSBase.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Foundational base type for all COS entities, including direct/indirect metadata."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNumber.java",
+    "target_path": "src/PdfBox.Net/COS/COSNumber.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Abstract numeric primitive and lexical numeric factory used by parser slices."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInteger.java",
+    "target_path": "src/PdfBox.Net/COS/COSInteger.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Integer primitive with static cache window and invalid sentinel support."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSFloat.java",
+    "target_path": "src/PdfBox.Net/COS/COSFloat.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Float primitive with malformed lexical fallback cases from upstream PDFBOX fixes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBoolean.java",
+    "target_path": "src/PdfBox.Net/COS/COSBoolean.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Boolean primitive singleton values and PDF serialization tokens."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
+    "target_path": "src/PdfBox.Net/COS/COSNull.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Null primitive singleton representation."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSPrimitivesTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Focused xUnit coverage for new COS leaf primitives and interfaces."
   }
 ]

@@ -116,5 +116,120 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Straight mechanical conversion of a low-dependency pdfbox utility class."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSObjectable.java",
+    "target_path": "src/PdfBox.Net/COS/COSObjectable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted Java interface declaration and namespaced COSBase dependency into the C# COS namespace slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java",
+    "target_path": "src/PdfBox.Net/COS/ICOSVisitor.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Scoped visitor methods to the currently ported primitive COS set to keep this low-dependency stage compilable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObjectKey.java",
+    "target_path": "src/PdfBox.Net/COS/COSObjectKey.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped unsigned right-shift semantics to C# via ulong conversion for object number extraction."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBase.java",
+    "target_path": "src/PdfBox.Net/COS/COSBase.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Nullability annotations adapted for C#"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Preserved direct object and key metadata while adapting nullable key handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNumber.java",
+    "target_path": "src/PdfBox.Net/COS/COSNumber.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Exception and regex handling adapted to .NET APIs"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped Java parse/error branches to C# parse exceptions while retaining PDFBOX-592 handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInteger.java",
+    "target_path": "src/PdfBox.Net/COS/COSInteger.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Byte output APIs adapted to .NET Stream"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Preserved integer cache window and invalid value sentinels while mapping writePDF to Stream.Write."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSFloat.java",
+    "target_path": "src/PdfBox.Net/COS/COSFloat.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Malformed numeric recovery patterns adapted to .NET regex/string APIs"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Retained malformed input recovery cases and range coercion behavior while adapting float formatting and serialization to .NET."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBoolean.java",
+    "target_path": "src/PdfBox.Net/COS/COSBoolean.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Preserved singleton semantics and identity-based equality behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
+    "target_path": "src/PdfBox.Net/COS/COSNull.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ported singleton null object and byte-level PDF serialization verbatim."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSPrimitivesTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for new COS primitives"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "No upstream direct equivalent test file exists; this test exercises each newly added COS primitive/entity."
   }
 ]
