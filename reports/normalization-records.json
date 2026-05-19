@@ -238,7 +238,7 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "FilterOutputStream inheritance adapted to .NET Stream override pattern"
+        "FilterOutputStream inheritance adapted to .NET Stream overriding pattern"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
