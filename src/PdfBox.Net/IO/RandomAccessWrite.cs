@@ -25,8 +25,6 @@
  * limitations under the License.
  */
 
-using System;
-
 namespace PdfBox.Net.IO;
 
 /// <summary>
