@@ -24,6 +24,12 @@ Apply a constrained, post-mechanical normalization pass so converted files are c
 - Exception/using/disposable pattern adjustments only when required to compile.
 - Framework/test harness upgrades required by repository policy (for example .NET target framework updates and xUnit major version migration).
 - **Closeable → IDisposable**: Java's `java.io.Closeable` maps to .NET's `System.IDisposable`. Any interface extending `Closeable` must also extend `IDisposable`. Add a default `void IDisposable.Dispose() => Close();` to the interface so implementing classes get `IDisposable` for free. When multiple `IDisposable`-bearing interfaces are combined in one super-interface, only one should carry the default `Dispose()` implementation to avoid C# diamond-inheritance errors.
+- **java.nio.ByteBuffer / FileChannel → byte[] / FileStream**: Replace `ByteBuffer` position/limit/flip semantics with explicit index variables on `byte[]` arrays. Replace `FileChannel` with `FileStream`. See **Skill G §§2–4** for the complete substitution table.
+- **java.util.BitSet → custom int[] bit-array**: .NET's `System.Collections.BitArray` has no `NextSetBit(from)` equivalent. Replace with a custom `int[]`-backed helper set. See **Skill G §5**.
+- **java.util.LinkedHashMap with removeEldestEntry (LRU) → custom LruCache class**: Implement as a nested `private sealed class` using `Dictionary<K, LinkedListNode<(K,V)>>` + `LinkedList<(K,V)>`. See **Skill G §6**.
+- **java.io.RandomAccessFile → FileStream with FileOptions.RandomAccess**: See **Skill G §1**.
+- **Memory-mapped files — empty file guard**: `MemoryMappedFile.CreateFromFile` throws for zero-length files. Add `if (_size > 0)` guard and explicit `_isClosed` flag. See **Skill G §4**.
+- **Test assertion char-literal widening**: `Assert.Equal('A', reader.Read())` does not compile in xUnit v3 (no implicit char→int widening). Cast to `(int)'A'` for `int`-returning methods or `(byte)'A'` for `byte[]` element comparisons. See **Skill G §14**.
 
 ## Disallowed changes in this skill
 - Functional redesign of behavior.

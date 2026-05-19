@@ -14,13 +14,20 @@ Output file: `src/PdfBox/Util/Vector.cs`
 Required header:
 
 ```csharp
-// [Apache 2.0 license header copied verbatim from upstream]
-// Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
-// Mechanically converted from Apache PDFBox Java source with AI assistance.
-// PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java
-// PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
-// PORT_MODE: mechanical
-// PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+/*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
+ *
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_MODE: mechanical
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ */
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. ...
+ */
 ```
 
 Skill A record example:
