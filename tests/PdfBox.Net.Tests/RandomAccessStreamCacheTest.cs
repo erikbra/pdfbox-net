@@ -1,10 +1,8 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Mechanically converted from Apache PDFBox Java source with AI assistance.
- * PDFBOX_SOURCE_PATH: io/src/test/java/org/apache/pdfbox/io/RandomAccessStreamCacheTest.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ *
+ * Added focused xUnit coverage for the C# port of Apache PDFBox RandomAccessStreamCache behavior.
+ * No direct equivalent test file exists in the upstream Apache PDFBox source.
  */
 
 /*

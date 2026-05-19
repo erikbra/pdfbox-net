@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ *
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  * PDFBOX_SOURCE_PATH: io/src/main/java/org/apache/pdfbox/io/RandomAccessStreamCache.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -23,12 +24,14 @@
  * limitations under the License.
  */
 
+using System;
+
 namespace PdfBox.Net.IO;
 
 /// <summary>
 /// An interface describing a StreamCache to be used when creating/writing streams of a PDF.
 /// </summary>
-public interface RandomAccessStreamCache
+public interface RandomAccessStreamCache : IDisposable
 {
     /// <summary>
     /// A delegate for creating an instance of a <see cref="RandomAccessStreamCache"/>.
@@ -48,4 +51,6 @@ public interface RandomAccessStreamCache
     /// Closes this stream cache and releases any system resources associated with it.
     /// </summary>
     void Close();
+
+    void IDisposable.Dispose() => Close();
 }

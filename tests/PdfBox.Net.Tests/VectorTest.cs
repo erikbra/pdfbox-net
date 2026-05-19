@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ *
  * Added focused xUnit coverage for the C# port of Apache PDFBox Vector behavior.
  */
 
