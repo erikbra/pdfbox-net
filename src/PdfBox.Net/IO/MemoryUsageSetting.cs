@@ -75,7 +75,9 @@ public sealed class MemoryUsageSetting
         _useTempFile = useTempFile;
         _maxMainMemoryBytes = locMaxMainMemoryBytes;
         _maxStorageBytes = locMaxStorageBytes;
-        StreamCache = () => new InMemoryRandomAccessStreamCache();
+        StreamCache = useTempFile
+            ? () => new ScratchFile(this)
+            : () => new InMemoryRandomAccessStreamCache();
     }
 
     public static MemoryUsageSetting SetupMainMemoryOnly()

@@ -98,5 +98,65 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-18T21:48:54Z",
     "note": "First pdfbox utility leaf port used to seed the wider pdfbox conversion backlog."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/ScratchFile.java",
+    "target_path": "src/PdfBox.Net/IO/ScratchFile.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "File-backed page-handler implementing RandomAccessStreamCache; replaces in-memory-only StreamCache when useTempFile=true in MemoryUsageSetting."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/ScratchFileBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/ScratchFileBuffer.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "Page-based RandomAccess implementation backed by ScratchFile."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBufferedFile.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadBufferedFile.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "LRU-cached file-backed RandomAccessRead; Java ByteBuffer/FileChannel adapted to FileStream+byte-array page cache."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadMemoryMappedFile.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadMemoryMappedFile.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "Memory-mapped file RandomAccessRead using System.IO.MemoryMappedFiles; handles empty-file edge case absent from Java due to platform differences."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferedFileTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadBufferedFileTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "xUnit v3 port of upstream JUnit tests; test resources generated inline as temp files rather than embedded classpath resources."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadMemoryMappedFileTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadMemoryMappedFileTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "xUnit v3 port of upstream JUnit tests; test resources generated inline as temp files rather than embedded classpath resources."
   }
 ]
