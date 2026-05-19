@@ -26,6 +26,8 @@ Create a first-pass C# file from an upstream PDFBox Java file and stamp required
 - Keep the Apache license block verbatim and place it before provenance metadata.
 - Keep the copyright + AI conversion notice separate from the license text.
 - Prefer preserving upstream inline test data setup over refactoring/extracting helpers when doing mechanical test conversions.
+- **Closeable → IDisposable**: Java's `java.io.Closeable` maps to .NET's `System.IDisposable`. Any interface or class extending `Closeable` in Java must also extend `IDisposable` in C#. Add a default implementation `void IDisposable.Dispose() => Close();` to the C# interface so concrete classes satisfy `IDisposable` automatically through the interface default method. If multiple `IDisposable`-bearing interfaces are combined (e.g. a read+write super-interface), only one of them should provide the default `Dispose()` implementation to avoid diamond ambiguity — typically the read interface.
+- **Header blank line**: In the provenance comment block at the top of each mechanically converted file, add a blank comment line (` *`) immediately after the "Mechanically converted..." line and before the `PDFBOX_SOURCE_*` fields.
 
 ## Required provenance header format
 Place this block at the top of every converted C# file (after license header and AI conversion note):

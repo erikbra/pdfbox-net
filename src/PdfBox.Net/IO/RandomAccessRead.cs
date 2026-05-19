@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
+ *
  * PDFBOX_SOURCE_PATH: io/src/main/java/org/apache/pdfbox/io/RandomAccessRead.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
@@ -32,7 +33,7 @@ namespace PdfBox.Net.IO;
 /// <summary>
 /// An interface allowing random access read operations.
 /// </summary>
-public interface RandomAccessRead
+public interface RandomAccessRead : IDisposable
 {
     /// <summary>
     /// Read a single byte of data.
@@ -180,4 +181,6 @@ public interface RandomAccessRead
     }
 
     void Close();
+
+    void IDisposable.Dispose() => Close();
 }

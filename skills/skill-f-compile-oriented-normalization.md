@@ -23,6 +23,7 @@ Apply a constrained, post-mechanical normalization pass so converted files are c
 - Primitive/collection/type alias fixes required by C# type system.
 - Exception/using/disposable pattern adjustments only when required to compile.
 - Framework/test harness upgrades required by repository policy (for example .NET target framework updates and xUnit major version migration).
+- **Closeable → IDisposable**: Java's `java.io.Closeable` maps to .NET's `System.IDisposable`. Any interface extending `Closeable` must also extend `IDisposable`. Add a default `void IDisposable.Dispose() => Close();` to the interface so implementing classes get `IDisposable` for free. When multiple `IDisposable`-bearing interfaces are combined in one super-interface, only one should carry the default `Dispose()` implementation to avoid C# diamond-inheritance errors.
 
 ## Disallowed changes in this skill
 - Functional redesign of behavior.
