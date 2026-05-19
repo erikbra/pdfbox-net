@@ -150,5 +150,13 @@
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Ported null primitive singleton and PDF serialization output."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSStandardOutputStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Initial pdfwriter-layer leaf stream port with position and newline formatting helpers for pretty PDF output generation."
   }
 ]
