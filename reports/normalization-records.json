@@ -231,5 +231,28 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "No upstream direct equivalent test file exists; this test exercises each newly added COS primitive/entity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSStandardOutputStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+        "FilterOutputStream inheritance adapted to .NET Stream overriding pattern"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped Java FilterOutputStream behavior to a Stream wrapper while preserving position tracking and newline suppression semantics."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSStandardOutputStreamTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for new pdfwriter stream primitive"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "No upstream direct equivalent test file exists; coverage validates position accounting and EOL/newline state behavior."
   }
 ]
