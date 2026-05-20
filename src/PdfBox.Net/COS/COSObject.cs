@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/COSObject.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -27,19 +27,53 @@
 
 namespace PdfBox.Net.COS;
 
-/// <summary>
-/// An interface for visiting COS primitives.
-/// </summary>
-public interface ICOSVisitor
+public class COSObject : COSBase
 {
-    void VisitFromArray(COSArray obj);
-    void VisitFromBoolean(COSBoolean obj);
-    void VisitFromDictionary(COSDictionary obj);
-    void VisitFromFloat(COSFloat obj);
-    void VisitFromInt(COSInteger obj);
-    void VisitFromName(COSName obj);
-    void VisitFromNull(COSNull obj);
-    void VisitFromObject(COSObject obj);
-    void VisitFromStream(COSStream obj);
-    void VisitFromString(COSString obj);
+    private COSBase? _baseObject;
+
+    public COSObject(COSBase? obj)
+    {
+        _baseObject = obj;
+    }
+
+    public COSObject(COSBase? obj, COSObjectKey objectKey)
+    {
+        _baseObject = obj;
+        SetKey(objectKey);
+    }
+
+    public COSObject(COSObjectKey key)
+    {
+        SetKey(key);
+    }
+
+    public bool IsObjectNull()
+    {
+        return _baseObject is null;
+    }
+
+    public COSBase? GetObject()
+    {
+        return _baseObject;
+    }
+
+    public void SetObject(COSBase? baseObject)
+    {
+        _baseObject = baseObject;
+    }
+
+    public void SetToNull()
+    {
+        _baseObject = COSNull.NULL;
+    }
+
+    public override string ToString()
+    {
+        return $"COSObject{{{GetKey()}}}";
+    }
+
+    public override void Accept(ICOSVisitor visitor)
+    {
+        visitor.VisitFromObject(this);
+    }
 }
