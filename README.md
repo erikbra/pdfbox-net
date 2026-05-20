@@ -168,29 +168,17 @@ The full upstream `io` and `pdfbox` folders are too large for a single PR, so th
   - AWT/ImageIO dependencies in rendering and image filters
   - `BigDecimal` formatting semantics in numeric COS tests
 
-### Suggested staged sub-issues
+### Re-evaluated execution chunks (aligned to issue planning)
 
-1. **Finish low-fanout `io` in-memory classes/tests**
-   - `RandomAccessReadWriteBuffer`
-   - `RandomAccessStreamCache`
-   - `SequenceRandomAccessRead`
-2. **Finish `io` adapters/configuration**
-   - `MemoryUsageSetting`
-   - `RandomAccessInputStream`
-   - `RandomAccessOutputStream`
-3. **Finish `io` file-backed implementations**
-   - `ScratchFile`
-   - `ScratchFileBuffer`
-   - `RandomAccessReadBufferedFile`
-   - `RandomAccessReadMemoryMappedFile`
-4. **Start `pdfbox` with leaf utilities and COS primitives**
-   - `pdfbox/util/*` low-dependency helpers such as `Vector`
-   - `pdfbox/cos/*` interfaces/value types before containers and streams
-5. **Climb to parser/writer layers only after `io` + `cos` stabilize**
-   - `filter`
-   - `pdfparser`
-   - `pdfwriter`
-   - `pdmodel`, `text`, `rendering` last
+The next-stage roadmap is now tracked in [`issues/4-next-stage-conversion-plan.md`](issues/4-next-stage-conversion-plan.md), which keeps the same dependency-first intent from this README while replacing older micro-slices with larger chunked milestones:
+
+1. Complete COS foundation set (`pdfbox/cos` containers + primitives + stream-adjacent types).
+2. Build parser/writer low-level bridge (`filter`, `pdfparser`, `pdfwriter` required subset).
+3. Deliver minimal `pdmodel` open/inspect/save document pipeline.
+4. Expand functional parity by feature package (metadata, outlines/forms, text baseline).
+5. Harden regression/sync workflow maturity and repeatability.
+
+Course decision: stay on the current direction (mechanical parity first, then feature expansion), but execute through these chunk boundaries to improve dependency safety and reviewability.
 
 ### Conventions and automation to keep using
 
