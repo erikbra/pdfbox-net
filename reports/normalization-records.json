@@ -405,5 +405,40 @@
     "semantic_risk": "medium",
     "compiles_after_change": true,
     "note": "Converted unfiltered COSStream behavior tests and deferred filter-encoding cases to parser/writer filter chunk due missing filter stack in current scope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Low-level tokenization/parser subset adapted from upstream BaseParser to C# stream and lookahead semantics",
+      "Literal/hex string and comment handling aligned to PDF lexical rules needed for deterministic roundtrip tests"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implemented a bounded parser subset (names, strings, arrays, dictionaries, booleans, null, numbers) required for chunk-2 object flow without high-level document parsing orchestration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Low-level writer subset added as deterministic serializer bridge",
+      "Java writer orchestration scope intentionally reduced to direct COS value emission for this chunk"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added minimal serialization entry point that reuses existing COS type writers and COSStandardOutputStream behavior."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/ParserWriterRoundtripTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for parser/writer deterministic roundtrip scope"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Coverage validates token/object parse-serialize-parse determinism and whitespace/comment tolerance for representative small fixtures."
   }
 ]
