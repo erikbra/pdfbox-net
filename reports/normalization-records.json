@@ -259,12 +259,11 @@
     "target_path": "src/PdfBox.Net/COS/PDFDocEncoding.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Encoding APIs adapted to .NET Latin1 primitives"
+      "Initial simplified Latin1 placeholder replaced with upstream table-driven PDFDocEncoding mapping"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Implemented a minimal PDFDocEncoding mapping via Encoding.Latin1 for this foundational slice; broader glyph table parity can be expanded in later chunks if required."
+    "note": "Now follows upstream table-based mapping behavior for both encoding and decoding paths."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
@@ -347,5 +346,64 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "No direct upstream equivalent test file exists; this test validates serialization and roundtrip interactions across the new COS foundation types."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSArray.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSArray.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Java collection initializers adapted to C# list/collection expressions"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream COSArray test coverage with direct parity assertions for container/list conversion semantics."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSName.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSName.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "PDModel-dependent integration checks adapted to COS-layer unit checks"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped upstream COSName escape-sequence behaviors to direct COSName/COSDictionary assertions in the current dependency scope."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSDictionaryTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/COSDictionaryTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Straight conversion of dictionary-vs-stream inequality regression check."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSString.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSString.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "COSWriter-dependent checks adapted to direct COSString.WritePDF assertions"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted core COSString behavior tests while adapting writer integration assertions to the currently ported API surface."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSStream.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Filter-dependent coverage deferred until filter layer conversion"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Converted unfiltered COSStream behavior tests and deferred filter-encoding cases to parser/writer filter chunk due missing filter stack in current scope."
   }
 ]

@@ -165,7 +165,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added PDFDocEncoding helper used by COSString text/binary encoding paths in this foundational COS slice."
+    "conversion_notes": "Updated to full table-driven PDFDocEncoding parity mapping (code-to-unicode and unicode-to-code) from upstream implementation."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
@@ -222,5 +222,45 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Added focused xUnit coverage for COS container/value/stream-adjacent behavior and visitor completeness in chunk-1 scope."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSArray.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSArray.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical xUnit conversion of upstream TestCOSArray for COSArray container behavior parity."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSName.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSName.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted xUnit conversion of upstream TestCOSName focused on COSName key encoding/escaping scenarios available in this layer."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSDictionaryTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/COSDictionaryTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical xUnit conversion of upstream COSDictionaryTest covering dictionary-vs-stream inequality behavior."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSString.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSString.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted xUnit conversion of upstream TestCOSString covering hex/literal forms, parsing, equality/hash, BOM, and unicode handling in this layer."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSStream.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted xUnit conversion of upstream TestCOSStream for unfiltered stream encode/decode, close behavior, and hasData semantics in this layer."
   }
 ]

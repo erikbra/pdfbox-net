@@ -34,6 +34,11 @@ public sealed class COSName : COSBase, IComparable<COSName>
 {
     private static readonly ConcurrentDictionary<string, COSName> NameMap = new(StringComparer.Ordinal);
 
+    public static readonly COSName A = GetPDFName("A");
+    public static readonly COSName B = GetPDFName("B");
+    public static readonly COSName BE = GetPDFName("BE");
+    public static readonly COSName C = GetPDFName("C");
+    public static readonly COSName D = GetPDFName("D");
     public static readonly COSName EMPTY = GetPDFName(string.Empty);
     public static readonly COSName FILTER = GetPDFName("Filter");
     public static readonly COSName LENGTH = GetPDFName("Length");

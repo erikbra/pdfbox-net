@@ -76,6 +76,16 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
         _objects.Clear();
     }
 
+    public void RemoveAll(ICollection<COSBase> objectsList)
+    {
+        _objects.RemoveAll(o => o is not null && objectsList.Contains(o));
+    }
+
+    public void RetainAll(ICollection<COSBase> objectsList)
+    {
+        _objects.RemoveAll(o => o is null || !objectsList.Contains(o));
+    }
+
     public void AddAll(IEnumerable<COSBase?> objectList)
     {
         foreach (COSBase? obj in objectList)

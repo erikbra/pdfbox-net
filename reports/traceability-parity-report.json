@@ -286,8 +286,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-20T04:58:00Z",
-    "note": "Foundational PDFDocEncoding helper introduced for COSString behavior in COS chunk 1."
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Updated to full table-driven upstream PDFDocEncoding mapping parity."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
@@ -358,5 +358,55 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-20T04:58:00Z",
     "note": "Focused test coverage for COS containers/streams plus visitor completeness and serialization roundtrip interactions."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSArray.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSArray.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Upstream TestCOSArray converted to xUnit for COSArray container parity checks."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSName.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSName.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Upstream TestCOSName converted with COS-layer adaptations for key encoding and escaped name serialization."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSDictionaryTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/COSDictionaryTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Upstream COSDictionaryTest converted to xUnit."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSString.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSString.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Upstream TestCOSString converted with direct COSString writer assertions."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSStream.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Unfiltered stream behavior tests converted; filter-dependent scenarios deferred until filter stack conversion."
   }
 ]
