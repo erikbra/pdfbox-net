@@ -192,7 +192,7 @@ public sealed class COSParser
 
     private COSBase ReadLiteralString()
     {
-        List<byte> bytes = [];
+        List<byte> bytes = new(capacity: 64);
         int nesting = 1;
         while (nesting > 0)
         {
