@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/PDFDocEncoding.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -25,21 +25,26 @@
  * limitations under the License.
  */
 
+using System.Text;
+
 namespace PdfBox.Net.COS;
 
-/// <summary>
-/// An interface for visiting COS primitives.
-/// </summary>
-public interface ICOSVisitor
+public static class PDFDocEncoding
 {
-    void VisitFromArray(COSArray obj);
-    void VisitFromBoolean(COSBoolean obj);
-    void VisitFromDictionary(COSDictionary obj);
-    void VisitFromFloat(COSFloat obj);
-    void VisitFromInt(COSInteger obj);
-    void VisitFromName(COSName obj);
-    void VisitFromNull(COSNull obj);
-    void VisitFromObject(COSObject obj);
-    void VisitFromStream(COSStream obj);
-    void VisitFromString(COSString obj);
+    private static readonly Encoding Latin1 = Encoding.Latin1;
+
+    public static bool ContainsChar(char c)
+    {
+        return c <= 0x00FF;
+    }
+
+    public static byte[] GetBytes(string text)
+    {
+        return Latin1.GetBytes(text);
+    }
+
+    public static string ToString(byte[] bytes)
+    {
+        return Latin1.GetString(bytes);
+    }
 }

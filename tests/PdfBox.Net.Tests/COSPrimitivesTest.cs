@@ -175,10 +175,33 @@ public class COSPrimitivesTest
 
     private sealed class RecordingVisitor : ICOSVisitor
     {
+        public void VisitFromArray(COSArray obj)
+        {
+        }
+
         public int BooleanVisited { get; private set; }
+        public void VisitFromDictionary(COSDictionary obj)
+        {
+        }
+
         public int FloatVisited { get; private set; }
         public int IntVisited { get; private set; }
+        public void VisitFromName(COSName obj)
+        {
+        }
+
         public int NullVisited { get; private set; }
+        public void VisitFromObject(COSObject obj)
+        {
+        }
+
+        public void VisitFromStream(COSStream obj)
+        {
+        }
+
+        public void VisitFromString(COSString obj)
+        {
+        }
 
         public void VisitFromBoolean(COSBoolean obj)
         {
