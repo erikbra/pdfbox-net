@@ -18,6 +18,11 @@ Produce auditable status for source-to-target mappings and sync health.
 
 ## Notes
 - Run after Skills B/C/D to publish current project sync state.
+- For each completed conversion chunk, add a short QA assessment artifact that explicitly covers:
+  - upstream-test parity for each completed production class (`converted`, `deferred`, or `missing` with reason),
+  - source-to-port similarity confidence (mechanical vs adapted areas),
+  - any report-row gaps (converted files/tests missing from conversion/traceability records).
+- Do not mark a chunk "done" until deferred/missing upstream tests and report-row gaps are listed explicitly in the QA assessment.
 
 ## Required report schema
 Each report row/object must contain:
