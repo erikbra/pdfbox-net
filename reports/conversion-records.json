@@ -262,5 +262,29 @@
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Adapted xUnit conversion of upstream TestCOSStream for unfiltered stream encode/decode, close behavior, and hasData semantics in this layer."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added low-level token/object parser bridge adapted from upstream BaseParser semantics for dictionary/array/name/string/number/null/boolean COS parsing roundtrip scope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added minimal low-level writer bridge for deterministic COS object serialization, reusing existing COS serialization and COSStandardOutputStream."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/ParserWriterRoundtripTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Added focused parser/writer roundtrip coverage for deterministic token/object parse-serialize-parse behavior on small fixtures and comment/whitespace handling, and adapted upstream COSWriterTest testPDFBox4321 intent to verify writer does not close the caller-provided output stream."
   }
 ]

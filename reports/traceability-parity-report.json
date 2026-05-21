@@ -408,5 +408,35 @@
     "status": "partially-in-sync",
     "last_checked_utc": "2026-05-20T05:58:00Z",
     "note": "Unfiltered stream behavior tests converted; filter-dependent scenarios deferred until filter stack conversion."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-20T23:27:00Z",
+    "note": "Low-level parser subset ported for token/object flow (comments, names, strings, arrays, dictionaries, booleans, null, numbers); broader parser orchestration remains out of chunk-2 scope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-20T23:27:00Z",
+    "note": "Added deterministic low-level COS object serializer bridge; full PDF document/xref/trailer writer orchestration remains deferred."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/ParserWriterRoundtripTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-21T04:29:00Z",
+    "note": "Focused parser/writer roundtrip tests validate deterministic object parse/serialize flow on representative small fixtures, including an adapted COSWriterTest testPDFBox4321 check that writer usage does not close caller-managed output streams."
   }
 ]
