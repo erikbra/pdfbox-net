@@ -440,5 +440,53 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Coverage validates token/object parse-serialize-parse determinism and whitespace/comment tolerance for representative small fixtures, and includes an adaptation of COSWriterTest testPDFBox4321 to assert the writer does not close caller-owned output streams."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentInformation.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Date-related metadata methods intentionally omitted in this minimal chunk due missing COS date helpers in current dependency slice"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ported string-based document information metadata accessors required for minimal open/inspect/save pipeline coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "High-fanout catalog dependencies trimmed to minimal chunk-3 inspection subset",
+      "Version/page inspection scoped to existing COS container accessors"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added minimal catalog wrapper for type/version/page-count inspection aligned with the current parser/writer base."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "High-level document orchestration reduced to chunk-3 minimal lifecycle over COS parser/writer",
+      "Ownership/disposal behavior adapted to .NET IDisposable model"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implements minimal load/inspect/save pipeline with default root/info scaffolding and deterministic serialization."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentPipelineTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Test scope adapted to deterministic fixture-based minimal pipeline in current chunk"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ports save/load stream and save/load file testing intent to smoke tests validating open->inspect->save behavior."
   }
 ]

@@ -286,5 +286,37 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Added focused parser/writer roundtrip coverage for deterministic token/object parse-serialize-parse behavior on small fixtures and comment/whitespace handling, and adapted upstream COSWriterTest testPDFBox4321 intent to verify writer does not close the caller-provided output stream."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentInformation.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported core document info dictionary wrapper subset for metadata inspection/update in the minimal chunk-3 open/inspect/save pipeline."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported minimal catalog wrapper subset (type/version/page-count inspection) needed by the chunk-3 smoke pipeline."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added minimal PDDocument open/load/save lifecycle over existing COS parser/writer bridge, including default root/info scaffolding for deterministic pipeline execution."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentPipelineTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted save/load stream and save/load file testing intent from TestPDDocument into deterministic chunk-3 smoke coverage for open->inspect->save regression checks."
   }
 ]

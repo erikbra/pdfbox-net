@@ -438,5 +438,45 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-21T04:29:00Z",
     "note": "Focused parser/writer roundtrip tests validate deterministic object parse/serialize flow on representative small fixtures, including an adapted COSWriterTest testPDFBox4321 check that writer usage does not close caller-managed output streams."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentInformation.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-21T05:27:01Z",
+    "note": "String-based document metadata accessors ported for minimal pipeline; date/trapped/full parity remains outside this chunk."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-21T05:27:01Z",
+    "note": "Minimal catalog subset ported for type/version/page-count inspection; high-fanout catalog features intentionally deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-21T05:27:01Z",
+    "note": "Minimal open/load/save lifecycle ported over existing COS parser/writer bridge; full PDF object/xref parsing and full document feature parity deferred."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentPipelineTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-21T05:27:01Z",
+    "note": "Adapted stream/file save-load test intent to deterministic fixture-based open->inspect->save smoke checks within chunk-3 minimal scope."
   }
 ]
