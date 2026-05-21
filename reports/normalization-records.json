@@ -439,6 +439,6 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Coverage validates token/object parse-serialize-parse determinism and whitespace/comment tolerance for representative small fixtures."
+    "note": "Coverage validates token/object parse-serialize-parse determinism and whitespace/comment tolerance for representative small fixtures, and includes an adaptation of COSWriterTest testPDFBox4321 to assert the writer does not close caller-owned output streams."
   }
 ]

@@ -285,6 +285,6 @@
     "source_commit": "n/a",
     "port_mode": "native-test",
     "sync_commit": "n/a",
-    "conversion_notes": "Added focused parser/writer roundtrip coverage for deterministic token/object parse-serialize-parse behavior on small fixtures and comment/whitespace handling."
+    "conversion_notes": "Added focused parser/writer roundtrip coverage for deterministic token/object parse-serialize-parse behavior on small fixtures and comment/whitespace handling, and adapted upstream COSWriterTest testPDFBox4321 intent to verify writer does not close the caller-provided output stream."
   }
 ]

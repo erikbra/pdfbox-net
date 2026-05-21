@@ -436,7 +436,7 @@
     "sync_commit": "n/a",
     "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-20T23:27:00Z",
-    "note": "Focused parser/writer roundtrip tests validate deterministic object parse/serialize flow on representative small fixtures."
+    "last_checked_utc": "2026-05-21T04:29:00Z",
+    "note": "Focused parser/writer roundtrip tests validate deterministic object parse/serialize flow on representative small fixtures, including an adapted COSWriterTest testPDFBox4321 check that writer usage does not close caller-managed output streams."
   }
 ]

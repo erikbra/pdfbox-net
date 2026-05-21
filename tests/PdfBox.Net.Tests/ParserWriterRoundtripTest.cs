@@ -65,4 +65,26 @@ public class ParserWriterRoundtripTest
         Assert.True(parsed.GetBoolean(COSName.GetPDFName("Enabled"), false));
         Assert.Equal("ok", parsed.GetString(COSName.GetPDFName("Label")));
     }
+
+    [Fact]
+    public void WriterDoesNotCloseProvidedOutputStream()
+    {
+        var nonClosableStream = new NonClosableMemoryStream();
+        var writer = new COSWriter(nonClosableStream);
+        writer.Write(new COSString("abc"));
+
+        Assert.False(nonClosableStream.CloseAttempted);
+        Assert.True(nonClosableStream.Length > 0);
+    }
+
+    private sealed class NonClosableMemoryStream : MemoryStream
+    {
+        public bool CloseAttempted { get; private set; }
+
+        public override void Close()
+        {
+            CloseAttempted = true;
+            throw new IOException("Stream was closed");
+        }
+    }
 }
