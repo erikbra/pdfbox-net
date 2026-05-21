@@ -54,7 +54,7 @@ public class PDDocumentInformation : COSObjectable
         return _info;
     }
 
-    public object? GetPropertyStringValue(string propertyKey)
+    public string? GetPropertyStringValue(string propertyKey)
     {
         return _info.GetString(propertyKey);
     }
