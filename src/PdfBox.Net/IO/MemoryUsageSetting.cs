@@ -77,7 +77,7 @@ public sealed class MemoryUsageSetting
         _maxStorageBytes = locMaxStorageBytes;
         StreamCache = useTempFile
             ? () => new ScratchFile(this)
-            : () => new InMemoryRandomAccessStreamCache();
+            : () => new RandomAccessStreamCacheImpl();
     }
 
     public static MemoryUsageSetting SetupMainMemoryOnly()
@@ -165,17 +165,5 @@ public sealed class MemoryUsageSetting
             : (IsStorageRestricted()
                 ? "Scratch file only with max. of " + _maxStorageBytes + " bytes"
                 : "Scratch file only with no size restriction");
-    }
-
-    private sealed class InMemoryRandomAccessStreamCache : RandomAccessStreamCache
-    {
-        public RandomAccess CreateBuffer()
-        {
-            return new RandomAccessReadWriteBuffer();
-        }
-
-        public void Close()
-        {
-        }
     }
 }
