@@ -30,7 +30,7 @@ using PdfBox.Net.COS;
 namespace PdfBox.Net.PDModel;
 
 /// <summary>
-/// The document catalog of a PDF file.
+/// The document catalog of a PDF.
 /// </summary>
 public sealed class PDDocumentCatalog : COSObjectable
 {
@@ -40,10 +40,18 @@ public sealed class PDDocumentCatalog : COSObjectable
     private readonly COSDictionary _root;
     private readonly PDDocument _document;
 
-    internal PDDocumentCatalog(PDDocument document, COSDictionary root)
+    internal PDDocumentCatalog(PDDocument doc)
     {
-        _document = document ?? throw new ArgumentNullException(nameof(document));
-        _root = root ?? throw new ArgumentNullException(nameof(root));
+        _document = doc ?? throw new ArgumentNullException(nameof(doc));
+        _root = new COSDictionary();
+        _root.SetName(TypeName, COSName.GetPDFName("Catalog").GetName());
+        _document.GetDocument().SetItem(COSName.GetPDFName("Root"), _root);
+    }
+
+    internal PDDocumentCatalog(PDDocument doc, COSDictionary rootDictionary)
+    {
+        _document = doc ?? throw new ArgumentNullException(nameof(doc));
+        _root = rootDictionary ?? throw new ArgumentNullException(nameof(rootDictionary));
     }
 
     /// <summary>

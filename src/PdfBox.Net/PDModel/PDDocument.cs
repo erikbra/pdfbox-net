@@ -119,10 +119,9 @@ public sealed class PDDocument : IDisposable
         EnsureNotDisposed();
         if (_documentCatalog is null)
         {
-            COSDictionary root = _trailer.GetCOSDictionary(RootName) ?? CreateCatalogDictionary();
-            EnsurePagesDictionary(root);
-            _trailer.SetItem(RootName, root);
-            _documentCatalog = new PDDocumentCatalog(this, root);
+            COSDictionary? root = _trailer.GetCOSDictionary(RootName);
+            _documentCatalog = root is null ? new PDDocumentCatalog(this) : new PDDocumentCatalog(this, root);
+            EnsurePagesDictionary((COSDictionary)_documentCatalog.GetCOSObject());
         }
 
         return _documentCatalog;
