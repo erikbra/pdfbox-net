@@ -27,23 +27,30 @@
 
 namespace PdfBox.Net.COS;
 
-public class COSObject : COSBase
+public class COSObject : COSBase, COSUpdateInfo
 {
     private COSBase? _baseObject;
+    private bool _isDereferenced;
+    private readonly COSUpdateState _updateState;
 
     public COSObject(COSBase? obj)
     {
+        _updateState = new(this);
         _baseObject = obj;
+        _isDereferenced = obj is not null;
     }
 
     public COSObject(COSBase? obj, COSObjectKey objectKey)
     {
+        _updateState = new(this);
         _baseObject = obj;
+        _isDereferenced = obj is not null;
         SetKey(objectKey);
     }
 
     public COSObject(COSObjectKey key)
     {
+        _updateState = new(this);
         SetKey(key);
     }
 
@@ -59,12 +66,24 @@ public class COSObject : COSBase
 
     public void SetObject(COSBase? baseObject)
     {
+        if (!ReferenceEquals(_baseObject, baseObject))
+        {
+            _updateState.Update(baseObject);
+        }
+
         _baseObject = baseObject;
+        _isDereferenced = baseObject is not null;
     }
 
     public void SetToNull()
     {
+        if (_baseObject is not null)
+        {
+            _updateState.Update();
+        }
+
         _baseObject = COSNull.NULL;
+        _isDereferenced = true;
     }
 
     public override string ToString()
@@ -75,5 +94,15 @@ public class COSObject : COSBase
     public override void Accept(ICOSVisitor visitor)
     {
         visitor.VisitFromObject(this);
+    }
+
+    public bool IsDereferenced()
+    {
+        return _isDereferenced;
+    }
+
+    public COSUpdateState GetUpdateState()
+    {
+        return _updateState;
     }
 }

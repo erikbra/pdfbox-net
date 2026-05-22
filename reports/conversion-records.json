@@ -189,7 +189,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported indirect COS object wrapper with key wiring and visitor dispatch for container dereference semantics."
+    "conversion_notes": "Expanded the COSObject port with dereferenced/update-state tracking while still deferring parser-driven lazy dereference to the broader parser chunk."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
@@ -197,7 +197,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported core COS array container behaviors, primitive/name/string accessors, visitor dispatch, and PDF serialization."
+    "conversion_notes": "Expanded COSArray parity with COSUpdateInfo wiring, update-state propagation, and direct-array incremental-save semantics."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
@@ -205,7 +205,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported core COS dictionary container behaviors including typed accessors, object dereferencing, path lookup, visitor dispatch, and PDF serialization."
+    "conversion_notes": "Expanded COSDictionary parity with COSUpdateInfo wiring, child origin propagation, and update tracking needed for incremental-save collection."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSStream.java",
@@ -342,5 +342,45 @@
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Adapted TestPDPageTree intent to deterministic blank-page scenarios validating indexOf/count and remove operations in the current dependency slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateInfo.java",
+    "target_path": "src/PdfBox.Net/COS/COSUpdateInfo.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported the COSUpdateInfo contract; Java default interface helpers are represented as C# extension methods over the shared update-state API."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocumentState.java",
+    "target_path": "src/PdfBox.Net/COS/COSDocumentState.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported the lightweight document parsing/update gate used to control when COS structures begin accepting incremental-save update tracking."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateState.java",
+    "target_path": "src/PdfBox.Net/COS/COSUpdateState.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported recursive COS update-state management, including child-origin propagation across dictionaries, arrays, and dereferenced COSObject wrappers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSIncrement.java",
+    "target_path": "src/PdfBox.Net/COS/COSIncrement.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported increment collection logic for updated direct and indirect COS substructures to support future incremental-save writer behavior."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSIncrementTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Added focused xUnit coverage for COS document/update state propagation and COSIncrement collection of updated direct versus indirect children."
   }
 ]

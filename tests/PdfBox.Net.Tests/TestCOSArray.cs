@@ -23,6 +23,14 @@ namespace PdfBox.Net.Tests;
 
 public class TestCOSArray
 {
+    private sealed class TestableCOSArray : COSArray
+    {
+        public ICollection<COSObjectKey>? InvokeResetObjectKeys(ICollection<COSObjectKey>? indirectObjects)
+        {
+            return ResetObjectKeys(indirectObjects);
+        }
+    }
+
     [Fact]
     public void TestCreate()
     {
@@ -257,5 +265,45 @@ public class TestCOSArray
         Assert.Equal(6, list.Count);
         Assert.Equal(COSInteger.Get(0), list[0]);
         Assert.Equal(COSInteger.Get(5), list[5]);
+    }
+
+    [Fact]
+    public void TestGrowToSizeUpdatesWhenDocumentAcceptsUpdates()
+    {
+        COSDocumentState documentState = new();
+        COSArray array = new();
+        array.GetUpdateState().SetOriginDocumentState(documentState);
+        documentState.SetParsing(false);
+
+        array.GrowToSize(0);
+
+        Assert.True(array.IsNeedToBeUpdated());
+    }
+
+    [Fact]
+    public void TestResetObjectKeysTraversesNestedStructures()
+    {
+        TestableCOSArray root = new();
+        root.SetKey(new COSObjectKey(1, 0));
+
+        COSDictionary nestedDictionary = new();
+        nestedDictionary.SetKey(new COSObjectKey(2, 0));
+
+        COSArray nestedArray = new();
+        nestedArray.SetKey(new COSObjectKey(3, 0));
+
+        nestedDictionary.SetItem(COSName.GetPDFName("Kids"), nestedArray);
+        root.Add(nestedDictionary);
+
+        HashSet<COSObjectKey> keys = [];
+        ICollection<COSObjectKey>? result = root.InvokeResetObjectKeys(keys);
+
+        Assert.Same(keys, result);
+        Assert.Contains(new COSObjectKey(1, 0), keys);
+        Assert.Contains(new COSObjectKey(2, 0), keys);
+        Assert.Contains(new COSObjectKey(3, 0), keys);
+        Assert.Null(root.GetKey());
+        Assert.Null(nestedDictionary.GetKey());
+        Assert.Null(nestedArray.GetKey());
     }
 }

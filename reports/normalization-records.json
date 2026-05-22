@@ -294,11 +294,12 @@
     "target_path": "src/PdfBox.Net/COS/COSObject.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Update-state tracking added while leaving parser-driven lazy dereference outside the current chunk"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Ported COSObject wrapper mechanics without parser-lazy-dereference wiring, which remains outside this chunk's parser orchestration boundary."
+    "note": "Expanded COSObject with dereferenced/update-state behavior while keeping the parser-backed lazy dereference gap explicit for a later parser/document slice."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
@@ -306,11 +307,12 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "Collection APIs adapted from Java ArrayList patterns to .NET List patterns"
+      "Collection APIs adapted from Java ArrayList patterns to .NET List patterns",
+      "Update-state propagation added for incremental-save parity"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Retained core list/dereference/name-string-number access semantics and visitor coverage required by this COS foundation milestone."
+    "note": "Retained list/dereference/name-string-number access semantics while adding update-state tracking used by incremental-save collection."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
@@ -318,11 +320,12 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "LinkedHashMap behavior mapped to insertion-order .NET Dictionary"
+      "LinkedHashMap behavior mapped to insertion-order .NET Dictionary",
+      "Update-state propagation added for incremental-save parity"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Adapted dictionary/object dereference and typed accessor semantics; order-sensitive serialization coverage added in tests for parity confidence."
+    "note": "Adapted dictionary/object dereference semantics and added recursive update-state propagation needed for incremental-save object collection."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSStream.java",
@@ -524,5 +527,62 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Adapted TestPDPageTree coverage for index/count/remove scenarios available in the current dependency slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateInfo.java",
+    "target_path": "src/PdfBox.Net/COS/COSUpdateInfo.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java default interface methods mapped to C# extension methods"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "The shared COS update contract stays one-to-one in shape, with helper behavior exposed through extension methods because default interface members are less ergonomic for concrete-type callers in C#."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocumentState.java",
+    "target_path": "src/PdfBox.Net/COS/COSDocumentState.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Straightforward state-holder conversion for parsing versus update acceptance."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateState.java",
+    "target_path": "src/PdfBox.Net/COS/COSUpdateState.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Recursive child propagation adapted to nullable C# COS references and IEnumerable iteration"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Preserved recursive origin/update propagation semantics while adapting Java collection traversal and nullability to existing COS container shapes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSIncrement.java",
+    "target_path": "src/PdfBox.Net/COS/COSIncrement.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "LinkedHashSet iteration order represented with List + HashSet tracking"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Preserved increment collection order and uniqueness semantics by pairing ordered output storage with hash-based membership tracking."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSIncrementTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for COS update-state and increment behavior"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "No direct upstream equivalent test file exists; these tests validate the newly ported update-state/increment semantics in the current dependency scope."
   }
 ]

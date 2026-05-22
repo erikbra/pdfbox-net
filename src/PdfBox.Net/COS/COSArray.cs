@@ -27,73 +27,144 @@
 
 namespace PdfBox.Net.COS;
 
-public class COSArray : COSBase, IEnumerable<COSBase?>
+/// <summary>
+/// An array of PDFBase objects as part of the PDF document.
+/// </summary>
+public class COSArray : COSBase, IEnumerable<COSBase?>, COSUpdateInfo
 {
     private readonly List<COSBase?> _objects;
+    private readonly COSUpdateState _updateState;
 
+    /// <summary>
+    /// Create a <see cref="COSArray"/> from the provided float values.
+    /// </summary>
+    /// <param name="floats">The float values to include.</param>
+    /// <returns>A new <see cref="COSArray"/> containing <see cref="COSFloat"/> values.</returns>
     public static COSArray Of(params float[] floats)
     {
-        COSArray array = new();
+        List<COSBase?> objects = new(floats.Length);
         foreach (float f in floats)
         {
-            array.Add(new COSFloat(f));
+            objects.Add(new COSFloat(f));
         }
 
-        return array;
+        return new COSArray(objects, true);
     }
 
-    public COSArray()
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    public COSArray() : this([], true)
     {
-        _objects = [];
     }
 
+    /// <summary>
+    /// Use the given list to initialize the COSArray.
+    /// </summary>
+    /// <param name="cosObjectables">The initial list of COSObjectables.</param>
     public COSArray(IEnumerable<COSObjectable?> cosObjectables)
+        : this([], true)
     {
-        _objects = [];
         foreach (COSObjectable? cosObjectable in cosObjectables)
         {
             _objects.Add(cosObjectable?.GetCOSObject());
         }
     }
 
-    public void Add(COSBase? obj)
+    private COSArray(List<COSBase?> cosObjects, bool direct)
     {
-        _objects.Add(MaybeWrap(obj));
+        _objects = cosObjects;
+        _updateState = new(this);
+        SetDirect(direct);
     }
 
+    /// <summary>
+    /// This will add an object to the array.
+    /// </summary>
+    /// <param name="obj">The object to add to the array.</param>
+    public void Add(COSBase? obj)
+    {
+        COSBase? objectToAdd = MaybeWrap(obj);
+        _objects.Add(objectToAdd);
+        UpdateState.Update(objectToAdd);
+    }
+
+    /// <summary>
+    /// This will add an object to the array.
+    /// </summary>
+    /// <param name="obj">The object to add to the array.</param>
     public void Add(COSObjectable? obj)
     {
         Add(obj?.GetCOSObject());
     }
 
-    public void Add(int index, COSBase? obj)
+    /// <summary>
+    /// Add the specified object at the ith location and push the rest to the right.
+    /// </summary>
+    /// <param name="i">The index to add at.</param>
+    /// <param name="obj">The object to add at that index.</param>
+    public void Add(int i, COSBase? obj)
     {
-        _objects.Insert(index, MaybeWrap(obj));
+        COSBase? objectToAdd = MaybeWrap(obj);
+        _objects.Insert(i, objectToAdd);
+        UpdateState.Update(objectToAdd);
     }
 
+    /// <summary>
+    /// This will remove all of the objects in the collection.
+    /// </summary>
     public void Clear()
     {
         _objects.Clear();
+        UpdateState.Update();
     }
 
-    public void RemoveAll(ICollection<COSBase> objectsList)
+    /// <summary>
+    /// This will remove all of the objects in the collection.
+    /// </summary>
+    /// <param name="objectsList">The list of objects to remove from the collection.</param>
+    public void RemoveAll(ICollection<COSBase?> objectsList)
     {
         _objects.RemoveAll(o => o is not null && objectsList.Contains(o));
+        UpdateState.Update();
     }
 
-    public void RetainAll(ICollection<COSBase> objectsList)
+    /// <summary>
+    /// This will retain all of the objects in the collection.
+    /// </summary>
+    /// <param name="objectsList">The list of objects to retain from the collection.</param>
+    public void RetainAll(ICollection<COSBase?> objectsList)
     {
-        _objects.RemoveAll(o => o is null || !objectsList.Contains(o));
-    }
-
-    public void AddAll(IEnumerable<COSBase?> objectList)
-    {
-        foreach (COSBase? obj in objectList)
+        if (_objects.RemoveAll(o => o is null || !objectsList.Contains(o)) > 0)
         {
-            _objects.Add(obj);
+            UpdateState.Update();
         }
     }
 
+    /// <summary>
+    /// This will add an object to the array.
+    /// </summary>
+    /// <param name="objectList">The object to add to the array.</param>
+    public void AddAll(IEnumerable<COSBase?> objectList)
+    {
+        List<COSBase?> snapshot = objectList.ToList();
+        if (snapshot.Count == 0)
+        {
+            return;
+        }
+
+        foreach (COSBase? obj in snapshot)
+        {
+            _objects.Add(obj);
+        }
+
+        UpdateState.Update(snapshot);
+    }
+
+    /// <summary>
+    /// This will add all objects to this array.
+    /// </summary>
+    /// <param name="objectList">The list of objects to add.</param>
     public void AddAll(COSArray? objectList)
     {
         if (objectList is null)
@@ -104,26 +175,62 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
         AddAll(objectList._objects);
     }
 
-    public void AddAll(int index, IEnumerable<COSBase?> objectList)
+    /// <summary>
+    /// Add the specified object at the ith location and push the rest to the right.
+    /// </summary>
+    /// <param name="i">The index to add at.</param>
+    /// <param name="objectList">The object to add at that index.</param>
+    public void AddAll(int i, IEnumerable<COSBase?> objectList)
     {
-        _objects.InsertRange(index, objectList);
+        List<COSBase?> snapshot = objectList.ToList();
+        if (snapshot.Count == 0)
+        {
+            return;
+        }
+
+        _objects.InsertRange(i, snapshot);
+        UpdateState.Update(snapshot);
     }
 
+    /// <summary>
+    /// This will set an object at a specific index.
+    /// </summary>
+    /// <param name="index">Zero based index into array.</param>
+    /// <param name="obj">The object to set.</param>
     public void Set(int index, COSBase? obj)
     {
-        _objects[index] = MaybeWrap(obj);
+        COSBase? objectToAdd = MaybeWrap(obj);
+        _objects[index] = objectToAdd;
+        UpdateState.Update(objectToAdd);
     }
 
+    /// <summary>
+    /// This will set an object at a specific index.
+    /// </summary>
+    /// <param name="index">Zero based index into array.</param>
+    /// <param name="intVal">The object to set.</param>
     public void Set(int index, int intVal)
     {
         _objects[index] = COSInteger.Get(intVal);
+        UpdateState.Update();
     }
 
+    /// <summary>
+    /// This will set an object at a specific index.
+    /// </summary>
+    /// <param name="index">Zero based index into array.</param>
+    /// <param name="obj">The object to set.</param>
     public void Set(int index, COSObjectable? obj)
     {
         Set(index, obj?.GetCOSObject());
     }
 
+    /// <summary>
+    /// This will get an object from the array. This will dereference the object.
+    /// If the object is COSNull then null will be returned.
+    /// </summary>
+    /// <param name="index">The index into the array to get the object.</param>
+    /// <returns>The object at the requested index.</returns>
     public COSBase? GetObject(int index)
     {
         COSBase? obj = _objects[index];
@@ -135,6 +242,11 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
         return obj is COSNull ? null : obj;
     }
 
+    /// <summary>
+    /// This will get an object from the array. This will NOT dereference the COS object.
+    /// </summary>
+    /// <param name="index">The index into the array to get the object.</param>
+    /// <returns>The object at the requested index.</returns>
     public COSBase? Get(int index)
     {
         return _objects[index];
@@ -201,12 +313,19 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
     {
         COSBase? removed = _objects[index];
         _objects.RemoveAt(index);
+        UpdateState.Update();
         return removed;
     }
 
     public bool Remove(COSBase? obj)
     {
-        return _objects.Remove(obj);
+        bool removed = _objects.Remove(obj);
+        if (removed)
+        {
+            UpdateState.Update();
+        }
+
+        return removed;
     }
 
     public bool RemoveObject(COSBase? obj)
@@ -221,6 +340,7 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
             if (_objects[i] is COSObject cosObject && Equals(cosObject.GetObject(), obj))
             {
                 _objects.RemoveAt(i);
+                UpdateState.Update();
                 return true;
             }
         }
@@ -263,12 +383,24 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
         {
             Add(obj);
         }
+
+        UpdateState.Update();
     }
 
     public override void Accept(ICOSVisitor visitor)
     {
         visitor.VisitFromArray(this);
     }
+
+    public COSUpdateState GetUpdateState()
+    {
+        return UpdateState;
+    }
+
+    /// <summary>
+    /// Provides access to the current update state of this <see cref="COSArray"/>.
+    /// </summary>
+    public COSUpdateState UpdateState => _updateState;
 
     public float[] ToFloatArray()
     {
@@ -347,6 +479,136 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
         }
 
         return retval;
+    }
+
+    /// <summary>
+    /// Collects all indirect objects numbers within this COSArray and all included dictionaries. It is used to avoid
+    /// overlapping object numbers when importing an existing page to another pdf.
+    ///
+    /// Expert use only. You might run into an endless recursion if choosing a wrong starting point.
+    /// </summary>
+    /// <param name="indirectObjects">A collection of already found indirect objects.</param>
+    /// <returns>The collection of indirect objects.</returns>
+    protected ICollection<COSObjectKey>? ResetObjectKeys(ICollection<COSObjectKey>? indirectObjects)
+    {
+        if (indirectObjects is null)
+        {
+            return indirectObjects;
+        }
+
+        COSObjectKey? key = GetKey();
+        if (key is not null)
+        {
+            if (indirectObjects.Contains(key))
+            {
+                return indirectObjects;
+            }
+
+            indirectObjects.Add(key);
+            SetKey(null);
+        }
+
+        foreach (COSBase? entry in _objects)
+        {
+            if (entry is null)
+            {
+                continue;
+            }
+
+            COSBase cosBase = entry;
+            COSObjectKey? indirectObjectKey = cosBase is COSObject ? cosBase.GetKey() : null;
+            if (indirectObjectKey is not null)
+            {
+                if (indirectObjects.Contains(indirectObjectKey))
+                {
+                    continue;
+                }
+
+                COSBase? dereferencedObject = ((COSObject)cosBase).GetObject();
+                cosBase.SetKey(null);
+                if (dereferencedObject is null)
+                {
+                    continue;
+                }
+
+                cosBase = dereferencedObject;
+            }
+
+            if (cosBase is COSDictionary dictionary)
+            {
+                ResetObjectKeysInDictionary(dictionary, indirectObjects);
+            }
+            else if (cosBase is COSArray array)
+            {
+                array.ResetObjectKeys(indirectObjects);
+            }
+            else if (indirectObjectKey is not null)
+            {
+                indirectObjects.Add(indirectObjectKey);
+            }
+        }
+
+        return indirectObjects;
+    }
+
+    /// <summary>
+    /// Recursively resets object keys in a dictionary and all nested dictionaries/arrays while collecting previously
+    /// assigned keys.
+    /// </summary>
+    /// <param name="dictionary">The dictionary to process.</param>
+    /// <param name="indirectObjects">The collection of discovered indirect object keys.</param>
+    private static void ResetObjectKeysInDictionary(COSDictionary dictionary, ICollection<COSObjectKey> indirectObjects)
+    {
+        COSObjectKey? dictionaryKey = dictionary.GetKey();
+        if (dictionaryKey is not null)
+        {
+            if (indirectObjects.Contains(dictionaryKey))
+            {
+                return;
+            }
+
+            indirectObjects.Add(dictionaryKey);
+            dictionary.SetKey(null);
+        }
+
+        foreach (COSBase entry in dictionary.GetValues())
+        {
+            COSBase cosBase = entry;
+            COSObjectKey? indirectObjectKey = cosBase is COSObject ? cosBase.GetKey() : null;
+            if (indirectObjectKey is not null)
+            {
+                if (indirectObjects.Contains(indirectObjectKey))
+                {
+                    continue;
+                }
+
+                COSBase? dereferencedObject = ((COSObject)cosBase).GetObject();
+                cosBase.SetKey(null);
+                if (dereferencedObject is null)
+                {
+                    continue;
+                }
+
+                cosBase = dereferencedObject;
+            }
+
+            switch (cosBase)
+            {
+                case COSDictionary nestedDictionary:
+                    ResetObjectKeysInDictionary(nestedDictionary, indirectObjects);
+                    break;
+                case COSArray nestedArray:
+                    nestedArray.ResetObjectKeys(indirectObjects);
+                    break;
+                default:
+                    if (indirectObjectKey is not null)
+                    {
+                        indirectObjects.Add(indirectObjectKey);
+                    }
+
+                    break;
+            }
+        }
     }
 
     public void WritePDF(Stream output)
