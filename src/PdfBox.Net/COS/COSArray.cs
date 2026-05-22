@@ -397,6 +397,9 @@ public class COSArray : COSBase, IEnumerable<COSBase?>, COSUpdateInfo
         return UpdateState;
     }
 
+    /// <summary>
+    /// Provides access to the current update state of this <see cref="COSArray"/>.
+    /// </summary>
     public COSUpdateState UpdateState => _updateState;
 
     public float[] ToFloatArray()
@@ -548,6 +551,12 @@ public class COSArray : COSBase, IEnumerable<COSBase?>, COSUpdateInfo
         return indirectObjects;
     }
 
+    /// <summary>
+    /// Recursively resets object keys in a dictionary and all nested dictionaries/arrays while collecting previously
+    /// assigned keys.
+    /// </summary>
+    /// <param name="dictionary">The dictionary to process.</param>
+    /// <param name="indirectObjects">The collection of discovered indirect object keys.</param>
     private static void ResetObjectKeysInDictionary(COSDictionary dictionary, ICollection<COSObjectKey> indirectObjects)
     {
         COSObjectKey? dictionaryKey = dictionary.GetKey();
