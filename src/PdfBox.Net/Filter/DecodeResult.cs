@@ -59,6 +59,10 @@ public sealed class DecodeResult
         return _parameters;
     }
 
+    /// <summary>
+    /// Returns the embedded JPX color space, if any.
+    /// Expected runtime type is <c>PDJPXColorSpace</c> once that type is ported.
+    /// </summary>
     public object? GetJPXColorSpace()
     {
         return _colorSpace;
@@ -74,6 +78,10 @@ public sealed class DecodeResult
         _smask = smask;
     }
 
+    /// <summary>
+    /// Returns the JPX soft mask image, if any.
+    /// Expected runtime type is <c>BufferedImage</c> equivalent once image types are ported.
+    /// </summary>
     public object? GetJPXSMask()
     {
         return _smask;

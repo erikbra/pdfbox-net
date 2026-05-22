@@ -43,7 +43,9 @@ public class DecodeOptions
     public static DecodeOptions DEFAULT { get; } = new FinalDecodeOptions(true);
 
     private Rectangle? _sourceRegion;
+    // A value of 1 means no subsampling.
     private int _subsamplingX = 1;
+    // A value of 1 means no subsampling.
     private int _subsamplingY = 1;
     private int _subsamplingOffsetX;
     private int _subsamplingOffsetY;
@@ -68,6 +70,10 @@ public class DecodeOptions
     /// <summary>
     /// Constructs an instance specifying the region of the image that should be decoded.
     /// </summary>
+    /// <param name="x">X-coordinate of the top-left corner of the region to be decoded.</param>
+    /// <param name="y">Y-coordinate of the top-left corner of the region to be decoded.</param>
+    /// <param name="width">Width of the region to be decoded.</param>
+    /// <param name="height">Height of the region to be decoded.</param>
     public DecodeOptions(int x, int y, int width, int height) : this(new Rectangle(x, y, width, height))
     {
     }
@@ -183,7 +189,7 @@ public class DecodeOptions
 
         internal override void SetFilterSubsampled(bool filterSubsampled)
         {
-            // Silently ignore the request.
+            // Intentionally ignored to keep DEFAULT immutable and always honored.
         }
     }
 }
