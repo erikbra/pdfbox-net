@@ -33,6 +33,11 @@ using System.Text;
 
 namespace PdfBox.Net.PDModel;
 
+/// <summary>
+/// This is the in-memory representation of the PDF document.
+/// The only way to get a PDF document object is to load it from a file or
+/// to create it with the empty constructor.
+/// </summary>
 public sealed class PDDocument : IDisposable
 {
     private const string DefaultVersion = "1.4";
@@ -61,6 +66,11 @@ public sealed class PDDocument : IDisposable
         _headerVersion = headerVersion;
     }
 
+    /// <summary>
+    /// Parses a PDF stream and returns a document.
+    /// </summary>
+    /// <param name="input">The input stream.</param>
+    /// <returns>The loaded document.</returns>
     public static PDDocument Load(Stream input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -78,6 +88,11 @@ public sealed class PDDocument : IDisposable
         return new PDDocument(trailer, headerVersion);
     }
 
+    /// <summary>
+    /// Parses a PDF file and returns a document.
+    /// </summary>
+    /// <param name="filePath">The file path to load.</param>
+    /// <returns>The loaded document.</returns>
     public static PDDocument Load(string filePath)
     {
         ArgumentNullException.ThrowIfNull(filePath);
@@ -85,12 +100,20 @@ public sealed class PDDocument : IDisposable
         return Load(input);
     }
 
+    /// <summary>
+    /// Returns the underlying trailer dictionary of this document.
+    /// </summary>
+    /// <returns>The trailer dictionary.</returns>
     public COSDictionary GetDocument()
     {
         EnsureNotDisposed();
         return _trailer;
     }
 
+    /// <summary>
+    /// Returns the document catalog.
+    /// </summary>
+    /// <returns>The document catalog.</returns>
     public PDDocumentCatalog GetDocumentCatalog()
     {
         EnsureNotDisposed();
@@ -105,6 +128,10 @@ public sealed class PDDocument : IDisposable
         return _documentCatalog;
     }
 
+    /// <summary>
+    /// Returns the document information dictionary.
+    /// </summary>
+    /// <returns>The document information wrapper.</returns>
     public PDDocumentInformation GetDocumentInformation()
     {
         EnsureNotDisposed();
@@ -118,6 +145,10 @@ public sealed class PDDocument : IDisposable
         return _documentInformation;
     }
 
+    /// <summary>
+    /// Save the document to an output stream.
+    /// </summary>
+    /// <param name="output">The output stream to write to.</param>
     public void Save(Stream output)
     {
         ArgumentNullException.ThrowIfNull(output);
@@ -130,6 +161,10 @@ public sealed class PDDocument : IDisposable
         output.Write(Encoding.ASCII.GetBytes("\n%%EOF\n"));
     }
 
+    /// <summary>
+    /// Save the document to a file.
+    /// </summary>
+    /// <param name="filePath">The output file path.</param>
     public void Save(string filePath)
     {
         ArgumentNullException.ThrowIfNull(filePath);
@@ -138,41 +173,69 @@ public sealed class PDDocument : IDisposable
         Save(output);
     }
 
+    /// <summary>
+    /// Closes this document.
+    /// </summary>
     public void Dispose()
     {
         _disposed = true;
     }
 
+    /// <summary>
+    /// Returns the document page tree.
+    /// </summary>
+    /// <returns>The page tree.</returns>
     public PDPageTree GetPages()
     {
         EnsureNotDisposed();
         return GetDocumentCatalog().GetPages();
     }
 
+    /// <summary>
+    /// Returns the number of pages in the document.
+    /// </summary>
+    /// <returns>The number of pages.</returns>
     public int GetNumberOfPages()
     {
         EnsureNotDisposed();
         return GetPages().GetCount();
     }
 
+    /// <summary>
+    /// Returns the page at a zero-based index.
+    /// </summary>
+    /// <param name="pageIndex">The page index.</param>
+    /// <returns>The page at that index.</returns>
     public PDPage GetPage(int pageIndex)
     {
         EnsureNotDisposed();
         return GetPages().Get(pageIndex);
     }
 
+    /// <summary>
+    /// Adds a page to the end of the document.
+    /// </summary>
+    /// <param name="page">The page to add.</param>
     public void AddPage(PDPage page)
     {
         EnsureNotDisposed();
         GetPages().Add(page);
     }
 
+    /// <summary>
+    /// Removes the page at a zero-based index.
+    /// </summary>
+    /// <param name="pageIndex">The page index to remove.</param>
     public void RemovePage(int pageIndex)
     {
         EnsureNotDisposed();
         GetPages().Remove(pageIndex);
     }
 
+    /// <summary>
+    /// Returns the effective PDF version, using header/catalog precedence behavior.
+    /// </summary>
+    /// <returns>The effective PDF version.</returns>
     public float GetVersion()
     {
         EnsureNotDisposed();
@@ -180,6 +243,10 @@ public sealed class PDDocument : IDisposable
         return Math.Max(_headerVersion, catalogVersion);
     }
 
+    /// <summary>
+    /// Sets the document version in the catalog.
+    /// </summary>
+    /// <param name="version">The version to set.</param>
     public void SetVersion(float version)
     {
         EnsureNotDisposed();
