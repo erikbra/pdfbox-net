@@ -315,9 +315,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-20T04:58:00Z",
-    "note": "COS indirect object wrapper ported for dictionary/array dereference semantics."
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COS indirect object wrapper now includes dereferenced/update-state tracking; parser-backed lazy dereference remains deferred to the parser/document chunk."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
@@ -326,8 +326,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-20T04:58:00Z",
-    "note": "COS array container ported with typed accessors, list transforms, and visitor coverage."
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COS array container now tracks update state and direct-child incremental-save semantics in addition to typed accessors and serialization behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
@@ -336,8 +336,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-20T04:58:00Z",
-    "note": "COS dictionary container ported with typed accessors, path lookup, and insertion-order serialization behavior."
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COS dictionary container now tracks update state, child origin propagation, and incremental-save collection behavior alongside typed accessors and serialization."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSStream.java",
@@ -508,5 +508,55 @@
     "status": "partially-in-sync",
     "last_checked_utc": "2026-05-22T17:10:51Z",
     "note": "Adapted deterministic page tree tests cover index/count/remove scenarios; outline/multi-level malformed fixture scenarios remain deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateInfo.java",
+    "target_path": "src/PdfBox.Net/COS/COSUpdateInfo.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COSUpdateInfo contract ported with C# extension-method helpers for update-state and increment access."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocumentState.java",
+    "target_path": "src/PdfBox.Net/COS/COSDocumentState.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COSDocumentState ported as the document parsing/update gate used by COS update tracking."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateState.java",
+    "target_path": "src/PdfBox.Net/COS/COSUpdateState.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COSUpdateState ported with recursive origin propagation for dictionaries, arrays, and dereferenced COSObject wrappers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSIncrement.java",
+    "target_path": "src/PdfBox.Net/COS/COSIncrement.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COSIncrement ported for collecting updated top-level COS objects from direct and indirect child mutations."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSIncrementTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "Focused tests validate document/update-state propagation and COSIncrement collection for updated direct and indirect children."
   }
 ]

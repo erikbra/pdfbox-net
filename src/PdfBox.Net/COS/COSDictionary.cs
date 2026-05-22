@@ -27,17 +27,20 @@
 
 namespace PdfBox.Net.COS;
 
-public class COSDictionary : COSBase
+public class COSDictionary : COSBase, COSUpdateInfo
 {
     private const string PathSeparator = "/";
     protected readonly Dictionary<COSName, COSBase> items = [];
+    private readonly COSUpdateState _updateState;
 
     public COSDictionary()
     {
+        _updateState = new(this);
     }
 
     public COSDictionary(COSDictionary dict)
     {
+        _updateState = new(this);
         AddAll(dict);
     }
 
@@ -79,6 +82,7 @@ public class COSDictionary : COSBase
     public void Clear()
     {
         items.Clear();
+        _updateState.Update();
     }
 
     public COSBase? GetDictionaryObject(string key)
@@ -122,11 +126,14 @@ public class COSDictionary : COSBase
 
         if ((value is COSDictionary || value is COSArray) && !value.IsDirect() && value.GetKey() is not null)
         {
-            items[key] = new COSObject(value, value.GetKey()!);
+            COSObject cosObject = new(value, value.GetKey()!);
+            items[key] = cosObject;
+            _updateState.Update(cosObject);
         }
         else
         {
             items[key] = value;
+            _updateState.Update(value);
         }
     }
 
@@ -308,7 +315,10 @@ public class COSDictionary : COSBase
 
     public void RemoveItem(COSName key)
     {
-        items.Remove(key);
+        if (items.Remove(key))
+        {
+            _updateState.Update();
+        }
     }
 
     public void RemoveItem(string key)
@@ -321,6 +331,11 @@ public class COSDictionary : COSBase
         foreach (KeyValuePair<COSName, COSBase> entry in dict.items)
         {
             items[entry.Key] = entry.Value;
+        }
+
+        if (dict.items.Count > 0)
+        {
+            _updateState.Update(dict.GetValues());
         }
     }
 
@@ -368,6 +383,11 @@ public class COSDictionary : COSBase
         return items;
     }
 
+    public ICollection<COSBase> GetValues()
+    {
+        return items.Values;
+    }
+
     public override string ToString()
     {
         return $"COSDictionary{{{string.Join(";", items.Select(kvp => $"{kvp.Key}:{kvp.Value}"))}}}";
@@ -376,6 +396,11 @@ public class COSDictionary : COSBase
     public override void Accept(ICOSVisitor visitor)
     {
         visitor.VisitFromDictionary(this);
+    }
+
+    public COSUpdateState GetUpdateState()
+    {
+        return _updateState;
     }
 
     public void WritePDF(Stream output)

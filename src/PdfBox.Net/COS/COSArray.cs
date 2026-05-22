@@ -27,9 +27,10 @@
 
 namespace PdfBox.Net.COS;
 
-public class COSArray : COSBase, IEnumerable<COSBase?>
+public class COSArray : COSBase, IEnumerable<COSBase?>, COSUpdateInfo
 {
     private readonly List<COSBase?> _objects;
+    private readonly COSUpdateState _updateState;
 
     public static COSArray Of(params float[] floats)
     {
@@ -45,11 +46,15 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
     public COSArray()
     {
         _objects = [];
+        _updateState = new(this);
+        SetDirect(true);
     }
 
     public COSArray(IEnumerable<COSObjectable?> cosObjectables)
     {
         _objects = [];
+        _updateState = new(this);
+        SetDirect(true);
         foreach (COSObjectable? cosObjectable in cosObjectables)
         {
             _objects.Add(cosObjectable?.GetCOSObject());
@@ -58,7 +63,9 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
 
     public void Add(COSBase? obj)
     {
-        _objects.Add(MaybeWrap(obj));
+        COSBase? objectToAdd = MaybeWrap(obj);
+        _objects.Add(objectToAdd);
+        _updateState.Update(objectToAdd);
     }
 
     public void Add(COSObjectable? obj)
@@ -68,30 +75,45 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
 
     public void Add(int index, COSBase? obj)
     {
-        _objects.Insert(index, MaybeWrap(obj));
+        COSBase? objectToAdd = MaybeWrap(obj);
+        _objects.Insert(index, objectToAdd);
+        _updateState.Update(objectToAdd);
     }
 
     public void Clear()
     {
         _objects.Clear();
+        _updateState.Update();
     }
 
     public void RemoveAll(ICollection<COSBase> objectsList)
     {
         _objects.RemoveAll(o => o is not null && objectsList.Contains(o));
+        _updateState.Update();
     }
 
     public void RetainAll(ICollection<COSBase> objectsList)
     {
-        _objects.RemoveAll(o => o is null || !objectsList.Contains(o));
+        if (_objects.RemoveAll(o => o is null || !objectsList.Contains(o)) > 0)
+        {
+            _updateState.Update();
+        }
     }
 
     public void AddAll(IEnumerable<COSBase?> objectList)
     {
-        foreach (COSBase? obj in objectList)
+        List<COSBase?> snapshot = objectList.ToList();
+        if (snapshot.Count == 0)
+        {
+            return;
+        }
+
+        foreach (COSBase? obj in snapshot)
         {
             _objects.Add(obj);
         }
+
+        _updateState.Update(snapshot);
     }
 
     public void AddAll(COSArray? objectList)
@@ -106,17 +128,27 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
 
     public void AddAll(int index, IEnumerable<COSBase?> objectList)
     {
-        _objects.InsertRange(index, objectList);
+        List<COSBase?> snapshot = objectList.ToList();
+        if (snapshot.Count == 0)
+        {
+            return;
+        }
+
+        _objects.InsertRange(index, snapshot);
+        _updateState.Update(snapshot);
     }
 
     public void Set(int index, COSBase? obj)
     {
-        _objects[index] = MaybeWrap(obj);
+        COSBase? objectToAdd = MaybeWrap(obj);
+        _objects[index] = objectToAdd;
+        _updateState.Update(objectToAdd);
     }
 
     public void Set(int index, int intVal)
     {
         _objects[index] = COSInteger.Get(intVal);
+        _updateState.Update();
     }
 
     public void Set(int index, COSObjectable? obj)
@@ -201,12 +233,19 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
     {
         COSBase? removed = _objects[index];
         _objects.RemoveAt(index);
+        _updateState.Update();
         return removed;
     }
 
     public bool Remove(COSBase? obj)
     {
-        return _objects.Remove(obj);
+        bool removed = _objects.Remove(obj);
+        if (removed)
+        {
+            _updateState.Update();
+        }
+
+        return removed;
     }
 
     public bool RemoveObject(COSBase? obj)
@@ -221,6 +260,7 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
             if (_objects[i] is COSObject cosObject && Equals(cosObject.GetObject(), obj))
             {
                 _objects.RemoveAt(i);
+                _updateState.Update();
                 return true;
             }
         }
@@ -268,6 +308,11 @@ public class COSArray : COSBase, IEnumerable<COSBase?>
     public override void Accept(ICOSVisitor visitor)
     {
         visitor.VisitFromArray(this);
+    }
+
+    public COSUpdateState GetUpdateState()
+    {
+        return _updateState;
     }
 
     public float[] ToFloatArray()
