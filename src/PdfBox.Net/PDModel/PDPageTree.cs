@@ -35,7 +35,6 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
     private static readonly COSName PagesTypeName = COSName.GetPDFName("Pages");
     private static readonly COSName KidsName = COSName.GetPDFName("Kids");
     private static readonly COSName CountName = COSName.GetPDFName("Count");
-    private static readonly COSName ParentName = COSName.PARENT;
     private readonly COSDictionary _root;
 
     internal PDPageTree(COSDictionary root, PDDocument _)
@@ -95,7 +94,6 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
     {
         ArgumentNullException.ThrowIfNull(page);
         COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
-        pageDictionary.SetItem(ParentName, _root);
         GetKidsArray().Add(pageDictionary);
         _root.SetInt(CountName, GetCount() + 1);
     }
@@ -148,7 +146,6 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
             if (kids.GetObject(i) is COSDictionary pageDictionary)
             {
                 pageDictionary.SetName(TypeName, "Page");
-                pageDictionary.SetItem(ParentName, _root);
             }
         }
 
