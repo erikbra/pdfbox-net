@@ -458,24 +458,48 @@
     "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
     "normalization_applied": true,
     "change_categories": [
-      "High-fanout catalog dependencies trimmed to minimal chunk-3 inspection subset",
-      "Version/page inspection scoped to existing COS container accessors"
+      "High-fanout catalog dependencies trimmed to chunk-3 pipeline subset",
+      "Page tree access integrated through newly ported PDPageTree subset"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Added minimal catalog wrapper for type/version/page-count inspection aligned with the current parser/writer base."
+    "note": "Expanded catalog wrapper now exposes page tree and count wiring in addition to type/version inspection."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
     "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
     "normalization_applied": true,
     "change_categories": [
-      "High-level document orchestration reduced to chunk-3 minimal lifecycle over COS parser/writer",
-      "Ownership/disposal behavior adapted to .NET IDisposable model"
+      "High-level document orchestration reduced to chunk-3 lifecycle over COS parser/writer",
+      "Ownership/disposal behavior adapted to .NET IDisposable model",
+      "Version and page operations added without introducing full xref/object-stream parsing"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Implements minimal load/inspect/save pipeline with default root/info scaffolding and deterministic serialization."
+    "note": "Implements expanded load/inspect/save pipeline with page management and version behavior while staying in this chunk's parser/writer envelope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "High-fanout page features trimmed to low-dependency page dictionary wrapper"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adds the PDPage subset needed by PDDocument/PDPageTree page lifecycle operations."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Recursive/multi-level tree handling reduced to deterministic single-level page tree used by current pipeline",
+      "Core add/remove/get/index/count semantics preserved for this chunk"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Introduces focused PDPageTree behaviors used by document open/inspect/save and page ownership updates."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
@@ -483,10 +507,22 @@
     "normalization_applied": true,
     "change_categories": [
       "JUnit assertions/annotations converted to xUnit v3",
-      "Test scope adapted to deterministic fixture-based minimal pipeline in current chunk"
+      "Test scope adapted to deterministic fixture-based pipeline in current chunk"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Ports save/load stream and save/load file testing intent to smoke tests validating open->inspect->save behavior."
+    "note": "Ports save/load stream and save/load file testing intent to smoke tests validating open->inspect->save, page count, and version behavior."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDPageTree.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Fixture-heavy scenarios adapted to deterministic blank-page page tree checks"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted TestPDPageTree coverage for index/count/remove scenarios available in the current dependency slice."
   }
 ]

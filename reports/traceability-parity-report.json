@@ -456,8 +456,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-21T05:27:01Z",
-    "note": "Minimal catalog subset ported for type/version/page-count inspection; high-fanout catalog features intentionally deferred."
+    "last_checked_utc": "2026-05-22T17:10:51Z",
+    "note": "Catalog subset expanded with page tree access and page count integration; high-fanout catalog features remain deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
@@ -466,8 +466,28 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-21T05:27:01Z",
-    "note": "Minimal open/load/save lifecycle ported over existing COS parser/writer bridge; full PDF object/xref parsing and full document feature parity deferred."
+    "last_checked_utc": "2026-05-22T17:10:51Z",
+    "note": "Open/load/save lifecycle expanded with page operations and version behavior over the COS parser/writer bridge; full PDF object/xref parsing and broader feature parity deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T17:10:51Z",
+    "note": "Low-dependency page dictionary wrapper subset ported; content stream/resources/geometry features remain deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T17:10:51Z",
+    "note": "Focused page tree subset ported (enumeration/count/index/add/remove/get) for this chunk; multi-level traversal/inheritance safeguards remain deferred."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
@@ -476,7 +496,17 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
     "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-21T05:27:01Z",
-    "note": "Adapted stream/file save-load test intent to deterministic fixture-based open->inspect->save smoke checks within chunk-3 minimal scope."
+    "last_checked_utc": "2026-05-22T17:10:51Z",
+    "note": "Adapted stream/file save-load test intent to deterministic fixture-based open->inspect->save checks with page-count and version assertions in this slice."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDPageTree.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T17:10:51Z",
+    "note": "Adapted deterministic page tree tests cover index/count/remove scenarios; outline/multi-level malformed fixture scenarios remain deferred."
   }
 ]

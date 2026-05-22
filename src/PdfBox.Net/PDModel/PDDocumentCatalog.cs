@@ -34,11 +34,12 @@ public sealed class PDDocumentCatalog : COSObjectable
     private static readonly COSName VersionName = COSName.GetPDFName("Version");
     private static readonly COSName TypeName = COSName.TYPE;
     private static readonly COSName PagesName = COSName.GetPDFName("Pages");
-    private static readonly COSName CountName = COSName.GetPDFName("Count");
     private readonly COSDictionary _root;
+    private readonly PDDocument _document;
 
-    internal PDDocumentCatalog(COSDictionary root)
+    internal PDDocumentCatalog(PDDocument document, COSDictionary root)
     {
+        _document = document ?? throw new ArgumentNullException(nameof(document));
         _root = root ?? throw new ArgumentNullException(nameof(root));
     }
 
@@ -54,7 +55,7 @@ public sealed class PDDocumentCatalog : COSObjectable
 
     public void SetVersion(string? version)
     {
-        _root.SetString(VersionName, version);
+        _root.SetName(VersionName, version);
     }
 
     public string? GetTypeName()
@@ -64,6 +65,12 @@ public sealed class PDDocumentCatalog : COSObjectable
 
     public int GetPageCount()
     {
-        return _root.GetCOSDictionary(PagesName)?.GetInt(CountName, 0) ?? 0;
+        return GetPages().GetCount();
+    }
+
+    public PDPageTree GetPages()
+    {
+        COSDictionary pages = _root.GetCOSDictionary(PagesName) ?? throw new IOException("Document catalog is missing /Pages dictionary.");
+        return new PDPageTree(pages, _document);
     }
 }

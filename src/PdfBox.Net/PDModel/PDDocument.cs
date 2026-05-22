@@ -28,6 +28,7 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PdfParser;
 using PdfBox.Net.PdfWriter;
+using System.Globalization;
 using System.Text;
 
 namespace PdfBox.Net.PDModel;
@@ -44,18 +45,20 @@ public sealed class PDDocument : IDisposable
     private static readonly COSName PagesTypeName = COSName.GetPDFName("Pages");
 
     private readonly COSDictionary _trailer;
+    private readonly float _headerVersion;
     private bool _disposed;
     private PDDocumentCatalog? _documentCatalog;
     private PDDocumentInformation? _documentInformation;
 
     public PDDocument()
-        : this(CreateEmptyTrailer())
+        : this(CreateEmptyTrailer(), ParseVersion(DefaultVersion))
     {
     }
 
-    private PDDocument(COSDictionary trailer)
+    private PDDocument(COSDictionary trailer, float headerVersion)
     {
         _trailer = trailer;
+        _headerVersion = headerVersion;
     }
 
     public static PDDocument Load(Stream input)
@@ -64,6 +67,7 @@ public sealed class PDDocument : IDisposable
         byte[] bytes = ReadAllBytes(input);
         string content = Encoding.Latin1.GetString(bytes);
         string payload = ExtractDictionaryPayload(content);
+        float headerVersion = ExtractHeaderVersion(content);
 
         COSBase parsed = COSParser.Parse(payload);
         if (parsed is not COSDictionary trailer)
@@ -71,7 +75,7 @@ public sealed class PDDocument : IDisposable
             throw new IOException("Expected document trailer dictionary.");
         }
 
-        return new PDDocument(trailer);
+        return new PDDocument(trailer, headerVersion);
     }
 
     public static PDDocument Load(string filePath)
@@ -95,7 +99,7 @@ public sealed class PDDocument : IDisposable
             COSDictionary root = _trailer.GetCOSDictionary(RootName) ?? CreateCatalogDictionary();
             EnsurePagesDictionary(root);
             _trailer.SetItem(RootName, root);
-            _documentCatalog = new PDDocumentCatalog(root);
+            _documentCatalog = new PDDocumentCatalog(this, root);
         }
 
         return _documentCatalog;
@@ -120,8 +124,7 @@ public sealed class PDDocument : IDisposable
         EnsureNotDisposed();
         _trailer.SetItem(RootName, GetDocumentCatalog().GetCOSObject());
         _trailer.SetItem(InfoName, GetDocumentInformation().GetCOSObject());
-        string version = GetDocumentCatalog().GetVersion() ?? DefaultVersion;
-        output.Write(Encoding.ASCII.GetBytes($"%PDF-{version}\n"));
+        output.Write(Encoding.ASCII.GetBytes($"%PDF-{_headerVersion.ToString("0.0", CultureInfo.InvariantCulture)}\n"));
         COSWriter writer = new(output);
         writer.Write(_trailer);
         output.Write(Encoding.ASCII.GetBytes("\n%%EOF\n"));
@@ -138,6 +141,55 @@ public sealed class PDDocument : IDisposable
     public void Dispose()
     {
         _disposed = true;
+    }
+
+    public PDPageTree GetPages()
+    {
+        EnsureNotDisposed();
+        return GetDocumentCatalog().GetPages();
+    }
+
+    public int GetNumberOfPages()
+    {
+        EnsureNotDisposed();
+        return GetPages().GetCount();
+    }
+
+    public PDPage GetPage(int pageIndex)
+    {
+        EnsureNotDisposed();
+        return GetPages().Get(pageIndex);
+    }
+
+    public void AddPage(PDPage page)
+    {
+        EnsureNotDisposed();
+        GetPages().Add(page);
+    }
+
+    public void RemovePage(int pageIndex)
+    {
+        EnsureNotDisposed();
+        GetPages().Remove(pageIndex);
+    }
+
+    public float GetVersion()
+    {
+        EnsureNotDisposed();
+        float catalogVersion = ParseVersion(GetDocumentCatalog().GetVersion(), _headerVersion);
+        return Math.Max(_headerVersion, catalogVersion);
+    }
+
+    public void SetVersion(float version)
+    {
+        EnsureNotDisposed();
+        if (version <= _headerVersion)
+        {
+            GetDocumentCatalog().SetVersion(_headerVersion.ToString("0.0", CultureInfo.InvariantCulture));
+            return;
+        }
+
+        GetDocumentCatalog().SetVersion(version.ToString("0.0", CultureInfo.InvariantCulture));
     }
 
     private void EnsureNotDisposed()
@@ -157,7 +209,7 @@ public sealed class PDDocument : IDisposable
     {
         COSDictionary root = new();
         root.SetName(COSName.TYPE, CatalogName.GetName());
-        root.SetString(COSName.GetPDFName("Version"), DefaultVersion);
+        root.SetName(COSName.GetPDFName("Version"), DefaultVersion);
         EnsurePagesDictionary(root);
         return root;
     }
@@ -206,5 +258,28 @@ public sealed class PDDocument : IDisposable
         }
 
         return content.Substring(dictionaryStart, eofMarker - dictionaryStart).Trim();
+    }
+
+    private static float ExtractHeaderVersion(string content)
+    {
+        if (!content.StartsWith("%PDF-", StringComparison.Ordinal))
+        {
+            return ParseVersion(DefaultVersion);
+        }
+
+        int headerEnd = content.IndexOf('\n');
+        string headerLine = headerEnd >= 0 ? content[..headerEnd] : content;
+        string value = headerLine.Substring("%PDF-".Length).Trim();
+        return ParseVersion(value, ParseVersion(DefaultVersion));
+    }
+
+    private static float ParseVersion(string value)
+    {
+        return ParseVersion(value, 1.4f);
+    }
+
+    private static float ParseVersion(string? value, float fallback)
+    {
+        return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed) ? parsed : fallback;
     }
 }

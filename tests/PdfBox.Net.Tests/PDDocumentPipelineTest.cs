@@ -59,6 +59,8 @@ public class PDDocumentPipelineTest
         byte[] serialized;
         using (PDDocument document = new())
         {
+            document.AddPage(new PDPage());
+            document.AddPage(new PDPage());
             PDDocumentInformation info = document.GetDocumentInformation();
             info.SetTitle("Smoke Pipeline");
             info.SetAuthor("Chunk3");
@@ -73,6 +75,7 @@ public class PDDocumentPipelineTest
         Assert.Equal("Smoke Pipeline", loaded.GetDocumentInformation().GetTitle());
         Assert.Equal("Chunk3", loaded.GetDocumentInformation().GetAuthor());
         Assert.Equal("open-inspect-save", loaded.GetDocumentInformation().GetCustomMetadataValue("Pipeline"));
+        Assert.Equal(2, loaded.GetNumberOfPages());
     }
 
     [Fact]
@@ -83,6 +86,7 @@ public class PDDocumentPipelineTest
         {
             using (PDDocument document = new())
             {
+                document.AddPage(new PDPage());
                 document.GetDocumentInformation().SetTitle("file-save");
                 document.GetDocumentCatalog().SetVersion("1.4");
                 document.Save(path);
@@ -92,6 +96,7 @@ public class PDDocumentPipelineTest
             Assert.Equal("file-save", loaded.GetDocumentInformation().GetTitle());
             Assert.Equal("1.4", loaded.GetDocumentCatalog().GetVersion());
             Assert.Equal("Catalog", loaded.GetDocumentCatalog().GetTypeName());
+            Assert.Equal(1, loaded.GetNumberOfPages());
         }
         finally
         {
@@ -100,6 +105,22 @@ public class PDDocumentPipelineTest
                 File.Delete(path);
             }
         }
+    }
+
+    [Fact]
+    public void VersionsFollowHeaderAndCatalogRules()
+    {
+        using PDDocument document = new();
+        Assert.Equal(1.4f, document.GetVersion());
+        Assert.Equal("1.4", document.GetDocumentCatalog().GetVersion());
+
+        document.SetVersion(1.3f);
+        Assert.Equal(1.4f, document.GetVersion());
+        Assert.Equal("1.4", document.GetDocumentCatalog().GetVersion());
+
+        document.SetVersion(1.5f);
+        Assert.Equal(1.5f, document.GetVersion());
+        Assert.Equal("1.5", document.GetDocumentCatalog().GetVersion());
     }
 
     private static string GetFixturePath()

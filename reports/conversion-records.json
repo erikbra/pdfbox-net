@@ -301,7 +301,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported minimal catalog wrapper subset (type/version/page-count inspection) needed by the chunk-3 smoke pipeline."
+    "conversion_notes": "Expanded catalog port with page tree access, version wiring, and page count integration for the chunk-3 document pipeline."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
@@ -309,7 +309,23 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added minimal PDDocument open/load/save lifecycle over existing COS parser/writer bridge, including default root/info scaffolding for deterministic pipeline execution."
+    "conversion_notes": "Expanded PDDocument with page-level operations (add/get/remove/count/pages), version semantics, and envelope-aware save/load over the existing COS parser/writer bridge."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported the low-dependency PDPage wrapper subset required for page tree membership and document add/get/remove page pipeline operations."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported a focused PDPageTree subset (enumeration, count, index lookup, add/remove/get) aligned to chunk-3 open/inspect/save lifecycle requirements."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
@@ -317,6 +333,14 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Adapted save/load stream and save/load file testing intent from TestPDDocument into deterministic chunk-3 smoke coverage for open->inspect->save regression checks."
+    "conversion_notes": "Adapted save/load stream and save/load file testing intent from TestPDDocument into deterministic chunk-3 smoke coverage, adding version and page-count assertions for expanded PDDocument behavior."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDPageTree.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted TestPDPageTree intent to deterministic blank-page scenarios validating indexOf/count and remove operations in the current dependency slice."
   }
 ]
