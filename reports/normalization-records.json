@@ -440,5 +440,89 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Coverage validates token/object parse-serialize-parse determinism and whitespace/comment tolerance for representative small fixtures, and includes an adaptation of COSWriterTest testPDFBox4321 to assert the writer does not close caller-owned output streams."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentInformation.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Date-related metadata methods intentionally omitted in this minimal chunk due missing COS date helpers in current dependency slice"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ported string-based document information metadata accessors required for minimal open/inspect/save pipeline coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "High-fanout catalog dependencies trimmed to chunk-3 pipeline subset",
+      "Page tree access integrated through newly ported PDPageTree subset"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Expanded catalog wrapper now exposes page tree and count wiring in addition to type/version inspection."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "High-level document orchestration reduced to chunk-3 lifecycle over COS parser/writer",
+      "Ownership/disposal behavior adapted to .NET IDisposable model",
+      "Version and page operations added without introducing full xref/object-stream parsing"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implements expanded load/inspect/save pipeline with page management and version behavior while staying in this chunk's parser/writer envelope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "High-fanout page features trimmed to low-dependency page dictionary wrapper"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adds the PDPage subset needed by PDDocument/PDPageTree page lifecycle operations."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Recursive/multi-level tree handling reduced to deterministic single-level page tree used by current pipeline",
+      "Core add/remove/get/index/count semantics preserved for this chunk"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Introduces focused PDPageTree behaviors used by document open/inspect/save and page ownership updates."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentPipelineTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Test scope adapted to deterministic fixture-based pipeline in current chunk"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ports save/load stream and save/load file testing intent to smoke tests validating open->inspect->save, page count, and version behavior."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDPageTree.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Fixture-heavy scenarios adapted to deterministic blank-page page tree checks"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted TestPDPageTree coverage for index/count/remove scenarios available in the current dependency slice."
   }
 ]

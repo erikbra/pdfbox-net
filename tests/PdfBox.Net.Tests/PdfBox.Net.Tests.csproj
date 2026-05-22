@@ -24,4 +24,10 @@
     <ProjectReference Include="..\..\src\PdfBox.Net\PdfBox.Net.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Fixtures\*.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

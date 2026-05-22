@@ -13,6 +13,10 @@ This index splits the conversion workflow into small, focused skills.
 4. Run **Skill E** after updates/normalization to produce traceability/parity status.
 5. Consult **Skill G** whenever the Java source uses NIO, `BitSet`, `LinkedHashMap` LRU,
    `IOUtils`, Log4j, or any other API with a non-obvious C# mapping.
+6. Port JavaDoc documentation comments from each upstream Java file into XML documentation
+   comments in the converted C# file as part of the mechanical conversion/sync flow.
+7. Port code and comments as verbatim as possible from the Java source; only adapt where
+   required for C# correctness or unavoidable platform differences.
 
 ## Skill files
 

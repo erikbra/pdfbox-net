@@ -23,6 +23,7 @@ Create a first-pass C# file from an upstream PDFBox Java file and stamp required
 ## Notes
 - Default `PORT_MODE` should be `mechanical` for one-to-one conversion output.
 - Set `PORT_MODE` to `adapted` only when behavior/API is intentionally changed from upstream mechanical parity.
+- **Verbatim-first rule**: Port Java code and comments as verbatim as possible. Keep structure, ordering, and wording close to upstream unless C# language differences make a direct port impossible.
 - Keep the Apache license block verbatim and place it before provenance metadata.
 - Keep the copyright + AI conversion notice separate from the license text.
 - Prefer preserving upstream inline test data setup over refactoring/extracting helpers when doing mechanical test conversions.
