@@ -302,6 +302,123 @@ public class COSDictionary : COSBase, COSUpdateInfo
         return GetDictionaryObject(key) is COSNumber number ? number.FloatValue() : defaultValue;
     }
 
+    /// <summary>
+    /// Returns the date value associated with the given key, or <see langword="null"/> if
+    /// no date is present or the value cannot be parsed.
+    /// </summary>
+    /// <param name="key">The dictionary key.</param>
+    /// <returns>The parsed date, or <see langword="null"/>.</returns>
+    public DateTimeOffset? GetDate(COSName key)
+    {
+        string? value = GetString(key);
+        if (value is null)
+        {
+            return null;
+        }
+
+        return ParsePdfDate(value);
+    }
+
+    /// <summary>
+    /// Sets the date value for the given key, encoding it as a PDF date string.
+    /// If <paramref name="date"/> is <see langword="null"/>, the key is removed.
+    /// </summary>
+    /// <param name="key">The dictionary key.</param>
+    /// <param name="date">The date value to set.</param>
+    public void SetDate(COSName key, DateTimeOffset? date)
+    {
+        if (date is null)
+        {
+            RemoveItem(key);
+        }
+        else
+        {
+            SetString(key, FormatPdfDate(date.Value));
+        }
+    }
+
+    /// <summary>
+    /// Formats a <see cref="DateTimeOffset"/> as a PDF date string of the form
+    /// <c>D:YYYYMMDDHHmmSSZ</c> where Z is the UTC offset in <c>+HH'mm'</c> or
+    /// <c>-HH'mm'</c> notation, or <c>Z</c> for UTC.
+    /// </summary>
+    internal static string FormatPdfDate(DateTimeOffset date)
+    {
+        TimeSpan offset = date.Offset;
+        string sign = offset >= TimeSpan.Zero ? "+" : "-";
+        int offsetHours = Math.Abs((int)offset.TotalHours);
+        int offsetMinutes = Math.Abs(offset.Minutes);
+        return $"D:{date:yyyyMMddHHmmss}{sign}{offsetHours:D2}'{offsetMinutes:D2}'";
+    }
+
+    /// <summary>
+    /// Parses a PDF date string and returns a <see cref="DateTimeOffset"/>, or
+    /// <see langword="null"/> if the string cannot be parsed.
+    /// The expected format is <c>D:YYYYMMDDHHmmSSZ</c> per ISO 32000.
+    /// </summary>
+    internal static DateTimeOffset? ParsePdfDate(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return null;
+        }
+
+        // Strip leading "D:" prefix
+        string s = value.StartsWith("D:", StringComparison.Ordinal) ? value[2..] : value;
+
+        // Must start with a 4-digit year
+        if (s.Length < 4 || !int.TryParse(s[..4], out int year))
+        {
+            return null;
+        }
+
+        int month = s.Length >= 6 ? ParseTwoDigits(s, 4) : 1;
+        int day = s.Length >= 8 ? ParseTwoDigits(s, 6) : 1;
+        int hour = s.Length >= 10 ? ParseTwoDigits(s, 8) : 0;
+        int minute = s.Length >= 12 ? ParseTwoDigits(s, 10) : 0;
+        int second = s.Length >= 14 ? ParseTwoDigits(s, 12) : 0;
+
+        // Parse timezone
+        TimeSpan offset = TimeSpan.Zero;
+        if (s.Length >= 15)
+        {
+            char sign = s[14];
+            if (sign == 'Z')
+            {
+                offset = TimeSpan.Zero;
+            }
+            else if ((sign == '+' || sign == '-') && s.Length >= 17)
+            {
+                int tzHours = ParseTwoDigits(s, 15);
+                int tzMinutes = s.Length >= 20 ? ParseTwoDigits(s, 18) : 0;
+                offset = new TimeSpan(tzHours, tzMinutes, 0);
+                if (sign == '-')
+                {
+                    offset = offset.Negate();
+                }
+            }
+        }
+
+        try
+        {
+            return new DateTimeOffset(year, month, day, hour, minute, second, offset);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return null;
+        }
+    }
+
+    private static int ParseTwoDigits(string s, int start)
+    {
+        if (start + 2 > s.Length)
+        {
+            return 0;
+        }
+
+        return int.TryParse(s.AsSpan(start, 2), out int result) ? result : 0;
+    }
+
     public COSBase? GetItem(COSName key)
     {
         items.TryGetValue(key, out COSBase? value);

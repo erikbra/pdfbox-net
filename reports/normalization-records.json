@@ -584,5 +584,64 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "No direct upstream equivalent test file exists; these tests validate the newly ported update-state/increment semantics in the current dependency scope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
+    "target_path": "src/PdfBox.Net/COS/COSName.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Added constant entries for PDModel-layer keys"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added alphabetized static constants required by PDModel classes: CREATION_DATE, MOD_DATE, TRAPPED, MEDIA_BOX, CROP_BOX, BLEED_BOX, TRIM_BOX, ART_BOX, ROTATE, PAGE, PAGES, KIDS, COUNT, CATALOG, ROOT, VERSION, PAGE_LAYOUT, PAGE_MODE, LANG, RESOURCES, STRUCT_PARENTS, TITLE, AUTHOR, SUBJECT, KEYWORDS, CREATOR, PRODUCER, NAMES, DESTS, MARK_INFO, OUTPUT_INTENTS, OPEN_ACTION, METADATA, VIEWER_PREFERENCES, OUTLINES, THREADS, ACRO_FORM, AA."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
+    "target_path": "src/PdfBox.Net/COS/COSDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java Calendar <-> .NET DateTimeOffset API adaptation",
+      "PDF date string parsing/formatting implemented as static helpers"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added GetDate/SetDate methods with PDF date string codec (D:YYYYMMDDHHmmSSOHH'mm'). Java uses DateConverter.toCalendar/toString; C# equivalent parses to DateTimeOffset using ISO-32000 date format. Edge cases: partial dates, huge values, invalid timezone offsets handled gracefully."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDRectangle.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java AWT BoundingBox constructor removed (no .NET AWT equivalent)",
+      "Java inner PDImmutableRectangle converted to private C# nested sealed class",
+      "Java enum-like static fields converted to static readonly C# fields"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "BoundingBox-based constructor deferred due to no AWT equivalent in scope. GeneralPath/Matrix transform methods deferred. Immutability guard implemented as private nested sealed class overriding setter methods."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
+    "target_path": "src/PdfBox.Net/PDModel/PageLayout.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java enum with methods -> C# enum + extension class"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java enum's stringValue()/fromString() methods moved to static extension/factory class per C# enum convention."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
+    "target_path": "src/PdfBox.Net/PDModel/PageMode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java enum with methods -> C# enum + extension class"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java enum's stringValue()/fromString() methods moved to static extension/factory class per C# enum convention."
   }
 ]

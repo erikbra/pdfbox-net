@@ -30,24 +30,35 @@ using PdfBox.Net.COS;
 namespace PdfBox.Net.PDModel;
 
 /// <summary>
-/// The document catalog of a PDF.
+/// The Document Catalog of a PDF.
 /// </summary>
+/// <remarks>
+/// Ported from Apache PDFBox <c>PDDocumentCatalog</c>.
+/// </remarks>
 public sealed class PDDocumentCatalog : COSObjectable
 {
-    private static readonly COSName VersionName = COSName.GetPDFName("Version");
-    private static readonly COSName TypeName = COSName.TYPE;
-    private static readonly COSName PagesName = COSName.GetPDFName("Pages");
     private readonly COSDictionary _root;
     private readonly PDDocument _document;
 
+    /// <summary>
+    /// Constructor. Internal PDFBox use only! If you need to get the document catalog, call
+    /// <see cref="PDDocument.GetDocumentCatalog()"/>.
+    /// </summary>
+    /// <param name="doc">The document that this catalog is part of.</param>
     internal PDDocumentCatalog(PDDocument doc)
     {
         _document = doc ?? throw new ArgumentNullException(nameof(doc));
         _root = new COSDictionary();
-        _root.SetName(TypeName, COSName.GetPDFName("Catalog").GetName());
-        _document.GetDocument().SetItem(COSName.GetPDFName("Root"), _root);
+        _root.SetItem(COSName.TYPE, COSName.CATALOG);
+        _document.GetDocument().SetItem(COSName.ROOT, _root);
     }
 
+    /// <summary>
+    /// Constructor. Internal PDFBox use only! If you need to get the document catalog, call
+    /// <see cref="PDDocument.GetDocumentCatalog()"/>.
+    /// </summary>
+    /// <param name="doc">The document that this catalog is part of.</param>
+    /// <param name="rootDictionary">The root dictionary that this object wraps.</param>
     internal PDDocumentCatalog(PDDocument doc, COSDictionary rootDictionary)
     {
         _document = doc ?? throw new ArgumentNullException(nameof(doc));
@@ -64,30 +75,14 @@ public sealed class PDDocumentCatalog : COSObjectable
     }
 
     /// <summary>
-    /// Returns the PDF version stored in the catalog, if present.
+    /// Returns all pages in the document, as a page tree.
     /// </summary>
-    /// <returns>The catalog version, or <see langword="null"/>.</returns>
-    public string? GetVersion()
+    /// <returns><see cref="PDPageTree"/> providing all pages of the document.</returns>
+    /// <exception cref="IOException">Thrown when the catalog does not contain a <c>/Pages</c> dictionary.</exception>
+    public PDPageTree GetPages()
     {
-        return _root.GetString(VersionName) ?? _root.GetNameAsString(VersionName);
-    }
-
-    /// <summary>
-    /// Sets the PDF version in the catalog dictionary.
-    /// </summary>
-    /// <param name="version">The version value, for example <c>1.7</c>.</param>
-    public void SetVersion(string? version)
-    {
-        _root.SetName(VersionName, version);
-    }
-
-    /// <summary>
-    /// Gets the document catalog type name.
-    /// </summary>
-    /// <returns>The type name, typically <c>Catalog</c>.</returns>
-    public string? GetTypeName()
-    {
-        return _root.GetNameAsString(TypeName);
+        COSDictionary pages = _root.GetCOSDictionary(COSName.PAGES) ?? throw new IOException("Document catalog is missing /Pages dictionary.");
+        return new PDPageTree(pages, _document);
     }
 
     /// <summary>
@@ -100,13 +95,109 @@ public sealed class PDDocumentCatalog : COSObjectable
     }
 
     /// <summary>
-    /// Returns the root page tree.
+    /// Returns the PDF version stored in the catalog, if present.
     /// </summary>
-    /// <returns>The page tree.</returns>
-    /// <exception cref="IOException">Thrown when the catalog does not contain a <c>/Pages</c> dictionary.</exception>
-    public PDPageTree GetPages()
+    /// <returns>The catalog version, or <see langword="null"/>.</returns>
+    public string? GetVersion()
     {
-        COSDictionary pages = _root.GetCOSDictionary(PagesName) ?? throw new IOException("Document catalog is missing /Pages dictionary.");
-        return new PDPageTree(pages, _document);
+        return _root.GetString(COSName.VERSION) ?? _root.GetNameAsString(COSName.VERSION);
+    }
+
+    /// <summary>
+    /// Sets the PDF version in the catalog dictionary.
+    /// </summary>
+    /// <param name="version">The version value, for example <c>1.7</c>.</param>
+    public void SetVersion(string? version)
+    {
+        _root.SetName(COSName.VERSION, version);
+    }
+
+    /// <summary>
+    /// Gets the document catalog type name.
+    /// </summary>
+    /// <returns>The type name, typically <c>Catalog</c>.</returns>
+    public string? GetTypeName()
+    {
+        return _root.GetNameAsString(COSName.TYPE);
+    }
+
+    /// <summary>
+    /// Gets the page layout to be used when the document is opened.
+    /// </summary>
+    /// <returns>The <see cref="PageLayout"/>, or <see langword="null"/> if not set.</returns>
+    public PageLayout? GetPageLayout()
+    {
+        string? value = _root.GetNameAsString(COSName.PAGE_LAYOUT);
+        if (value is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return PageLayoutExtensions.FromString(value);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Sets the page layout.
+    /// </summary>
+    /// <param name="layout">The new page layout, or <see langword="null"/> to remove it.</param>
+    public void SetPageLayout(PageLayout? layout)
+    {
+        _root.SetName(COSName.PAGE_LAYOUT, layout?.StringValue());
+    }
+
+    /// <summary>
+    /// Gets the document's page mode, specifying how the document shall be displayed when opened.
+    /// </summary>
+    /// <returns>The <see cref="PageMode"/>, or <see langword="null"/> if not set.</returns>
+    public PageMode? GetPageMode()
+    {
+        string? value = _root.GetNameAsString(COSName.PAGE_MODE);
+        if (value is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return PageModeExtensions.FromString(value);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Sets the page mode.
+    /// </summary>
+    /// <param name="mode">The new page mode, or <see langword="null"/> to remove it.</param>
+    public void SetPageMode(PageMode? mode)
+    {
+        _root.SetName(COSName.PAGE_MODE, mode?.StringValue());
+    }
+
+    /// <summary>
+    /// Gets the document's natural language, or <see langword="null"/> if not set.
+    /// </summary>
+    /// <returns>The natural language identifier of the document.</returns>
+    public string? GetLanguage()
+    {
+        return _root.GetString(COSName.LANG);
+    }
+
+    /// <summary>
+    /// Sets the natural language of the document.
+    /// </summary>
+    /// <param name="language">The natural language identifier, e.g. <c>en-US</c>.</param>
+    public void SetLanguage(string? language)
+    {
+        _root.SetString(COSName.LANG, language);
     }
 }

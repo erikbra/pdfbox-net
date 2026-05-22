@@ -446,8 +446,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-21T05:27:01Z",
-    "note": "String-based document metadata accessors ported for minimal pipeline; date/trapped/full parity remains outside this chunk."
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "String-based metadata, date (CreationDate/ModDate) and trapped fields all ported; full upstream Java Calendar->DateTimeOffset parity tested."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -456,8 +456,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T17:10:51Z",
-    "note": "Catalog subset expanded with page tree access and page count integration; high-fanout catalog features remain deferred."
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Catalog expanded with PageLayout, PageMode, Language getters/setters; high-fanout catalog features (AcroForm, ViewerPreferences, Outlines, etc.) remain deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
@@ -476,8 +476,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T17:10:51Z",
-    "note": "Low-dependency page dictionary wrapper subset ported; content stream/resources/geometry features remain deferred."
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Expanded with MediaBox, CropBox, BleedBox, TrimBox, ArtBox, Rotation, StructParents, HasContents; content stream/resources/annotations/actions remain deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
@@ -486,8 +486,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T17:10:51Z",
-    "note": "Focused page tree subset ported (enumeration/count/index/add/remove/get) for this chunk; multi-level traversal/inheritance safeguards remain deferred."
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Expanded with GetInheritableAttribute static method and bad-PDF repair (Page-instead-of-Pages root); multi-level deep-tree traversal deferred."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
@@ -558,5 +558,75 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-22T20:29:56Z",
     "note": "Focused tests validate document/update-state propagation and COSIncrement collection for updated direct and indirect children."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDRectangle.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Core PDRectangle port with standard-size constants, coordinate accessors, contains/clip, retranslation, and immutable-rectangle guard; GeneralPath/Matrix transform methods deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
+    "target_path": "src/PdfBox.Net/PDModel/PageLayout.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "PageLayout enum and string-value helpers ported one-to-one."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
+    "target_path": "src/PdfBox.Net/PDModel/PageMode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "PageMode enum and string-value helpers ported one-to-one."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocumentInformation.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDDocumentInformation.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted-minimal",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Adapted xUnit tests covering string fields, date roundtrip, trapped valid/invalid values, and custom metadata."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPage.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDPage.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted-minimal",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Adapted xUnit tests covering media box defaults, box accessors, rotation, structParents, and hasContents."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDRectangle.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Native xUnit tests covering all PDRectangle constructors, coordinate accessors, contains, retranslation, immutability guard, and standard-size constants."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDDocumentCatalog.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Native xUnit tests covering PageLayout and PageMode roundtrip, language, and null-clear semantics for new catalog methods."
   }
 ]

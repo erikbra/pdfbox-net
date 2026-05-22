@@ -30,18 +30,12 @@ using PdfBox.Net.COS;
 namespace PdfBox.Net.PDModel;
 
 /// <summary>
-/// This is the document metadata. Each <c>Get*</c> method returns the entry if it exists,
-/// or <see langword="null"/> if it does not exist. If <see langword="null"/> is passed to
+/// This is the document metadata.  Each <c>Get*</c> method returns the entry if it exists,
+/// or <see langword="null"/> if it does not exist.  If <see langword="null"/> is passed to
 /// a <c>Set*</c> method, the value is cleared.
 /// </summary>
 public class PDDocumentInformation : COSObjectable
 {
-    private static readonly COSName TitleName = COSName.GetPDFName("Title");
-    private static readonly COSName AuthorName = COSName.GetPDFName("Author");
-    private static readonly COSName SubjectName = COSName.GetPDFName("Subject");
-    private static readonly COSName KeywordsName = COSName.GetPDFName("Keywords");
-    private static readonly COSName CreatorName = COSName.GetPDFName("Creator");
-    private static readonly COSName ProducerName = COSName.GetPDFName("Producer");
     private readonly COSDictionary _info;
 
     /// <summary>
@@ -82,12 +76,12 @@ public class PDDocumentInformation : COSObjectable
     }
 
     /// <summary>
-    /// Gets the title of the document.
+    /// Gets the title of the document.  This will return null if no title exists.
     /// </summary>
     /// <returns>The title of the document.</returns>
     public string? GetTitle()
     {
-        return _info.GetString(TitleName);
+        return _info.GetString(COSName.TITLE);
     }
 
     /// <summary>
@@ -96,16 +90,16 @@ public class PDDocumentInformation : COSObjectable
     /// <param name="title">The new title for the document.</param>
     public void SetTitle(string? title)
     {
-        _info.SetString(TitleName, title);
+        _info.SetString(COSName.TITLE, title);
     }
 
     /// <summary>
-    /// Gets the author of the document.
+    /// Gets the author of the document.  This will return null if no author exists.
     /// </summary>
     /// <returns>The author of the document.</returns>
     public string? GetAuthor()
     {
-        return _info.GetString(AuthorName);
+        return _info.GetString(COSName.AUTHOR);
     }
 
     /// <summary>
@@ -114,16 +108,16 @@ public class PDDocumentInformation : COSObjectable
     /// <param name="author">The new author for the document.</param>
     public void SetAuthor(string? author)
     {
-        _info.SetString(AuthorName, author);
+        _info.SetString(COSName.AUTHOR, author);
     }
 
     /// <summary>
-    /// Gets the subject of the document.
+    /// Gets the subject of the document.  This will return null if no subject exists.
     /// </summary>
     /// <returns>The subject of the document.</returns>
     public string? GetSubject()
     {
-        return _info.GetString(SubjectName);
+        return _info.GetString(COSName.SUBJECT);
     }
 
     /// <summary>
@@ -132,16 +126,16 @@ public class PDDocumentInformation : COSObjectable
     /// <param name="subject">The new subject for the document.</param>
     public void SetSubject(string? subject)
     {
-        _info.SetString(SubjectName, subject);
+        _info.SetString(COSName.SUBJECT, subject);
     }
 
     /// <summary>
-    /// Gets the keywords of the document.
+    /// Gets the keywords of the document.  This will return null if no keywords exist.
     /// </summary>
     /// <returns>The keywords of the document.</returns>
     public string? GetKeywords()
     {
-        return _info.GetString(KeywordsName);
+        return _info.GetString(COSName.KEYWORDS);
     }
 
     /// <summary>
@@ -150,16 +144,16 @@ public class PDDocumentInformation : COSObjectable
     /// <param name="keywords">The new keywords for the document.</param>
     public void SetKeywords(string? keywords)
     {
-        _info.SetString(KeywordsName, keywords);
+        _info.SetString(COSName.KEYWORDS, keywords);
     }
 
     /// <summary>
-    /// Gets the creator of the document.
+    /// Gets the creator of the document.  This will return null if no creator exists.
     /// </summary>
     /// <returns>The creator of the document.</returns>
     public string? GetCreator()
     {
-        return _info.GetString(CreatorName);
+        return _info.GetString(COSName.CREATOR);
     }
 
     /// <summary>
@@ -168,16 +162,16 @@ public class PDDocumentInformation : COSObjectable
     /// <param name="creator">The new creator for the document.</param>
     public void SetCreator(string? creator)
     {
-        _info.SetString(CreatorName, creator);
+        _info.SetString(COSName.CREATOR, creator);
     }
 
     /// <summary>
-    /// Gets the producer of the document.
+    /// Gets the producer of the document.  This will return null if no producer exists.
     /// </summary>
     /// <returns>The producer of the document.</returns>
     public string? GetProducer()
     {
-        return _info.GetString(ProducerName);
+        return _info.GetString(COSName.PRODUCER);
     }
 
     /// <summary>
@@ -186,7 +180,74 @@ public class PDDocumentInformation : COSObjectable
     /// <param name="producer">The new producer for the document.</param>
     public void SetProducer(string? producer)
     {
-        _info.SetString(ProducerName, producer);
+        _info.SetString(COSName.PRODUCER, producer);
+    }
+
+    /// <summary>
+    /// Gets the creation date of the document.  This will return null if no creation date exists.
+    /// </summary>
+    /// <returns>The creation date of the document.</returns>
+    public DateTimeOffset? GetCreationDate()
+    {
+        return _info.GetDate(COSName.CREATION_DATE);
+    }
+
+    /// <summary>
+    /// Sets the creation date of the document.
+    /// </summary>
+    /// <param name="date">The new creation date for the document.</param>
+    public void SetCreationDate(DateTimeOffset? date)
+    {
+        _info.SetDate(COSName.CREATION_DATE, date);
+    }
+
+    /// <summary>
+    /// Gets the modification date of the document.  This will return null if no modification date exists.
+    /// </summary>
+    /// <returns>The modification date of the document.</returns>
+    public DateTimeOffset? GetModificationDate()
+    {
+        return _info.GetDate(COSName.MOD_DATE);
+    }
+
+    /// <summary>
+    /// Sets the modification date of the document.
+    /// </summary>
+    /// <param name="date">The new modification date for the document.</param>
+    public void SetModificationDate(DateTimeOffset? date)
+    {
+        _info.SetDate(COSName.MOD_DATE, date);
+    }
+
+    /// <summary>
+    /// Gets the trapped value for the document.
+    /// This will return null if one is not found.
+    /// </summary>
+    /// <returns>The trapped value for the document.</returns>
+    public string? GetTrapped()
+    {
+        return _info.GetNameAsString(COSName.TRAPPED);
+    }
+
+    /// <summary>
+    /// Sets the trapped value for the document.
+    /// Valid values are <c>True</c>, <c>False</c>, or <c>Unknown</c>.
+    /// </summary>
+    /// <param name="value">The new trapped value for the document.</param>
+    /// <exception cref="ArgumentException">
+    /// If the value is not null and not one of <c>True</c>, <c>False</c>, or <c>Unknown</c>.
+    /// </exception>
+    public void SetTrapped(string? value)
+    {
+        if (value is not null &&
+            value != "True" &&
+            value != "False" &&
+            value != "Unknown")
+        {
+            throw new ArgumentException("Valid values for trapped are 'True', 'False', or 'Unknown'");
+        }
+
+        _info.SetName(COSName.TRAPPED, value);
     }
 
     /// <summary>

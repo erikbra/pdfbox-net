@@ -41,13 +41,6 @@ namespace PdfBox.Net.PDModel;
 public sealed class PDDocument : IDisposable
 {
     private const string DefaultVersion = "1.4";
-    private static readonly COSName RootName = COSName.GetPDFName("Root");
-    private static readonly COSName InfoName = COSName.GetPDFName("Info");
-    private static readonly COSName PagesName = COSName.GetPDFName("Pages");
-    private static readonly COSName KidsName = COSName.GetPDFName("Kids");
-    private static readonly COSName CountName = COSName.GetPDFName("Count");
-    private static readonly COSName CatalogName = COSName.GetPDFName("Catalog");
-    private static readonly COSName PagesTypeName = COSName.GetPDFName("Pages");
 
     private readonly COSDictionary _trailer;
     private readonly float _headerVersion;
@@ -119,7 +112,7 @@ public sealed class PDDocument : IDisposable
         EnsureNotDisposed();
         if (_documentCatalog is null)
         {
-            COSDictionary? root = _trailer.GetCOSDictionary(RootName);
+            COSDictionary? root = _trailer.GetCOSDictionary(COSName.ROOT);
             _documentCatalog = root is null ? new PDDocumentCatalog(this) : new PDDocumentCatalog(this, root);
             EnsurePagesDictionary((COSDictionary)_documentCatalog.GetCOSObject());
         }
@@ -136,8 +129,8 @@ public sealed class PDDocument : IDisposable
         EnsureNotDisposed();
         if (_documentInformation is null)
         {
-            COSDictionary info = _trailer.GetCOSDictionary(InfoName) ?? new COSDictionary();
-            _trailer.SetItem(InfoName, info);
+            COSDictionary info = _trailer.GetCOSDictionary(COSName.GetPDFName("Info")) ?? new COSDictionary();
+            _trailer.SetItem(COSName.GetPDFName("Info"), info);
             _documentInformation = new PDDocumentInformation(info);
         }
 
@@ -152,8 +145,8 @@ public sealed class PDDocument : IDisposable
     {
         ArgumentNullException.ThrowIfNull(output);
         EnsureNotDisposed();
-        _trailer.SetItem(RootName, GetDocumentCatalog().GetCOSObject());
-        _trailer.SetItem(InfoName, GetDocumentInformation().GetCOSObject());
+        _trailer.SetItem(COSName.ROOT, GetDocumentCatalog().GetCOSObject());
+        _trailer.SetItem(COSName.GetPDFName("Info"), GetDocumentInformation().GetCOSObject());
         output.Write(Encoding.ASCII.GetBytes($"%PDF-{_headerVersion.ToString("0.0", CultureInfo.InvariantCulture)}\n"));
         COSWriter writer = new(output);
         writer.Write(_trailer);
@@ -266,35 +259,35 @@ public sealed class PDDocument : IDisposable
     private static COSDictionary CreateEmptyTrailer()
     {
         COSDictionary trailer = new();
-        trailer.SetItem(RootName, CreateCatalogDictionary());
-        trailer.SetItem(InfoName, new COSDictionary());
+        trailer.SetItem(COSName.ROOT, CreateCatalogDictionary());
+        trailer.SetItem(COSName.GetPDFName("Info"), new COSDictionary());
         return trailer;
     }
 
     private static COSDictionary CreateCatalogDictionary()
     {
         COSDictionary root = new();
-        root.SetName(COSName.TYPE, CatalogName.GetName());
-        root.SetName(COSName.GetPDFName("Version"), DefaultVersion);
+        root.SetItem(COSName.TYPE, COSName.CATALOG);
+        root.SetName(COSName.VERSION, DefaultVersion);
         EnsurePagesDictionary(root);
         return root;
     }
 
     private static void EnsurePagesDictionary(COSDictionary root)
     {
-        COSDictionary pages = root.GetCOSDictionary(PagesName) ?? new COSDictionary();
-        pages.SetName(COSName.TYPE, PagesTypeName.GetName());
-        if (!pages.ContainsKey(KidsName))
+        COSDictionary pages = root.GetCOSDictionary(COSName.PAGES) ?? new COSDictionary();
+        pages.SetItem(COSName.TYPE, COSName.PAGES);
+        if (!pages.ContainsKey(COSName.KIDS))
         {
-            pages.SetItem(KidsName, new COSArray());
+            pages.SetItem(COSName.KIDS, new COSArray());
         }
 
-        if (!pages.ContainsKey(CountName))
+        if (!pages.ContainsKey(COSName.COUNT))
         {
-            pages.SetInt(CountName, 0);
+            pages.SetInt(COSName.COUNT, 0);
         }
 
-        root.SetItem(PagesName, pages);
+        root.SetItem(COSName.PAGES, pages);
     }
 
     private static byte[] ReadAllBytes(Stream input)
