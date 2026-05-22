@@ -31,7 +31,7 @@ namespace PdfBox.Net.COS;
 /// A <see cref="COSUpdateState"/> instance manages update states for a <see cref="COSUpdateInfo"/>.
 /// Such states are used to create a <see cref="COSIncrement"/> for the incremental saving of a <see cref="COSDocument"/>.
 /// </summary>
-/// <remarks>Original author: Christian Appl.</remarks>
+/// <remarks>@author Christian Appl.</remarks>
 public class COSUpdateState(COSUpdateInfo updateInfo)
 {
     private readonly COSUpdateInfo _updateInfo = updateInfo;

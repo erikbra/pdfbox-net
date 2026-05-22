@@ -69,16 +69,16 @@ public static class COSUpdateInfoExtensions
 {
     public static bool IsNeedToBeUpdated(this COSUpdateInfo updateInfo)
     {
-        return updateInfo.IsNeedToBeUpdated();
+        return updateInfo.GetUpdateState().IsUpdated();
     }
 
     public static void SetNeedToBeUpdated(this COSUpdateInfo updateInfo, bool flag)
     {
-        updateInfo.SetNeedToBeUpdated(flag);
+        updateInfo.GetUpdateState().Update(flag);
     }
 
     public static COSIncrement ToIncrement(this COSUpdateInfo updateInfo)
     {
-        return updateInfo.ToIncrement();
+        return updateInfo.GetUpdateState().ToIncrement();
     }
 }
