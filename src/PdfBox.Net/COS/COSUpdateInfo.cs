@@ -29,6 +29,39 @@ namespace PdfBox.Net.COS;
 
 public interface COSUpdateInfo : COSObjectable
 {
+    /// <summary>
+    /// Get the update state for the COSWriter. This indicates whether an object is to be written
+    /// when there is an incremental save.
+    /// </summary>
+    /// <returns>The update state.</returns>
+    bool IsNeedToBeUpdated()
+    {
+        return GetUpdateState().IsUpdated();
+    }
+
+    /// <summary>
+    /// Set the update state of the dictionary for the COSWriter. This indicates whether an object is
+    /// to be written when there is an incremental save.
+    /// </summary>
+    /// <param name="flag">The update state.</param>
+    void SetNeedToBeUpdated(bool flag)
+    {
+        GetUpdateState().Update(flag);
+    }
+
+    /// <summary>
+    /// Uses this <see cref="COSUpdateInfo"/> as the base object of a new <see cref="COSIncrement"/>.
+    /// </summary>
+    /// <returns>A <see cref="COSIncrement"/> based on this <see cref="COSUpdateInfo"/>.</returns>
+    COSIncrement ToIncrement()
+    {
+        return GetUpdateState().ToIncrement();
+    }
+
+    /// <summary>
+    /// Returns the current <see cref="COSUpdateState"/> of this <see cref="COSUpdateInfo"/>.
+    /// </summary>
+    /// <returns>The current <see cref="COSUpdateState"/> of this <see cref="COSUpdateInfo"/>.</returns>
     COSUpdateState GetUpdateState();
 }
 
@@ -36,16 +69,16 @@ public static class COSUpdateInfoExtensions
 {
     public static bool IsNeedToBeUpdated(this COSUpdateInfo updateInfo)
     {
-        return updateInfo.GetUpdateState().IsUpdated();
+        return updateInfo.IsNeedToBeUpdated();
     }
 
     public static void SetNeedToBeUpdated(this COSUpdateInfo updateInfo, bool flag)
     {
-        updateInfo.GetUpdateState().Update(flag);
+        updateInfo.SetNeedToBeUpdated(flag);
     }
 
     public static COSIncrement ToIncrement(this COSUpdateInfo updateInfo)
     {
-        return updateInfo.GetUpdateState().ToIncrement();
+        return updateInfo.ToIncrement();
     }
 }

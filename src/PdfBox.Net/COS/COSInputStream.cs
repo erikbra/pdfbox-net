@@ -34,6 +34,7 @@ namespace PdfBox.Net.COS;
 /// <summary>
 /// An InputStream which reads from an encoded COS stream.
 /// </summary>
+/// <remarks>Original author: John Hewson.</remarks>
 public sealed class COSInputStream : Stream
 {
     private readonly Stream _input;

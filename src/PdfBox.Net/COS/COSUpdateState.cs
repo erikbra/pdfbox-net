@@ -27,37 +27,65 @@
 
 namespace PdfBox.Net.COS;
 
+/// <summary>
+/// A <see cref="COSUpdateState"/> instance manages update states for a <see cref="COSUpdateInfo"/>.
+/// Such states are used to create a <see cref="COSIncrement"/> for the incremental saving of a <see cref="COSDocument"/>.
+/// </summary>
+/// <remarks>Original author: Christian Appl.</remarks>
 public class COSUpdateState(COSUpdateInfo updateInfo)
 {
     private readonly COSUpdateInfo _updateInfo = updateInfo;
     private COSDocumentState? _originDocumentState;
     private bool _updated;
 
+    /// <summary>
+    /// Links the given <see cref="COSDocumentState"/> to this update state and propagates it to contained substructures.
+    /// </summary>
+    /// <param name="originDocumentState">The document state that shall be linked to this update state.</param>
     public void SetOriginDocumentState(COSDocumentState? originDocumentState)
     {
         SetOriginDocumentState(originDocumentState, false);
     }
 
+    /// <summary>
+    /// Returns the linked origin document state.
+    /// </summary>
+    /// <returns>The linked document state, if any.</returns>
     public COSDocumentState? GetOriginDocumentState()
     {
         return _originDocumentState;
     }
 
+    /// <summary>
+    /// Returns the current update state of the managed <see cref="COSUpdateInfo"/>.
+    /// </summary>
+    /// <returns><c>true</c> if updated; otherwise <c>false</c>.</returns>
     public bool IsUpdated()
     {
         return _updated;
     }
 
+    /// <summary>
+    /// Returns whether updates are currently accepted.
+    /// </summary>
+    /// <returns><c>true</c> when updates are accepted; otherwise <c>false</c>.</returns>
     internal bool IsAcceptingUpdates()
     {
         return _originDocumentState is not null && _originDocumentState.IsAcceptingUpdates();
     }
 
+    /// <summary>
+    /// Updates the state to <c>true</c> when updates are accepted.
+    /// </summary>
     internal void Update()
     {
         Update(true);
     }
 
+    /// <summary>
+    /// Updates the state to the given value when updates are accepted.
+    /// </summary>
+    /// <param name="updated">The new update state.</param>
     internal void Update(bool updated)
     {
         if (IsAcceptingUpdates())
@@ -66,6 +94,10 @@ public class COSUpdateState(COSUpdateInfo updateInfo)
         }
     }
 
+    /// <summary>
+    /// Updates this state and propagates origin document state to a child update info object.
+    /// </summary>
+    /// <param name="child">The child to update.</param>
     internal void Update(COSBase? child)
     {
         Update();
@@ -75,6 +107,10 @@ public class COSUpdateState(COSUpdateInfo updateInfo)
         }
     }
 
+    /// <summary>
+    /// Updates this state and propagates origin document state to child update info objects.
+    /// </summary>
+    /// <param name="children">The children to update.</param>
     internal void Update(IEnumerable<COSBase?>? children)
     {
         Update();
@@ -92,6 +128,10 @@ public class COSUpdateState(COSUpdateInfo updateInfo)
         }
     }
 
+    /// <summary>
+    /// Propagates origin document state to a dereferenced child without changing update-state flags.
+    /// </summary>
+    /// <param name="child">The dereferenced child.</param>
     internal void DereferenceChild(COSBase? child)
     {
         if (child is COSUpdateInfo updateChild)
@@ -100,6 +140,10 @@ public class COSUpdateState(COSUpdateInfo updateInfo)
         }
     }
 
+    /// <summary>
+    /// Uses the managed update info as the base object of a new <see cref="COSIncrement"/>.
+    /// </summary>
+    /// <returns>A <see cref="COSIncrement"/> based on the managed update info.</returns>
     internal COSIncrement ToIncrement()
     {
         return new COSIncrement(_updateInfo);

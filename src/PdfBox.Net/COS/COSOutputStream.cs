@@ -35,6 +35,7 @@ namespace PdfBox.Net.COS;
 /// <summary>
 /// An OutputStream which writes to an encoded COS stream.
 /// </summary>
+/// <remarks>@author John Hewson.</remarks>
 public sealed class COSOutputStream : Stream
 {
     private readonly Stream _output;
@@ -43,6 +44,14 @@ public sealed class COSOutputStream : Stream
     private readonly RandomAccessStreamCache _streamCache;
     private RandomAccessBuffer? _buffer;
 
+    /// <summary>
+    /// Creates a new <see cref="COSOutputStream"/> that writes to an encoded COS stream.
+    /// </summary>
+    /// <param name="filters">Filters to apply.</param>
+    /// <param name="parameters">Filter parameters.</param>
+    /// <param name="output">Encoded stream.</param>
+    /// <param name="streamCache">Stream cache to use.</param>
+    /// <exception cref="IOException">If there was an error creating a temporary buffer.</exception>
     public COSOutputStream(IList<FilterBase> filters, COSDictionary parameters, Stream output, RandomAccessStreamCache streamCache)
     {
         _filters = filters;
@@ -102,11 +111,13 @@ public sealed class COSOutputStream : Stream
             {
                 try
                 {
+                    // apply filters in reverse order
                     for (int i = _filters.Count - 1; i >= 0; i--)
                     {
                         using RandomAccessInputStream unfilteredIn = new(_buffer);
                         if (i == 0)
                         {
+                            // The last filter to run can encode directly to the enclosed output stream.
                             _filters[i].Encode(unfilteredIn, _output, _parameters, i);
                         }
                         else
