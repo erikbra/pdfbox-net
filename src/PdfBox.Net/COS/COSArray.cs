@@ -125,7 +125,7 @@ public class COSArray : COSBase, IEnumerable<COSBase?>, COSUpdateInfo
     /// <param name="objectsList">The list of objects to remove from the collection.</param>
     public void RemoveAll(ICollection<COSBase?> objectsList)
     {
-        _objects.RemoveAll(o => objectsList.Contains(o));
+        _objects.RemoveAll(o => o is not null && objectsList.Contains(o));
         UpdateState.Update();
     }
 
@@ -135,7 +135,7 @@ public class COSArray : COSBase, IEnumerable<COSBase?>, COSUpdateInfo
     /// <param name="objectsList">The list of objects to retain from the collection.</param>
     public void RetainAll(ICollection<COSBase?> objectsList)
     {
-        if (_objects.RemoveAll(o => !objectsList.Contains(o)) > 0)
+        if (_objects.RemoveAll(o => o is null || !objectsList.Contains(o)) > 0)
         {
             UpdateState.Update();
         }
