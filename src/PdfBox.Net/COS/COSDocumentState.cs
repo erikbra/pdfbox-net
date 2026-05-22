@@ -27,15 +27,34 @@
 
 namespace PdfBox.Net.COS;
 
+/// <summary>
+/// An instance of <see cref="COSDocumentState"/> collects all known states a <see cref="COSDocument"/> may have and
+/// shall allow their evaluation.
+/// </summary>
 public class COSDocumentState
 {
+    /// <summary>
+    /// The parsing state of the document.
+    /// <list type="bullet">
+    /// <item><description><c>true</c>, if the document is currently being parsed. (initial state)</description></item>
+    /// <item><description><c>false</c>, if the document's parsing completed and it may be edited and updated.</description></item>
+    /// </list>
+    /// </summary>
     private bool _parsing = true;
 
+    /// <summary>
+    /// Sets the parsing state of the document.
+    /// </summary>
+    /// <param name="parsing">The parsing state to set.</param>
     public void SetParsing(bool parsing)
     {
         _parsing = parsing;
     }
 
+    /// <summary>
+    /// Returns <c>true</c>, if the document's parsing is completed and it may be updated.
+    /// </summary>
+    /// <returns><c>true</c>, if the document's parsing is completed and it may be updated.</returns>
     public bool IsAcceptingUpdates()
     {
         return !_parsing;

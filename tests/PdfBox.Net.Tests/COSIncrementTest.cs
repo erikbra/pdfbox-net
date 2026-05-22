@@ -99,4 +99,22 @@ public class COSIncrementTest
         Assert.Contains(indirectChild, increment.GetObjects());
         Assert.DoesNotContain(parent, increment.GetObjects());
     }
+
+    [Fact]
+    public void TestContainsTracksProcessedObjects()
+    {
+        COSDocumentState documentState = new();
+        COSDictionary parent = new();
+        COSDictionary child = new();
+        child.SetKey(new COSObjectKey(12, 0));
+        parent.SetItem(COSName.GetPDFName("Metadata"), child);
+        parent.GetUpdateState().SetOriginDocumentState(documentState);
+        documentState.SetParsing(false);
+        child.SetString(COSName.TYPE, "Metadata");
+
+        COSIncrement increment = parent.ToIncrement();
+        _ = increment.GetObjects();
+
+        Assert.True(increment.Contains(child));
+    }
 }
