@@ -29,40 +29,117 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel;
 
+/// <summary>
+/// The page tree, which defines the ordering of pages in the document in an efficient manner.
+/// </summary>
+/// <remarks>
+/// Ported from Apache PDFBox <c>PDPageTree</c>.
+/// </remarks>
 public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
 {
-    private static readonly COSName TypeName = COSName.TYPE;
-    private static readonly COSName PagesTypeName = COSName.GetPDFName("Pages");
-    private static readonly COSName KidsName = COSName.GetPDFName("Kids");
-    private static readonly COSName CountName = COSName.GetPDFName("Count");
     private readonly COSDictionary _root;
 
-    internal PDPageTree(COSDictionary root, PDDocument _)
-        : this(root)
-    {
-    }
-
+    /// <summary>
+    /// Constructor for embedding.
+    /// </summary>
     public PDPageTree()
         : this(CreatePageTreeRoot())
     {
     }
 
+    /// <summary>
+    /// Constructor for reading.
+    /// </summary>
+    /// <param name="root">A page tree root.</param>
     public PDPageTree(COSDictionary root)
     {
-        _root = root ?? throw new ArgumentNullException(nameof(root));
-        EnsureStructure();
+        if (root is null)
+        {
+            throw new ArgumentNullException(nameof(root), "page tree root cannot be null");
+        }
+
+        // Repair bad PDFs which contain a Page dict instead of a page tree (PDFBOX-3154)
+        if (COSName.PAGE.Equals(root.GetCOSName(COSName.TYPE)))
+        {
+            COSArray kids = new();
+            kids.Add(root);
+            _root = new COSDictionary();
+            _root.SetItem(COSName.KIDS, kids);
+            _root.SetInt(COSName.COUNT, 1);
+        }
+        else
+        {
+            _root = root;
+        }
     }
 
+    /// <summary>
+    /// Constructor for reading.
+    /// </summary>
+    /// <param name="root">A page tree root.</param>
+    /// <param name="document">The document which contains <paramref name="root"/>.</param>
+    internal PDPageTree(COSDictionary root, PDDocument document)
+        : this(root)
+    {
+    }
+
+    /// <inheritdoc/>
     public COSBase GetCOSObject()
     {
         return _root;
     }
 
-    public int GetCount()
+    /// <summary>
+    /// Returns the given attribute, inheriting from parent tree nodes if necessary.
+    /// </summary>
+    /// <param name="node">Page object.</param>
+    /// <param name="key">The key to look up.</param>
+    /// <returns>COS value for the given key.</returns>
+    public static COSBase? GetInheritableAttribute(COSDictionary node, COSName key)
     {
-        return _root.GetInt(CountName, 0);
+        return GetInheritableAttribute(node, key, new HashSet<COSDictionary>());
     }
 
+    private static COSBase? GetInheritableAttribute(COSDictionary node, COSName key, ISet<COSDictionary> visited)
+    {
+        if (visited.Contains(node))
+        {
+            return null;
+        }
+
+        visited.Add(node);
+
+        COSBase? value = node.GetDictionaryObject(key);
+        if (value is not null)
+        {
+            return value;
+        }
+
+        COSDictionary? parent = node.GetCOSDictionary(COSName.PARENT, COSName.P);
+        if (parent is not null && COSName.PAGES.Equals(parent.GetCOSName(COSName.TYPE)))
+        {
+            return GetInheritableAttribute(parent, key, visited);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Returns the number of leaf nodes (page objects) that are descendants of this root within the
+    /// page tree.
+    /// </summary>
+    /// <returns>The number of leaf nodes, 0 if not present.</returns>
+    public int GetCount()
+    {
+        return _root.GetInt(COSName.COUNT, 0);
+    }
+
+    /// <summary>
+    /// Returns the page at the given index.
+    /// </summary>
+    /// <param name="index">Zero-based index.</param>
+    /// <returns>The page at the given index.</returns>
+    /// <exception cref="IndexOutOfRangeException">If the index is out of bounds.</exception>
     public PDPage Get(int index)
     {
         if (index < 0 || index >= GetCount())
@@ -74,6 +151,11 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
         return new PDPage(page);
     }
 
+    /// <summary>
+    /// Returns the index of the given page, or -1 if it does not exist.
+    /// </summary>
+    /// <param name="page">The page to search for.</param>
+    /// <returns>The zero-based index of the given page, or -1 if the page is not found.</returns>
     public int IndexOf(PDPage page)
     {
         ArgumentNullException.ThrowIfNull(page);
@@ -90,21 +172,33 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
         return -1;
     }
 
+    /// <summary>
+    /// Adds a page to the end of this page tree.
+    /// </summary>
+    /// <param name="page">The page to add.</param>
     public void Add(PDPage page)
     {
         ArgumentNullException.ThrowIfNull(page);
         COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
         GetKidsArray().Add(pageDictionary);
-        _root.SetInt(CountName, GetCount() + 1);
+        _root.SetInt(COSName.COUNT, GetCount() + 1);
     }
 
+    /// <summary>
+    /// Removes the page with the given index from the page tree.
+    /// </summary>
+    /// <param name="index">Zero-based page index.</param>
     public void Remove(int index)
     {
         Get(index);
         GetKidsArray().Remove(index);
-        _root.SetInt(CountName, Math.Max(0, GetCount() - 1));
+        _root.SetInt(COSName.COUNT, Math.Max(0, GetCount() - 1));
     }
 
+    /// <summary>
+    /// Removes the given page from the page tree.
+    /// </summary>
+    /// <param name="page">The page to remove.</param>
     public void Remove(PDPage page)
     {
         ArgumentNullException.ThrowIfNull(page);
@@ -115,6 +209,7 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
         }
     }
 
+    /// <inheritdoc/>
     public IEnumerator<PDPage> GetEnumerator()
     {
         COSArray kids = GetKidsArray();
@@ -132,33 +227,13 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
         return GetEnumerator();
     }
 
-    private void EnsureStructure()
-    {
-        _root.SetName(TypeName, PagesTypeName.GetName());
-        if (!_root.ContainsKey(KidsName))
-        {
-            _root.SetItem(KidsName, new COSArray());
-        }
-
-        COSArray kids = GetKidsArray();
-        for (int i = 0; i < kids.Size(); i++)
-        {
-            if (kids.GetObject(i) is COSDictionary pageDictionary)
-            {
-                pageDictionary.SetName(TypeName, "Page");
-            }
-        }
-
-        _root.SetInt(CountName, kids.Size());
-    }
-
     private COSArray GetKidsArray()
     {
-        COSArray? kids = _root.GetCOSArray(KidsName);
+        COSArray? kids = _root.GetCOSArray(COSName.KIDS);
         if (kids is null)
         {
             kids = new COSArray();
-            _root.SetItem(KidsName, kids);
+            _root.SetItem(COSName.KIDS, kids);
         }
 
         return kids;
@@ -177,9 +252,9 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
     private static COSDictionary CreatePageTreeRoot()
     {
         COSDictionary root = new();
-        root.SetName(TypeName, PagesTypeName.GetName());
-        root.SetItem(KidsName, new COSArray());
-        root.SetInt(CountName, 0);
+        root.SetItem(COSName.TYPE, COSName.PAGES);
+        root.SetItem(COSName.KIDS, new COSArray());
+        root.SetInt(COSName.COUNT, 0);
         return root;
     }
 }

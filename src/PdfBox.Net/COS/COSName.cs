@@ -34,17 +34,76 @@ public sealed class COSName : COSBase, IComparable<COSName>
 {
     private static readonly ConcurrentDictionary<string, COSName> NameMap = new(StringComparer.Ordinal);
 
+    //
+    // IMPORTANT: this list is *alphabetized* and does not need additional doc comments
+    //
+
+    // A
     public static readonly COSName A = GetPDFName("A");
+    public static readonly COSName AA = GetPDFName("AA");
+    public static readonly COSName ACRO_FORM = GetPDFName("AcroForm");
+    public static readonly COSName ART_BOX = GetPDFName("ArtBox");
+    public static readonly COSName AUTHOR = GetPDFName("Author");
+    // B
     public static readonly COSName B = GetPDFName("B");
     public static readonly COSName BE = GetPDFName("BE");
+    public static readonly COSName BLEED_BOX = GetPDFName("BleedBox");
+    // C
     public static readonly COSName C = GetPDFName("C");
+    public static readonly COSName CATALOG = GetPDFName("Catalog");
+    public static readonly COSName CONTENTS = GetPDFName("Contents");
+    public static readonly COSName COUNT = GetPDFName("Count");
+    public static readonly COSName CREATION_DATE = GetPDFName("CreationDate");
+    public static readonly COSName CREATOR = GetPDFName("Creator");
+    public static readonly COSName CROP_BOX = GetPDFName("CropBox");
+    // D
     public static readonly COSName D = GetPDFName("D");
+    public static readonly COSName DESTS = GetPDFName("Dests");
+    // E
     public static readonly COSName EMPTY = GetPDFName(string.Empty);
+    // F
     public static readonly COSName FILTER = GetPDFName("Filter");
+    // K
+    public static readonly COSName KEYWORDS = GetPDFName("Keywords");
+    public static readonly COSName KIDS = GetPDFName("Kids");
+    // L
+    public static readonly COSName LANG = GetPDFName("Lang");
     public static readonly COSName LENGTH = GetPDFName("Length");
+    // M
+    public static readonly COSName MARK_INFO = GetPDFName("MarkInfo");
+    public static readonly COSName MEDIA_BOX = GetPDFName("MediaBox");
+    public static readonly COSName METADATA = GetPDFName("Metadata");
+    public static readonly COSName MOD_DATE = GetPDFName("ModDate");
+    // N
+    public static readonly COSName NAMES = GetPDFName("Names");
+    // O
+    public static readonly COSName OPEN_ACTION = GetPDFName("OpenAction");
+    public static readonly COSName OUTPUT_INTENTS = GetPDFName("OutputIntents");
+    // P
     public static readonly COSName P = GetPDFName("P");
+    public static readonly COSName PAGE = GetPDFName("Page");
+    public static readonly COSName PAGE_LAYOUT = GetPDFName("PageLayout");
+    public static readonly COSName PAGE_MODE = GetPDFName("PageMode");
+    public static readonly COSName PAGES = GetPDFName("Pages");
     public static readonly COSName PARENT = GetPDFName("Parent");
+    public static readonly COSName PRODUCER = GetPDFName("Producer");
+    // R
+    public static readonly COSName RESOURCES = GetPDFName("Resources");
+    public static readonly COSName ROTATE = GetPDFName("Rotate");
+    public static readonly COSName ROOT = GetPDFName("Root");
+    // S
+    public static readonly COSName STRUCT_PARENTS = GetPDFName("StructParents");
+    public static readonly COSName SUBJECT = GetPDFName("Subject");
+    // T
+    public static readonly COSName THREADS = GetPDFName("Threads");
+    public static readonly COSName TITLE = GetPDFName("Title");
+    public static readonly COSName TRAPPED = GetPDFName("Trapped");
+    public static readonly COSName TRIM_BOX = GetPDFName("TrimBox");
     public static readonly COSName TYPE = GetPDFName("Type");
+    // V
+    public static readonly COSName VERSION = GetPDFName("Version");
+    // W
+    public static readonly COSName VIEWER_PREFERENCES = GetPDFName("ViewerPreferences");
 
     private readonly byte[] _nameBytes;
 

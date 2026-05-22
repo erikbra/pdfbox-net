@@ -26,28 +26,297 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel;
 
+/// <summary>
+/// A page in a PDF document.
+/// </summary>
+/// <remarks>
+/// Ported from Apache PDFBox <c>PDPage</c>.
+/// </remarks>
 public sealed class PDPage : COSObjectable
 {
-    private static readonly COSName PageTypeName = COSName.GetPDFName("Page");
     private readonly COSDictionary _page;
+    private PDRectangle? _mediaBox;
 
+    /// <summary>
+    /// Creates a new PDPage instance for embedding, with a size of U.S. Letter (8.5 x 11 inches).
+    /// </summary>
     public PDPage()
-        : this(new COSDictionary())
+        : this(PDRectangle.LETTER)
     {
-        _page.SetName(COSName.TYPE, PageTypeName.GetName());
     }
 
-    internal PDPage(COSDictionary pageDictionary)
+    /// <summary>
+    /// Creates a new instance of PDPage for embedding.
+    /// </summary>
+    /// <param name="mediaBox">The MediaBox of the page.</param>
+    public PDPage(PDRectangle mediaBox)
+    {
+        ArgumentNullException.ThrowIfNull(mediaBox);
+        _page = new COSDictionary();
+        _page.SetItem(COSName.TYPE, COSName.PAGE);
+        _page.SetItem(COSName.MEDIA_BOX, mediaBox.GetCOSArray());
+    }
+
+    /// <summary>
+    /// Creates a new instance of PDPage for reading.
+    /// </summary>
+    /// <param name="pageDictionary">A page dictionary in a PDF document.</param>
+    public PDPage(COSDictionary pageDictionary)
     {
         _page = pageDictionary ?? throw new ArgumentNullException(nameof(pageDictionary));
-        _page.SetName(COSName.TYPE, PageTypeName.GetName());
     }
 
+    /// <summary>
+    /// Returns the underlying COS dictionary.
+    /// </summary>
+    /// <returns>The page dictionary.</returns>
     public COSBase GetCOSObject()
     {
         return _page;
+    }
+
+    /// <summary>
+    /// A rectangle, expressed in default user space units, defining the boundaries of the physical
+    /// medium on which the page is intended to be displayed or printed.
+    /// </summary>
+    /// <returns>The media box of the page.</returns>
+    public PDRectangle GetMediaBox()
+    {
+        if (_mediaBox is null)
+        {
+            COSBase? base_ = PDPageTree.GetInheritableAttribute(_page, COSName.MEDIA_BOX);
+            if (base_ is COSArray array)
+            {
+                _mediaBox = new PDRectangle(array);
+            }
+            else
+            {
+                _mediaBox = PDRectangle.LETTER;
+            }
+        }
+
+        return _mediaBox;
+    }
+
+    /// <summary>
+    /// Sets the media box for this page.
+    /// </summary>
+    /// <param name="mediaBox">The new media box for this page.</param>
+    public void SetMediaBox(PDRectangle? mediaBox)
+    {
+        _mediaBox = mediaBox;
+        if (mediaBox is null)
+        {
+            _page.RemoveItem(COSName.MEDIA_BOX);
+        }
+        else
+        {
+            _page.SetItem(COSName.MEDIA_BOX, mediaBox.GetCOSArray());
+        }
+    }
+
+    /// <summary>
+    /// A rectangle, expressed in default user space units, defining the visible region of default
+    /// user space. When the page is displayed or printed, its contents are to be clipped (cropped)
+    /// to this rectangle.
+    /// </summary>
+    /// <returns>The crop box of the page.</returns>
+    public PDRectangle GetCropBox()
+    {
+        COSBase? base_ = PDPageTree.GetInheritableAttribute(_page, COSName.CROP_BOX);
+        if (base_ is COSArray array)
+        {
+            return ClipToMediaBox(new PDRectangle(array));
+        }
+
+        return GetMediaBox();
+    }
+
+    /// <summary>
+    /// Sets the CropBox for this page.
+    /// </summary>
+    /// <param name="cropBox">The new CropBox for this page.</param>
+    public void SetCropBox(PDRectangle? cropBox)
+    {
+        if (cropBox is null)
+        {
+            _page.RemoveItem(COSName.CROP_BOX);
+        }
+        else
+        {
+            _page.SetItem(COSName.CROP_BOX, cropBox.GetCOSArray());
+        }
+    }
+
+    /// <summary>
+    /// A rectangle, expressed in default user space units, defining the region to which the contents
+    /// of the page should be clipped when output in a production environment. The default is the
+    /// CropBox.
+    /// </summary>
+    /// <returns>The BleedBox attribute.</returns>
+    public PDRectangle GetBleedBox()
+    {
+        COSArray? bleedBox = _page.GetCOSArray(COSName.BLEED_BOX);
+        return bleedBox is not null ? ClipToMediaBox(new PDRectangle(bleedBox)) : GetCropBox();
+    }
+
+    /// <summary>
+    /// Sets the BleedBox for this page.
+    /// </summary>
+    /// <param name="bleedBox">The new BleedBox for this page.</param>
+    public void SetBleedBox(PDRectangle? bleedBox)
+    {
+        if (bleedBox is null)
+        {
+            _page.RemoveItem(COSName.BLEED_BOX);
+        }
+        else
+        {
+            _page.SetItem(COSName.BLEED_BOX, bleedBox.GetCOSArray());
+        }
+    }
+
+    /// <summary>
+    /// A rectangle, expressed in default user space units, defining the intended dimensions of the
+    /// finished page after trimming. The default is the CropBox.
+    /// </summary>
+    /// <returns>The TrimBox attribute.</returns>
+    public PDRectangle GetTrimBox()
+    {
+        COSArray? trimBox = _page.GetCOSArray(COSName.TRIM_BOX);
+        return trimBox is not null ? ClipToMediaBox(new PDRectangle(trimBox)) : GetCropBox();
+    }
+
+    /// <summary>
+    /// Sets the TrimBox for this page.
+    /// </summary>
+    /// <param name="trimBox">The new TrimBox for this page.</param>
+    public void SetTrimBox(PDRectangle? trimBox)
+    {
+        if (trimBox is null)
+        {
+            _page.RemoveItem(COSName.TRIM_BOX);
+        }
+        else
+        {
+            _page.SetItem(COSName.TRIM_BOX, trimBox.GetCOSArray());
+        }
+    }
+
+    /// <summary>
+    /// A rectangle, expressed in default user space units, defining the extent of the page's
+    /// meaningful content (including potential white space) as intended by the page's creator. The
+    /// default is the CropBox.
+    /// </summary>
+    /// <returns>The ArtBox attribute.</returns>
+    public PDRectangle GetArtBox()
+    {
+        COSArray? artBox = _page.GetCOSArray(COSName.ART_BOX);
+        return artBox is not null ? ClipToMediaBox(new PDRectangle(artBox)) : GetCropBox();
+    }
+
+    /// <summary>
+    /// Sets the ArtBox for this page.
+    /// </summary>
+    /// <param name="artBox">The new ArtBox for this page.</param>
+    public void SetArtBox(PDRectangle? artBox)
+    {
+        if (artBox is null)
+        {
+            _page.RemoveItem(COSName.ART_BOX);
+        }
+        else
+        {
+            _page.SetItem(COSName.ART_BOX, artBox.GetCOSArray());
+        }
+    }
+
+    /// <summary>
+    /// Returns the rotation angle in degrees by which the page should be rotated clockwise when
+    /// displayed or printed. Valid values in a PDF must be a multiple of 90.
+    /// </summary>
+    /// <returns>
+    /// The rotation angle in degrees in normalized form (0, 90, 180, or 270), or 0 if invalid
+    /// or not set at this level.
+    /// </returns>
+    public int GetRotation()
+    {
+        COSBase? obj = PDPageTree.GetInheritableAttribute(_page, COSName.ROTATE);
+        if (obj is COSNumber number)
+        {
+            int rotationAngle = number.IntValue();
+            if (rotationAngle % 90 == 0)
+            {
+                return (rotationAngle % 360 + 360) % 360;
+            }
+        }
+
+        return 0;
+    }
+
+    /// <summary>
+    /// Sets the rotation for this page.
+    /// </summary>
+    /// <param name="rotation">The new rotation for this page in degrees.</param>
+    public void SetRotation(int rotation)
+    {
+        _page.SetInt(COSName.ROTATE, rotation);
+    }
+
+    /// <summary>
+    /// Gets the key of this Page in the structural parent tree.
+    /// </summary>
+    /// <returns>
+    /// The integer key of the page's entry in the structural parent tree, or -1 if there isn't any.
+    /// </returns>
+    public int GetStructParents()
+    {
+        return _page.GetInt(COSName.STRUCT_PARENTS);
+    }
+
+    /// <summary>
+    /// Sets the key for this page in the structural parent tree.
+    /// </summary>
+    /// <param name="structParents">The new key for this page.</param>
+    public void SetStructParents(int structParents)
+    {
+        _page.SetInt(COSName.STRUCT_PARENTS, structParents);
+    }
+
+    /// <summary>
+    /// Returns <see langword="true"/> if this page has one or more content streams.
+    /// </summary>
+    /// <returns><see langword="true"/> if the page has a non-empty content stream, otherwise <see langword="false"/>.</returns>
+    public bool HasContents()
+    {
+        COSBase? contents = _page.GetDictionaryObject(COSName.CONTENTS);
+        if (contents is COSStream stream)
+        {
+            return stream.GetInt(COSName.LENGTH, 0) > 0;
+        }
+        else if (contents is COSArray array)
+        {
+            return !array.IsEmpty();
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Clips the given box to the bounds of the media box.
+    /// </summary>
+    private PDRectangle ClipToMediaBox(PDRectangle box)
+    {
+        PDRectangle mediaBox = GetMediaBox();
+        PDRectangle result = new();
+        result.SetLowerLeftX(Math.Max(mediaBox.GetLowerLeftX(), box.GetLowerLeftX()));
+        result.SetLowerLeftY(Math.Max(mediaBox.GetLowerLeftY(), box.GetLowerLeftY()));
+        result.SetUpperRightX(Math.Min(mediaBox.GetUpperRightX(), box.GetUpperRightX()));
+        result.SetUpperRightY(Math.Min(mediaBox.GetUpperRightY(), box.GetUpperRightY()));
+        return result;
     }
 }
