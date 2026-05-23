@@ -63,7 +63,7 @@ public class FontFileFinderTest
         IList<Uri> results = finder.Find();
 
         Assert.Equal(
-            new[] { new Uri(firstFont), new Uri(secondFont) },
+            new[] { new Uri(firstFont), new Uri(secondFont) }.OrderBy(uri => uri.LocalPath, StringComparer.Ordinal).ToArray(),
             results.OrderBy(uri => uri.LocalPath, StringComparer.Ordinal).ToArray());
     }
 
