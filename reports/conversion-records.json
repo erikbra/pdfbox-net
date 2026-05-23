@@ -470,5 +470,45 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Native xUnit coverage for PageLayout/PageMode roundtrip, language, and null-clear semantics for new catalog methods."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/Encoding.java",
+    "target_path": "src/PdfBox.Net/FontBox/Encoding/Encoding.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported the FontBox base encoding map with code/name lookup parity and an unmodifiable code-to-name view via ReadOnlyDictionary."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/StandardEncoding.java",
+    "target_path": "src/PdfBox.Net/FontBox/Encoding/StandardEncoding.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of Adobe Standard Encoding using the upstream table data normalized from Java octal literals into C# tuple entries."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/MacRomanEncoding.java",
+    "target_path": "src/PdfBox.Net/FontBox/Encoding/MacRomanEncoding.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of MacRomanEncoding using the upstream table data normalized from Java octal literals into C# tuple entries."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/BuiltInEncoding.java",
+    "target_path": "src/PdfBox.Net/FontBox/Encoding/BuiltInEncoding.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported the custom built-in font encoding wrapper that seeds the base lookup tables from an embedded code-to-name map."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/encoding/EncodingTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/EncodingTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted upstream EncodingTest to xUnit and expanded it with BuiltInEncoding fallback/read-only map coverage."
   }
 ]
