@@ -646,7 +646,7 @@
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/Encoding.java",
-    "target_path": "src/PdfBox.Net/FontBox/Encoding/Encoding.cs",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/Encoding.cs",
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
@@ -658,7 +658,7 @@
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/StandardEncoding.java",
-    "target_path": "src/PdfBox.Net/FontBox/Encoding/StandardEncoding.cs",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/StandardEncoding.cs",
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
@@ -670,7 +670,7 @@
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/MacRomanEncoding.java",
-    "target_path": "src/PdfBox.Net/FontBox/Encoding/MacRomanEncoding.cs",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/MacRomanEncoding.cs",
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
@@ -682,7 +682,7 @@
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/BuiltInEncoding.java",
-    "target_path": "src/PdfBox.Net/FontBox/Encoding/BuiltInEncoding.cs",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/BuiltInEncoding.cs",
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
@@ -703,5 +703,459 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Retained the upstream representative lookup assertions and added coverage for missing-name/code fallbacks and read-only map behavior."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/FontBoxFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/FontBoxFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java interface -> C# interface; no semantic change."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/EncodedFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/EncodedFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java interface -> C# interface; no semantic change."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Pfb/PfbParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java IO -> .NET Stream/byte[] API"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java InputStream -> byte[] + index; Java byte-signed handling adapted to C# unsigned byte read."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/DamagedFontException.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/DamagedFontException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java exception -> C# exception subclass."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Token.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Token.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java class -> C# record/class; Java enum inner class adapted."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1CharStringReader.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1CharStringReader.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java interface -> C# interface."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Font.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Font.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java concurrent -> .NET ConcurrentDictionary"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java ConcurrentHashMap -> ConcurrentDictionary; Java HashMap -> Dictionary; Java InputStream -> byte[] (Stream.CopyTo)."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Lexer.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Lexer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java IO -> .NET Stream/byte[] API"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java byte[] reader with signed byte adaptation."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Parser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Parser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java parser logic preserved; minor syntax normalization."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/BoundingBox.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/BoundingBox.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical conversion; float[] constructor preserved."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java IO -> .NET file system API"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java File -> .NET FileInfo/DirectoryInfo; interface adapted."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontFileFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontFileFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java IO -> .NET file system API"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java File iterator -> .NET DirectoryInfo.EnumerateFiles; extension filtering adapted."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/MacFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/MacFontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical; macOS paths unchanged."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/NativeFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/NativeFontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/OS400FontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/OS400FontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical; OS/400 paths unchanged."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/UnixFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/UnixFontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical; Unix font paths unchanged."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/WindowsFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/WindowsFontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical; Windows paths unchanged."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFCIDFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFCIDFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "CID font model; Java properties -> C# auto-properties."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFCharset.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFCharset.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java interface -> C# interface."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFCharsetType1.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFCharsetType1.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java List/Map -> C# List/Dictionary."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFEncoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java interface -> C# interface."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections -> .NET collections"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java LinkedHashMap/ArrayList -> Dictionary/List."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Adapted port \u2014 not full parity"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Focused adapted port. Java DataInput hierarchy, full CFF operator table, and CID-keyed internals replaced with inline Reader class. Partial implementation \u2014 see issue #8 for full charstring/CID gap."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFStandardEncoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFStandardEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical singleton table."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFStandardString.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFStandardString.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Standard SID string table; Java static array -> C# static array."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFType1Font.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFType1Font.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections -> .NET collections"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java Map/HashMap -> Dictionary; charstring access adapted."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/Type1CharString.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Adapted port \u2014 not full parity"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Partial port: path/width model and stub interpreter. Full charstring execution (Type1CharStringParser) pending issue #8."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type2CharString.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/Type2CharString.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Adapted port \u2014 not full parity"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Partial port: path/width model. Full Type2 interpreter (Type2CharStringParser) pending issue #8."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FontHeaders.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/FontHeaders.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical; simple data holder."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HeaderTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HeaderTable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "TTF head table with bitmask fields; Java int fields -> C# uint/int."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/MaximumProfileTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/MaximumProfileTable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "TTF maxp table; numGlyphs and profile fields adapted."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/MemoryTTFDataStream.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/MemoryTTFDataStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java IO -> .NET Stream/byte[] API"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "In-memory byte-array TTF stream; Java InputStream/DataInputStream -> custom TTFDataStream subclass."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/NameRecord.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/NameRecord.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/NamingTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/NamingTable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "NamingTable with NameRecord list; Java List -> IReadOnlyList."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/OTFParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/OTFParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "OTF parser subclass; allowOpenType constructor parameter."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/OpenTypeFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/OpenTypeFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "OpenTypeFont extending TrueTypeFont with CFF table accessor."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFDataStream.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFDataStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java IO -> .NET Stream/byte[] API"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Abstract TTF stream; Java DataInputStream typed reads -> manual big-endian read methods."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Adapted port \u2014 not full parity"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Partial port: sfnt header + head/maxp/name table handling. Remaining table types (cmap, glyf, hmtx, loca, OS/2, etc.) not yet wired. See issue #9."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFTable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Base TTF table with lazy load pattern."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Adapted port \u2014 not full parity"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Font model with table dictionary. Java HashMap<String,TTFTable> -> Dictionary<string,TTFTable>. Typed accessors for unported tables not yet present. See issue #9."
   }
 ]
