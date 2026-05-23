@@ -25,7 +25,7 @@
  * limitations under the License.
  */
 
-using System.Text;
+using TextEncoding = System.Text.Encoding;
 
 namespace PdfBox.Net.FontBox.CMap;
 
@@ -54,13 +54,13 @@ public static class CMapStrings
             {
                 int index = (i * 256) + j;
                 byte[] bytes = [(byte)i, (byte)j];
-                TwoByteMappings[index] = Encoding.BigEndianUnicode.GetString(bytes);
+                TwoByteMappings[index] = TextEncoding.BigEndianUnicode.GetString(bytes);
                 TwoByteValues[index] = bytes;
                 IndexValues[index] = index;
             }
         }
 
-        Encoding latin1 = Encoding.GetEncoding("ISO-8859-1");
+        TextEncoding latin1 = TextEncoding.GetEncoding("ISO-8859-1");
         for (int i = 0; i < 256; i++)
         {
             byte[] bytes = [(byte)i];

@@ -28,6 +28,7 @@
 using System.Reflection;
 using System.Text;
 using PdfBox.Net.IO;
+using TextEncoding = System.Text.Encoding;
 
 namespace PdfBox.Net.FontBox.CMap;
 
@@ -741,7 +742,7 @@ public class CMapParser
             return CMapStrings.GetMapping(bytes) ?? string.Empty;
         }
 
-        return Encoding.BigEndianUnicode.GetString(bytes);
+        return TextEncoding.BigEndianUnicode.GetString(bytes);
     }
 
     private sealed class LiteralName
