@@ -63,6 +63,17 @@ internal static class FontBoxTestFixtures
     public static byte[] CreateMinimalOpenTypeCff()
     {
         byte[] cff = CreateMinimalCff();
+        return WrapOpenTypeCff(cff);
+    }
+
+    public static byte[] CreateMinimalOpenTypeCidCff()
+    {
+        byte[] cff = CreateMinimalCidCff();
+        return WrapOpenTypeCff(cff);
+    }
+
+    private static byte[] WrapOpenTypeCff(byte[] cff)
+    {
         int offset = 12 + 16;
         int paddedLength = (cff.Length + 3) & ~3;
         using MemoryStream stream = new();
@@ -166,6 +177,46 @@ internal static class FontBoxTestFixtures
         stream.Write(globalSubrIndex);
         stream.Write(charStringsIndex);
         stream.Write(privateDict);
+        return stream.ToArray();
+    }
+
+    private static byte[] CreateMinimalCidCff()
+    {
+        byte[] nameIndex = BuildIndex([Encoding.ASCII.GetBytes("MiniCID")]);
+        byte[] stringIndex = BuildIndex([]);
+        byte[] globalSubrIndex = BuildIndex([]);
+        byte[] charStringsIndex = BuildIndex([[14], [14]]);
+        byte[] charsetData = [0, 0, 0, 0, 10];
+        byte[] topDict = [];
+
+        while (true)
+        {
+            byte[] topDictIndex = BuildIndex([topDict]);
+            int prefix = 4 + nameIndex.Length + topDictIndex.Length + stringIndex.Length + globalSubrIndex.Length;
+            int charStringsOffset = prefix;
+            int charsetOffset = prefix + charStringsIndex.Length;
+            byte[] nextTopDict = BuildDict(
+                EncodeInteger(1), EncodeInteger(2), EncodeInteger(0), [12, 30],
+                EncodeInteger(charsetOffset), [15],
+                EncodeInteger(charStringsOffset), [17]);
+            if (nextTopDict.SequenceEqual(topDict))
+            {
+                topDict = nextTopDict;
+                break;
+            }
+
+            topDict = nextTopDict;
+        }
+
+        byte[] topDictIndexFinal = BuildIndex([topDict]);
+        using MemoryStream stream = new();
+        stream.Write([1, 0, 4, 1]);
+        stream.Write(nameIndex);
+        stream.Write(topDictIndexFinal);
+        stream.Write(stringIndex);
+        stream.Write(globalSubrIndex);
+        stream.Write(charStringsIndex);
+        stream.Write(charsetData);
         return stream.ToArray();
     }
 

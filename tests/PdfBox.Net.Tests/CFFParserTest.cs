@@ -25,4 +25,21 @@ public class CFFParserTest
         Assert.True(font.HasGlyph("space"));
         Assert.NotNull(font.GetPath("space"));
     }
+
+    [Fact]
+    public void TestMinimalOpenTypeCidCffParses()
+    {
+        byte[] bytes = FontBoxTestFixtures.CreateMinimalOpenTypeCidCff();
+        using RandomAccessReadBuffer input = new(bytes);
+        CFFParser parser = new();
+        List<CFFFont> fonts = parser.Parse(input);
+        CFFCIDFont font = Assert.IsType<CFFCIDFont>(Assert.Single(fonts));
+        Assert.Equal("space", font.Registry);
+        Assert.Equal("exclam", font.Ordering);
+        Assert.Equal(0, font.Supplement);
+        Assert.True(font.GetCharset().IsCIDFont());
+        Assert.Equal(10, font.GetCharset().GetCIDForGID(1));
+        Assert.Equal(1, font.GetCharset().GetGIDForCID(10));
+        Assert.IsType<CIDKeyedType2CharString>(font.GetType2CharString(1));
+    }
 }

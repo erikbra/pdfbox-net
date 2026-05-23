@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/CFFCIDFont.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/DataInput.java
  * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: trunk
@@ -25,23 +25,49 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.Util.Geometry;
-
 namespace PdfBox.Net.FontBox.CFF;
 
-public sealed class CFFCIDFont : CFFFont
+public interface DataInput
 {
-    public string Registry { get; internal set; } = string.Empty;
-    public string Ordering { get; internal set; } = string.Empty;
-    public int Supplement { get; internal set; }
+    bool HasRemaining();
+    int GetPosition();
+    void SetPosition(int position);
+    byte ReadByte();
+    int ReadUnsignedByte();
+    int PeekUnsignedByte(int offset);
 
-    public override Type2CharString GetType2CharString(int cidOrGid)
+    short ReadShort()
     {
-        int cid = GetCharset().GetCIDForGID(cidOrGid);
-        return new CIDKeyedType2CharString(GetName(), cid, cidOrGid, GetCharStringBytes()[cidOrGid]);
+        return (short)ReadUnsignedShort();
     }
 
-    public override GeneralPath GetPath(string name) => new();
-    public override float GetWidth(string name) => 0;
-    public override bool HasGlyph(string name) => false;
+    int ReadUnsignedShort()
+    {
+        int b1 = ReadUnsignedByte();
+        int b2 = ReadUnsignedByte();
+        return (b1 << 8) | b2;
+    }
+
+    int ReadInt()
+    {
+        int b1 = ReadUnsignedByte();
+        int b2 = ReadUnsignedByte();
+        int b3 = ReadUnsignedByte();
+        int b4 = ReadUnsignedByte();
+        return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+    }
+
+    byte[] ReadBytes(int length);
+    int Length();
+
+    int ReadOffset(int offSize)
+    {
+        int value = 0;
+        for (int i = 0; i < offSize; i++)
+        {
+            value = (value << 8) | ReadUnsignedByte();
+        }
+
+        return value;
+    }
 }

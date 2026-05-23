@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/CFFCIDFont.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/FDSelect.java
  * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: trunk
@@ -25,23 +25,9 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.Util.Geometry;
-
 namespace PdfBox.Net.FontBox.CFF;
 
-public sealed class CFFCIDFont : CFFFont
+public interface FDSelect
 {
-    public string Registry { get; internal set; } = string.Empty;
-    public string Ordering { get; internal set; } = string.Empty;
-    public int Supplement { get; internal set; }
-
-    public override Type2CharString GetType2CharString(int cidOrGid)
-    {
-        int cid = GetCharset().GetCIDForGID(cidOrGid);
-        return new CIDKeyedType2CharString(GetName(), cid, cidOrGid, GetCharStringBytes()[cidOrGid]);
-    }
-
-    public override GeneralPath GetPath(string name) => new();
-    public override float GetWidth(string name) => 0;
-    public override bool HasGlyph(string name) => false;
+    int GetFDIndex(int gid);
 }
