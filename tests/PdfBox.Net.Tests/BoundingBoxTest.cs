@@ -51,12 +51,12 @@ public class BoundingBoxTest
     }
 
     [Fact]
-    public void TestPDModelBoundingBoxCompatibility()
+    public void TestDefaultBoundingBoxIsAllZero()
     {
-        var pdModelBoundingBox = new PdfBox.Net.PDModel.Font.BoundingBox();
-        pdModelBoundingBox.SetLowerLeftY(5);
-        pdModelBoundingBox.SetUpperRightY(11);
-
-        Assert.Equal(6, pdModelBoundingBox.GetHeight());
+        var bbox = new BoundingBox();
+        Assert.Equal(0f, bbox.GetLowerLeftX());
+        Assert.Equal(0f, bbox.GetLowerLeftY());
+        Assert.Equal(0f, bbox.GetUpperRightX());
+        Assert.Equal(0f, bbox.GetUpperRightY());
     }
 }
