@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="IO\**\*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\PdfBox.Net.IO\PdfBox.Net.IO.csproj" />
   </ItemGroup>
 
