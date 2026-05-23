@@ -30,6 +30,8 @@ using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.ContentStream.Operator.State;
 using PdfBox.Net.ContentStream.Operator.Text;
 using PdfBox.Net.COS;
+using PdfBox.Net.FontBox.TTF;
+using PdfBox.Net.FontBox.Util;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Font;
