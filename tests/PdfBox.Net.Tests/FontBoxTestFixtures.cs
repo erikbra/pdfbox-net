@@ -84,6 +84,38 @@ internal static class FontBoxTestFixtures
         return stream.ToArray();
     }
 
+    public static byte[] CreateMinimalCMap()
+    {
+        string cmap = string.Join('\n',
+        [
+            "/CIDInit /ProcSet findresource begin",
+            "12 dict begin",
+            "begincmap",
+            "/CMapName /Test-CMap def",
+            "/Registry (Adobe) def",
+            "/Ordering (Identity) def",
+            "/Supplement 0 def",
+            "1 begincodespacerange",
+            "<00> <FF>",
+            "endcodespacerange",
+            "1 beginbfchar",
+            "<20> <0020>",
+            "endbfchar",
+            "1 begincidrange",
+            "<30> <32> 100",
+            "endcidrange",
+            "1 begincidchar",
+            "<40> 200",
+            "endcidchar",
+            "endcmap",
+            "CMapName currentdict /CMap defineresource pop",
+            "end",
+            "end",
+        ]) + "\n";
+
+        return Encoding.ASCII.GetBytes(cmap);
+    }
+
     public static byte[] CreateMinimalTrueType()
     {
         byte[] head = CreateHeadTable();
