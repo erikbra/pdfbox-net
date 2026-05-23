@@ -7,11 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="IO\**\*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\PdfBox.Net.IO\PdfBox.Net.IO.csproj" />
+    <Compile Include="..\PdfBox.Net\IO\**\*.cs" Link="IO\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>
