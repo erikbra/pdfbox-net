@@ -643,5 +643,65 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Java enum's stringValue()/fromString() methods moved to static extension/factory class per C# enum convention."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/Encoding.java",
+    "target_path": "src/PdfBox.Net/FontBox/Encoding/Encoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java Collections.unmodifiableMap mapped to ReadOnlyDictionary for .NET"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Preserved bidirectional lookup behavior while exposing an unmodifiable dictionary view in C#."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/StandardEncoding.java",
+    "target_path": "src/PdfBox.Net/FontBox/Encoding/StandardEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java octal table literals normalized to decimal tuple values for C#"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped the upstream Object[][] table to typed C# tuples while preserving singleton and lookup semantics."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/MacRomanEncoding.java",
+    "target_path": "src/PdfBox.Net/FontBox/Encoding/MacRomanEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java octal table literals normalized to decimal tuple values for C#"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped the upstream Object[][] table to typed C# tuples while preserving singleton and lookup semantics."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/BuiltInEncoding.java",
+    "target_path": "src/PdfBox.Net/FontBox/Encoding/BuiltInEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java Map iteration adapted to .NET IDictionary enumeration"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Preserved constructor-driven population of the base encoding tables from a provided mapping."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/encoding/EncodingTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/EncodingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Focused BuiltInEncoding fallback coverage added alongside upstream representative lookup checks"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Retained the upstream representative lookup assertions and added coverage for missing-name/code fallbacks and read-only map behavior."
   }
 ]
