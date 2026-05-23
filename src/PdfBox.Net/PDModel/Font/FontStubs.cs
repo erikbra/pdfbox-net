@@ -1,4 +1,7 @@
 using PdfBox.Net.COS;
+using PdfBox.Net.FontBox;
+using PdfBox.Net.FontBox.TTF;
+using PdfBox.Net.FontBox.Util;
 using PdfBox.Net.Util;
 using PdfBox.Net.Util.Geometry;
 using System.IO;
@@ -63,21 +66,6 @@ namespace PdfBox.Net.PDModel.Font
         public virtual float GetCapHeight() => 0f;
         public virtual float GetAscent() => 0f;
         public virtual float GetDescent() => 0f;
-    }
-
-    public class TrueTypeFont
-    {
-        public virtual int GetUnitsPerEm() => 1000;
-    }
-
-    public class BoundingBox
-        : PdfBox.Net.FontBox.Util.BoundingBox
-    {
-    }
-
-    public class FontBoxFont
-    {
-        public virtual string GetName() => GetType().Name;
     }
 }
 
