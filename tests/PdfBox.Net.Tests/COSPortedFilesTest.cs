@@ -2,6 +2,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.Filter;
 using PdfBox.Net.IO;
 using RandomAccessBuffer = PdfBox.Net.IO.RandomAccess;
+using System.Drawing;
 
 namespace PdfBox.Net.Tests;
 
@@ -18,7 +19,10 @@ public class COSPortedFilesTest
         input.CopyTo(output);
 
         Assert.Equal(expected, output.ToArray());
-        Assert.Same(DecodeResult.CreateDefault(), input.GetDecodeResult());
+        DecodeResult first = input.GetDecodeResult();
+        DecodeResult second = input.GetDecodeResult();
+        Assert.NotSame(first, second);
+        Assert.Equal(0, first.GetParameters().Size());
     }
 
     [Fact]
@@ -41,6 +45,25 @@ public class COSPortedFilesTest
         Assert.Throws<InvalidOperationException>(() => dictionary.SetInt(COSName.LENGTH, 1));
         Assert.Throws<InvalidOperationException>(() => dictionary.RemoveItem(COSName.LENGTH));
         Assert.Throws<InvalidOperationException>(() => dictionary.Clear());
+    }
+
+    [Fact]
+    public void TestDecodeOptionsDefaultIsImmutable()
+    {
+        DecodeOptions options = DecodeOptions.DEFAULT;
+        Assert.True(options.IsFilterSubsampled());
+        Assert.Throws<InvalidOperationException>(() => options.SetSubsamplingX(2));
+        Assert.Throws<InvalidOperationException>(() => options.SetSourceRegion(new Rectangle(0, 0, 1, 1)));
+    }
+
+    [Fact]
+    public void TestDecodeOptionsSubsamplingConstructorSetsBothAxes()
+    {
+        DecodeOptions options = new(3);
+
+        Assert.Equal(3, options.GetSubsamplingX());
+        Assert.Equal(3, options.GetSubsamplingY());
+        Assert.False(options.IsFilterSubsampled());
     }
 
     private sealed class TestStreamCache : RandomAccessStreamCache

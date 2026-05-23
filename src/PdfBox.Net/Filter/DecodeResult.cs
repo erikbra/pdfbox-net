@@ -25,14 +25,65 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+
 namespace PdfBox.Net.Filter;
 
+/// <summary>
+/// The result of a filter decode operation.
+/// </summary>
 public sealed class DecodeResult
 {
-    private static readonly DecodeResult DefaultInstance = new();
+    private readonly COSDictionary _parameters;
+    private object? _colorSpace;
+    private object? _smask;
+
+    internal DecodeResult(COSDictionary parameters)
+    {
+        _parameters = parameters;
+    }
+
+    internal DecodeResult(COSDictionary parameters, object? colorSpace)
+    {
+        _parameters = parameters;
+        _colorSpace = colorSpace;
+    }
 
     public static DecodeResult CreateDefault()
     {
-        return DefaultInstance;
+        return new DecodeResult(new COSDictionary());
+    }
+
+    public COSDictionary GetParameters()
+    {
+        return _parameters;
+    }
+
+    /// <summary>
+    /// Returns the embedded JPX color space, if any.
+    /// Expected runtime type is <c>PDJPXColorSpace</c> once that type is ported.
+    /// </summary>
+    public object? GetJPXColorSpace()
+    {
+        return _colorSpace;
+    }
+
+    internal void SetColorSpace(object? colorSpace)
+    {
+        _colorSpace = colorSpace;
+    }
+
+    internal void SetJPXSMask(object? smask)
+    {
+        _smask = smask;
+    }
+
+    /// <summary>
+    /// Returns the JPX soft mask image, if any.
+    /// Expected runtime type is <c>BufferedImage</c> equivalent once image types are ported.
+    /// </summary>
+    public object? GetJPXSMask()
+    {
+        return _smask;
     }
 }
