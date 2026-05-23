@@ -33,7 +33,7 @@ public sealed class NamingTable() : TTFTable("name")
 
     public IReadOnlyList<NameRecord> NameRecords => _nameRecords;
 
-    internal override void Read(TTFDataStream dataStream)
+    internal override void Read(TrueTypeFont font, TTFDataStream dataStream)
     {
         long tableStart = dataStream.Position;
         _ = dataStream.ReadUnsignedShort();

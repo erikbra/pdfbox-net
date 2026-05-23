@@ -976,8 +976,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "TTF head table (global font metadata)."
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "TTF head table now includes indexToLocFormat required by loca parsing."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/MaximumProfileTable.java",
@@ -986,8 +986,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "TTF maxp table (glyph count and memory limits)."
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "TTF maxp table includes component-depth/profile fields used by composite glyph loading."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/MemoryTTFDataStream.java",
@@ -1016,8 +1016,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "TTF name table with platform/language record lookup."
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "TTF name table wired into the new owner-font table-loading flow."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/OTFParser.java",
@@ -1046,8 +1046,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Abstract TTF data stream with typed read methods."
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "Abstract TTF data stream with additional helpers for cmap/glyf/post parsing."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java",
@@ -1056,8 +1056,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "partial",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "TTF parser covering sfnt header and table directory. Only head/maxp/name tables created; cmap/glyf/hmtx/loca and others pending (issue #9)."
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "TTF parser now creates and dependency-loads the slice 9a core tables (cmap/hhea/hmtx/loca/glyf/post); later TTF/GSUB tables remain pending."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
@@ -1066,8 +1066,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Base TTF table with tag, checksum, offset, length and lazy load."
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "Base TTF table now loads with owner-font context so dependent tables can resolve prerequisite metadata."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeFont.java",
@@ -1076,7 +1076,157 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "partial",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "TrueType font model with table lookup. Accessors for unported tables (cmap, glyf, etc.) not yet present (issue #9)."
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "TrueType font model now exposes cmap, metric, glyph, and PostScript helpers for the core glyph-access pipeline."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/CmapLookup.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapLookup.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "cmap lookup contract for codepoint-to-glyph and reverse mapping."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/CmapSubtable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapSubtable.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "cmap subtable parser with format 0/4/6/12 coverage for the current glyph-access slice."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/CmapTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapTable.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "TTF cmap table with platform/encoding subtable lookup."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HorizontalHeaderTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HorizontalHeaderTable.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "TTF hhea table for horizontal layout metrics."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HorizontalMetricsTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HorizontalMetricsTable.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "TTF hmtx table exposing advance-width and left-side-bearing lookup."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/IndexToLocationTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/IndexToLocationTable.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "TTF loca table providing glyph offsets into the glyf data."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphDescription.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphDescription.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "Glyph description interface shared by simple and composite glyf entries."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfDescript.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfDescript.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "Shared glyf description base with outline flags and instructions."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfSimpleDescript.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfSimpleDescript.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "Simple glyph contour/coordinate decoder."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeComp.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeComp.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "Composite glyph component record with transform support."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeDescript.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeDescript.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "Composite glyph description resolution across referenced glyphs."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphData.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphData.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "glyf record wrapper exposing bounding box and decoded glyph description."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphTable.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "glyf table loader with lazy glyph decoding backed by cached table bytes; RandomAccessRead-backed stream variants remain for later slices."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/PostScriptTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/PostScriptTable.java",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "post table with custom-name format 2 support; full standard-name coverage remains for a later slice."
+  },
+  {
+    "target_path": "tests/PdfBox.Net.Tests/TTFParserTest.cs",
+    "source_path": "n/a",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T21:25:00Z",
+    "note": "Focused xUnit coverage for the slice 9a TTF pipeline fixture."
   }
 ]

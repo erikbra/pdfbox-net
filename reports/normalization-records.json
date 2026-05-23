@@ -1038,22 +1038,22 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HeaderTable.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Cross-table dependency fields added for later TTF slices"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "TTF head table with bitmask fields; Java int fields -> C# uint/int."
+    "note": "Extended the existing head-table port with indexToLocFormat to support loca parsing."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/MaximumProfileTable.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/MaximumProfileTable.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Cross-table dependency fields added for later TTF slices"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "TTF maxp table; numGlyphs and profile fields adapted."
+    "note": "Extended the existing maxp port with additional profile fields needed by composite glyph loading."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/MemoryTTFDataStream.java",
@@ -1083,11 +1083,11 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/NamingTable.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Shared table-loading signature updated for cross-table dependencies"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "NamingTable with NameRecord list; Java List -> IReadOnlyList."
+    "note": "Adapted only for the new Read(TrueTypeFont, TTFDataStream) loading shape."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/OTFParser.java",
@@ -1116,46 +1116,215 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFDataStream.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java IO -> .NET Stream/byte[] API"
+      "Java IO -> .NET Stream/byte[] API",
+      "Additional typed helpers for cmap/glyf/post parsing"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Abstract TTF stream; Java DataInputStream typed reads -> manual big-endian read methods."
+    "note": "Added unsigned byte, array, and string helpers to support newly ported table readers."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Adapted port \u2014 not full parity"
+      "Adapted port \u2014 not full parity",
+      "Dependency-ordered table loading"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Partial port: sfnt header + head/maxp/name table handling. Remaining table types (cmap, glyf, hmtx, loca, OS/2, etc.) not yet wired. See issue #9."
+    "note": "Expanded table creation/loading for slice 9a core tables while leaving later TTF/GSUB tables for future work."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFTable.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Shared loading contract updated for dependent table parsing"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Base TTF table with lazy load pattern."
+    "note": "Added idempotent per-font table loading with owner-font context."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeFont.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeFont.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Adapted port \u2014 not full parity"
+      "Adapted port \u2014 not full parity",
+      "Typed accessors/convenience methods added"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Font model with table dictionary. Java HashMap<String,TTFTable> -> Dictionary<string,TTFTable>. Typed accessors for unported tables not yet present. See issue #9."
+    "note": "Added cmap, metric, glyph, and PostScript helpers for the new core TTF pipeline slice."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/CmapLookup.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapLookup.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Straightforward interface port."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/CmapSubtable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapSubtable.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java collections/IO patterns adapted to C#",
+      "Implemented focused subset of cmap formats for slice 9a"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Supports cmap formats 0/4/6/12, which covers the current fixture-driven lookup pipeline."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/CmapTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapTable.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Container table with platform/encoding lookup helpers."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HorizontalHeaderTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HorizontalHeaderTable.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Direct hhea metric field port."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HorizontalMetricsTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HorizontalMetricsTable.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java arrays/loops adapted to C#",
+      "Cross-table dependency on hhea/maxp"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Advance-width and left-side-bearing lookup port."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/IndexToLocationTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/IndexToLocationTable.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "loca offset parsing driven by the head-table format field."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphDescription.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphDescription.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interface shared by simple and composite glyph descriptions."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfDescript.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfDescript.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Outline flag constants and instruction loading base class."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfSimpleDescript.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfSimpleDescript.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java arrays/loops adapted to C#"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ported run-length encoded flag decoding and relative coordinate expansion."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeComp.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeComp.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ported transform/scaling decode for composite glyph components."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeDescript.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeDescript.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java collections/logging adapted to C#",
+      "Recursive glyph resolution"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Resolves component glyph descriptions and remaps point/contour indices."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphData.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphData.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Glyph record wrapper with bounding box and simple/composite description selection."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphTable.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java RandomAccessRead-backed lazy parsing adapted to in-memory stream"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Caches glyf bytes and lazily decodes individual glyphs using MemoryTTFDataStream."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/PostScriptTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/PostScriptTable.java",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java collections/IO adapted to C#",
+      "Focused subset of post table formats implemented"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Supports custom-name format 2 coverage used by the new tests; broader WGL4 name coverage remains for later slices."
+  },
+  {
+    "target_path": "tests/PdfBox.Net.Tests/TTFParserTest.cs",
+    "source_path": "n/a",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for new TTF pipeline slice"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Exercises cmap lookup, glyph metrics, glyph data decoding, and PostScript names on an inline minimal TTF fixture."
   }
 ]

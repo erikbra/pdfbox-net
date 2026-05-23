@@ -57,9 +57,44 @@ public class TrueTypeFont
         return GetTable("maxp") as MaximumProfileTable;
     }
 
+    public int GetNumberOfGlyphs()
+    {
+        return GetMaximumProfile()?.NumGlyphs ?? 0;
+    }
+
     public NamingTable? GetNaming()
     {
         return GetTable("name") as NamingTable;
+    }
+
+    public CmapTable? GetCmap()
+    {
+        return GetTable("cmap") as CmapTable;
+    }
+
+    public HorizontalHeaderTable? GetHorizontalHeader()
+    {
+        return GetTable("hhea") as HorizontalHeaderTable;
+    }
+
+    public HorizontalMetricsTable? GetHorizontalMetrics()
+    {
+        return GetTable("hmtx") as HorizontalMetricsTable;
+    }
+
+    public IndexToLocationTable? GetIndexToLocation()
+    {
+        return GetTable("loca") as IndexToLocationTable;
+    }
+
+    public GlyphTable? GetGlyphTable()
+    {
+        return GetTable("glyf") as GlyphTable;
+    }
+
+    public PostScriptTable? GetPostScript()
+    {
+        return GetTable("post") as PostScriptTable;
     }
 
     public int GetUnitsPerEm()
@@ -73,5 +108,42 @@ public class TrueTypeFont
         return naming?.GetEnglishName(4) ??
                naming?.GetEnglishName(6) ??
                naming?.GetEnglishName(1);
+    }
+
+    public CmapLookup? GetUnicodeCmapLookup()
+    {
+        CmapTable? cmap = GetCmap();
+        return cmap?.GetSubtable(CmapTable.PlatformWindows, CmapTable.EncodingWinUnicodeFull) ??
+               cmap?.GetSubtable(CmapTable.PlatformWindows, CmapTable.EncodingWinUnicodeBmp) ??
+               cmap?.GetSubtable(CmapTable.PlatformUnicode, CmapTable.EncodingUnicode20Full) ??
+               cmap?.GetSubtable(CmapTable.PlatformUnicode, CmapTable.EncodingUnicode20Bmp) ??
+               cmap?.GetSubtable(CmapTable.PlatformUnicode, CmapTable.EncodingUnicode11) ??
+               cmap?.GetSubtable(CmapTable.PlatformUnicode, CmapTable.EncodingUnicode10) ??
+               cmap?.GetSubtable(CmapTable.PlatformMacintosh, CmapTable.EncodingMacRoman);
+    }
+
+    public int GetGlyphId(int codePoint)
+    {
+        return GetUnicodeCmapLookup()?.GetGlyphId(codePoint) ?? 0;
+    }
+
+    public GlyphData? GetGlyph(int gid)
+    {
+        return GetGlyphTable()?.GetGlyph(gid);
+    }
+
+    public int GetAdvanceWidth(int gid)
+    {
+        return GetHorizontalMetrics()?.GetAdvanceWidth(gid) ?? 0;
+    }
+
+    public int GetLeftSideBearing(int gid)
+    {
+        return GetHorizontalMetrics()?.GetLeftSideBearing(gid) ?? 0;
+    }
+
+    public string? GetName(int gid)
+    {
+        return GetPostScript()?.GetName(gid);
     }
 }

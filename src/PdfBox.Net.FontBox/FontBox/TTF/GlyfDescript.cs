@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache FontBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/GlyfDescript.java
  * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: trunk
@@ -27,39 +27,42 @@
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public class TTFTable(string tag)
+public abstract class GlyfDescript(short contourCount) : GlyphDescription
 {
-    private byte[] _rawData = [];
+    public const byte OnCurve = 0x01;
+    public const byte XShortVector = 0x02;
+    public const byte YShortVector = 0x04;
+    public const byte Repeat = 0x08;
+    public const byte XDual = 0x10;
+    public const byte YDual = 0x20;
 
-    public string Tag { get; } = tag;
+    private readonly int _contourCount = contourCount;
 
-    public uint Checksum { get; internal set; }
+    protected byte[] Instructions { get; private set; } = [];
 
-    public uint Offset { get; internal set; }
-
-    public uint Length { get; internal set; }
-
-    internal bool IsLoaded { get; private set; }
-
-    internal virtual void Read(TrueTypeFont font, TTFDataStream dataStream)
+    public virtual void Resolve()
     {
-        _rawData = dataStream.ReadBytes((int)Length);
     }
 
-    internal void Load(TrueTypeFont font, TTFDataStream dataStream)
+    public virtual int GetContourCount()
     {
-        if (IsLoaded)
-        {
-            return;
-        }
-
-        dataStream.Seek(Offset);
-        Read(font, dataStream);
-        IsLoaded = true;
+        return _contourCount;
     }
 
-    public byte[] GetRawData()
+    protected void ReadInstructions(TTFDataStream dataStream, int count)
     {
-        return [.. _rawData];
+        Instructions = dataStream.ReadUnsignedByteArray(count);
     }
+
+    public abstract int GetEndPtOfContours(int i);
+
+    public abstract byte GetFlags(int i);
+
+    public abstract short GetXCoordinate(int i);
+
+    public abstract short GetYCoordinate(int i);
+
+    public abstract bool IsComposite();
+
+    public abstract int GetPointCount();
 }

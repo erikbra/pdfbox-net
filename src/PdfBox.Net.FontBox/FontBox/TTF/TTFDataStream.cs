@@ -76,6 +76,22 @@ public abstract class TTFDataStream
         return unchecked((short)ReadUnsignedShort());
     }
 
+    public int ReadUnsignedByte()
+    {
+        int value = Read();
+        if (value < 0)
+        {
+            throw new EndOfStreamException("Unexpected end of TTF data stream");
+        }
+
+        return value;
+    }
+
+    public sbyte ReadSignedByte()
+    {
+        return unchecked((sbyte)ReadUnsignedByte());
+    }
+
     public uint ReadUnsignedInt()
     {
         int b1 = Read();
@@ -93,6 +109,27 @@ public abstract class TTFDataStream
     public int Read32Fixed()
     {
         return unchecked((int)ReadUnsignedInt());
+    }
+
+    public ushort[] ReadUnsignedShortArray(int count)
+    {
+        ushort[] values = new ushort[count];
+        for (int i = 0; i < count; i++)
+        {
+            values[i] = ReadUnsignedShort();
+        }
+
+        return values;
+    }
+
+    public byte[] ReadUnsignedByteArray(int count)
+    {
+        return ReadBytes(count);
+    }
+
+    public string ReadString(int length)
+    {
+        return System.Text.Encoding.ASCII.GetString(ReadBytes(length));
     }
 
     public string ReadTag()

@@ -79,13 +79,13 @@ public class TTFParser(bool allowOpenType = false)
             table.Offset = dataStream.ReadUnsignedInt();
             table.Length = dataStream.ReadUnsignedInt();
             ValidateTableRange(dataStream.Length, table);
+            font.AddTable(table);
             tables.Add(table);
         }
 
-        foreach (TTFTable table in tables)
+        foreach (TTFTable table in tables.OrderBy(GetLoadPriority).ThenBy(t => t.Offset))
         {
-            table.Load(dataStream);
-            font.AddTable(table);
+            table.Load(font, dataStream);
         }
 
         return font;
@@ -98,7 +98,30 @@ public class TTFParser(bool allowOpenType = false)
             "head" => new HeaderTable(),
             "maxp" => new MaximumProfileTable(),
             "name" => new NamingTable(),
+            "cmap" => new CmapTable(),
+            "hhea" => new HorizontalHeaderTable(),
+            "hmtx" => new HorizontalMetricsTable(),
+            "loca" => new IndexToLocationTable(),
+            "glyf" => new GlyphTable(),
+            "post" => new PostScriptTable(),
             _ => new TTFTable(tag),
+        };
+    }
+
+    private static int GetLoadPriority(TTFTable table)
+    {
+        return table.Tag switch
+        {
+            "head" => 0,
+            "maxp" => 1,
+            "hhea" => 2,
+            "hmtx" => 3,
+            "loca" => 4,
+            "cmap" => 5,
+            "glyf" => 6,
+            "post" => 7,
+            "name" => 8,
+            _ => 100,
         };
     }
 

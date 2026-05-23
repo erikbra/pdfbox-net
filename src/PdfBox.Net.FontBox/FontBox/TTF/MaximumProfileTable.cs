@@ -33,9 +33,27 @@ public sealed class MaximumProfileTable() : TTFTable("maxp")
 
     public ushort NumGlyphs { get; private set; }
 
-    internal override void Read(TTFDataStream dataStream)
+    public ushort MaxComponentDepth { get; private set; }
+
+    internal override void Read(TrueTypeFont font, TTFDataStream dataStream)
     {
         Version = dataStream.Read32Fixed();
         NumGlyphs = dataStream.ReadUnsignedShort();
+        if (Length >= 32)
+        {
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            _ = dataStream.ReadUnsignedShort();
+            MaxComponentDepth = dataStream.ReadUnsignedShort();
+        }
     }
 }

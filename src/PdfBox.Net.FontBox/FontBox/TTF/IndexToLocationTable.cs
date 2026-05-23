@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache FontBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/IndexToLocationTable.java
  * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: trunk
@@ -27,39 +27,30 @@
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public class TTFTable(string tag)
+public sealed class IndexToLocationTable() : TTFTable("loca")
 {
-    private byte[] _rawData = [];
+    public long[] Offsets { get; private set; } = [];
 
-    public string Tag { get; } = tag;
-
-    public uint Checksum { get; internal set; }
-
-    public uint Offset { get; internal set; }
-
-    public uint Length { get; internal set; }
-
-    internal bool IsLoaded { get; private set; }
-
-    internal virtual void Read(TrueTypeFont font, TTFDataStream dataStream)
+    internal override void Read(TrueTypeFont font, TTFDataStream dataStream)
     {
-        _rawData = dataStream.ReadBytes((int)Length);
-    }
-
-    internal void Load(TrueTypeFont font, TTFDataStream dataStream)
-    {
-        if (IsLoaded)
+        HeaderTable? header = font.GetHeader();
+        if (header is null)
         {
-            return;
+            throw new IOException("Could not get head table");
         }
 
-        dataStream.Seek(Offset);
-        Read(font, dataStream);
-        IsLoaded = true;
-    }
+        int numGlyphs = font.GetNumberOfGlyphs();
+        Offsets = new long[numGlyphs + 1];
+        for (int i = 0; i < Offsets.Length; i++)
+        {
+            Offsets[i] = header.IndexToLocFormat == 0
+                ? dataStream.ReadUnsignedShort() * 2L
+                : dataStream.ReadUnsignedInt();
+        }
 
-    public byte[] GetRawData()
-    {
-        return [.. _rawData];
+        if (numGlyphs == 1 && Offsets[0] == 0 && Offsets[1] == 0)
+        {
+            throw new IOException("The font has no glyphs");
+        }
     }
 }

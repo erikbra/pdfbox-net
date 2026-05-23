@@ -510,5 +510,181 @@
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Adapted upstream EncodingTest to xUnit and expanded it with BuiltInEncoding fallback/read-only map coverage."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HeaderTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HeaderTable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Expanded head table parity for slice 9a, including indexToLocFormat needed by loca/glyf parsing."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/MaximumProfileTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/MaximumProfileTable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Expanded maxp parsing with component-depth/profile fields needed by composite glyph loading."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/NamingTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/NamingTable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Retained name-table support while adapting to the table-loading signature used by cross-table-dependent TTF slices."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFDataStream.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFDataStream.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added typed byte/array/string helpers required by cmap, post, and glyf table parsing in slice 9a."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Expanded parser table factory/load ordering for the slice 9a core glyph-access stack (cmap, hhea, hmtx, loca, glyf, post)."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adjusted base table loading to pass the owning TrueTypeFont so dependent tables can resolve prerequisite metadata."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeFont.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeFont.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Expanded font model with typed accessors and convenience APIs for unicode cmap lookup, glyph access, metrics, and PostScript names in slice 9a."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/CmapLookup.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapLookup.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported cmap lookup contract for character-code/glyph-id mapping."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/CmapSubtable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapSubtable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted cmap subtable parser with core format 0/4/6/12 coverage for slice 9a fixture-driven glyph lookup."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/CmapTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapTable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported cmap table container and platform/encoding lookup helpers."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HorizontalHeaderTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HorizontalHeaderTable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported hhea table metrics needed by hmtx parsing."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HorizontalMetricsTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HorizontalMetricsTable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported hmtx table with advance-width and left-side-bearing lookup."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/IndexToLocationTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/IndexToLocationTable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported loca table to provide glyph offsets for glyf parsing."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphDescription.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphDescription.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported glyph description interface shared by simple and composite glyf entries."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfDescript.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfDescript.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported shared glyf description base with outline flag constants and instruction loading."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfSimpleDescript.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfSimpleDescript.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported simple-glyph contour/coordinate decoder for glyf parsing."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeComp.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeComp.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported composite glyph component record with transform decoding."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeDescript.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeDescript.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported composite glyph description resolution across referenced glyphs."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphData.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphData.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported glyf record wrapper exposing bounding box, contour count, and decoded glyph description."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphTable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted glyf table loader to cache table bytes and lazily decode glyphs via loca/hmtx/maxp dependencies."
+  },
+  {
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/PostScriptTable.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/PostScriptTable.java",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted post table parsing with custom-name format 2 support needed by the fixture-driven slice 9a tests."
+  },
+  {
+    "target_path": "tests/PdfBox.Net.Tests/TTFParserTest.cs",
+    "source_path": "n/a",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Expanded focused xUnit coverage for the slice 9a TTF pipeline: cmap lookup, metrics, glyph data, and PostScript names."
   }
 ]

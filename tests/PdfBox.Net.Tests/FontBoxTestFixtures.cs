@@ -89,42 +89,24 @@ internal static class FontBoxTestFixtures
         byte[] head = CreateHeadTable();
         byte[] maxp = CreateMaxpTable();
         byte[] name = CreateNameTable("MiniTTF");
+        byte[] hhea = CreateHheaTable();
+        byte[] hmtx = CreateHmtxTable();
+        byte[] loca = CreateLocaTable();
+        byte[] glyf = CreateGlyfTable();
+        byte[] cmap = CreateCmapTable();
+        byte[] post = CreatePostTable();
 
-        const int tableCount = 3;
-        int directorySize = 12 + tableCount * 16;
-        int headOffset = directorySize;
-        int maxpOffset = headOffset + Align4(head.Length);
-        int nameOffset = maxpOffset + Align4(maxp.Length);
-
-        using MemoryStream stream = new();
-        WriteUInt32(stream, 0x00010000);
-        WriteUInt16(stream, (ushort)tableCount);
-        WriteUInt16(stream, 32);
-        WriteUInt16(stream, 1);
-        WriteUInt16(stream, 16);
-
-        WriteAscii(stream, "head");
-        WriteUInt32(stream, 0);
-        WriteUInt32(stream, (uint)headOffset);
-        WriteUInt32(stream, (uint)head.Length);
-
-        WriteAscii(stream, "maxp");
-        WriteUInt32(stream, 0);
-        WriteUInt32(stream, (uint)maxpOffset);
-        WriteUInt32(stream, (uint)maxp.Length);
-
-        WriteAscii(stream, "name");
-        WriteUInt32(stream, 0);
-        WriteUInt32(stream, (uint)nameOffset);
-        WriteUInt32(stream, (uint)name.Length);
-
-        stream.Write(head);
-        WritePadding(stream, head.Length);
-        stream.Write(maxp);
-        WritePadding(stream, maxp.Length);
-        stream.Write(name);
-        WritePadding(stream, name.Length);
-        return stream.ToArray();
+        return BuildSfnt([
+            KeyValuePair.Create("cmap", cmap),
+            KeyValuePair.Create("glyf", glyf),
+            KeyValuePair.Create("head", head),
+            KeyValuePair.Create("hhea", hhea),
+            KeyValuePair.Create("hmtx", hmtx),
+            KeyValuePair.Create("loca", loca),
+            KeyValuePair.Create("maxp", maxp),
+            KeyValuePair.Create("name", name),
+            KeyValuePair.Create("post", post),
+        ]);
     }
 
     private static byte[] CreateMinimalCff()
@@ -331,6 +313,10 @@ internal static class FontBoxTestFixtures
         using MemoryStream stream = new();
         WriteUInt32(stream, 0x00010000);
         WriteUInt16(stream, 2);
+        for (int i = 0; i < 13; i++)
+        {
+            WriteUInt16(stream, i == 9 ? (ushort)8 : (ushort)0);
+        }
         return stream.ToArray();
     }
 
@@ -355,6 +341,152 @@ internal static class FontBoxTestFixtures
     {
         stream.WriteByte((byte)(value >> 8));
         stream.WriteByte((byte)value);
+    }
+
+    private static byte[] BuildSfnt(KeyValuePair<string, byte[]>[] tables)
+    {
+        int tableCount = tables.Length;
+        int directorySize = 12 + tableCount * 16;
+        uint offset = (uint)directorySize;
+
+        using MemoryStream stream = new();
+        WriteUInt32(stream, 0x00010000);
+        WriteUInt16(stream, (ushort)tableCount);
+        ushort maxPower = (ushort)(1 << (int)Math.Floor(Math.Log2(tableCount)));
+        WriteUInt16(stream, (ushort)(maxPower * 16));
+        WriteUInt16(stream, (ushort)Math.Log2(maxPower));
+        WriteUInt16(stream, (ushort)(tableCount * 16 - maxPower * 16));
+
+        foreach (KeyValuePair<string, byte[]> table in tables)
+        {
+            WriteAscii(stream, table.Key);
+            WriteUInt32(stream, 0);
+            WriteUInt32(stream, offset);
+            WriteUInt32(stream, (uint)table.Value.Length);
+            offset += (uint)Align4(table.Value.Length);
+        }
+
+        foreach (KeyValuePair<string, byte[]> table in tables)
+        {
+            stream.Write(table.Value);
+            WritePadding(stream, table.Value.Length);
+        }
+
+        return stream.ToArray();
+    }
+
+    private static byte[] CreateHheaTable()
+    {
+        using MemoryStream stream = new();
+        WriteUInt32(stream, 0x00010000);
+        WriteInt16(stream, 700);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteUInt16(stream, 600);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 1);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteUInt16(stream, 2);
+        return stream.ToArray();
+    }
+
+    private static byte[] CreateHmtxTable()
+    {
+        using MemoryStream stream = new();
+        WriteUInt16(stream, 500);
+        WriteInt16(stream, 0);
+        WriteUInt16(stream, 600);
+        WriteInt16(stream, 50);
+        return stream.ToArray();
+    }
+
+    private static byte[] CreateLocaTable()
+    {
+        using MemoryStream stream = new();
+        WriteUInt16(stream, 0);
+        WriteUInt16(stream, 0);
+        WriteUInt16(stream, 17);
+        return stream.ToArray();
+    }
+
+    private static byte[] CreateGlyfTable()
+    {
+        using MemoryStream stream = new();
+        WriteInt16(stream, 1);
+        WriteInt16(stream, 50);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 500);
+        WriteInt16(stream, 700);
+        WriteUInt16(stream, 3);
+        WriteUInt16(stream, 0);
+        stream.Write([1, 1, 1, 1]);
+        WriteInt16(stream, 50);
+        WriteInt16(stream, 450);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, -450);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 700);
+        WriteInt16(stream, 0);
+        return stream.ToArray();
+    }
+
+    private static byte[] CreateCmapTable()
+    {
+        using MemoryStream stream = new();
+        WriteUInt16(stream, 0);
+        WriteUInt16(stream, 1);
+        WriteUInt16(stream, 3);
+        WriteUInt16(stream, 1);
+        WriteUInt32(stream, 12);
+
+        WriteUInt16(stream, 4);
+        WriteUInt16(stream, 32);
+        WriteUInt16(stream, 0);
+        WriteUInt16(stream, 4);
+        WriteUInt16(stream, 4);
+        WriteUInt16(stream, 1);
+        WriteUInt16(stream, 0);
+        WriteUInt16(stream, 65);
+        WriteUInt16(stream, 0xFFFF);
+        WriteUInt16(stream, 0);
+        WriteUInt16(stream, 65);
+        WriteUInt16(stream, 0xFFFF);
+        WriteUInt16(stream, unchecked((ushort)-64));
+        WriteUInt16(stream, 1);
+        WriteUInt16(stream, 0);
+        WriteUInt16(stream, 0);
+        return stream.ToArray();
+    }
+
+    private static byte[] CreatePostTable()
+    {
+        using MemoryStream stream = new();
+        WriteUInt32(stream, 0x00020000);
+        WriteUInt32(stream, 0);
+        WriteInt16(stream, 0);
+        WriteInt16(stream, 0);
+        WriteUInt32(stream, 0);
+        WriteUInt32(stream, 0);
+        WriteUInt32(stream, 0);
+        WriteUInt32(stream, 0);
+        WriteUInt32(stream, 0);
+        WriteUInt16(stream, 2);
+        WriteUInt16(stream, 258);
+        WriteUInt16(stream, 259);
+        stream.WriteByte(7);
+        WriteAscii(stream, ".notdef");
+        stream.WriteByte(1);
+        WriteAscii(stream, "A");
+        return stream.ToArray();
     }
 
     private static int Align4(int length)

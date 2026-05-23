@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache FontBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/CmapLookup.java
  * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: trunk
@@ -27,39 +27,9 @@
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public class TTFTable(string tag)
+public interface CmapLookup
 {
-    private byte[] _rawData = [];
+    int GetGlyphId(int codePoint);
 
-    public string Tag { get; } = tag;
-
-    public uint Checksum { get; internal set; }
-
-    public uint Offset { get; internal set; }
-
-    public uint Length { get; internal set; }
-
-    internal bool IsLoaded { get; private set; }
-
-    internal virtual void Read(TrueTypeFont font, TTFDataStream dataStream)
-    {
-        _rawData = dataStream.ReadBytes((int)Length);
-    }
-
-    internal void Load(TrueTypeFont font, TTFDataStream dataStream)
-    {
-        if (IsLoaded)
-        {
-            return;
-        }
-
-        dataStream.Seek(Offset);
-        Read(font, dataStream);
-        IsLoaded = true;
-    }
-
-    public byte[] GetRawData()
-    {
-        return [.. _rawData];
-    }
+    IReadOnlyList<int>? GetCharCodes(int gid);
 }

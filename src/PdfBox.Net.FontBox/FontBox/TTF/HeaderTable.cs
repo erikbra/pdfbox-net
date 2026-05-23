@@ -39,7 +39,9 @@ public sealed class HeaderTable() : TTFTable("head")
 
     public short YMax { get; private set; }
 
-    internal override void Read(TTFDataStream dataStream)
+    public short IndexToLocFormat { get; private set; }
+
+    internal override void Read(TrueTypeFont font, TTFDataStream dataStream)
     {
         _ = dataStream.Read32Fixed();
         _ = dataStream.Read32Fixed();
@@ -56,7 +58,7 @@ public sealed class HeaderTable() : TTFTable("head")
         _ = dataStream.ReadUnsignedShort();
         _ = dataStream.ReadUnsignedShort();
         _ = dataStream.ReadSignedShort();
-        _ = dataStream.ReadSignedShort();
+        IndexToLocFormat = dataStream.ReadSignedShort();
         _ = dataStream.ReadSignedShort();
     }
 
