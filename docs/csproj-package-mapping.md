@@ -7,11 +7,14 @@ This document captures the project split decision using upstream published Maven
 | Java Maven artifact | Java package/folder scope (source) | .NET project | .NET source folder owner |
 | --- | --- | --- | --- |
 | `org.apache.pdfbox:pdfbox-io` | `io/src/main/java/org/apache/pdfbox/io/**` | `src/PdfBox.Net.IO/PdfBox.Net.IO.csproj` | `src/PdfBox.Net.IO/IO/**` |
+| `org.apache.pdfbox:fontbox` | `fontbox/src/main/java/org/apache/fontbox/**` | `src/PdfBox.Net.FontBox/PdfBox.Net.FontBox.csproj` | `src/PdfBox.Net.FontBox/FontBox/**` |
 | `org.apache.pdfbox:pdfbox` | `pdfbox/src/main/java/org/apache/pdfbox/**` (except IO artifact scope) | `src/PdfBox.Net/PdfBox.Net.csproj` | `src/PdfBox.Net/**` |
 
 Dependency direction:
 
 - `PdfBox.Net` -> `PdfBox.Net.IO`
+- `PdfBox.Net.FontBox` -> `PdfBox.Net.IO`
+- `PdfBox.Net` -> `PdfBox.Net.FontBox`
 
 ## Recommended next project mapping (when ported)
 
@@ -31,4 +34,3 @@ Expected dependency direction (matching upstream artifacts):
 ## Package-level note
 
 `package.html` folders are useful for package inventory and optional future internal sub-splits, but not for one-project-per-package assembly boundaries.
-
