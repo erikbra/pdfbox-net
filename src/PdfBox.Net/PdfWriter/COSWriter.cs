@@ -29,6 +29,12 @@ namespace PdfBox.Net.PdfWriter;
 
 public sealed class COSWriter
 {
+    public static readonly byte[] DICT_OPEN = Encoding.ASCII.GetBytes("<<");
+    public static readonly byte[] DICT_CLOSE = Encoding.ASCII.GetBytes(">>");
+    public static readonly byte[] SPACE = [(byte)' '];
+    public static readonly byte[] ARRAY_OPEN = [(byte)'['];
+    public static readonly byte[] ARRAY_CLOSE = [(byte)']'];
+
     private readonly COSStandardOutputStream _output;
 
     public COSWriter(Stream output)
@@ -54,5 +60,63 @@ public sealed class COSWriter
     public static string SerializeToString(COSBase? value)
     {
         return Encoding.Latin1.GetString(Serialize(value));
+    }
+
+    public static void WriteString(COSString value, Stream output)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+        WriteString(value.GetBytes(), value.GetForceHexForm(), output);
+    }
+
+    public static void WriteString(byte[] bytes, Stream output)
+    {
+        WriteString(bytes, forceHex: false, output);
+    }
+
+    private static void WriteString(byte[] bytes, bool forceHex, Stream output)
+    {
+        ArgumentNullException.ThrowIfNull(bytes);
+        ArgumentNullException.ThrowIfNull(output);
+
+        bool isAscii = true;
+        if (!forceHex)
+        {
+            foreach (byte b in bytes)
+            {
+                if (b >= 0x80 || b is 0x0d or 0x0a)
+                {
+                    isAscii = false;
+                    break;
+                }
+            }
+        }
+
+        if (isAscii && !forceHex)
+        {
+            output.WriteByte((byte)'(');
+            foreach (byte b in bytes)
+            {
+                switch (b)
+                {
+                    case (byte)'(':
+                    case (byte)')':
+                    case (byte)'\\':
+                        output.WriteByte((byte)'\\');
+                        output.WriteByte(b);
+                        break;
+                    default:
+                        output.WriteByte(b);
+                        break;
+                }
+            }
+
+            output.WriteByte((byte)')');
+        }
+        else
+        {
+            output.WriteByte((byte)'<');
+            output.Write(Encoding.ASCII.GetBytes(Convert.ToHexString(bytes)));
+            output.WriteByte((byte)'>');
+        }
     }
 }
