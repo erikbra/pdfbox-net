@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.PageNavigation;
 
 namespace PdfBox.Net.PDModel;
 
@@ -304,6 +305,20 @@ public sealed class PDPage : COSObjectable
         }
 
         return false;
+    }
+
+    public IEnumerable<PDThreadBead> GetThreadBeads()
+    {
+        return Array.Empty<PDThreadBead>();
+    }
+
+    public COSBase? GetContents()
+    {
+        return _page.GetDictionaryObject(COSName.CONTENTS);
+    }
+
+    public void RemovePageResourceFromCache()
+    {
     }
 
     /// <summary>
