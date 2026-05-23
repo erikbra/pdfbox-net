@@ -71,14 +71,8 @@ namespace PdfBox.Net.PDModel.Font
     }
 
     public class BoundingBox
+        : PdfBox.Net.FontBox.Util.BoundingBox
     {
-        private float _lowerLeftY;
-        private float _upperRightY;
-
-        public float GetLowerLeftY() => _lowerLeftY;
-        public void SetLowerLeftY(float value) => _lowerLeftY = value;
-        public float GetHeight() => _upperRightY - _lowerLeftY;
-        public void SetUpperRightY(float value) => _upperRightY = value;
     }
 
     public class FontBoxFont
