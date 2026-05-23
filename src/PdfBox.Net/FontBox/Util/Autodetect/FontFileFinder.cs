@@ -25,7 +25,6 @@
  * limitations under the License.
  */
 
-using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -116,10 +115,10 @@ public class FontFileFinder
             return;
         }
 
-        FileSystemInfo[] fileList;
+        IEnumerable<FileSystemInfo> fileList;
         try
         {
-            fileList = directory.GetFileSystemInfos();
+            fileList = directory.EnumerateFileSystemInfos();
         }
         catch (IOException)
         {
@@ -154,12 +153,12 @@ public class FontFileFinder
 
     private static bool CheckFontfile(FileInfo file)
     {
-        string name = file.Name.ToLower(CultureInfo.InvariantCulture);
-        return (name.EndsWith(".ttf", StringComparison.Ordinal) ||
-                name.EndsWith(".otf", StringComparison.Ordinal) ||
-                name.EndsWith(".pfb", StringComparison.Ordinal) ||
-                name.EndsWith(".ttc", StringComparison.Ordinal)) &&
-               !name.StartsWith("fonts.", StringComparison.Ordinal);
+        string name = file.Name;
+        return (name.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith(".otf", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith(".pfb", StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith(".ttc", StringComparison.OrdinalIgnoreCase)) &&
+               !name.StartsWith("fonts.", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsHidden(FileSystemInfo file)
