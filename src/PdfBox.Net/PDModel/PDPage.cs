@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.PageNavigation;
 using PdfBox.Net.PDModel.Resources;
 
@@ -311,6 +312,37 @@ public sealed class PDPage : COSObjectable
     public IEnumerable<PDThreadBead> GetThreadBeads()
     {
         return Array.Empty<PDThreadBead>();
+    }
+
+    /// <summary>
+    /// Returns the annotation list for this page.
+    /// </summary>
+    public IList<PDAnnotation> GetAnnotations()
+    {
+        COSArray? annots = _page.GetCOSArray(COSName.GetPDFName("Annots"));
+        if (annots == null)
+        {
+            return new COSArrayList<PDAnnotation>(_page, COSName.GetPDFName("Annots"));
+        }
+
+        List<PDAnnotation> annotations = new(annots.Size());
+        for (int i = 0; i < annots.Size(); i++)
+        {
+            COSBase? item = annots.GetObject(i);
+            if (item is COSDictionary dictionary)
+            {
+                annotations.Add(PDAnnotation.CreateAnnotation(dictionary));
+            }
+        }
+        return new COSArrayList<PDAnnotation>(annotations, annots);
+    }
+
+    /// <summary>
+    /// Sets the annotation list for this page.
+    /// </summary>
+    public void SetAnnotations(IList<PDAnnotation>? annotations)
+    {
+        _page.SetItem(COSName.GetPDFName("Annots"), COSArrayList<object>.ConverterToCOSArray(annotations?.Cast<object>().ToList()));
     }
 
     public COSBase? GetContents()

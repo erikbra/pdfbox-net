@@ -2060,8 +2060,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Catalog expanded with PageLayout, PageMode, Language getters/setters; high-fanout catalog features (AcroForm, ViewerPreferences, Outlines, etc.) remain deferred."
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Expanded with AcroForm accessors and interactive integration; other high-fanout catalog features remain deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
@@ -2080,8 +2080,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Expanded with MediaBox, CropBox, BleedBox, TrimBox, ArtBox, Rotation, StructParents, HasContents; content stream/resources/annotations/actions remain deferred."
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Expanded with /Annots list parsing and typed annotation wrappers; broader PDPage parity remains deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
@@ -2580,5 +2580,225 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T18:40:12Z",
     "note": "Upstream unmodifiable dictionary test coverage converted with DateTimeOffset date adaptation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotation.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotation.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Annotation factory expanded to include additional interactive subtypes used in issue #32 scope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationCircle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationCircle.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationFileAttachment.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationFileAttachment.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationFreeText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationFreeText.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationHighlight.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationHighlight.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationLine.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationLine.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationLink.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationLink.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationMarkup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationMarkup.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationSquare.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationSquare.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationSquiggly.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationSquiggly.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationRubberStamp.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationStamp.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationStrikeout.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationStrikeOut.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationText.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationTextMarkup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationTextMarkup.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationUnderline.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationUnderline.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationUnknown.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationUnknown.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationWidget.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationWidget.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDAcroForm.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Core AcroForm and basic field model ported; full form appearance/value infrastructure remains deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDCheckBox.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDCheckBox.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Core AcroForm and basic field model ported; full form appearance/value infrastructure remains deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDField.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Core AcroForm and basic field model ported; full form appearance/value infrastructure remains deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDTextField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDTextField.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Core AcroForm and basic field model ported; full form appearance/value infrastructure remains deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDUnknownField.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-24T21:30:24Z",
+    "note": "Core AcroForm and basic field model ported; full form appearance/value infrastructure remains deferred."
   }
 ]
