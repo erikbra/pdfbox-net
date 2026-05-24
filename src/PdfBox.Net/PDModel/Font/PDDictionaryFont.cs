@@ -1,8 +1,11 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted implementation for minimal font wrapper backed by a PDF resource dictionary entry.
+ * Adapted implementation for dictionary-backed PDF font behavior.
  *
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java
+ * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: trunk
  */
 
 /*

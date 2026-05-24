@@ -1,8 +1,11 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted implementation replacing previous PDModel font stubs with functional font types.
+ * Adapted from Apache PDFBox Java source with AI assistance.
  *
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java
+ * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: trunk
  */
 
 /*
