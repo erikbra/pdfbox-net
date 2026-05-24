@@ -223,6 +223,11 @@ namespace PdfBox.Net.PDModel.Font
 {
     public abstract class PDType3Font : PDFont
     {
+        protected PDType3Font()
+            : base(new COSDictionary())
+        {
+        }
+
         public override string GetName()
         {
             return GetType().Name;
