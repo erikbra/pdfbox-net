@@ -80,10 +80,7 @@ public sealed class OpenTypeFont : TrueTypeFont
         return base.GetPath(name);
     }
 
-    public bool IsPostScript()
-    {
-        return _hasPostScriptTag || tables.ContainsKey(CFFTable.TAG) || tables.ContainsKey("CFF2");
-    }
+    public bool IsPostScript => _hasPostScriptTag || tables.ContainsKey(CFFTable.TAG) || tables.ContainsKey("CFF2");
 
     public bool IsSupportedOTF()
     {

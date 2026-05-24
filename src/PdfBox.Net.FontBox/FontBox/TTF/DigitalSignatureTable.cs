@@ -2,9 +2,9 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/DigitalSignatureTable.java
  * PDFBOX_SOURCE_COMMIT: trunk
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: trunk
  */
 
@@ -26,3 +26,18 @@
  */
 
 namespace PdfBox.Net.FontBox.TTF;
+
+/// <summary>
+/// A table in a true type font.
+/// </summary>
+public class DigitalSignatureTable : TTFTable
+{
+    /// <summary>
+    /// Tag to identify this table.
+    /// </summary>
+    public const string TAG = "DSIG";
+
+    internal DigitalSignatureTable() : base()
+    {
+    }
+}

@@ -27,6 +27,7 @@
 
 using System.IO;
 using System.Text.RegularExpressions;
+using PdfBox.Net.FontBox.TTF.Model;
 using PdfBox.Net.FontBox.TTF.Table.Common;
 using PdfBox.Net.FontBox.TTF.Table.GSub;
 
@@ -43,7 +44,7 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
     private readonly Dictionary<int, int> lookupCache = [];
     private readonly Dictionary<int, int> reverseLookup = [];
     private string? lastUsedSupportedScript;
-    private GsubData gsubData = GsubData.NO_DATA_FOUND;
+    private IGsubData gsubData = IGsubData.NoDataFound;
 
     private static readonly Regex IS_4_CHAR_WORD = new(@"^\w{4}$", RegexOptions.CultureInvariant);
 
@@ -65,7 +66,7 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
         featureListTable = ReadFeatureList(data, start + featureListOffset);
         lookupListTable = lookupListOffset > 0 ? ReadLookupList(data, start + lookupListOffset) : new LookupListTable(0, []);
         _ = featureVariationsOffset;
-        gsubData = GsubData.NO_DATA_FOUND;
+        gsubData = IGsubData.NoDataFound;
         initialized = true;
     }
 
@@ -659,11 +660,11 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
         return reverseLookup.TryGetValue(sgid, out int gid) ? gid : sgid;
     }
 
-    public GsubData GetGsubData() => gsubData;
+    public IGsubData GetGsubData() => gsubData;
 
-    public GsubData? GetGsubData(string scriptTag)
+    public IGsubData? GetGsubData(string scriptTag)
     {
-        return scriptList.ContainsKey(scriptTag) ? GsubData.NO_DATA_FOUND : null;
+        return scriptList.ContainsKey(scriptTag) ? IGsubData.NoDataFound : null;
     }
 
     public ISet<string> GetSupportedScriptTags()

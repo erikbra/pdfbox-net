@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.FontBox;
+using PdfBox.Net.FontBox.TTF.Model;
 using PdfBox.Net.FontBox.Util;
 using PdfBox.Net.Util.Geometry;
 
@@ -100,7 +101,7 @@ public class TrueTypeFont : FontBoxFont, IDisposable
         }
     }
 
-    protected internal virtual TTFTable? GetTable(string tag)
+    public virtual TTFTable? GetTable(string tag)
     {
         if (tables.TryGetValue(tag, out TTFTable? table) && table != null && !table.GetInitialized())
         {
@@ -163,7 +164,7 @@ public class TrueTypeFont : FontBoxFont, IDisposable
         if (_unitsPerEm == -1)
         {
             HeaderTable? header = GetHeader();
-            _unitsPerEm = header != null ? header.GetUnitsPerEm() : 0;
+            _unitsPerEm = header != null ? header.GetUnitsPerEm() : 1000;
         }
 
         return _unitsPerEm;
@@ -299,17 +300,17 @@ public class TrueTypeFont : FontBoxFont, IDisposable
         return 0;
     }
 
-    public GsubData GetGsubData()
+    public IGsubData GetGsubData()
     {
         if (!_enableGsub)
         {
-            return GsubData.NO_DATA_FOUND;
+            return IGsubData.NoDataFound;
         }
 
         GlyphSubstitutionTable? table = GetGsub();
         if (table == null)
         {
-            return GsubData.NO_DATA_FOUND;
+            return IGsubData.NoDataFound;
         }
 
         return table.GetGsubData();

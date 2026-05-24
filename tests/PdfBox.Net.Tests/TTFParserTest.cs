@@ -12,7 +12,7 @@ public class TTFParserTest
         TTFParser parser = new();
         TrueTypeFont font = parser.Parse(bytes);
 
-        Assert.Equal(3, font.NumberOfTables);
+        Assert.Equal(9, font.NumberOfTables);
         Assert.Equal(1000, font.GetUnitsPerEm());
         Assert.Equal("MiniTTF", font.GetName());
 

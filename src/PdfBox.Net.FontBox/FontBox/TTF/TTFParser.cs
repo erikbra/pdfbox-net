@@ -137,7 +137,7 @@ public class TTFParser
 
         bool hasCff = font.GetTableMap().ContainsKey(CFFTable.TAG);
         bool isOtf = font is OpenTypeFont;
-        bool isPostScript = isOtf ? ((OpenTypeFont)font).IsPostScript() : hasCff;
+        bool isPostScript = isOtf ? ((OpenTypeFont)font).IsPostScript : hasCff;
 
         if (font.GetHeader() == null)
         {
@@ -194,7 +194,7 @@ public class TTFParser
             outHeaders.SetOs2Windows(font.GetOS2Windows());
 
             bool isOTFAndPostScript;
-            if (font is OpenTypeFont openTypeFont && openTypeFont.IsPostScript())
+            if (font is OpenTypeFont openTypeFont && openTypeFont.IsPostScript)
             {
                 isOTFAndPostScript = true;
                 if (openTypeFont.IsSupportedOTF())
