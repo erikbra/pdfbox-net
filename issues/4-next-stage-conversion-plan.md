@@ -169,6 +169,13 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
 - Parity matrix updated with clear pass/known-gap markers.
 - Mapping/report artifacts complete for each feature package.
 
+### Issue drafts prepared for the text-baseline execution path
+- `issues/14-contentstream-execution-core.md`
+- `issues/15-contentstream-operator-processors.md`
+- `issues/16-text-extraction-pdmodel-support.md`
+- `issues/17-text-functional-baseline.md`
+- `issues/18-text-extraction-regression-coverage.md`
+
 ---
 
 ## Chunk 5 - Hardening + sync workflow maturity
