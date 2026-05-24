@@ -1,0 +1,7 @@
+BT
+/F1 12 Tf
+50 700 Td
+(AB) Tj
+70 0 Td
+(CD) Tj
+ET
