@@ -420,16 +420,6 @@
     "note": "Low-level parser subset ported for token/object flow (comments, names, strings, arrays, dictionaries, booleans, null, numbers); broader parser orchestration remains out of chunk-2 scope."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-20T23:27:00Z",
-    "note": "Added deterministic low-level COS object serializer bridge; full PDF document/xref/trailer writer orchestration remains deferred."
-  },
-  {
     "source_path": "n/a",
     "target_path": "tests/PdfBox.Net.Tests/ParserWriterRoundtripTest.cs",
     "source_commit": "n/a",
@@ -2190,5 +2180,45 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T19:17:40Z",
     "note": "Native test added for issue #29: fixture-driven COS regression scenarios for deterministic minimal/roundtrip parsing and malformed-input parser stability."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInputStream.java",
+    "target_path": "src/PdfBox.Net/COS/COSInputStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:46:00Z",
+    "note": "Mechanical port of COS filtered-stream input wrapper; no Java-only APIs requiring adaptation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSOutputStream.java",
+    "target_path": "src/PdfBox.Net/COS/COSOutputStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:46:00Z",
+    "note": "Mechanical port of COS filtered-stream output wrapper; no Java-only APIs requiring adaptation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSParser.java",
+    "target_path": "src/PdfBox.Net/COS/ICOSParser.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:46:00Z",
+    "note": "Mechanical port of COS parser interface; direct interface mapping with no Java-only dependencies."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocument.java",
+    "target_path": "src/PdfBox.Net/COS/COSDocument.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:46:00Z",
+    "note": "Top-level COS document container; mechanical port with full object-table and xref dictionary mapping."
   }
 ]
