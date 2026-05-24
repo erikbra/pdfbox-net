@@ -27,6 +27,7 @@
 
 using PdfBox.Net.Util;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Graphics;
 
 namespace PdfBox.Net.PDModel.Graphics.State;
 
@@ -51,6 +52,12 @@ public class PDGraphicsState
     private PDColor _strokingColor;
     private PDColor _nonStrokingColor;
     private int _clippingWindingRule;
+    private float _alphaConstant;
+    private float _nonStrokeAlphaConstant;
+    private bool _alphaSource;
+    private bool _strokeAdjustment;
+    private BlendMode _blendMode;
+    private PDSoftMask? _softMask;
 
     /// <summary>Creates a new graphics state with identity CTM and default text state.</summary>
     public PDGraphicsState()
@@ -69,6 +76,12 @@ public class PDGraphicsState
         _strokingColor = _strokingColorSpace.GetInitialColor();
         _nonStrokingColor = _nonStrokingColorSpace.GetInitialColor();
         _clippingWindingRule = 1;
+        _alphaConstant = 1f;
+        _nonStrokeAlphaConstant = 1f;
+        _alphaSource = false;
+        _strokeAdjustment = false;
+        _blendMode = BlendMode.NORMAL;
+        _softMask = null;
     }
 
     private PDGraphicsState(
@@ -85,7 +98,13 @@ public class PDGraphicsState
         PDColorSpace nonStrokingColorSpace,
         PDColor strokingColor,
         PDColor nonStrokingColor,
-        int clippingWindingRule)
+        int clippingWindingRule,
+        float alphaConstant,
+        float nonStrokeAlphaConstant,
+        bool alphaSource,
+        bool strokeAdjustment,
+        BlendMode blendMode,
+        PDSoftMask? softMask)
     {
         _currentTransformationMatrix = ctm;
         _textState = textState;
@@ -101,6 +120,12 @@ public class PDGraphicsState
         _strokingColor = strokingColor;
         _nonStrokingColor = nonStrokingColor;
         _clippingWindingRule = clippingWindingRule;
+        _alphaConstant = alphaConstant;
+        _nonStrokeAlphaConstant = nonStrokeAlphaConstant;
+        _alphaSource = alphaSource;
+        _strokeAdjustment = strokeAdjustment;
+        _blendMode = blendMode;
+        _softMask = softMask;
     }
 
     /// <summary>Returns the current transformation matrix.</summary>
@@ -149,6 +174,19 @@ public class PDGraphicsState
     public int GetClippingWindingRule() => _clippingWindingRule;
     public void SetClippingWindingRule(int clippingWindingRule) => _clippingWindingRule = clippingWindingRule;
 
+    public float GetAlphaConstant() => _alphaConstant;
+    public void SetAlphaConstant(float value) => _alphaConstant = value;
+    public float GetNonStrokeAlphaConstant() => _nonStrokeAlphaConstant;
+    public void SetNonStrokeAlphaConstant(float value) => _nonStrokeAlphaConstant = value;
+    public bool GetAlphaSource() => _alphaSource;
+    public void SetAlphaSource(bool value) => _alphaSource = value;
+    public bool GetStrokeAdjustment() => _strokeAdjustment;
+    public void SetStrokeAdjustment(bool value) => _strokeAdjustment = value;
+    public BlendMode GetBlendMode() => _blendMode;
+    public void SetBlendMode(BlendMode value) => _blendMode = value;
+    public PDSoftMask? GetSoftMask() => _softMask;
+    public void SetSoftMask(PDSoftMask? value) => _softMask = value;
+
     /// <summary>
     /// Creates a deep copy of this graphics state (as required by the PDF "q" operator).
     /// </summary>
@@ -167,5 +205,11 @@ public class PDGraphicsState
             _nonStrokingColorSpace,
             new PDColor((float[])_strokingColor.GetComponents().Clone(), _strokingColor.GetColorSpace()),
             new PDColor((float[])_nonStrokingColor.GetComponents().Clone(), _nonStrokingColor.GetColorSpace()),
-            _clippingWindingRule);
+            _clippingWindingRule,
+            _alphaConstant,
+            _nonStrokeAlphaConstant,
+            _alphaSource,
+            _strokeAdjustment,
+            _blendMode,
+            _softMask);
 }

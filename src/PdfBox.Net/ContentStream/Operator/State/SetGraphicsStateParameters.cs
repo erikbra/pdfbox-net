@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.State;
 
 namespace PdfBox.Net.ContentStream.Operator.State;
 
@@ -41,5 +42,16 @@ public sealed class SetGraphicsStateParameters : OperatorProcessor
     public SetGraphicsStateParameters(PDFStreamEngine context)
         : base(OperatorName.SET_GRAPHICS_STATE_PARAMS, context)
     {
+    }
+
+    public override void Process(Operator op, IList<COSBase> operands)
+    {
+        if (operands.Count == 0 || operands[0] is not COSName graphicsName)
+        {
+            return;
+        }
+
+        PDExtendedGraphicsState? gs = Context.GetResources()?.GetExtGState(graphicsName);
+        gs?.CopyIntoGraphicsState(Context.GetGraphicsState());
     }
 }

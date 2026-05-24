@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics;
 
 namespace PdfBox.Net.ContentStream.Operator;
 
@@ -43,6 +44,31 @@ public sealed class DrawObject : OperatorProcessor
 
     public override void Process(Operator op, IList<COSBase> operands)
     {
-        Context.XObject(new PdfBox.Net.PDModel.Graphics.PDXObject());
+        if (operands.Count == 0 || operands[0] is not COSName name)
+        {
+            return;
+        }
+
+        var resources = Context.GetResources();
+        if (resources is null)
+        {
+            Context.XObject(new PDXObject());
+            return;
+        }
+
+        if (resources.IsImageXObject(name))
+        {
+            return;
+        }
+
+        PDXObject? xobject = resources.GetXObject(name);
+        if (xobject is null)
+        {
+            Context.XObject(new PDXObject());
+        }
+        else
+        {
+            Context.XObject(xobject);
+        }
     }
 }
