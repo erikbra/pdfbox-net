@@ -26,8 +26,14 @@
  */
 
 using PdfBox.Net.ContentStream.Operator;
+using PdfBox.Net.ContentStream.Operator.Color;
+using PdfBox.Net.ContentStream.Operator.Graphics;
+using PdfBox.Net.ContentStream.Operator.MarkedContent;
+using PdfBox.Net.ContentStream.Operator.State;
+using PdfBox.Net.ContentStream.Operator.Text;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.State;
@@ -44,12 +50,38 @@ namespace PdfBox.Net.ContentStream;
 /// </summary>
 public class PDFStreamEngine
 {
+    protected internal enum PathSegmentType
+    {
+        MoveTo,
+        LineTo,
+        CurveTo,
+        Close
+    }
+
+    protected internal readonly record struct PathSegment(
+        PathSegmentType Type,
+        float X1,
+        float Y1,
+        float X2,
+        float Y2,
+        float X3,
+        float Y3);
+
     private readonly Dictionary<string, OperatorProcessor> _operatorsByName = new();
     private readonly Stack<PDGraphicsState> _graphicsStateStack = new();
+    private readonly List<PathSegment> _currentPath = [];
     private PDGraphicsState _currentGraphicsState = new();
     private Matrix _textMatrix = new();
     private Matrix _textLineMatrix = new();
+    private (float X, float Y)? _currentPoint;
+    private int? _pendingClipWindingRule;
+    private int _compatibilitySectionDepth;
     private PDPage? _currentPage;
+
+    public PDFStreamEngine()
+    {
+        RegisterOperators();
+    }
 
     // ── Operator registry ─────────────────────────────────────────────────────
 
@@ -77,6 +109,10 @@ public class PDFStreamEngine
         _graphicsStateStack.Clear();
         _textMatrix = new Matrix();
         _textLineMatrix = new Matrix();
+        _currentPath.Clear();
+        _currentPoint = null;
+        _pendingClipWindingRule = null;
+        _compatibilitySectionDepth = 0;
 
         if (page.HasContents())
         {
@@ -164,6 +200,97 @@ public class PDFStreamEngine
             m.Multiply(_currentGraphicsState.GetCurrentTransformationMatrix()));
     }
 
+    internal void SetLineWidth(float width) => _currentGraphicsState.SetLineWidth(width);
+    internal void SetLineCap(int lineCap) => _currentGraphicsState.SetLineCap(lineCap);
+    internal void SetLineJoin(int lineJoin) => _currentGraphicsState.SetLineJoin(lineJoin);
+    internal void SetMiterLimit(float miterLimit) => _currentGraphicsState.SetMiterLimit(miterLimit);
+    internal void SetLineDashPattern(float[] dashArray, int phase) => _currentGraphicsState.SetLineDashPattern(new PDLineDashPattern(dashArray, phase));
+    internal void SetFlatness(float flatness) => _currentGraphicsState.SetFlatness(flatness);
+    internal void SetRenderingIntent(string renderingIntent) => _currentGraphicsState.SetRenderingIntent(renderingIntent);
+    internal void SetStrokingColorSpace(PDColorSpace colorSpace) => _currentGraphicsState.SetStrokingColorSpace(colorSpace);
+    internal void SetNonStrokingColorSpace(PDColorSpace colorSpace) => _currentGraphicsState.SetNonStrokingColorSpace(colorSpace);
+    internal void SetStrokingColor(PDColor color) => _currentGraphicsState.SetStrokingColor(color);
+    internal void SetNonStrokingColor(PDColor color) => _currentGraphicsState.SetNonStrokingColor(color);
+
+    // ── Path and clipping state ────────────────────────────────────────────────
+
+    internal void MoveTo(float x, float y)
+    {
+        _currentPath.Add(new PathSegment(PathSegmentType.MoveTo, x, y, 0, 0, 0, 0));
+        _currentPoint = (x, y);
+    }
+
+    internal void LineTo(float x, float y)
+    {
+        _currentPath.Add(new PathSegment(PathSegmentType.LineTo, x, y, 0, 0, 0, 0));
+        _currentPoint = (x, y);
+    }
+
+    internal void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+    {
+        _currentPath.Add(new PathSegment(PathSegmentType.CurveTo, x1, y1, x2, y2, x3, y3));
+        _currentPoint = (x3, y3);
+    }
+
+    internal void ClosePath()
+    {
+        _currentPath.Add(new PathSegment(PathSegmentType.Close, 0, 0, 0, 0, 0, 0));
+    }
+
+    internal void AppendRectangle(float x, float y, float width, float height)
+    {
+        MoveTo(x, y);
+        LineTo(x + width, y);
+        LineTo(x + width, y + height);
+        LineTo(x, y + height);
+        ClosePath();
+    }
+
+    internal (float X, float Y)? GetCurrentPoint() => _currentPoint;
+    protected internal IReadOnlyList<PathSegment> GetCurrentPathSegments() => _currentPath;
+
+    private void ApplyPendingClip()
+    {
+        if (_pendingClipWindingRule.HasValue)
+        {
+            _currentGraphicsState.SetClippingWindingRule(_pendingClipWindingRule.Value);
+            _pendingClipWindingRule = null;
+        }
+    }
+
+    internal void Clip(int windingRule)
+    {
+        _pendingClipWindingRule = windingRule;
+    }
+
+    internal void StrokePath()
+    {
+        ApplyPendingClip();
+        _currentPath.Clear();
+        _currentPoint = null;
+    }
+
+    internal void FillPath(int windingRule)
+    {
+        ApplyPendingClip();
+        _currentPath.Clear();
+        _currentPoint = null;
+    }
+
+    internal void FillAndStrokePath(int windingRule)
+    {
+        ApplyPendingClip();
+        _currentPath.Clear();
+        _currentPoint = null;
+    }
+
+    internal void EndPath()
+    {
+        ApplyPendingClip();
+        _currentPath.Clear();
+        _currentPoint = null;
+    }
+
     // ── Text-matrix management ────────────────────────────────────────────────
 
     /// <summary>Sets both text matrix and text line matrix simultaneously.</summary>
@@ -175,6 +302,8 @@ public class PDFStreamEngine
 
     /// <summary>Returns the current text line matrix.</summary>
     protected internal Matrix GetTextLineMatrix() => _textLineMatrix;
+
+    protected internal bool IsInCompatibilitySection() => _compatibilitySectionDepth > 0;
 
     /// <summary>Sets the text line matrix.</summary>
     internal void SetTextLineMatrix(Matrix textLineMatrix)
@@ -257,8 +386,128 @@ public class PDFStreamEngine
     {
     }
 
+    public virtual void BeginInlineImage()
+    {
+    }
+
+    public virtual void BeginInlineImageData()
+    {
+    }
+
+    public virtual void EndInlineImage()
+    {
+    }
+
+    public virtual void ShadingFill(COSName shadingName)
+    {
+    }
+
+    public virtual void SetType3GlyphWidth(float wx, float wy)
+    {
+    }
+
+    public virtual void SetType3GlyphWidthAndBoundingBox(float wx, float wy, float llx, float lly, float urx, float ury)
+    {
+    }
+
+    public virtual void BeginCompatibilitySection()
+    {
+        _compatibilitySectionDepth++;
+    }
+
+    public virtual void EndCompatibilitySection()
+    {
+        if (_compatibilitySectionDepth > 0)
+        {
+            _compatibilitySectionDepth--;
+        }
+    }
+
     protected virtual void ShowGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
     {
     }
-}
 
+    private void RegisterOperators()
+    {
+        // Existing operator families.
+        AddOperator(new DrawObject(this));
+        AddOperator(new BeginMarkedContentSequence(this));
+        AddOperator(new BeginMarkedContentSequenceWithProperties(this));
+        AddOperator(new EndMarkedContentSequence(this));
+        AddOperator(new MarkedContentPoint(this));
+        AddOperator(new MarkedContentPointWithProperties(this));
+        AddOperator(new Concatenate(this));
+        AddOperator(new Restore(this));
+        AddOperator(new Save(this));
+        AddOperator(new SetGraphicsStateParameters(this));
+        AddOperator(new SetMatrix(this));
+        AddOperator(new BeginText(this));
+        AddOperator(new EndText(this));
+        AddOperator(new MoveText(this));
+        AddOperator(new MoveTextSetLeading(this));
+        AddOperator(new NextLine(this));
+        AddOperator(new SetCharSpacing(this));
+        AddOperator(new SetFontAndSize(this));
+        AddOperator(new SetTextHorizontalScaling(this));
+        AddOperator(new SetTextLeading(this));
+        AddOperator(new SetTextRenderingMode(this));
+        AddOperator(new SetTextRise(this));
+        AddOperator(new SetWordSpacing(this));
+        AddOperator(new ShowText(this));
+        AddOperator(new ShowTextAdjusted(this));
+        AddOperator(new ShowTextLine(this));
+        AddOperator(new ShowTextLineAndSpace(this));
+
+        // State operators.
+        AddOperator(new SetLineWidth(this));
+        AddOperator(new SetLineCap(this));
+        AddOperator(new SetLineJoin(this));
+        AddOperator(new SetMiterLimit(this));
+        AddOperator(new SetLineDashPattern(this));
+        AddOperator(new SetFlatness(this));
+        AddOperator(new SetRenderingIntent(this));
+
+        // Path construction and painting.
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.MoveTo(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.LineTo(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.CurveTo(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.CurveToReplicateFinalPoint(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.CurveToReplicateInitialPoint(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.AppendRectangleToPath(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.ClosePath(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.StrokePath(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.CloseAndStrokePath(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.FillNonZeroRule(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.FillNonZeroRule(this, OperatorName.LEGACY_FILL_NON_ZERO));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.FillEvenOddRule(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.FillNonZeroAndStrokePath(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.FillEvenOddAndStrokePath(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.ClipNonZeroRule(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.ClipEvenOddRule(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.EndPath(this));
+
+        // Color operators.
+        AddOperator(new SetNonStrokingColor(this));
+        AddOperator(new SetNonStrokingColorN(this));
+        AddOperator(new SetNonStrokingColorSpace(this));
+        AddOperator(new SetNonStrokingDeviceCMYKColor(this));
+        AddOperator(new SetNonStrokingDeviceGrayColor(this));
+        AddOperator(new SetNonStrokingDeviceRGBColor(this));
+        AddOperator(new SetStrokingColor(this));
+        AddOperator(new SetStrokingColorN(this));
+        AddOperator(new SetStrokingColorSpace(this));
+        AddOperator(new SetStrokingDeviceCMYKColor(this));
+        AddOperator(new SetStrokingDeviceGrayColor(this));
+        AddOperator(new SetStrokingDeviceRGBColor(this));
+
+        // Inline images, shading, type3 and compatibility.
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.BeginInlineImage(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.BeginInlineImageData(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.EndInlineImage(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.ShadingFill(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.SetType3GlyphWidth(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.SetType3GlyphWidthAndBoundingBox(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.BeginCompatibilitySection(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.EndCompatibilitySection(this));
+    }
+}

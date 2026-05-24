@@ -54,24 +54,60 @@ namespace PdfBox.Net.PDModel.Graphics.Color
 {
     public class PDColorSpace
     {
+        private readonly string _name;
+        private readonly int _numberOfComponents;
+
+        public PDColorSpace()
+            : this("Unknown", 0)
+        {
+        }
+
+        public PDColorSpace(string name, int numberOfComponents = 0)
+        {
+            _name = name;
+            _numberOfComponents = numberOfComponents;
+        }
+
+        public string GetName()
+        {
+            return _name;
+        }
+
+        public int GetNumberOfComponents()
+        {
+            return _numberOfComponents;
+        }
     }
 
     public class PDColor
     {
         private readonly PDColorSpace? _colorSpace;
+        private readonly float[] _components;
 
         public PDColor()
+            : this(Array.Empty<float>(), null)
         {
         }
 
         public PDColor(PDColorSpace? colorSpace)
+            : this(Array.Empty<float>(), colorSpace)
         {
+        }
+
+        public PDColor(float[] components, PDColorSpace? colorSpace)
+        {
+            _components = components ?? Array.Empty<float>();
             _colorSpace = colorSpace;
         }
 
         public PDColorSpace? GetColorSpace()
         {
             return _colorSpace;
+        }
+
+        public float[] GetComponents()
+        {
+            return _components;
         }
 
         public int ToRGB()
@@ -126,7 +162,23 @@ namespace PdfBox.Net.PDModel.Graphics.State
 
     public class PDLineDashPattern
     {
-        public float[] GetDashArray() => Array.Empty<float>();
+        private readonly float[] _dashArray;
+        private readonly int _phaseStart;
+
+        public PDLineDashPattern()
+            : this(Array.Empty<float>(), 0)
+        {
+        }
+
+        public PDLineDashPattern(float[] dashArray, int phaseStart)
+        {
+            _dashArray = dashArray ?? Array.Empty<float>();
+            _phaseStart = phaseStart;
+        }
+
+        public float[] GetDashArray() => _dashArray;
+
+        public int GetPhaseStart() => _phaseStart;
     }
 }
 
