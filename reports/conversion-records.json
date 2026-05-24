@@ -510,5 +510,117 @@
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Adapted upstream EncodingTest to xUnit and expanded it with BuiltInEncoding fallback/read-only map coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FlateFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/FlateFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported FlateDecode with zlib/deflate fallback and predictor post-processing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCIIHexFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/ASCIIHexFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported ASCIIHex decode/encode including odd-nibble EOD handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCII85Filter.java",
+    "target_path": "src/PdfBox.Net/Filter/ASCII85Filter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported ASCII85 decode/encode including z-shorthand and ~> termination."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/LZWFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/LZWFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported LZW decode/encode with CLEAR/EOD handling and early-change support."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/RunLengthDecodeFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/RunLengthDecodeFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported RunLengthDecode filter including encoder used by roundtrip tests."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/IdentityFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/IdentityFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported identity passthrough filter."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CryptFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/CryptFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported Crypt filter with Identity support and explicit unsupported-filter exceptions."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FilterFactory.java",
+    "target_path": "src/PdfBox.Net/Filter/FilterFactory.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported filter registry mapping standard filter names and abbreviations."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Predictor.java",
+    "target_path": "src/PdfBox.Net/Filter/Predictor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported predictor decoding helper used by Flate and LZW."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/DCTFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/DCTFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added DCT filter placeholder throwing NotSupportedException until image-decoder integration lands."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/CCITTFaxDecodeFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added CCITTFaxDecode filter placeholder throwing NotSupportedException pending managed CCITT implementation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JBIG2Filter.java",
+    "target_path": "src/PdfBox.Net/Filter/JBIG2Filter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added JBIG2 filter placeholder throwing NotSupportedException pending managed decoder integration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JPXFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/JPXFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added JPX filter placeholder throwing NotSupportedException pending JPEG2000 decoder integration."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/filter/TestFilters.java",
+    "target_path": "tests/PdfBox.Net.Tests/FilterTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added .NET-focused filter roundtrip coverage and FilterFactory COSName lookup tests."
   }
 ]

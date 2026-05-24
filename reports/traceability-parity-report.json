@@ -1078,5 +1078,145 @@
     "status": "partial",
     "last_checked_utc": "2026-05-23T20:54:48Z",
     "note": "TrueType font model with table lookup. Accessors for unported tables (cmap, glyf, etc.) not yet present (issue #9)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FlateFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/FlateFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Flate filter implemented with zlib/deflate fallback and predictor post-processing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCIIHexFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/ASCIIHexFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "ASCIIHex decode/encode implemented."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCII85Filter.java",
+    "target_path": "src/PdfBox.Net/Filter/ASCII85Filter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "ASCII85 decode/encode implemented including z-shorthand handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/LZWFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/LZWFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "LZW decode/encode implemented with clear-table and EOD handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/RunLengthDecodeFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/RunLengthDecodeFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "RunLength decode/encode implemented."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/IdentityFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/IdentityFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Identity passthrough filter implemented."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CryptFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/CryptFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Crypt filter supports only /Identity until encryption module is ported."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FilterFactory.java",
+    "target_path": "src/PdfBox.Net/Filter/FilterFactory.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "FilterFactory resolves standard filter names and abbreviations."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Predictor.java",
+    "target_path": "src/PdfBox.Net/Filter/Predictor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Predictor decode helper implemented for Flate/LZW."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/DCTFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/DCTFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Placeholder only; decode/encode throw NotSupportedException."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/CCITTFaxDecodeFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Placeholder only; decode/encode throw NotSupportedException."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JBIG2Filter.java",
+    "target_path": "src/PdfBox.Net/Filter/JBIG2Filter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Placeholder only; decode/encode throw NotSupportedException."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JPXFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/JPXFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Placeholder only; decode/encode throw NotSupportedException."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/filter/TestFilters.java",
+    "target_path": "tests/PdfBox.Net.Tests/FilterTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Filter roundtrip and factory lookup tests added for .NET port scope."
   }
 ]
