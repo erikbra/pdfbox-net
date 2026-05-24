@@ -1478,5 +1478,38 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Converted unmodifiable mutation-guard coverage across item/value/date/embedded/flag/update-state mutators."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInputStream.java",
+    "target_path": "src/PdfBox.Net/COS/COSInputStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java stream types -> C# Stream subclass",
+      "FilterInputStream -> custom Stream wrapper"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped Java FilterInputStream with List<Filter> to C# Stream subclass; stream chaining adapted to .NET Stream composition pattern."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSOutputStream.java",
+    "target_path": "src/PdfBox.Net/COS/COSOutputStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java stream types -> C# Stream subclass",
+      "FilterOutputStream -> custom Stream wrapper"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped Java FilterOutputStream with List<Filter> to C# Stream subclass; encoding filter chain adapted to .NET Stream composition pattern."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSParser.java",
+    "target_path": "src/PdfBox.Net/COS/ICOSParser.cs",
+    "normalization_applied": false,
+    "change_categories": [],
+    "semantic_risk": "none",
+    "compiles_after_change": true,
+    "note": "Single-method interface; no normalization required beyond namespace and using directives."
   }
 ]
