@@ -346,8 +346,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-20T04:58:00Z",
-    "note": "COS stream foundation ported for raw stream IO and lifecycle behavior; full filter orchestration deferred to parser/writer chunk."
+    "last_checked_utc": "2026-05-24T19:15:00Z",
+    "note": "COSStream now includes filter list resolution, decoded stream/view pathways, and lifecycle parity for filtered/unfiltered output semantics."
   },
   {
     "source_path": "n/a",
@@ -405,9 +405,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-20T05:58:00Z",
-    "note": "Unfiltered stream behavior tests converted; filter-dependent scenarios deferred until filter stack conversion."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:15:00Z",
+    "note": "Upstream TestCOSStream converted with single/multi-filter encode/decode parity, close semantics, and hasData behavior checks."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",

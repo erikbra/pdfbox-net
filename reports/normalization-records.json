@@ -333,11 +333,11 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "Filter pipeline omitted for this foundational chunk; raw stream IO mapped to existing RandomAccess abstractions"
+      "Filter list resolution and decode/view/output orchestration mapped to existing FilterFactory and RandomAccess abstractions"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Skill G mapping: deferred full filter decode/encode orchestration (parser/writer chunk), while implementing stream lifecycle and raw IO semantics needed for foundational COS behavior."
+    "note": "Skill G mapping: implemented COSStream filter decode/encode and view lifecycle parity using FilterFactory with COSInputStream/COSOutputStream wrappers and RandomAccess-backed buffering."
   },
   {
     "source_path": "n/a",
@@ -403,11 +403,11 @@
     "normalization_applied": true,
     "change_categories": [
       "JUnit assertions/annotations converted to xUnit v3",
-      "Filter-dependent coverage deferred until filter layer conversion"
+      "Upstream filter-dependent stream coverage ported for single and multi-filter encode/decode parity"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Converted unfiltered COSStream behavior tests and deferred filter-encoding cases to parser/writer filter chunk due missing filter stack in current scope."
+    "note": "Completed TestCOSStream parity by porting filter encode/decode and filtered double-close assertions in addition to unfiltered lifecycle checks."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",

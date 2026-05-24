@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.IO;
+using PdfBox.Net.Filter;
+using FilterBase = PdfBox.Net.Filter.Filter;
 
 namespace PdfBox.Net.COS;
 
@@ -77,14 +79,73 @@ public class COSStream : COSDictionary, IDisposable
         return new RandomAccessInputStream(_randomAccess);
     }
 
-    public Stream CreateInputStream()
+    public COSInputStream CreateInputStream()
     {
-        return CreateRawInputStream();
+        return CreateInputStream(DecodeOptions.DEFAULT);
+    }
+
+    public COSInputStream CreateInputStream(DecodeOptions options)
+    {
+        Stream input = CreateRawInputStream();
+        return COSInputStream.Create(GetFilterList(), this, input, options);
+    }
+
+    public RandomAccessRead CreateView()
+    {
+        List<FilterBase> filterList = GetFilterList();
+        if (filterList.Count == 0)
+        {
+            if (_randomAccess is null && _randomAccessReadView is not null)
+            {
+                return new RandomAccessReadView(_randomAccessReadView, 0, _randomAccessReadView.Length());
+            }
+
+            return new RandomAccessReadBuffer(CreateRawInputStream());
+        }
+
+        return FilterBase.Decode(CreateRawInputStream(), filterList, this, DecodeOptions.DEFAULT, new List<DecodeResult>());
     }
 
     public Stream CreateOutputStream()
     {
-        return CreateRawOutputStream();
+        return CreateOutputStream(null);
+    }
+
+    public Stream CreateOutputStream(COSBase? filters)
+    {
+        CheckClosed();
+        if (_isWriting)
+        {
+            throw new InvalidOperationException("Cannot have more than one open stream writer.");
+        }
+
+        if (filters is not null)
+        {
+            SetItem(COSName.FILTER, filters);
+        }
+
+        if (_randomAccess is not null)
+        {
+            _randomAccess.Clear();
+        }
+        else
+        {
+            _randomAccess = GetStreamCache().CreateBuffer();
+        }
+
+        Stream randomOut = new RandomAccessOutputStream(_randomAccess);
+        try
+        {
+            Stream cosOut = new COSOutputStream(GetFilterList(), this, randomOut, GetStreamCache());
+            randomOut = Stream.Null;
+            _isWriting = true;
+            return new COSStreamWriteWrapper(this, cosOut);
+        }
+        catch
+        {
+            randomOut.Dispose();
+            throw;
+        }
     }
 
     public Stream CreateRawOutputStream()
@@ -106,6 +167,40 @@ public class COSStream : COSDictionary, IDisposable
 
         _isWriting = true;
         return new COSStreamWriteWrapper(this, new RandomAccessOutputStream(_randomAccess));
+    }
+
+    private List<FilterBase> GetFilterList()
+    {
+        List<FilterBase> filterList;
+        COSBase? filters = GetFilters();
+        if (filters is COSName filterName)
+        {
+            filterList = new List<FilterBase>(1)
+            {
+                FilterFactory.Instance.GetFilter(filterName)
+            };
+        }
+        else if (filters is COSArray filterArray)
+        {
+            filterList = new List<FilterBase>(filterArray.Size());
+            for (int i = 0; i < filterArray.Size(); i++)
+            {
+                COSBase? @base = filterArray.Get(i);
+                if (@base is not COSName baseName)
+                {
+                    string typeName = @base is null ? "null" : @base.GetType().FullName ?? @base.GetType().Name;
+                    throw new IOException($"Forbidden type in filter array: {typeName}");
+                }
+
+                filterList.Add(FilterFactory.Instance.GetFilter(baseName));
+            }
+        }
+        else
+        {
+            filterList = new List<FilterBase>();
+        }
+
+        return filterList;
     }
 
     public long GetLength()
