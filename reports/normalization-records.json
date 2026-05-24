@@ -1157,5 +1157,280 @@
     "semantic_risk": "medium",
     "compiles_after_change": true,
     "note": "Font model with table dictionary. Java HashMap<String,TTFTable> -> Dictionary<string,TTFTable>. Typed accessors for unported tables not yet present. See issue #9."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Replaced font stubs with concrete PDModel font hierarchy and concrete Type1/TrueType/Type0/CID font implementations."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontDescriptor.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added PDFontDescriptor metrics and bounding box extraction from font descriptor dictionaries."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDSimpleFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implemented simple-font width, glyph, and encoding-backed unicode fallback behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implemented Type1 font loading path and Standard14 fallback behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implemented TrueType font loading and cmap-backed unicode fallback behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implemented composite Type0 font and descendant CID font wiring."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implemented CIDFontType2 wrapper for embedded TrueType fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added font factory dispatch based on PDF font subtype."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Standard14Fonts.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added canonical mapping for standard 14 PDF fonts and aliases."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Encoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Encoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added PDModel encoding base class."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/DictionaryEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implemented dictionary encoding resolution and Differences overrides."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/MacRomanEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/MacRomanEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added MacRoman encoding wrapper for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/WinAnsiEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/WinAnsiEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added WinAnsi encoding map for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/SymbolEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/SymbolEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added Symbol encoding map for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/ZapfDingbatsEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/ZapfDingbatsEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added ZapfDingbats encoding map for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Type1Encoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Type1Encoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added Type1 built-in encoding adapter from parsed Type1 fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDSystemInfo.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added CID system info wrapper for Registry/Ordering/Supplement."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDPanose.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDPanose.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added PANOSE classification wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontMapper.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added font mapper interface."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMappers.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontMappers.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added global font mapper singleton wiring."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/DefaultFontProvider.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added default font provider implementation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added cross-platform file system font discovery provider."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
+    "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Updated resource font lookup to construct concrete PDFont instances via PDFontFactory."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java",
+    "target_path": "src/PdfBox.Net/PDModel/RenderingSupportStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adjusted Type3 font stub constructor to align with PDFont base constructor requirements."
+  },
+  {
+    "source_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
+    "target_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
   }
 ]

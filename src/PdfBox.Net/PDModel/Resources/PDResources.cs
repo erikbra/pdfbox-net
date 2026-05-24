@@ -75,7 +75,7 @@ public class PDResources
         COSBase? entry = fontSubDict.GetDictionaryObject(name);
         if (entry is COSDictionary fontDict)
         {
-            return PDDictionaryFont.Create(fontDict);
+            return PDFontFactory.CreateFont(fontDict);
         }
 
         return null;

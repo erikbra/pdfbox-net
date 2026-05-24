@@ -584,7 +584,11 @@ public class PDModelStateTest
     private sealed class TestDictionaryFont : PDFont
     {
         private readonly string _name;
-        public TestDictionaryFont(string name) => _name = name;
+        public TestDictionaryFont(string name)
+            : base(new COSDictionary())
+        {
+            _name = name;
+        }
         public override string GetName() => _name;
     }
 }

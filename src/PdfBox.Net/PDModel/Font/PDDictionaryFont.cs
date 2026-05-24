@@ -1,8 +1,11 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted implementation for minimal font wrapper backed by a PDF resource dictionary entry.
+ * Adapted implementation for dictionary-backed PDF font behavior.
  *
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java
+ * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: trunk
  */
 
 /*
@@ -35,13 +38,9 @@ namespace PdfBox.Net.PDModel.Font;
 /// </summary>
 public sealed class PDDictionaryFont : PDFont
 {
-    private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
-
-    private readonly COSDictionary _dict;
-
     private PDDictionaryFont(COSDictionary dict)
+        : base(dict)
     {
-        _dict = dict;
     }
 
     /// <summary>
@@ -51,25 +50,14 @@ public sealed class PDDictionaryFont : PDFont
         new PDDictionaryFont(dict ?? throw new ArgumentNullException(nameof(dict)));
 
     /// <inheritdoc/>
-    public override string GetName()
-    {
-        // BaseFont is typically a COSName (e.g. /Helvetica), but may be a COSString in some PDFs.
-        COSBase? baseFontEntry = _dict.GetDictionaryObject(BaseFontKey);
-        return baseFontEntry switch
-        {
-            COSName cosName => cosName.GetName(),
-            COSString cosString => cosString.GetString(),
-            _ => "Unknown",
-        };
-    }
-
-    /// <inheritdoc/>
     public override float GetWidth(int code)
     {
-        // Minimal, deterministic metrics for baseline extraction workflows.
-        // The current text engine applies additional scaling while creating TextPosition,
-        // so we provide conservative widths to keep character spacing and duplicate
-        // suppression stable for baseline extraction.
+        float width = base.GetWidth(code);
+        if (width > 0)
+        {
+            return width;
+        }
+
         return code == 0x20 ? 20f : 40f;
     }
 
@@ -86,7 +74,4 @@ public sealed class PDDictionaryFont : PDFont
 
         return System.Text.Encoding.Latin1.GetString([(byte)code]);
     }
-
-    /// <inheritdoc/>
-    public override COSDictionary GetCOSObject() => _dict;
 }

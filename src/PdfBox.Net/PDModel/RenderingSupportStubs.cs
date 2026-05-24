@@ -1,9 +1,11 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Stub implementations for rendering-related PDModel types required by the rendering package.
- * These are adapted stubs pending full porting of the corresponding PDFBox model layers.
+ * Adapted rendering-support stubs derived from Apache PDFBox model and rendering dependencies.
  *
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java
+ * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: trunk
  */
 
 /*
@@ -223,6 +225,11 @@ namespace PdfBox.Net.PDModel.Font
 {
     public abstract class PDType3Font : PDFont
     {
+        protected PDType3Font()
+            : base(new COSDictionary())
+        {
+        }
+
         public override string GetName()
         {
             return GetType().Name;
