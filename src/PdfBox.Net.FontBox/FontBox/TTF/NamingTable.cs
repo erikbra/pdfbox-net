@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache FontBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/NamingTable.java
  * PDFBOX_SOURCE_COMMIT: trunk
@@ -25,81 +25,218 @@
  * limitations under the License.
  */
 
+using TextEncoding = System.Text.Encoding;
+
 namespace PdfBox.Net.FontBox.TTF;
 
-public sealed class NamingTable() : TTFTable("name")
+/// <summary>
+/// This 'name'-table is a required table in a TrueType font.
+/// </summary>
+public sealed class NamingTable : TTFTable
 {
-    private readonly List<NameRecord> _nameRecords = [];
+    public const string TAG = "name";
 
-    public IReadOnlyList<NameRecord> NameRecords => _nameRecords;
+    private List<NameRecord> _nameRecords = [];
+    private Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, string?>>>> _lookupTable = [];
+    private string? _fontFamily;
+    private string? _fontSubFamily;
+    private string? _psName;
 
-    internal override void Read(TTFDataStream dataStream)
+    public NamingTable() : base(TAG)
     {
-        long tableStart = dataStream.Position;
-        _ = dataStream.ReadUnsignedShort();
-        ushort count = dataStream.ReadUnsignedShort();
-        ushort stringOffset = dataStream.ReadUnsignedShort();
-
-        _nameRecords.Clear();
-        for (int i = 0; i < count; i++)
-        {
-            _nameRecords.Add(new NameRecord
-            {
-                PlatformId = dataStream.ReadUnsignedShort(),
-                PlatformEncodingId = dataStream.ReadUnsignedShort(),
-                LanguageId = dataStream.ReadUnsignedShort(),
-                NameId = dataStream.ReadUnsignedShort(),
-                StringLength = dataStream.ReadUnsignedShort(),
-                StringOffset = dataStream.ReadUnsignedShort(),
-            });
-        }
-
-        foreach (NameRecord record in _nameRecords)
-        {
-            dataStream.Seek(tableStart + stringOffset + record.StringOffset);
-            byte[] bytes = dataStream.ReadBytes(record.StringLength);
-            record.Value = DecodeName(record, bytes);
-        }
     }
 
-    public string? GetEnglishName(ushort nameId)
+    internal override void Read(TrueTypeFont ttf, TTFDataStream data)
     {
-        NameRecord? windows = _nameRecords.FirstOrDefault(n =>
-            n.NameId == nameId &&
-            n.PlatformId == 3 &&
-            n.LanguageId == 0x0409 &&
-            !string.IsNullOrEmpty(n.Value));
-        if (windows is not null)
-        {
-            return windows.Value;
-        }
-
-        NameRecord? unicode = _nameRecords.FirstOrDefault(n =>
-            n.NameId == nameId &&
-            n.PlatformId == 0 &&
-            !string.IsNullOrEmpty(n.Value));
-        if (unicode is not null)
-        {
-            return unicode.Value;
-        }
-
-        return _nameRecords.FirstOrDefault(n => n.NameId == nameId && !string.IsNullOrEmpty(n.Value))?.Value;
+        Read(ttf, data, false);
+        initialized = true;
     }
 
-    private static string DecodeName(NameRecord record, byte[] bytes)
+    internal override void ReadHeaders(TrueTypeFont ttf, TTFDataStream data, FontHeaders outHeaders)
     {
-        try
+        Read(ttf, data, true);
+        outHeaders.SetName(_psName);
+        outHeaders.SetFontFamily(_fontFamily, _fontSubFamily);
+    }
+
+    private void Read(TrueTypeFont ttf, TTFDataStream data, bool onlyHeaders)
+    {
+        _ = data.ReadUnsignedShort();
+        int numberOfNameRecords = data.ReadUnsignedShort();
+        _ = data.ReadUnsignedShort();
+        _nameRecords = new List<NameRecord>(numberOfNameRecords);
+        for (int i = 0; i < numberOfNameRecords; i++)
         {
-            if (record.PlatformId == 0 || record.PlatformId == 3)
+            NameRecord nr = new();
+            nr.InitData(ttf, data);
+            if (!onlyHeaders || IsUsefulForOnlyHeaders(nr))
             {
-                return System.Text.Encoding.BigEndianUnicode.GetString(bytes);
+                _nameRecords.Add(nr);
+            }
+        }
+
+        foreach (NameRecord nr in _nameRecords)
+        {
+            if (nr.StringOffset > Length)
+            {
+                nr.String = null;
+                continue;
             }
 
-            return System.Text.Encoding.ASCII.GetString(bytes);
+            data.Seek(Offset + (2L * 3) + numberOfNameRecords * 2L * 6 + nr.StringOffset);
+            TextEncoding charset = GetCharset(nr);
+            nr.String = data.ReadString(nr.StringLength, charset);
         }
-        catch
+
+        _lookupTable = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, string?>>>>(_nameRecords.Count);
+        FillLookupTable();
+        ReadInterestingStrings();
+    }
+
+    private static TextEncoding GetCharset(NameRecord nr)
+    {
+        int platform = nr.PlatformId;
+        int encoding = nr.PlatformEncodingId;
+        TextEncoding charset = TextEncoding.Latin1;
+        if (platform == NameRecord.PLATFORM_WINDOWS &&
+            (encoding == NameRecord.ENCODING_WINDOWS_SYMBOL || encoding == NameRecord.ENCODING_WINDOWS_UNICODE_BMP))
         {
-            return string.Empty;
+            charset = TextEncoding.BigEndianUnicode;
+        }
+        else if (platform == NameRecord.PLATFORM_UNICODE)
+        {
+            charset = TextEncoding.BigEndianUnicode;
+        }
+        else if (platform == NameRecord.PLATFORM_ISO)
+        {
+            switch (encoding)
+            {
+                case 0:
+                    charset = TextEncoding.ASCII;
+                    break;
+                case 1:
+                    charset = TextEncoding.BigEndianUnicode;
+                    break;
+            }
+        }
+
+        return charset;
+    }
+
+    private void FillLookupTable()
+    {
+        foreach (NameRecord nr in _nameRecords)
+        {
+            if (!_lookupTable.TryGetValue(nr.NameId, out var platformLookup))
+            {
+                platformLookup = [];
+                _lookupTable[nr.NameId] = platformLookup;
+            }
+
+            if (!platformLookup.TryGetValue(nr.PlatformId, out var encodingLookup))
+            {
+                encodingLookup = [];
+                platformLookup[nr.PlatformId] = encodingLookup;
+            }
+
+            if (!encodingLookup.TryGetValue(nr.PlatformEncodingId, out var languageLookup))
+            {
+                languageLookup = new Dictionary<int, string?>(1);
+                encodingLookup[nr.PlatformEncodingId] = languageLookup;
+            }
+
+            languageLookup[nr.LanguageId] = nr.String;
         }
     }
+
+    private void ReadInterestingStrings()
+    {
+        _fontFamily = GetEnglishName(NameRecord.NAME_FONT_FAMILY_NAME);
+        _fontSubFamily = GetEnglishName(NameRecord.NAME_FONT_SUB_FAMILY_NAME);
+
+        _psName = GetName(NameRecord.NAME_POSTSCRIPT_NAME,
+                NameRecord.PLATFORM_MACINTOSH,
+                NameRecord.ENCODING_MACINTOSH_ROMAN,
+                NameRecord.LANGUAGE_MACINTOSH_ENGLISH);
+        if (_psName == null)
+        {
+            _psName = GetName(NameRecord.NAME_POSTSCRIPT_NAME,
+                    NameRecord.PLATFORM_WINDOWS,
+                    NameRecord.ENCODING_WINDOWS_UNICODE_BMP,
+                    NameRecord.LANGUAGE_WINDOWS_EN_US);
+        }
+        if (_psName != null)
+        {
+            _psName = _psName.Trim();
+        }
+    }
+
+    private static bool IsUsefulForOnlyHeaders(NameRecord nr)
+    {
+        int nameId = nr.NameId;
+        if (nameId == NameRecord.NAME_POSTSCRIPT_NAME ||
+            nameId == NameRecord.NAME_FONT_FAMILY_NAME ||
+            nameId == NameRecord.NAME_FONT_SUB_FAMILY_NAME)
+        {
+            int languageId = nr.LanguageId;
+            return languageId == NameRecord.LANGUAGE_UNICODE ||
+                   languageId == NameRecord.LANGUAGE_WINDOWS_EN_US;
+        }
+
+        return false;
+    }
+
+    private string? GetEnglishName(int nameId)
+    {
+        for (int i = 4; i >= 0; i--)
+        {
+            string? nameUni = GetName(nameId, NameRecord.PLATFORM_UNICODE, i, NameRecord.LANGUAGE_UNICODE);
+            if (nameUni != null)
+            {
+                return nameUni;
+            }
+        }
+
+        string? nameWin = GetName(nameId,
+                NameRecord.PLATFORM_WINDOWS,
+                NameRecord.ENCODING_WINDOWS_UNICODE_BMP,
+                NameRecord.LANGUAGE_WINDOWS_EN_US);
+        if (nameWin != null)
+        {
+            return nameWin;
+        }
+
+        return GetName(nameId,
+                NameRecord.PLATFORM_MACINTOSH,
+                NameRecord.ENCODING_MACINTOSH_ROMAN,
+                NameRecord.LANGUAGE_MACINTOSH_ENGLISH);
+    }
+
+    public string? GetName(int nameId, int platformId, int encodingId, int languageId)
+    {
+        if (!_lookupTable.TryGetValue(nameId, out var platforms))
+        {
+            return null;
+        }
+        if (!platforms.TryGetValue(platformId, out var encodings))
+        {
+            return null;
+        }
+        if (!encodings.TryGetValue(encodingId, out var languages))
+        {
+            return null;
+        }
+
+        return languages.TryGetValue(languageId, out var value) ? value : null;
+    }
+
+    public List<NameRecord> GetNameRecords() => _nameRecords;
+    public IReadOnlyList<NameRecord> NameRecords => _nameRecords;
+    public string? GetFontFamily() => _fontFamily;
+    public string? FontFamily => _fontFamily;
+    public string? GetFontSubFamily() => _fontSubFamily;
+    public string? FontSubFamily => _fontSubFamily;
+    public string? GetPostScriptName() => _psName;
+    public string? PostScriptName => _psName;
+    public string? GetEnglishName(ushort nameId) => GetEnglishName((int)nameId);
 }

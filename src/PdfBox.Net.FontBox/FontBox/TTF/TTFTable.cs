@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache FontBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java
  * PDFBOX_SOURCE_COMMIT: trunk
@@ -27,11 +27,19 @@
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public class TTFTable(string tag)
+/// <summary>
+/// A table in a true type font.
+/// </summary>
+public class TTFTable
 {
-    private byte[] _rawData = [];
+    public TTFTable()
+    {
+    }
 
-    public string Tag { get; } = tag;
+    public TTFTable(string tag)
+    {
+        Tag = tag;
+    }
 
     public uint Checksum { get; internal set; }
 
@@ -39,19 +47,48 @@ public class TTFTable(string tag)
 
     public uint Length { get; internal set; }
 
-    internal virtual void Read(TTFDataStream dataStream)
+    public string Tag { get; internal set; } = string.Empty;
+
+    protected bool initialized;
+
+    /// <summary>
+    /// Indicates if the table is already initialized.
+    /// </summary>
+    public bool Initialized
     {
-        _rawData = dataStream.ReadBytes((int)Length);
+        get => initialized;
+        protected set => initialized = value;
     }
 
-    internal void Load(TTFDataStream dataStream)
+    public uint GetCheckSum() => Checksum;
+    internal void SetCheckSum(uint checkSumValue) => Checksum = checkSumValue;
+    public uint GetLength() => Length;
+    internal void SetLength(uint lengthValue) => Length = lengthValue;
+    public uint GetOffset() => Offset;
+    internal void SetOffset(uint offsetValue) => Offset = offsetValue;
+    public string GetTag() => Tag;
+    internal void SetTag(string tagValue) => Tag = tagValue;
+    public bool GetInitialized() => Initialized;
+
+    /// <summary>
+    /// This will read the required data from the stream.
+    /// </summary>
+    internal virtual void Read(TrueTypeFont ttf, TTFDataStream data)
     {
-        dataStream.Seek(Offset);
-        Read(dataStream);
     }
 
-    public byte[] GetRawData()
+    /// <summary>
+    /// This will read required headers from the stream into outHeaders.
+    /// </summary>
+    internal virtual void ReadHeaders(TrueTypeFont ttf, TTFDataStream data, FontHeaders outHeaders)
     {
-        return [.. _rawData];
+    }
+
+    internal void Load(TrueTypeFont ttf, TTFDataStream data)
+    {
+        long currentPosition = data.GetCurrentPosition();
+        data.Seek(Offset);
+        Read(ttf, data);
+        data.Seek(currentPosition);
     }
 }

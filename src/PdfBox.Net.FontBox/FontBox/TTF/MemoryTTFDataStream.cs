@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache FontBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/MemoryTTFDataStream.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/RandomAccessReadDataStream.java
  * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: trunk
@@ -25,47 +25,131 @@
  * limitations under the License.
  */
 
+using System.IO;
+using PdfBox.Net.IO;
+
 namespace PdfBox.Net.FontBox.TTF;
 
-public sealed class MemoryTTFDataStream(byte[] data) : TTFDataStream
+/// <summary>
+/// An implementation of the TTFDataStream using buffered in-memory data.
+/// </summary>
+public sealed class MemoryTTFDataStream : TTFDataStream
 {
-    private readonly byte[] _data = data;
-    private int _position;
+    private readonly long _length;
+    private readonly byte[] _data;
+    private int _currentPosition;
 
-    public override long Position => _position;
-
-    public override long Length => _data.Length;
-
-    public override void Seek(long position)
+    public MemoryTTFDataStream(byte[] data)
     {
-        if (position < 0 || position > _data.Length)
+        _data = data ?? throw new ArgumentNullException(nameof(data));
+        _length = data.Length;
+    }
+
+    public MemoryTTFDataStream(Stream inputStream)
+    {
+        ArgumentNullException.ThrowIfNull(inputStream);
+        using MemoryStream memory = new();
+        inputStream.CopyTo(memory);
+        _data = memory.ToArray();
+        _length = _data.Length;
+    }
+
+    public MemoryTTFDataStream(RandomAccessRead randomAccessRead)
+    {
+        ArgumentNullException.ThrowIfNull(randomAccessRead);
+        _length = randomAccessRead.Length();
+        if (_length > int.MaxValue - 8)
         {
-            throw new IOException($"Invalid seek position {position}");
+            throw new IOException($"Stream is too long, size: {_length}");
         }
 
-        _position = (int)position;
+        _data = new byte[(int)_length];
+        int remainingBytes = _data.Length;
+        int amountRead;
+        while ((amountRead = randomAccessRead.Read(_data, _data.Length - remainingBytes, remainingBytes)) > 0)
+        {
+            remainingBytes -= amountRead;
+        }
+    }
+
+    public override long GetCurrentPosition()
+    {
+        return _currentPosition;
+    }
+
+    public override void Close()
+    {
+        // nothing to do
     }
 
     public override int Read()
     {
-        if (_position >= _data.Length)
+        if (_currentPosition >= _length)
         {
             return -1;
         }
 
-        return _data[_position++];
+        return _data[_currentPosition++] & 0xff;
     }
 
-    public override int Read(byte[] buffer, int offset, int count)
+    public override long ReadLong()
     {
-        if (_position >= _data.Length)
+        return ((long)ReadInt() << 32) + (ReadInt() & 0xFFFFFFFFL);
+    }
+
+    private int ReadInt()
+    {
+        int b1 = Read();
+        int b2 = Read();
+        int b3 = Read();
+        int b4 = Read();
+        return (b1 << 24) + (b2 << 16) + (b3 << 8) + b4;
+    }
+
+    public override void Seek(long pos)
+    {
+        if (pos < 0)
         {
-            return 0;
+            throw new IOException($"Invalid position {pos}");
         }
 
-        int actual = Math.Min(count, _data.Length - _position);
-        Array.Copy(_data, _position, buffer, offset, actual);
-        _position += actual;
-        return actual;
+        _currentPosition = pos < _length ? (int)pos : (int)_length;
+    }
+
+    public override int Read(byte[] b, int off, int len)
+    {
+        if (_currentPosition >= _length)
+        {
+            return -1;
+        }
+
+        int remainingBytes = (int)(_length - _currentPosition);
+        int bytesToRead = Math.Min(remainingBytes, len);
+        Array.Copy(_data, _currentPosition, b, off, bytesToRead);
+        _currentPosition += bytesToRead;
+        return bytesToRead;
+    }
+
+    public override RandomAccessRead? CreateSubView(long length)
+    {
+        try
+        {
+            RandomAccessReadBuffer buffer = new(_data);
+            return buffer.CreateView(_currentPosition, length);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public override Stream GetOriginalData()
+    {
+        return new MemoryStream(_data, writable: false);
+    }
+
+    public override long GetOriginalDataSize()
+    {
+        return _length;
     }
 }

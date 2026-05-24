@@ -10,4 +10,8 @@
     <ProjectReference Include="..\PdfBox.Net.IO\PdfBox.Net.IO.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="FontBox/TTF/Scripts.txt" />
+  </ItemGroup>
+
 </Project>

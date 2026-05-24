@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache FontBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/HeaderTable.java
  * PDFBOX_SOURCE_COMMIT: trunk
@@ -27,43 +27,98 @@
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public sealed class HeaderTable() : TTFTable("head")
+/// <summary>
+/// This 'head'-table is a required table in a TrueType font.
+/// </summary>
+public sealed class HeaderTable : TTFTable
 {
-    public ushort UnitsPerEm { get; private set; }
+    public const string TAG = "head";
+    public const int MAC_STYLE_BOLD = 1;
+    public const int MAC_STYLE_ITALIC = 2;
 
-    public short XMin { get; private set; }
-
-    public short YMin { get; private set; }
-
-    public short XMax { get; private set; }
-
-    public short YMax { get; private set; }
-
-    internal override void Read(TTFDataStream dataStream)
+    public HeaderTable() : base(TAG)
     {
-        _ = dataStream.Read32Fixed();
-        _ = dataStream.Read32Fixed();
-        _ = dataStream.ReadUnsignedInt();
-        _ = dataStream.ReadUnsignedInt();
-        _ = dataStream.ReadUnsignedShort();
-        UnitsPerEm = dataStream.ReadUnsignedShort();
-        _ = ReadLongDateTime(dataStream);
-        _ = ReadLongDateTime(dataStream);
-        XMin = dataStream.ReadSignedShort();
-        YMin = dataStream.ReadSignedShort();
-        XMax = dataStream.ReadSignedShort();
-        YMax = dataStream.ReadSignedShort();
-        _ = dataStream.ReadUnsignedShort();
-        _ = dataStream.ReadUnsignedShort();
-        _ = dataStream.ReadSignedShort();
-        _ = dataStream.ReadSignedShort();
-        _ = dataStream.ReadSignedShort();
     }
 
-    private static long ReadLongDateTime(TTFDataStream dataStream)
+    public float Version { get; set; }
+    public float FontRevision { get; set; }
+    public uint CheckSumAdjustment { get; set; }
+    public uint MagicNumber { get; set; }
+    public int Flags { get; set; }
+    public int UnitsPerEm { get; set; }
+    public DateTimeOffset Created { get; set; }
+    public DateTimeOffset Modified { get; set; }
+    public short XMin { get; set; }
+    public short YMin { get; set; }
+    public short XMax { get; set; }
+    public short YMax { get; set; }
+    public int MacStyle { get; set; }
+    public int LowestRecPPEM { get; set; }
+    public short FontDirectionHint { get; set; }
+    public short IndexToLocFormat { get; set; }
+    public short GlyphDataFormat { get; set; }
+
+    internal override void ReadHeaders(TrueTypeFont ttf, TTFDataStream data, FontHeaders outHeaders)
     {
-        uint high = dataStream.ReadUnsignedInt();
-        uint low = dataStream.ReadUnsignedInt();
-        return unchecked(((long)high << 32) | low);
+        data.Seek(data.GetCurrentPosition() + 44);
+        MacStyle = data.ReadUnsignedShort();
+        outHeaders.SetHeaderMacStyle(MacStyle);
     }
+
+    internal override void Read(TrueTypeFont ttf, TTFDataStream data)
+    {
+        Version = data.Read32Fixed();
+        FontRevision = data.Read32Fixed();
+        CheckSumAdjustment = data.ReadUnsignedInt();
+        MagicNumber = data.ReadUnsignedInt();
+        Flags = data.ReadUnsignedShort();
+        UnitsPerEm = data.ReadUnsignedShort();
+        Created = data.ReadInternationalDate();
+        Modified = data.ReadInternationalDate();
+        XMin = data.ReadSignedShort();
+        YMin = data.ReadSignedShort();
+        XMax = data.ReadSignedShort();
+        YMax = data.ReadSignedShort();
+        MacStyle = data.ReadUnsignedShort();
+        LowestRecPPEM = data.ReadUnsignedShort();
+        FontDirectionHint = data.ReadSignedShort();
+        IndexToLocFormat = data.ReadSignedShort();
+        GlyphDataFormat = data.ReadSignedShort();
+        initialized = true;
+    }
+
+    public uint GetCheckSumAdjustment() => CheckSumAdjustment;
+    public void SetCheckSumAdjustment(uint value) => CheckSumAdjustment = value;
+    public DateTimeOffset GetCreated() => Created;
+    public void SetCreated(DateTimeOffset value) => Created = value;
+    public int GetFlags() => Flags;
+    public void SetFlags(int value) => Flags = value;
+    public short GetFontDirectionHint() => FontDirectionHint;
+    public void SetFontDirectionHint(short value) => FontDirectionHint = value;
+    public float GetFontRevision() => FontRevision;
+    public void SetFontRevision(float value) => FontRevision = value;
+    public short GetGlyphDataFormat() => GlyphDataFormat;
+    public void SetGlyphDataFormat(short value) => GlyphDataFormat = value;
+    public short GetIndexToLocFormat() => IndexToLocFormat;
+    public void SetIndexToLocFormat(short value) => IndexToLocFormat = value;
+    public int GetLowestRecPPEM() => LowestRecPPEM;
+    public void SetLowestRecPPEM(int value) => LowestRecPPEM = value;
+    public int GetMacStyle() => MacStyle;
+    public void SetMacStyle(int value) => MacStyle = value;
+    public uint GetMagicNumber() => MagicNumber;
+    public void SetMagicNumber(uint value) => MagicNumber = value;
+    public DateTimeOffset GetModified() => Modified;
+    public void SetModified(DateTimeOffset value) => Modified = value;
+    public int GetUnitsPerEm() => UnitsPerEm;
+    public void SetUnitsPerEm(int value) => UnitsPerEm = value;
+    public float GetVersion() => Version;
+    public void SetVersion(float value) => Version = value;
+    public short GetXMax() => XMax;
+    public void SetXMax(short value) => XMax = value;
+    public short GetXMin() => XMin;
+    public void SetXMin(short value) => XMin = value;
+    public short GetYMax() => YMax;
+    public void SetYMax(short value) => YMax = value;
+    public short GetYMin() => YMin;
+    public void SetYMin(short value) => YMin = value;
 }
