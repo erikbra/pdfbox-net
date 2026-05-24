@@ -1766,5 +1766,37 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Native .NET test for printing classes (compile + instantiation only; rendering assertions skipped on headless CI)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionary.java",
+    "target_path": "src/PdfBox.Net/COS/UnmodifiableCOSDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Updated unmodifiable dictionary parity to override virtual mutation APIs and enforce read-only behavior across base-typed calls."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSObjectKeyTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/COSObjectKeyTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Converted upstream COSObjectKey unit tests for validation, ordering, equality, and hashing semantics."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/PDFDocEncodingTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDFDocEncodingTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Converted upstream PDFDocEncoding test coverage for documented encoding deviations and PDFBOX-3864 roundtrip behavior."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionaryTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/UnmodifiableCOSDictionaryTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Converted upstream unmodifiable dictionary mutation-guard tests with DateTimeOffset-based date adaptation."
   }
 ]

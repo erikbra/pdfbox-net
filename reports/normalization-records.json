@@ -1432,5 +1432,51 @@
     "semantic_risk": "medium",
     "compiles_after_change": true,
     "note": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionary.java",
+    "target_path": "src/PdfBox.Net/COS/UnmodifiableCOSDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Converted read-only overrides from method hiding to virtual overrides for C# polymorphic dispatch parity"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Skill G mapping: Java virtual dispatch for overridden mutators mapped to C# virtual/override to preserve read-only semantics when referenced as COSDictionary."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSObjectKeyTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/COSObjectKeyTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Fixture-dependent integration scenario omitted from this foundational unit-test slice"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted deterministic COSObjectKey unit checks; PDFBOX-5742 fixture-driven integration test remains outside this primitive/container slice."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/PDFDocEncodingTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDFDocEncodingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Direct conversion of encoding deviation and PDFBOX-3864 behavior checks."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionaryTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/UnmodifiableCOSDictionaryTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Java Calendar usage adapted to DateTimeOffset API used by the C# COSDictionary date surface"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted unmodifiable mutation-guard coverage across item/value/date/embedded/flag/update-state mutators."
   }
 ]

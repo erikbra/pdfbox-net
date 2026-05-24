@@ -2120,5 +2120,45 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T17:46:39Z",
     "note": "Added .NET encryption baseline tests for AccessPermission, PDEncryption, and StandardSecurityHandler instantiation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionary.java",
+    "target_path": "src/PdfBox.Net/COS/UnmodifiableCOSDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T18:40:12Z",
+    "note": "Read-only mutation guards now enforce behavior through virtual overrides, matching Java polymorphic dispatch expectations."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSObjectKeyTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/COSObjectKeyTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-24T18:40:12Z",
+    "note": "Core COSObjectKey unit coverage is converted; fixture-driven PDFBOX-5742 integration scenario is deferred outside primitive/container scope."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/PDFDocEncodingTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDFDocEncodingTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T18:40:12Z",
+    "note": "Upstream PDFDocEncoding tests converted for deviation table and PDFBOX-3864 behavior."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionaryTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/UnmodifiableCOSDictionaryTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T18:40:12Z",
+    "note": "Upstream unmodifiable dictionary test coverage converted with DateTimeOffset date adaptation."
   }
 ]
