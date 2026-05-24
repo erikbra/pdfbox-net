@@ -23,3 +23,7 @@ Copyright 2002, 2010 Adobe Systems Incorporated.
 
 Includes OSXAdapter
 Copyright (C) 2003-2007 Apple, Inc., All Rights Reserved
+
+Includes SkiaSharp (https://github.com/mono/SkiaSharp)
+Copyright (c) Microsoft Corporation
+Licensed under the MIT License.
