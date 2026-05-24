@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache FontBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/FontHeaders.java
  * PDFBOX_SOURCE_COMMIT: trunk
@@ -27,32 +27,54 @@
 
 namespace PdfBox.Net.FontBox.TTF;
 
+/// <summary>
+/// To improve performance of font scanning, this class is used both as a marker and as a storage for collected data.
+/// </summary>
 public sealed class FontHeaders
 {
+    internal const int BYTES_GCID = 142;
+
     public string? Error { get; private set; }
-
+    public string? Name { get; private set; }
+    public int? HeaderMacStyle { get; private set; }
+    public OS2WindowsMetricsTable? OS2Windows { get; private set; }
+    public string? FontFamily { get; private set; }
+    public string? FontSubFamily { get; private set; }
+    public byte[]? NonOtfTableGCID142 { get; private set; }
+    public bool IsOpenTypePostScript { get; private set; }
     public string? OtfRegistry { get; private set; }
-
     public string? OtfOrdering { get; private set; }
-
     public int OtfSupplement { get; private set; }
 
-    public int HeaderMacStyle { get; private set; }
+    public string? GetError() => Error;
+    public string? GetName() => Name;
+    public int? GetHeaderMacStyle() => HeaderMacStyle;
+    public OS2WindowsMetricsTable? GetOS2Windows() => OS2Windows;
+    public string? GetFontFamily() => FontFamily;
+    public string? GetFontSubFamily() => FontSubFamily;
+    public bool IsOTFAndPostScript() => IsOpenTypePostScript;
+    public byte[]? GetNonOtfTableGCID142() => NonOtfTableGCID142;
+    public string? GetOtfRegistry() => OtfRegistry;
+    public string? GetOtfOrdering() => OtfOrdering;
+    public int GetOtfSupplement() => OtfSupplement;
 
-    public void SetError(string exception)
+    public void SetError(string exception) => Error = exception;
+    internal void SetName(string? name) => Name = name;
+    internal void SetHeaderMacStyle(int? headerMacStyle) => HeaderMacStyle = headerMacStyle;
+    internal void SetOs2Windows(OS2WindowsMetricsTable? os2Windows) => OS2Windows = os2Windows;
+    internal void SetFontFamily(string? fontFamily, string? fontSubFamily)
     {
-        Error = exception;
+        FontFamily = fontFamily;
+        FontSubFamily = fontSubFamily;
     }
 
-    public void SetOtfROS(string otfRegistry, string otfOrdering, int otfSupplement)
+    internal void SetNonOtfGcid142(byte[] nonOtfGcid142) => NonOtfTableGCID142 = nonOtfGcid142;
+    internal void SetIsOTFAndPostScript(bool isOTFAndPostScript) => IsOpenTypePostScript = isOTFAndPostScript;
+
+    public void SetOtfROS(string? otfRegistry, string? otfOrdering, int otfSupplement)
     {
         OtfRegistry = otfRegistry;
         OtfOrdering = otfOrdering;
         OtfSupplement = otfSupplement;
-    }
-
-    public void SetHeaderMacStyle(int macStyle)
-    {
-        HeaderMacStyle = macStyle;
     }
 }

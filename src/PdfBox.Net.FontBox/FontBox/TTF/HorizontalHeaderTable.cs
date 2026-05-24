@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache FontBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/HorizontalHeaderTable.java
  * PDFBOX_SOURCE_COMMIT: trunk
@@ -27,8 +27,9 @@
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public sealed class HorizontalHeaderTable() : TTFTable("hhea")
+public sealed class HorizontalHeaderTable() : TTFTable(TAG)
 {
+    public const string TAG = "hhea";
     public float Version { get; set; }
     public short Ascender { get; set; }
     public short Descender { get; set; }

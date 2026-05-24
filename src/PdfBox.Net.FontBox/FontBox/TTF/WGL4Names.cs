@@ -77,6 +77,15 @@ internal static class WGL4Names
         "ccaron", "dcroat"
     ];
 
+    private static readonly IReadOnlyDictionary<string, int> MacGlyphNameIndices = MacGlyphNames
+        .Select((name, index) => new KeyValuePair<string, int>(name, index))
+        .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+
+    public static int? GetGlyphIndex(string name)
+    {
+        return MacGlyphNameIndices.TryGetValue(name, out int index) ? index : null;
+    }
+
     public static string? GetGlyphName(int index)
     {
         return index >= 0 && index < NumberOfMacGlyphs ? MacGlyphNames[index] : null;

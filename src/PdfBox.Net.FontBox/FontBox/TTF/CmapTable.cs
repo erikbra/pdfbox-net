@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache FontBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/CmapTable.java
  * PDFBOX_SOURCE_COMMIT: trunk
- * PORT_MODE: mechanical
+ * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: trunk
  */
 
@@ -27,8 +27,9 @@
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public sealed class CmapTable() : TTFTable("cmap")
+public sealed class CmapTable() : TTFTable(Tag)
 {
+    public new const string Tag = "cmap";
     public const int PlatformUnicode = 0;
     public const int PlatformMacintosh = 1;
     public const int PlatformWindows = 3;

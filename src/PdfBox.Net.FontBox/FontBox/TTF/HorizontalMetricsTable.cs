@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache FontBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/HorizontalMetricsTable.java
  * PDFBOX_SOURCE_COMMIT: trunk
@@ -29,8 +29,9 @@ using System.IO;
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public sealed class HorizontalMetricsTable() : TTFTable("hmtx")
+public sealed class HorizontalMetricsTable() : TTFTable(TAG)
 {
+    public const string TAG = "hmtx";
     private int[] _advanceWidth = [];
     private short[] _leftSideBearing = [];
     private short[] _nonHorizontalLeftSideBearing = [];

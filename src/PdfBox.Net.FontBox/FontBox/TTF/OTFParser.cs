@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache FontBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/OTFParser.java
  * PDFBOX_SOURCE_COMMIT: trunk
@@ -29,20 +29,43 @@ using PdfBox.Net.IO;
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public sealed class OTFParser() : TTFParser(allowOpenType: true)
+/// <summary>
+/// OpenType font file parser.
+/// </summary>
+public sealed class OTFParser : TTFParser
 {
+    public OTFParser()
+    {
+    }
+
+    public OTFParser(bool isEmbedded) : base(isEmbedded)
+    {
+    }
+
     public override TrueTypeFont Parse(RandomAccessRead randomAccessRead)
     {
-        return base.Parse(randomAccessRead);
+        return (OpenTypeFont)base.Parse(randomAccessRead);
     }
 
-    public override TrueTypeFont Parse(byte[] bytes)
+    internal override TrueTypeFont Parse(TTFDataStream raf)
     {
-        return base.Parse(bytes);
+        return (OpenTypeFont)base.Parse(raf);
     }
 
-    protected override TTFTable CreateTable(string tag)
+    internal override TrueTypeFont NewFont(TTFDataStream raf)
     {
-        return base.CreateTable(tag);
+        return new OpenTypeFont(raf);
     }
+
+    protected override TTFTable ReadTable(string tag)
+    {
+        return tag switch
+        {
+            "BASE" or "GDEF" or "GPOS" or GlyphSubstitutionTable.TAG or OTLTable.TAG => new OTLTable { Tag = tag },
+            CFFTable.TAG => new CFFTable(),
+            _ => base.ReadTable(tag),
+        };
+    }
+
+    protected override bool AllowCFF() => true;
 }
