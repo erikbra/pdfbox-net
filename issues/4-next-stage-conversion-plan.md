@@ -57,6 +57,13 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
 - `reports/*.json` updated for conversion/normalization/traceability rows.
 - Skill G mapping notes recorded for any non-trivial substitutions.
 
+### Issue drafts prepared for the COS execution path
+- `issues/26-cos-containers-and-primitives.md`
+- `issues/27-cos-stream-types-and-lifecycles.md`
+- `issues/28-cos-visitors-and-serialization.md`
+- `issues/29-cos-regression-and-fixture-coverage.md`
+- `issues/30-cos-traceability-and-closeout.md`
+
 ---
 
 ## Chunk 2 - Parser/writer low-level bridge
