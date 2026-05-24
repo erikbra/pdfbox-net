@@ -104,6 +104,13 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
 - Parser/writer roundtrip tests pass.
 - Traceability and normalization records updated with explicit adaptation notes.
 
+### Issue drafts prepared for the parser/writer bridge execution path
+- `issues/37-pdf-loading-parser-scaffold-and-startxref.md`
+- `issues/38-pdf-loading-xref-table-and-trailer-resolution.md`
+- `issues/39-pdf-loading-xref-stream-and-object-stream-parser.md`
+- `issues/40-pdf-loading-cosdocument-resolution-and-pddocument-integration.md`
+- `issues/41-pdf-loading-regression-fixtures-roundtrip-and-report-closeout.md`
+
 ---
 
 ## Chunk 3 - Minimal document pipeline

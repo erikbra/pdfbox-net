@@ -37,6 +37,38 @@ direct Java counterparts.
 
 ---
 
+## Coverage refresh from traceability artifacts (2026-05-24)
+
+This snapshot was recalculated from current report data in:
+- `reports/conversion-records.json`
+- `reports/normalization-records.json`
+- `reports/traceability-parity-report.json`
+
+### Conversion inventory
+
+- Conversion rows: **286** (`276` unique source->target pairs)
+- Port modes:
+  - `mechanical`: **143**
+  - `adapted`: **109**
+  - `native-test`: **28**
+  - `partial`: **4**
+  - `adapted-minimal`: **2**
+- Upstream test mappings converted: **25**
+
+### Traceability status coverage
+
+- Traceability rows: **289**
+- `in-sync`: **216** (~74.7%)
+- `partially-in-sync`: **18** (~6.2%)
+- `partial`: **11** (~3.8%)
+- blank status (needs classification/backfill): **44** (~15.2%)
+
+### Immediate coverage-report follow-up
+
+- The highest-leverage report cleanup is to classify the **44** blank-status
+  traceability rows (mostly `contentstream/operator/*` mappings) as explicit
+  `in-sync`/`partial`/`deferred` statuses.
+
 ## Fully or near-fully ported ✅
 
 ### `org.apache.pdfbox.cos` — ~96%
@@ -249,16 +281,21 @@ accessibility properties, artifact types, etc.
 
 ## Key remaining gaps by priority
 
-### Priority 1 — Full PDF document loading (CRITICAL PATH)
-**Scope:** `org.apache.pdfbox.pdfparser` — `PDFParser`/`PDFDocumentParser` and
-`PDFObjectStreamParser` (~3–5 files)
+### Priority 1 — Full PDF document loading (CRITICAL PATH, next large piece)
+**Scope:** `org.apache.pdfbox.pdfparser` — full `PDFParser`/`PDFDocumentParser`
+orchestration, `PDFObjectStreamParser`, and `PDDocument.Load()` integration.
 
 The current `PDDocument.Load()` extracts only a raw dictionary from the file. Real PDF loading
 requires reading the xref table (or cross-reference stream), resolving object references
 on-demand, decompressing object streams, and wiring everything into `COSDocument` + `PDDocument`.
 Without this, the library cannot load actual PDFs from disk.
 
-**See:** `issues/31-full-pdf-document-loading.md` (new)
+**Execution plan (issue series):**
+- `issues/37-pdf-loading-parser-scaffold-and-startxref.md`
+- `issues/38-pdf-loading-xref-table-and-trailer-resolution.md`
+- `issues/39-pdf-loading-xref-stream-and-object-stream-parser.md`
+- `issues/40-pdf-loading-cosdocument-resolution-and-pddocument-integration.md`
+- `issues/41-pdf-loading-regression-fixtures-roundtrip-and-report-closeout.md`
 
 ### Priority 2 — PDModel interactive layer (~28 files) ❌
 **Scope:** `org.apache.pdfbox.pdmodel.interactive`
@@ -308,7 +345,7 @@ quick win bundled into the next operators PR.
 ## Dependency order
 
 ```
-Full PDF loading (#31)
+Full PDF loading series (#37-#41)
     └── PDModel interactive (#32) — annotations/actions can be read from real docs
             └── PDModel common completeness (#35) — tree nodes needed by interactive
 Rendering .NET graphics (#33) — mostly independent of above
@@ -320,7 +357,7 @@ Close/Fill operators (#36) — independent quick win
 
 | Priority | Issue | Files | Effort |
 |---|---|---|---|
-| 1 | #31 Full PDF document loading | ~5 | 2–3 days |
+| 1 | #37–#41 Full PDF document loading series | ~5 core files + tests/reporting | 3–5 days |
 | 2 | #32 PDModel interactive port | ~28 | 4–6 days |
 | 3 | #33 Rendering .NET graphics | ~5 (adapt) | 3–5 days |
 | 4 | #34 Encryption decryption | ~3 | 1–2 days |
