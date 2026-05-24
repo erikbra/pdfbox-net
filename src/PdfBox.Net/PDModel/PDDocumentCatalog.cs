@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
+using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
 
 namespace PdfBox.Net.PDModel;
 
@@ -211,5 +213,53 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetPageLabels(PDPageLabels? labels)
     {
         _root.SetItem(COSName.PAGE_LABELS, labels);
+    }
+
+    /// <summary>
+    /// Get the outline associated with this document or null if it does not exist.
+    /// </summary>
+    /// <returns>The document's outline.</returns>
+    public PDDocumentOutline? GetDocumentOutline()
+    {
+        COSDictionary? outlineDict = _root.GetCOSDictionary(COSName.OUTLINES);
+        return outlineDict != null ? new PDDocumentOutline(outlineDict) : null;
+    }
+
+    /// <summary>
+    /// Sets the document outlines.
+    /// </summary>
+    /// <param name="outlines">The new document outlines.</param>
+    public void SetDocumentOutline(PDDocumentOutline? outlines)
+    {
+        _root.SetItem(COSName.OUTLINES, outlines);
+    }
+
+    /// <summary>
+    /// Find the page destination from a named destination by looking it up in the document's
+    /// /Dests dictionary.
+    /// </summary>
+    /// <param name="namedDest">The named destination.</param>
+    /// <returns>A PDPageDestination object or null if not found.</returns>
+    public PDPageDestination? FindNamedDestinationPage(PDNamedDestination namedDest)
+    {
+        // Look up /Dests dictionary from catalog
+        COSDictionary? destsDict = _root.GetCOSDictionary(COSName.DESTS);
+        if (destsDict != null)
+        {
+            string? name = namedDest.GetNamedDestination();
+            if (name != null)
+            {
+                COSBase? destObj = destsDict.GetDictionaryObject(COSName.GetPDFName(name));
+                if (destObj != null)
+                {
+                    PDDestination? dest = PDDestination.Create(destObj);
+                    if (dest is PDPageDestination pageDest)
+                    {
+                        return pageDest;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
