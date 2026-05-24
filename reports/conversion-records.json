@@ -1542,5 +1542,101 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Extended content-stream engine tests with form XObject traversal through Do operator."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/AccessPermission.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/AccessPermission.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported access permission bitfield model and flag mutators for standard/public-key permission bytes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/DecryptionMaterial.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/DecryptionMaterial.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added base decryption material abstraction."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/ProtectionPolicy.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/ProtectionPolicy.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added protection policy key length and AES preference configuration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardProtectionPolicy.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardProtectionPolicy.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added standard password-based protection policy wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardDecryptionMaterial.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardDecryptionMaterial.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added password-holding decryption material type."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PDCryptFilterDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/PDCryptFilterDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added crypt filter dictionary wrapper and EncryptMetadata flag handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PDEncryption.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/PDEncryption.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported encryption dictionary accessor model for key entries, permissions, and crypt filter wiring."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/SecurityHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/SecurityHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added abstract security handler base state and contract for encryption/decryption preparation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardSecurityHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardSecurityHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added standard security handler shell with constructors and override points; algorithm implementation deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/MessageDigests.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/MessageDigests.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added hash algorithm factory helpers (MD5/SHA1/SHA256)."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/AESKeyLength.cs",
+    "source_commit": "n/a",
+    "port_mode": "adapted",
+    "sync_commit": "n/a",
+    "conversion_notes": "Added AES key-length enum used by encryption layer port scaffolding."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/encryption/*",
+    "target_path": "tests/PdfBox.Net.Tests/EncryptionTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added .NET encryption baseline tests for AccessPermission, PDEncryption, and StandardSecurityHandler instantiation."
   }
 ]
