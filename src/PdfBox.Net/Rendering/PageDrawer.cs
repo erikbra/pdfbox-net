@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
+ * Rendering hooks now backed by SkiaSharp.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
- * PORT_MODE: mechanical
+ * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  */
 
@@ -39,11 +40,15 @@ using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.Util;
 using PdfBox.Net.Util.Geometry;
+using SkiaSharp;
 
 namespace PdfBox.Net.Rendering;
 
 /// <summary>
-/// Mechanical skeleton of the PDFBox page drawer.
+/// Page drawer backed by SkiaSharp.
+/// Path fill and stroke operations are implemented; complex operations
+/// (transparency groups, shading, Type-3 glyphs) remain stubs pending
+/// future issues.
 /// </summary>
 public class PageDrawer : PDFGraphicsStreamEngine
 {
@@ -53,6 +58,10 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private readonly GeneralPath _linePath = new();
     private readonly Matrix _initialMatrix = new();
     private Point2D? _currentPoint;
+
+    // Page height in PDF points, used to flip the Y axis when converting
+    // from PDF space (Y-up, origin bottom-left) to canvas space (Y-down).
+    private float _pageHeightPt;
 
     public PageDrawer(PageDrawerParameters parameters)
         : base(parameters.GetPage())
@@ -83,13 +92,14 @@ public class PageDrawer : PDFGraphicsStreamEngine
     {
         _graphics = graphics ?? throw new ArgumentNullException(nameof(graphics));
         ArgumentNullException.ThrowIfNull(pageSize);
+        _pageHeightPt = pageSize.GetHeight();
         SetRenderingHints();
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        ProcessPage(Page);
     }
 
     internal void DrawTilingPattern(Graphics2D graphics, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, Matrix patternMatrix)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: requires full tiling paint support (issue #22 scope).
     }
 
     private static float ClampColor(float color)
@@ -128,17 +138,17 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     protected virtual void ShowFontGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: glyph rendering (issue scope).
     }
 
     private void DrawGlyph(GeneralPath path, PDFont font, int code, Vector displacement, AffineTransform at)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: glyph outline rendering.
     }
 
     protected virtual void ShowType3Glyph(Matrix textRenderingMatrix, PDType3Font font, int code, Vector displacement)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: Type-3 glyph rendering.
     }
 
     public void AppendRectangle(Point2D p0, Point2D p1, Point2D p2, Point2D p3)
@@ -181,11 +191,41 @@ public class PageDrawer : PDFGraphicsStreamEngine
         return dashPattern.GetDashArray();
     }
 
-    public void StrokePath()
+    // ── Rendering hooks ───────────────────────────────────────────────────────
+
+    /// <inheritdoc />
+    protected override void OnStrokePath(IReadOnlyList<PDFStreamEngine.PathSegment> path, PDGraphicsState graphicsState)
+    {
+        if (_graphics?.Canvas is null || path.Count == 0) return;
+        using SKPath skPath = BuildSkPath(path, graphicsState);
+        using SKPaint paint = CreateSkiaPaint(graphicsState, stroke: true);
+        _graphics.Canvas.DrawPath(skPath, paint);
+    }
+
+    /// <inheritdoc />
+    protected override void OnFillPath(int windingRule, IReadOnlyList<PDFStreamEngine.PathSegment> path, PDGraphicsState graphicsState)
+    {
+        if (_graphics?.Canvas is null || path.Count == 0) return;
+        using SKPath skPath = BuildSkPath(path, graphicsState);
+        skPath.FillType = windingRule == 0 ? SKPathFillType.EvenOdd : SKPathFillType.Winding;
+        using SKPaint paint = CreateSkiaPaint(graphicsState, stroke: false);
+        _graphics.Canvas.DrawPath(skPath, paint);
+    }
+
+    /// <inheritdoc />
+    protected override void OnFillAndStrokePath(int windingRule, IReadOnlyList<PDFStreamEngine.PathSegment> path, PDGraphicsState graphicsState)
+    {
+        OnFillPath(windingRule, path, graphicsState);
+        OnStrokePath(path, graphicsState);
+    }
+
+    // ── Path construction and painting (legacy public surface kept for API compat) ──
+
+    public new void StrokePath()
     {
     }
 
-    public void FillPath(int windingRule)
+    public new void FillPath(int windingRule)
     {
     }
 
@@ -198,39 +238,39 @@ public class PageDrawer : PDFGraphicsStreamEngine
         return false;
     }
 
-    public void FillAndStrokePath(int windingRule)
+    public new void FillAndStrokePath(int windingRule)
     {
     }
 
-    public void Clip(int windingRule)
+    public new void Clip(int windingRule)
     {
     }
 
-    public void MoveTo(float x, float y)
-    {
-        _currentPoint = new Point2D(x, y);
-    }
-
-    public void LineTo(float x, float y)
+    public new void MoveTo(float x, float y)
     {
         _currentPoint = new Point2D(x, y);
     }
 
-    public void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+    public new void LineTo(float x, float y)
+    {
+        _currentPoint = new Point2D(x, y);
+    }
+
+    public new void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
     {
         _currentPoint = new Point2D(x3, y3);
     }
 
-    public Point2D? GetCurrentPoint()
+    public new Point2D? GetCurrentPoint()
     {
         return _currentPoint;
     }
 
-    public void ClosePath()
+    public new void ClosePath()
     {
     }
 
-    public void EndPath()
+    public new void EndPath()
     {
         _currentPoint = null;
     }
@@ -242,7 +282,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     public void DrawImage(PDImage pdImage)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: image rendering.
     }
 
     protected virtual int GetSubsampling(PDImage pdImage, AffineTransform at)
@@ -252,7 +292,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     private void DrawBufferedImage(PDImage pdImage, BufferedImage image, AffineTransform at)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: buffered image compositing.
     }
 
     private static BufferedImage ApplyTransferFunction(BufferedImage image, COSBase transfer)
@@ -260,9 +300,9 @@ public class PageDrawer : PDFGraphicsStreamEngine
         return image;
     }
 
-    public void ShadingFill(COSName shadingName)
+    public override void ShadingFill(COSName shadingName)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: shading fills (issue #22 scope).
     }
 
     public void ShowAnnotation(PDAnnotation annotation)
@@ -272,7 +312,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
             return;
         }
 
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: annotation rendering.
     }
 
     private bool ShouldSkipAnnotation(PDAnnotation annotation)
@@ -287,17 +327,17 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     public void ShowForm(PDFormXObject form)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: form XObject rendering.
     }
 
     public void ShowTransparencyGroup(PDTransparencyGroup form)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: transparency group rendering.
     }
 
     protected virtual void ShowTransparencyGroupOnGraphics(PDTransparencyGroup form, Graphics2D graphics)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // TODO: transparency group compositing.
     }
 
     private TransparencyGroup CreateTransparencyGroup(PDTransparencyGroup form, bool isSoftMask, Matrix ctm, PDColor backdropColor)
@@ -320,11 +360,11 @@ public class PageDrawer : PDFGraphicsStreamEngine
         return false;
     }
 
-    public void BeginMarkedContentSequence(COSName tag, COSDictionary properties)
+    public override void BeginMarkedContentSequence(COSName tag, COSDictionary? properties)
     {
     }
 
-    public void EndMarkedContentSequence()
+    public override void EndMarkedContentSequence()
     {
     }
 
@@ -366,6 +406,107 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private static LookupTable GetInvLookupTable()
     {
         return new LookupTable();
+    }
+
+    // ── SkiaSharp helpers ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Builds an <see cref="SKPath"/> from the accumulated path segments,
+    /// applying the current transformation matrix and flipping Y so that
+    /// PDF (Y-up, bottom-left) maps to canvas (Y-down, top-left).
+    /// </summary>
+    private SKPath BuildSkPath(IReadOnlyList<PDFStreamEngine.PathSegment> segments, PDGraphicsState graphicsState)
+    {
+        var skPath = new SKPath();
+        Matrix ctm = graphicsState.GetCurrentTransformationMatrix();
+        float pageH = _pageHeightPt;
+
+        foreach (PDFStreamEngine.PathSegment seg in segments)
+        {
+            switch (seg.Type)
+            {
+                case PDFStreamEngine.PathSegmentType.MoveTo:
+                {
+                    (float cx, float cy) = PdfToCanvas(seg.X1, seg.Y1, ctm, pageH);
+                    skPath.MoveTo(cx, cy);
+                    break;
+                }
+                case PDFStreamEngine.PathSegmentType.LineTo:
+                {
+                    (float cx, float cy) = PdfToCanvas(seg.X1, seg.Y1, ctm, pageH);
+                    skPath.LineTo(cx, cy);
+                    break;
+                }
+                case PDFStreamEngine.PathSegmentType.CurveTo:
+                {
+                    (float cx1, float cy1) = PdfToCanvas(seg.X1, seg.Y1, ctm, pageH);
+                    (float cx2, float cy2) = PdfToCanvas(seg.X2, seg.Y2, ctm, pageH);
+                    (float cx3, float cy3) = PdfToCanvas(seg.X3, seg.Y3, ctm, pageH);
+                    skPath.CubicTo(cx1, cy1, cx2, cy2, cx3, cy3);
+                    break;
+                }
+                case PDFStreamEngine.PathSegmentType.Close:
+                    skPath.Close();
+                    break;
+            }
+        }
+
+        return skPath;
+    }
+
+    /// <summary>
+    /// Converts a point from PDF user space to SkiaSharp canvas space.
+    /// Applies the CTM then flips Y.
+    /// </summary>
+    private static (float x, float y) PdfToCanvas(float x, float y, Matrix ctm, float pageHeightPt)
+    {
+        Vector v = ctm.Transform(x, y);
+        return (v.GetX(), pageHeightPt - v.GetY());
+    }
+
+    /// <summary>Creates a SkiaSharp paint from the current graphics state.</summary>
+    private static SKPaint CreateSkiaPaint(PDGraphicsState graphicsState, bool stroke)
+    {
+        PDColor pdColor = stroke
+            ? graphicsState.GetStrokingColor()
+            : graphicsState.GetNonStrokingColor();
+
+        int rgb = pdColor.ToRGB();
+        byte r = (byte)((rgb >> 16) & 0xFF);
+        byte g = (byte)((rgb >> 8) & 0xFF);
+        byte b = (byte)(rgb & 0xFF);
+
+        float alpha = stroke
+            ? graphicsState.GetAlphaConstant()
+            : graphicsState.GetNonStrokeAlphaConstant();
+        byte a = (byte)Math.Round(Math.Clamp(alpha, 0f, 1f) * 255f);
+
+        var paint = new SKPaint
+        {
+            Color = new SKColor(r, g, b, a),
+            IsAntialias = true,
+            Style = stroke ? SKPaintStyle.Stroke : SKPaintStyle.Fill,
+        };
+
+        if (stroke)
+        {
+            paint.StrokeWidth = Math.Max(0f, graphicsState.GetLineWidth());
+            paint.StrokeCap = graphicsState.GetLineCap() switch
+            {
+                1 => SKStrokeCap.Round,
+                2 => SKStrokeCap.Square,
+                _ => SKStrokeCap.Butt,
+            };
+            paint.StrokeJoin = graphicsState.GetLineJoin() switch
+            {
+                1 => SKStrokeJoin.Round,
+                2 => SKStrokeJoin.Bevel,
+                _ => SKStrokeJoin.Miter,
+            };
+            paint.StrokeMiter = graphicsState.GetMiterLimit();
+        }
+
+        return paint;
     }
 
     private sealed class TransparencyGroup

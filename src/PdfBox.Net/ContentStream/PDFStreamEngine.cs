@@ -270,6 +270,7 @@ public class PDFStreamEngine
     internal void StrokePath()
     {
         ApplyPendingClip();
+        OnStrokePath(GetCurrentPathSegments(), GetGraphicsState());
         _currentPath.Clear();
         _currentPoint = null;
     }
@@ -277,6 +278,7 @@ public class PDFStreamEngine
     internal void FillPath(int windingRule)
     {
         ApplyPendingClip();
+        OnFillPath(windingRule, GetCurrentPathSegments(), GetGraphicsState());
         _currentPath.Clear();
         _currentPoint = null;
     }
@@ -284,8 +286,24 @@ public class PDFStreamEngine
     internal void FillAndStrokePath(int windingRule)
     {
         ApplyPendingClip();
+        OnFillAndStrokePath(windingRule, GetCurrentPathSegments(), GetGraphicsState());
         _currentPath.Clear();
         _currentPoint = null;
+    }
+
+    /// <summary>Called when the current path should be stroked. Override to provide rendering.</summary>
+    protected virtual void OnStrokePath(IReadOnlyList<PathSegment> path, PDGraphicsState graphicsState)
+    {
+    }
+
+    /// <summary>Called when the current path should be filled. Override to provide rendering.</summary>
+    protected virtual void OnFillPath(int windingRule, IReadOnlyList<PathSegment> path, PDGraphicsState graphicsState)
+    {
+    }
+
+    /// <summary>Called when the current path should be filled then stroked. Override to provide rendering.</summary>
+    protected virtual void OnFillAndStrokePath(int windingRule, IReadOnlyList<PathSegment> path, PDGraphicsState graphicsState)
+    {
     }
 
     internal void EndPath()

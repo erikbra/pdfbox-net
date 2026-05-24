@@ -30,7 +30,7 @@ using PdfBox.Net.Util;
 
 namespace PdfBox.Net.ContentStream;
 
-public abstract class PDFGraphicsStreamEngine
+public abstract class PDFGraphicsStreamEngine : PDFStreamEngine
 {
     protected PDFGraphicsStreamEngine(PDPage page)
     {

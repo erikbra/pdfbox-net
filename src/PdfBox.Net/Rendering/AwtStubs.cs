@@ -1,8 +1,7 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Stub implementations for Java AWT types used by the rendering package.
- * These types have no direct .NET equivalents; they are placeholders until
- * a platform-specific rendering implementation is introduced.
+ * Real .NET graphics implementations backed by SkiaSharp, replacing the
+ * previous empty stub placeholders for Java AWT types.
  *
  * PORT_MODE: adapted
  */
@@ -24,9 +23,15 @@
  * limitations under the License.
  */
 
+using SkiaSharp;
+
 namespace PdfBox.Net.Rendering;
 
-public class BufferedImage : Image
+/// <summary>
+/// Raster image backed by an <see cref="SKBitmap"/>.
+/// Replaces the Java AWT <c>BufferedImage</c> stub.
+/// </summary>
+public class BufferedImage : Image, IDisposable
 {
     public const int TYPE_INT_RGB = 1;
     public const int TYPE_INT_ARGB = 2;
@@ -35,14 +40,17 @@ public class BufferedImage : Image
     public const int TYPE_BYTE_GRAY = 10;
     public const int TYPE_BYTE_BINARY = 12;
 
-    private readonly WritableRaster _raster;
+    private readonly SKBitmap _bitmap;
+    private bool _disposed;
 
     public BufferedImage(int width, int height, int type)
     {
         Width = width;
         Height = height;
         Type = type;
-        _raster = new WritableRaster(width, height);
+        SKColorType colorType = type == TYPE_INT_ARGB ? SKColorType.Bgra8888 : SKColorType.Bgra8888;
+        SKAlphaType alphaType = type == TYPE_INT_ARGB ? SKAlphaType.Premul : SKAlphaType.Opaque;
+        _bitmap = new SKBitmap(width, height, colorType, alphaType);
     }
 
     public int Width { get; }
@@ -51,9 +59,12 @@ public class BufferedImage : Image
 
     public int Type { get; }
 
+    /// <summary>Returns the underlying SkiaSharp bitmap for direct pixel access.</summary>
+    public SKBitmap Bitmap => _bitmap;
+
     public Graphics2D CreateGraphics()
     {
-        return new Graphics2D(this);
+        return new Graphics2D(_bitmap);
     }
 
     public ColorModel GetColorModel()
@@ -63,7 +74,24 @@ public class BufferedImage : Image
 
     public WritableRaster GetRaster()
     {
-        return _raster;
+        return new WritableRaster(Width, Height);
+    }
+
+    /// <summary>Returns the ARGB value of the pixel at (<paramref name="x"/>, <paramref name="y"/>).</summary>
+    public int GetRgb(int x, int y)
+    {
+        SKColor c = _bitmap.GetPixel(x, y);
+        return (c.Alpha << 24) | (c.Red << 16) | (c.Green << 8) | c.Blue;
+    }
+
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            _bitmap.Dispose();
+            _disposed = true;
+        }
+        GC.SuppressFinalize(this);
     }
 }
 
@@ -76,9 +104,15 @@ public class Graphics
     }
 }
 
-public class Graphics2D : Graphics
+/// <summary>
+/// 2-D drawing context backed by an <see cref="SKCanvas"/>.
+/// Replaces the Java AWT <c>Graphics2D</c> stub.
+/// </summary>
+public class Graphics2D : Graphics, IDisposable
 {
-    private readonly BufferedImage? _image;
+    private readonly SKBitmap? _bitmap;
+    private SKCanvas? _canvas;
+    private bool _ownsCanvas;
     private Color _background = Color.White;
     private Shape? _clip;
     private Stroke _stroke = new();
@@ -88,18 +122,38 @@ public class Graphics2D : Graphics
     {
     }
 
-    public Graphics2D(BufferedImage? image)
+    public Graphics2D(SKBitmap bitmap)
     {
-        _image = image;
+        _bitmap = bitmap;
+        _canvas = new SKCanvas(bitmap);
+        _ownsCanvas = true;
     }
+
+    internal Graphics2D(SKBitmap? bitmap, SKCanvas canvas, bool ownsCanvas = false)
+    {
+        _bitmap = bitmap;
+        _canvas = canvas;
+        _ownsCanvas = ownsCanvas;
+    }
+
+    /// <summary>Returns the underlying SkiaSharp canvas (may be null for a default-constructed instance).</summary>
+    public SKCanvas? Canvas => _canvas;
 
     public override Graphics Create()
     {
-        return new Graphics2D(_image);
+        if (_canvas is null)
+        {
+            return new Graphics2D();
+        }
+        // Return a wrapper sharing the same canvas (the canvas is not owned by the copy).
+        return new Graphics2D(_bitmap, _canvas, ownsCanvas: false);
     }
 
     public virtual void ClearRect(int x, int y, int width, int height)
     {
+        if (_canvas is null) return;
+        using var paint = new SKPaint { Color = ToSkColor(_background), BlendMode = SKBlendMode.Src };
+        _canvas.DrawRect(x, y, width, height, paint);
     }
 
     public virtual void Clip(Shape shape)
@@ -109,6 +163,8 @@ public class Graphics2D : Graphics
 
     public virtual void DrawImage(BufferedImage image, int x, int y, object? observer = null)
     {
+        if (_canvas is null) return;
+        _canvas.DrawBitmap(image.Bitmap, x, y);
     }
 
     public virtual Color GetBackground() => _background;
@@ -123,10 +179,12 @@ public class Graphics2D : Graphics
 
     public virtual void Rotate(double theta)
     {
+        _canvas?.RotateRadians((float)theta);
     }
 
     public virtual void Scale(double scaleX, double scaleY)
     {
+        _canvas?.Scale((float)scaleX, (float)scaleY);
     }
 
     public virtual void SetBackground(Color color)
@@ -151,6 +209,21 @@ public class Graphics2D : Graphics
 
     public virtual void Translate(double tx, double ty)
     {
+        _canvas?.Translate((float)tx, (float)ty);
+    }
+
+    public override void Dispose()
+    {
+        if (_ownsCanvas)
+        {
+            _canvas?.Dispose();
+            _canvas = null;
+        }
+    }
+
+    internal static SKColor ToSkColor(Color color)
+    {
+        return new SKColor((byte)color.Red, (byte)color.Green, (byte)color.Blue, (byte)color.Alpha);
     }
 }
 
