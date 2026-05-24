@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/util/StringUtil.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -25,22 +25,37 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.COS;
+using System.Text.RegularExpressions;
+
+namespace PdfBox.Net.Util;
 
 /// <summary>
-/// An interface for visiting COS primitives.
+/// String utility methods.
 /// </summary>
-public interface ICOSVisitor
+public static class StringUtil
 {
-    void VisitFromArray(COSArray obj);
-    void VisitFromBoolean(COSBoolean obj);
-    void VisitFromDictionary(COSDictionary obj);
-    void VisitFromDocument(COSDocument obj) { }
-    void VisitFromFloat(COSFloat obj);
-    void VisitFromInt(COSInteger obj);
-    void VisitFromName(COSName obj);
-    void VisitFromNull(COSNull obj);
-    void VisitFromObject(COSObject obj);
-    void VisitFromStream(COSStream obj);
-    void VisitFromString(COSString obj);
+    /// <summary>
+    /// Pattern matching any whitespace character.
+    /// </summary>
+    public static readonly Regex PatternSpace = new Regex(@"\s", RegexOptions.Compiled);
+
+    /// <summary>
+    /// Splits a string at whitespace boundaries, removing the whitespace.
+    /// </summary>
+    /// <param name="s">The string to split.</param>
+    /// <returns>The split parts.</returns>
+    public static string[] SplitOnSpace(string s)
+    {
+        return PatternSpace.Split(s);
+    }
+
+    /// <summary>
+    /// Split at spaces but keep them.
+    /// </summary>
+    /// <param name="s">The string to tokenize.</param>
+    /// <returns>Tokens including whitespace tokens.</returns>
+    public static string[] TokenizeOnSpace(string s)
+    {
+        return Regex.Split(s, @"(?<=\s)|(?=\s)");
+    }
 }
