@@ -38,14 +38,14 @@ public class MapBackedScriptFeature : IScriptFeature
     public MapBackedScriptFeature(string name, Dictionary<IList<int>, IList<int>> featureMap)
     {
         _name = name;
-        _featureMap = featureMap;
+        _featureMap = new Dictionary<IList<int>, IList<int>>(featureMap, GlyphIdListComparer.Instance);
     }
 
     public string GetName() => _name;
 
     public ISet<IList<int>> GetAllGlyphIdsForSubstitution()
     {
-        return new HashSet<IList<int>>(_featureMap.Keys, new ListIntEqualityComparer());
+        return new HashSet<IList<int>>(_featureMap.Keys, GlyphIdListComparer.Instance);
     }
 
     public bool CanReplaceGlyphs(IList<int> glyphIds)
@@ -77,7 +77,7 @@ public class MapBackedScriptFeature : IScriptFeature
     private static bool DictionaryEquals(Dictionary<IList<int>, IList<int>> a, Dictionary<IList<int>, IList<int>> b)
     {
         if (a.Count != b.Count) return false;
-        var comparer = new ListIntEqualityComparer();
+        var comparer = GlyphIdListComparer.Instance;
         foreach (var kv in a)
         {
             bool found = false;
@@ -92,25 +92,5 @@ public class MapBackedScriptFeature : IScriptFeature
             if (!found) return false;
         }
         return true;
-    }
-
-    private sealed class ListIntEqualityComparer : IEqualityComparer<IList<int>>
-    {
-        public bool Equals(IList<int>? x, IList<int>? y)
-        {
-            if (x == null && y == null) return true;
-            if (x == null || y == null) return false;
-            if (x.Count != y.Count) return false;
-            for (int i = 0; i < x.Count; i++)
-                if (x[i] != y[i]) return false;
-            return true;
-        }
-
-        public int GetHashCode(IList<int> obj)
-        {
-            var hc = new HashCode();
-            foreach (var v in obj) hc.Add(v);
-            return hc.ToHashCode();
-        }
     }
 }

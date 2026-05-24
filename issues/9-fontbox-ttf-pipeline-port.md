@@ -7,11 +7,11 @@ Port remaining `fontbox/ttf/**` tables and TrueType/OpenType parsing pipeline
 - #8 `fontbox/type1` + `fontbox/cff` port
 
 ### Current state
-12/83 files ported (14%): 12 TTF root files ported, all 3 TTF subdirs unstarted.
+83/83 upstream `fontbox/ttf/**` files ported (100%).
 
-**Ported (12 root files):** `FontHeaders`, `HeaderTable`, `MaximumProfileTable`,
-`MemoryTTFDataStream`, `NameRecord`, `NamingTable`, `OTFParser`, `OpenTypeFont`,
-`TTFDataStream`, `TTFParser`, `TTFTable`, `TrueTypeFont`
+All target slices are now present in `src/PdfBox.Net.FontBox/FontBox/TTF/**`, including
+root tables, `Table/Common`, `Table/GSub`, `Model`, `GSub` worker pipeline, collection,
+and subsetter components.
 
 ### Scope — recommended order
 
@@ -50,6 +50,6 @@ All 5 `ttf/model` files and all 13 `ttf/gsub` worker files (18 total).
 - `DigitalSignatureTable.java` — DSIG table
 
 ### Exit criteria
-- Core glyph-access pipeline (9a) compiles and fixture-driven tests pass.
-- Each subsequent slice passes targeted tests before moving on.
-- `dotnet test` remains green after each slice.
+- Core glyph-access pipeline (9a) compiles and fixture-driven tests pass. ✅
+- Each subsequent slice passes targeted tests before moving on. ✅
+- `dotnet test` remains green after each slice. ✅

@@ -31,28 +31,41 @@ namespace PdfBox.Net.FontBox.TTF.GSub;
 
 /// <summary>
 /// Tamil-specific implementation of GSUB system.
-/// TODO: implementation is not yet complete.
 /// </summary>
 public class GsubWorkerForTamil : IGsubWorker
 {
     private static readonly IList<string> FeaturesInOrder = new List<string>
     {
-        "locl", "nukt", "akhn", "rphf", "blwf", "half", "pstf", "vatu", "cjct",
-        "pres", "abvs", "blws", "psts", "haln", "calt"
+        "locl", "nukt", "akhn", "rphf", "pref", "half", "pres", "abvs", "blws",
+        "psts", "haln", "calt"
     }.AsReadOnly();
+
+    // Reph glyphs
+    private static readonly char[] RephChars = { '\u0BB0', '\u0BCD' };
+    // Glyphs to precede reph
+    private static readonly char[] BeforeRephChars = { '\u0BB8', '\u0BCD' };
+    // Gujarati vowel sign I
+    private const char BeforeHalfChar = '\u0ABF';
 
     private readonly CmapLookup _cmapLookup;
     private readonly IGsubData _gsubData;
+    private readonly IList<int> _rephGlyphIds;
+    private readonly IList<int> _beforeRephGlyphIds;
+    private readonly IList<int> _beforeHalfGlyphIds;
 
     internal GsubWorkerForTamil(CmapLookup cmapLookup, IGsubData gsubData)
     {
         _cmapLookup = cmapLookup;
         _gsubData = gsubData;
+        _beforeHalfGlyphIds = GetBeforeHalfGlyphIds();
+        _rephGlyphIds = GetRephGlyphIds();
+        _beforeRephGlyphIds = GetBeforeRephGlyphIds();
     }
 
     public IList<int> ApplyTransforms(IList<int> originalGlyphIds)
     {
-        var intermediateGlyphsFromGsub = originalGlyphIds;
+        var intermediateGlyphsFromGsub = AdjustRephPosition(originalGlyphIds);
+        intermediateGlyphsFromGsub = RepositionGlyphs(intermediateGlyphsFromGsub);
 
         foreach (string feature in FeaturesInOrder)
         {
@@ -64,6 +77,64 @@ public class GsubWorkerForTamil : IGsubWorker
         }
 
         return intermediateGlyphsFromGsub.ToList().AsReadOnly();
+    }
+
+    private IList<int> RepositionGlyphs(IList<int> originalGlyphIds)
+    {
+        var repositionedGlyphIds = new List<int>(originalGlyphIds);
+        int listSize = repositionedGlyphIds.Count;
+        int foundIndex = listSize - 1;
+        int nextIndex = listSize - 2;
+        while (nextIndex > -1)
+        {
+            int glyph = repositionedGlyphIds[foundIndex];
+            int prevIndex = foundIndex + 1;
+            if (_beforeHalfGlyphIds.Contains(glyph))
+            {
+                repositionedGlyphIds.RemoveAt(foundIndex);
+                repositionedGlyphIds.Insert(nextIndex--, glyph);
+            }
+            else if (_rephGlyphIds[1] == glyph && prevIndex < listSize)
+            {
+                int prevGlyph = repositionedGlyphIds[prevIndex];
+                if (_beforeHalfGlyphIds.Contains(prevGlyph))
+                {
+                    repositionedGlyphIds.RemoveAt(prevIndex);
+                    repositionedGlyphIds.Insert(nextIndex--, prevGlyph);
+                }
+            }
+            foundIndex = nextIndex--;
+        }
+        return repositionedGlyphIds;
+    }
+
+    private IList<int> AdjustRephPosition(IList<int> originalGlyphIds)
+    {
+        var rephAdjustedList = new List<int>(originalGlyphIds);
+        for (int index = 0; index < originalGlyphIds.Count - 2; index++)
+        {
+            int raGlyph = originalGlyphIds[index];
+            int viramaGlyph = originalGlyphIds[index + 1];
+            if (raGlyph == _rephGlyphIds[0] && viramaGlyph == _rephGlyphIds[1])
+            {
+                int nextConsonantGlyph = originalGlyphIds[index + 2];
+                rephAdjustedList[index] = nextConsonantGlyph;
+                rephAdjustedList[index + 1] = raGlyph;
+                rephAdjustedList[index + 2] = viramaGlyph;
+
+                if (index + 3 < originalGlyphIds.Count)
+                {
+                    int matraGlyph = originalGlyphIds[index + 3];
+                    if (_beforeRephGlyphIds.Contains(matraGlyph))
+                    {
+                        rephAdjustedList[index + 1] = matraGlyph;
+                        rephAdjustedList[index + 2] = raGlyph;
+                        rephAdjustedList[index + 3] = viramaGlyph;
+                    }
+                }
+            }
+        }
+        return rephAdjustedList;
     }
 
     private static IList<int> ApplyGsubFeature(IScriptFeature scriptFeature, IList<int> originalGlyphs)
@@ -84,5 +155,30 @@ public class GsubWorkerForTamil : IGsubWorker
                 gsubProcessedGlyphs.AddRange(chunk);
         }
         return gsubProcessedGlyphs;
+    }
+
+    private IList<int> GetBeforeHalfGlyphIds()
+    {
+        return new List<int> { _cmapLookup.GetGlyphId(BeforeHalfChar) }.AsReadOnly();
+    }
+
+    private IList<int> GetRephGlyphIds()
+    {
+        var result = new List<int>(RephChars.Length);
+        foreach (char character in RephChars)
+        {
+            result.Add(_cmapLookup.GetGlyphId(character));
+        }
+        return result.AsReadOnly();
+    }
+
+    private IList<int> GetBeforeRephGlyphIds()
+    {
+        var glyphIds = new List<int>(BeforeRephChars.Length);
+        foreach (char character in BeforeRephChars)
+        {
+            glyphIds.Add(_cmapLookup.GetGlyphId(character));
+        }
+        return glyphIds.AsReadOnly();
     }
 }
