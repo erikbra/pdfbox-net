@@ -414,6 +414,26 @@
     "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CloseFillEvenOddAndStrokePath.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/CloseAndFillEvenOddAndStrokePath.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T22:00:29Z",
+    "note": "Ported missing close-fill-and-stroke graphics operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CloseFillNonZeroAndStrokePath.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/CloseAndFillNonZeroAndStrokePath.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T22:00:29Z",
+    "note": "Ported missing close-fill-and-stroke graphics operator processor."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ClosePath.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/ClosePath.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",

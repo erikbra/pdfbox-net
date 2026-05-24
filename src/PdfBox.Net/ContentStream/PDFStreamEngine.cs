@@ -516,6 +516,8 @@ public class PDFStreamEngine
         AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.ClosePath(this));
         AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.StrokePath(this));
         AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.CloseAndStrokePath(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.CloseAndFillNonZeroAndStrokePath(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.CloseAndFillEvenOddAndStrokePath(this));
         AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.FillNonZeroRule(this));
         AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.FillNonZeroRule(this, OperatorName.LEGACY_FILL_NON_ZERO));
         AddOperator(new PdfBox.Net.ContentStream.Operator.Graphics.FillEvenOddRule(this));
