@@ -1,0 +1,10 @@
+% fixture: dictionary with comments and mixed COS values
+<<
+  /Type /Example
+  /Count 3
+  /Enabled true
+  /Title (Hi\)There)
+  /Names [ /A /B /C ]
+  /Hex <4869>
+  /Nothing null
+>>
