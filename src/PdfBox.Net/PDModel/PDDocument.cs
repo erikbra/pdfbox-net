@@ -68,17 +68,27 @@ public sealed class PDDocument : IDisposable
     {
         ArgumentNullException.ThrowIfNull(input);
         byte[] bytes = ReadAllBytes(input);
-        string content = Encoding.Latin1.GetString(bytes);
-        string payload = ExtractDictionaryPayload(content);
-        float headerVersion = ExtractHeaderVersion(content);
-
-        COSBase parsed = COSParser.Parse(payload);
-        if (parsed is not COSDictionary trailer)
+        using MemoryStream parseInput = new(bytes, writable: false);
+        try
         {
-            throw new IOException("Expected document trailer dictionary.");
+            PDFParser parser = new(parseInput);
+            ParsedPDFDocument parsed = parser.Parse();
+            return new PDDocument(parsed.Trailer, parsed.HeaderVersion);
         }
+        catch (IOException ex) when (ex.Message.Contains("startxref", StringComparison.Ordinal))
+        {
+            string content = Encoding.Latin1.GetString(bytes);
+            string payload = ExtractDictionaryPayload(content);
+            float headerVersion = ExtractHeaderVersion(content);
 
-        return new PDDocument(trailer, headerVersion);
+            COSBase parsed = COSParser.Parse(payload);
+            if (parsed is not COSDictionary trailer)
+            {
+                throw new IOException("Expected document trailer dictionary.");
+            }
+
+            return new PDDocument(trailer, headerVersion);
+        }
     }
 
     /// <summary>
