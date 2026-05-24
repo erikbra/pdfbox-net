@@ -1,7 +1,7 @@
 BT
 /F1 12 Tf
 50 700 Td
-(Paragraph one) Tj
+(QWERTY) Tj
 0 -120 Td
-(Paragraph two) Tj
+(ASDFGH) Tj
 ET

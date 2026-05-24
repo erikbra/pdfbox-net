@@ -1,9 +1,9 @@
 BT
 /F1 12 Tf
 50 700 Td
-(Top line) Tj
+(QWERTY) Tj
 0 -20 Td
-(Second line) Tj
+(ASDFGH) Tj
 0 -20 Td
-(Third line) Tj
+(ZXCVBN) Tj
 ET
