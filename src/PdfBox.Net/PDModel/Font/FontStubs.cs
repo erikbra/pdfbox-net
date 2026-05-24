@@ -4,7 +4,6 @@ using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.FontBox.Util;
 using PdfBox.Net.Util;
 using PdfBox.Net.Util.Geometry;
-using System.IO;
 
 namespace PdfBox.Net.PDModel.Font
 {
@@ -66,21 +65,5 @@ namespace PdfBox.Net.PDModel.Font
         public virtual float GetCapHeight() => 0f;
         public virtual float GetAscent() => 0f;
         public virtual float GetDescent() => 0f;
-    }
-}
-
-namespace PdfBox.Net.PDModel.Font.Encoding
-{
-    public class GlyphList
-    {
-        public GlyphList()
-        {
-        }
-
-        public GlyphList(GlyphList baseGlyphList, Stream? input)
-        {
-        }
-
-        public static GlyphList GetAdobeGlyphList() => new();
     }
 }
