@@ -1814,5 +1814,13 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Added visitor traversal and serialization-focused xUnit coverage for issue #28: visitor dispatch across all COS primitive/container types, mixed object graph traversal, COSWriter ICOSVisitor path, and deterministic serialization fixtures."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSRegressionFixturesTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Added fixture-driven COS regression coverage for issue #29: deterministic parse/serialize roundtrips for minimal and mixed fixtures plus malformed fixture assertions for parser stability."
   }
 ]

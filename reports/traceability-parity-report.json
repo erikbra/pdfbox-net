@@ -2180,5 +2180,15 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T19:10:00Z",
     "note": "Native test added for issue #28: visitor dispatch across all COS types, mixed object graph traversal, ICOSVisitor serialization path through COSWriter, and deterministic output fixtures."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSRegressionFixturesTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:17:40Z",
+    "note": "Native test added for issue #29: fixture-driven COS regression scenarios for deterministic minimal/roundtrip parsing and malformed-input parser stability."
   }
 ]
