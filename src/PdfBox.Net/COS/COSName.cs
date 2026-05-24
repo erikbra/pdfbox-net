@@ -56,9 +56,12 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName BLEED_BOX = GetPDFName("BleedBox");
     // C
     public static readonly COSName C = GetPDFName("C");
+    public static readonly COSName C0 = GetPDFName("C0");
+    public static readonly COSName C1 = GetPDFName("C1");
     public static readonly COSName CATALOG = GetPDFName("Catalog");
     public static readonly COSName CCITTFAX_DECODE = GetPDFName("CCITTFaxDecode");
     public static readonly COSName CCITTFAX_DECODE_ABBREVIATION = GetPDFName("CCF");
+    public static readonly COSName CHECK_SUM = GetPDFName("CheckSum");
     public static readonly COSName COLORSPACE = GetPDFName("ColorSpace");
     public static readonly COSName COLORS = GetPDFName("Colors");
     public static readonly COSName COLUMNS = GetPDFName("Columns");
@@ -74,18 +77,28 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName DCT_DECODE_ABBREVIATION = GetPDFName("DCT");
     public static readonly COSName DECODE = GetPDFName("Decode");
     public static readonly COSName DECODE_PARMS = GetPDFName("DecodeParms");
+    public static readonly COSName DESC = GetPDFName("Desc");
     public static readonly COSName DESTS = GetPDFName("Dests");
+    public static readonly COSName DOMAIN = GetPDFName("Domain");
+    public static readonly COSName DOS = GetPDFName("DOS");
     public static readonly COSName DP = GetPDFName("DP");
     // E
     public static readonly COSName EARLY_CHANGE = GetPDFName("EarlyChange");
+    public static readonly COSName EF = GetPDFName("EF");
+    public static readonly COSName EMBEDDED_FILE = GetPDFName("EmbeddedFile");
+    public static readonly COSName ENCODE = GetPDFName("Encode");
     public static readonly COSName ENCODED_BYTE_ALIGN = GetPDFName("EncodedByteAlign");
     // E
     public static readonly COSName EMPTY = GetPDFName(string.Empty);
     // F
     public static readonly COSName F = GetPDFName("F");
+    public static readonly COSName FILESPEC = GetPDFName("Filespec");
     public static readonly COSName FILTER = GetPDFName("Filter");
     public static readonly COSName FLATE_DECODE = GetPDFName("FlateDecode");
     public static readonly COSName FLATE_DECODE_ABBREVIATION = GetPDFName("Fl");
+    public static readonly COSName FUNCTION = GetPDFName("Function");
+    public static readonly COSName FUNCTION_TYPE = GetPDFName("FunctionType");
+    public static readonly COSName FUNCTIONS = GetPDFName("Functions");
     // H
     public static readonly COSName H = GetPDFName("H");
     public static readonly COSName HEIGHT = GetPDFName("Height");
@@ -104,9 +117,11 @@ public sealed class COSName : COSBase, IComparable<COSName>
     // L
     public static readonly COSName LANG = GetPDFName("Lang");
     public static readonly COSName LENGTH = GetPDFName("Length");
+    public static readonly COSName LIMITS = GetPDFName("Limits");
     public static readonly COSName LZW_DECODE = GetPDFName("LZWDecode");
     public static readonly COSName LZW_DECODE_ABBREVIATION = GetPDFName("LZW");
     // M
+    public static readonly COSName MAC = GetPDFName("Mac");
     public static readonly COSName MARK_INFO = GetPDFName("MarkInfo");
     public static readonly COSName MEDIA_BOX = GetPDFName("MediaBox");
     public static readonly COSName METADATA = GetPDFName("Metadata");
@@ -114,19 +129,26 @@ public sealed class COSName : COSBase, IComparable<COSName>
     // N
     public static readonly COSName NAME = GetPDFName("Name");
     public static readonly COSName NAMES = GetPDFName("Names");
+    public static readonly COSName N = GetPDFName("N");
+    public static readonly COSName NUMS = GetPDFName("Nums");
     // O
+    public static readonly COSName ORDER = GetPDFName("Order");
     public static readonly COSName OPEN_ACTION = GetPDFName("OpenAction");
     public static readonly COSName OUTPUT_INTENTS = GetPDFName("OutputIntents");
     // P
     public static readonly COSName P = GetPDFName("P");
+    public static readonly COSName PARAMS = GetPDFName("Params");
     public static readonly COSName PAGE = GetPDFName("Page");
     public static readonly COSName PAGE_LAYOUT = GetPDFName("PageLayout");
+    public static readonly COSName PAGE_LABELS = GetPDFName("PageLabels");
     public static readonly COSName PAGE_MODE = GetPDFName("PageMode");
     public static readonly COSName PAGES = GetPDFName("Pages");
     public static readonly COSName PARENT = GetPDFName("Parent");
     public static readonly COSName PREDICTOR = GetPDFName("Predictor");
     public static readonly COSName PRODUCER = GetPDFName("Producer");
     // R
+    public static readonly COSName RANGE = GetPDFName("Range");
+    public static readonly COSName RES_FORK = GetPDFName("ResFork");
     public static readonly COSName RESOURCES = GetPDFName("Resources");
     public static readonly COSName ROWS = GetPDFName("Rows");
     public static readonly COSName ROTATE = GetPDFName("Rotate");
@@ -134,8 +156,11 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName RUN_LENGTH_DECODE = GetPDFName("RunLengthDecode");
     public static readonly COSName RUN_LENGTH_DECODE_ABBREVIATION = GetPDFName("RL");
     // S
+    public static readonly COSName SIZE = GetPDFName("Size");
     public static readonly COSName SMASK_IN_DATA = GetPDFName("SMaskInData");
+    public static readonly COSName ST = GetPDFName("St");
     public static readonly COSName STRUCT_PARENTS = GetPDFName("StructParents");
+    public static readonly COSName SUBTYPE = GetPDFName("Subtype");
     public static readonly COSName SUBJECT = GetPDFName("Subject");
     // T
     public static readonly COSName THREADS = GetPDFName("Threads");
@@ -143,7 +168,11 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName TRAPPED = GetPDFName("Trapped");
     public static readonly COSName TRIM_BOX = GetPDFName("TrimBox");
     public static readonly COSName TYPE = GetPDFName("Type");
+    // U
+    public static readonly COSName UF = GetPDFName("UF");
+    public static readonly COSName UNIX = GetPDFName("Unix");
     // V
+    public static readonly COSName V = GetPDFName("V");
     public static readonly COSName VERSION = GetPDFName("Version");
     // W
     public static readonly COSName VIEWER_PREFERENCES = GetPDFName("ViewerPreferences");

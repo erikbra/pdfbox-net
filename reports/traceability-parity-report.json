@@ -1,845 +1,5 @@
 [
   {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessRead.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessRead.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-18T20:06:33Z",
-    "note": ""
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessWrite.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessWrite.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-18T20:06:33Z",
-    "note": ""
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccess.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccess.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-18T20:06:33Z",
-    "note": ""
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadView.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessReadView.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-18T20:06:33Z",
-    "note": ""
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessReadBuffer.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-18T21:46:00Z",
-    "note": "Expanded parity support with ArraySegment<byte> constructor for ByteBuffer-limit semantics used by upstream PDFBOX-5764 coverage."
-  },
-  {
-    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-18T20:21:17Z",
-    "note": "Mechanically ported from upstream JUnit to xUnit v3 using production RandomAccessReadBuffer."
-  },
-  {
-    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadBufferTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-18T21:46:00Z",
-    "note": "Mechanically ported from upstream JUnit to xUnit v3 with expanded parity including deterministic local fixture for PDFBOX-5111 and ByteBuffer-limit semantics test PDFBOX-5764."
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadWriteBuffer.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessReadWriteBuffer.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-18T21:48:54Z",
-    "note": "Mechanical parity port for the next low-fanout io write-capable buffer implementation."
-  },
-  {
-    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadWriteBufferTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadWriteBufferTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-18T21:48:54Z",
-    "note": "Mechanical xUnit v3 test parity for RandomAccessReadWriteBuffer close, clear, paging, and EOF behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java",
-    "target_path": "src/PdfBox.Net/Util/Vector.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-18T21:48:54Z",
-    "note": "First pdfbox utility leaf port used to seed the wider pdfbox conversion backlog."
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/ScratchFile.java",
-    "target_path": "src/PdfBox.Net/IO/ScratchFile.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T18:58:00Z",
-    "note": "File-backed page-handler implementing RandomAccessStreamCache; replaces in-memory-only StreamCache when useTempFile=true in MemoryUsageSetting."
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/ScratchFileBuffer.java",
-    "target_path": "src/PdfBox.Net/IO/ScratchFileBuffer.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T18:58:00Z",
-    "note": "Page-based RandomAccess implementation backed by ScratchFile."
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBufferedFile.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessReadBufferedFile.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T18:58:00Z",
-    "note": "LRU-cached file-backed RandomAccessRead; Java ByteBuffer/FileChannel adapted to FileStream+byte-array page cache."
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadMemoryMappedFile.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessReadMemoryMappedFile.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T18:58:00Z",
-    "note": "Memory-mapped file RandomAccessRead using System.IO.MemoryMappedFiles; handles empty-file edge case absent from Java due to platform differences."
-  },
-  {
-    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferedFileTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadBufferedFileTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T18:58:00Z",
-    "note": "xUnit v3 port of upstream JUnit tests; test resources generated inline as temp files rather than embedded classpath resources."
-  },
-  {
-    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadMemoryMappedFileTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadMemoryMappedFileTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T18:58:00Z",
-    "note": "xUnit v3 port of upstream JUnit tests; test resources generated inline as temp files rather than embedded classpath resources."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSObjectable.java",
-    "target_path": "src/PdfBox.Net/COS/COSObjectable.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T19:31:28Z",
-    "note": "Low-dependency COS interface needed by COSBase and higher PD model layers."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java",
-    "target_path": "src/PdfBox.Net/COS/ICOSVisitor.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-20T04:58:00Z",
-    "note": "Visitor coverage now includes primitive, container, name/string, object, and stream COS foundation types."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObjectKey.java",
-    "target_path": "src/PdfBox.Net/COS/COSObjectKey.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T19:31:28Z",
-    "note": "Indirect object reference key type for COS graph identity."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBase.java",
-    "target_path": "src/PdfBox.Net/COS/COSBase.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T19:31:28Z",
-    "note": "Foundational base type for all COS entities, including direct/indirect metadata."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNumber.java",
-    "target_path": "src/PdfBox.Net/COS/COSNumber.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T19:31:28Z",
-    "note": "Abstract numeric primitive and lexical numeric factory used by parser slices."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInteger.java",
-    "target_path": "src/PdfBox.Net/COS/COSInteger.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T19:31:28Z",
-    "note": "Integer primitive with static cache window and invalid sentinel support."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSFloat.java",
-    "target_path": "src/PdfBox.Net/COS/COSFloat.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T19:31:28Z",
-    "note": "Float primitive with malformed lexical fallback cases from upstream PDFBOX fixes."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBoolean.java",
-    "target_path": "src/PdfBox.Net/COS/COSBoolean.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T19:31:28Z",
-    "note": "Boolean primitive singleton values and PDF serialization tokens."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
-    "target_path": "src/PdfBox.Net/COS/COSNull.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T19:31:28Z",
-    "note": "Null primitive singleton representation."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/COSPrimitivesTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T19:31:28Z",
-    "note": "Focused xUnit coverage for new COS leaf primitives and interfaces."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/COSStandardOutputStream.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T20:54:12Z",
-    "note": "First pdfwriter slice: output stream wrapper with position tracking and newline-format helper methods."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/COSStandardOutputStreamTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-19T20:54:12Z",
-    "note": "Focused xUnit coverage for COSStandardOutputStream position and line ending behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/PDFDocEncoding.java",
-    "target_path": "src/PdfBox.Net/COS/PDFDocEncoding.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-20T05:58:00Z",
-    "note": "Updated to full table-driven upstream PDFDocEncoding mapping parity."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
-    "target_path": "src/PdfBox.Net/COS/COSName.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-20T04:58:00Z",
-    "note": "COS name primitive/container key type now ported with visitor and serialization support."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSString.java",
-    "target_path": "src/PdfBox.Net/COS/COSString.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-20T04:58:00Z",
-    "note": "COS string primitive now ported with text/hex behavior and visitor support."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObject.java",
-    "target_path": "src/PdfBox.Net/COS/COSObject.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T20:29:56Z",
-    "note": "COS indirect object wrapper now includes dereferenced/update-state tracking; parser-backed lazy dereference remains deferred to the parser/document chunk."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
-    "target_path": "src/PdfBox.Net/COS/COSArray.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T20:29:56Z",
-    "note": "COS array container now tracks update state and direct-child incremental-save semantics in addition to typed accessors and serialization behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
-    "target_path": "src/PdfBox.Net/COS/COSDictionary.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T20:29:56Z",
-    "note": "COS dictionary container now tracks update state, child origin propagation, and incremental-save collection behavior alongside typed accessors and serialization."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSStream.java",
-    "target_path": "src/PdfBox.Net/COS/COSStream.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T19:15:00Z",
-    "note": "COSStream now includes filter list resolution, decoded stream/view pathways, and lifecycle parity for filtered/unfiltered output semantics."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/COSContainersTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-20T04:58:00Z",
-    "note": "Focused test coverage for COS containers/streams plus visitor completeness and serialization roundtrip interactions."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSArray.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestCOSArray.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-20T05:58:00Z",
-    "note": "Upstream TestCOSArray converted to xUnit for COSArray container parity checks."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSName.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestCOSName.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-20T05:58:00Z",
-    "note": "Upstream TestCOSName converted with COS-layer adaptations for key encoding and escaped name serialization."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSDictionaryTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/COSDictionaryTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-20T05:58:00Z",
-    "note": "Upstream COSDictionaryTest converted to xUnit."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSString.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestCOSString.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-20T05:58:00Z",
-    "note": "Upstream TestCOSString converted with direct COSString writer assertions."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSStream.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestCOSStream.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T19:15:00Z",
-    "note": "Upstream TestCOSStream converted with single/multi-filter encode/decode parity, close semantics, and hasData behavior checks."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-20T23:27:00Z",
-    "note": "Low-level parser subset ported for token/object flow (comments, names, strings, arrays, dictionaries, booleans, null, numbers); broader parser orchestration remains out of chunk-2 scope."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/ParserWriterRoundtripTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-21T04:29:00Z",
-    "note": "Focused parser/writer roundtrip tests validate deterministic object parse/serialize flow on representative small fixtures, including an adapted COSWriterTest testPDFBox4321 check that writer usage does not close caller-managed output streams."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocumentInformation.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "String-based metadata, date (CreationDate/ModDate) and trapped fields all ported; full upstream Java Calendar->DateTimeOffset parity tested."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Catalog expanded with PageLayout, PageMode, Language getters/setters; high-fanout catalog features (AcroForm, ViewerPreferences, Outlines, etc.) remain deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T17:10:51Z",
-    "note": "Open/load/save lifecycle expanded with page operations and version behavior over the COS parser/writer bridge; full PDF object/xref parsing and broader feature parity deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Expanded with MediaBox, CropBox, BleedBox, TrimBox, ArtBox, Rotation, StructParents, HasContents; content stream/resources/annotations/actions remain deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Expanded with GetInheritableAttribute static method and bad-PDF repair (Page-instead-of-Pages root); multi-level deep-tree traversal deferred."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
-    "target_path": "tests/PdfBox.Net.Tests/PDDocumentPipelineTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T17:10:51Z",
-    "note": "Adapted stream/file save-load test intent to deterministic fixture-based open->inspect->save checks with page-count and version assertions in this slice."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestPDPageTree.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T17:10:51Z",
-    "note": "Adapted deterministic page tree tests cover index/count/remove scenarios; outline/multi-level malformed fixture scenarios remain deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateInfo.java",
-    "target_path": "src/PdfBox.Net/COS/COSUpdateInfo.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T20:29:56Z",
-    "note": "COSUpdateInfo contract ported with C# extension-method helpers for update-state and increment access."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocumentState.java",
-    "target_path": "src/PdfBox.Net/COS/COSDocumentState.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T20:29:56Z",
-    "note": "COSDocumentState ported as the document parsing/update gate used by COS update tracking."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateState.java",
-    "target_path": "src/PdfBox.Net/COS/COSUpdateState.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T20:29:56Z",
-    "note": "COSUpdateState ported with recursive origin propagation for dictionaries, arrays, and dereferenced COSObject wrappers."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSIncrement.java",
-    "target_path": "src/PdfBox.Net/COS/COSIncrement.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T20:29:56Z",
-    "note": "COSIncrement ported for collecting updated top-level COS objects from direct and indirect child mutations."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/COSIncrementTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T20:29:56Z",
-    "note": "Focused tests validate document/update-state propagation and COSIncrement collection for updated direct and indirect children."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java",
-    "target_path": "src/PdfBox.Net/PDModel/Common/PDRectangle.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Core PDRectangle port with standard-size constants, coordinate accessors, contains/clip, retranslation, and immutable-rectangle guard; GeneralPath/Matrix transform methods deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
-    "target_path": "src/PdfBox.Net/PDModel/PageLayout.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "PageLayout enum and string-value helpers ported one-to-one."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
-    "target_path": "src/PdfBox.Net/PDModel/PageMode.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "PageMode enum and string-value helpers ported one-to-one."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocumentInformation.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestPDDocumentInformation.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted-minimal",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Adapted xUnit tests covering string fields, date roundtrip, trapped valid/invalid values, and custom metadata."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPage.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestPDPage.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted-minimal",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Adapted xUnit tests covering media box defaults, box accessors, rotation, structParents, and hasContents."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/TestPDRectangle.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Native xUnit tests covering all PDRectangle constructors, coordinate accessors, contains, retranslation, immutability guard, and standard-size constants."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/TestPDDocumentCatalog.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Native xUnit tests covering PageLayout and PageMode roundtrip, language, and null-clear semantics for new catalog methods."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/Encoding.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/Encoding.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T16:13:02Z",
-    "note": "Base FontBox encoding map now ported with code/name lookup parity and read-only code-to-name exposure."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/StandardEncoding.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/StandardEncoding.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T16:13:02Z",
-    "note": "Adobe Standard Encoding table ported with singleton access and representative lookup parity."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/MacRomanEncoding.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/MacRomanEncoding.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T16:13:02Z",
-    "note": "MacRoman encoding table ported with singleton access and representative lookup parity."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/BuiltInEncoding.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/BuiltInEncoding.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T16:13:02Z",
-    "note": "BuiltInEncoding now seeds custom embedded font code/name mappings through the shared encoding base class."
-  },
-  {
-    "source_path": "fontbox/src/test/java/org/apache/fontbox/encoding/EncodingTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/EncodingTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T16:13:02Z",
-    "note": "Upstream EncodingTest converted to xUnit with extra BuiltInEncoding fallback/read-only map assertions."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/FontBoxFont.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/FontBoxFont.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Base font interface ported with C# interface semantics."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/EncodedFont.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/EncodedFont.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "EncodedFont interface ported."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Pfb/PfbParser.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "PFB (Printer Font Binary) segment parser ported."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/DamagedFontException.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/DamagedFontException.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Exception type for damaged/corrupt Type1 fonts."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Token.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Token.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Lexer token type for Type1 parser."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1CharStringReader.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1CharStringReader.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Interface for reading Type1 charstrings."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Font.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Font.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Type1 font model with PFB segment loading and property access."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Lexer.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Lexer.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Type1 PostScript lexer for token stream parsing."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Parser.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Parser.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Type1 font parser consuming lexer token stream."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/BoundingBox.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/BoundingBox.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Font bounding box model."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontDirFinder.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Interface for finding font directories on the host OS."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontFileFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontFileFinder.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Font file discovery coordinator using OS-specific FontDirFinder."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/MacFontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/MacFontDirFinder.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "macOS font directory locations."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/NativeFontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/NativeFontDirFinder.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Abstract base for native OS font dir finders."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/OS400FontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/OS400FontDirFinder.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "IBM OS/400 font directory locations."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/UnixFontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/UnixFontDirFinder.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Unix/Linux font directory locations."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/WindowsFontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/WindowsFontDirFinder.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "Windows font directory locations."
-  },
-  {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFCIDFont.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFCIDFont.cs",
     "source_commit": "trunk",
@@ -948,6 +108,76 @@
     "status": "partial",
     "last_checked_utc": "2026-05-23T20:54:48Z",
     "note": "Type2 charstring path/width model. Full charstring interpreter pending (issue #8)."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/EncodedFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/EncodedFont.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "EncodedFont interface ported."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/BuiltInEncoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/BuiltInEncoding.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T16:13:02Z",
+    "note": "BuiltInEncoding now seeds custom embedded font code/name mappings through the shared encoding base class."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/Encoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/Encoding.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T16:13:02Z",
+    "note": "Base FontBox encoding map now ported with code/name lookup parity and read-only code-to-name exposure."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/MacRomanEncoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/MacRomanEncoding.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T16:13:02Z",
+    "note": "MacRoman encoding table ported with singleton access and representative lookup parity."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/StandardEncoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/StandardEncoding.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T16:13:02Z",
+    "note": "Adobe Standard Encoding table ported with singleton access and representative lookup parity."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/FontBoxFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/FontBoxFont.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Base font interface ported with C# interface semantics."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Pfb/PfbParser.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "PFB (Printer Font Binary) segment parser ported."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FontHeaders.java",
@@ -1070,200 +300,394 @@
     "note": "TrueType font model with table lookup. Accessors for unported tables (cmap, glyf, etc.) not yet present (issue #9)."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FlateFilter.java",
-    "target_path": "src/PdfBox.Net/Filter/FlateFilter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/DamagedFontException.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/DamagedFontException.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "Flate filter implemented with zlib/deflate fallback and predictor post-processing."
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Exception type for damaged/corrupt Type1 fonts."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCIIHexFilter.java",
-    "target_path": "src/PdfBox.Net/Filter/ASCIIHexFilter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Token.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Token.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "ASCIIHex decode/encode implemented."
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Lexer token type for Type1 parser."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCII85Filter.java",
-    "target_path": "src/PdfBox.Net/Filter/ASCII85Filter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1CharStringReader.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1CharStringReader.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "ASCII85 decode/encode implemented including z-shorthand handling."
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Interface for reading Type1 charstrings."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/LZWFilter.java",
-    "target_path": "src/PdfBox.Net/Filter/LZWFilter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Font.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Font.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "LZW decode/encode implemented with clear-table and EOD handling."
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Type1 font model with PFB segment loading and property access."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/RunLengthDecodeFilter.java",
-    "target_path": "src/PdfBox.Net/Filter/RunLengthDecodeFilter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Lexer.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Lexer.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "RunLength decode/encode implemented."
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Type1 PostScript lexer for token stream parsing."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/IdentityFilter.java",
-    "target_path": "src/PdfBox.Net/Filter/IdentityFilter.cs",
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Parser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Parser.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Type1 font parser consuming lexer token stream."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Interface for finding font directories on the host OS."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontFileFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontFileFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Font file discovery coordinator using OS-specific FontDirFinder."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/MacFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/MacFontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "macOS font directory locations."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/NativeFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/NativeFontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Abstract base for native OS font dir finders."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/OS400FontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/OS400FontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "IBM OS/400 font directory locations."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/UnixFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/UnixFontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Unix/Linux font directory locations."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/WindowsFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/WindowsFontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Windows font directory locations."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/BoundingBox.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/BoundingBox.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Font bounding box model."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
+    "target_path": "src/PdfBox.Net/COS/COSArray.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "Identity passthrough filter implemented."
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COS array container now tracks update state and direct-child incremental-save semantics in addition to typed accessors and serialization behavior."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CryptFilter.java",
-    "target_path": "src/PdfBox.Net/Filter/CryptFilter.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBase.java",
+    "target_path": "src/PdfBox.Net/COS/COSBase.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "partial",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "Crypt filter supports only /Identity until encryption module is ported."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FilterFactory.java",
-    "target_path": "src/PdfBox.Net/Filter/FilterFactory.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "FilterFactory resolves standard filter names and abbreviations."
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Foundational base type for all COS entities, including direct/indirect metadata."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Predictor.java",
-    "target_path": "src/PdfBox.Net/Filter/Predictor.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBoolean.java",
+    "target_path": "src/PdfBox.Net/COS/COSBoolean.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "Predictor decode helper implemented for Flate/LZW."
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Boolean primitive singleton values and PDF serialization tokens."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/DCTFilter.java",
-    "target_path": "src/PdfBox.Net/Filter/DCTFilter.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
+    "target_path": "src/PdfBox.Net/COS/COSDictionary.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "partial",
-    "status": "partial",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "Placeholder only; decode/encode throw NotSupportedException."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxFilter.java",
-    "target_path": "src/PdfBox.Net/Filter/CCITTFaxDecodeFilter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "partial",
-    "status": "partial",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "Placeholder only; decode/encode throw NotSupportedException."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JBIG2Filter.java",
-    "target_path": "src/PdfBox.Net/Filter/JBIG2Filter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "partial",
-    "status": "partial",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "Placeholder only; decode/encode throw NotSupportedException."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JPXFilter.java",
-    "target_path": "src/PdfBox.Net/Filter/JPXFilter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "partial",
-    "status": "partial",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "Placeholder only; decode/encode throw NotSupportedException."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/filter/TestFilters.java",
-    "target_path": "tests/PdfBox.Net.Tests/FilterTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
+    "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "Filter roundtrip and factory lookup tests added for .NET port scope."
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COS dictionary container now tracks update state, child origin propagation, and incremental-save collection behavior alongside typed accessors and serialization."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetFlatness.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetFlatness.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocument.java",
+    "target_path": "src/PdfBox.Net/COS/COSDocument.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:46:00Z",
+    "note": "Top-level COS document container; mechanical port with full object-table and xref dictionary mapping."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineCap.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineCap.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocumentState.java",
+    "target_path": "src/PdfBox.Net/COS/COSDocumentState.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COSDocumentState ported as the document parsing/update gate used by COS update tracking."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineDashPattern.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineDashPattern.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSFloat.java",
+    "target_path": "src/PdfBox.Net/COS/COSFloat.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Float primitive with malformed lexical fallback cases from upstream PDFBOX fixes."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineJoin.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoin.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSIncrement.java",
+    "target_path": "src/PdfBox.Net/COS/COSIncrement.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COSIncrement ported for collecting updated top-level COS objects from direct and indirect child mutations."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineWidth.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineWidth.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInputStream.java",
+    "target_path": "src/PdfBox.Net/COS/COSInputStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:46:00Z",
+    "note": "Mechanical port of COS filtered-stream input wrapper; no Java-only APIs requiring adaptation."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetMiterLimit.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetMiterLimit.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInteger.java",
+    "target_path": "src/PdfBox.Net/COS/COSInteger.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Integer primitive with static cache window and invalid sentinel support."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetRenderingIntent.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetRenderingIntent.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
+    "target_path": "src/PdfBox.Net/COS/COSName.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T04:58:00Z",
+    "note": "COS name primitive/container key type now ported with visitor and serialization support."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
+    "target_path": "src/PdfBox.Net/COS/COSNull.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Null primitive singleton representation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNumber.java",
+    "target_path": "src/PdfBox.Net/COS/COSNumber.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Abstract numeric primitive and lexical numeric factory used by parser slices."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObject.java",
+    "target_path": "src/PdfBox.Net/COS/COSObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COS indirect object wrapper now includes dereferenced/update-state tracking; parser-backed lazy dereference remains deferred to the parser/document chunk."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObjectKey.java",
+    "target_path": "src/PdfBox.Net/COS/COSObjectKey.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Indirect object reference key type for COS graph identity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSObjectable.java",
+    "target_path": "src/PdfBox.Net/COS/COSObjectable.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Low-dependency COS interface needed by COSBase and higher PD model layers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSOutputStream.java",
+    "target_path": "src/PdfBox.Net/COS/COSOutputStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:46:00Z",
+    "note": "Mechanical port of COS filtered-stream output wrapper; no Java-only APIs requiring adaptation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSStream.java",
+    "target_path": "src/PdfBox.Net/COS/COSStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:15:00Z",
+    "note": "COSStream now includes filter list resolution, decoded stream/view pathways, and lifecycle parity for filtered/unfiltered output semantics."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSString.java",
+    "target_path": "src/PdfBox.Net/COS/COSString.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T04:58:00Z",
+    "note": "COS string primitive now ported with text/hex behavior and visitor support."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateInfo.java",
+    "target_path": "src/PdfBox.Net/COS/COSUpdateInfo.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COSUpdateInfo contract ported with C# extension-method helpers for update-state and increment access."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateState.java",
+    "target_path": "src/PdfBox.Net/COS/COSUpdateState.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "COSUpdateState ported with recursive origin propagation for dictionaries, arrays, and dereferenced COSObject wrappers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSParser.java",
+    "target_path": "src/PdfBox.Net/COS/ICOSParser.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:46:00Z",
+    "note": "Mechanical port of COS parser interface; direct interface mapping with no Java-only dependencies."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java",
+    "target_path": "src/PdfBox.Net/COS/ICOSVisitor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T04:58:00Z",
+    "note": "Visitor coverage now includes primitive, container, name/string, object, and stream COS foundation types."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/PDFDocEncoding.java",
+    "target_path": "src/PdfBox.Net/COS/PDFDocEncoding.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Updated to full table-driven upstream PDFDocEncoding mapping parity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionary.java",
+    "target_path": "src/PdfBox.Net/COS/UnmodifiableCOSDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T18:40:12Z",
+    "note": "Read-only mutation guards now enforce behavior through virtual overrides, matching Java polymorphic dispatch expectations."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColor.java",
@@ -1360,6 +784,16 @@
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented Do operator XObject resolution with fallback hook compatibility behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/AppendRectangleToPath.java",
@@ -1554,12 +988,860 @@
     "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetFlatness.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetFlatness.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetGraphicsStateParameters.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetGraphicsStateParameters.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented gs operator resource lookup and PDExtendedGraphicsState application."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineCap.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineCap.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineDashPattern.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineDashPattern.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineJoin.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoin.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineWidth.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineWidth.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetMiterLimit.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetMiterLimit.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetRenderingIntent.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetRenderingIntent.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
+    "target_path": "src/PdfBox.Net/ContentStream/PDFStreamEngine.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added active resource tracking and form XObject content traversal."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCII85Filter.java",
+    "target_path": "src/PdfBox.Net/Filter/ASCII85Filter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "ASCII85 decode/encode implemented including z-shorthand handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCIIHexFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/ASCIIHexFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "ASCIIHex decode/encode implemented."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/CCITTFaxDecodeFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Placeholder only; decode/encode throw NotSupportedException."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CryptFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/CryptFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Crypt filter supports only /Identity until encryption module is ported."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/DCTFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/DCTFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Placeholder only; decode/encode throw NotSupportedException."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FilterFactory.java",
+    "target_path": "src/PdfBox.Net/Filter/FilterFactory.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "FilterFactory resolves standard filter names and abbreviations."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FlateFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/FlateFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Flate filter implemented with zlib/deflate fallback and predictor post-processing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/IdentityFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/IdentityFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Identity passthrough filter implemented."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JBIG2Filter.java",
+    "target_path": "src/PdfBox.Net/Filter/JBIG2Filter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Placeholder only; decode/encode throw NotSupportedException."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JPXFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/JPXFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "partial",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Placeholder only; decode/encode throw NotSupportedException."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/LZWFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/LZWFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "LZW decode/encode implemented with clear-table and EOD handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Predictor.java",
+    "target_path": "src/PdfBox.Net/Filter/Predictor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Predictor decode helper implemented for Flate/LZW."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/RunLengthDecodeFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/RunLengthDecodeFilter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "RunLength decode/encode implemented."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccess.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccess.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T20:06:33Z",
+    "note": ""
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessRead.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessRead.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T20:06:33Z",
+    "note": ""
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadBuffer.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T21:46:00Z",
+    "note": "Expanded parity support with ArraySegment<byte> constructor for ByteBuffer-limit semantics used by upstream PDFBOX-5764 coverage."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBufferedFile.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadBufferedFile.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "LRU-cached file-backed RandomAccessRead; Java ByteBuffer/FileChannel adapted to FileStream+byte-array page cache."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadMemoryMappedFile.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadMemoryMappedFile.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "Memory-mapped file RandomAccessRead using System.IO.MemoryMappedFiles; handles empty-file edge case absent from Java due to platform differences."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadView.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadView.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T20:06:33Z",
+    "note": ""
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadWriteBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadWriteBuffer.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T21:48:54Z",
+    "note": "Mechanical parity port for the next low-fanout io write-capable buffer implementation."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessWrite.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessWrite.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T20:06:33Z",
+    "note": ""
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/ScratchFile.java",
+    "target_path": "src/PdfBox.Net/IO/ScratchFile.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "File-backed page-handler implementing RandomAccessStreamCache; replaces in-memory-only StreamCache when useTempFile=true in MemoryUsageSetting."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/ScratchFileBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/ScratchFileBuffer.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "Page-based RandomAccess implementation backed by ScratchFile."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/COSArrayList.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted COSArray-backed collection port using Collection<T> to preserve PD/COS synchronization semantics."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDComplexFileSpecification.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/FileSpecification/PDComplexFileSpecification.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical complex file specification port including embedded-file dictionary accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDEmbeddedFile.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/FileSpecification/PDEmbeddedFile.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted embedded-file stream port using DateTimeOffset-backed embedded date helpers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDFileSpecification.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/FileSpecification/PDFileSpecification.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical abstract file specification factory port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDSimpleFileSpecification.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/FileSpecification/PDSimpleFileSpecification.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical string-backed file specification port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunction.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunction.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted abstract PDF function base with factory and range/domain helpers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType0.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType0.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted sampled function port using a custom bit reader instead of Java ImageInputStream."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType2.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType2.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical exponential interpolation function port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType3.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType3.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical stitching function port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType4.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType4.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical PostScript calculator function port over the new type4 helper stack."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionTypeIdentity.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionTypeIdentity.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted identity function port with safe null-base handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/ArithmeticOperators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/ArithmeticOperators.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical Type 4 arithmetic operators port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/BitwiseOperators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/BitwiseOperators.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical Type 4 bitwise/logical operators port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/ConditionalOperators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/ConditionalOperators.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical Type 4 conditional operators port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/ExecutionContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/ExecutionContext.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted Type 4 execution context using a list-backed execution stack for Stack API parity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/InstructionSequence.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/InstructionSequence.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical Type 4 instruction-sequence executor port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/InstructionSequenceBuilder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/InstructionSequenceBuilder.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical Type 4 instruction-sequence builder port with invariant-culture numeric parsing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/Operator.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/Operator.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical Type 4 operator interface port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/Operators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/Operators.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical Type 4 operator registry port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/Parser.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/Parser.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical Type 4 tokenizer/parser port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/RelationalOperators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/RelationalOperators.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical Type 4 relational operators port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/StackOperators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/StackOperators.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted Type 4 stack operators port using list rotation helpers for .NET."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDDestinationOrAction.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDDestinationOrAction.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical marker interface port for destination/action union types."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDDictionaryWrapper.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDDictionaryWrapper.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical wrapper for COS dictionaries used by higher PD model types."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDMetadata.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDMetadata.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented metadata stream wrapper with XMP import/export helpers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNameTreeNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDNameTreeNode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted generic name-tree node port with sorted dictionary and null-safe traversal semantics."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNumberTreeNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDNumberTreeNode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted number-tree node port using Activator-based value construction in place of Java reflection."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabelRange.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDPageLabelRange.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical page label range dictionary wrapper port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDPageLabels.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted page label dictionary port with Roman/letter label generation and catalog integration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRange.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDRange.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical PDModel common range port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDRectangle.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Core PDRectangle port with standard-size constants, coordinate accessors, contains/clip, retranslation, and immutable-rectangle guard; GeneralPath/Matrix transform methods deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDStream.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented filter-aware PDStream wrappers for encode/decode and metadata access."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDTypedDictionaryWrapper.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDTypedDictionaryWrapper.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical typed dictionary wrapper port."
+  },
+  {
     "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/OperatorProcessorsTest.cs",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/AESKeyLength.cs",
     "source_commit": "n/a",
-    "port_mode": "native-test",
     "sync_commit": "n/a",
-    "conversion_notes": "Expanded operator processor tests to cover state, path, painting, clipping, color, inline-image hooks, type3, compatibility, and multi-operator scenario."
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Added AES key-length enum used by encryption layer port scaffolding."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/AccessPermission.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/AccessPermission.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Ported access permission bitfield model and flag mutators for standard/public-key permission bytes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/DecryptionMaterial.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/DecryptionMaterial.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Added base decryption material abstraction."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/MessageDigests.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/MessageDigests.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Added hash algorithm factory helpers (MD5/SHA1/SHA256)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PDCryptFilterDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/PDCryptFilterDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Added crypt filter dictionary wrapper and EncryptMetadata flag handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PDEncryption.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/PDEncryption.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Ported encryption dictionary accessor model for key entries, permissions, and crypt filter wiring."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/ProtectionPolicy.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/ProtectionPolicy.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Added protection policy key length and AES preference configuration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/SecurityHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/SecurityHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Added abstract security handler base state and contract for encryption/decryption preparation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardDecryptionMaterial.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardDecryptionMaterial.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Added password-holding decryption material type."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardProtectionPolicy.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardProtectionPolicy.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Added standard password-based protection policy wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardSecurityHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardSecurityHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Class shell and constructors are ported; full standard security algorithm flow is deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/DefaultFontProvider.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added default font provider implementation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/DictionaryEncoding.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Implemented dictionary encoding resolution and Differences overrides."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Encoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Encoding.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added PDModel encoding base class."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/MacRomanEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/MacRomanEncoding.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added MacRoman encoding wrapper for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/SymbolEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/SymbolEncoding.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added Symbol encoding map for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Type1Encoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Type1Encoding.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added Type1 built-in encoding adapter from parsed Type1 fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/WinAnsiEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/WinAnsiEncoding.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added WinAnsi encoding map for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/ZapfDingbatsEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/ZapfDingbatsEncoding.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added ZapfDingbats encoding map for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added cross-platform file system font discovery provider."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontMapper.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added font mapper interface."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMappers.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontMappers.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added global font mapper singleton wiring."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
@@ -1632,96 +1914,6 @@
     "note": "Implemented CIDFontType2 wrapper for embedded TrueType fonts."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added font factory dispatch based on PDF font subtype."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Standard14Fonts.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added canonical mapping for standard 14 PDF fonts and aliases."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Encoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Encoding.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added PDModel encoding base class."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/DictionaryEncoding.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Implemented dictionary encoding resolution and Differences overrides."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/MacRomanEncoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/MacRomanEncoding.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added MacRoman encoding wrapper for PDModel fonts."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/WinAnsiEncoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/WinAnsiEncoding.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added WinAnsi encoding map for PDModel fonts."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/SymbolEncoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/SymbolEncoding.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added Symbol encoding map for PDModel fonts."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/ZapfDingbatsEncoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/ZapfDingbatsEncoding.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added ZapfDingbats encoding map for PDModel fonts."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Type1Encoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Type1Encoding.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added Type1 built-in encoding adapter from parsed Type1 fonts."
-  },
-  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDSystemInfo.cs",
     "source_commit": "trunk",
@@ -1730,6 +1922,16 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T16:03:16Z",
     "note": "Added CID system info wrapper for Registry/Ordering/Supplement."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Added font factory dispatch based on PDF font subtype."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDPanose.java",
@@ -1742,84 +1944,14 @@
     "note": "Added PANOSE classification wrapper."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontMapper.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Standard14Fonts.cs",
     "source_commit": "trunk",
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added font mapper interface."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMappers.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontMappers.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added global font mapper singleton wiring."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/DefaultFontProvider.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added default font provider implementation."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added cross-platform file system font discovery provider."
-  },
-  {
-    "source_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
-    "target_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDStream.java",
-    "target_path": "src/PdfBox.Net/PDModel/Common/PDStream.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Implemented filter-aware PDStream wrappers for encode/decode and metadata access."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDMetadata.java",
-    "target_path": "src/PdfBox.Net/PDModel/Common/PDMetadata.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Implemented metadata stream wrapper with XMP import/export helpers."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDXObject.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/PDXObject.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Added subtype-based XObject factory for form/transparency/image streams."
+    "note": "Added canonical mapping for standard 14 PDF fonts and aliases."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDFormXObject.java",
@@ -1842,24 +1974,24 @@
     "note": "Added transparency-group subtype over PDFormXObject."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDSoftMask.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDSoftMask.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImageXObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PDImageXObject.cs",
     "source_commit": "trunk",
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Implemented soft mask dictionary parsing and initial CTM capture support."
+    "note": "Implemented basic image XObject decode and metadata access for DeviceRGB/Flate test path."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDLineDashPattern.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDLineDashPattern.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDXObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/PDXObject.cs",
     "source_commit": "trunk",
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Replaced dash-pattern stub with immutable COS-backed line dash pattern model."
+    "note": "Added subtype-based XObject factory for form/transparency/image streams."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDExtendedGraphicsState.java",
@@ -1872,56 +2004,6 @@
     "note": "Implemented ExtGState dictionary accessors and copy-into-graphics-state behavior."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImageXObject.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PDImageXObject.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Implemented basic image XObject decode and metadata access for DeviceRGB/Flate test path."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetGraphicsStateParameters.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetGraphicsStateParameters.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Implemented gs operator resource lookup and PDExtendedGraphicsState application."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Implemented Do operator XObject resolution with fallback hook compatibility behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
-    "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Added ExtGState and typed XObject lookup helpers for gs/Do processing."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
-    "target_path": "src/PdfBox.Net/ContentStream/PDFStreamEngine.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Added active resource tracking and form XObject content traversal."
-  },
-  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDGraphicsState.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
@@ -1930,6 +2012,26 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T16:41:22Z",
     "note": "Added alpha/blend/soft-mask/stroke-adjustment graphics state fields."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDLineDashPattern.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDLineDashPattern.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Replaced dash-pattern stub with immutable COS-backed line dash pattern model."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDSoftMask.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDSoftMask.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented soft mask dictionary parsing and initial CTM capture support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDTextState.java",
@@ -1942,6 +2044,76 @@
     "note": "Added text knockout flag state used by ExtGState TK mapping."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T17:10:51Z",
+    "note": "Open/load/save lifecycle expanded with page operations and version behavior over the COS parser/writer bridge; full PDF object/xref parsing and broader feature parity deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Catalog expanded with PageLayout, PageMode, Language getters/setters; high-fanout catalog features (AcroForm, ViewerPreferences, Outlines, etc.) remain deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentInformation.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "String-based metadata, date (CreationDate/ModDate) and trapped fields all ported; full upstream Java Calendar->DateTimeOffset parity tested."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Expanded with MediaBox, CropBox, BleedBox, TrimBox, ArtBox, Rotation, StructParents, HasContents; content stream/resources/annotations/actions remain deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Expanded with GetInheritableAttribute static method and bad-PDF repair (Page-instead-of-Pages root); multi-level deep-tree traversal deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
+    "target_path": "src/PdfBox.Net/PDModel/PageLayout.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "PageLayout enum and string-value helpers ported one-to-one."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
+    "target_path": "src/PdfBox.Net/PDModel/PageMode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "PageMode enum and string-value helpers ported one-to-one."
+  },
+  {
     "source_path": "n/a",
     "target_path": "src/PdfBox.Net/PDModel/RenderingSupportStubs.cs",
     "source_commit": "n/a",
@@ -1952,174 +2124,84 @@
     "note": "Removed replaced PDLineDashPattern/PDSoftMask/PDFormXObject/PDTransparencyGroup stubs after real implementations landed."
   },
   {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDStreamTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
+    "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Added PDStream Flate encode/decode roundtrip coverage."
+    "note": "Added ExtGState and typed XObject lookup helpers for gs/Do processing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-20T23:27:00Z",
+    "note": "Low-level parser subset ported for token/object flow (comments, names, strings, arrays, dictionaries, booleans, null, numbers); broader parser orchestration remains out of chunk-2 scope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSStandardOutputStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-19T20:54:12Z",
+    "note": "First pdfwriter slice: output stream wrapper with position tracking and newline-format helper methods."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:10:00Z",
+    "note": "COSWriter now implements ICOSVisitor; Write(COSBase?) routes through visitor dispatch. VisitFromDocument is a no-op for low-level serializer scope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java",
+    "target_path": "src/PdfBox.Net/Util/Vector.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T21:48:54Z",
+    "note": "First pdfbox utility leaf port used to seed the wider pdfbox conversion backlog."
   },
   {
     "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDExtendedGraphicsStateTest.cs",
+    "target_path": "tests/PdfBox.Net.Tests/COSContainersTest.cs",
     "source_commit": "n/a",
     "sync_commit": "n/a",
     "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Added ExtGState accessor/copy behavior coverage for alpha, blend mode, line join, and dash pattern."
+    "last_checked_utc": "2026-05-20T04:58:00Z",
+    "note": "Focused test coverage for COS containers/streams plus visitor completeness and serialization roundtrip interactions."
   },
   {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDImageXObjectTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Added PDImageXObject simple Flate DeviceRGB decode fixture coverage."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/ContentStreamEngineTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:41:22Z",
-    "note": "Extended content-stream engine tests with form XObject traversal through Do operator."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/AccessPermission.java",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/AccessPermission.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Ported access permission bitfield model and flag mutators for standard/public-key permission bytes."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/DecryptionMaterial.java",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/DecryptionMaterial.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Added base decryption material abstraction."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/ProtectionPolicy.java",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/ProtectionPolicy.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Added protection policy key length and AES preference configuration."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardProtectionPolicy.java",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardProtectionPolicy.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Added standard password-based protection policy wrapper."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardDecryptionMaterial.java",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardDecryptionMaterial.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Added password-holding decryption material type."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PDCryptFilterDictionary.java",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/PDCryptFilterDictionary.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Added crypt filter dictionary wrapper and EncryptMetadata flag handling."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PDEncryption.java",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/PDEncryption.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Ported encryption dictionary accessor model for key entries, permissions, and crypt filter wiring."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/SecurityHandler.java",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/SecurityHandler.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Added abstract security handler base state and contract for encryption/decryption preparation."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardSecurityHandler.java",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardSecurityHandler.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "partial",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Class shell and constructors are ported; full standard security algorithm flow is deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/MessageDigests.java",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/MessageDigests.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Added hash algorithm factory helpers (MD5/SHA1/SHA256)."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "src/PdfBox.Net/PDModel/Encryption/AESKeyLength.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Added AES key-length enum used by encryption layer port scaffolding."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/encryption/*",
-    "target_path": "tests/PdfBox.Net.Tests/EncryptionTest.cs",
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSDictionaryTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/COSDictionaryTest.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T17:46:39Z",
-    "note": "Added .NET encryption baseline tests for AccessPermission, PDEncryption, and StandardSecurityHandler instantiation."
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Upstream COSDictionaryTest converted to xUnit."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionary.java",
-    "target_path": "src/PdfBox.Net/COS/UnmodifiableCOSDictionary.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSIncrementTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T18:40:12Z",
-    "note": "Read-only mutation guards now enforce behavior through virtual overrides, matching Java polymorphic dispatch expectations."
+    "last_checked_utc": "2026-05-22T20:29:56Z",
+    "note": "Focused tests validate document/update-state propagation and COSIncrement collection for updated direct and indirect children."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSObjectKeyTest.java",
@@ -2132,34 +2214,34 @@
     "note": "Core COSObjectKey unit coverage is converted; fixture-driven PDFBOX-5742 integration scenario is deferred outside primitive/container scope."
   },
   {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/PDFDocEncodingTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/PDFDocEncodingTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSPrimitivesTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
     "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T18:40:12Z",
-    "note": "Upstream PDFDocEncoding tests converted for deviation table and PDFBOX-3864 behavior."
+    "last_checked_utc": "2026-05-19T19:31:28Z",
+    "note": "Focused xUnit coverage for new COS leaf primitives and interfaces."
   },
   {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionaryTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/UnmodifiableCOSDictionaryTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSRegressionFixturesTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
     "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T18:40:12Z",
-    "note": "Upstream unmodifiable dictionary test coverage converted with DateTimeOffset date adaptation."
+    "last_checked_utc": "2026-05-24T19:17:40Z",
+    "note": "Native test added for issue #29: fixture-driven COS regression scenarios for deterministic minimal/roundtrip parsing and malformed-input parser stability."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSStandardOutputStreamTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T19:10:00Z",
-    "note": "COSWriter now implements ICOSVisitor; Write(COSBase?) routes through visitor dispatch. VisitFromDocument is a no-op for low-level serializer scope."
+    "last_checked_utc": "2026-05-19T20:54:12Z",
+    "note": "Focused xUnit coverage for COSStandardOutputStream position and line ending behavior."
   },
   {
     "source_path": "n/a",
@@ -2173,52 +2255,330 @@
   },
   {
     "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/COSRegressionFixturesTest.cs",
+    "target_path": "tests/PdfBox.Net.Tests/ContentStreamEngineTest.cs",
     "source_commit": "n/a",
     "sync_commit": "n/a",
     "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T19:17:40Z",
-    "note": "Native test added for issue #29: fixture-driven COS regression scenarios for deterministic minimal/roundtrip parsing and malformed-input parser stability."
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Extended content-stream engine tests with form XObject traversal through Do operator."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInputStream.java",
-    "target_path": "src/PdfBox.Net/COS/COSInputStream.cs",
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/encoding/EncodingTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/EncodingTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T16:13:02Z",
+    "note": "Upstream EncodingTest converted to xUnit with extra BuiltInEncoding fallback/read-only map assertions."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/encryption/*",
+    "target_path": "tests/PdfBox.Net.Tests/EncryptionTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T17:46:39Z",
+    "note": "Added .NET encryption baseline tests for AccessPermission, PDEncryption, and StandardSecurityHandler instantiation."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/filter/TestFilters.java",
+    "target_path": "tests/PdfBox.Net.Tests/FilterTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T15:10:16Z",
+    "note": "Filter roundtrip and factory lookup tests added for .NET port scope."
+  },
+  {
+    "source_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
+    "target_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:03:16Z",
+    "note": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/OperatorProcessorsTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Expanded operator processor tests to cover state, path, painting, clipping, color, inline-image hooks, type3, compatibility, and multi-operator scenario."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentPipelineTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T17:10:51Z",
+    "note": "Adapted stream/file save-load test intent to deterministic fixture-based open->inspect->save checks with page-count and version assertions in this slice."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDExtendedGraphicsStateTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added ExtGState accessor/copy behavior coverage for alpha, blend mode, line join, and dash pattern."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/PDFDocEncodingTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDFDocEncodingTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T18:40:12Z",
+    "note": "Upstream PDFDocEncoding tests converted for deviation table and PDFBOX-3864 behavior."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/function/TestPDFunctionType4.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDFunctionTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted function test coverage combining upstream Type 4 scenarios, parser cases, and Type 2 evaluation checks."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDImageXObjectTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added PDImageXObject simple Flate DeviceRGB decode fixture coverage."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/PDIntegerNameTreeNode.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDIntegerNameTreeNode.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T19:46:00Z",
-    "note": "Mechanical port of COS filtered-stream input wrapper; no Java-only APIs requiring adaptation."
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical test helper port for integer-backed name-tree nodes."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSOutputStream.java",
-    "target_path": "src/PdfBox.Net/COS/COSOutputStream.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDPageLabelsTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Adapted test coverage for page label generation and catalog roundtrip behavior."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDStreamTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added PDStream Flate encode/decode roundtrip coverage."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/ParserWriterRoundtripTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-21T04:29:00Z",
+    "note": "Focused parser/writer roundtrip tests validate deterministic object parse/serialize flow on representative small fixtures, including an adapted COSWriterTest testPDFBox4321 check that writer usage does not close caller-managed output streams."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadBufferTest.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T19:46:00Z",
-    "note": "Mechanical port of COS filtered-stream output wrapper; no Java-only APIs requiring adaptation."
+    "last_checked_utc": "2026-05-18T21:46:00Z",
+    "note": "Mechanically ported from upstream JUnit to xUnit v3 with expanded parity including deterministic local fixture for PDFBOX-5111 and ByteBuffer-limit semantics test PDFBOX-5764."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSParser.java",
-    "target_path": "src/PdfBox.Net/COS/ICOSParser.cs",
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferedFileTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadBufferedFileTest.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T19:46:00Z",
-    "note": "Mechanical port of COS parser interface; direct interface mapping with no Java-only dependencies."
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "xUnit v3 port of upstream JUnit tests; test resources generated inline as temp files rather than embedded classpath resources."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocument.java",
-    "target_path": "src/PdfBox.Net/COS/COSDocument.cs",
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadMemoryMappedFileTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadMemoryMappedFileTest.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T19:46:00Z",
-    "note": "Top-level COS document container; mechanical port with full object-table and xref dictionary mapping."
+    "last_checked_utc": "2026-05-19T18:58:00Z",
+    "note": "xUnit v3 port of upstream JUnit tests; test resources generated inline as temp files rather than embedded classpath resources."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T20:21:17Z",
+    "note": "Mechanically ported from upstream JUnit to xUnit v3 using production RandomAccessReadBuffer."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadWriteBufferTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadWriteBufferTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-18T21:48:54Z",
+    "note": "Mechanical xUnit v3 test parity for RandomAccessReadWriteBuffer close, clear, paging, and EOF behavior."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSArray.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSArray.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Upstream TestCOSArray converted to xUnit for COSArray container parity checks."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSName.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSName.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Upstream TestCOSName converted with COS-layer adaptations for key encoding and escaped name serialization."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSStream.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T19:15:00Z",
+    "note": "Upstream TestCOSStream converted with single/multi-filter encode/decode parity, close semantics, and hasData behavior checks."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSString.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSString.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-20T05:58:00Z",
+    "note": "Upstream TestCOSString converted with direct COSString writer assertions."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDDocumentCatalog.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Native xUnit tests covering PageLayout and PageMode roundtrip, language, and null-clear semantics for new catalog methods."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocumentInformation.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDDocumentInformation.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted-minimal",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Adapted xUnit tests covering string fields, date roundtrip, trapped valid/invalid values, and custom metadata."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/TestPDNameTreeNode.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDNameTreeNode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical xUnit v3 conversion of upstream name-tree tests plus value lookup coverage."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/TestPDNumberTreeNode.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDNumberTreeNode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical xUnit v3 conversion of upstream number-tree tests."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPage.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDPage.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted-minimal",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Adapted xUnit tests covering media box defaults, box accessors, rotation, structParents, and hasContents."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDPageTree.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-22T17:10:51Z",
+    "note": "Adapted deterministic page tree tests cover index/count/remove scenarios; outline/multi-level malformed fixture scenarios remain deferred."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDRectangle.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-22T21:58:00Z",
+    "note": "Native xUnit tests covering all PDRectangle constructors, coordinate accessors, contains, retranslation, immutability guard, and standard-size constants."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/function/type4/Type4Tester.java",
+    "target_path": "tests/PdfBox.Net.Tests/Type4Tester.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T20:48:52Z",
+    "note": "Mechanical xUnit helper port for Type 4 operator/parser tests."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionaryTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/UnmodifiableCOSDictionaryTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T18:40:12Z",
+    "note": "Upstream unmodifiable dictionary test coverage converted with DateTimeOffset date adaptation."
   }
 ]

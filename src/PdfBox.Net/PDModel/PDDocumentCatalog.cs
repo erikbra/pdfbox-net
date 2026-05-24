@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel;
 
@@ -199,5 +200,16 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetLanguage(string? language)
     {
         _root.SetString(COSName.LANG, language);
+    }
+
+    public PDPageLabels? GetPageLabels()
+    {
+        COSDictionary? dict = _root.GetCOSDictionary(COSName.PAGE_LABELS);
+        return dict is null ? null : new PDPageLabels(_document, dict);
+    }
+
+    public void SetPageLabels(PDPageLabels? labels)
+    {
+        _root.SetItem(COSName.PAGE_LABELS, labels);
     }
 }

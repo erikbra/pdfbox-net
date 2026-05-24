@@ -29,21 +29,6 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.Util;
 
-namespace PdfBox.Net.PDModel.Common.Function
-{
-    public abstract class PDFunction
-    {
-        public virtual float[] Eval(float[] input)
-        {
-            return input;
-        }
-    }
-
-    public sealed class PDFunctionTypeIdentity : PDFunction
-    {
-    }
-}
-
 namespace PdfBox.Net.PDModel.Graphics.Patterns
 {
     public abstract class PDAbstractPattern

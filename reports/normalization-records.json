@@ -1,902 +1,5 @@
 [
   {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessRead.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessRead.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Primitive/collection/type alias fixes required by C# type system"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Converted Java default methods/exceptions to C# interface defaults and .NET IO exception types."
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessWrite.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessWrite.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Converted Java interface declaration to C# interface declaration."
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccess.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccess.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Converted Java multi-interface inheritance to C# interface inheritance."
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadView.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessReadView.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Namespace/type qualification fixes needed for C# compilation"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Converted class syntax and constructor shape to compilable C# while preserving method behavior intent."
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessReadBuffer.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Namespace/type qualification fixes needed for C# compilation",
-      "Primitive/collection/type alias fixes required by C# type system"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Converted ByteBuffer-based chunk handling to C# byte[] chunk storage, replaced Java close-quietly helper usage, and added ArraySegment<byte> constructor to preserve ByteBuffer-limit semantics."
-  },
-  {
-    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Namespace/type qualification fixes needed for C# compilation"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Converted JUnit assertions/annotations to xUnit v3 and switched to production RandomAccessReadBuffer usage with inline value initializations for closer parity."
-  },
-  {
-    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadBufferTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Namespace/type qualification fixes needed for C# compilation"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Converted JUnit assertions/annotations to xUnit v3, adapted Java try-with-resources to explicit close patterns, replaced remote fixture usage with deterministic local fixture, and added PDFBOX-5764 parity coverage."
-  },
-  {
-    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadWriteBuffer.java",
-    "target_path": "src/PdfBox.Net/IO/RandomAccessReadWriteBuffer.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "ByteBuffer-style writes mapped onto existing byte[] chunk storage"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped Java ByteBuffer put operations to Array.Copy and indexed byte[] writes while preserving RandomAccessReadBuffer paging semantics."
-  },
-  {
-    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadWriteBufferTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadWriteBufferTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "JUnit assertions/annotations converted to xUnit v3"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Adapted upstream try-with-resources usage to explicit close patterns because the current RandomAccess interfaces expose Close() without IDisposable."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java",
-    "target_path": "src/PdfBox.Net/Util/Vector.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Straight mechanical conversion of a low-dependency pdfbox utility class."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSObjectable.java",
-    "target_path": "src/PdfBox.Net/COS/COSObjectable.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Converted Java interface declaration and namespaced COSBase dependency into the C# COS namespace slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java",
-    "target_path": "src/PdfBox.Net/COS/ICOSVisitor.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Visitor interface expanded to include newly ported COS foundational types"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Extended visitor coverage from primitive-only to containers/names/strings/object/stream as required by chunk-1 completion criteria."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObjectKey.java",
-    "target_path": "src/PdfBox.Net/COS/COSObjectKey.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped unsigned right-shift semantics to C# via ulong conversion for object number extraction."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBase.java",
-    "target_path": "src/PdfBox.Net/COS/COSBase.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Nullability annotations adapted for C#"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Preserved direct object and key metadata while adapting nullable key handling."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNumber.java",
-    "target_path": "src/PdfBox.Net/COS/COSNumber.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Exception and regex handling adapted to .NET APIs"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped Java parse/error branches to C# parse exceptions while retaining PDFBOX-592 handling."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInteger.java",
-    "target_path": "src/PdfBox.Net/COS/COSInteger.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Byte output APIs adapted to .NET Stream"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Preserved integer cache window and invalid value sentinels while mapping writePDF to Stream.Write."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSFloat.java",
-    "target_path": "src/PdfBox.Net/COS/COSFloat.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Malformed numeric recovery patterns adapted to .NET regex/string APIs"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Retained malformed input recovery cases and range coercion behavior while adapting float formatting and serialization to .NET."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBoolean.java",
-    "target_path": "src/PdfBox.Net/COS/COSBoolean.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Preserved singleton semantics and identity-based equality behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
-    "target_path": "src/PdfBox.Net/COS/COSNull.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Ported singleton null object and byte-level PDF serialization verbatim."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/COSPrimitivesTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Focused xUnit v3 coverage added for new COS primitives"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "No upstream direct equivalent test file exists; this test exercises each newly added COS primitive/entity."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/COSStandardOutputStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "FilterOutputStream inheritance adapted to .NET Stream overriding pattern"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped Java FilterOutputStream behavior to a Stream wrapper while preserving position tracking and newline suppression semantics."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/COSStandardOutputStreamTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Focused xUnit v3 coverage added for new pdfwriter stream primitive"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "No upstream direct equivalent test file exists; coverage validates position accounting and EOL/newline state behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/PDFDocEncoding.java",
-    "target_path": "src/PdfBox.Net/COS/PDFDocEncoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Initial simplified Latin1 placeholder replaced with upstream table-driven PDFDocEncoding mapping"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Now follows upstream table-based mapping behavior for both encoding and decoding paths."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
-    "target_path": "src/PdfBox.Net/COS/COSName.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Concurrent weak-reference cache adapted to .NET concurrent dictionary"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped COSName interning and byte-preserving behavior to .NET while preserving visitor and serialization semantics for foundational container usage."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSString.java",
-    "target_path": "src/PdfBox.Net/COS/COSString.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Hex parsing and UTF-16/PDFDoc text handling adapted to .NET encoding APIs"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Kept upstream text-vs-byte behavior shape with a minimal PDFDocEncoding helper and explicit BOM handling for roundtrip coverage."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObject.java",
-    "target_path": "src/PdfBox.Net/COS/COSObject.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Update-state tracking added while leaving parser-driven lazy dereference outside the current chunk"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Expanded COSObject with dereferenced/update-state behavior while keeping the parser-backed lazy dereference gap explicit for a later parser/document slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
-    "target_path": "src/PdfBox.Net/COS/COSArray.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Collection APIs adapted from Java ArrayList patterns to .NET List patterns",
-      "Update-state propagation added for incremental-save parity"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Retained list/dereference/name-string-number access semantics while adding update-state tracking used by incremental-save collection."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
-    "target_path": "src/PdfBox.Net/COS/COSDictionary.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "LinkedHashMap behavior mapped to insertion-order .NET Dictionary",
-      "Update-state propagation added for incremental-save parity"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Adapted dictionary/object dereference semantics and added recursive update-state propagation needed for incremental-save object collection."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSStream.java",
-    "target_path": "src/PdfBox.Net/COS/COSStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Filter list resolution and decode/view/output orchestration mapped to existing FilterFactory and RandomAccess abstractions"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Skill G mapping: implemented COSStream filter decode/encode and view lifecycle parity using FilterFactory with COSInputStream/COSOutputStream wrappers and RandomAccess-backed buffering."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/COSContainersTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Focused xUnit v3 coverage added for COS containers/streams and visitor completeness"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "No direct upstream equivalent test file exists; this test validates serialization and roundtrip interactions across the new COS foundation types."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSArray.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestCOSArray.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "JUnit assertions/annotations converted to xUnit v3",
-      "Java collection initializers adapted to C# list/collection expressions"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Converted upstream COSArray test coverage with direct parity assertions for container/list conversion semantics."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSName.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestCOSName.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "JUnit assertions/annotations converted to xUnit v3",
-      "PDModel-dependent integration checks adapted to COS-layer unit checks"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped upstream COSName escape-sequence behaviors to direct COSName/COSDictionary assertions in the current dependency scope."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSDictionaryTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/COSDictionaryTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "JUnit assertions/annotations converted to xUnit v3"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Straight conversion of dictionary-vs-stream inequality regression check."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSString.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestCOSString.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "JUnit assertions/annotations converted to xUnit v3",
-      "COSWriter-dependent checks adapted to direct COSString.WritePDF assertions"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Converted core COSString behavior tests while adapting writer integration assertions to the currently ported API surface."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSStream.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestCOSStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "JUnit assertions/annotations converted to xUnit v3",
-      "Upstream filter-dependent stream coverage ported for single and multi-filter encode/decode parity"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Completed TestCOSStream parity by porting filter encode/decode and filtered double-close assertions in addition to unfiltered lifecycle checks."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Low-level tokenization/parser subset adapted from upstream BaseParser to C# stream and lookahead semantics",
-      "Literal/hex string and comment handling aligned to PDF lexical rules needed for deterministic roundtrip tests"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Implemented a bounded parser subset (names, strings, arrays, dictionaries, booleans, null, numbers) required for chunk-2 object flow without high-level document parsing orchestration."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Low-level writer subset added as deterministic serializer bridge",
-      "Java writer orchestration scope intentionally reduced to direct COS value emission for this chunk"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Added minimal serialization entry point that reuses existing COS type writers and COSStandardOutputStream behavior."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/ParserWriterRoundtripTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Focused xUnit v3 coverage added for parser/writer deterministic roundtrip scope"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Coverage validates token/object parse-serialize-parse determinism and whitespace/comment tolerance for representative small fixtures, and includes an adaptation of COSWriterTest testPDFBox4321 to assert the writer does not close caller-owned output streams."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocumentInformation.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Date-related metadata methods intentionally omitted in this minimal chunk due missing COS date helpers in current dependency slice"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Ported string-based document information metadata accessors required for minimal open/inspect/save pipeline coverage."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "High-fanout catalog dependencies trimmed to chunk-3 pipeline subset",
-      "Page tree access integrated through newly ported PDPageTree subset"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Expanded catalog wrapper now exposes page tree and count wiring in addition to type/version inspection."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "High-level document orchestration reduced to chunk-3 lifecycle over COS parser/writer",
-      "Ownership/disposal behavior adapted to .NET IDisposable model",
-      "Version and page operations added without introducing full xref/object-stream parsing"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Implements expanded load/inspect/save pipeline with page management and version behavior while staying in this chunk's parser/writer envelope."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "High-fanout page features trimmed to low-dependency page dictionary wrapper"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Adds the PDPage subset needed by PDDocument/PDPageTree page lifecycle operations."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Recursive/multi-level tree handling reduced to deterministic single-level page tree used by current pipeline",
-      "Core add/remove/get/index/count semantics preserved for this chunk"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Introduces focused PDPageTree behaviors used by document open/inspect/save and page ownership updates."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
-    "target_path": "tests/PdfBox.Net.Tests/PDDocumentPipelineTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "JUnit assertions/annotations converted to xUnit v3",
-      "Test scope adapted to deterministic fixture-based pipeline in current chunk"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Ports save/load stream and save/load file testing intent to smoke tests validating open->inspect->save, page count, and version behavior."
-  },
-  {
-    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
-    "target_path": "tests/PdfBox.Net.Tests/TestPDPageTree.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "JUnit assertions/annotations converted to xUnit v3",
-      "Fixture-heavy scenarios adapted to deterministic blank-page page tree checks"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Adapted TestPDPageTree coverage for index/count/remove scenarios available in the current dependency slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateInfo.java",
-    "target_path": "src/PdfBox.Net/COS/COSUpdateInfo.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java default interface methods mapped to C# extension methods"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "The shared COS update contract stays one-to-one in shape, with helper behavior exposed through extension methods because default interface members are less ergonomic for concrete-type callers in C#."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocumentState.java",
-    "target_path": "src/PdfBox.Net/COS/COSDocumentState.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Straightforward state-holder conversion for parsing versus update acceptance."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateState.java",
-    "target_path": "src/PdfBox.Net/COS/COSUpdateState.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Recursive child propagation adapted to nullable C# COS references and IEnumerable iteration"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Preserved recursive origin/update propagation semantics while adapting Java collection traversal and nullability to existing COS container shapes."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSIncrement.java",
-    "target_path": "src/PdfBox.Net/COS/COSIncrement.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "LinkedHashSet iteration order represented with List + HashSet tracking"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Preserved increment collection order and uniqueness semantics by pairing ordered output storage with hash-based membership tracking."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/COSIncrementTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Focused xUnit v3 coverage added for COS update-state and increment behavior"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "No direct upstream equivalent test file exists; these tests validate the newly ported update-state/increment semantics in the current dependency scope."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
-    "target_path": "src/PdfBox.Net/COS/COSName.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Added constant entries for PDModel-layer keys"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Added alphabetized static constants required by PDModel classes: CREATION_DATE, MOD_DATE, TRAPPED, MEDIA_BOX, CROP_BOX, BLEED_BOX, TRIM_BOX, ART_BOX, ROTATE, PAGE, PAGES, KIDS, COUNT, CATALOG, ROOT, VERSION, PAGE_LAYOUT, PAGE_MODE, LANG, RESOURCES, STRUCT_PARENTS, TITLE, AUTHOR, SUBJECT, KEYWORDS, CREATOR, PRODUCER, NAMES, DESTS, MARK_INFO, OUTPUT_INTENTS, OPEN_ACTION, METADATA, VIEWER_PREFERENCES, OUTLINES, THREADS, ACRO_FORM, AA."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
-    "target_path": "src/PdfBox.Net/COS/COSDictionary.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java Calendar <-> .NET DateTimeOffset API adaptation",
-      "PDF date string parsing/formatting implemented as static helpers"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Added GetDate/SetDate methods with PDF date string codec (D:YYYYMMDDHHmmSSOHH'mm'). Java uses DateConverter.toCalendar/toString; C# equivalent parses to DateTimeOffset using ISO-32000 date format. Edge cases: partial dates, huge values, invalid timezone offsets handled gracefully."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java",
-    "target_path": "src/PdfBox.Net/PDModel/Common/PDRectangle.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java AWT BoundingBox constructor removed (no .NET AWT equivalent)",
-      "Java inner PDImmutableRectangle converted to private C# nested sealed class",
-      "Java enum-like static fields converted to static readonly C# fields"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "BoundingBox-based constructor deferred due to no AWT equivalent in scope. GeneralPath/Matrix transform methods deferred. Immutability guard implemented as private nested sealed class overriding setter methods."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
-    "target_path": "src/PdfBox.Net/PDModel/PageLayout.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java enum with methods -> C# enum + extension class"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java enum's stringValue()/fromString() methods moved to static extension/factory class per C# enum convention."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
-    "target_path": "src/PdfBox.Net/PDModel/PageMode.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java enum with methods -> C# enum + extension class"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java enum's stringValue()/fromString() methods moved to static extension/factory class per C# enum convention."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/Encoding.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/Encoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java Collections.unmodifiableMap mapped to ReadOnlyDictionary for .NET"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Preserved bidirectional lookup behavior while exposing an unmodifiable dictionary view in C#."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/StandardEncoding.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/StandardEncoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java octal table literals normalized to decimal tuple values for C#"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped the upstream Object[][] table to typed C# tuples while preserving singleton and lookup semantics."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/MacRomanEncoding.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/MacRomanEncoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java octal table literals normalized to decimal tuple values for C#"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped the upstream Object[][] table to typed C# tuples while preserving singleton and lookup semantics."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/BuiltInEncoding.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/BuiltInEncoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java Map iteration adapted to .NET IDictionary enumeration"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Preserved constructor-driven population of the base encoding tables from a provided mapping."
-  },
-  {
-    "source_path": "fontbox/src/test/java/org/apache/fontbox/encoding/EncodingTest.java",
-    "target_path": "tests/PdfBox.Net.Tests/EncodingTest.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "JUnit assertions/annotations converted to xUnit v3",
-      "Focused BuiltInEncoding fallback coverage added alongside upstream representative lookup checks"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Retained the upstream representative lookup assertions and added coverage for missing-name/code fallbacks and read-only map behavior."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/FontBoxFont.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/FontBoxFont.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java interface -> C# interface; no semantic change."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/EncodedFont.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/EncodedFont.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java interface -> C# interface; no semantic change."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Pfb/PfbParser.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java IO -> .NET Stream/byte[] API"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java InputStream -> byte[] + index; Java byte-signed handling adapted to C# unsigned byte read."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/DamagedFontException.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/DamagedFontException.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java exception -> C# exception subclass."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Token.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Token.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java class -> C# record/class; Java enum inner class adapted."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1CharStringReader.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1CharStringReader.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java interface -> C# interface."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Font.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Font.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java concurrent -> .NET ConcurrentDictionary"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Java ConcurrentHashMap -> ConcurrentDictionary; Java HashMap -> Dictionary; Java InputStream -> byte[] (Stream.CopyTo)."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Lexer.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Lexer.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java IO -> .NET Stream/byte[] API"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java byte[] reader with signed byte adaptation."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Parser.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Parser.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java parser logic preserved; minor syntax normalization."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/BoundingBox.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/BoundingBox.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mechanical conversion; float[] constructor preserved."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontDirFinder.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java IO -> .NET file system API"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java File -> .NET FileInfo/DirectoryInfo; interface adapted."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontFileFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontFileFinder.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java IO -> .NET file system API"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java File iterator -> .NET DirectoryInfo.EnumerateFiles; extension filtering adapted."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/MacFontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/MacFontDirFinder.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mechanical; macOS paths unchanged."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/NativeFontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/NativeFontDirFinder.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mechanical."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/OS400FontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/OS400FontDirFinder.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mechanical; OS/400 paths unchanged."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/UnixFontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/UnixFontDirFinder.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mechanical; Unix font paths unchanged."
-  },
-  {
-    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/WindowsFontDirFinder.java",
-    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/WindowsFontDirFinder.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mechanical; Windows paths unchanged."
-  },
-  {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFCIDFont.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFCIDFont.cs",
     "normalization_applied": true,
@@ -1021,6 +124,88 @@
     "semantic_risk": "medium",
     "compiles_after_change": true,
     "note": "Partial port: path/width model. Full Type2 interpreter (Type2CharStringParser) pending issue #8."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/EncodedFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/EncodedFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java interface -> C# interface; no semantic change."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/BuiltInEncoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/BuiltInEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java Map iteration adapted to .NET IDictionary enumeration"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Preserved constructor-driven population of the base encoding tables from a provided mapping."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/Encoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/Encoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java Collections.unmodifiableMap mapped to ReadOnlyDictionary for .NET"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Preserved bidirectional lookup behavior while exposing an unmodifiable dictionary view in C#."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/MacRomanEncoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/MacRomanEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java octal table literals normalized to decimal tuple values for C#"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped the upstream Object[][] table to typed C# tuples while preserving singleton and lookup semantics."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/StandardEncoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/StandardEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java octal table literals normalized to decimal tuple values for C#"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped the upstream Object[][] table to typed C# tuples while preserving singleton and lookup semantics."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/FontBoxFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/FontBoxFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java interface -> C# interface; no semantic change."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Pfb/PfbParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java IO -> .NET Stream/byte[] API"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java InputStream -> byte[] + index; Java byte-signed handling adapted to C# unsigned byte read."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FontHeaders.java",
@@ -1159,6 +344,1015 @@
     "note": "Font model with table dictionary. Java HashMap<String,TTFTable> -> Dictionary<string,TTFTable>. Typed accessors for unported tables not yet present. See issue #9."
   },
   {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/DamagedFontException.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/DamagedFontException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java exception -> C# exception subclass."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Token.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Token.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java class -> C# record/class; Java enum inner class adapted."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1CharStringReader.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1CharStringReader.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java interface -> C# interface."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Font.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Font.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java concurrent -> .NET ConcurrentDictionary"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java ConcurrentHashMap -> ConcurrentDictionary; Java HashMap -> Dictionary; Java InputStream -> byte[] (Stream.CopyTo)."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Lexer.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Lexer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java IO -> .NET Stream/byte[] API"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java byte[] reader with signed byte adaptation."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Parser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Parser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java parser logic preserved; minor syntax normalization."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java IO -> .NET file system API"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java File -> .NET FileInfo/DirectoryInfo; interface adapted."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontFileFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontFileFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java IO -> .NET file system API"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java File iterator -> .NET DirectoryInfo.EnumerateFiles; extension filtering adapted."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/MacFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/MacFontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical; macOS paths unchanged."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/NativeFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/NativeFontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/OS400FontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/OS400FontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical; OS/400 paths unchanged."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/UnixFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/UnixFontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical; Unix font paths unchanged."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/WindowsFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/WindowsFontDirFinder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical; Windows paths unchanged."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/BoundingBox.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/BoundingBox.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical conversion; float[] constructor preserved."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
+    "target_path": "src/PdfBox.Net/COS/COSArray.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Collection APIs adapted from Java ArrayList patterns to .NET List patterns",
+      "Update-state propagation added for incremental-save parity"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Retained list/dereference/name-string-number access semantics while adding update-state tracking used by incremental-save collection."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBase.java",
+    "target_path": "src/PdfBox.Net/COS/COSBase.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Nullability annotations adapted for C#"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Preserved direct object and key metadata while adapting nullable key handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBoolean.java",
+    "target_path": "src/PdfBox.Net/COS/COSBoolean.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Preserved singleton semantics and identity-based equality behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
+    "target_path": "src/PdfBox.Net/COS/COSDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "LinkedHashMap behavior mapped to insertion-order .NET Dictionary",
+      "Update-state propagation added for incremental-save parity"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adapted dictionary/object dereference semantics and added recursive update-state propagation needed for incremental-save object collection."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
+    "target_path": "src/PdfBox.Net/COS/COSDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java Calendar <-> .NET DateTimeOffset API adaptation",
+      "PDF date string parsing/formatting implemented as static helpers"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added GetDate/SetDate methods with PDF date string codec (D:YYYYMMDDHHmmSSOHH'mm'). Java uses DateConverter.toCalendar/toString; C# equivalent parses to DateTimeOffset using ISO-32000 date format. Edge cases: partial dates, huge values, invalid timezone offsets handled gracefully."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocumentState.java",
+    "target_path": "src/PdfBox.Net/COS/COSDocumentState.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Straightforward state-holder conversion for parsing versus update acceptance."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSFloat.java",
+    "target_path": "src/PdfBox.Net/COS/COSFloat.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Malformed numeric recovery patterns adapted to .NET regex/string APIs"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Retained malformed input recovery cases and range coercion behavior while adapting float formatting and serialization to .NET."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSIncrement.java",
+    "target_path": "src/PdfBox.Net/COS/COSIncrement.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "LinkedHashSet iteration order represented with List + HashSet tracking"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Preserved increment collection order and uniqueness semantics by pairing ordered output storage with hash-based membership tracking."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInputStream.java",
+    "target_path": "src/PdfBox.Net/COS/COSInputStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java stream types -> C# Stream subclass",
+      "FilterInputStream -> custom Stream wrapper"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped Java FilterInputStream with List<Filter> to C# Stream subclass; stream chaining adapted to .NET Stream composition pattern."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInteger.java",
+    "target_path": "src/PdfBox.Net/COS/COSInteger.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Byte output APIs adapted to .NET Stream"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Preserved integer cache window and invalid value sentinels while mapping writePDF to Stream.Write."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
+    "target_path": "src/PdfBox.Net/COS/COSName.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Concurrent weak-reference cache adapted to .NET concurrent dictionary"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped COSName interning and byte-preserving behavior to .NET while preserving visitor and serialization semantics for foundational container usage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
+    "target_path": "src/PdfBox.Net/COS/COSName.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Added constant entries for PDModel-layer keys"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added alphabetized static constants required by PDModel classes: CREATION_DATE, MOD_DATE, TRAPPED, MEDIA_BOX, CROP_BOX, BLEED_BOX, TRIM_BOX, ART_BOX, ROTATE, PAGE, PAGES, KIDS, COUNT, CATALOG, ROOT, VERSION, PAGE_LAYOUT, PAGE_MODE, LANG, RESOURCES, STRUCT_PARENTS, TITLE, AUTHOR, SUBJECT, KEYWORDS, CREATOR, PRODUCER, NAMES, DESTS, MARK_INFO, OUTPUT_INTENTS, OPEN_ACTION, METADATA, VIEWER_PREFERENCES, OUTLINES, THREADS, ACRO_FORM, AA."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
+    "target_path": "src/PdfBox.Net/COS/COSNull.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ported singleton null object and byte-level PDF serialization verbatim."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNumber.java",
+    "target_path": "src/PdfBox.Net/COS/COSNumber.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Exception and regex handling adapted to .NET APIs"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped Java parse/error branches to C# parse exceptions while retaining PDFBOX-592 handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObject.java",
+    "target_path": "src/PdfBox.Net/COS/COSObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Update-state tracking added while leaving parser-driven lazy dereference outside the current chunk"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Expanded COSObject with dereferenced/update-state behavior while keeping the parser-backed lazy dereference gap explicit for a later parser/document slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObjectKey.java",
+    "target_path": "src/PdfBox.Net/COS/COSObjectKey.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped unsigned right-shift semantics to C# via ulong conversion for object number extraction."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSObjectable.java",
+    "target_path": "src/PdfBox.Net/COS/COSObjectable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted Java interface declaration and namespaced COSBase dependency into the C# COS namespace slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSOutputStream.java",
+    "target_path": "src/PdfBox.Net/COS/COSOutputStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java stream types -> C# Stream subclass",
+      "FilterOutputStream -> custom Stream wrapper"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped Java FilterOutputStream with List<Filter> to C# Stream subclass; encoding filter chain adapted to .NET Stream composition pattern."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSStream.java",
+    "target_path": "src/PdfBox.Net/COS/COSStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Filter list resolution and decode/view/output orchestration mapped to existing FilterFactory and RandomAccess abstractions"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Skill G mapping: implemented COSStream filter decode/encode and view lifecycle parity using FilterFactory with COSInputStream/COSOutputStream wrappers and RandomAccess-backed buffering."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSString.java",
+    "target_path": "src/PdfBox.Net/COS/COSString.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Hex parsing and UTF-16/PDFDoc text handling adapted to .NET encoding APIs"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Kept upstream text-vs-byte behavior shape with a minimal PDFDocEncoding helper and explicit BOM handling for roundtrip coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateInfo.java",
+    "target_path": "src/PdfBox.Net/COS/COSUpdateInfo.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java default interface methods mapped to C# extension methods"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "The shared COS update contract stays one-to-one in shape, with helper behavior exposed through extension methods because default interface members are less ergonomic for concrete-type callers in C#."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateState.java",
+    "target_path": "src/PdfBox.Net/COS/COSUpdateState.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Recursive child propagation adapted to nullable C# COS references and IEnumerable iteration"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Preserved recursive origin/update propagation semantics while adapting Java collection traversal and nullability to existing COS container shapes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSParser.java",
+    "target_path": "src/PdfBox.Net/COS/ICOSParser.cs",
+    "normalization_applied": false,
+    "change_categories": [],
+    "semantic_risk": "none",
+    "compiles_after_change": true,
+    "note": "Single-method interface; no normalization required beyond namespace and using directives."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java",
+    "target_path": "src/PdfBox.Net/COS/ICOSVisitor.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Visitor interface expanded to include newly ported COS foundational types"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Extended visitor coverage from primitive-only to containers/names/strings/object/stream as required by chunk-1 completion criteria."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/PDFDocEncoding.java",
+    "target_path": "src/PdfBox.Net/COS/PDFDocEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Initial simplified Latin1 placeholder replaced with upstream table-driven PDFDocEncoding mapping"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Now follows upstream table-based mapping behavior for both encoding and decoding paths."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionary.java",
+    "target_path": "src/PdfBox.Net/COS/UnmodifiableCOSDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Converted read-only overrides from method hiding to virtual overrides for C# polymorphic dispatch parity"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Skill G mapping: Java virtual dispatch for overridden mutators mapped to C# virtual/override to preserve read-only semantics when referenced as COSDictionary."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccess.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccess.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted Java multi-interface inheritance to C# interface inheritance."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessRead.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessRead.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Primitive/collection/type alias fixes required by C# type system"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted Java default methods/exceptions to C# interface defaults and .NET IO exception types."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadBuffer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation",
+      "Primitive/collection/type alias fixes required by C# type system"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted ByteBuffer-based chunk handling to C# byte[] chunk storage, replaced Java close-quietly helper usage, and added ArraySegment<byte> constructor to preserve ByteBuffer-limit semantics."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadView.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadView.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted class syntax and constructor shape to compilable C# while preserving method behavior intent."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadWriteBuffer.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessReadWriteBuffer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "ByteBuffer-style writes mapped onto existing byte[] chunk storage"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped Java ByteBuffer put operations to Array.Copy and indexed byte[] writes while preserving RandomAccessReadBuffer paging semantics."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessWrite.java",
+    "target_path": "src/PdfBox.Net/IO/RandomAccessWrite.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted Java interface declaration to C# interface declaration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/COSArrayList.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation",
+      "Primitive/collection/type alias fixes required by C# type system"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted COSArray-backed collection port using Collection<T> to preserve PD/COS synchronization semantics."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDComplexFileSpecification.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/FileSpecification/PDComplexFileSpecification.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical complex file specification port including embedded-file dictionary accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDEmbeddedFile.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/FileSpecification/PDEmbeddedFile.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted embedded-file stream port using DateTimeOffset-backed embedded date helpers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDFileSpecification.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/FileSpecification/PDFileSpecification.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical abstract file specification factory port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDSimpleFileSpecification.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/FileSpecification/PDSimpleFileSpecification.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical string-backed file specification port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunction.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunction.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted abstract PDF function base with factory and range/domain helpers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType0.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType0.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation",
+      "Primitive/collection/type alias fixes required by C# type system"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adapted sampled function port using a custom bit reader instead of Java ImageInputStream."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType2.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType2.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical exponential interpolation function port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType3.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType3.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical stitching function port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType4.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType4.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical PostScript calculator function port over the new type4 helper stack."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionTypeIdentity.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionTypeIdentity.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted identity function port with safe null-base handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/ArithmeticOperators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/ArithmeticOperators.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical Type 4 arithmetic operators port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/BitwiseOperators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/BitwiseOperators.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical Type 4 bitwise/logical operators port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/ConditionalOperators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/ConditionalOperators.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical Type 4 conditional operators port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/ExecutionContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/ExecutionContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation",
+      "Primitive/collection/type alias fixes required by C# type system"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted Type 4 execution context using a list-backed execution stack for Stack API parity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/InstructionSequence.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/InstructionSequence.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical Type 4 instruction-sequence executor port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/InstructionSequenceBuilder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/InstructionSequenceBuilder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical Type 4 instruction-sequence builder port with invariant-culture numeric parsing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/Operator.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/Operator.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical Type 4 operator interface port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/Operators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/Operators.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical Type 4 operator registry port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/Parser.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/Parser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical Type 4 tokenizer/parser port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/RelationalOperators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/RelationalOperators.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical Type 4 relational operators port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/StackOperators.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/Function/Type4/StackOperators.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation",
+      "Primitive/collection/type alias fixes required by C# type system"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted Type 4 stack operators port using list rotation helpers for .NET."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDDestinationOrAction.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDDestinationOrAction.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical marker interface port for destination/action union types."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDDictionaryWrapper.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDDictionaryWrapper.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical wrapper for COS dictionaries used by higher PD model types."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNameTreeNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDNameTreeNode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted generic name-tree node port with sorted dictionary and null-safe traversal semantics."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNumberTreeNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDNumberTreeNode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted number-tree node port using Activator-based value construction in place of Java reflection."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabelRange.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDPageLabelRange.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical page label range dictionary wrapper port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDPageLabels.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted page label dictionary port with Roman/letter label generation and catalog integration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRange.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDRange.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical PDModel common range port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDRectangle.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java AWT BoundingBox constructor removed (no .NET AWT equivalent)",
+      "Java inner PDImmutableRectangle converted to private C# nested sealed class",
+      "Java enum-like static fields converted to static readonly C# fields"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "BoundingBox-based constructor deferred due to no AWT equivalent in scope. GeneralPath/Matrix transform methods deferred. Immutability guard implemented as private nested sealed class overriding setter methods."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDTypedDictionaryWrapper.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDTypedDictionaryWrapper.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical typed dictionary wrapper port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/DefaultFontProvider.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added default font provider implementation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/DictionaryEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implemented dictionary encoding resolution and Differences overrides."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Encoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Encoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added PDModel encoding base class."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/MacRomanEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/MacRomanEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added MacRoman encoding wrapper for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/SymbolEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/SymbolEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added Symbol encoding map for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Type1Encoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Type1Encoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added Type1 built-in encoding adapter from parsed Type1 fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/WinAnsiEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/WinAnsiEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added WinAnsi encoding map for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/ZapfDingbatsEncoding.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/ZapfDingbatsEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added ZapfDingbats encoding map for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added cross-platform file system font discovery provider."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontMapper.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added font mapper interface."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMappers.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontMappers.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added global font mapper singleton wiring."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
     "normalization_applied": true,
@@ -1236,105 +1430,6 @@
     "note": "Implemented CIDFontType2 wrapper for embedded TrueType fonts."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Added font factory dispatch based on PDF font subtype."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Standard14Fonts.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Added canonical mapping for standard 14 PDF fonts and aliases."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Encoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Encoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Added PDModel encoding base class."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/DictionaryEncoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Implemented dictionary encoding resolution and Differences overrides."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/MacRomanEncoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/MacRomanEncoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Added MacRoman encoding wrapper for PDModel fonts."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/WinAnsiEncoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/WinAnsiEncoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Added WinAnsi encoding map for PDModel fonts."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/SymbolEncoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/SymbolEncoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Added Symbol encoding map for PDModel fonts."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/ZapfDingbatsEncoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/ZapfDingbatsEncoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Added ZapfDingbats encoding map for PDModel fonts."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Type1Encoding.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Type1Encoding.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Added Type1 built-in encoding adapter from parsed Type1 fonts."
-  },
-  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDSystemInfo.cs",
     "normalization_applied": true,
@@ -1344,6 +1439,17 @@
     "semantic_risk": "medium",
     "compiles_after_change": true,
     "note": "Added CID system info wrapper for Registry/Ordering/Supplement."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added font factory dispatch based on PDF font subtype."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDPanose.java",
@@ -1357,59 +1463,97 @@
     "note": "Added PANOSE classification wrapper."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontMapper.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Standard14Fonts.cs",
     "normalization_applied": true,
     "change_categories": [
       "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added font mapper interface."
+    "note": "Added canonical mapping for standard 14 PDF fonts and aliases."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMappers.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontMappers.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+      "High-level document orchestration reduced to chunk-3 lifecycle over COS parser/writer",
+      "Ownership/disposal behavior adapted to .NET IDisposable model",
+      "Version and page operations added without introducing full xref/object-stream parsing"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added global font mapper singleton wiring."
+    "note": "Implements expanded load/inspect/save pipeline with page management and version behavior while staying in this chunk's parser/writer envelope."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/DefaultFontProvider.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+      "High-fanout catalog dependencies trimmed to chunk-3 pipeline subset",
+      "Page tree access integrated through newly ported PDPageTree subset"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Added default font provider implementation."
+    "note": "Expanded catalog wrapper now exposes page tree and count wiring in addition to type/version inspection."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentInformation.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Date-related metadata methods intentionally omitted in this minimal chunk due missing COS date helpers in current dependency slice"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Added cross-platform file system font discovery provider."
+    "note": "Ported string-based document information metadata accessors required for minimal open/inspect/save pipeline coverage."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
-    "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+      "High-fanout page features trimmed to low-dependency page dictionary wrapper"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adds the PDPage subset needed by PDDocument/PDPageTree page lifecycle operations."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Recursive/multi-level tree handling reduced to deterministic single-level page tree used by current pipeline",
+      "Core add/remove/get/index/count semantics preserved for this chunk"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Updated resource font lookup to construct concrete PDFont instances via PDFontFactory."
+    "note": "Introduces focused PDPageTree behaviors used by document open/inspect/save and page ownership updates."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
+    "target_path": "src/PdfBox.Net/PDModel/PageLayout.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java enum with methods -> C# enum + extension class"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java enum's stringValue()/fromString() methods moved to static extension/factory class per C# enum convention."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
+    "target_path": "src/PdfBox.Net/PDModel/PageMode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java enum with methods -> C# enum + extension class"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java enum's stringValue()/fromString() methods moved to static extension/factory class per C# enum convention."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java",
@@ -1423,26 +1567,95 @@
     "note": "Adjusted Type3 font stub constructor to align with PDFont base constructor requirements."
   },
   {
-    "source_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
-    "target_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
+    "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
     "normalization_applied": true,
     "change_categories": [
       "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
+    "note": "Updated resource font lookup to construct concrete PDFont instances via PDFontFactory."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionary.java",
-    "target_path": "src/PdfBox.Net/COS/UnmodifiableCOSDictionary.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Converted read-only overrides from method hiding to virtual overrides for C# polymorphic dispatch parity"
+      "Low-level tokenization/parser subset adapted from upstream BaseParser to C# stream and lookahead semantics",
+      "Literal/hex string and comment handling aligned to PDF lexical rules needed for deterministic roundtrip tests"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Implemented a bounded parser subset (names, strings, arrays, dictionaries, booleans, null, numbers) required for chunk-2 object flow without high-level document parsing orchestration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSStandardOutputStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "FilterOutputStream inheritance adapted to .NET Stream overriding pattern"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Skill G mapping: Java virtual dispatch for overridden mutators mapped to C# virtual/override to preserve read-only semantics when referenced as COSDictionary."
+    "note": "Mapped Java FilterOutputStream behavior to a Stream wrapper while preserving position tracking and newline suppression semantics."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Low-level writer subset added as deterministic serializer bridge",
+      "Java writer orchestration scope intentionally reduced to direct COS value emission for this chunk"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added minimal serialization entry point that reuses existing COS type writers and COSStandardOutputStream behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java",
+    "target_path": "src/PdfBox.Net/Util/Vector.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Straight mechanical conversion of a low-dependency pdfbox utility class."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSContainersTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for COS containers/streams and visitor completeness"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "No direct upstream equivalent test file exists; this test validates serialization and roundtrip interactions across the new COS foundation types."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSDictionaryTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/COSDictionaryTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Straight conversion of dictionary-vs-stream inequality regression check."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSIncrementTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for COS update-state and increment behavior"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "No direct upstream equivalent test file exists; these tests validate the newly ported update-state/increment semantics in the current dependency scope."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSObjectKeyTest.java",
@@ -1457,6 +1670,63 @@
     "note": "Converted deterministic COSObjectKey unit checks; PDFBOX-5742 fixture-driven integration test remains outside this primitive/container slice."
   },
   {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSPrimitivesTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for new COS primitives"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "No upstream direct equivalent test file exists; this test exercises each newly added COS primitive/entity."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSStandardOutputStreamTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for new pdfwriter stream primitive"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "No upstream direct equivalent test file exists; coverage validates position accounting and EOL/newline state behavior."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/encoding/EncodingTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/EncodingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Focused BuiltInEncoding fallback coverage added alongside upstream representative lookup checks"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Retained the upstream representative lookup assertions and added coverage for missing-name/code fallbacks and read-only map behavior."
+  },
+  {
+    "source_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
+    "target_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocument.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentPipelineTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Test scope adapted to deterministic fixture-based pipeline in current chunk"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ports save/load stream and save/load file testing intent to smoke tests validating open->inspect->save, page count, and version behavior."
+  },
+  {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/PDFDocEncodingTest.java",
     "target_path": "tests/PdfBox.Net.Tests/PDFDocEncodingTest.cs",
     "normalization_applied": true,
@@ -1466,6 +1736,181 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Direct conversion of encoding deviation and PDFBOX-3864 behavior checks."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/function/TestPDFunctionType4.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDFunctionTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted function test coverage combining upstream Type 4 scenarios, parser cases, and Type 2 evaluation checks."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/PDIntegerNameTreeNode.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDIntegerNameTreeNode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical test helper port for integer-backed name-tree nodes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDPageLabelsTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted test coverage for page label generation and catalog roundtrip behavior."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/ParserWriterRoundtripTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for parser/writer deterministic roundtrip scope"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Coverage validates token/object parse-serialize-parse determinism and whitespace/comment tolerance for representative small fixtures, and includes an adaptation of COSWriterTest testPDFBox4321 to assert the writer does not close caller-owned output streams."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadBufferTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted JUnit assertions/annotations to xUnit v3, adapted Java try-with-resources to explicit close patterns, replaced remote fixture usage with deterministic local fixture, and added PDFBOX-5764 parity coverage."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Namespace/type qualification fixes needed for C# compilation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted JUnit assertions/annotations to xUnit v3 and switched to production RandomAccessReadBuffer usage with inline value initializations for closer parity."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadWriteBufferTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadWriteBufferTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "JUnit assertions/annotations converted to xUnit v3"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted upstream try-with-resources usage to explicit close patterns because the current RandomAccess interfaces expose Close() without IDisposable."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSArray.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSArray.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Java collection initializers adapted to C# list/collection expressions"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream COSArray test coverage with direct parity assertions for container/list conversion semantics."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSName.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSName.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "PDModel-dependent integration checks adapted to COS-layer unit checks"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped upstream COSName escape-sequence behaviors to direct COSName/COSDictionary assertions in the current dependency scope."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSStream.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Upstream filter-dependent stream coverage ported for single and multi-filter encode/decode parity"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Completed TestCOSStream parity by porting filter encode/decode and filtered double-close assertions in addition to unfiltered lifecycle checks."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSString.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestCOSString.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "COSWriter-dependent checks adapted to direct COSString.WritePDF assertions"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted core COSString behavior tests while adapting writer integration assertions to the currently ported API surface."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/TestPDNameTreeNode.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDNameTreeNode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical xUnit v3 conversion of upstream name-tree tests plus value lookup coverage."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/TestPDNumberTreeNode.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDNumberTreeNode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical xUnit v3 conversion of upstream number-tree tests."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
+    "target_path": "tests/PdfBox.Net.Tests/TestPDPageTree.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertions/annotations converted to xUnit v3",
+      "Fixture-heavy scenarios adapted to deterministic blank-page page tree checks"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted TestPDPageTree coverage for index/count/remove scenarios available in the current dependency slice."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/function/type4/Type4Tester.java",
+    "target_path": "tests/PdfBox.Net.Tests/Type4Tester.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical xUnit helper port for Type 4 operator/parser tests."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/UnmodifiableCOSDictionaryTest.java",
@@ -1478,38 +1923,5 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Converted unmodifiable mutation-guard coverage across item/value/date/embedded/flag/update-state mutators."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSInputStream.java",
-    "target_path": "src/PdfBox.Net/COS/COSInputStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java stream types -> C# Stream subclass",
-      "FilterInputStream -> custom Stream wrapper"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped Java FilterInputStream with List<Filter> to C# Stream subclass; stream chaining adapted to .NET Stream composition pattern."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSOutputStream.java",
-    "target_path": "src/PdfBox.Net/COS/COSOutputStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java stream types -> C# Stream subclass",
-      "FilterOutputStream -> custom Stream wrapper"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped Java FilterOutputStream with List<Filter> to C# Stream subclass; encoding filter chain adapted to .NET Stream composition pattern."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSParser.java",
-    "target_path": "src/PdfBox.Net/COS/ICOSParser.cs",
-    "normalization_applied": false,
-    "change_categories": [],
-    "semantic_risk": "none",
-    "compiles_after_change": true,
-    "note": "Single-method interface; no normalization required beyond namespace and using directives."
   }
 ]

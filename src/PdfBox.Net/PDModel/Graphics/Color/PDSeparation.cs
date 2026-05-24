@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
@@ -35,6 +36,7 @@ public sealed class PDSeparation : PDColorSpace
     private static readonly COSName Separation = COSName.GetPDFName("Separation");
 
     private readonly PDColorSpace _alternateColorSpace;
+    private readonly PDFunction _tintTransform;
     private readonly PDColor _initialColor;
 
     public PDSeparation(COSArray array, PDResources? resources) : base(array)
@@ -42,6 +44,9 @@ public sealed class PDSeparation : PDColorSpace
         _alternateColorSpace = array.Size() > 2
             ? Create(array.GetObject(2), resources)
             : PDDeviceGray.Instance;
+        _tintTransform = array.Size() > 3
+            ? PDFunction.Create(array.GetObject(3)!)
+            : new PDFunctionTypeIdentity();
         _initialColor = new PDColor([1f], this);
     }
 
@@ -56,13 +61,6 @@ public sealed class PDSeparation : PDColorSpace
     public override float[] ToRGB(float[] value)
     {
         float tint = Clamp(value.Length > 0 ? value[0] : 1f);
-        int n = _alternateColorSpace.GetNumberOfComponents();
-        float[] mapped = new float[n];
-        for (int i = 0; i < n; i++)
-        {
-            mapped[i] = tint;
-        }
-
-        return _alternateColorSpace.ToRGB(mapped);
+        return _alternateColorSpace.ToRGB(_tintTransform.Eval([tint]));
     }
 }
