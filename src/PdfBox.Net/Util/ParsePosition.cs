@@ -2,9 +2,9 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java
+ * PDFBOX_SOURCE_PATH: (helper class — no direct Java upstream equivalent)
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: mechanical
+ * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
@@ -25,22 +25,20 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.COS;
+namespace PdfBox.Net.Util;
 
 /// <summary>
-/// An interface for visiting COS primitives.
+/// A simple parse position tracker equivalent to Java's <c>java.text.ParsePosition</c>.
+/// Used by <see cref="DateConverter"/> to track the current index during parsing.
 /// </summary>
-public interface ICOSVisitor
+public sealed class ParsePosition
 {
-    void VisitFromArray(COSArray obj);
-    void VisitFromBoolean(COSBoolean obj);
-    void VisitFromDictionary(COSDictionary obj);
-    void VisitFromDocument(COSDocument obj) { }
-    void VisitFromFloat(COSFloat obj);
-    void VisitFromInt(COSInteger obj);
-    void VisitFromName(COSName obj);
-    void VisitFromNull(COSNull obj);
-    void VisitFromObject(COSObject obj);
-    void VisitFromStream(COSStream obj);
-    void VisitFromString(COSString obj);
+    /// <summary>Gets or sets the current parse index.</summary>
+    public int Index { get; set; }
+
+    /// <summary>Constructs a ParsePosition with the given initial index.</summary>
+    public ParsePosition(int index)
+    {
+        Index = index;
+    }
 }

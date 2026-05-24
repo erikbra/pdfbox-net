@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/printing/Scaling.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -25,22 +25,23 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.COS;
+namespace PdfBox.Net.Printing;
 
 /// <summary>
-/// An interface for visiting COS primitives.
+/// Scale of the image on printed pages.
 /// </summary>
-public interface ICOSVisitor
+/// <remarks>Author: John Hewson</remarks>
+public enum Scaling
 {
-    void VisitFromArray(COSArray obj);
-    void VisitFromBoolean(COSBoolean obj);
-    void VisitFromDictionary(COSDictionary obj);
-    void VisitFromDocument(COSDocument obj) { }
-    void VisitFromFloat(COSFloat obj);
-    void VisitFromInt(COSInteger obj);
-    void VisitFromName(COSName obj);
-    void VisitFromNull(COSNull obj);
-    void VisitFromObject(COSObject obj);
-    void VisitFromStream(COSStream obj);
-    void VisitFromString(COSString obj);
+    /// <summary>Print the image at 100% scale.</summary>
+    ActualSize,
+
+    /// <summary>Shrink the image to fit the page, if needed.</summary>
+    ShrinkToFit,
+
+    /// <summary>Stretch the image to fill the page, if needed.</summary>
+    StretchToFit,
+
+    /// <summary>Stretch or shrink the image to fill the page, as needed.</summary>
+    ScaleToFit
 }

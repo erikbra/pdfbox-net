@@ -1638,5 +1638,133 @@
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Added .NET encryption baseline tests for AccessPermission, PDEncryption, and StandardSecurityHandler instantiation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/StringUtil.java",
+    "target_path": "src/PdfBox.Net/Util/StringUtil.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of StringUtil: SplitOnSpace and TokenizeOnSpace using .NET Regex."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Hex.java",
+    "target_path": "src/PdfBox.Net/Util/Hex.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of Hex utility: hex encoding/decoding, base64 decoding, UTF16-BE char conversion."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/NumberFormatUtil.java",
+    "target_path": "src/PdfBox.Net/Util/NumberFormatUtil.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of NumberFormatUtil: fast float-to-ASCII formatting."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/DateConverter.java",
+    "target_path": "src/PdfBox.Net/Util/DateConverter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted port of DateConverter. Java Calendar/GregorianCalendar/TimeZone replaced by custom C# GregorianCalendar and SimpleTimeZone helper classes (see Util/) preserving Java semantics. SimpleDateFormat replaced by DateTime.TryParseExact with both yy/yyyy year variants."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "src/PdfBox.Net/Util/GregorianCalendar.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "New C# helper class mimicking Java GregorianCalendar semantics needed by DateConverter. Wraps field-by-field storage with DateTimeOffset for arithmetic and epoch conversion."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "src/PdfBox.Net/Util/SimpleTimeZone.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "New C# helper class mimicking Java SimpleTimeZone semantics needed by DateConverter."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "src/PdfBox.Net/Util/ParsePosition.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "New C# helper class mimicking Java ParsePosition used by DateConverter."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocument.java",
+    "target_path": "src/PdfBox.Net/COS/COSDocument.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of COSDocument. Func<RandomAccessStreamCache> adapted to RandomAccessStreamCache.StreamCacheCreateFunction. COSName constants not yet present in C# COSName use GetPDFName(). VisitFromDocument added to ICOSVisitor as default interface method."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/CompressParameters.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/Compress/CompressParameters.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of CompressParameters."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/Orientation.java",
+    "target_path": "src/PdfBox.Net/Printing/Orientation.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of Orientation enum."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/Scaling.java",
+    "target_path": "src/PdfBox.Net/Printing/Scaling.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of Scaling enum."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/PDFPrintable.java",
+    "target_path": "src/PdfBox.Net/Printing/PDFPrintable.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted port of PDFPrintable. Java's java.awt.print.Printable interface replaced by RenderPage() method taking Graphics2D and imageable area dimensions. System.Drawing.Printing not used (Windows-only, not available on .NET 10 Linux)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/PDFPageable.java",
+    "target_path": "src/PdfBox.Net/Printing/PDFPageable.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted port of PDFPageable. Java's java.awt.print.Book/Pageable replaced by PdfPageFormat record and GetPageFormat()/GetPrintable() methods. System.Drawing.Printing not used."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/util/TestHexUtil.java",
+    "target_path": "tests/PdfBox.Net.Tests/HexTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Mechanical port of Hex tests."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/util/TestDateUtil.java",
+    "target_path": "tests/PdfBox.Net.Tests/DateConverterTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted port of DateConverter tests. Calendar API replaced with PdfGregorianCalendar alias. TimeZone.setDefault() removed; tests use UTC by default. Timezone name tests adapted for .NET TimeZoneInfo."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PrintingTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Native .NET test for printing classes (compile + instantiation only; rendering assertions skipped on headless CI)."
   }
 ]
