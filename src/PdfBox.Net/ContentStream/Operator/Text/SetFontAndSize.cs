@@ -26,13 +26,15 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Font;
 
 namespace PdfBox.Net.ContentStream.Operator.Text;
 
 /// <summary>
 /// Processes the PDF "Tf" operator: set the text font and font size.
-/// The font name operand is currently recorded via the font-size update only;
-/// font object resolution is deferred to the font-loading layer.
+/// When a page resource dictionary is available the font is resolved from
+/// the /Font sub-dictionary; otherwise the font entry in the text state is
+/// cleared so that callers receive <see langword="null"/> rather than a stale value.
 /// </summary>
 public sealed class SetFontAndSize : OperatorProcessor
 {
@@ -44,9 +46,20 @@ public sealed class SetFontAndSize : OperatorProcessor
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 2) return;
+
+        // operands[0] is the font resource name (COSName), operands[1] is the size.
         if (operands[1] is COSNumber sizeNumber)
         {
             Context.GetGraphicsState().GetTextState().FontSize = sizeNumber.FloatValue();
         }
+
+        PDFont? font = null;
+        if (operands[0] is COSName fontName)
+        {
+            font = Context.GetCurrentPage()?.GetResources()?.GetFont(fontName);
+        }
+
+        // Always write back (even null) so callers see a consistent state.
+        Context.GetGraphicsState().GetTextState().Font = font;
     }
 }

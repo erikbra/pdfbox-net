@@ -28,6 +28,7 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.PageNavigation;
+using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel;
 
@@ -315,6 +316,21 @@ public sealed class PDPage : COSObjectable
     public COSBase? GetContents()
     {
         return _page.GetDictionaryObject(COSName.CONTENTS);
+    }
+
+    /// <summary>
+    /// Returns the resource dictionary for this page, or <see langword="null"/> if none is set.
+    /// Resources are inherited from parent nodes in the page tree when not set directly on the page.
+    /// </summary>
+    public PDResources? GetResources()
+    {
+        COSBase? resourceBase = PDPageTree.GetInheritableAttribute(_page, COSName.RESOURCES);
+        if (resourceBase is COSDictionary resourceDict)
+        {
+            return new PDResources(resourceDict);
+        }
+
+        return null;
     }
 
     public void RemovePageResourceFromCache()
