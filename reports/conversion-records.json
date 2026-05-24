@@ -1292,5 +1292,165 @@
     "port_mode": "adapted",
     "sync_commit": "trunk",
     "conversion_notes": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpace.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported core PDColorSpace abstraction and factory-based COS parsing for standard and array-defined PDF color spaces."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceRGB.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceRGB.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported DeviceRGB singleton with initial color/default decode and direct RGB conversion."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceGray.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceGray.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported DeviceGray singleton with grayscale-to-RGB conversion."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceCMYK.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Ported DeviceCMYK singleton using managed CMYK-to-RGB fallback conversion."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColor.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDColor.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Replaced color stub with immutable PDColor value supporting COS-array roundtrip and packed RGB conversion."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalGray.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCalGray.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added calibrated gray color space with gamma-aware grayscale conversion."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalRGB.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCalRGB.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added calibrated RGB color space with gamma handling."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDLab.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDLab.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added Lab color space with managed Lab-to-sRGB conversion path."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDICCBased.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDICCBased.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added ICCBased color space with alternate color space and component-count fallback behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDIndexed.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDIndexed.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added Indexed color space with lookup table decode from COSString/COSStream."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDSeparation.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added Separation color space with alternate-space RGB mapping fallback."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceN.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceN.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added DeviceN color space with alternate-space mapping fallback."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDPattern.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDPattern.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added Pattern color space wrapper with optional underlying color space support."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpaceFactory.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added PDColorSpaceFactory compatibility wrapper for explicit factory call sites."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
+    "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Extended resources with color-space dictionary lookup and PDColorSpace creation helpers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDGraphicsState.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Updated graphics-state defaults/null fallbacks to use concrete PDDeviceGray color space and initial colors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingColorSpace.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetStrokingColorSpace.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Switched stroking color-space operator to PDColorSpaceFactory with resource-aware resolution."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColorSpace.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetNonStrokingColorSpace.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Switched non-stroking color-space operator to PDColorSpaceFactory with resource-aware resolution."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "src/PdfBox.Net/PDModel/RenderingSupportStubs.cs",
+    "source_commit": "n/a",
+    "port_mode": "adapted",
+    "sync_commit": "n/a",
+    "conversion_notes": "Removed PDColorSpace and PDColor rendering stubs after porting concrete color classes."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/ColorSpaceTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Added device color-space conversion, factory resolution, PDColor roundtrip, and ICCBased fallback coverage."
   }
 ]
