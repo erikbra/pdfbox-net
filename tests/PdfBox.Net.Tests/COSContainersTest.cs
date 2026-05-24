@@ -83,6 +83,24 @@ public class COSContainersTest
     }
 
     [Fact]
+    public void TestEmbeddedValuesAndFlags()
+    {
+        COSDictionary dictionary = new();
+        DateTimeOffset date = new(2026, 5, 24, 0, 0, 0, TimeSpan.Zero);
+
+        COSName paramsKey = COSName.GetPDFName("Params");
+        dictionary.SetEmbeddedString(paramsKey, COSName.A, "embedded");
+        dictionary.SetEmbeddedInt(paramsKey, COSName.B, 42);
+        dictionary.SetEmbeddedDate(paramsKey, COSName.C, date);
+        dictionary.SetFlag(COSName.F, 0x04, true);
+
+        Assert.Equal("embedded", dictionary.GetEmbeddedString(paramsKey, COSName.A));
+        Assert.Equal(42, dictionary.GetEmbeddedInt(paramsKey, COSName.B));
+        Assert.Equal(date, dictionary.GetEmbeddedDate(paramsKey, COSName.C));
+        Assert.True(dictionary.GetFlag(COSName.F, 0x04));
+    }
+
+    [Fact]
     public void TestCOSStreamRoundTripAndLength()
     {
         COSStream stream = new();

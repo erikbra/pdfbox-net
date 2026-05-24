@@ -41,7 +41,10 @@ public class COSDictionary : COSBase, COSUpdateInfo
     public COSDictionary(COSDictionary dict)
     {
         _updateState = new(this);
-        AddAll(dict);
+        foreach (KeyValuePair<COSName, COSBase> entry in dict.items)
+        {
+            items[entry.Key] = entry.Value;
+        }
     }
 
     public bool ContainsValue(object? value)
@@ -79,7 +82,7 @@ public class COSDictionary : COSBase, COSUpdateInfo
         return items.Count;
     }
 
-    public void Clear()
+    public virtual void Clear()
     {
         items.Clear();
         _updateState.Update();
@@ -116,7 +119,7 @@ public class COSDictionary : COSBase, COSUpdateInfo
         return retval is COSNull ? null : retval;
     }
 
-    public void SetItem(COSName key, COSBase? value)
+    public virtual void SetItem(COSName key, COSBase? value)
     {
         if (value is null)
         {
@@ -137,77 +140,77 @@ public class COSDictionary : COSBase, COSUpdateInfo
         }
     }
 
-    public void SetItem(COSName key, COSObjectable? value)
+    public virtual void SetItem(COSName key, COSObjectable? value)
     {
         SetItem(key, value?.GetCOSObject());
     }
 
-    public void SetItem(string key, COSObjectable? value)
+    public virtual void SetItem(string key, COSObjectable? value)
     {
         SetItem(COSName.GetPDFName(key), value);
     }
 
-    public void SetBoolean(string key, bool value)
+    public virtual void SetBoolean(string key, bool value)
     {
         SetItem(COSName.GetPDFName(key), COSBoolean.GetBoolean(value));
     }
 
-    public void SetBoolean(COSName key, bool value)
+    public virtual void SetBoolean(COSName key, bool value)
     {
         SetItem(key, COSBoolean.GetBoolean(value));
     }
 
-    public void SetItem(string key, COSBase? value)
+    public virtual void SetItem(string key, COSBase? value)
     {
         SetItem(COSName.GetPDFName(key), value);
     }
 
-    public void SetName(string key, string? value)
+    public virtual void SetName(string key, string? value)
     {
         SetName(COSName.GetPDFName(key), value);
     }
 
-    public void SetName(COSName key, string? value)
+    public virtual void SetName(COSName key, string? value)
     {
         SetItem(key, value is null ? null : COSName.GetPDFName(value));
     }
 
-    public void SetString(string key, string? value)
+    public virtual void SetString(string key, string? value)
     {
         SetString(COSName.GetPDFName(key), value);
     }
 
-    public void SetString(COSName key, string? value)
+    public virtual void SetString(COSName key, string? value)
     {
         SetItem(key, value is null ? null : new COSString(value));
     }
 
-    public void SetInt(string key, int value)
+    public virtual void SetInt(string key, int value)
     {
         SetInt(COSName.GetPDFName(key), value);
     }
 
-    public void SetInt(COSName key, int value)
+    public virtual void SetInt(COSName key, int value)
     {
         SetItem(key, COSInteger.Get(value));
     }
 
-    public void SetLong(string key, long value)
+    public virtual void SetLong(string key, long value)
     {
         SetLong(COSName.GetPDFName(key), value);
     }
 
-    public void SetLong(COSName key, long value)
+    public virtual void SetLong(COSName key, long value)
     {
         SetItem(key, COSInteger.Get(value));
     }
 
-    public void SetFloat(string key, float value)
+    public virtual void SetFloat(string key, float value)
     {
         SetFloat(COSName.GetPDFName(key), value);
     }
 
-    public void SetFloat(COSName key, float value)
+    public virtual void SetFloat(COSName key, float value)
     {
         SetItem(key, new COSFloat(value));
     }
@@ -308,6 +311,11 @@ public class COSDictionary : COSBase, COSUpdateInfo
     /// </summary>
     /// <param name="key">The dictionary key.</param>
     /// <returns>The parsed date, or <see langword="null"/>.</returns>
+    public DateTimeOffset? GetDate(string key)
+    {
+        return GetDate(COSName.GetPDFName(key));
+    }
+
     public DateTimeOffset? GetDate(COSName key)
     {
         string? value = GetString(key);
@@ -325,7 +333,12 @@ public class COSDictionary : COSBase, COSUpdateInfo
     /// </summary>
     /// <param name="key">The dictionary key.</param>
     /// <param name="date">The date value to set.</param>
-    public void SetDate(COSName key, DateTimeOffset? date)
+    public virtual void SetDate(string key, DateTimeOffset? date)
+    {
+        SetDate(COSName.GetPDFName(key), date);
+    }
+
+    public virtual void SetDate(COSName key, DateTimeOffset? date)
     {
         if (date is null)
         {
@@ -419,6 +432,88 @@ public class COSDictionary : COSBase, COSUpdateInfo
         return int.TryParse(s.AsSpan(start, 2), out int result) ? result : 0;
     }
 
+    public virtual string? GetEmbeddedString(COSName embedded, COSName key)
+    {
+        return GetEmbeddedString(embedded, key, null);
+    }
+
+    public virtual string? GetEmbeddedString(COSName embedded, COSName key, string? defaultValue)
+    {
+        COSDictionary? eDic = GetCOSDictionary(embedded);
+        return eDic is not null ? eDic.GetString(key) ?? defaultValue : defaultValue;
+    }
+
+    public virtual DateTimeOffset? GetEmbeddedDate(COSName embedded, COSName key)
+    {
+        return GetEmbeddedDate(embedded, key, null);
+    }
+
+    public virtual DateTimeOffset? GetEmbeddedDate(COSName embedded, COSName key, DateTimeOffset? defaultValue)
+    {
+        COSDictionary? eDic = GetCOSDictionary(embedded);
+        return eDic is not null ? eDic.GetDate(key) ?? defaultValue : defaultValue;
+    }
+
+    public virtual int GetEmbeddedInt(COSName embeddedDictionary, COSName key)
+    {
+        return GetEmbeddedInt(embeddedDictionary, key, -1);
+    }
+
+    public virtual int GetEmbeddedInt(COSName embeddedDictionary, COSName key, int defaultValue)
+    {
+        COSDictionary? eDic = GetCOSDictionary(embeddedDictionary);
+        return eDic is not null ? eDic.GetInt(key, defaultValue) : defaultValue;
+    }
+
+    public virtual void SetEmbeddedDate(COSName embedded, COSName key, DateTimeOffset? date)
+    {
+        COSDictionary? eDic = GetCOSDictionary(embedded);
+        if (eDic is null)
+        {
+            eDic = new COSDictionary();
+            SetItem(embedded, eDic);
+        }
+
+        eDic.SetDate(key, date);
+    }
+
+    public virtual void SetEmbeddedString(COSName embedded, COSName key, string? value)
+    {
+        COSDictionary? eDic = GetCOSDictionary(embedded);
+        if (eDic is null)
+        {
+            eDic = new COSDictionary();
+            SetItem(embedded, eDic);
+        }
+
+        eDic.SetString(key, value);
+    }
+
+    public virtual void SetEmbeddedInt(COSName embeddedDictionary, COSName key, int value)
+    {
+        COSDictionary? eDic = GetCOSDictionary(embeddedDictionary);
+        if (eDic is null)
+        {
+            eDic = new COSDictionary();
+            SetItem(embeddedDictionary, eDic);
+        }
+
+        eDic.SetInt(key, value);
+    }
+
+    public virtual bool GetFlag(COSName field, int bitFlag)
+    {
+        int value = GetInt(field, 0);
+        return (value & bitFlag) == bitFlag;
+    }
+
+    public virtual void SetFlag(COSName field, int bitFlag, bool value)
+    {
+        int current = GetInt(field, 0);
+        current = value ? (current | bitFlag) : (current & ~bitFlag);
+        SetInt(field, current);
+    }
+
     public COSBase? GetItem(COSName key)
     {
         items.TryGetValue(key, out COSBase? value);
@@ -430,7 +525,7 @@ public class COSDictionary : COSBase, COSUpdateInfo
         return GetItem(COSName.GetPDFName(key));
     }
 
-    public void RemoveItem(COSName key)
+    public virtual void RemoveItem(COSName key)
     {
         if (items.Remove(key))
         {
@@ -438,12 +533,12 @@ public class COSDictionary : COSBase, COSUpdateInfo
         }
     }
 
-    public void RemoveItem(string key)
+    public virtual void RemoveItem(string key)
     {
         RemoveItem(COSName.GetPDFName(key));
     }
 
-    public void AddAll(COSDictionary dict)
+    public virtual void AddAll(COSDictionary dict)
     {
         foreach (KeyValuePair<COSName, COSBase> entry in dict.items)
         {
@@ -518,6 +613,21 @@ public class COSDictionary : COSBase, COSUpdateInfo
     public COSUpdateState GetUpdateState()
     {
         return _updateState;
+    }
+
+    public virtual bool IsNeedToBeUpdated()
+    {
+        return _updateState.IsUpdated();
+    }
+
+    public virtual void SetNeedToBeUpdated(bool flag)
+    {
+        _updateState.Update(flag);
+    }
+
+    public virtual COSDictionary AsUnmodifiableDictionary()
+    {
+        return new UnmodifiableCOSDictionary(this);
     }
 
     public void WritePDF(Stream output)
