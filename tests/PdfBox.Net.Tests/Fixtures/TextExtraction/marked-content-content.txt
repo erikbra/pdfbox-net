@@ -1,0 +1,14 @@
+/P BMC
+BT
+/F1 12 Tf
+50 700 Td
+(QWERTY) Tj
+ET
+EMC
+/Span BMC
+BT
+/F1 12 Tf
+50 680 Td
+(ASDFGH) Tj
+ET
+EMC
