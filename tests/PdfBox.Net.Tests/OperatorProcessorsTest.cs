@@ -63,6 +63,7 @@ public class OperatorProcessorsTest
         public record MarkedContentCall(string Kind, string Tag, COSDictionary? Props);
         public record Type3WidthCall(float Wx, float Wy);
         public record Type3WidthAndBBoxCall(float Wx, float Wy, float Llx, float Lly, float Urx, float Ury);
+        public record FillAndStrokeCall(int WindingRule, bool HasCloseSegment, bool EndsAtStartPoint);
 
         public List<MarkedContentCall> MarkedContentCalls { get; } = new();
         public List<(Matrix TextRenderingMatrix, PDFont Font, int Code, Vector Displacement)> GlyphCalls { get; } = new();
@@ -70,6 +71,7 @@ public class OperatorProcessorsTest
         public List<string> ShadingFillCalls { get; } = new();
         public List<Type3WidthCall> Type3WidthCalls { get; } = new();
         public List<Type3WidthAndBBoxCall> Type3WidthAndBBoxCalls { get; } = new();
+        public List<FillAndStrokeCall> FillAndStrokeCalls { get; } = new();
 
         public override void BeginMarkedContentSequence(COSName tag, COSDictionary? properties)
             => MarkedContentCalls.Add(new("Begin", tag.GetName(), properties));
@@ -100,6 +102,42 @@ public class OperatorProcessorsTest
 
         protected override void ShowGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
             => GlyphCalls.Add((textRenderingMatrix, font, code, displacement));
+
+        protected override void OnFillAndStrokePath(int windingRule, IReadOnlyList<PathSegment> path, PDGraphicsState graphicsState)
+        {
+            bool hasCloseSegment = path.Count > 0 && path[^1].Type == PathSegmentType.Close;
+            (float X, float Y)? startPoint = null;
+            (float X, float Y)? endPoint = null;
+
+            foreach (PathSegment segment in path)
+            {
+                switch (segment.Type)
+                {
+                    case PathSegmentType.MoveTo:
+                        startPoint ??= (segment.X1, segment.Y1);
+                        endPoint = (segment.X1, segment.Y1);
+                        break;
+                    case PathSegmentType.LineTo:
+                        endPoint = (segment.X1, segment.Y1);
+                        break;
+                    case PathSegmentType.CurveTo:
+                        endPoint = (segment.X3, segment.Y3);
+                        break;
+                    case PathSegmentType.Close:
+                        if (startPoint.HasValue)
+                        {
+                            endPoint = startPoint.Value;
+                        }
+                        break;
+                }
+            }
+
+            bool endsAtStartPoint = startPoint.HasValue && endPoint.HasValue &&
+                                    startPoint.Value.X == endPoint.Value.X &&
+                                    startPoint.Value.Y == endPoint.Value.Y;
+
+            FillAndStrokeCalls.Add(new(windingRule, hasCloseSegment, endsAtStartPoint));
+        }
 
         /// <summary>Runs a raw Latin-1 content stream string through the engine.</summary>
         public void RunStream(string content)
@@ -586,14 +624,50 @@ public class OperatorProcessorsTest
         engine.AddOperator(new ClosePath(engine));
         engine.AddOperator(new StrokePath(engine));
         engine.AddOperator(new CloseAndStrokePath(engine));
+        engine.AddOperator(new CloseAndFillNonZeroAndStrokePath(engine));
+        engine.AddOperator(new CloseAndFillEvenOddAndStrokePath(engine));
         engine.AddOperator(new FillNonZeroRule(engine));
         engine.AddOperator(new FillNonZeroRule(engine, OperatorName.LEGACY_FILL_NON_ZERO));
         engine.AddOperator(new FillEvenOddRule(engine));
         engine.AddOperator(new FillNonZeroAndStrokePath(engine));
         engine.AddOperator(new FillEvenOddAndStrokePath(engine));
 
-        var ex = Record.Exception(() => engine.RunStream("0 0 m 10 0 l 10 10 l h S 0 0 m 10 0 l h s 0 0 m 10 0 l h f 0 0 m 10 0 l h F 0 0 m 10 0 l h f* 0 0 m 10 0 l h B 0 0 m 10 0 l h B*"));
+        var ex = Record.Exception(() => engine.RunStream("0 0 m 10 0 l 10 10 l h S 0 0 m 10 0 l h s 0 0 m 10 0 l h b 0 0 m 10 0 l h b* 0 0 m 10 0 l h f 0 0 m 10 0 l h F 0 0 m 10 0 l h f* 0 0 m 10 0 l h B 0 0 m 10 0 l h B*"));
         Assert.Null(ex);
+    }
+
+    [Fact]
+    public void CloseFillAndStrokeOperator_b_ClosesPathBeforeFillStroke()
+    {
+        var engine = new ObservingEngine();
+        engine.AddOperator(new MoveTo(engine));
+        engine.AddOperator(new LineTo(engine));
+        engine.AddOperator(new CloseAndFillNonZeroAndStrokePath(engine));
+
+        engine.RunStream("0 0 m 10 0 l 10 10 l b");
+
+        var call = Assert.Single(engine.FillAndStrokeCalls);
+        Assert.Equal(1, call.WindingRule);
+        Assert.True(call.HasCloseSegment);
+        Assert.True(call.EndsAtStartPoint);
+        Assert.Equal(0, engine.GetPathSegmentCount());
+    }
+
+    [Fact]
+    public void CloseFillAndStrokeOperator_bStar_ClosesPathBeforeFillStroke()
+    {
+        var engine = new ObservingEngine();
+        engine.AddOperator(new MoveTo(engine));
+        engine.AddOperator(new LineTo(engine));
+        engine.AddOperator(new CloseAndFillEvenOddAndStrokePath(engine));
+
+        engine.RunStream("0 0 m 10 0 l 10 10 l b*");
+
+        var call = Assert.Single(engine.FillAndStrokeCalls);
+        Assert.Equal(0, call.WindingRule);
+        Assert.True(call.HasCloseSegment);
+        Assert.True(call.EndsAtStartPoint);
+        Assert.Equal(0, engine.GetPathSegmentCount());
     }
 
     // ── Color operators ────────────────────────────────────────────────────────
