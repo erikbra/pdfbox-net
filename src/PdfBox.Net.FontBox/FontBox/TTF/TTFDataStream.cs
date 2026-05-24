@@ -26,6 +26,7 @@
  */
 
 using System.IO;
+using System.Text;
 
 namespace PdfBox.Net.FontBox.TTF;
 
@@ -40,6 +41,10 @@ public abstract class TTFDataStream
     public abstract int Read();
 
     public abstract int Read(byte[] buffer, int offset, int count);
+
+    public long GetCurrentPosition() => Position;
+
+    public long GetOriginalDataSize() => Length;
 
     public byte[] ReadBytes(int count)
     {
@@ -59,44 +64,78 @@ public abstract class TTFDataStream
         return buffer;
     }
 
-    public ushort ReadUnsignedShort()
+    public int ReadUnsignedByte()
     {
-        int high = Read();
-        int low = Read();
-        if (high < 0 || low < 0)
+        int value = Read();
+        if (value < 0)
         {
             throw new EndOfStreamException("Unexpected end of TTF data stream");
         }
 
+        return value;
+    }
+
+    public int ReadSignedByte()
+    {
+        int value = ReadUnsignedByte();
+        return value > 127 ? value - 256 : value;
+    }
+
+    public ushort ReadUnsignedShort()
+    {
+        int high = ReadUnsignedByte();
+        int low = ReadUnsignedByte();
         return (ushort)((high << 8) | low);
     }
 
-    public short ReadSignedShort()
-    {
-        return unchecked((short)ReadUnsignedShort());
-    }
+    public short ReadSignedShort() => unchecked((short)ReadUnsignedShort());
 
     public uint ReadUnsignedInt()
     {
-        int b1 = Read();
-        int b2 = Read();
-        int b3 = Read();
-        int b4 = Read();
-        if (b1 < 0 || b2 < 0 || b3 < 0 || b4 < 0)
-        {
-            throw new EndOfStreamException("Unexpected end of TTF data stream");
-        }
-
+        int b1 = ReadUnsignedByte();
+        int b2 = ReadUnsignedByte();
+        int b3 = ReadUnsignedByte();
+        int b4 = ReadUnsignedByte();
         return (uint)((b1 << 24) | (b2 << 16) | (b3 << 8) | b4);
     }
 
-    public int Read32Fixed()
+    public long ReadLong()
     {
-        return unchecked((int)ReadUnsignedInt());
+        int high = unchecked((int)ReadUnsignedInt());
+        int low = unchecked((int)ReadUnsignedInt());
+        return ((long)high << 32) | (long)(uint)low;
     }
 
-    public string ReadTag()
+    public float Read32Fixed()
     {
-        return System.Text.Encoding.ASCII.GetString(ReadBytes(4));
+        float retval = ReadSignedShort();
+        retval += ReadUnsignedShort() / 65536f;
+        return retval;
+    }
+
+    public string ReadTag() => System.Text.Encoding.ASCII.GetString(ReadBytes(4));
+
+    public string ReadString(int length) => System.Text.Encoding.Latin1.GetString(ReadBytes(length));
+
+    public int[] ReadUnsignedByteArray(int length)
+    {
+        int[] values = new int[length];
+        for (int i = 0; i < length; i++)
+        {
+            values[i] = ReadUnsignedByte();
+        }
+
+        return values;
+    }
+
+    public int[] ReadUnsignedShortArray(int length)
+    {
+        int[] values = new int[length];
+        for (int i = 0; i < length; i++)
+        {
+            values[i] = ReadUnsignedShort();
+        }
+
+        return values;
     }
 }

@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache FontBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/MemoryTTFDataStream.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/RandomAccessReadDataStream.java
  * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: trunk
@@ -25,12 +25,28 @@
  * limitations under the License.
  */
 
+using System;
+using System.IO;
+
 namespace PdfBox.Net.FontBox.TTF;
 
-public sealed class MemoryTTFDataStream(byte[] data) : TTFDataStream
+public sealed class MemoryTTFDataStream : TTFDataStream
 {
-    private readonly byte[] _data = data;
+    private readonly byte[] _data;
     private int _position;
+
+    public MemoryTTFDataStream(byte[] data)
+    {
+        _data = data ?? throw new ArgumentNullException(nameof(data));
+    }
+
+    public MemoryTTFDataStream(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        byte[] bytes = new byte[stream.Length];
+        stream.ReadExactly(bytes, 0, bytes.Length);
+        _data = bytes;
+    }
 
     public override long Position => _position;
 
@@ -38,12 +54,12 @@ public sealed class MemoryTTFDataStream(byte[] data) : TTFDataStream
 
     public override void Seek(long position)
     {
-        if (position < 0 || position > _data.Length)
+        if (position < 0)
         {
-            throw new IOException($"Invalid seek position {position}");
+            throw new ArgumentOutOfRangeException(nameof(position));
         }
 
-        _position = (int)position;
+        _position = position > Length ? _data.Length : (int)position;
     }
 
     public override int Read()
@@ -60,12 +76,12 @@ public sealed class MemoryTTFDataStream(byte[] data) : TTFDataStream
     {
         if (_position >= _data.Length)
         {
-            return 0;
+            return -1;
         }
 
-        int actual = Math.Min(count, _data.Length - _position);
-        Array.Copy(_data, _position, buffer, offset, actual);
-        _position += actual;
-        return actual;
+        int bytesToCopy = Math.Min(count, _data.Length - _position);
+        Buffer.BlockCopy(_data, _position, buffer, offset, bytesToCopy);
+        _position += bytesToCopy;
+        return bytesToCopy;
     }
 }

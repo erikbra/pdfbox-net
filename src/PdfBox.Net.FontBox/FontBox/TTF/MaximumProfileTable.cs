@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/MaximumProfileTable.java
  * PDFBOX_SOURCE_COMMIT: trunk
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: trunk
  */
 
@@ -29,13 +29,47 @@ namespace PdfBox.Net.FontBox.TTF;
 
 public sealed class MaximumProfileTable() : TTFTable("maxp")
 {
-    public int Version { get; private set; }
+    public float Version { get; set; }
+    public int NumGlyphs { get; set; }
+    public int MaxPoints { get; set; }
+    public int MaxContours { get; set; }
+    public int MaxCompositePoints { get; set; }
+    public int MaxCompositeContours { get; set; }
+    public int MaxZones { get; set; }
+    public int MaxTwilightPoints { get; set; }
+    public int MaxStorage { get; set; }
+    public int MaxFunctionDefs { get; set; }
+    public int MaxInstructionDefs { get; set; }
+    public int MaxStackElements { get; set; }
+    public int MaxSizeOfInstructions { get; set; }
+    public int MaxComponentElements { get; set; }
+    public int MaxComponentDepth { get; set; }
 
-    public ushort NumGlyphs { get; private set; }
-
-    internal override void Read(TTFDataStream dataStream)
+    internal override void Read(TrueTypeFont font, TTFDataStream data)
     {
-        Version = dataStream.Read32Fixed();
-        NumGlyphs = dataStream.ReadUnsignedShort();
+        Version = data.Read32Fixed();
+        NumGlyphs = data.ReadUnsignedShort();
+        if (Version >= 1.0f)
+        {
+            MaxPoints = data.ReadUnsignedShort();
+            MaxContours = data.ReadUnsignedShort();
+            MaxCompositePoints = data.ReadUnsignedShort();
+            MaxCompositeContours = data.ReadUnsignedShort();
+            MaxZones = data.ReadUnsignedShort();
+            MaxTwilightPoints = data.ReadUnsignedShort();
+            MaxStorage = data.ReadUnsignedShort();
+            MaxFunctionDefs = data.ReadUnsignedShort();
+            MaxInstructionDefs = data.ReadUnsignedShort();
+            MaxStackElements = data.ReadUnsignedShort();
+            MaxSizeOfInstructions = data.ReadUnsignedShort();
+            MaxComponentElements = data.ReadUnsignedShort();
+            MaxComponentDepth = data.ReadUnsignedShort();
+            if (MaxComponentDepth == 0)
+            {
+                MaxComponentDepth = 1;
+            }
+        }
+
+        Initialized = true;
     }
 }

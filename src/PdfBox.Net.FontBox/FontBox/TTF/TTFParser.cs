@@ -25,6 +25,7 @@
  * limitations under the License.
  */
 
+using System.IO;
 using PdfBox.Net.IO;
 
 namespace PdfBox.Net.FontBox.TTF;
@@ -56,8 +57,8 @@ public class TTFParser(bool allowOpenType = false)
 
     public virtual TrueTypeFont Parse(byte[] bytes)
     {
-        MemoryTTFDataStream dataStream = new(bytes);
-        uint sfntVersion = dataStream.ReadUnsignedInt();
+        MemoryTTFDataStream data = new(bytes);
+        uint sfntVersion = data.ReadUnsignedInt();
         if (!IsSupportedVersion(sfntVersion))
         {
             throw new IOException($"Unsupported sfnt version 0x{sfntVersion:X8}");
@@ -65,55 +66,72 @@ public class TTFParser(bool allowOpenType = false)
 
         TrueTypeFont font = sfntVersion == SfntOtto ? new OpenTypeFont() : new TrueTypeFont();
         font.SfntVersion = sfntVersion;
-        font.NumberOfTables = dataStream.ReadUnsignedShort();
-        _ = dataStream.ReadUnsignedShort();
-        _ = dataStream.ReadUnsignedShort();
-        _ = dataStream.ReadUnsignedShort();
+        font.NumberOfTables = data.ReadUnsignedShort();
+        _ = data.ReadUnsignedShort();
+        _ = data.ReadUnsignedShort();
+        _ = data.ReadUnsignedShort();
 
         List<TTFTable> tables = [];
         for (int i = 0; i < font.NumberOfTables; i++)
         {
-            string tag = dataStream.ReadTag();
+            string tag = data.ReadTag();
             TTFTable table = CreateTable(tag);
-            table.Checksum = dataStream.ReadUnsignedInt();
-            table.Offset = dataStream.ReadUnsignedInt();
-            table.Length = dataStream.ReadUnsignedInt();
-            ValidateTableRange(dataStream.Length, table);
+            table.Checksum = data.ReadUnsignedInt();
+            table.Offset = data.ReadUnsignedInt();
+            table.Length = data.ReadUnsignedInt();
+            ValidateTableRange(data, table);
             tables.Add(table);
+            font.AddTable(table);
+        }
+
+        string[] order = ["head", "maxp", "hhea", "name", "hmtx", "loca", "cmap", "post", "glyf"];
+        HashSet<string> loaded = new(StringComparer.Ordinal);
+        foreach (string tag in order)
+        {
+            if (font.GetTable(tag) is TTFTable table)
+            {
+                table.Load(font, data);
+                loaded.Add(tag);
+            }
         }
 
         foreach (TTFTable table in tables)
         {
-            table.Load(dataStream);
-            font.AddTable(table);
+            if (!loaded.Contains(table.Tag))
+            {
+                table.Load(font, data);
+            }
         }
 
         return font;
     }
 
-    protected virtual TTFTable CreateTable(string tag)
+    protected virtual TTFTable CreateTable(string tag) => tag switch
     {
-        return tag switch
-        {
-            "head" => new HeaderTable(),
-            "maxp" => new MaximumProfileTable(),
-            "name" => new NamingTable(),
-            _ => new TTFTable(tag),
-        };
+        "head" => new HeaderTable(),
+        "maxp" => new MaximumProfileTable(),
+        "name" => new NamingTable(),
+        "hhea" => new HorizontalHeaderTable(),
+        "hmtx" => new HorizontalMetricsTable(),
+        "loca" => new IndexToLocationTable(),
+        "cmap" => new CmapTable(),
+        "post" => new PostScriptTable(),
+        "glyf" => new GlyphTable(),
+        _ => new TTFTable(tag),
+    };
+
+    protected bool IsSupportedVersion(uint version)
+    {
+        return version == SfntTrueType ||
+               version == SfntTrue ||
+               version == SfntType1 ||
+               (_allowOpenType && version == SfntOtto);
     }
 
-    private bool IsSupportedVersion(uint sfntVersion)
-    {
-        return sfntVersion == SfntTrueType ||
-               sfntVersion == SfntTrue ||
-               sfntVersion == SfntType1 ||
-               (_allowOpenType && sfntVersion == SfntOtto);
-    }
-
-    private static void ValidateTableRange(long streamLength, TTFTable table)
+    protected static void ValidateTableRange(TTFDataStream data, TTFTable table)
     {
         long end = (long)table.Offset + table.Length;
-        if (table.Offset > streamLength || end > streamLength || end < table.Offset)
+        if (table.Offset > data.Length || end > data.Length || end < table.Offset)
         {
             throw new IOException($"Invalid table range for {table.Tag}");
         }

@@ -40,4 +40,9 @@ public sealed class OTFParser() : TTFParser(allowOpenType: true)
     {
         return base.Parse(bytes);
     }
+
+    protected override TTFTable CreateTable(string tag)
+    {
+        return base.CreateTable(tag);
+    }
 }

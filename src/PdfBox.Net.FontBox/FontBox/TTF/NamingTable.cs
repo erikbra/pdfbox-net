@@ -33,7 +33,7 @@ public sealed class NamingTable() : TTFTable("name")
 
     public IReadOnlyList<NameRecord> NameRecords => _nameRecords;
 
-    internal override void Read(TTFDataStream dataStream)
+    internal override void Read(TrueTypeFont font, TTFDataStream dataStream)
     {
         long tableStart = dataStream.Position;
         _ = dataStream.ReadUnsignedShort();
@@ -60,6 +60,8 @@ public sealed class NamingTable() : TTFTable("name")
             byte[] bytes = dataStream.ReadBytes(record.StringLength);
             record.Value = DecodeName(record, bytes);
         }
+
+        Initialized = true;
     }
 
     public string? GetEnglishName(ushort nameId)

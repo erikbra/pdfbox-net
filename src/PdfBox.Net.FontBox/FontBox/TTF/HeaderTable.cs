@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/HeaderTable.java
  * PDFBOX_SOURCE_COMMIT: trunk
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: trunk
  */
 
@@ -29,41 +29,58 @@ namespace PdfBox.Net.FontBox.TTF;
 
 public sealed class HeaderTable() : TTFTable("head")
 {
-    public ushort UnitsPerEm { get; private set; }
+    public const int MacStyleBold = 1;
+    public const int MacStyleItalic = 2;
 
-    public short XMin { get; private set; }
+    public float Version { get; set; }
 
-    public short YMin { get; private set; }
+    public float FontRevision { get; set; }
 
-    public short XMax { get; private set; }
+    public long CheckSumAdjustment { get; set; }
 
-    public short YMax { get; private set; }
+    public long MagicNumber { get; set; }
 
-    internal override void Read(TTFDataStream dataStream)
+    public int Flags { get; set; }
+
+    public int UnitsPerEm { get; set; }
+
+    public short XMin { get; set; }
+
+    public short YMin { get; set; }
+
+    public short XMax { get; set; }
+
+    public short YMax { get; set; }
+
+    public int MacStyle { get; set; }
+
+    public int LowestRecPPEM { get; set; }
+
+    public short FontDirectionHint { get; set; }
+
+    public short IndexToLocFormat { get; set; }
+
+    public short GlyphDataFormat { get; set; }
+
+    internal override void Read(TrueTypeFont font, TTFDataStream data)
     {
-        _ = dataStream.Read32Fixed();
-        _ = dataStream.Read32Fixed();
-        _ = dataStream.ReadUnsignedInt();
-        _ = dataStream.ReadUnsignedInt();
-        _ = dataStream.ReadUnsignedShort();
-        UnitsPerEm = dataStream.ReadUnsignedShort();
-        _ = ReadLongDateTime(dataStream);
-        _ = ReadLongDateTime(dataStream);
-        XMin = dataStream.ReadSignedShort();
-        YMin = dataStream.ReadSignedShort();
-        XMax = dataStream.ReadSignedShort();
-        YMax = dataStream.ReadSignedShort();
-        _ = dataStream.ReadUnsignedShort();
-        _ = dataStream.ReadUnsignedShort();
-        _ = dataStream.ReadSignedShort();
-        _ = dataStream.ReadSignedShort();
-        _ = dataStream.ReadSignedShort();
-    }
-
-    private static long ReadLongDateTime(TTFDataStream dataStream)
-    {
-        uint high = dataStream.ReadUnsignedInt();
-        uint low = dataStream.ReadUnsignedInt();
-        return unchecked(((long)high << 32) | low);
+        Version = data.Read32Fixed();
+        FontRevision = data.Read32Fixed();
+        CheckSumAdjustment = data.ReadUnsignedInt();
+        MagicNumber = data.ReadUnsignedInt();
+        Flags = data.ReadUnsignedShort();
+        UnitsPerEm = data.ReadUnsignedShort();
+        _ = data.ReadLong();
+        _ = data.ReadLong();
+        XMin = data.ReadSignedShort();
+        YMin = data.ReadSignedShort();
+        XMax = data.ReadSignedShort();
+        YMax = data.ReadSignedShort();
+        MacStyle = data.ReadUnsignedShort();
+        LowestRecPPEM = data.ReadUnsignedShort();
+        FontDirectionHint = data.ReadSignedShort();
+        IndexToLocFormat = data.ReadSignedShort();
+        GlyphDataFormat = data.ReadSignedShort();
+        Initialized = true;
     }
 }

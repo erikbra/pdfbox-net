@@ -47,25 +47,27 @@ public class TrueTypeFont
         return _tables.TryGetValue(tag, out TTFTable? table) ? table : null;
     }
 
-    public HeaderTable? GetHeader()
-    {
-        return GetTable("head") as HeaderTable;
-    }
+    public HeaderTable? GetHeader() => GetTable("head") as HeaderTable;
 
-    public MaximumProfileTable? GetMaximumProfile()
-    {
-        return GetTable("maxp") as MaximumProfileTable;
-    }
+    public MaximumProfileTable? GetMaximumProfile() => GetTable("maxp") as MaximumProfileTable;
 
-    public NamingTable? GetNaming()
-    {
-        return GetTable("name") as NamingTable;
-    }
+    public NamingTable? GetNaming() => GetTable("name") as NamingTable;
 
-    public int GetUnitsPerEm()
-    {
-        return GetHeader()?.UnitsPerEm ?? 1000;
-    }
+    public HorizontalHeaderTable? GetHorizontalHeader() => GetTable("hhea") as HorizontalHeaderTable;
+
+    public HorizontalMetricsTable? GetHorizontalMetrics() => GetTable("hmtx") as HorizontalMetricsTable;
+
+    public IndexToLocationTable? GetIndexToLocation() => GetTable("loca") as IndexToLocationTable;
+
+    public GlyphTable? GetGlyph() => GetTable("glyf") as GlyphTable;
+
+    public PostScriptTable? GetPostScript() => GetTable("post") as PostScriptTable;
+
+    public CmapTable? GetCmap() => GetTable("cmap") as CmapTable;
+
+    public int GetNumberOfGlyphs() => GetMaximumProfile()?.NumGlyphs ?? 0;
+
+    public int GetUnitsPerEm() => GetHeader()?.UnitsPerEm ?? 1000;
 
     public string? GetName()
     {

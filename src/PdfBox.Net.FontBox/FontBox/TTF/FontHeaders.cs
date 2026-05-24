@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source with AI assistance.
+ * Adapted from Apache FontBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/FontHeaders.java
  * PDFBOX_SOURCE_COMMIT: trunk
@@ -37,6 +37,8 @@ public sealed class FontHeaders
 
     public int OtfSupplement { get; private set; }
 
+    public int HeaderMacStyle { get; private set; }
+
     public void SetError(string exception)
     {
         Error = exception;
@@ -47,5 +49,10 @@ public sealed class FontHeaders
         OtfRegistry = otfRegistry;
         OtfOrdering = otfOrdering;
         OtfSupplement = otfSupplement;
+    }
+
+    public void SetHeaderMacStyle(int macStyle)
+    {
+        HeaderMacStyle = macStyle;
     }
 }
