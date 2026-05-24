@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  *
  * Adapted low-level writer bridge for chunk-2 token/object flow.
- * Minimal COS object serialization support aligned with existing COS types.
+ * COS object serialization routed through ICOSVisitor visitor dispatch (issue #28).
  */
 
 /*
@@ -27,7 +27,11 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PdfWriter;
 
-public sealed class COSWriter
+/// <summary>
+/// A class that can be used to write a document to a stream in PDF syntax.
+/// Implements <see cref="ICOSVisitor"/> to route serialization through the visitor pattern.
+/// </summary>
+public sealed class COSWriter : ICOSVisitor
 {
     public static readonly byte[] DICT_OPEN = Encoding.ASCII.GetBytes("<<");
     public static readonly byte[] DICT_CLOSE = Encoding.ASCII.GetBytes(">>");
@@ -45,7 +49,89 @@ public sealed class COSWriter
 
     public void Write(COSBase? value)
     {
-        COSDictionary.WriteValuePDF(value, _output);
+        if (value is null)
+        {
+            COSNull.NULL.Accept(this);
+            return;
+        }
+
+        value.Accept(this);
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromArray(COSArray obj)
+    {
+        obj.WritePDF(_output);
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromBoolean(COSBoolean obj)
+    {
+        obj.WritePDF(_output);
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromDictionary(COSDictionary obj)
+    {
+        obj.WritePDF(_output);
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromDocument(COSDocument obj)
+    {
+        // Full document serialization is out of scope for this low-level writer.
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromFloat(COSFloat obj)
+    {
+        obj.WritePDF(_output);
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromInt(COSInteger obj)
+    {
+        obj.WritePDF(_output);
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromName(COSName obj)
+    {
+        obj.WritePDF(_output);
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromNull(COSNull obj)
+    {
+        obj.WritePDF(_output);
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromObject(COSObject obj)
+    {
+        COSBase? inner = obj.GetObject();
+        if (inner is null)
+        {
+            COSNull.NULL.Accept(this);
+        }
+        else
+        {
+            inner.Accept(this);
+        }
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromStream(COSStream obj)
+    {
+        // Write the stream dictionary portion only; the stream body
+        // is handled by the full PDF document writer.
+        obj.WritePDF(_output);
+    }
+
+    /// <inheritdoc/>
+    public void VisitFromString(COSString obj)
+    {
+        obj.WritePDF(_output);
     }
 
     public static byte[] Serialize(COSBase? value)

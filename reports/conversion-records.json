@@ -1798,5 +1798,21 @@
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Converted upstream unmodifiable dictionary mutation-guard tests with DateTimeOffset-based date adaptation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Extended COSWriter to implement ICOSVisitor: added VisitFromXxx methods for all COS types and rerouted Write(COSBase?) through visitor dispatch (value.Accept(this)). VisitFromDocument is a no-op; VisitFromObject dereferences the inner object. Existing static Serialize/WriteString helpers preserved."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/COSVisitorSerializerTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Added visitor traversal and serialization-focused xUnit coverage for issue #28: visitor dispatch across all COS primitive/container types, mixed object graph traversal, COSWriter ICOSVisitor path, and deterministic serialization fixtures."
   }
 ]
