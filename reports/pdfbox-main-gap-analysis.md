@@ -1,6 +1,7 @@
 # PDFBox Main Module Gap Analysis
 
-Date: 2026-05-24
+Date: 2026-05-24 (updated)
+Previous date: 2026-05-24 (first edition was written before the most recent PRs landed)
 Reference upstream Java repository: Apache PDFBox trunk
 Reference commit: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 
@@ -8,329 +9,321 @@ Reference commit: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 
 | Package | Java files (est.) | C# ported | Missing (est.) | % Done |
 |---|---|---|---|---|
-| `org.apache.pdfbox.cos` | ~30 | 24 | ~6 | ~80% ⚠️ |
+| `org.apache.pdfbox.cos` | ~26 | 25 | ~1 | ~96% ✅ |
 | `org.apache.pdfbox.contentstream` (engine) | ~5 | 3 | ~2 | ~60% ⚠️ |
-| `org.apache.pdfbox.contentstream.operator` | ~60 | 19 | ~41 | ~32% ❌ |
-| `org.apache.pdfbox.filter` | ~18 | 3 | ~15 | ~17% ❌ |
-| `org.apache.pdfbox.pdfparser` | ~8 | 9 | ~2 | ~80% ⚠️ |
-| `org.apache.pdfbox.pdfwriter` | ~5 | 3 | ~2 | ~60% ⚠️ |
-| `org.apache.pdfbox.pdmodel` (root) | ~10 | 7 | ~3 | ~70% ⚠️ |
-| `org.apache.pdfbox.pdmodel.common` | ~15 | 1 | ~14 | ~7% ❌ |
-| `org.apache.pdfbox.pdmodel.encryption` | ~12 | 0 | ~12 | 0% ❌ |
-| `org.apache.pdfbox.pdmodel.font` | ~30 | 3 | ~27 | ~10% ❌ |
-| `org.apache.pdfbox.pdmodel.graphics` | ~40 | 5 | ~35 | ~13% ❌ |
+| `org.apache.pdfbox.contentstream.operator` | ~60 | 73† | ~2 | ~97% ✅ |
+| `org.apache.pdfbox.filter` | ~18 | 17 | ~1 | ~94% ✅ |
+| `org.apache.pdfbox.pdfparser` | ~8 | 9† | ~3 | ~70% ⚠️ |
+| `org.apache.pdfbox.pdfwriter` | ~5 | 4 | ~1 | ~80% ⚠️ |
+| `org.apache.pdfbox.pdmodel` (root) | ~10 | 9 | ~1 | ~90% ✅ |
+| `org.apache.pdfbox.pdmodel.common` | ~15 | 3 | ~12 | ~20% ❌ |
+| `org.apache.pdfbox.pdmodel.encryption` | ~12 | 11 | ~3 | ~75% ⚠️ |
+| `org.apache.pdfbox.pdmodel.font` | ~30 | 18 | ~12 | ~60% ⚠️ |
+| `org.apache.pdfbox.pdmodel.graphics` | ~40 | 24 | ~16 | ~60% ⚠️ |
 | `org.apache.pdfbox.pdmodel.interactive` | ~30 | 2 | ~28 | ~7% ❌ |
-| `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 1 | ~9 | ~10% ❌ |
+| `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 1 | ~9 | ~10% ⚠️ |
 | `org.apache.pdfbox.rendering` | ~12 | 11 | ~4 | ~75% ⚠️ |
 | `org.apache.pdfbox.text` | ~6 | 6 | 0 | ~100% ✅* |
-| `org.apache.pdfbox.util` | ~15 | 3 | ~12 | ~20% ❌ |
-| `org.apache.pdfbox.printing` | ~4 | 0 | ~4 | 0% ❌ |
-| **TOTAL** | **~320** | **~100** | **~220** | **~31%** |
+| `org.apache.pdfbox.util` | ~15 | 10 | ~5 | ~67% ⚠️ |
+| `org.apache.pdfbox.printing` | ~4 | 4 | 0 | ~100% ✅ |
+| **TOTAL** | **~320** | **~230** | **~90** | **~70%** |
 
-\* text files are ported but many depend on stubs — not yet functionally complete
+† The C# operator count (73) is higher than the Java ~60 because some Java files each handle
+a single operator while the C# port includes the Operator/OperatorName/OperatorProcessor base
+infrastructure separately. The PDFParser C# files also include xref-type files that don't have
+direct Java counterparts.
 
----
-
-## Fully ported (no gaps)
-
-### `org.apache.pdfbox.text`
-All 6 files are mechanically ported (but functionally depend on completing execution core,
-pdmodel font, and filter layers):
-- `PDFTextStripper.cs`
-- `PDFTextStripperByArea.cs`
-- `PDFMarkedContentExtractor.cs`
-- `LegacyPDFStreamEngine.cs`
-- `TextPosition.cs`
-- `TextPositionComparator.cs`
+\* text files are ported but some depend on incomplete pdmodel font and rendering layers
 
 ---
 
-## Substantially complete (minor gaps remain)
+## Fully or near-fully ported ✅
 
-### `org.apache.pdfbox.cos` — ~80% ported
-**Ported (24):** All primitives (COSBase, COSArray, COSDictionary, COSStream, COSName,
-COSString, COSBoolean, COSFloat, COSInteger, COSNull, COSNumber, COSObject, COSObjectKey,
-COSObjectable, COSOutputStream, COSInputStream, COSDocumentState, COSUpdateInfo, COSUpdateState,
-COSIncrement, PDFDocEncoding, ICOSVisitor, ICOSParser, UnmodifiableCOSDictionary).
+### `org.apache.pdfbox.cos` — ~96%
 
-**Key remaining items:**
-- `COSDocument.java` — the top-level COS document container (in-memory PDF object graph)
-- `COSDocument` integrates with the parser; currently no C# equivalent
+**Ported (25):** All primitives: `COSArray`, `COSBase`, `COSBoolean`, `COSDictionary`,
+`COSDocument`, `COSDocumentState`, `COSFloat`, `COSIncrement`, `COSInputStream`, `COSInteger`,
+`COSName`, `COSNull`, `COSNumber`, `COSObject`, `COSObjectKey`, `COSObjectable`,
+`COSOutputStream`, `COSStream`, `COSString`, `COSUpdateInfo`, `COSUpdateState`,
+`ICOSParser`, `ICOSVisitor`, `PDFDocEncoding`, `UnmodifiableCOSDictionary`.
 
-### `org.apache.pdfbox.pdfparser` — ~80% ported
-**Ported:** COSParser, PDFStreamParser, XrefTrailerResolver, Xref types.
+**Potentially missing (1–2):** Minor utilities (`COSHexString`, `COSObjectReference`) that
+may exist in some Java versions. Functionally the COS layer is complete.
+
+### `org.apache.pdfbox.contentstream.operator` — ~97%
+
+**Ported (73 C# files covering all major operator categories):**
+- **Color (12):** sc, scn, cs, k, g, rg, SC, SCN, CS, K, G, RG
+- **State (12):** cm, Q, q, gs, Tm, i, J, d, j, M, w, ri
+- **Path construction (8):** re, h, c, y, v, l, m, n
+- **Path painting (10):** S, s, f, F, f\*, B, B\*, W, W\*
+- **Marked content (5):** BDC, BMC, EMC, DP, MP
+- **Text (16):** BT, ET, Td, TD, T\*, Tc, Tf, Tz, TL, Tr, Ts, Tw, Tj, TJ, ', "
+- **Inline image (3):** BI, ID, EI
+- **Type3 font (2):** d0, d1
+- **Compatibility (2):** BX, EX
+- **Other (1):** Do
+
+**Missing (2):**
+- `graphics/CloseAndFillNonZeroAndStrokePath.java` — operator `b` (close path + fill non-zero + stroke)
+- `graphics/CloseAndFillEvenOddAndStrokePath.java` — operator `b*` (close path + fill even-odd + stroke)
+  - Both operator names are defined in `OperatorName.cs` but no processor class or registration exists yet.
+
+### `org.apache.pdfbox.filter` — ~94%
+
+**Ported (17):** `Filter.cs` (abstract base), `DecodeOptions.cs`, `DecodeResult.cs`,
+`FlateFilter.cs` (deflate/zlib), `ASCIIHexFilter.cs`, `ASCII85Filter.cs`, `DCTFilter.cs`,
+`LZWFilter.cs`, `RunLengthDecodeFilter.cs`, `CCITTFaxDecodeFilter.cs`, `JBIG2Filter.cs`,
+`JPXFilter.cs`, `CryptFilter.cs`, `FilterFactory.cs`, `FilterMaker.cs`, `IdentityFilter.cs`,
+`Predictor.cs`.
+
+**Possibly missing (1):** `FlateFilter` inner helpers / PNG predictor completeness.
+All filter types needed for real-world PDFs are present.
+
+### `org.apache.pdfbox.text` — ~100%
+
+All 6 files mechanically ported. Functional completeness depends on completing the font
+and rendering layers:
+- `PDFTextStripper.cs`, `PDFTextStripperByArea.cs`, `PDFMarkedContentExtractor.cs`
+- `LegacyPDFStreamEngine.cs`, `TextPosition.cs`, `TextPositionComparator.cs`
+
+### `org.apache.pdfbox.printing` — 100%
+
+All 4 files ported:
+- `Orientation.cs`, `PDFPageable.cs`, `PDFPrintable.cs`, `Scaling.cs`
+(Functional rendering depends on the rendering layer receiving real .NET graphics support.)
+
+---
+
+## Substantially complete — minor gaps remain ⚠️
+
+### `org.apache.pdfbox.pdfparser` — ~70%
+
+**Ported (9 C# files):** `COSParser.cs` (low-level COS token/object parser),
+`PDFStreamParser.cs`, `XrefTrailerResolver.cs`, plus 6 xref-type files.
 
 **Remaining:**
-- `PDFDocumentParser.java` — top-level parse orchestration (load a full PDF document)
-- `PDFObjectStreamParser.java` / `FDFParser.java`
+- `PDFParser.java` / `PDFDocumentParser.java` — top-level orchestration: reads the xref table,
+  resolves object references, decrypts streams, and builds the complete in-memory document.
+  The current `PDDocument.Load()` extracts only a raw dictionary and cannot handle real PDF
+  structure (cross-reference streams, object streams, linearization, etc.).
+- `PDFObjectStreamParser.java` — object stream decompression for compressed xref PDFs.
+- `FDFParser.java` — FDF (Form Data Format) file parser.
 
-### `org.apache.pdfbox.pdfwriter` — ~60% ported
-**Ported:** COSWriter, COSStandardOutputStream, ContentStreamWriter.
+### `org.apache.pdfbox.pdfwriter` — ~80%
+
+**Ported (4):** `COSWriter.cs`, `COSStandardOutputStream.cs`, `ContentStreamWriter.cs`,
+`Compress/CompressParameters.cs`.
 
 **Remaining:**
-- `COSWriterXRefEntry.java` — xref entry for incremental writes
-- Full incremental update support
+- `COSWriterXRefEntry.java` — xref entry for incremental save support.
+
+### `org.apache.pdfbox.pdmodel` (root) — ~90%
+
+**Ported (9):** `PDDocument.cs`, `PDDocumentCatalog.cs`, `PDDocumentInformation.cs`,
+`PDPage.cs`, `PDPageTree.cs`, `PageLayout.cs`, `PageMode.cs`.
+Also: `RenderingSupportStubs.cs` (stubs for patterns, optional content, etc.) and
+`TextStubs.cs` (stubs for PDOutlineItem, PDThreadBead).
+
+**Remaining:** Full xref/cross-reference aware document load path is not yet implemented
+(see pdfparser gaps above). `RenderingSupportStubs.cs` and `TextStubs.cs` contain items
+that will be promoted to real implementations in future issues.
+
+### `org.apache.pdfbox.pdmodel.encryption` — ~75%
+
+**Ported (11):** `AESKeyLength.cs`, `AccessPermission.cs`, `DecryptionMaterial.cs`,
+`MessageDigests.cs`, `PDCryptFilterDictionary.cs`, `PDEncryption.cs`, `ProtectionPolicy.cs`,
+`SecurityHandler.cs`, `StandardDecryptionMaterial.cs`, `StandardProtectionPolicy.cs`,
+`StandardSecurityHandler.cs`.
+
+**Remaining / partial:**
+- `StandardSecurityHandler.PrepareForDecryption` — throws `NotSupportedException`.
+  The full RC4/AES decryption flow is not yet implemented.
+- `PublicKeySecurityHandler.java` — public-key (certificate-based) decryption — missing.
+- `PublicKeyDecryptionMaterial.java` — missing.
+
+### `org.apache.pdfbox.pdmodel.font` — ~60%
+
+**Ported (18):** Real `PDFont` abstract base, `PDVectorFont`, `PDSimpleFont`, `PDType1Font`,
+`PDTrueTypeFont`, `PDType0Font`, `PDCIDFont` hierarchy; `PDFontDescriptor`, `PDDictionaryFont`,
+`PDCIDSystemInfo`, `PDFontFactory`, `Standard14Fonts`, `PDPanose`, `DefaultFontProvider`,
+`FontMapper`, `FontMappers`, `FileSystemFontProvider`; encoding classes
+(`DictionaryEncoding`, `Encoding`, `GlyphList`, `MacRomanEncoding`, `SymbolEncoding`,
+`Type1Encoding`, `WinAnsiEncoding`, `ZapfDingbatsEncoding`).
+
+**Still missing or stub-level:**
+- `PDType3Font` — exists as an abstract stub in `RenderingSupportStubs.cs`; no real
+  glyph-width or rendering implementation.
+- `PDCIDFontType0.java` — CID font backed by CFF/Type1 outlines; partial or missing.
+- Full `FontDescriptorFactory`/font-resolution chain needed for embedded font loading.
+- `FontMapper` implementations may be partial.
+
+### `org.apache.pdfbox.pdmodel.graphics` — ~60%
+
+**Ported (24):**
+- Color spaces: `PDColorSpace`, `PDColor`, `PDColorSpaceFactory`, `PDDeviceRGB`,
+  `PDDeviceCMYK`, `PDDeviceGray`, `PDCalRGB`, `PDCalGray`, `PDLab`, `PDICCBased`,
+  `PDIndexed`, `PDSeparation`, `PDDeviceN`, `PDPattern`
+- Forms/Images: `PDFormXObject`, `PDTransparencyGroup`, `PDImageXObject`, `PDXObject`
+- State: `PDGraphicsState`, `PDTextState`, `PDExtendedGraphicsState`, `PDLineDashPattern`,
+  `PDSoftMask`
+- Other: `BlendMode`
+
+**Still missing (~16):**
+- Shading: `PDShading.java`, `PDShadingType1–7.java` (~8 files) — needed for shading fills
+- Optional-content real implementations: `PDOptionalContentProperties`, `PDOptionalContentGroup`
+  (stub-only in `RenderingSupportStubs.cs`)
+- Pattern real implementations: `PDTilingPattern`, `PDShadingPattern` (stub-only)
+- `PDInlineImage.java` — inline image data model
+- `PDFunction` subtypes (Type 0, 2, 3, 4) — `PDFunction` base stub exists but no
+  concrete implementations for sampled/exponential/stitching/PostScript functions.
+
+### `org.apache.pdfbox.rendering` — ~75%
+
+**Ported (11):** `PDFRenderer.cs`, `PageDrawer.cs`, `PageDrawerParameters.cs`,
+`GlyphCache.cs`, `GroupGraphics.cs`, `ImageType.cs`, `RenderDestination.cs`,
+`SoftMask.cs`, `TilingPaint.cs`, `TilingPaintFactory.cs`.
+Also `AwtStubs.cs` (Java AWT placeholder types for .NET).
+
+**Remaining:**
+- `AwtStubs.cs` provides Java AWT placeholder types that allow the rendering code to
+  compile. The rendering layer will not produce real rasterized output until these
+  stubs are replaced with actual .NET graphics API calls (System.Drawing, SkiaSharp,
+  or similar).
+- Some `PageDrawer` methods are no-ops or throw due to missing shading/function support.
+
+### `org.apache.pdfbox.util` — ~67%
+
+**Ported (10):** `Vector.cs`, `Matrix.cs`, `AffineTransform.cs`, `DateConverter.cs`,
+`Hex.cs`, `NumberFormatUtil.cs`, `GregorianCalendar.cs`, `ParsePosition.cs`,
+`SimpleTimeZone.cs`, `StringUtil.cs`.
+
+**Remaining (~5):**
+- `SmallMap.java` — small-map optimization for low-entry-count dictionaries
+- `IteratorChain.java` — chained iterator over multiple collections
+- `CharUtils.java` — character classification utilities (whitespace, line-terminators)
+- Potentially 1–2 more minor utilities.
 
 ---
 
-## Packages with major gaps
+## Packages with major gaps ❌
 
-### `org.apache.pdfbox.filter` — ~17% ported (CRITICAL BLOCKER)
-Only the abstract base and decode infrastructure are ported. No concrete filter is implemented.
-Every compressed PDF stream (including all real-world PDFs with Flate-compressed content)
-cannot be decoded until these are ported.
+### `org.apache.pdfbox.pdmodel.common` — ~20%
 
-**Ported (3):** `Filter.cs` (abstract base), `DecodeOptions.cs`, `DecodeResult.cs`
-
-**Missing (~15):**
-- `FlateFilter.java` — deflate/zlib, used by ~95% of modern PDFs
-- `ASCIIHexFilter.java` — hex-encoded streams
-- `ASCII85Filter.java` — base-85 encoded streams
-- `DCTFilter.java` — JPEG image compression
-- `LZWFilter.java` — LZW (legacy, used in older PDFs)
-- `RunLengthDecodeFilter.java` — simple run-length encoding
-- `CCITTFaxDecodeFilter.java` — Group 3/4 fax-compressed images
-- `JBIG2Filter.java` — JBIG2 bi-level image compression
-- `JPXFilter.java` — JPEG 2000 image compression
-- `CryptFilter.java` — encryption-layer filter
-- `FilterFactory.java` — filter registry and factory
-- `Predictor.java` — PNG predictor post-processing for Flate/LZW
-- `FlateFilter` related inner helpers
-
-### `org.apache.pdfbox.contentstream.operator` — ~32% ported (BLOCKER)
-Only text, basic state, marked content, and DrawObject operators are ported. All graphics
-path construction, painting, color, inline image, shading, and compatibility operators are absent.
-
-**Ported (19):** All text operators (Tj, TJ, ', ", Tf, Tc, Tw, Tz, TL, Tr, Ts, Td, TD, Tm, T*,
-BT, ET), state operators (q, Q, cm, Tm, gs), marked content (BMC, BDC, EMC, MP, DP), DrawObject (Do).
-
-**Missing by category (~41 operator files):**
-
-Color operators (~12):
-- `color/SetNonStrokingColor.java` — sc
-- `color/SetNonStrokingColorN.java` — scn
-- `color/SetNonStrokingColorSpace.java` — cs
-- `color/SetNonStrokingDeviceCMYKColor.java` — k
-- `color/SetNonStrokingDeviceGrayColor.java` — g
-- `color/SetNonStrokingDeviceRGBColor.java` — rg
-- `color/SetStrokingColor.java` — SC
-- `color/SetStrokingColorN.java` — SCN
-- `color/SetStrokingColorSpace.java` — CS
-- `color/SetStrokingDeviceCMYKColor.java` — K
-- `color/SetStrokingDeviceGrayColor.java` — G
-- `color/SetStrokingDeviceRGBColor.java` — RG
-
-Path construction operators (~8):
-- `graphics/LineTo.java` — l
-- `graphics/MoveTo.java` — m
-- `graphics/CurveTo.java` — c
-- `graphics/CurveToReplicateFinalPoint.java` — y
-- `graphics/CurveToReplicateInitialPoint.java` — v
-- `graphics/AppendRectangleToPath.java` — re
-- `graphics/ClosePath.java` — h
-- `graphics/EndPath.java` — n (no-op path terminator)
-
-Path painting operators (~9):
-- `graphics/StrokePath.java` — S
-- `graphics/CloseAndStrokePath.java` — s
-- `graphics/FillNonZeroRule.java` — f / F
-- `graphics/FillEvenOddRule.java` — f*
-- `graphics/FillNonZeroAndStrokePath.java` — B
-- `graphics/FillEvenOddAndStrokePath.java` — B*
-- `graphics/ClipNonZeroRule.java` — W
-- `graphics/ClipEvenOddRule.java` — W*
-- `graphics/CloseAndFillNonZeroAndStrokePath.java` / `graphics/CloseAndFillEvenOddAndStrokePath.java`
-
-State operators (remaining, ~5):
-- `state/SetLineWidth.java` — w
-- `state/SetLineCap.java` — J
-- `state/SetLineJoin.java` — j
-- `state/SetMiterLimit.java` — M
-- `state/SetLineDashPattern.java` — d
-- `state/SetFlatness.java` — i
-- `state/SetRenderingIntent.java` — ri
-
-Inline image (~3):
-- `graphics/BeginInlineImage.java` — BI
-- `graphics/BeginInlineImageData.java` — ID
-- `graphics/EndInlineImage.java` — EI
-
-Other (~4):
-- `graphics/ShadingFill.java` — sh
-- `type3/SetType3GlyphWidth.java` — d0
-- `type3/SetType3GlyphWidthAndBoundingBox.java` — d1
-- `compatibility/BeginCompatibilitySection.java` / `EndCompatibilitySection.java` — BX/EX
-
-### `org.apache.pdfbox.pdmodel.font` — ~10% ported
-**Ported:** `GlyphList.cs`, `FontStubs.cs` (stubs for PDFont hierarchy), `PDDictionaryFont.cs`
-
-**Missing (~27 classes):**
-- `PDType1Font.java` — Type 1 (PostScript) fonts, including standard 14
-- `PDTrueTypeFont.java` — TrueType font loading/glyph mapping
-- `PDType0Font.java` — Composite (CJK/Unicode) fonts using CMaps
-- `PDCIDFontType0.java` — CID font with Type1/CFF outlines
-- `PDCIDFontType2.java` — CID font with TrueType outlines
-- `PDType3Font.java` — Type 3 (user-defined) fonts
-- `PDFont.java` — real abstract base with ToUnicode/widths
-- `PDFontLike.java` — interface for font-like objects
-- `PDFontDescriptor.java` — real font descriptor with metrics
-- `Encoding/DictionaryEncoding.java` — custom character encoding
-- `Encoding/MacRomanEncoding.java`, `WinAnsiEncoding.java`, `SymbolEncoding.java`, etc.
-- `encoding/Type1Encoding.java`, `GlyphList.java` refinements
-- `Standard14Fonts.java` — mapping for the 14 built-in PDF fonts
-- `FontMappers.java` / `FontMapper.java` / `DefaultFontProvider.java`
-- `PDPanose.java`, `PDCIDSystemInfo.java`, `PDFontFactory.java`
-
-### `org.apache.pdfbox.pdmodel.graphics` — ~13% ported
-**Ported:** `PDXObject.cs`, `PDGraphicsState.cs`, `PDTextState.cs`
-+ stub types: `PDColorSpace`, `PDColor`, `PDAbstractPattern`, `PDTilingPattern`, `PDShadingPattern`,
-  `PDFormXObject`, `PDTransparencyGroup`, `PDSoftMask`, `PDLineDashPattern`, `PDOptionalContent*`,
-  `PDImage`, `BlendMode`, `PDFunction*`
-
-**Missing (~35 real implementations):**
-- Color spaces: `PDDeviceRGB.java`, `PDDeviceCMYK.java`, `PDDeviceGray.java`, `PDCalRGB.java`,
-  `PDCalGray.java`, `PDLab.java`, `PDICCBased.java`, `PDIndexed.java`, `PDSeparation.java`,
-  `PDDeviceN.java`, `PDPattern.java`
-- Images: `PDImageXObject.java`, `PDInlineImage.java`, `PDImage.java` (real)
-- Forms: `PDFormXObject.java` (real), `PDTransparencyGroup.java` (real)
-- Shading: `PDShading.java`, `PDShadingType1.java` through `PDShadingType7.java`
-- Extended graphics state: `PDExtendedGraphicsState.java`
-- Soft mask: `PDSoftMask.java` (real)
-- Optional content: `PDOptionalContentProperties.java` (real), `PDOptionalContentGroup.java` (real)
-
-### `org.apache.pdfbox.pdmodel.common` — ~7% ported
-**Ported:** `PDRectangle.cs`
-
-**Missing (~14 classes):**
-- `PDStream.java` — abstract wrapper around COSStream for pdmodel
-- `PDMetadata.java` — XMP metadata access
-- `PDNameTreeNode.java`, `PDNumberTreeNode.java` — tree structures
-- `PDDestination.java` — navigation targets
-- `PDFileSpecification.java` — file attachment references
-- `PDTextStream.java` — text-type stream
-- `PDPageLabels.java` — page label ranges
-- `PDRange.java` — numeric range
-- `function/PDFunction*.java` (~6 function types)
-
-### `org.apache.pdfbox.pdmodel.encryption` — 0% ported
-Required for loading password-protected PDFs.
+**Ported (3):** `PDRectangle.cs`, `PDStream.cs`, `PDMetadata.cs`.
 
 **Missing (~12 classes):**
-- `StandardDecryptionMaterial.java` / `PublicKeyDecryptionMaterial.java`
-- `AccessPermission.java`
-- `PDEncryption.java`
-- `SecurityHandler.java` / `StandardSecurityHandler.java` / `PublicKeySecurityHandler.java`
-- `CryptFilterDictionary.java`
-- `PDCryptFilterDictionary.java`
-- `MessageDigests.java` / `RC4Cipher.java`
-- `AESKeyLength.java`
+- `PDNameTreeNode.java` — name-keyed tree node (for embedded files, destinations)
+- `PDNumberTreeNode.java` — number-keyed tree node (for page labels, etc.)
+- `PDDestination.java` — navigation destination (GoTo actions, links)
+- `PDFileSpecification.java` — file attachment reference
+- `PDTextStream.java` — text-type stream wrapper
+- `PDPageLabels.java` — page label ranges
+- `PDRange.java` — numeric range descriptor
+- `PDFunction` concrete types (Type 0 Sampled, Type 2 Exponential, Type 3 Stitching,
+  Type 4 PostScript) — base stub exists in `RenderingSupportStubs.cs` but no subtypes
 
-### `org.apache.pdfbox.pdmodel.interactive` — ~7% ported
-**Ported (stubs):** `PDOutlineItem.cs`, `PDThreadBead.cs`
+### `org.apache.pdfbox.pdmodel.interactive` — ~7% ❌
+
+**Ported (stubs only):** `PDOutlineItem.cs` (stub), `PDThreadBead.cs` (stub)
+— both in `TextStubs.cs`.
 
 **Missing (~28 full implementations):**
-- `PDDocumentOutline.java` / `PDOutlineNode.java` / `PDOutlineItem.java` (real)
-- `PDActionGoTo.java`, `PDActionLaunch.java`, `PDActionURI.java`, and other action types
-- `PDAnnotation` hierarchy (~15+ annotation types)
-- `PDDocumentCatalog` navigation helpers
+- Document outline: `PDDocumentOutline.java`, `PDOutlineNode.java`, `PDOutlineItem.java` (real)
+- Actions (~8): `PDActionGoTo.java`, `PDActionLaunch.java`, `PDActionURI.java`,
+  `PDActionJavaScript.java`, `PDActionNamed.java`, `PDActionRemoteGoTo.java`, etc.
+- Annotations (~15+): `PDAnnotation.java` base + all subtypes (Link, Text, FreeText, Line,
+  Square, Circle, Polygon, PolyLine, Highlight, Underline, Squiggly, StrikeOut, Stamp, Caret,
+  Ink, Popup, FileAttachment, Sound, Movie, Widget, Screen, PrinterMark, etc.)
 - `PDPageTransition.java`
-- Viewer preferences, threading, embedded files, etc.
+- Viewer preferences, threading, embedded files
+- Forms (AcroForm): `PDAcroForm.java`, `PDField.java`, etc.
 
-### `org.apache.pdfbox.util` — ~20% ported
-**Ported:** `Vector.cs`, `Matrix.cs`, `AffineTransform.cs`
+### `org.apache.pdfbox.pdmodel.documentinterchange` — ~10% ⚠️
 
-**Missing (~12 classes):**
-- `DateConverter.java` — PDF date string ↔ Java/C# date parsing
-- `Hex.java` — hex encoding/decoding utilities
-- `NumberFormatUtil.java` — number formatting for PDF output
-- `SmallMap.java` — small-map optimization
-- `IteratorChain.java`
-- `CharUtils.java`
-- Various other small utilities
-
-### `org.apache.pdfbox.printing` — 0% ported
-Required for printing PDF pages via OS print APIs.
-
-**Missing (~4 classes):**
-- `PDFPrintable.java` — Printable adapter for a single PDF page
-- `PDFPageable.java` — Pageable adapter for a PDF document
-- `PrintOrientation.java` — orientation enum
-- `Scaling.java` — scaling mode enum
+**Ported (1):** `PDMarkedContent.cs`.
+**Missing (~9):** Tagged PDF structure elements, marked content attributes,
+accessibility properties, artifact types, etc.
 
 ---
 
-## Key gaps by priority
+## Key remaining gaps by priority
 
-### Priority 1 — Filter implementations (CRITICAL PATH)
-**Scope:** `org.apache.pdfbox.filter` (~15 files)
-Without `FlateFilter` (zlib/deflate), real-world PDF streams cannot be decoded. All compressed
-content in PDF — text streams, image data, font programs, cross-reference streams — uses Flate.
-This is a hard blocker for any end-to-end PDF processing.
-**Size estimate:** Medium (~15 files, ~2–3 engineer-days)
-**See:** `issues/19-filter-implementations.md`
+### Priority 1 — Full PDF document loading (CRITICAL PATH)
+**Scope:** `org.apache.pdfbox.pdfparser` — `PDFParser`/`PDFDocumentParser` and
+`PDFObjectStreamParser` (~3–5 files)
 
-### Priority 2 — ContentStream graphics/color/path operators (~41 operator files)
-**Scope:** Missing color, path construction, path painting, state, and inline image operators
-Required for page rendering and full content stream processing. Without these, the page
-renderer can only process text content.
-**Size estimate:** Medium (~41 files, ~2–4 engineer-days)
-**See:** `issues/20-contentstream-graphics-operators.md`
+The current `PDDocument.Load()` extracts only a raw dictionary from the file. Real PDF loading
+requires reading the xref table (or cross-reference stream), resolving object references
+on-demand, decompressing object streams, and wiring everything into `COSDocument` + `PDDocument`.
+Without this, the library cannot load actual PDFs from disk.
 
-### Priority 3 — PDModel font full port (~27 files)
-**Scope:** Replace `FontStubs.cs` with real font implementations
-Required for: actual character code to Unicode mapping, glyph width lookups, Type1/TrueType
-loading, and font subsetting (for PDF creation).
-**Size estimate:** Large (~27 files, ~4–6 engineer-days)
-**See:** `issues/21-pdmodel-font-full-port.md`
+**See:** `issues/31-full-pdf-document-loading.md` (new)
 
-### Priority 4 — PDModel color spaces (~20 files)
-**Scope:** Replace color-space stubs in `RenderingSupportStubs.cs` with real implementations
-Required for: rendering, image extraction, and any operation involving color.
-**Size estimate:** Medium (~20 files, ~3–4 engineer-days)
-**See:** `issues/22-pdmodel-color-spaces.md`
+### Priority 2 — PDModel interactive layer (~28 files) ❌
+**Scope:** `org.apache.pdfbox.pdmodel.interactive`
 
-### Priority 5 — PDModel common + graphics support (~25 files)
-**Scope:** PDStream, PDMetadata, real form/image/shading XObjects, extended graphics state
-Required for: complex PDF content processing, XObject rendering, transparency, optional content.
-**Size estimate:** Medium-Large (~25 files, ~3–5 engineer-days)
-**See:** `issues/23-pdmodel-graphics-common.md`
+Annotations, actions, bookmarks, outlines, viewer preferences, and forms are entirely absent
+(only two empty stubs). These are present in almost every real-world PDF.
 
-### Priority 6 — PDModel interactive + encryption (~40 files)
-**Scope:** Annotations, actions, outlines, encryption, document navigation
-Required for: loading protected PDFs, UI-layer features (annotations, bookmarks, forms).
-**Size estimate:** Large (~40 files, ~5–7 engineer-days)
-**See:** `issues/24-pdmodel-interactive-encryption.md`
+**See:** `issues/32-pdmodel-interactive-port.md` (new)
 
-### Priority 7 — Util completeness + DateConverter + printing (~20 files)
-**Scope:** Remaining pdfbox.util classes, printing module
-Required for: correct date handling, hex utilities, printing support.
-**Size estimate:** Small-Medium (~20 files, ~2–3 engineer-days)
-**See:** `issues/25-util-printing-completeness.md`
+### Priority 3 — Rendering with real .NET graphics
+**Scope:** Replace `AwtStubs.cs` with platform-appropriate .NET rendering
+
+The rendering layer compiles and the logic is ported, but `AwtStubs.cs` means no real pixels
+are produced. Adopting System.Drawing.Common, SkiaSharp, or Microsoft.Maui.Graphics would
+unlock actual PDF-to-image conversion.
+
+**See:** `issues/33-rendering-net-graphics.md` (new)
+
+### Priority 4 — StandardSecurityHandler decryption
+**Scope:** `PrepareForDecryption` RC4/AES flow in `StandardSecurityHandler`
+
+Required for loading any password-protected PDF. The data model and structure types are
+present; only the cryptographic decryption flow is missing.
+
+**See:** `issues/34-encryption-decryption.md` (new)
+
+### Priority 5 — PDModel/Common completeness (~12 files)
+**Scope:** `org.apache.pdfbox.pdmodel.common`
+
+PDNameTreeNode, PDNumberTreeNode, PDDestination, PDFileSpecification, PDPageLabels, PDRange,
+PDFunction subtypes. Required for document outlines, embedded files, destinations, and page
+label support.
+
+**See:** `issues/35-pdmodel-common-completeness.md` (new)
+
+### Priority 6 — Missing operator processors (2 files)
+**Scope:** `b` and `b*` graphics operators
+
+`CloseAndFillNonZeroAndStrokePath` and `CloseAndFillEvenOddAndStrokePath` are defined in
+`OperatorName.cs` but have no processor class or registration. Small scope; should be a
+quick win bundled into the next operators PR.
+
+**See:** `issues/36-close-fill-operators.md` (new)
 
 ---
 
 ## Dependency order
 
 ```
-Filter implementations (#19)
-    └── ContentStream graphics operators (#20)
-            └── PDModel font full port (#21)
-                    └── PDModel color spaces (#22)
-                            └── PDModel graphics/common (#23)
-                                    └── PDModel interactive/encryption (#24)
-
-Util completeness (#25) — mostly independent, can run in parallel
+Full PDF loading (#31)
+    └── PDModel interactive (#32) — annotations/actions can be read from real docs
+            └── PDModel common completeness (#35) — tree nodes needed by interactive
+Rendering .NET graphics (#33) — mostly independent of above
+Encryption decryption (#34) — independent of above
+Close/Fill operators (#36) — independent quick win
 ```
 
 ## Total remaining work estimate
 
 | Priority | Issue | Files | Effort |
 |---|---|---|---|
-| 1 | #19 Filter implementations | ~15 | 2–3 days |
-| 2 | #20 ContentStream graphics operators | ~41 | 2–4 days |
-| 3 | #21 PDModel font full port | ~27 | 4–6 days |
-| 4 | #22 PDModel color spaces | ~20 | 3–4 days |
-| 5 | #23 PDModel graphics/common | ~25 | 3–5 days |
-| 6 | #24 PDModel interactive/encryption | ~40 | 5–7 days |
-| 7 | #25 Util + printing | ~20 | 2–3 days |
-| | **Total** | **~188** | **~21–32 engineer-days** |
+| 1 | #31 Full PDF document loading | ~5 | 2–3 days |
+| 2 | #32 PDModel interactive port | ~28 | 4–6 days |
+| 3 | #33 Rendering .NET graphics | ~5 (adapt) | 3–5 days |
+| 4 | #34 Encryption decryption | ~3 | 1–2 days |
+| 5 | #35 PDModel/Common completeness | ~12 | 2–3 days |
+| 6 | #36 Close/Fill operators | 2 | 0.5 days |
+| | **Total** | **~55** | **~13–20 engineer-days** |
