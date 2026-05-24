@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/CFFEncoding.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/CIDKeyedType2CharString.java
  * PDFBOX_SOURCE_COMMIT: f23622e3b60d1601123aab943219e4d38b255eb4
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: f23622e3b60d1601123aab943219e4d38b255eb4
@@ -27,15 +27,25 @@
 
 namespace PdfBox.Net.FontBox.CFF;
 
-public abstract class CFFEncoding : PdfBox.Net.FontBox.Encoding.Encoding
+/// <summary>
+/// A CID-Keyed Type 2 CharString.
+/// </summary>
+public class CIDKeyedType2CharString : Type2CharString
 {
-    public void Add(int code, int sid, string name)
+    /// <summary>
+    /// Initializes a new CID-keyed Type 2 charstring.
+    /// </summary>
+    /// <param name="fontName">Font name.</param>
+    /// <param name="cid">CID (character identifier).</param>
+    /// <param name="bytes">Raw charstring bytes.</param>
+    public CIDKeyedType2CharString(string fontName, int cid, byte[] bytes)
+        : base(fontName, string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:x4}", cid), bytes)
     {
-        AddCharacterEncoding(code, name);
+        CID = cid;
     }
 
-    protected void Add(int code, int sid)
-    {
-        AddCharacterEncoding(code, CFFStandardString.GetName(sid));
-    }
+    /// <summary>
+    /// Returns the CID (character identifier) of this charstring.
+    /// </summary>
+    public int CID { get; }
 }

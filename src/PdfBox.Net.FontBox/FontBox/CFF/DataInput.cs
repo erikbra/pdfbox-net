@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/CFFEncoding.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/DataInput.java
  * PDFBOX_SOURCE_COMMIT: f23622e3b60d1601123aab943219e4d38b255eb4
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: f23622e3b60d1601123aab943219e4d38b255eb4
@@ -27,15 +27,53 @@
 
 namespace PdfBox.Net.FontBox.CFF;
 
-public abstract class CFFEncoding : PdfBox.Net.FontBox.Encoding.Encoding
+/// <summary>
+/// This interface defines some functionality to read a CFF font.
+/// </summary>
+public interface DataInput
 {
-    public void Add(int code, int sid, string name)
+    bool HasRemaining();
+
+    int GetPosition();
+
+    void SetPosition(int position);
+
+    byte ReadByte();
+
+    int ReadUnsignedByte();
+
+    int PeekUnsignedByte(int offset);
+
+    short ReadShort() => (short)ReadUnsignedShort();
+
+    int ReadUnsignedShort()
     {
-        AddCharacterEncoding(code, name);
+        int b1 = ReadUnsignedByte();
+        int b2 = ReadUnsignedByte();
+        return b1 << 8 | b2;
     }
 
-    protected void Add(int code, int sid)
+    int ReadInt()
     {
-        AddCharacterEncoding(code, CFFStandardString.GetName(sid));
+        int b1 = ReadUnsignedByte();
+        int b2 = ReadUnsignedByte();
+        int b3 = ReadUnsignedByte();
+        int b4 = ReadUnsignedByte();
+        return b1 << 24 | b2 << 16 | b3 << 8 | b4;
+    }
+
+    byte[] ReadBytes(int length);
+
+    int Length();
+
+    int ReadOffset(int offSize)
+    {
+        int value = 0;
+        for (int i = 0; i < offSize; i++)
+        {
+            value = value << 8 | ReadUnsignedByte();
+        }
+
+        return value;
     }
 }

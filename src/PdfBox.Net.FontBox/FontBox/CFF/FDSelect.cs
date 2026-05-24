@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/CFFEncoding.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/FDSelect.java
  * PDFBOX_SOURCE_COMMIT: f23622e3b60d1601123aab943219e4d38b255eb4
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: f23622e3b60d1601123aab943219e4d38b255eb4
@@ -27,15 +27,13 @@
 
 namespace PdfBox.Net.FontBox.CFF;
 
-public abstract class CFFEncoding : PdfBox.Net.FontBox.Encoding.Encoding
+/// <summary>
+/// CFF FD-Select structure — maps glyph IDs to Font DICT indices.
+/// </summary>
+public interface FDSelect
 {
-    public void Add(int code, int sid, string name)
-    {
-        AddCharacterEncoding(code, name);
-    }
-
-    protected void Add(int code, int sid)
-    {
-        AddCharacterEncoding(code, CFFStandardString.GetName(sid));
-    }
+    /// <summary>
+    /// Returns the Font DICT index for the given GID.
+    /// </summary>
+    int GetFDIndex(int gid);
 }
