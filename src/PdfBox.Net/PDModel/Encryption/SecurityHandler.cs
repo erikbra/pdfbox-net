@@ -25,6 +25,7 @@
  * limitations under the License.
  */
 
+using System.Security.Cryptography;
 using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Encryption;
@@ -33,6 +34,9 @@ public abstract class SecurityHandler<TPolicy>
     where TPolicy : ProtectionPolicy
 {
     private const short DefaultKeyLength = 40;
+
+    /// <summary>The 4-byte AES salt appended to per-object key material when using AES.</summary>
+    private static readonly byte[] AesSalt = { 0x73, 0x41, 0x6C, 0x54 }; // "sAlT"
 
     private short _keyLength = DefaultKeyLength;
     private byte[]? _encryptionKey;
@@ -129,5 +133,127 @@ public abstract class SecurityHandler<TPolicy>
     public bool IsAES()
     {
         return _useAes;
+    }
+
+    /// <summary>
+    /// Computes the per-object encryption key for the indirect object identified by
+    /// <paramref name="objNumber"/> and <paramref name="genNumber"/>, as specified in PDF
+    /// section 7.6.3 (revision 2–4) or using the document-level key directly for revision 5/6.
+    /// </summary>
+    /// <param name="objNumber">The PDF object number.</param>
+    /// <param name="genNumber">The PDF generation number.</param>
+    /// <returns>The per-object key to use for RC4 or AES decryption of this object.</returns>
+    public byte[] ComputeObjectKey(long objNumber, long genNumber)
+    {
+        byte[] key = _encryptionKey!;
+
+        // For AES-256 (revision 5/6) the file-level key is used directly.
+        if (key.Length == 32)
+        {
+            return key;
+        }
+
+        // For RC4 and AES-128 the per-object key is derived as per PDF spec 7.6.3.
+        int keyLen = key.Length;
+        bool aes = _useAes;
+        byte[] mdInput = new byte[keyLen + 5 + (aes ? 4 : 0)];
+
+        Array.Copy(key, 0, mdInput, 0, keyLen);
+        mdInput[keyLen]     = (byte)(objNumber & 0xFF);
+        mdInput[keyLen + 1] = (byte)((objNumber >> 8) & 0xFF);
+        mdInput[keyLen + 2] = (byte)((objNumber >> 16) & 0xFF);
+        mdInput[keyLen + 3] = (byte)(genNumber & 0xFF);
+        mdInput[keyLen + 4] = (byte)((genNumber >> 8) & 0xFF);
+
+        if (aes)
+        {
+            Array.Copy(AesSalt, 0, mdInput, keyLen + 5, 4);
+        }
+
+        using HashAlgorithm md5 = MD5.Create();
+        byte[] hash = md5.ComputeHash(mdInput);
+
+        int resultLen = Math.Min(keyLen + 5, 16);
+        byte[] result = new byte[resultLen];
+        Array.Copy(hash, result, resultLen);
+        return result;
+    }
+
+    /// <summary>
+    /// Decrypts (or encrypts — RC4 is symmetric) the bytes read from <paramref name="input"/>
+    /// and writes them to <paramref name="output"/>, using the per-object key derived from
+    /// <paramref name="objNumber"/> / <paramref name="genNumber"/>.
+    /// </summary>
+    /// <param name="objNumber">The PDF object number of the containing indirect object.</param>
+    /// <param name="genNumber">The PDF generation number of the containing indirect object.</param>
+    /// <param name="input">Source ciphertext (or plaintext) stream.</param>
+    /// <param name="output">Destination plaintext (or ciphertext) stream.</param>
+    public void DecryptData(long objNumber, long genNumber, Stream input, Stream output)
+    {
+        byte[] objKey = ComputeObjectKey(objNumber, genNumber);
+
+        if (_useAes)
+        {
+            DecryptAes(objKey, input, output);
+        }
+        else
+        {
+            DecryptRC4(objKey, input, output);
+        }
+    }
+
+    /// <summary>
+    /// Decrypts the raw bytes of <paramref name="cosString"/> in-place using the per-object key
+    /// derived from <paramref name="objNumber"/> / <paramref name="genNumber"/>.
+    /// </summary>
+    /// <param name="objNumber">The PDF object number of the containing indirect object.</param>
+    /// <param name="genNumber">The PDF generation number of the containing indirect object.</param>
+    /// <param name="cosString">The string to decrypt; its bytes are replaced with decrypted bytes.</param>
+    public void DecryptString(long objNumber, long genNumber, COSString cosString)
+    {
+        byte[] cipherBytes = cosString.GetBytes();
+        using MemoryStream input = new(cipherBytes);
+        using MemoryStream output = new();
+        DecryptData(objNumber, genNumber, input, output);
+        cosString.ResetWith(output.ToArray());
+    }
+
+    private static void DecryptRC4(byte[] key, Stream input, Stream output)
+    {
+        RC4Cipher rc4 = new();
+        rc4.SetKey(key);
+
+        int b;
+        while ((b = input.ReadByte()) != -1)
+        {
+            rc4.Write(b, output);
+        }
+    }
+
+    private static void DecryptAes(byte[] key, Stream input, Stream output)
+    {
+        // Read the 16-byte IV that precedes the ciphertext.
+        byte[] iv = new byte[16];
+        int read = 0;
+        while (read < 16)
+        {
+            int n = input.Read(iv, read, 16 - read);
+            if (n <= 0)
+            {
+                throw new IOException("AES-encrypted stream is too short to contain an IV.");
+            }
+
+            read += n;
+        }
+
+        using Aes aes = Aes.Create();
+        aes.Key = key;
+        aes.IV = iv;
+        aes.Mode = CipherMode.CBC;
+        aes.Padding = PaddingMode.PKCS7;
+
+        using ICryptoTransform decryptor = aes.CreateDecryptor();
+        using CryptoStream cs = new(input, decryptor, CryptoStreamMode.Read, leaveOpen: true);
+        cs.CopyTo(output);
     }
 }

@@ -31,7 +31,7 @@ namespace PdfBox.Net.COS;
 
 public sealed class COSString : COSBase
 {
-    private readonly byte[] _bytes;
+    private byte[] _bytes;
     private readonly bool _forceHexForm;
 
     public COSString(byte[] bytes)
@@ -176,6 +176,16 @@ public sealed class COSString : COSBase
     public byte[] GetBytes()
     {
         return (byte[])_bytes.Clone();
+    }
+
+    /// <summary>
+    /// Replaces the byte content of this string. Used during PDF decryption to update
+    /// the string in-place after applying the stream cipher.
+    /// </summary>
+    /// <param name="bytes">The new raw byte value.</param>
+    public void ResetWith(byte[] bytes)
+    {
+        _bytes = (byte[])bytes.Clone();
     }
 
     public string ToHexString()

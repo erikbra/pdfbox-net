@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Encryption;
 using PdfBox.Net.PdfParser;
 using PdfBox.Net.PdfWriter;
 using System.Globalization;
@@ -66,6 +67,17 @@ public sealed class PDDocument : IDisposable
     /// <returns>The loaded document.</returns>
     public static PDDocument Load(Stream input)
     {
+        return Load(input, password: null);
+    }
+
+    /// <summary>
+    /// Parses a password-protected PDF stream and returns a document.
+    /// </summary>
+    /// <param name="input">The input stream.</param>
+    /// <param name="password">The user or owner password used to decrypt the document.</param>
+    /// <returns>The loaded document.</returns>
+    public static PDDocument Load(Stream input, string? password)
+    {
         ArgumentNullException.ThrowIfNull(input);
         byte[] bytes = ReadAllBytes(input);
         using MemoryStream parseInput = new(bytes, writable: false);
@@ -73,7 +85,9 @@ public sealed class PDDocument : IDisposable
         {
             PDFParser parser = new(parseInput);
             ParsedPDFDocument parsed = parser.Parse();
-            return new PDDocument(parsed.Trailer, parsed.HeaderVersion);
+            PDDocument doc = new(parsed.Trailer, parsed.HeaderVersion);
+            doc.DecryptIfNeeded(password);
+            return doc;
         }
         catch (IOException ex) when (ex.Message.Contains("startxref", StringComparison.Ordinal))
         {
@@ -98,9 +112,20 @@ public sealed class PDDocument : IDisposable
     /// <returns>The loaded document.</returns>
     public static PDDocument Load(string filePath)
     {
+        return Load(filePath, password: null);
+    }
+
+    /// <summary>
+    /// Parses a password-protected PDF file and returns a document.
+    /// </summary>
+    /// <param name="filePath">The file path to load.</param>
+    /// <param name="password">The user or owner password used to decrypt the document.</param>
+    /// <returns>The loaded document.</returns>
+    public static PDDocument Load(string filePath, string? password)
+    {
         ArgumentNullException.ThrowIfNull(filePath);
         using FileStream input = File.OpenRead(filePath);
-        return Load(input);
+        return Load(input, password);
     }
 
     /// <summary>
@@ -264,6 +289,108 @@ public sealed class PDDocument : IDisposable
     private void EnsureNotDisposed()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+    }
+
+    /// <summary>
+    /// If the document is encrypted, initialises and runs the security handler to decrypt all
+    /// string and stream objects reachable from the trailer.
+    /// </summary>
+    /// <param name="password">The user or owner password, or null / empty for no password.</param>
+    private void DecryptIfNeeded(string? password)
+    {
+        COSDictionary? encryptDict = _trailer.GetCOSDictionary(COSName.GetPDFName("Encrypt"));
+        if (encryptDict is null)
+        {
+            return;
+        }
+
+        COSArray? idArray = _trailer.GetCOSArray(COSName.GetPDFName("ID"));
+
+        PDEncryption encryption = new(encryptDict);
+        StandardSecurityHandler handler = new();
+        StandardDecryptionMaterial material = new(password ?? string.Empty);
+        handler.PrepareForDecryption(encryption, idArray, material);
+
+        // Walk the object graph starting from the trailer, but only decrypt strings and
+        // streams that belong to an indirect object (i.e., are inside a COSObject wrapper).
+        // Strings that appear directly in the cross-reference trailer (e.g., /ID) must not
+        // be decrypted per PDF spec section 7.6.5.
+        HashSet<COSBase> visited = new(ReferenceEqualityComparer.Instance);
+        DecryptObjectGraph(_trailer, handler, 0, 0, inIndirectObject: false, visited, encryptDict);
+    }
+
+    private static void DecryptObjectGraph(
+        COSBase obj,
+        SecurityHandler<ProtectionPolicy> handler,
+        long contextObjNum,
+        long contextGenNum,
+        bool inIndirectObject,
+        HashSet<COSBase> visited,
+        COSDictionary encryptDict)
+    {
+        if (obj is null || !visited.Add(obj))
+        {
+            return;
+        }
+
+        // Determine the object context: if this COSBase is itself an indirect object,
+        // use its own key; otherwise inherit the caller's context.
+        COSObjectKey? key = obj.GetKey();
+        long objNum = key is not null ? key.GetNumber() : contextObjNum;
+        long genNum = key is not null ? (long)key.GetGeneration() : contextGenNum;
+
+        switch (obj)
+        {
+            case COSObject cosObj:
+                COSBase? inner = cosObj.GetObject();
+                if (inner is not null)
+                {
+                    // Entering a COSObject marks the beginning of an indirect object scope.
+                    DecryptObjectGraph(inner, handler, objNum, genNum, inIndirectObject: true, visited, encryptDict);
+                }
+
+                break;
+
+            case COSString cosString:
+                // Only decrypt strings that are inside an indirect object (never trailer-level
+                // strings such as /ID, and never the encryption dictionary itself).
+                if (inIndirectObject)
+                {
+                    handler.DecryptString(objNum, genNum, cosString);
+                }
+
+                break;
+
+            case COSDictionary cosDictionary:
+                // Skip the encryption dictionary entirely — it must never be decrypted.
+                if (ReferenceEquals(cosDictionary, encryptDict))
+                {
+                    break;
+                }
+
+                foreach (COSName dictKey in cosDictionary.KeySet())
+                {
+                    COSBase? value = cosDictionary.GetItem(dictKey);
+                    if (value is not null)
+                    {
+                        DecryptObjectGraph(value, handler, objNum, genNum, inIndirectObject, visited, encryptDict);
+                    }
+                }
+
+                break;
+
+            case COSArray cosArray:
+                for (int i = 0; i < cosArray.Size(); i++)
+                {
+                    COSBase? element = cosArray.Get(i);
+                    if (element is not null)
+                    {
+                        DecryptObjectGraph(element, handler, objNum, genNum, inIndirectObject, visited, encryptDict);
+                    }
+                }
+
+                break;
+        }
     }
 
     private static COSDictionary CreateEmptyTrailer()
