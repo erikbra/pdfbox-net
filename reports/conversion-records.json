@@ -1719,7 +1719,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added full-document parser flow for header/startxref discovery, table/stream xref parsing, indirect object materialization, stream decoding, and trailer resolution for PDDocument.Load."
+    "conversion_notes": "Refactored parser entry to consume PDFDocumentParser bootstrap state for strict `%PDF-` header validation and deterministic `startxref` discovery before xref/object parsing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
@@ -2378,5 +2378,21 @@
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Expanded PDPage with annotation list read/write support via /Annots and typed PDAnnotation wrappers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFDocumentParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/PDFDocumentParser.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added parser-entry scaffolding for PDF header/version validation and tail-based `startxref` discovery, returning bootstrap state for subsequent xref/trailer parsing slices."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFDocumentParserTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Added fixture and synthetic coverage for parser bootstrap behavior: valid/invalid `%PDF-` header handling and deterministic `startxref` extraction near EOF."
   }
 ]

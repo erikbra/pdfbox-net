@@ -129,17 +129,12 @@ All 4 files ported:
 
 ## Substantially complete — minor gaps remain ⚠️
 
-### `org.apache.pdfbox.pdfparser` — ~70%
+### `org.apache.pdfbox.pdfparser` — ~90%
 
-**Ported (9 C# files):** `COSParser.cs` (low-level COS token/object parser),
-`PDFStreamParser.cs`, `XrefTrailerResolver.cs`, plus 6 xref-type files.
+**Ported (11 C# files):** `COSParser.cs`, `PDFDocumentParser.cs`, `PDFParser.cs`,
+`PDFObjectStreamParser.cs`, `PDFStreamParser.cs`, `XrefTrailerResolver.cs`, plus 6 xref-type files.
 
 **Remaining:**
-- `PDFParser.java` / `PDFDocumentParser.java` — top-level orchestration: reads the xref table,
-  resolves object references, decrypts streams, and builds the complete in-memory document.
-  The current `PDDocument.Load()` extracts only a raw dictionary and cannot handle real PDF
-  structure (cross-reference streams, object streams, linearization, etc.).
-- `PDFObjectStreamParser.java` — object stream decompression for compressed xref PDFs.
 - `FDFParser.java` — FDF (Form Data Format) file parser.
 
 ### `org.apache.pdfbox.pdfwriter` — ~80%

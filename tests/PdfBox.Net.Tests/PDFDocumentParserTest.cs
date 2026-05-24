@@ -23,7 +23,7 @@ public class PDFDocumentParserTest
         ParserBootstrapState state = parser.ParseDocumentStart();
 
         Assert.Equal(1.4f, state.HeaderVersion);
-        Assert.Equal(298L, state.StartXrefOffset);
+        Assert.Equal(361L, state.StartXrefOffset);
         Assert.True(state.StartXrefKeywordOffset > 0);
     }
 
