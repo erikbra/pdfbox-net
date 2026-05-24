@@ -330,8 +330,56 @@ public class CharStringParserTest
     [Fact]
     public void CFFExpertEncoding_Code255_IsMapped()
     {
-        // SID 378 is beyond the current CFFStandardString table (57 entries),
-        // so it resolves to the "sid<n>" fallback name.
-        Assert.Equal("sid378", CFFExpertEncoding.INSTANCE.GetName(255));
+        // SID 378 → "Ydieresissmall" (in the full CFFStandardString table)
+        Assert.Equal("Ydieresissmall", CFFExpertEncoding.INSTANCE.GetName(255));
+    }
+
+    // ── CFFStandardString full table ──────────────────────────────────────
+
+    [Fact]
+    public void CFFStandardString_SID60_IsBracketleft()
+    {
+        Assert.Equal("bracketleft", CFFStandardString.GetName(60));
+    }
+
+    [Fact]
+    public void CFFStandardString_SID228_IsZcaron()
+    {
+        Assert.Equal("zcaron", CFFStandardString.GetName(228));
+    }
+
+    [Fact]
+    public void CFFStandardString_SID375_IsUdieresissmall()
+    {
+        Assert.Equal("Udieresissmall", CFFStandardString.GetName(375));
+    }
+
+    [Fact]
+    public void CFFStandardString_SID378_IsYdieresissmall()
+    {
+        Assert.Equal("Ydieresissmall", CFFStandardString.GetName(378));
+    }
+
+    [Fact]
+    public void CFFStandardString_SID390_IsSemibold()
+    {
+        Assert.Equal("Semibold", CFFStandardString.GetName(390));
+    }
+
+    [Fact]
+    public void CFFStandardString_OutOfRange_ReturnsSidFallback()
+    {
+        Assert.Equal("sid391", CFFStandardString.GetName(391));
+    }
+
+    [Fact]
+    public void CFFStandardString_TotalCount_Is391()
+    {
+        // All SIDs 0-390 should resolve to a real name (not the sid<n> fallback)
+        for (int sid = 0; sid <= 390; sid++)
+        {
+            string name = CFFStandardString.GetName(sid);
+            Assert.DoesNotContain("sid", name);
+        }
     }
 }
