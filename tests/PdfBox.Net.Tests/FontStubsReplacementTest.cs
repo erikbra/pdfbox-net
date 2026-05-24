@@ -26,6 +26,7 @@ using PdfBox.Net.FontBox;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.FontBox.Util;
 using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.Util;
 using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.Tests;
@@ -61,7 +62,6 @@ public class FontStubsReplacementTest
 
         public TestPDTrueTypeFont(FontBoxFont fbFont) => _fbFont = fbFont;
 
-        public override string GetName() => _fbFont.GetName();
         public override FontBoxFont GetFontBoxFont() => _fbFont;
         public override bool IsStandard14() => false;
         public override bool HasGlyph(int code) => false;
@@ -81,7 +81,6 @@ public class FontStubsReplacementTest
 
         public TestPDSimpleFont(FontBoxFont fbFont) => _fbFont = fbFont;
 
-        public override string GetName() => _fbFont.GetName();
         public override FontBoxFont GetFontBoxFont() => _fbFont;
         public override bool IsStandard14() => false;
         public override bool HasGlyph(int code) => false;
@@ -93,13 +92,14 @@ public class FontStubsReplacementTest
     [Fact]
     public void PDTrueTypeFont_GetTrueTypeFont_ReturnsFontBoxTTFTrueTypeFont()
     {
-        var fbFont = new TestFontBoxFont("TestTTF");
+        TrueTypeFont fbFont = new();
         var pdFont = new TestPDTrueTypeFont(fbFont);
 
         TrueTypeFont ttf = pdFont.GetTrueTypeFont();
 
         // Verify the returned type is the real FontBox TTF implementation
         Assert.IsType<TrueTypeFont>(ttf);
+        Assert.Same(fbFont, ttf);
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class FontStubsReplacementTest
         var fbFont = new TestFontBoxFont("HelveticaNeue");
         var pdFont = new TestPDSimpleFont(fbFont);
 
-        Assert.Equal("HelveticaNeue", pdFont.GetFontBoxFont().GetName());
+        Assert.Equal("HelveticaNeue", pdFont.GetName());
     }
 
     // ── BoundingBox replacement ────────────────────────────────────────────────
@@ -170,6 +170,17 @@ public class FontStubsReplacementTest
         BoundingBox bbox = pdFont.GetBoundingBox();
 
         Assert.IsAssignableFrom<BoundingBox>(bbox);
+    }
+
+    [Fact]
+    public void PDSimpleFont_GetFontMatrix_UsesFontBoxValues()
+    {
+        var pdFont = new TestPDSimpleFont(new TestFontBoxFont("f"));
+
+        Matrix fontMatrix = pdFont.GetFontMatrix();
+
+        Assert.Equal(0.001f, fontMatrix.GetScaleX());
+        Assert.Equal(0.001f, fontMatrix.GetScaleY());
     }
 
     [Fact]

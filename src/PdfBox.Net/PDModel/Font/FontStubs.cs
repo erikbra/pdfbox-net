@@ -42,13 +42,28 @@ namespace PdfBox.Net.PDModel.Font
 
     public abstract class PDSimpleFont : PDVectorFont
     {
+        public override string GetName() => GetFontBoxFont().GetName();
+
+        public override Matrix GetFontMatrix()
+        {
+            IList<float> values = GetFontBoxFont().GetFontMatrix();
+            if (values.Count >= 6)
+            {
+                return new Matrix(values[0], values[1], values[2], values[3], values[4], values[5]);
+            }
+
+            return base.GetFontMatrix();
+        }
+
+        public override BoundingBox GetBoundingBox() => GetFontBoxFont().GetFontBBox();
+
         public abstract FontBoxFont GetFontBoxFont();
         public abstract bool IsStandard14();
     }
 
     public abstract class PDTrueTypeFont : PDSimpleFont
     {
-        public virtual TrueTypeFont GetTrueTypeFont() => new();
+        public virtual TrueTypeFont GetTrueTypeFont() => GetFontBoxFont() as TrueTypeFont ?? new();
     }
 
     public abstract class PDCIDFont : PDFont
