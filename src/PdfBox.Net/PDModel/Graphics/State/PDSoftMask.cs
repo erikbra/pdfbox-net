@@ -98,7 +98,7 @@ public sealed class PDSoftMask : COSObjectable
         }
 
         COSBase? tf = _dictionary.GetDictionaryObject(TrName);
-        _transferFunction = tf is null ? null : new PDFunctionTypeIdentity();
+        _transferFunction = tf is null ? null : PDFunction.Create(tf);
         return _transferFunction;
     }
 

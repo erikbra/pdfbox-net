@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
@@ -36,6 +37,7 @@ public sealed class PDDeviceN : PDColorSpace
 
     private readonly int _numberOfComponents;
     private readonly PDColorSpace _alternateColorSpace;
+    private readonly PDFunction _tintTransform;
     private readonly PDColor _initialColor;
 
     public PDDeviceN(COSArray array, PDResources? resources) : base(array)
@@ -45,6 +47,9 @@ public sealed class PDDeviceN : PDColorSpace
         _alternateColorSpace = array.Size() > 2
             ? Create(array.GetObject(2), resources)
             : PDDeviceCMYK.Instance;
+        _tintTransform = array.Size() > 3
+            ? PDFunction.Create(array.GetObject(3)!)
+            : new PDFunctionTypeIdentity();
         _initialColor = new PDColor(new float[_numberOfComponents], this);
     }
 
@@ -68,21 +73,6 @@ public sealed class PDDeviceN : PDColorSpace
 
     public override float[] ToRGB(float[] value)
     {
-        int altCount = _alternateColorSpace.GetNumberOfComponents();
-        float[] mapped = new float[altCount];
-        if (value.Length == altCount)
-        {
-            Array.Copy(value, mapped, altCount);
-        }
-        else
-        {
-            float fallback = value.Length > 0 ? value[0] : 0f;
-            for (int i = 0; i < altCount; i++)
-            {
-                mapped[i] = i < value.Length ? value[i] : fallback;
-            }
-        }
-
-        return _alternateColorSpace.ToRGB(mapped);
+        return _alternateColorSpace.ToRGB(_tintTransform.Eval(value));
     }
 }
