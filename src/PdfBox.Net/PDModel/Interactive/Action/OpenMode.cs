@@ -2,10 +2,10 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/AnnotationFilter.java
- * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/OpenMode.java
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
 /*
@@ -25,6 +25,25 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.PDModel.Annotations;
+namespace PdfBox.Net.PDModel.Interactive.Action;
 
-public delegate bool AnnotationFilter(object annotation);
+/// <summary>
+/// This will specify whether to open the destination document in a new window.
+/// </summary>
+public enum OpenMode
+{
+    /// <summary>
+    /// The viewer application should behave in accordance with the current user preference.
+    /// </summary>
+    UserPreference,
+
+    /// <summary>
+    /// Destination document will replace the current document in the same window.
+    /// </summary>
+    SameWindow,
+
+    /// <summary>
+    /// Open the destination document in a new window.
+    /// </summary>
+    NewWindow
+}

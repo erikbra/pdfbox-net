@@ -36,6 +36,7 @@ using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.OptionalContent;
 using PdfBox.Net.PDModel.Graphics.Patterns;
 using PdfBox.Net.PDModel.Graphics.State;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.Util;
 using PdfBox.Net.Util.Geometry;
 
