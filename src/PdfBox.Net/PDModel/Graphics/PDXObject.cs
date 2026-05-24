@@ -26,6 +26,10 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Graphics.Form;
+using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics;
 
@@ -36,7 +40,14 @@ namespace PdfBox.Net.PDModel.Graphics;
 /// </summary>
 public class PDXObject
 {
-    private readonly COSStream? _stream;
+    private static readonly COSName SubtypeName = COSName.GetPDFName("Subtype");
+    private static readonly COSName GroupName = COSName.GetPDFName("Group");
+    private static readonly COSName SName = COSName.GetPDFName("S");
+    private static readonly COSName TransparencyName = COSName.GetPDFName("Transparency");
+    private static readonly COSName FormName = COSName.GetPDFName("Form");
+    private static readonly COSName ImageName = COSName.GetPDFName("Image");
+
+    private readonly PDStream? _stream;
 
     /// <summary>Creates a PDXObject with no backing stream (used as a placeholder reference).</summary>
     public PDXObject()
@@ -45,13 +56,53 @@ public class PDXObject
 
     /// <summary>Creates a PDXObject backed by the given COS stream.</summary>
     public PDXObject(COSStream stream)
+        : this(new PDStream(stream))
+    {
+    }
+
+    public PDXObject(PDStream stream)
     {
         _stream = stream;
     }
 
+    public static PDXObject? CreateXObject(COSBase? @base, PDResources? resources)
+    {
+        if (@base is null)
+        {
+            return null;
+        }
+
+        if (@base is not COSStream stream)
+        {
+            throw new IOException($"Unexpected XObject base type: {@base.GetType().Name}");
+        }
+
+        string? subtype = stream.GetNameAsString(SubtypeName);
+        if (string.Equals(subtype, ImageName.GetName(), StringComparison.Ordinal))
+        {
+            return new PDImageXObject(new PDStream(stream), resources);
+        }
+
+        if (string.Equals(subtype, FormName.GetName(), StringComparison.Ordinal))
+        {
+            COSDictionary? group = stream.GetCOSDictionary(GroupName);
+            if (group is not null && group.GetCOSName(SName)?.Equals(TransparencyName) == true)
+            {
+                return new PDTransparencyGroup(stream);
+            }
+
+            return new PDFormXObject(stream);
+        }
+
+        return new PDXObject(stream);
+    }
+
+    /// <summary>Returns the underlying stream wrapper, or null if this object has no backing stream.</summary>
+    public PDStream? GetStream() => _stream;
+
     /// <summary>Returns the underlying COS stream, or null if this object has no backing stream.</summary>
-    public COSStream? GetStream() => _stream;
+    public COSStream? GetCOSObject() => _stream?.GetCOSObject();
 
     /// <summary>Returns the subtype name from the stream dictionary, or null.</summary>
-    public string? GetSubtype() => _stream?.GetString(COSName.GetPDFName("Subtype"));
+    public string? GetSubtype() => _stream?.GetCOSObject().GetNameAsString(SubtypeName);
 }

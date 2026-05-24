@@ -36,7 +36,9 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
+using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.State;
+using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.PdfParser;
 using PdfBox.Net.Util;
 using ContentOperator = PdfBox.Net.ContentStream.Operator.Operator;
@@ -77,6 +79,7 @@ public class PDFStreamEngine
     private int? _pendingClipWindingRule;
     private int _compatibilitySectionDepth;
     private PDPage? _currentPage;
+    private PDResources? _resources;
 
     public PDFStreamEngine()
     {
@@ -113,6 +116,7 @@ public class PDFStreamEngine
         _currentPoint = null;
         _pendingClipWindingRule = null;
         _compatibilitySectionDepth = 0;
+        _resources = page.GetResources();
 
         if (page.HasContents())
         {
@@ -368,6 +372,9 @@ public class PDFStreamEngine
     /// <summary>Returns the current page being processed.</summary>
     protected internal PDPage? GetCurrentPage() => _currentPage;
 
+    /// <summary>Returns the currently active resource dictionary.</summary>
+    protected internal PDResources? GetResources() => _resources;
+
     // ── Virtual hooks for subclasses ──────────────────────────────────────────
 
     public virtual void BeginMarkedContentSequence(COSName tag, COSDictionary? properties)
@@ -384,6 +391,20 @@ public class PDFStreamEngine
 
     public virtual void XObject(PDXObject xobject)
     {
+        if (xobject is PDFormXObject form)
+        {
+            PDResources? previousResources = _resources;
+            _resources = form.GetResources() ?? previousResources;
+            try
+            {
+                using Stream content = form.GetContents();
+                ProcessStream(content);
+            }
+            finally
+            {
+                _resources = previousResources;
+            }
+        }
     }
 
     public virtual void BeginInlineImage()

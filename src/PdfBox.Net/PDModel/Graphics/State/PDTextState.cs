@@ -57,6 +57,9 @@ public class PDTextState
     /// <summary>Current font (PDF Tf).</summary>
     public PdfBox.Net.PDModel.Font.PDFont? Font { get; set; } = null;
 
+    /// <summary>Text knockout flag (PDF TK), default true.</summary>
+    public bool KnockoutFlag { get; set; } = true;
+
     public float GetFontSize() => FontSize;
     public float GetHorizontalScaling() => HorizontalScaling;
     public float GetCharacterSpacing() => CharacterSpacing;
@@ -65,6 +68,8 @@ public class PDTextState
     public int GetRenderingMode() => RenderingMode;
     public float GetRise() => Rise;
     public PdfBox.Net.PDModel.Font.PDFont? GetFont() => Font;
+    public bool GetKnockoutFlag() => KnockoutFlag;
+    public void SetKnockoutFlag(bool knockoutFlag) => KnockoutFlag = knockoutFlag;
 
     /// <summary>Creates a shallow copy of this text state (fonts are shared references).</summary>
     public PDTextState Clone() =>
@@ -78,5 +83,6 @@ public class PDTextState
             RenderingMode = RenderingMode,
             Rise = Rise,
             Font = Font,
+            KnockoutFlag = KnockoutFlag,
         };
 }

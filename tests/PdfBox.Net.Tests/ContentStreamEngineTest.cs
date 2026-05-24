@@ -29,6 +29,7 @@ using System.Text;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.Util;
 using Xunit;
@@ -496,6 +497,46 @@ public class ContentStreamEngineTest
 
         Assert.Equal(0, engine.GraphicsStateStackDepth);
         Assert.Equal(0f, engine.GetTextMatrix().GetTranslateX());
+    }
+
+    [Fact]
+    public void ProcessPage_DrawObject_TraversesFormXObjectContentStream()
+    {
+        var engine = new TrackingEngine();
+
+        // Page content stream invokes form /Fm0.
+        COSStream pageContents = new();
+        using (Stream output = pageContents.CreateOutputStream())
+        using (StreamWriter writer = new(output))
+        {
+            writer.Write("/Fm0 Do");
+        }
+
+        // Form stream contains q/Q operators that should be traversed by the engine.
+        COSStream formStream = new();
+        formStream.SetName(COSName.GetPDFName("Subtype"), "Form");
+        using (Stream output = formStream.CreateOutputStream())
+        using (StreamWriter writer = new(output))
+        {
+            writer.Write("q Q");
+        }
+
+        COSDictionary xObjects = new();
+        xObjects.SetItem(COSName.GetPDFName("Fm0"), formStream);
+
+        COSDictionary resources = new();
+        resources.SetItem(COSName.GetPDFName("XObject"), xObjects);
+
+        COSDictionary pageDict = new();
+        pageDict.SetItem(COSName.TYPE, COSName.PAGE);
+        pageDict.SetItem(COSName.CONTENTS, pageContents);
+        pageDict.SetItem(COSName.RESOURCES, resources);
+
+        engine.ProcessPage(new PDPage(pageDict));
+
+        Assert.Contains("Do", engine.DispatchedOperators);
+        Assert.Contains("q", engine.DispatchedOperators);
+        Assert.Contains("Q", engine.DispatchedOperators);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

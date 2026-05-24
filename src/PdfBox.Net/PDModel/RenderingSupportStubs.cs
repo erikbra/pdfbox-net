@@ -29,14 +29,6 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.Util;
 
-namespace PdfBox.Net.PDModel.Graphics
-{
-    public enum BlendMode
-    {
-        NORMAL,
-    }
-}
-
 namespace PdfBox.Net.PDModel.Common.Function
 {
     public abstract class PDFunction
@@ -78,43 +70,8 @@ namespace PdfBox.Net.PDModel.Graphics.Patterns
     }
 }
 
-namespace PdfBox.Net.PDModel.Graphics.Form
-{
-    public class PDFormXObject
-    {
-    }
-
-    public class PDTransparencyGroup : PDFormXObject
-    {
-    }
-}
-
 namespace PdfBox.Net.PDModel.Graphics.State
 {
-    public class PDSoftMask
-    {
-    }
-
-    public class PDLineDashPattern
-    {
-        private readonly float[] _dashArray;
-        private readonly int _phaseStart;
-
-        public PDLineDashPattern()
-            : this(Array.Empty<float>(), 0)
-        {
-        }
-
-        public PDLineDashPattern(float[] dashArray, int phaseStart)
-        {
-            _dashArray = dashArray ?? Array.Empty<float>();
-            _phaseStart = phaseStart;
-        }
-
-        public float[] GetDashArray() => _dashArray;
-
-        public int GetPhaseStart() => _phaseStart;
-    }
 }
 
 namespace PdfBox.Net.PDModel.Graphics.OptionalContent

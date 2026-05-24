@@ -30,6 +30,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Graphics.State;
 
 namespace PdfBox.Net.PDModel.Resources;
 
@@ -45,6 +46,7 @@ public class PDResources
 {
     private static readonly COSName FontKey = COSName.GetPDFName("Font");
     private static readonly COSName XObjectKey = COSName.GetPDFName("XObject");
+    private static readonly COSName ExtGStateKey = COSName.GetPDFName("ExtGState");
     private static readonly COSName ColorSpaceKey = COSName.GetPDFName("ColorSpace");
 
     private readonly COSDictionary _dict;
@@ -104,12 +106,7 @@ public class PDResources
         if (xObjectSubDict is null) return null;
 
         COSBase? entry = xObjectSubDict.GetDictionaryObject(name);
-        if (entry is COSStream xObjStream)
-        {
-            return new PDXObject(xObjStream);
-        }
-
-        return null;
+        return PDXObject.CreateXObject(entry, this);
     }
 
     /// <summary>Returns the names of all XObject resources in this resource dictionary.</summary>
@@ -118,6 +115,26 @@ public class PDResources
         COSDictionary? xObjectSubDict = _dict.GetCOSDictionary(XObjectKey);
         if (xObjectSubDict is null) return Enumerable.Empty<COSName>();
         return xObjectSubDict.KeySet();
+    }
+
+    public bool IsImageXObject(COSName name)
+    {
+        COSDictionary? xObjectSubDict = _dict.GetCOSDictionary(XObjectKey);
+        COSStream? stream = xObjectSubDict?.GetDictionaryObject(name) as COSStream;
+        return stream?.GetNameAsString(COSName.GetPDFName("Subtype")) == "Image";
+    }
+
+    public PDExtendedGraphicsState? GetExtGState(COSName name)
+    {
+        COSDictionary? extGStateSubDict = _dict.GetCOSDictionary(ExtGStateKey);
+        if (extGStateSubDict is null)
+        {
+            return null;
+        }
+
+        return extGStateSubDict.GetDictionaryObject(name) is COSDictionary dict
+            ? new PDExtendedGraphicsState(dict)
+            : null;
     }
 
     // ── Color spaces ──────────────────────────────────────────────────────────

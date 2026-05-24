@@ -1564,30 +1564,6 @@
     "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
-    "target_path": "src/PdfBox.Net/ContentStream/PDFStreamEngine.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "adapted",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Extended operator registry and content-stream state hooks to support newly ported operator families."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDGraphicsState.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "adapted",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Expanded graphics state with line parameters, color state, clipping rule, and clone support needed by operator processors."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "src/PdfBox.Net/PDModel/RenderingSupportStubs.cs",
-    "source_commit": "n/a",
-    "port_mode": "adapted",
-    "sync_commit": "n/a",
-    "conversion_notes": "Extended rendering support stubs for PDColorSpace, PDColor, and PDLineDashPattern required by operator processor state mutation."
-  },
-  {
     "source_path": "n/a",
     "target_path": "tests/PdfBox.Net.Tests/OperatorProcessorsTest.cs",
     "source_commit": "n/a",
@@ -1816,26 +1792,6 @@
     "note": "Added cross-platform file system font discovery provider."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
-    "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Updated resource font lookup to construct concrete PDFont instances via PDFontFactory."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java",
-    "target_path": "src/PdfBox.Net/PDModel/RenderingSupportStubs.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Adjusted Type3 font stub constructor to align with PDFont base constructor requirements."
-  },
-  {
     "source_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
     "target_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
     "source_commit": "trunk",
@@ -1844,5 +1800,205 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T16:03:16Z",
     "note": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDStream.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented filter-aware PDStream wrappers for encode/decode and metadata access."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDMetadata.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDMetadata.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented metadata stream wrapper with XMP import/export helpers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDXObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/PDXObject.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added subtype-based XObject factory for form/transparency/image streams."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDFormXObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Form/PDFormXObject.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented form XObject content stream, resources, BBox, and matrix access."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDTransparencyGroup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Form/PDTransparencyGroup.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added transparency-group subtype over PDFormXObject."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDSoftMask.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDSoftMask.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented soft mask dictionary parsing and initial CTM capture support."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDLineDashPattern.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDLineDashPattern.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Replaced dash-pattern stub with immutable COS-backed line dash pattern model."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDExtendedGraphicsState.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDExtendedGraphicsState.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented ExtGState dictionary accessors and copy-into-graphics-state behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImageXObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PDImageXObject.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented basic image XObject decode and metadata access for DeviceRGB/Flate test path."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetGraphicsStateParameters.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetGraphicsStateParameters.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented gs operator resource lookup and PDExtendedGraphicsState application."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Implemented Do operator XObject resolution with fallback hook compatibility behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
+    "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added ExtGState and typed XObject lookup helpers for gs/Do processing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
+    "target_path": "src/PdfBox.Net/ContentStream/PDFStreamEngine.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added active resource tracking and form XObject content traversal."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDGraphicsState.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added alpha/blend/soft-mask/stroke-adjustment graphics state fields."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDTextState.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDTextState.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added text knockout flag state used by ExtGState TK mapping."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "src/PdfBox.Net/PDModel/RenderingSupportStubs.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Removed replaced PDLineDashPattern/PDSoftMask/PDFormXObject/PDTransparencyGroup stubs after real implementations landed."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDStreamTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added PDStream Flate encode/decode roundtrip coverage."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDExtendedGraphicsStateTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added ExtGState accessor/copy behavior coverage for alpha, blend mode, line join, and dash pattern."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDImageXObjectTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Added PDImageXObject simple Flate DeviceRGB decode fixture coverage."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/ContentStreamEngineTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T16:41:22Z",
+    "note": "Extended content-stream engine tests with form XObject traversal through Do operator."
   }
 ]
