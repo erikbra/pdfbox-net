@@ -1218,5 +1218,381 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T15:10:16Z",
     "note": "Filter roundtrip and factory lookup tests added for .NET port scope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetFlatness.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetFlatness.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineCap.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineCap.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineDashPattern.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineDashPattern.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineJoin.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoin.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineWidth.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineWidth.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetMiterLimit.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetMiterLimit.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetRenderingIntent.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetRenderingIntent.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetNonStrokingColor.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColorN.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetNonStrokingColorN.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColorSpace.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetNonStrokingColorSpace.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingDeviceCMYKColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetNonStrokingDeviceCMYKColor.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingDeviceGrayColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetNonStrokingDeviceGrayColor.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingDeviceRGBColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetNonStrokingDeviceRGBColor.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetStrokingColor.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingColorN.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetStrokingColorN.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingColorSpace.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetStrokingColorSpace.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingDeviceCMYKColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetStrokingDeviceCMYKColor.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingDeviceGrayColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetStrokingDeviceGrayColor.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingDeviceRGBColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetStrokingDeviceRGBColor.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/AppendRectangleToPath.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/AppendRectangleToPath.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginCompatibilitySection.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/BeginCompatibilitySection.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginInlineImage.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/BeginInlineImage.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginInlineImageData.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/BeginInlineImageData.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ClipEvenOddRule.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/ClipEvenOddRule.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ClipNonZeroRule.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/ClipNonZeroRule.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CloseAndStrokePath.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/CloseAndStrokePath.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ClosePath.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/ClosePath.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CurveTo.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/CurveTo.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CurveToReplicateFinalPoint.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/CurveToReplicateFinalPoint.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CurveToReplicateInitialPoint.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/CurveToReplicateInitialPoint.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/EndCompatibilitySection.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/EndCompatibilitySection.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/EndInlineImage.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/EndInlineImage.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/EndPath.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/EndPath.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/FillEvenOddAndStrokePath.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/FillEvenOddAndStrokePath.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/FillEvenOddRule.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/FillEvenOddRule.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/FillNonZeroAndStrokePath.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/FillNonZeroAndStrokePath.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/FillNonZeroRule.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/FillNonZeroRule.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/LineTo.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/LineTo.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/MoveTo.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/MoveTo.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/type3/SetType3GlyphWidth.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/SetType3GlyphWidth.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/type3/SetType3GlyphWidthAndBoundingBox.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/SetType3GlyphWidthAndBoundingBox.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ShadingFill.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/ShadingFill.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/StrokePath.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/StrokePath.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
+    "target_path": "src/PdfBox.Net/ContentStream/PDFStreamEngine.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Extended operator registry and content-stream state hooks to support newly ported operator families."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDGraphicsState.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Expanded graphics state with line parameters, color state, clipping rule, and clone support needed by operator processors."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "src/PdfBox.Net/PDModel/RenderingSupportStubs.cs",
+    "source_commit": "n/a",
+    "port_mode": "adapted",
+    "sync_commit": "n/a",
+    "conversion_notes": "Extended rendering support stubs for PDColorSpace, PDColor, and PDLineDashPattern required by operator processor state mutation."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/OperatorProcessorsTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Expanded operator processor tests to cover state, path, painting, clipping, color, inline-image hooks, type3, compatibility, and multi-operator scenario."
   }
 ]

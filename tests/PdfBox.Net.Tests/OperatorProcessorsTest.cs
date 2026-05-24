@@ -29,6 +29,9 @@ using System.Text;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.ContentStream.Operator.MarkedContent;
+using PdfBox.Net.ContentStream.Operator.Color;
+using PdfBox.Net.ContentStream.Operator.Graphics;
+using PdfBox.Net.ContentStream.Operator.State;
 using PdfBox.Net.ContentStream.Operator.Text;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Font;
@@ -58,9 +61,15 @@ public class OperatorProcessorsTest
     private sealed class ObservingEngine : PDFStreamEngine
     {
         public record MarkedContentCall(string Kind, string Tag, COSDictionary? Props);
+        public record Type3WidthCall(float Wx, float Wy);
+        public record Type3WidthAndBBoxCall(float Wx, float Wy, float Llx, float Lly, float Urx, float Ury);
 
         public List<MarkedContentCall> MarkedContentCalls { get; } = new();
         public List<(Matrix TextRenderingMatrix, PDFont Font, int Code, Vector Displacement)> GlyphCalls { get; } = new();
+        public List<string> InlineImageCalls { get; } = new();
+        public List<string> ShadingFillCalls { get; } = new();
+        public List<Type3WidthCall> Type3WidthCalls { get; } = new();
+        public List<Type3WidthAndBBoxCall> Type3WidthAndBBoxCalls { get; } = new();
 
         public override void BeginMarkedContentSequence(COSName tag, COSDictionary? properties)
             => MarkedContentCalls.Add(new("Begin", tag.GetName(), properties));
@@ -70,6 +79,24 @@ public class OperatorProcessorsTest
 
         public override void MarkedContentPoint(COSName tag, COSDictionary? properties)
             => MarkedContentCalls.Add(new("Point", tag.GetName(), properties));
+
+        public override void BeginInlineImage()
+            => InlineImageCalls.Add("BI");
+
+        public override void BeginInlineImageData()
+            => InlineImageCalls.Add("ID");
+
+        public override void EndInlineImage()
+            => InlineImageCalls.Add("EI");
+
+        public override void ShadingFill(COSName shadingName)
+            => ShadingFillCalls.Add(shadingName.GetName());
+
+        public override void SetType3GlyphWidth(float wx, float wy)
+            => Type3WidthCalls.Add(new(wx, wy));
+
+        public override void SetType3GlyphWidthAndBoundingBox(float wx, float wy, float llx, float lly, float urx, float ury)
+            => Type3WidthAndBBoxCalls.Add(new(wx, wy, llx, lly, urx, ury));
 
         protected override void ShowGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
             => GlyphCalls.Add((textRenderingMatrix, font, code, displacement));
@@ -85,6 +112,8 @@ public class OperatorProcessorsTest
         public new Matrix GetTextMatrix() => base.GetTextMatrix();
         public new Matrix GetTextLineMatrix() => base.GetTextLineMatrix();
         public new PDGraphicsState GetGraphicsState() => base.GetGraphicsState();
+        public int GetPathSegmentCount() => base.GetCurrentPathSegments().Count;
+        public bool InCompatibilitySection() => base.IsInCompatibilitySection();
     }
 
     // ── Marked-content: BMC ───────────────────────────────────────────────────
@@ -481,6 +510,171 @@ public class OperatorProcessorsTest
         // gs is a deliberate no-op at the baseline level; it must not throw.
         var ex = Record.Exception(() => engine.RunStream("/GS1 gs"));
         Assert.Null(ex);
+    }
+
+    // ── State operators (w, J, j, M, d, i, ri) ───────────────────────────────
+
+    [Fact]
+    public void StateOperators_UpdateGraphicsState()
+    {
+        var engine = new ObservingEngine();
+        engine.AddOperator(new SetLineWidth(engine));
+        engine.AddOperator(new SetLineCap(engine));
+        engine.AddOperator(new SetLineJoin(engine));
+        engine.AddOperator(new SetMiterLimit(engine));
+        engine.AddOperator(new SetLineDashPattern(engine));
+        engine.AddOperator(new SetFlatness(engine));
+        engine.AddOperator(new SetRenderingIntent(engine));
+
+        engine.RunStream("2.5 w 1 J 2 j 7 M [3 1] 2 d 0.6 i /RelativeColorimetric ri");
+
+        PDGraphicsState gs = engine.GetGraphicsState();
+        Assert.Equal(2.5f, gs.GetLineWidth(), precision: 3);
+        Assert.Equal(1, gs.GetLineCap());
+        Assert.Equal(2, gs.GetLineJoin());
+        Assert.Equal(7f, gs.GetMiterLimit(), precision: 3);
+        Assert.Equal([3f, 1f], gs.GetLineDashPattern().GetDashArray());
+        Assert.Equal(2, gs.GetLineDashPattern().GetPhaseStart());
+        Assert.Equal(0.6f, gs.GetFlatness(), precision: 3);
+        Assert.Equal("RelativeColorimetric", gs.GetRenderingIntent());
+    }
+
+    // ── Path construction and painting operators ──────────────────────────────
+
+    [Fact]
+    public void PathConstructionOperators_BuildAndClearPath()
+    {
+        var engine = new ObservingEngine();
+        engine.AddOperator(new MoveTo(engine));
+        engine.AddOperator(new LineTo(engine));
+        engine.AddOperator(new CurveTo(engine));
+        engine.AddOperator(new CurveToReplicateInitialPoint(engine));
+        engine.AddOperator(new CurveToReplicateFinalPoint(engine));
+        engine.AddOperator(new AppendRectangleToPath(engine));
+        engine.AddOperator(new ClosePath(engine));
+        engine.AddOperator(new EndPath(engine));
+
+        engine.RunStream("0 0 m 10 0 l 10 5 15 10 20 20 c 25 25 30 30 v 35 35 40 40 y 50 50 10 5 re h");
+        Assert.True(engine.GetPathSegmentCount() > 0);
+
+        engine.RunStream("n");
+        Assert.Equal(0, engine.GetPathSegmentCount());
+    }
+
+    [Fact]
+    public void PathPaintingAndClippingOperators_ApplyClipRule()
+    {
+        var engine = new ObservingEngine();
+        engine.AddOperator(new MoveTo(engine));
+        engine.AddOperator(new LineTo(engine));
+        engine.AddOperator(new ClosePath(engine));
+        engine.AddOperator(new ClipEvenOddRule(engine));
+        engine.AddOperator(new EndPath(engine));
+
+        engine.RunStream("0 0 m 10 0 l 10 10 l h W* n");
+
+        Assert.Equal(0, engine.GetGraphicsState().GetClippingWindingRule());
+        Assert.Equal(0, engine.GetPathSegmentCount());
+    }
+
+    [Fact]
+    public void PathPaintingOperators_DoNotThrow()
+    {
+        var engine = new ObservingEngine();
+        engine.AddOperator(new MoveTo(engine));
+        engine.AddOperator(new LineTo(engine));
+        engine.AddOperator(new ClosePath(engine));
+        engine.AddOperator(new StrokePath(engine));
+        engine.AddOperator(new CloseAndStrokePath(engine));
+        engine.AddOperator(new FillNonZeroRule(engine));
+        engine.AddOperator(new FillNonZeroRule(engine, OperatorName.LEGACY_FILL_NON_ZERO));
+        engine.AddOperator(new FillEvenOddRule(engine));
+        engine.AddOperator(new FillNonZeroAndStrokePath(engine));
+        engine.AddOperator(new FillEvenOddAndStrokePath(engine));
+
+        var ex = Record.Exception(() => engine.RunStream("0 0 m 10 0 l 10 10 l h S 0 0 m 10 0 l h s 0 0 m 10 0 l h f 0 0 m 10 0 l h F 0 0 m 10 0 l h f* 0 0 m 10 0 l h B 0 0 m 10 0 l h B*"));
+        Assert.Null(ex);
+    }
+
+    // ── Color operators ────────────────────────────────────────────────────────
+
+    [Fact]
+    public void ColorOperators_UpdateStrokingAndNonStrokingState()
+    {
+        var engine = new ObservingEngine();
+        engine.AddOperator(new SetNonStrokingColorSpace(engine));
+        engine.AddOperator(new SetNonStrokingColor(engine));
+        engine.AddOperator(new SetNonStrokingColorN(engine));
+        engine.AddOperator(new SetNonStrokingDeviceGrayColor(engine));
+        engine.AddOperator(new SetNonStrokingDeviceRGBColor(engine));
+        engine.AddOperator(new SetNonStrokingDeviceCMYKColor(engine));
+        engine.AddOperator(new SetStrokingColorSpace(engine));
+        engine.AddOperator(new SetStrokingColor(engine));
+        engine.AddOperator(new SetStrokingColorN(engine));
+        engine.AddOperator(new SetStrokingDeviceGrayColor(engine));
+        engine.AddOperator(new SetStrokingDeviceRGBColor(engine));
+        engine.AddOperator(new SetStrokingDeviceCMYKColor(engine));
+
+        engine.RunStream("/DeviceRGB cs 0.1 0.2 0.3 sc 0.2 0.3 0.4 scn 0.8 g 0.1 0.2 0.3 rg 0.1 0.2 0.3 0.4 k /DeviceRGB CS 0.3 0.4 0.5 SC 0.6 0.7 0.8 SCN 0.25 G 0.9 0.8 0.7 RG 0.4 0.3 0.2 0.1 K");
+
+        PDGraphicsState gs = engine.GetGraphicsState();
+        Assert.Equal("DeviceCMYK", gs.GetNonStrokingColorSpace().GetName());
+        Assert.Equal([0.1f, 0.2f, 0.3f, 0.4f], gs.GetNonStrokingColor().GetComponents());
+        Assert.Equal("DeviceCMYK", gs.GetStrokingColorSpace().GetName());
+        Assert.Equal([0.4f, 0.3f, 0.2f, 0.1f], gs.GetStrokingColor().GetComponents());
+    }
+
+    // ── Inline image / shading / type3 / compatibility operators ─────────────
+
+    [Fact]
+    public void OtherOperators_InvokeHooksAndCompatibilityState()
+    {
+        var engine = new ObservingEngine();
+        var beginInlineImage = new BeginInlineImage(engine);
+        var beginInlineImageData = new BeginInlineImageData(engine);
+        var endInlineImage = new EndInlineImage(engine);
+        engine.AddOperator(new ShadingFill(engine));
+        engine.AddOperator(new SetType3GlyphWidth(engine));
+        engine.AddOperator(new SetType3GlyphWidthAndBoundingBox(engine));
+        engine.AddOperator(new BeginCompatibilitySection(engine));
+        engine.AddOperator(new EndCompatibilitySection(engine));
+
+        beginInlineImage.Process(ContentStream.Operator.Operator.GetOperator(OperatorName.BEGIN_INLINE_IMAGE), []);
+        beginInlineImageData.Process(ContentStream.Operator.Operator.GetOperator(OperatorName.BEGIN_INLINE_IMAGE_DATA), []);
+        endInlineImage.Process(ContentStream.Operator.Operator.GetOperator(OperatorName.END_INLINE_IMAGE), []);
+        engine.RunStream("BX /Sh1 sh 500 0 d0 500 0 -10 -20 30 40 d1 EX");
+
+        Assert.Equal(["BI", "ID", "EI"], engine.InlineImageCalls);
+        Assert.Equal(["Sh1"], engine.ShadingFillCalls);
+        Assert.Single(engine.Type3WidthCalls);
+        Assert.Equal(500f, engine.Type3WidthCalls[0].Wx, precision: 3);
+        Assert.Single(engine.Type3WidthAndBBoxCalls);
+        Assert.False(engine.InCompatibilitySection());
+    }
+
+    // ── Multi-operator stream scenario ────────────────────────────────────────
+
+    [Fact]
+    public void MultiOperatorStream_PathAndTextScenario_UpdatesStateAndGlyphs()
+    {
+        var engine = new ObservingEngine();
+        engine.AddOperator(new MoveTo(engine));
+        engine.AddOperator(new LineTo(engine));
+        engine.AddOperator(new ClosePath(engine));
+        engine.AddOperator(new SetNonStrokingDeviceRGBColor(engine));
+        engine.AddOperator(new FillNonZeroRule(engine));
+        engine.AddOperator(new ContentStream.Operator.Text.BeginText(engine));
+        engine.AddOperator(new ContentStream.Operator.Text.SetTextLeading(engine));
+        engine.AddOperator(new ContentStream.Operator.Text.MoveText(engine));
+        engine.AddOperator(new ContentStream.Operator.Text.ShowText(engine));
+        engine.AddOperator(new ContentStream.Operator.Text.EndText(engine));
+
+        engine.RunStream("0.2 0.4 0.6 rg 0 0 m 100 0 l 100 100 l h f BT 12 TL 10 20 Td (A) Tj ET");
+
+        Assert.Equal("DeviceRGB", engine.GetGraphicsState().GetNonStrokingColorSpace().GetName());
+        Assert.Equal([0.2f, 0.4f, 0.6f], engine.GetGraphicsState().GetNonStrokingColor().GetComponents());
+        Assert.Single(engine.GlyphCalls);
+        Assert.Equal(0x41, engine.GlyphCalls[0].Code);
     }
 
     // ── DrawObject "Do" ───────────────────────────────────────────────────────
