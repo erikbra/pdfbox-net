@@ -1,0 +1,133 @@
+/*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
+ *
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/SecurityHandler.java
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ */
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+using PdfBox.Net.COS;
+
+namespace PdfBox.Net.PDModel.Encryption;
+
+public abstract class SecurityHandler<TPolicy>
+    where TPolicy : ProtectionPolicy
+{
+    private const short DefaultKeyLength = 40;
+
+    private short _keyLength = DefaultKeyLength;
+    private byte[]? _encryptionKey;
+    private bool _decryptMetadata;
+    private bool _useAes;
+    private TPolicy? _protectionPolicy;
+    private AccessPermission? _currentAccessPermission;
+    private COSName? _streamFilterName;
+    private COSName? _stringFilterName;
+
+    protected SecurityHandler()
+    {
+    }
+
+    protected SecurityHandler(TPolicy protectionPolicy)
+    {
+        _protectionPolicy = protectionPolicy;
+        _keyLength = (short)protectionPolicy.GetEncryptionKeyLength();
+    }
+
+    public abstract void PrepareDocumentForEncryption(PDDocument doc);
+
+    public abstract void PrepareForDecryption(PDEncryption encryption, COSArray? documentIdArray, DecryptionMaterial decryptionMaterial);
+
+    protected void SetDecryptMetadata(bool decryptMetadata)
+    {
+        _decryptMetadata = decryptMetadata;
+    }
+
+    public bool IsDecryptMetadata()
+    {
+        return _decryptMetadata;
+    }
+
+    protected void SetStringFilterName(COSName stringFilterName)
+    {
+        _stringFilterName = stringFilterName;
+    }
+
+    protected void SetStreamFilterName(COSName streamFilterName)
+    {
+        _streamFilterName = streamFilterName;
+    }
+
+    public COSName? GetStreamFilterName() => _streamFilterName;
+
+    public COSName? GetStringFilterName() => _stringFilterName;
+
+    protected void SetProtectionPolicy(TPolicy? protectionPolicy)
+    {
+        _protectionPolicy = protectionPolicy;
+    }
+
+    public TPolicy? GetProtectionPolicy()
+    {
+        return _protectionPolicy;
+    }
+
+    protected void SetCurrentAccessPermission(AccessPermission? currentAccessPermission)
+    {
+        _currentAccessPermission = currentAccessPermission;
+    }
+
+    public AccessPermission? GetCurrentAccessPermission()
+    {
+        return _currentAccessPermission;
+    }
+
+    public int GetKeyLength()
+    {
+        return _keyLength;
+    }
+
+    protected void SetKeyLength(int keyLength)
+    {
+        _keyLength = (short)keyLength;
+    }
+
+    protected void SetEncryptionKey(byte[]? encryptionKey)
+    {
+        _encryptionKey = encryptionKey;
+    }
+
+    public byte[]? GetEncryptionKey()
+    {
+        return _encryptionKey is null ? null : (byte[])_encryptionKey.Clone();
+    }
+
+    protected void SetAES(bool useAes)
+    {
+        _useAes = useAes;
+    }
+
+    public bool IsAES()
+    {
+        return _useAes;
+    }
+}
