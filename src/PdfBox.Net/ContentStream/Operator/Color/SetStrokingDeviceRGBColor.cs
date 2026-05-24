@@ -15,7 +15,7 @@ public sealed class SetStrokingDeviceRGBColor : OperatorProcessor
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 3 || operands[0] is not COSNumber r || operands[1] is not COSNumber g || operands[2] is not COSNumber b) return;
-        PDColorSpace colorSpace = new("DeviceRGB", 3);
+        PDColorSpace colorSpace = PDDeviceRGB.Instance;
         Context.SetStrokingColorSpace(colorSpace);
         Context.SetStrokingColor(new PDColor([r.FloatValue(), g.FloatValue(), b.FloatValue()], colorSpace));
     }

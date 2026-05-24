@@ -25,9 +25,11 @@
  * limitations under the License.
  */
 
+using System.IO;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
+using PdfBox.Net.PDModel.Graphics.Color;
 
 namespace PdfBox.Net.PDModel.Resources;
 
@@ -43,6 +45,7 @@ public class PDResources
 {
     private static readonly COSName FontKey = COSName.GetPDFName("Font");
     private static readonly COSName XObjectKey = COSName.GetPDFName("XObject");
+    private static readonly COSName ColorSpaceKey = COSName.GetPDFName("ColorSpace");
 
     private readonly COSDictionary _dict;
 
@@ -115,5 +118,36 @@ public class PDResources
         COSDictionary? xObjectSubDict = _dict.GetCOSDictionary(XObjectKey);
         if (xObjectSubDict is null) return Enumerable.Empty<COSName>();
         return xObjectSubDict.KeySet();
+    }
+
+    // ── Color spaces ──────────────────────────────────────────────────────────
+
+    public bool HasColorSpace(COSName? name)
+    {
+        if (name is null) return false;
+        COSDictionary? colorSpaceSubDict = _dict.GetCOSDictionary(ColorSpaceKey);
+        return colorSpaceSubDict is not null && colorSpaceSubDict.ContainsKey(name);
+    }
+
+    public PDColorSpace GetColorSpace(COSName name)
+    {
+        return GetColorSpace(name, false);
+    }
+
+    public PDColorSpace GetColorSpace(COSName name, bool wasDefault)
+    {
+        COSDictionary? colorSpaceSubDict = _dict.GetCOSDictionary(ColorSpaceKey);
+        if (colorSpaceSubDict is null)
+        {
+            throw new IOException($"Missing color space: {name.GetName()}");
+        }
+
+        COSBase? entry = colorSpaceSubDict.GetDictionaryObject(name);
+        if (entry is null)
+        {
+            throw new IOException($"Missing color space: {name.GetName()}");
+        }
+
+        return PDColorSpace.Create(entry, this);
     }
 }

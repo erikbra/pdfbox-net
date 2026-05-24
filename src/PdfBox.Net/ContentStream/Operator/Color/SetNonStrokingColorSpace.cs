@@ -3,6 +3,7 @@
  * PORT_MODE: adapted
  */
 
+using System.IO;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics.Color;
 
@@ -14,15 +15,14 @@ public sealed class SetNonStrokingColorSpace : OperatorProcessor
 
     public override void Process(Operator op, IList<COSBase> operands)
     {
-        if (operands.Count < 1 || operands[0] is not COSName colorSpaceName) return;
-        Context.SetNonStrokingColorSpace(CreateColorSpace(colorSpaceName.GetName()));
+        if (operands.Count < 1) return;
+        try
+        {
+            Context.SetNonStrokingColorSpace(PDColorSpaceFactory.Create(operands[0], Context.GetCurrentPage()?.GetResources()));
+        }
+        catch (IOException)
+        {
+            // ignore invalid color spaces
+        }
     }
-
-    private static PDColorSpace CreateColorSpace(string name) => name switch
-    {
-        "DeviceGray" => new PDColorSpace(name, 1),
-        "DeviceRGB" => new PDColorSpace(name, 3),
-        "DeviceCMYK" => new PDColorSpace(name, 4),
-        _ => new PDColorSpace(name)
-    };
 }

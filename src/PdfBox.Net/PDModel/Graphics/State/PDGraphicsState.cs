@@ -64,10 +64,10 @@ public class PDGraphicsState
         _lineDashPattern = new PDLineDashPattern();
         _flatness = 1f;
         _renderingIntent = string.Empty;
-        _strokingColorSpace = new PDColorSpace("DeviceGray", 1);
-        _nonStrokingColorSpace = new PDColorSpace("DeviceGray", 1);
-        _strokingColor = new PDColor([0f], _strokingColorSpace);
-        _nonStrokingColor = new PDColor([0f], _nonStrokingColorSpace);
+        _strokingColorSpace = PDDeviceGray.Instance;
+        _nonStrokingColorSpace = PDDeviceGray.Instance;
+        _strokingColor = _strokingColorSpace.GetInitialColor();
+        _nonStrokingColor = _nonStrokingColorSpace.GetInitialColor();
         _clippingWindingRule = 1;
     }
 
@@ -135,10 +135,10 @@ public class PDGraphicsState
     public void SetRenderingIntent(string renderingIntent) => _renderingIntent = renderingIntent ?? string.Empty;
 
     public PDColorSpace GetStrokingColorSpace() => _strokingColorSpace;
-    public void SetStrokingColorSpace(PDColorSpace colorSpace) => _strokingColorSpace = colorSpace ?? new PDColorSpace();
+    public void SetStrokingColorSpace(PDColorSpace colorSpace) => _strokingColorSpace = colorSpace ?? PDDeviceGray.Instance;
 
     public PDColorSpace GetNonStrokingColorSpace() => _nonStrokingColorSpace;
-    public void SetNonStrokingColorSpace(PDColorSpace colorSpace) => _nonStrokingColorSpace = colorSpace ?? new PDColorSpace();
+    public void SetNonStrokingColorSpace(PDColorSpace colorSpace) => _nonStrokingColorSpace = colorSpace ?? PDDeviceGray.Instance;
 
     public PDColor GetStrokingColor() => _strokingColor;
     public void SetStrokingColor(PDColor color) => _strokingColor = color ?? new PDColor();

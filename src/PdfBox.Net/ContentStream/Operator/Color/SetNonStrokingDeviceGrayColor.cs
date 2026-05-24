@@ -15,7 +15,7 @@ public sealed class SetNonStrokingDeviceGrayColor : OperatorProcessor
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 1 || operands[0] is not COSNumber g) return;
-        PDColorSpace colorSpace = new("DeviceGray", 1);
+        PDColorSpace colorSpace = PDDeviceGray.Instance;
         Context.SetNonStrokingColorSpace(colorSpace);
         Context.SetNonStrokingColor(new PDColor([g.FloatValue()], colorSpace));
     }
