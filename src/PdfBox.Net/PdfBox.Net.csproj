@@ -11,4 +11,8 @@
     <ProjectReference Include="..\PdfBox.Net.FontBox\PdfBox.Net.FontBox.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="PDModel/Font/Encoding/glyphlist.txt" />
+  </ItemGroup>
+
 </Project>
