@@ -117,7 +117,7 @@ public class GlyphSubstitutionDataExtractor
         FeatureRecord featureRecord, LookupListTable lookupListTable)
     {
         LookupTable[] lookups = lookupListTable.GetLookups();
-        var glyphSubstitutionMap = new Dictionary<IList<int>, IList<int>>();
+        var glyphSubstitutionMap = new Dictionary<IList<int>, IList<int>>(GlyphIdListComparer.Instance);
         foreach (int lookupIndex in featureRecord.GetFeatureTable().GetLookupListIndices())
         {
             if (lookupIndex < lookups.Length)
