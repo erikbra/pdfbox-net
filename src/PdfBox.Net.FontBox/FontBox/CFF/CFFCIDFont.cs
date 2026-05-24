@@ -31,16 +31,58 @@ namespace PdfBox.Net.FontBox.CFF;
 
 public sealed class CFFCIDFont : CFFFont
 {
+    private readonly Dictionary<int, CIDKeyedType2CharString> _charStringCache = new();
+    private readonly List<Dictionary<string, object>> _fontDictionaries = [];
+    private readonly List<Dictionary<string, object>> _privateDictionaries = [];
+    private FDSelect? _fdSelect;
+
     public string Registry { get; internal set; } = string.Empty;
     public string Ordering { get; internal set; } = string.Empty;
     public int Supplement { get; internal set; }
+    public IReadOnlyList<Dictionary<string, object>> GetFontDicts() => _fontDictionaries;
+    public IReadOnlyList<Dictionary<string, object>> GetPrivDicts() => _privateDictionaries;
+    public FDSelect? GetFDSelect() => _fdSelect;
+
+    internal void SetFontDicts(List<Dictionary<string, object>> fontDicts)
+    {
+        _fontDictionaries.Clear();
+        _fontDictionaries.AddRange(fontDicts);
+    }
+
+    internal void SetPrivDicts(List<Dictionary<string, object>> privDicts)
+    {
+        _privateDictionaries.Clear();
+        _privateDictionaries.AddRange(privDicts);
+    }
+
+    internal void SetFDSelect(FDSelect fdSelect) => _fdSelect = fdSelect;
 
     public override Type2CharString GetType2CharString(int cidOrGid)
     {
-        return new Type2CharString(GetName(), cidOrGid.ToString(System.Globalization.CultureInfo.InvariantCulture), GetCharStringBytes()[cidOrGid]);
+        if (_charStringCache.TryGetValue(cidOrGid, out CIDKeyedType2CharString? cached))
+        {
+            return cached;
+        }
+
+        int gid = GetCharset().GetGIDForCID(cidOrGid);
+        IList<byte[]> charStrings = GetCharStringBytes();
+        byte[] bytes = gid >= 0 && gid < charStrings.Count ? charStrings[gid] : charStrings[0];
+        CIDKeyedType2CharString charString = new(GetName(), cidOrGid, bytes);
+        _charStringCache[cidOrGid] = charString;
+        return charString;
     }
 
-    public override GeneralPath GetPath(string name) => new();
-    public override float GetWidth(string name) => 0;
-    public override bool HasGlyph(string name) => false;
+    public override GeneralPath GetPath(string name) => GetType2CharString(SelectorToCID(name)).GetPath();
+    public override float GetWidth(string name) => GetType2CharString(SelectorToCID(name)).GetWidth();
+    public override bool HasGlyph(string name) => SelectorToCID(name) != 0;
+
+    private static int SelectorToCID(string selector)
+    {
+        if (!selector.StartsWith("\\", StringComparison.Ordinal))
+        {
+            throw new ArgumentException("Invalid selector", nameof(selector));
+        }
+
+        return int.Parse(selector.AsSpan(1), System.Globalization.CultureInfo.InvariantCulture);
+    }
 }
