@@ -1719,7 +1719,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Refactored parser entry to consume PDFDocumentParser bootstrap state for strict `%PDF-` header validation and deterministic `startxref` discovery before xref/object parsing."
+    "conversion_notes": "Refactored parser entry to consume PDFDocumentParser bootstrap state and hardened xref-table traversal with shared /Prev loop detection plus strict xref entry state validation."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
@@ -2394,5 +2394,13 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Added fixture and synthetic coverage for parser bootstrap behavior: valid/invalid `%PDF-` header handling and deterministic `startxref` extraction near EOF."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefTableTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Added classic xref-table coverage for trailer reference resolution, /Prev loop safety, and malformed xref subsection/entry rejection."
   }
 ]

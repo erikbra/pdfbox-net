@@ -87,7 +87,7 @@ public sealed class PDFParser
         if (reader.TryReadKeyword("xref"))
         {
             resolver.NextXrefObj(offset, XrefTrailerResolver.XRefType.TABLE);
-            ParseXrefTable(reader, resolver);
+            ParseXrefTable(reader, resolver, visited);
             return;
         }
 
@@ -109,7 +109,7 @@ public sealed class PDFParser
         }
     }
 
-    private void ParseXrefTable(SyntaxReader reader, XrefTrailerResolver resolver)
+    private void ParseXrefTable(SyntaxReader reader, XrefTrailerResolver resolver, HashSet<long> visited)
     {
         while (true)
         {
@@ -154,6 +154,10 @@ public sealed class PDFParser
                     COSObjectKey key = new(firstObject + i, generation);
                     resolver.SetXRef(key, entryOffset);
                 }
+                else if (!inUseToken.Equals("f", StringComparison.Ordinal))
+                {
+                    throw new IOException("Malformed xref entry state.");
+                }
             }
 
             if (checkpoint == reader.Position)
@@ -173,13 +177,13 @@ public sealed class PDFParser
         long prev = trailer.GetLong(COSName.GetPDFName("Prev"), -1);
         if (prev >= 0)
         {
-            ParseXrefSection(prev, resolver, new HashSet<long>());
+            ParseXrefSection(prev, resolver, visited);
         }
 
         long xrefStreamOffset = trailer.GetLong(COSName.GetPDFName("XRefStm"), -1);
         if (xrefStreamOffset >= 0)
         {
-            ParseXrefSection(xrefStreamOffset, resolver, new HashSet<long>());
+            ParseXrefSection(xrefStreamOffset, resolver, visited);
         }
     }
 
