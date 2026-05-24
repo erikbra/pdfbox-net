@@ -25,6 +25,7 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.ContentStream.Operator.MarkedContent;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
