@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cff/CFFType1Font.java
- * PDFBOX_SOURCE_COMMIT: trunk
+ * PDFBOX_SOURCE_COMMIT: b38089ae1f9915bdde9c87c81962af31d843ff18
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: trunk
+ * PORT_LAST_SYNC_COMMIT: b38089ae1f9915bdde9c87c81962af31d843ff18
  */
 
 /*

@@ -631,7 +631,7 @@
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/Encoding.java",
-    "target_path": "src/PdfBox.Net/FontBox/Encoding/Encoding.cs",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/Encoding.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
@@ -641,7 +641,7 @@
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/StandardEncoding.java",
-    "target_path": "src/PdfBox.Net/FontBox/Encoding/StandardEncoding.cs",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/StandardEncoding.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
@@ -651,7 +651,7 @@
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/MacRomanEncoding.java",
-    "target_path": "src/PdfBox.Net/FontBox/Encoding/MacRomanEncoding.cs",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/MacRomanEncoding.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
@@ -661,7 +661,7 @@
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/BuiltInEncoding.java",
-    "target_path": "src/PdfBox.Net/FontBox/Encoding/BuiltInEncoding.cs",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Encoding/BuiltInEncoding.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
@@ -678,5 +678,405 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-23T16:13:02Z",
     "note": "Upstream EncodingTest converted to xUnit with extra BuiltInEncoding fallback/read-only map assertions."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/FontBoxFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/FontBoxFont.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Base font interface ported with C# interface semantics."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/EncodedFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/EncodedFont.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "EncodedFont interface ported."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Pfb/PfbParser.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "PFB (Printer Font Binary) segment parser ported."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/DamagedFontException.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/DamagedFontException.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Exception type for damaged/corrupt Type1 fonts."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Token.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Token.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Lexer token type for Type1 parser."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1CharStringReader.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1CharStringReader.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Interface for reading Type1 charstrings."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Font.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Font.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Type1 font model with PFB segment loading and property access."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Lexer.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Lexer.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Type1 PostScript lexer for token stream parsing."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Parser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Parser.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Type1 font parser consuming lexer token stream."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/BoundingBox.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/BoundingBox.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Font bounding box model."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Interface for finding font directories on the host OS."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontFileFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontFileFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Font file discovery coordinator using OS-specific FontDirFinder."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/MacFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/MacFontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "macOS font directory locations."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/NativeFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/NativeFontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Abstract base for native OS font dir finders."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/OS400FontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/OS400FontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "IBM OS/400 font directory locations."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/UnixFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/UnixFontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Unix/Linux font directory locations."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/WindowsFontDirFinder.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/WindowsFontDirFinder.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Windows font directory locations."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFCIDFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFCIDFont.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "CID-keyed CFF font model."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFCharset.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFCharset.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "CFF charset interface."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFCharsetType1.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFCharsetType1.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Type1 CFF charset implementation."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFEncoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFEncoding.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "CFF encoding interface."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFFont.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "CFF font base model."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFParser.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Focused adapted port covering core CFF structure parsing. Charstring parser infrastructure (CFFOperator, CharStringCommand, Type1/Type2CharStringParser, DataInput*) and CID-keyed font support (CFFCharsetCID, FDSelect, CIDKeyedType2CharString) not yet ported. See issue #8."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFStandardEncoding.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFStandardEncoding.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "CFF standard encoding singleton."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFStandardString.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFStandardString.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "CFF standard string table (SID 0-390)."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFType1Font.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFType1Font.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "CFF-backed Type1 font model."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/Type1CharString.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Type1 charstring path/width model. Full charstring interpreter pending (issue #8)."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type2CharString.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/Type2CharString.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Type2 charstring path/width model. Full charstring interpreter pending (issue #8)."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FontHeaders.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/FontHeaders.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "OTF-specific header data (ROS supplement)."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HeaderTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HeaderTable.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "TTF head table (global font metadata)."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/MaximumProfileTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/MaximumProfileTable.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "TTF maxp table (glyph count and memory limits)."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/MemoryTTFDataStream.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/MemoryTTFDataStream.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "In-memory TTF byte-array data stream. Corresponds to the Java MemoryTTFDataStream/RandomAccessReadDataStream."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/NameRecord.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/NameRecord.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Single name record in the naming table."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/NamingTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/NamingTable.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "TTF name table with platform/language record lookup."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/OTFParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/OTFParser.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "OTF parser extending TTFParser with OTTO sfnt-version support."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/OpenTypeFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/OpenTypeFont.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "OpenType font model extending TrueTypeFont."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFDataStream.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFDataStream.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Abstract TTF data stream with typed read methods."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "TTF parser covering sfnt header and table directory. Only head/maxp/name tables created; cmap/glyf/hmtx/loca and others pending (issue #9)."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFTable.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "Base TTF table with tag, checksum, offset, length and lazy load."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeFont.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-23T20:54:48Z",
+    "note": "TrueType font model with table lookup. Accessors for unported tables (cmap, glyf, etc.) not yet present (issue #9)."
   }
 ]

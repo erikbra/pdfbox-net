@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache FontBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/OpenTypeFont.java
  * PDFBOX_SOURCE_COMMIT: trunk
@@ -25,9 +25,71 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.Util.Geometry;
+
 namespace PdfBox.Net.FontBox.TTF;
 
+/// <summary>
+/// An OpenType (OTF/TTF) font.
+/// </summary>
 public sealed class OpenTypeFont : TrueTypeFont
 {
-    public bool IsPostScript => GetTable("CFF ") is not null || GetTable("CFF2") is not null;
+    private bool _hasPostScriptTag;
+
+    public OpenTypeFont() : base()
+    {
+    }
+
+    internal OpenTypeFont(TTFDataStream fontData) : base(fontData)
+    {
+    }
+
+    internal override void SetVersion(float versionValue)
+    {
+        _hasPostScriptTag = BitConverter.SingleToInt32Bits(versionValue) == 0x469EA8A9;
+        base.SetVersion(versionValue);
+    }
+
+    public CFFTable GetCFF()
+    {
+        if (!_hasPostScriptTag)
+        {
+            throw new NotSupportedException("TTF fonts do not have a CFF table");
+        }
+
+        return (CFFTable)GetTable(CFFTable.TAG)!;
+    }
+
+    public override GlyphTable? GetGlyph()
+    {
+        if (_hasPostScriptTag)
+        {
+            throw new NotSupportedException("OTF fonts do not have a glyf table");
+        }
+
+        return base.GetGlyph();
+    }
+
+    public override GeneralPath GetPath(string name)
+    {
+        if (_hasPostScriptTag && IsSupportedOTF())
+        {
+            return GetCFF().GetFont()?.GetPath(name) ?? new GeneralPath();
+        }
+
+        return base.GetPath(name);
+    }
+
+    public bool IsPostScript => _hasPostScriptTag || tables.ContainsKey(CFFTable.TAG) || tables.ContainsKey("CFF2");
+
+    public bool IsSupportedOTF()
+    {
+        return !(_hasPostScriptTag && !tables.ContainsKey(CFFTable.TAG) && tables.ContainsKey("CFF2"));
+    }
+
+    public bool HasLayoutTables()
+    {
+        return tables.ContainsKey("BASE") || tables.ContainsKey("GDEF") || tables.ContainsKey("GPOS") ||
+               tables.ContainsKey(GlyphSubstitutionTable.TAG) || tables.ContainsKey(OTLTable.TAG);
+    }
 }

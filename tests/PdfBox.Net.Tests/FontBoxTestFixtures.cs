@@ -63,22 +63,50 @@ internal static class FontBoxTestFixtures
     public static byte[] CreateMinimalOpenTypeCff()
     {
         byte[] cff = CreateMinimalCff();
-        int offset = 12 + 16;
-        int paddedLength = (cff.Length + 3) & ~3;
+        byte[] head = CreateHeadTable();
+        byte[] maxp = CreateMaxpTable();
+        byte[] name = CreateNameTable("MiniCFF");
+        byte[] hhea = CreateHheaTable(numHMetrics: 2);
+        byte[] hmtx = CreateHmtxTable(numGlyphs: 2);
+        byte[] post = CreatePostTable();
+        byte[] cmap = CreateCmapTable();
+
+        byte[][] tables = [head, hhea, maxp, post, cmap, hmtx, name, cff];
+        string[] tags = ["head", "hhea", "maxp", "post", "cmap", "hmtx", "name", "CFF "];
+
+        int tableCount = tables.Length;
+        int directorySize = 12 + tableCount * 16;
+
+        int[] offsets = new int[tableCount];
+        int currentOffset = directorySize;
+        for (int i = 0; i < tableCount; i++)
+        {
+            offsets[i] = currentOffset;
+            currentOffset += Align4(tables[i].Length);
+        }
+
+        int searchRangeExp = (int)Math.Log2(tableCount);
+        ushort searchRange2 = (ushort)(1 << searchRangeExp);
+
         using MemoryStream stream = new();
         WriteAscii(stream, "OTTO");
-        WriteUInt16(stream, 1);
-        WriteUInt16(stream, 16);
-        WriteUInt16(stream, 16);
-        WriteUInt16(stream, 0);
-        WriteAscii(stream, "CFF ");
-        WriteUInt32(stream, 0);
-        WriteUInt32(stream, (uint)offset);
-        WriteUInt32(stream, (uint)cff.Length);
-        stream.Write(cff);
-        while (stream.Length < offset + paddedLength)
+        WriteUInt16(stream, (ushort)tableCount);
+        WriteUInt16(stream, (ushort)(searchRange2 * 16));
+        WriteUInt16(stream, (ushort)searchRangeExp);
+        WriteUInt16(stream, (ushort)(tableCount * 16 - searchRange2 * 16));
+
+        for (int i = 0; i < tableCount; i++)
         {
-            stream.WriteByte(0);
+            WriteAscii(stream, tags[i]);
+            WriteUInt32(stream, 0);
+            WriteUInt32(stream, (uint)offsets[i]);
+            WriteUInt32(stream, (uint)tables[i].Length);
+        }
+
+        for (int i = 0; i < tableCount; i++)
+        {
+            stream.Write(tables[i]);
+            WritePadding(stream, tables[i].Length);
         }
 
         return stream.ToArray();
@@ -89,41 +117,184 @@ internal static class FontBoxTestFixtures
         byte[] head = CreateHeadTable();
         byte[] maxp = CreateMaxpTable();
         byte[] name = CreateNameTable("MiniTTF");
+        byte[] hhea = CreateHheaTable(numHMetrics: 2);
+        byte[] hmtx = CreateHmtxTable(numGlyphs: 2);
+        byte[] post = CreatePostTable();
+        byte[] cmap = CreateCmapTable();
+        // 2 glyphs: GID 0 = empty, GID 1 = single contour box
+        byte[] glyf = CreateGlyfTable();
+        byte[] loca = CreateLocaTable(glyfLength: glyf.Length);
 
-        const int tableCount = 3;
+        byte[][] tables = [head, hhea, maxp, post, cmap, loca, glyf, hmtx, name];
+        string[] tags   = ["head", "hhea", "maxp", "post", "cmap", "loca", "glyf", "hmtx", "name"];
+
+        int tableCount = tables.Length;
         int directorySize = 12 + tableCount * 16;
-        int headOffset = directorySize;
-        int maxpOffset = headOffset + Align4(head.Length);
-        int nameOffset = maxpOffset + Align4(maxp.Length);
+
+        // calculate offsets
+        int[] offsets = new int[tableCount];
+        int currentOffset = directorySize;
+        for (int i = 0; i < tableCount; i++)
+        {
+            offsets[i] = currentOffset;
+            currentOffset += Align4(tables[i].Length);
+        }
 
         using MemoryStream stream = new();
         WriteUInt32(stream, 0x00010000);
         WriteUInt16(stream, (ushort)tableCount);
-        WriteUInt16(stream, 32);
+        WriteUInt16(stream, 128);  // searchRange  = 8 * 16
+        WriteUInt16(stream, 3);    // entrySelector = log2(8)
+        WriteUInt16(stream, (ushort)(tableCount * 16 - 128)); // rangeShift
+
+        for (int i = 0; i < tableCount; i++)
+        {
+            WriteAscii(stream, tags[i]);
+            WriteUInt32(stream, 0);
+            WriteUInt32(stream, (uint)offsets[i]);
+            WriteUInt32(stream, (uint)tables[i].Length);
+        }
+
+        for (int i = 0; i < tableCount; i++)
+        {
+            stream.Write(tables[i]);
+            WritePadding(stream, tables[i].Length);
+        }
+
+        return stream.ToArray();
+    }
+
+    private static byte[] CreateHheaTable(int numHMetrics)
+    {
+        using MemoryStream stream = new();
+        WriteUInt32(stream, 0x00010000); // version 1.0
+        WriteInt16(stream, 800);  // ascender
+        WriteInt16(stream, -200); // descender
+        WriteInt16(stream, 0);    // lineGap
+        WriteUInt16(stream, 500); // advanceWidthMax
+        WriteInt16(stream, 0);    // minLeftSideBearing
+        WriteInt16(stream, 0);    // minRightSideBearing
+        WriteInt16(stream, 500);  // xMaxExtent
+        WriteInt16(stream, 1);    // caretSlopeRise
+        WriteInt16(stream, 0);    // caretSlopeRun
+        WriteInt16(stream, 0);    // caretOffset (reserved1)
+        WriteInt16(stream, 0);    // reserved2
+        WriteInt16(stream, 0);    // reserved3
+        WriteInt16(stream, 0);    // reserved4
+        WriteInt16(stream, 0);    // reserved5
+        WriteInt16(stream, 0);    // metricDataFormat
+        WriteUInt16(stream, (ushort)numHMetrics);
+        return stream.ToArray();
+    }
+
+    private static byte[] CreateHmtxTable(int numGlyphs)
+    {
+        using MemoryStream stream = new();
+        for (int i = 0; i < numGlyphs; i++)
+        {
+            WriteUInt16(stream, 500); // advanceWidth
+            WriteInt16(stream, 0);    // lsb
+        }
+        return stream.ToArray();
+    }
+
+    private static byte[] CreatePostTable()
+    {
+        using MemoryStream stream = new();
+        WriteUInt32(stream, 0x00030000); // version 3.0 (no glyph names)
+        WriteUInt32(stream, 0);          // italicAngle
+        WriteInt16(stream, -100);        // underlinePosition
+        WriteInt16(stream, 50);          // underlineThickness
+        WriteUInt32(stream, 0);          // isFixedPitch
+        WriteUInt32(stream, 0);          // minMemType42
+        WriteUInt32(stream, 0);          // maxMemType42
+        WriteUInt32(stream, 0);          // minMemType1
+        WriteUInt32(stream, 0);          // maxMemType1
+        return stream.ToArray();
+    }
+
+    private static byte[] CreateCmapTable()
+    {
+        // Format 4 cmap with a single segment mapping U+0041 ('A') → GID 1
+        // Format 4 header: segCount=2 (1 real + 1 terminator)
+        ushort segCount = 2;
+        ushort segCountX2 = (ushort)(segCount * 2);
+        ushort searchRange = 4;
+        ushort entrySelector = 1;
+        ushort rangeShift = 0;
+
+        using MemoryStream fmt4 = new();
+        WriteUInt16(fmt4, 4);          // format
+        WriteUInt16(fmt4, 0);          // length placeholder
+        WriteUInt16(fmt4, 0);          // language
+        WriteUInt16(fmt4, segCountX2); // segCountX2
+        WriteUInt16(fmt4, searchRange);
+        WriteUInt16(fmt4, entrySelector);
+        WriteUInt16(fmt4, rangeShift);
+        // endCount[0]=0x0041, endCount[1]=0xFFFF
+        WriteUInt16(fmt4, 0x0041);
+        WriteUInt16(fmt4, 0xFFFF);
+        WriteUInt16(fmt4, 0);          // reservedPad
+        // startCount[0]=0x0041, startCount[1]=0xFFFF
+        WriteUInt16(fmt4, 0x0041);
+        WriteUInt16(fmt4, 0xFFFF);
+        // idDelta[0]=1-0x41=0xFFC0(-64), idDelta[1]=1
+        WriteInt16(fmt4, unchecked((short)(1 - 0x0041)));
+        WriteInt16(fmt4, 1);
+        // idRangeOffset[0]=0, idRangeOffset[1]=0
+        WriteUInt16(fmt4, 0);
+        WriteUInt16(fmt4, 0);
+
+        byte[] fmt4Bytes = fmt4.ToArray();
+        // fix length field
+        fmt4Bytes[2] = (byte)(fmt4Bytes.Length >> 8);
+        fmt4Bytes[3] = (byte)(fmt4Bytes.Length & 0xff);
+
+        using MemoryStream stream = new();
+        WriteUInt16(stream, 0);       // version
+        WriteUInt16(stream, 1);       // numTables
+        // encoding record: platform=3(Windows), encodingID=1(Unicode BMP), offset=4+8=12
+        WriteUInt16(stream, 3);
         WriteUInt16(stream, 1);
-        WriteUInt16(stream, 16);
+        WriteUInt32(stream, 12);      // offset to format 4
+        stream.Write(fmt4Bytes);
+        return stream.ToArray();
+    }
 
-        WriteAscii(stream, "head");
-        WriteUInt32(stream, 0);
-        WriteUInt32(stream, (uint)headOffset);
-        WriteUInt32(stream, (uint)head.Length);
+    private static byte[] CreateGlyfTable()
+    {
+        // GID 0: empty (no contours) - 10 bytes glyph header with 0 contours
+        using MemoryStream stream = new();
+        WriteInt16(stream, 0);    // numberOfContours = 0 (empty glyph)
+        WriteInt16(stream, 0);    // xMin
+        WriteInt16(stream, 0);    // yMin
+        WriteInt16(stream, 0);    // xMax
+        WriteInt16(stream, 0);    // yMax
+        // GID 1: simple glyph with 1 contour, 4 points (box)
+        WriteInt16(stream, 1);    // numberOfContours = 1
+        WriteInt16(stream, 0);    // xMin
+        WriteInt16(stream, 0);    // yMin
+        WriteInt16(stream, 500);  // xMax
+        WriteInt16(stream, 700);  // yMax
+        WriteUInt16(stream, 3);   // endPtsOfContours[0] = 3 (4 points: 0,1,2,3)
+        WriteUInt16(stream, 0);   // instructionLength = 0
+        // flags: 4 points, all on-curve (flag=1)
+        stream.WriteByte(1); stream.WriteByte(1); stream.WriteByte(1); stream.WriteByte(1);
+        // xCoordinates (relative): 0, 500, 0, -500
+        WriteInt16(stream, 0); WriteInt16(stream, 500); WriteInt16(stream, 0); WriteInt16(stream, unchecked((short)-500));
+        // yCoordinates (relative): 0, 0, 700, -700
+        WriteInt16(stream, 0); WriteInt16(stream, 0); WriteInt16(stream, 700); WriteInt16(stream, unchecked((short)-700));
+        return stream.ToArray();
+    }
 
-        WriteAscii(stream, "maxp");
-        WriteUInt32(stream, 0);
-        WriteUInt32(stream, (uint)maxpOffset);
-        WriteUInt32(stream, (uint)maxp.Length);
-
-        WriteAscii(stream, "name");
-        WriteUInt32(stream, 0);
-        WriteUInt32(stream, (uint)nameOffset);
-        WriteUInt32(stream, (uint)name.Length);
-
-        stream.Write(head);
-        WritePadding(stream, head.Length);
-        stream.Write(maxp);
-        WritePadding(stream, maxp.Length);
-        stream.Write(name);
-        WritePadding(stream, name.Length);
+    private static byte[] CreateLocaTable(int glyfLength)
+    {
+        // long format (4 bytes per offset), 3 offsets for 2 glyphs (GID 0..1) + sentinel
+        // GID 0 starts at 0, GID 1 starts at 10 (0 = empty = 10 bytes), sentinel at glyfLength
+        using MemoryStream stream = new();
+        WriteUInt32(stream, 0);                 // GID 0 offset
+        WriteUInt32(stream, 10);                // GID 1 offset (empty glyph = 10 bytes)
+        WriteUInt32(stream, (uint)glyfLength);  // sentinel
         return stream.ToArray();
     }
 
@@ -344,7 +515,7 @@ internal static class FontBoxTestFixtures
         WriteUInt16(stream, 3);
         WriteUInt16(stream, 1);
         WriteUInt16(stream, 0x0409);
-        WriteUInt16(stream, 4);
+        WriteUInt16(stream, 6);    // nameId = 6 (PostScript name)
         WriteUInt16(stream, (ushort)value.Length);
         WriteUInt16(stream, 0);
         stream.Write(value);
