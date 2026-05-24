@@ -32,17 +32,64 @@ namespace PdfBox.Net.PDModel.Graphics.State
 {
     public class PDGraphicsState
     {
-        private readonly Matrix _currentTransformationMatrix = new();
-        private readonly PDTextState _textState = new();
+        private Matrix _currentTransformationMatrix;
+        private PDTextState _textState;
+
+        public PDGraphicsState()
+        {
+            _currentTransformationMatrix = new Matrix();
+            _textState = new PDTextState();
+        }
+
+        private PDGraphicsState(Matrix ctm, PDTextState textState)
+        {
+            _currentTransformationMatrix = ctm;
+            _textState = textState;
+        }
 
         public Matrix GetCurrentTransformationMatrix() => _currentTransformationMatrix;
+
+        public void SetCurrentTransformationMatrix(Matrix ctm) =>
+            _currentTransformationMatrix = ctm ?? new Matrix();
+
         public PDTextState GetTextState() => _textState;
+
+        public PDGraphicsState Clone() =>
+            new PDGraphicsState(_currentTransformationMatrix, _textState.Clone());
     }
 
     public class PDTextState
     {
-        public float GetFontSize() => 0f;
-        public float GetHorizontalScaling() => 100f;
+        public float FontSize { get; set; } = 0f;
+        public float HorizontalScaling { get; set; } = 100f;
+        public float CharacterSpacing { get; set; } = 0f;
+        public float WordSpacing { get; set; } = 0f;
+        public float Leading { get; set; } = 0f;
+        public int RenderingMode { get; set; } = 0;
+        public float Rise { get; set; } = 0f;
+        public PdfBox.Net.PDModel.Font.PDFont? Font { get; set; } = null;
+
+        public float GetFontSize() => FontSize;
+        public float GetHorizontalScaling() => HorizontalScaling;
+        public float GetCharacterSpacing() => CharacterSpacing;
+        public float GetWordSpacing() => WordSpacing;
+        public float GetLeading() => Leading;
+        public int GetRenderingMode() => RenderingMode;
+        public float GetRise() => Rise;
+        public PdfBox.Net.PDModel.Font.PDFont? GetFont() => Font;
+
+        public PDTextState Clone() =>
+            new PDTextState
+            {
+                FontSize = FontSize,
+                HorizontalScaling = HorizontalScaling,
+                CharacterSpacing = CharacterSpacing,
+                WordSpacing = WordSpacing,
+                Leading = Leading,
+                RenderingMode = RenderingMode,
+                Rise = Rise,
+                Font = Font,
+            };
     }
 }
 
