@@ -33,7 +33,6 @@ namespace PdfBox.Net.PdfParser;
 
 public sealed class PDFParser
 {
-    private static readonly byte[] StartXrefBytes = Encoding.ASCII.GetBytes("startxref");
     private static readonly byte[] EndStreamBytes = Encoding.ASCII.GetBytes("endstream");
 
     private readonly byte[] _data;
@@ -50,8 +49,9 @@ public sealed class PDFParser
 
     public ParsedPDFDocument Parse()
     {
-        float headerVersion = ParseHeaderVersion();
-        long startXref = FindStartXref();
+        ParserBootstrapState bootstrap = PDFDocumentParser.ParseDocumentStart(_data);
+        float headerVersion = bootstrap.HeaderVersion;
+        long startXref = bootstrap.StartXrefOffset;
 
         XrefTrailerResolver resolver = new();
         HashSet<long> visited = [];
@@ -741,66 +741,6 @@ public sealed class PDFParser
         return created;
     }
 
-    private float ParseHeaderVersion()
-    {
-        int start = IndexOf(_data, Encoding.ASCII.GetBytes("%PDF-"), 0);
-        if (start < 0)
-        {
-            return 1.4f;
-        }
-
-        int cursor = start + 5;
-        StringBuilder versionText = new();
-        while (cursor < _data.Length)
-        {
-            byte b = _data[cursor++];
-            if (b is (byte)'\r' or (byte)'\n')
-            {
-                break;
-            }
-
-            versionText.Append((char)b);
-        }
-
-        return float.TryParse(versionText.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out float version)
-            ? version
-            : 1.4f;
-    }
-
-    private long FindStartXref()
-    {
-        int markerIndex = LastIndexOf(_data, StartXrefBytes);
-        if (markerIndex < 0)
-        {
-            throw new IOException("startxref marker not found.");
-        }
-
-        int cursor = markerIndex + StartXrefBytes.Length;
-        while (cursor < _data.Length && IsWhiteSpace(_data[cursor]))
-        {
-            cursor++;
-        }
-
-        int start = cursor;
-        while (cursor < _data.Length && _data[cursor] is >= (byte)'0' and <= (byte)'9')
-        {
-            cursor++;
-        }
-
-        if (cursor == start)
-        {
-            throw new IOException("startxref marker does not contain an offset.");
-        }
-
-        string token = Encoding.ASCII.GetString(_data, start, cursor - start);
-        if (!long.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out long result))
-        {
-            throw new IOException("Invalid startxref value.");
-        }
-
-        return result;
-    }
-
     private static long ReadBigEndian(byte[] bytes, int offset, int width, long defaultValue)
     {
         if (width == 0)
@@ -856,29 +796,6 @@ public sealed class PDFParser
     private static int IndexOf(byte[] source, byte[] pattern, int start)
     {
         for (int i = start; i <= source.Length - pattern.Length; i++)
-        {
-            bool matched = true;
-            for (int j = 0; j < pattern.Length; j++)
-            {
-                if (source[i + j] != pattern[j])
-                {
-                    matched = false;
-                    break;
-                }
-            }
-
-            if (matched)
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    private static int LastIndexOf(byte[] source, byte[] pattern)
-    {
-        for (int i = source.Length - pattern.Length; i >= 0; i--)
         {
             bool matched = true;
             for (int j = 0; j < pattern.Length; j++)
