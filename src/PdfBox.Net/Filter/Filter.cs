@@ -27,6 +27,8 @@ namespace PdfBox.Net.Filter;
 
 public abstract class Filter
 {
+    public const string SyspropDeflateLevel = "org.apache.pdfbox.filter.deflatelevel";
+
     public abstract DecodeResult Decode(Stream input, Stream output, COSDictionary parameters, int index, DecodeOptions options);
 
     public abstract void Encode(Stream input, Stream output, COSDictionary parameters, int index);
@@ -79,6 +81,37 @@ public abstract class Filter
         currentBuffer ??= new RandomAccessReadWriteBuffer();
         currentBuffer.Seek(0);
         return currentBuffer;
+    }
+
+    protected COSDictionary GetDecodeParams(COSDictionary dictionary, int index)
+    {
+        COSBase? filter = dictionary.GetDictionaryObject(COSName.F, COSName.FILTER);
+        COSBase? decodeParams = dictionary.GetDictionaryObject(COSName.DP, COSName.DECODE_PARMS);
+        if (filter is COSName && decodeParams is COSDictionary asDictionary)
+        {
+            return asDictionary;
+        }
+
+        if (filter is COSArray && decodeParams is COSArray asArray && index < asArray.Size())
+        {
+            if (asArray.GetObject(index) is COSDictionary decodeParamDictionary)
+            {
+                return decodeParamDictionary;
+            }
+        }
+
+        return new COSDictionary();
+    }
+
+    protected static int GetCompressionLevel()
+    {
+        string? value = Environment.GetEnvironmentVariable(SyspropDeflateLevel);
+        if (value is null || !int.TryParse(value, out int level))
+        {
+            return -1;
+        }
+
+        return Math.Clamp(level, -1, 9);
     }
 
     private static void CopyTo(Stream input, RandomAccessReadWriteBuffer output)
