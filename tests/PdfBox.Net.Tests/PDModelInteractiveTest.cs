@@ -28,6 +28,7 @@ using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
+using PdfBox.Net.PDModel.Interactive.Form;
 
 namespace PdfBox.Net.Tests;
 
@@ -452,6 +453,46 @@ public class PDModelInteractiveTest
     }
 
     [Fact]
+    public void PDAnnotationExtendedSubtypeFactoryCoverage()
+    {
+        Assert.IsType<PDAnnotationHighlight>(PDAnnotation.CreateAnnotation(new PDAnnotationHighlight().GetCOSObject()));
+        Assert.IsType<PDAnnotationUnderline>(PDAnnotation.CreateAnnotation(new PDAnnotationUnderline().GetCOSObject()));
+        Assert.IsType<PDAnnotationStrikeOut>(PDAnnotation.CreateAnnotation(new PDAnnotationStrikeOut().GetCOSObject()));
+        Assert.IsType<PDAnnotationSquiggly>(PDAnnotation.CreateAnnotation(new PDAnnotationSquiggly().GetCOSObject()));
+        Assert.IsType<PDAnnotationSquare>(PDAnnotation.CreateAnnotation(new PDAnnotationSquare().GetCOSObject()));
+        Assert.IsType<PDAnnotationCircle>(PDAnnotation.CreateAnnotation(new PDAnnotationCircle().GetCOSObject()));
+        Assert.IsType<PDAnnotationFreeText>(PDAnnotation.CreateAnnotation(new PDAnnotationFreeText().GetCOSObject()));
+        Assert.IsType<PDAnnotationLine>(PDAnnotation.CreateAnnotation(new PDAnnotationLine().GetCOSObject()));
+        Assert.IsType<PDAnnotationFileAttachment>(PDAnnotation.CreateAnnotation(new PDAnnotationFileAttachment().GetCOSObject()));
+        Assert.IsType<PDAnnotationStamp>(PDAnnotation.CreateAnnotation(new PDAnnotationStamp().GetCOSObject()));
+        Assert.IsType<PDAnnotationWidget>(PDAnnotation.CreateAnnotation(new PDAnnotationWidget().GetCOSObject()));
+    }
+
+    [Fact]
+    public void PDAnnotationTextMarkupQuadPointsRoundtrip()
+    {
+        PDAnnotationHighlight highlight = new();
+        highlight.SetQuadPoints([10, 20, 30, 40, 50, 60, 70, 80]);
+
+        float[]? quadPoints = highlight.GetQuadPoints();
+        Assert.NotNull(quadPoints);
+        Assert.Equal(8, quadPoints!.Length);
+        Assert.Equal(10, quadPoints[0]);
+        Assert.Equal(80, quadPoints[7]);
+    }
+
+    [Fact]
+    public void PDAnnotationLineCoordinatesRoundtrip()
+    {
+        PDAnnotationLine line = new();
+        line.SetLine([1, 2, 3, 4]);
+
+        float[]? values = line.GetLine();
+        Assert.NotNull(values);
+        Assert.Equal([1, 2, 3, 4], values);
+    }
+
+    [Fact]
     public void PDAnnotationTextNameRoundtrip()
     {
         PDAnnotationText text = new();
@@ -502,5 +543,48 @@ public class PDModelInteractiveTest
 
         PDDestination? dest = item.GetDestination();
         Assert.IsType<PDPageXYZDestination>(dest);
+    }
+
+    [Fact]
+    public void PDPageAnnotationsRoundtrip()
+    {
+        PDPage page = new();
+        PDAnnotationLink link = new();
+        link.SetContents("link");
+        PDAnnotationText text = new();
+        text.SetContents("text");
+
+        page.SetAnnotations([link, text]);
+
+        IList<PDAnnotation> annotations = page.GetAnnotations();
+        Assert.Equal(2, annotations.Count);
+        Assert.IsType<PDAnnotationLink>(annotations[0]);
+        Assert.IsType<PDAnnotationText>(annotations[1]);
+    }
+
+    [Fact]
+    public void PDAcroFormFieldsRoundtrip()
+    {
+        using PDDocument doc = new();
+        PDDocumentCatalog catalog = doc.GetDocumentCatalog();
+        PDAcroForm acroForm = new(doc);
+
+        PDTextField text = new(acroForm);
+        text.SetPartialName("name");
+        text.SetValue("value");
+        PDCheckBox checkBox = new(acroForm);
+        checkBox.SetPartialName("accepted");
+        checkBox.Check();
+        acroForm.SetFields([text, checkBox]);
+        catalog.SetAcroForm(acroForm);
+
+        PDAcroForm? restored = catalog.GetAcroForm();
+        Assert.NotNull(restored);
+        IList<PDField> fields = restored!.GetFields();
+        Assert.Equal(2, fields.Count);
+        Assert.IsType<PDTextField>(fields[0]);
+        Assert.IsType<PDCheckBox>(fields[1]);
+        Assert.Equal("value", ((PDTextField)fields[0]).GetValue());
+        Assert.True(((PDCheckBox)fields[1]).IsChecked());
     }
 }

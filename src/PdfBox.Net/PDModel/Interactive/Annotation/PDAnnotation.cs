@@ -79,6 +79,17 @@ public abstract class PDAnnotation : COSObjectable
             {
                 PDAnnotationLink.SUB_TYPE => new PDAnnotationLink(annotDic),
                 PDAnnotationText.SUB_TYPE => new PDAnnotationText(annotDic),
+                PDAnnotationHighlight.SUB_TYPE => new PDAnnotationHighlight(annotDic),
+                PDAnnotationUnderline.SUB_TYPE => new PDAnnotationUnderline(annotDic),
+                PDAnnotationStrikeOut.SUB_TYPE => new PDAnnotationStrikeOut(annotDic),
+                PDAnnotationSquiggly.SUB_TYPE => new PDAnnotationSquiggly(annotDic),
+                PDAnnotationSquare.SUB_TYPE => new PDAnnotationSquare(annotDic),
+                PDAnnotationCircle.SUB_TYPE => new PDAnnotationCircle(annotDic),
+                PDAnnotationFreeText.SUB_TYPE => new PDAnnotationFreeText(annotDic),
+                PDAnnotationLine.SUB_TYPE => new PDAnnotationLine(annotDic),
+                PDAnnotationFileAttachment.SUB_TYPE => new PDAnnotationFileAttachment(annotDic),
+                PDAnnotationStamp.SUB_TYPE => new PDAnnotationStamp(annotDic),
+                PDAnnotationWidget.SUB_TYPE => new PDAnnotationWidget(annotDic),
                 _ => new PDAnnotationUnknown(annotDic)
             };
         }

@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
 
@@ -232,6 +233,23 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetDocumentOutline(PDDocumentOutline? outlines)
     {
         _root.SetItem(COSName.OUTLINES, outlines);
+    }
+
+    /// <summary>
+    /// Returns the document AcroForm dictionary if present.
+    /// </summary>
+    public PDAcroForm? GetAcroForm()
+    {
+        COSDictionary? formDictionary = _root.GetCOSDictionary(COSName.ACRO_FORM);
+        return formDictionary == null ? null : new PDAcroForm(_document, formDictionary);
+    }
+
+    /// <summary>
+    /// Sets the document AcroForm dictionary.
+    /// </summary>
+    public void SetAcroForm(PDAcroForm? acroForm)
+    {
+        _root.SetItem(COSName.ACRO_FORM, acroForm);
     }
 
     /// <summary>
