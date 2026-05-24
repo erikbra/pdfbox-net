@@ -213,7 +213,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported foundational COS stream container behavior for raw input/output, length tracking, stream lifecycle, and visitor dispatch using existing RandomAccess primitives."
+    "conversion_notes": "Expanded COSStream parity with decoded input/output paths, filter list resolution, decoded view creation, and stream writer lifecycle semantics aligned with upstream behavior."
   },
   {
     "source_path": "n/a",
@@ -261,7 +261,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Adapted xUnit conversion of upstream TestCOSStream for unfiltered stream encode/decode, close behavior, and hasData semantics in this layer."
+    "conversion_notes": "Expanded xUnit conversion of upstream TestCOSStream to include single/multi-filter encode/decode parity and double-close behavior for filtered streams."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
