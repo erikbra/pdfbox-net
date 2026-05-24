@@ -23,6 +23,8 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Font.Encoding;
+using System.Text;
 
 namespace PdfBox.Net.PDModel.Font;
 
@@ -60,6 +62,28 @@ public sealed class PDDictionaryFont : PDFont
             COSString cosString => cosString.GetString(),
             _ => "Unknown",
         };
+    }
+
+    /// <inheritdoc/>
+    public override float GetWidth(int code)
+    {
+        // Minimal, deterministic metrics for baseline extraction workflows.
+        // Approximate a narrower advance for plain spaces and a generic width otherwise.
+        return code == 0x20 ? 250f : 500f;
+    }
+
+    /// <inheritdoc/>
+    public override float GetSpaceWidth() => 250f;
+
+    /// <inheritdoc/>
+    public override string? ToUnicode(int code, GlyphList glyphList)
+    {
+        if (code < 0 || code > byte.MaxValue)
+        {
+            return null;
+        }
+
+        return Encoding.Latin1.GetString([(byte)code]);
     }
 
     /// <inheritdoc/>

@@ -25,9 +25,12 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.Rendering;
 using PdfBox.Net.Text;
 using PdfBox.Net.Util;
+using System.Text;
 
 namespace PdfBox.Net.Tests;
 
@@ -445,5 +448,122 @@ public class RenderingTextTest
     {
         var extractor = new PDFMarkedContentExtractor();
         Assert.Empty(extractor.GetMarkedContents());
+    }
+
+    // ── Functional baseline extraction tests ──────────────────────────────────
+
+    [Fact]
+    public void PDFTextStripper_GetText_ExtractsWordsAndLines()
+    {
+        using var document = CreateSimpleTextFixtureDocument("""
+            BT
+            /F1 12 Tf
+            50 700 Td
+            (Hello) Tj
+            30 0 Td
+            (World) Tj
+            0 -20 Td
+            (Second line) Tj
+            ET
+            """);
+
+        var stripper = new PDFTextStripper();
+        string extracted = stripper.GetText(document);
+
+        Assert.Equal($"Hello World{Environment.NewLine}Second line{Environment.NewLine}", extracted);
+    }
+
+    [Fact]
+    public void PDFMarkedContentExtractor_ProcessPage_CapturesMarkedContentText()
+    {
+        using var document = CreateSimpleTextFixtureDocument("""
+            /P BMC
+            BT
+            /F1 12 Tf
+            50 700 Td
+            (Marked One) Tj
+            ET
+            EMC
+            /Span BMC
+            BT
+            /F1 12 Tf
+            50 680 Td
+            (Marked Two) Tj
+            ET
+            EMC
+            """);
+
+        var extractor = new PDFMarkedContentExtractor();
+        extractor.ProcessPage(document.GetPage(0));
+        var markedContents = extractor.GetMarkedContents();
+
+        Assert.Equal(2, markedContents.Count);
+        Assert.Equal("P", markedContents[0].Tag.GetName());
+        Assert.Equal("Span", markedContents[1].Tag.GetName());
+        Assert.Equal("Marked One", string.Concat(markedContents[0].GetTexts().Select(tp => tp.GetUnicode())));
+        Assert.Equal("Marked Two", string.Concat(markedContents[1].GetTexts().Select(tp => tp.GetUnicode())));
+    }
+
+    [Fact]
+    public void PDFTextStripperByArea_ExtractRegions_ExtractsTextByRegion()
+    {
+        using var document = CreateSimpleTextFixtureDocument("""
+            BT
+            /F1 12 Tf
+            50 700 Td
+            (Top Region) Tj
+            0 -60 Td
+            (Bottom Region) Tj
+            ET
+            """);
+
+        var stripper = new PDFTextStripperByArea();
+        stripper.AddRegion("top", new PdfBox.Net.Rendering.Rectangle2D(40, 80, 250, 40));
+        stripper.AddRegion("bottom", new PdfBox.Net.Rendering.Rectangle2D(40, 140, 250, 40));
+
+        stripper.ExtractRegions(document.GetPage(0));
+
+        string top = stripper.GetTextForRegion("top");
+        string bottom = stripper.GetTextForRegion("bottom");
+
+        Assert.Contains("Top Region", top);
+        Assert.DoesNotContain("Bottom Region", top);
+        Assert.Contains("Bottom Region", bottom);
+        Assert.DoesNotContain("Top Region", bottom);
+    }
+
+    private static PDDocument CreateSimpleTextFixtureDocument(string contentStream)
+    {
+        var document = new PDDocument();
+        var page = new PDPage();
+        document.AddPage(page);
+
+        var pageDict = (COSDictionary)page.GetCOSObject();
+        pageDict.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
+
+        var stream = new COSStream();
+        using (Stream output = stream.CreateOutputStream())
+        {
+            byte[] bytes = Encoding.Latin1.GetBytes(contentStream);
+            output.Write(bytes, 0, bytes.Length);
+        }
+
+        pageDict.SetItem(COSName.CONTENTS, stream);
+        return document;
+    }
+
+    private static COSDictionary CreateDefaultResourcesDictionary()
+    {
+        var fontDictionary = new COSDictionary();
+        fontDictionary.SetItem(COSName.TYPE, COSName.GetPDFName("Font"));
+        fontDictionary.SetItem(COSName.GetPDFName("Subtype"), COSName.GetPDFName("Type1"));
+        fontDictionary.SetItem(COSName.GetPDFName("BaseFont"), COSName.GetPDFName("Helvetica"));
+
+        var fonts = new COSDictionary();
+        fonts.SetItem(COSName.GetPDFName("F1"), fontDictionary);
+
+        var resources = new COSDictionary();
+        resources.SetItem(COSName.GetPDFName("Font"), fonts);
+        return resources;
     }
 }
