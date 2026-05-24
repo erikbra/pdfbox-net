@@ -1,0 +1,36 @@
+StartFontMetrics 4.1
+Comment This is a minimal AFM fixture for unit testing.
+FontName TestFont
+FullName Test Font
+FamilyName Test Family
+Weight Regular
+ItalicAngle 0
+IsFixedPitch false
+UnderlinePosition -100
+UnderlineThickness 50
+Version 1.0
+Notice Copyright Test Notice
+EncodingScheme AdobeStandardEncoding
+CapHeight 662
+XHeight 450
+Ascender 683
+Descender -217
+FontBBox -168 -218 1000 898
+StartCharMetrics 4
+C 32 ; WX 250 ; N space ; B 0 0 0 0 ;
+C 65 ; WX 722 ; N A ; B 15 0 706 683 ; L fi fi ; L fl fl ;
+C 86 ; WX 722 ; N V ; B 15 0 706 683 ;
+C -1 ; WX 500 ; N .notdef ; B 0 0 0 0 ;
+EndCharMetrics
+StartKernData
+StartTrackKern 1
+TrackKern -1 12 -1 24 0
+EndTrackKern
+StartKernPairs 1
+KPX A V -80
+EndKernPairs
+EndKernData
+StartComposites 1
+CC Aacute 2 ; PCC A 0 0 ; PCC acutecomb 195 195 ;
+EndComposites
+EndFontMetrics
