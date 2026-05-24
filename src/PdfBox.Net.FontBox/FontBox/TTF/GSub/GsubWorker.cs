@@ -2,9 +2,9 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorker.java
  * PDFBOX_SOURCE_COMMIT: trunk
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: trunk
  */
 
@@ -25,11 +25,19 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.FontBox.TTF;
+namespace PdfBox.Net.FontBox.TTF.GSub;
 
-public sealed class DigitalSignatureTable : TTFTable
+/// <summary>
+/// This class is responsible for replacing GlyphIDs with new ones according to the GSUB tables.
+/// Each language should have an implementation of this.
+/// </summary>
+public interface IGsubWorker
 {
-    public const string TAG = "DSIG";
-    public DigitalSignatureTable() : base(TAG) { }
+    /// <summary>
+    /// Applies language-specific transforms including GSUB and any other pre or post-processing
+    /// necessary for displaying Glyphs correctly.
+    /// </summary>
+    /// <param name="originalGlyphIds">list of original glyph IDs</param>
+    /// <returns>list of transformed glyph IDs</returns>
+    IList<int> ApplyTransforms(IList<int> originalGlyphIds);
 }
-

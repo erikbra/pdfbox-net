@@ -2,9 +2,9 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/gsub/DefaultGsubWorker.java
  * PDFBOX_SOURCE_COMMIT: trunk
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: trunk
  */
 
@@ -25,11 +25,18 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.FontBox.TTF;
+namespace PdfBox.Net.FontBox.TTF.GSub;
 
-public sealed class DigitalSignatureTable : TTFTable
+/// <summary>
+/// A default implementation of <see cref="IGsubWorker"/> that actually does not transform the glyphs
+/// yet allows to correctly load GSUB table data even from fonts for which a complete glyph
+/// substitution is not implemented.
+/// </summary>
+internal sealed class DefaultGsubWorker : IGsubWorker
 {
-    public const string TAG = "DSIG";
-    public DigitalSignatureTable() : base(TAG) { }
+    public IList<int> ApplyTransforms(IList<int> originalGlyphIds)
+    {
+        // Return a read-only view to prevent accidental modifications of the source list
+        return originalGlyphIds.ToList().AsReadOnly();
+    }
 }
-

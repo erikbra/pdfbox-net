@@ -2,9 +2,9 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GlyphArraySplitter.java
  * PDFBOX_SOURCE_COMMIT: trunk
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: trunk
  */
 
@@ -25,11 +25,12 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.FontBox.TTF;
+namespace PdfBox.Net.FontBox.TTF.GSub;
 
-public sealed class DigitalSignatureTable : TTFTable
+/// <summary>
+/// This class splits an array of GlyphIds with a prospective match.
+/// </summary>
+public interface IGlyphArraySplitter
 {
-    public const string TAG = "DSIG";
-    public DigitalSignatureTable() : base(TAG) { }
+    IList<IList<int>> Split(IList<int> glyphIds);
 }
-

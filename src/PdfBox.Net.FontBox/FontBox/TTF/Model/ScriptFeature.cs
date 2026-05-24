@@ -2,9 +2,9 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/model/ScriptFeature.java
  * PDFBOX_SOURCE_COMMIT: trunk
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: trunk
  */
 
@@ -25,11 +25,30 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.FontBox.TTF;
+namespace PdfBox.Net.FontBox.TTF.Model;
 
-public sealed class DigitalSignatureTable : TTFTable
+/// <summary>
+/// Models a FeatureRecord
+/// </summary>
+public interface IScriptFeature
 {
-    public const string TAG = "DSIG";
-    public DigitalSignatureTable() : base(TAG) { }
-}
+    /// <summary>
+    /// The name of this feature.
+    /// </summary>
+    string GetName();
 
+    /// <summary>
+    /// Returns a set of integer sequences that may match and thus can be replaced by something else.
+    /// </summary>
+    ISet<IList<int>> GetAllGlyphIdsForSubstitution();
+
+    /// <summary>
+    /// Returns true if the sequence of integers can be replaced by something else.
+    /// </summary>
+    bool CanReplaceGlyphs(IList<int> glyphIds);
+
+    /// <summary>
+    /// Returns the replacement for the input sequence of integers.
+    /// </summary>
+    IList<int> GetReplacementForGlyphs(IList<int> glyphIds);
+}
