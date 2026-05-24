@@ -25,14 +25,19 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.IO;
+using System.Globalization;
+using System.Text;
 using PdfBox.Net.FontBox.TTF;
+using PdfBox.Net.IO;
 
 namespace PdfBox.Net.FontBox.CFF;
 
 public sealed class CFFParser
 {
     private const string TagOtto = "OTTO";
+    private const string TagTtcf = "ttcf";
+    private static readonly byte[] TtfOnlyTag = [0x00, 0x01, 0x00, 0x00];
+    private static readonly HashSet<string> DeltaKeys = ["BlueValues", "OtherBlues", "FamilyBlues", "FamilyOtherBlues", "StemSnapH", "StemSnapV"];
 
     public void ParseFirstSubFontROS(RandomAccessRead randomAccessRead, FontHeaders outHeaders)
     {
@@ -57,10 +62,21 @@ public sealed class CFFParser
     {
         byte[] cffBytes = ExtractCffTableIfWrapped(bytes);
         Reader input = new(cffBytes);
-        input.Seek(ReadHeader(input).HeaderSize);
+        Header header = ReadHeader(input);
+        input.Seek(header.HeaderSize);
 
         string[] names = ReadIndexStrings(input);
+        if (names.Length == 0)
+        {
+            throw new IOException("Name index missing in CFF font");
+        }
+
         byte[][] topDicts = ReadIndexData(input);
+        if (topDicts.Length == 0)
+        {
+            throw new IOException("Top DICT INDEX missing in CFF font");
+        }
+
         string[] strings = ReadIndexStrings(input);
         byte[][] globalSubrs = ReadIndexData(input);
 
@@ -68,14 +84,14 @@ public sealed class CFFParser
         for (int i = 0; i < names.Length; i++)
         {
             Dict topDict = ReadDict(topDicts[i], strings);
-            CFFFont font = CreateFont(names[i], cffBytes, topDict, globalSubrs, strings, input);
+            CFFFont font = ParseFont(names[i], cffBytes, topDict, globalSubrs, strings);
             fonts.Add(font);
         }
 
         return fonts;
     }
 
-    private static CFFFont CreateFont(string name, byte[] cffBytes, Dict topDict, byte[][] globalSubrs, string[] strings, Reader input)
+    private static CFFFont ParseFont(string name, byte[] cffBytes, Dict topDict, byte[][] globalSubrs, string[] strings)
     {
         bool isCid = topDict.TryGetArray("ROS", out List<float>? ros);
         CFFFont font = isCid ? new CFFCIDFont() : new CFFType1Font();
@@ -84,16 +100,19 @@ public sealed class CFFParser
         font.SetGlobalSubrIndex(globalSubrs);
         ApplyTopDict(font, topDict);
 
-        int charStringsOffset = topDict.GetInt("CharStrings");
+        if (!topDict.TryGetInt("CharStrings", out int charStringsOffset))
+        {
+            throw new IOException("CharStrings is missing or empty");
+        }
+
         byte[][] charStrings = ReadIndexData(new Reader(cffBytes, charStringsOffset));
         font.SetCharStrings(charStrings);
+        font.SetCharset(ReadCharset(cffBytes, topDict, strings, charStrings.Length, isCid));
 
         if (font is CFFType1Font type1)
         {
-            CFFCharset charset = ReadCharset(cffBytes, topDict, strings, charStrings.Length);
-            font.SetCharset(charset);
-            type1.SetEncoding(ReadEncoding(topDict));
-            ReadPrivate(cffBytes, topDict, strings, type1);
+            type1.SetEncoding(ReadEncoding(cffBytes, topDict, strings, type1.GetCharset()));
+            ReadType1Private(cffBytes, topDict, strings, type1);
             type1.BuildNameToGidMap();
         }
         else if (font is CFFCIDFont cid && ros is not null)
@@ -101,9 +120,99 @@ public sealed class CFFParser
             cid.Registry = ResolveString((int)ros[0], strings);
             cid.Ordering = ResolveString((int)ros[1], strings);
             cid.Supplement = (int)ros[2];
+            ParseCIDFontDicts(cffBytes, topDict, strings, charStrings.Length, cid);
         }
 
         return font;
+    }
+
+    private static void ParseCIDFontDicts(byte[] cffBytes, Dict topDict, string[] strings, int nGlyphs, CFFCIDFont cid)
+    {
+        if (!topDict.TryGetInt("FDArray", out int fdArrayOffset))
+        {
+            throw new IOException("FDArray is missing for a CIDKeyed Font.");
+        }
+
+        byte[][] fdIndex = ReadIndexData(new Reader(cffBytes, fdArrayOffset));
+        if (fdIndex.Length == 0)
+        {
+            throw new IOException("Font dict index is missing for a CIDKeyed Font.");
+        }
+
+        List<Dictionary<string, object>> fontDicts = [];
+        List<Dictionary<string, object>> privateDicts = [];
+        bool privateDictPopulated = false;
+
+        foreach (byte[] fdBytes in fdIndex)
+        {
+            Dict fontDict = ReadDict(fdBytes, strings);
+            Dictionary<string, object> fontDictMap = new(StringComparer.Ordinal)
+            {
+                ["FontName"] = fontDict.GetStringOrNull("FontName", strings) ?? string.Empty,
+                ["FontType"] = fontDict.GetNumberOrDefault("FontType", 0f),
+                ["FontBBox"] = fontDict.GetArrayOrEmpty("FontBBox"),
+                ["FontMatrix"] = fontDict.GetArrayOrEmpty("FontMatrix")
+            };
+            fontDicts.Add(fontDictMap);
+
+            if (!fontDict.TryGetArray("Private", out List<float>? privateEntry) || privateEntry is null || privateEntry.Count < 2)
+            {
+                privateDicts.Add(new Dictionary<string, object>(StringComparer.Ordinal));
+                continue;
+            }
+
+            int privateSize = (int)privateEntry[0];
+            int privateOffset = (int)privateEntry[1];
+            Dict privateDict = ReadDict(cffBytes.AsSpan(privateOffset, privateSize).ToArray(), strings, isPrivateDict: true);
+            Dictionary<string, object> parsedPrivate = ReadPrivateDict(privateDict);
+            privateDictPopulated = true;
+
+            if (privateDict.TryGetInt("Subrs", out int subrsOffset))
+            {
+                parsedPrivate["Subrs"] = ReadIndexData(new Reader(cffBytes, privateOffset + subrsOffset));
+            }
+
+            privateDicts.Add(parsedPrivate);
+        }
+
+        if (!privateDictPopulated)
+        {
+            throw new IOException("Font DICT invalid without \"Private\" entry");
+        }
+
+        if (!topDict.TryGetInt("FDSelect", out int fdSelectOffset))
+        {
+            throw new IOException("FDSelect is missing or empty");
+        }
+
+        FDSelect fdSelect = ReadFDSelect(new Reader(cffBytes, fdSelectOffset), nGlyphs);
+        cid.SetFontDicts(fontDicts);
+        cid.SetPrivDicts(privateDicts);
+        cid.SetFDSelect(fdSelect);
+    }
+
+    private static Dictionary<string, object> ReadPrivateDict(Dict dict)
+    {
+        return new Dictionary<string, object>(StringComparer.Ordinal)
+        {
+            ["BlueValues"] = dict.GetArrayOrEmpty("BlueValues"),
+            ["OtherBlues"] = dict.GetArrayOrEmpty("OtherBlues"),
+            ["FamilyBlues"] = dict.GetArrayOrEmpty("FamilyBlues"),
+            ["FamilyOtherBlues"] = dict.GetArrayOrEmpty("FamilyOtherBlues"),
+            ["BlueScale"] = dict.GetNumberOrDefault("BlueScale", 0.039625f),
+            ["BlueShift"] = dict.GetNumberOrDefault("BlueShift", 7),
+            ["BlueFuzz"] = dict.GetNumberOrDefault("BlueFuzz", 1),
+            ["StdHW"] = dict.GetFirstOrDefault("StdHW") ?? 0f,
+            ["StdVW"] = dict.GetFirstOrDefault("StdVW") ?? 0f,
+            ["StemSnapH"] = dict.GetArrayOrEmpty("StemSnapH"),
+            ["StemSnapV"] = dict.GetArrayOrEmpty("StemSnapV"),
+            ["ForceBold"] = dict.GetNumberOrDefault("ForceBold", 0f),
+            ["LanguageGroup"] = dict.GetNumberOrDefault("LanguageGroup", 0f),
+            ["ExpansionFactor"] = dict.GetNumberOrDefault("ExpansionFactor", 0.06f),
+            ["initialRandomSeed"] = dict.GetNumberOrDefault("initialRandomSeed", 0f),
+            ["defaultWidthX"] = dict.GetNumberOrDefault("defaultWidthX", 0f),
+            ["nominalWidthX"] = dict.GetNumberOrDefault("nominalWidthX", 0f)
+        };
     }
 
     private static void ApplyTopDict(CFFFont font, Dict topDict)
@@ -114,16 +223,16 @@ public sealed class CFFParser
         }
     }
 
-    private static void ReadPrivate(byte[] cffBytes, Dict topDict, string[] strings, CFFType1Font font)
+    private static void ReadType1Private(byte[] cffBytes, Dict topDict, string[] strings, CFFType1Font font)
     {
         if (!topDict.TryGetArray("Private", out List<float>? privateData) || privateData is null || privateData.Count < 2)
         {
-            return;
+            throw new IOException($"Private dictionary entry missing for font {font.GetName()}");
         }
 
         int size = (int)privateData[0];
         int offset = (int)privateData[1];
-        Dict privateDict = ReadDict(cffBytes[offset..(offset + size)], strings, isPrivateDict: true);
+        Dict privateDict = ReadDict(cffBytes.AsSpan(offset, size).ToArray(), strings, isPrivateDict: true);
         Dictionary<string, object> target = font.GetMutablePrivateDict();
         foreach ((string key, object value) in privateDict.Values)
         {
@@ -136,48 +245,252 @@ public sealed class CFFParser
         }
     }
 
-    private static CFFCharset ReadCharset(byte[] cffBytes, Dict topDict, string[] strings, int nGlyphs)
+    private static CFFCharset ReadCharset(byte[] cffBytes, Dict topDict, string[] strings, int nGlyphs, bool isCid)
     {
-        if (!topDict.TryGetInt("charset", out int charsetOffset) || charsetOffset == 0)
+        if (!topDict.TryGetInt("charset", out int charsetOffset))
         {
-            CFFCharsetType1 charset = new();
-            for (int gid = 0; gid < nGlyphs; gid++)
-            {
-                charset.AddSID(gid, gid, CFFStandardString.GetName(gid));
-            }
-
-            return charset;
+            return isCid ? new EmptyCharsetCID(nGlyphs) : CFFISOAdobeCharset.INSTANCE;
         }
 
-        Reader input = new(cffBytes, charsetOffset);
-        int format = input.ReadCard8();
-        CFFCharsetType1 embedded = new();
-        embedded.AddSID(0, 0, ".notdef");
-        int gidIndex = 1;
-        if (format == 0)
+        if (!isCid && charsetOffset == 0)
         {
-            while (gidIndex < nGlyphs)
+            return CFFISOAdobeCharset.INSTANCE;
+        }
+
+        if (!isCid && charsetOffset == 1)
+        {
+            return CFFExpertCharset.INSTANCE;
+        }
+
+        if (!isCid && charsetOffset == 2)
+        {
+            return CFFExpertSubsetCharset.INSTANCE;
+        }
+
+        return ReadEmbeddedCharset(new Reader(cffBytes, charsetOffset), strings, nGlyphs, isCid);
+    }
+
+    private static CFFCharset ReadEmbeddedCharset(Reader input, string[] strings, int nGlyphs, bool isCid)
+    {
+        int format = input.ReadCard8();
+        return format switch
+        {
+            0 => ReadFormat0Charset(input, strings, nGlyphs, isCid),
+            1 => ReadFormat1Charset(input, strings, nGlyphs, isCid),
+            2 => ReadFormat2Charset(input, strings, nGlyphs, isCid),
+            _ => throw new IOException($"Incorrect charset format {format}")
+        };
+    }
+
+    private static CFFCharset ReadFormat0Charset(Reader input, string[] strings, int nGlyphs, bool isCid)
+    {
+        EmbeddedCharset charset = new(isCid);
+        if (isCid)
+        {
+            charset.AddCID(0, 0);
+            for (int gid = 1; gid < nGlyphs; gid++)
             {
-                int sid = input.ReadCard16();
-                embedded.AddSID(gidIndex++, sid, ResolveString(sid, strings));
+                charset.AddCID(gid, input.ReadCard16());
             }
         }
         else
         {
-            throw new IOException($"Unsupported CFF charset format {format}");
+            charset.AddSID(0, 0, ".notdef");
+            for (int gid = 1; gid < nGlyphs; gid++)
+            {
+                int sid = input.ReadCard16();
+                charset.AddSID(gid, sid, ResolveString(sid, strings));
+            }
         }
 
-        return embedded;
+        return charset;
     }
 
-    private static CFFEncoding ReadEncoding(Dict topDict)
+    private static CFFCharset ReadFormat1Charset(Reader input, string[] strings, int nGlyphs, bool isCid)
     {
-        if (!topDict.TryGetInt("Encoding", out int encodingOffset) || encodingOffset == 0)
+        EmbeddedCharset charset = new(isCid);
+        if (isCid)
+        {
+            charset.AddCID(0, 0);
+            int gid = 1;
+            while (gid < nGlyphs)
+            {
+                int first = input.ReadCard16();
+                int left = input.ReadCard8();
+                for (int j = 0; j <= left && gid < nGlyphs; j++)
+                {
+                    charset.AddCID(gid++, first + j);
+                }
+            }
+        }
+        else
+        {
+            charset.AddSID(0, 0, ".notdef");
+            int gid = 1;
+            while (gid < nGlyphs)
+            {
+                int first = input.ReadCard16();
+                int left = input.ReadCard8();
+                for (int j = 0; j <= left && gid < nGlyphs; j++)
+                {
+                    int sid = first + j;
+                    charset.AddSID(gid++, sid, ResolveString(sid, strings));
+                }
+            }
+        }
+
+        return charset;
+    }
+
+    private static CFFCharset ReadFormat2Charset(Reader input, string[] strings, int nGlyphs, bool isCid)
+    {
+        EmbeddedCharset charset = new(isCid);
+        if (isCid)
+        {
+            charset.AddCID(0, 0);
+            int gid = 1;
+            while (gid < nGlyphs)
+            {
+                int first = input.ReadCard16();
+                int left = input.ReadCard16();
+                for (int j = 0; j <= left && gid < nGlyphs; j++)
+                {
+                    charset.AddCID(gid++, first + j);
+                }
+            }
+        }
+        else
+        {
+            charset.AddSID(0, 0, ".notdef");
+            int gid = 1;
+            while (gid < nGlyphs)
+            {
+                int first = input.ReadCard16();
+                int left = input.ReadCard16();
+                for (int j = 0; j <= left && gid < nGlyphs; j++)
+                {
+                    int sid = first + j;
+                    charset.AddSID(gid++, sid, ResolveString(sid, strings));
+                }
+            }
+        }
+
+        return charset;
+    }
+
+    private static CFFEncoding ReadEncoding(byte[] cffBytes, Dict topDict, string[] strings, CFFCharset charset)
+    {
+        if (!topDict.TryGetInt("Encoding", out int encodingId))
         {
             return CFFStandardEncoding.INSTANCE;
         }
 
-        throw new IOException($"Unsupported CFF encoding offset {encodingOffset}");
+        return encodingId switch
+        {
+            0 => CFFStandardEncoding.INSTANCE,
+            1 => CFFExpertEncoding.INSTANCE,
+            _ => ReadEmbeddedEncoding(new Reader(cffBytes, encodingId), strings, charset)
+        };
+    }
+
+    private static CFFEncoding ReadEmbeddedEncoding(Reader input, string[] strings, CFFCharset charset)
+    {
+        int format = input.ReadCard8();
+        int baseFormat = format & 0x7F;
+        CFFEncoding encoding = baseFormat switch
+        {
+            0 => ReadFormat0Encoding(input, strings, charset),
+            1 => ReadFormat1Encoding(input, strings, charset),
+            _ => throw new IOException($"Invalid encoding base format {baseFormat}")
+        };
+
+        if ((format & 0x80) != 0)
+        {
+            ReadEncodingSupplement(input, encoding, strings);
+        }
+
+        return encoding;
+    }
+
+    private static CFFEncoding ReadFormat0Encoding(Reader input, string[] strings, CFFCharset charset)
+    {
+        int nCodes = input.ReadCard8();
+        Format0Encoding encoding = new(nCodes);
+        encoding.Add(0, 0, ".notdef");
+        for (int gid = 1; gid <= nCodes; gid++)
+        {
+            int code = input.ReadCard8();
+            int sid = charset.GetSIDForGID(gid);
+            encoding.Add(code, sid, ResolveString(sid, strings));
+        }
+
+        return encoding;
+    }
+
+    private static CFFEncoding ReadFormat1Encoding(Reader input, string[] strings, CFFCharset charset)
+    {
+        int nRanges = input.ReadCard8();
+        Format1Encoding encoding = new(nRanges);
+        encoding.Add(0, 0, ".notdef");
+        int gid = 1;
+        for (int i = 0; i < nRanges; i++)
+        {
+            int first = input.ReadCard8();
+            int left = input.ReadCard8();
+            for (int j = 0; j <= left; j++)
+            {
+                int sid = charset.GetSIDForGID(gid++);
+                encoding.Add(first + j, sid, ResolveString(sid, strings));
+            }
+        }
+
+        return encoding;
+    }
+
+    private static void ReadEncodingSupplement(Reader input, CFFEncoding encoding, string[] strings)
+    {
+        int nSups = input.ReadCard8();
+        for (int i = 0; i < nSups; i++)
+        {
+            int code = input.ReadCard8();
+            int sid = input.ReadCard16();
+            encoding.Add(code, sid, ResolveString(sid, strings));
+        }
+    }
+
+    private static FDSelect ReadFDSelect(Reader input, int nGlyphs)
+    {
+        int format = input.ReadCard8();
+        return format switch
+        {
+            0 => ReadFormat0FDSelect(input, nGlyphs),
+            3 => ReadFormat3FDSelect(input),
+            _ => throw new IOException($"Unsupported FDSelect format {format}")
+        };
+    }
+
+    private static FDSelect ReadFormat0FDSelect(Reader input, int nGlyphs)
+    {
+        int[] fds = new int[nGlyphs];
+        for (int i = 0; i < nGlyphs; i++)
+        {
+            fds[i] = input.ReadCard8();
+        }
+
+        return new Format0FDSelect(fds);
+    }
+
+    private static FDSelect ReadFormat3FDSelect(Reader input)
+    {
+        int nRanges = input.ReadCard16();
+        List<Range3> ranges = new(nRanges);
+        for (int i = 0; i < nRanges; i++)
+        {
+            ranges.Add(new Range3(input.ReadCard16(), input.ReadCard8()));
+        }
+
+        int sentinel = input.ReadCard16();
+        return new Format3FDSelect(ranges, sentinel);
     }
 
     private static string ResolveString(int sid, string[] customStrings)
@@ -193,6 +506,16 @@ public sealed class CFFParser
 
     private static byte[] ExtractCffTableIfWrapped(byte[] bytes)
     {
+        if (bytes.Length >= 4 && System.Text.Encoding.ASCII.GetString(bytes, 0, 4) == TagTtcf)
+        {
+            throw new IOException("True Type Collection fonts are not supported.");
+        }
+
+        if (bytes.Length >= 4 && bytes.AsSpan(0, 4).SequenceEqual(TtfOnlyTag))
+        {
+            throw new IOException("OpenType fonts containing a true type font are not supported.");
+        }
+
         if (bytes.Length < 4 || System.Text.Encoding.ASCII.GetString(bytes, 0, 4) != TagOtto)
         {
             return bytes;
@@ -219,7 +542,16 @@ public sealed class CFFParser
 
     private static Header ReadHeader(Reader input)
     {
-        return new Header(input.ReadCard8(), input.ReadCard8(), input.ReadCard8(), input.ReadCard8());
+        int major = input.ReadCard8();
+        int minor = input.ReadCard8();
+        int headerSize = input.ReadCard8();
+        int offSize = input.ReadCard8();
+        if (offSize is < 1 or > 4)
+        {
+            throw new IOException($"Illegal offSize value {offSize} in CFF font");
+        }
+
+        return new Header(major, minor, headerSize, offSize);
     }
 
     private static string[] ReadIndexStrings(Reader input)
@@ -236,10 +568,19 @@ public sealed class CFFParser
         }
 
         int offSize = input.ReadCard8();
+        if (offSize is < 1 or > 4)
+        {
+            throw new IOException($"Illegal offSize value {offSize} in CFF font");
+        }
+
         int[] offsets = new int[count + 1];
         for (int i = 0; i <= count; i++)
         {
             offsets[i] = input.ReadOffset(offSize);
+            if (offsets[i] > input.Length)
+            {
+                throw new IOException($"Illegal offset value {offsets[i]} in CFF font");
+            }
         }
 
         int dataStart = input.Position;
@@ -248,6 +589,11 @@ public sealed class CFFParser
         {
             int start = dataStart + offsets[i] - 1;
             int end = dataStart + offsets[i + 1] - 1;
+            if (end < start)
+            {
+                throw new IOException($"Negative index data length at entry {i}");
+            }
+
             result[i] = input.Slice(start, end - start);
         }
 
@@ -265,13 +611,22 @@ public sealed class CFFParser
             int b0 = input.ReadCard8();
             if (b0 <= 21)
             {
-                string op = ReadOperator(b0, input, isPrivateDict);
-                dict.Add(op, op is "BlueValues" ? ToDelta(operands) : new List<float>(operands));
+                string? op = ReadOperator(b0, input);
+                if (op is null)
+                {
+                    throw new IOException($"Unsupported CFF operator {b0}");
+                }
+
+                dict.Add(op, DeltaKeys.Contains(op) ? ToDelta(operands) : new List<float>(operands));
                 operands.Clear();
+            }
+            else if (b0 == 28 || b0 == 29 || b0 == 30 || (b0 >= 32 && b0 <= 254))
+            {
+                operands.Add(ReadNumber(b0, input));
             }
             else
             {
-                operands.Add(ReadNumber(b0, input));
+                throw new IOException($"Invalid DICT data b0 byte: {b0}");
             }
         }
 
@@ -292,30 +647,9 @@ public sealed class CFFParser
         return delta;
     }
 
-    private static string ReadOperator(int b0, Reader input, bool isPrivateDict)
+    private static string? ReadOperator(int b0, Reader input)
     {
-        return b0 switch
-        {
-            5 => "FontBBox",
-            6 when isPrivateDict => "BlueValues",
-            15 => "charset",
-            16 => "Encoding",
-            17 => "CharStrings",
-            18 => "Private",
-            19 when isPrivateDict => "Subrs",
-            12 => ReadEscapedOperator(input.ReadCard8()),
-            _ => throw new IOException($"Unsupported CFF operator {b0}"),
-        };
-    }
-
-    private static string ReadEscapedOperator(int b1)
-    {
-        return b1 switch
-        {
-            7 => "FontMatrix",
-            30 => "ROS",
-            _ => throw new IOException($"Unsupported escaped CFF operator 12 {b1}"),
-        };
+        return b0 == 12 ? CFFOperator.GetOperator(b0, input.ReadCard8()) : CFFOperator.GetOperator(b0);
     }
 
     private static float ReadNumber(int b0, Reader input)
@@ -328,7 +662,7 @@ public sealed class CFFParser
             28 => input.ReadInt16(),
             29 => input.ReadInt32(),
             30 => input.ReadReal(),
-            _ => throw new IOException($"Unsupported CFF operand byte {b0}"),
+            _ => throw new IOException($"Unsupported CFF operand byte {b0}")
         };
     }
 
@@ -355,11 +689,6 @@ public sealed class CFFParser
             return false;
         }
 
-        public int GetInt(string key)
-        {
-            return TryGetInt(key, out int value) ? value : 0;
-        }
-
         public bool TryGetInt(string key, out int value)
         {
             if (TryGetArray(key, out List<float>? values) && values is not null && values.Count > 0)
@@ -370,6 +699,36 @@ public sealed class CFFParser
 
             value = 0;
             return false;
+        }
+
+        public float? GetFirstOrDefault(string key)
+        {
+            return TryGetArray(key, out List<float>? values) && values is not null && values.Count > 0 ? values[0] : null;
+        }
+
+        public float GetNumberOrDefault(string key, float defaultValue)
+        {
+            return GetFirstOrDefault(key) ?? defaultValue;
+        }
+
+        public List<float>? GetArrayOrDefault(string key, List<float>? defaultValue)
+        {
+            return TryGetArray(key, out List<float>? values) && values is not null ? values : defaultValue;
+        }
+
+        public List<float> GetArrayOrEmpty(string key)
+        {
+            return TryGetArray(key, out List<float>? values) && values is not null ? values : [];
+        }
+
+        public string? GetStringOrNull(string key, string[] strings)
+        {
+            if (TryGetArray(key, out List<float>? values) && values is not null && values.Count > 0)
+            {
+                return ResolveString((int)values[0], strings);
+            }
+
+            return null;
         }
 
         public void ResolveStrings(string[] strings)
@@ -385,6 +744,7 @@ public sealed class CFFParser
     {
         private readonly byte[] _data;
         public int Position { get; private set; }
+        public int Length => _data.Length;
         public bool IsEof => Position >= _data.Length;
 
         public Reader(byte[] data, int position = 0)
@@ -395,6 +755,7 @@ public sealed class CFFParser
 
         public void Seek(int position) => Position = position;
         public void Skip(int count) => Position += count;
+
         public byte[] Slice(int start, int length)
         {
             byte[] result = new byte[length];
@@ -404,6 +765,7 @@ public sealed class CFFParser
 
         public int ReadCard8() => _data[Position++];
         public int ReadCard16() => (ReadCard8() << 8) | ReadCard8();
+
         public int ReadOffset(int size)
         {
             int value = 0;
@@ -419,33 +781,148 @@ public sealed class CFFParser
         public short ReadInt16() => (short)ReadCard16();
         public int ReadInt32() => ReadOffset32();
         public string ReadTag() => System.Text.Encoding.ASCII.GetString(_data, Position, 4) is string tag ? (Position += 4, tag).tag : string.Empty;
+
         public float ReadReal()
         {
-            List<char> chars = [];
-            bool end = false;
-            while (!end)
+            StringBuilder sb = new();
+            bool done = false;
+            bool exponentMissing = false;
+            bool hasExponent = false;
+            while (!done)
             {
                 int b = ReadCard8();
-                foreach (int nibble in new[] { b >> 4, b & 0x0F })
+                int[] nibbles = [b >> 4, b & 0x0F];
+                foreach (int nibble in nibbles)
                 {
                     switch (nibble)
                     {
-                        case 0xA: chars.Add('.'); break;
-                        case 0xB: chars.Add('E'); break;
-                        case 0xC: chars.Add('E'); chars.Add('-'); break;
-                        case 0xE: chars.Add('-'); break;
-                        case 0xF: end = true; break;
-                        default: chars.Add((char)('0' + nibble)); break;
+                        case >= 0x0 and <= 0x9:
+                            sb.Append((char)('0' + nibble));
+                            exponentMissing = false;
+                            break;
+                        case 0xA:
+                            sb.Append('.');
+                            break;
+                        case 0xB:
+                            if (!hasExponent)
+                            {
+                                sb.Append('E');
+                                exponentMissing = true;
+                                hasExponent = true;
+                            }
+                            break;
+                        case 0xC:
+                            if (!hasExponent)
+                            {
+                                sb.Append("E-");
+                                exponentMissing = true;
+                                hasExponent = true;
+                            }
+                            break;
+                        case 0xD:
+                            break;
+                        case 0xE:
+                            sb.Append('-');
+                            break;
+                        case 0xF:
+                            done = true;
+                            break;
                     }
 
-                    if (end)
+                    if (done)
                     {
                         break;
                     }
                 }
             }
 
-            return float.Parse(new string([.. chars]), System.Globalization.CultureInfo.InvariantCulture);
+            if (exponentMissing)
+            {
+                sb.Append('0');
+            }
+
+            if (sb.Length == 0)
+            {
+                return 0f;
+            }
+
+            return float.Parse(sb.ToString(), CultureInfo.InvariantCulture);
+        }
+    }
+
+    private sealed class Format0Encoding : CFFEncoding
+    {
+        public int NumberOfCodes { get; }
+        public Format0Encoding(int numberOfCodes) => NumberOfCodes = numberOfCodes;
+    }
+
+    private sealed class Format1Encoding : CFFEncoding
+    {
+        public int NumberOfRanges { get; }
+        public Format1Encoding(int numberOfRanges) => NumberOfRanges = numberOfRanges;
+    }
+
+    private sealed class EmptyCharsetCID : CFFCharsetCID
+    {
+        public EmptyCharsetCID(int numCharStrings)
+        {
+            AddCID(0, 0);
+            for (int i = 1; i < numCharStrings; i++)
+            {
+                AddCID(i, i);
+            }
+        }
+    }
+
+    private readonly record struct Range3(int First, int FD);
+
+    private sealed class Format0FDSelect : FDSelect
+    {
+        private readonly int[] _fds;
+
+        public Format0FDSelect(int[] fds)
+        {
+            _fds = fds;
+        }
+
+        public int GetFDIndex(int gid)
+        {
+            return gid >= 0 && gid < _fds.Length ? _fds[gid] : 0;
+        }
+    }
+
+    private sealed class Format3FDSelect : FDSelect
+    {
+        private readonly List<Range3> _ranges;
+        private readonly int _sentinel;
+
+        public Format3FDSelect(List<Range3> ranges, int sentinel)
+        {
+            _ranges = ranges;
+            _sentinel = sentinel;
+        }
+
+        public int GetFDIndex(int gid)
+        {
+            for (int i = 0; i < _ranges.Count; i++)
+            {
+                if (_ranges[i].First <= gid)
+                {
+                    if (i + 1 < _ranges.Count)
+                    {
+                        if (_ranges[i + 1].First > gid)
+                        {
+                            return _ranges[i].FD;
+                        }
+                    }
+                    else
+                    {
+                        return _sentinel > gid ? _ranges[i].FD : -1;
+                    }
+                }
+            }
+
+            return 0;
         }
     }
 }

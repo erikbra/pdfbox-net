@@ -62,7 +62,7 @@ internal static class FontBoxTestFixtures
 
     public static byte[] CreateMinimalOpenTypeCff()
     {
-        byte[] cff = CreateMinimalCff();
+        byte[] cff = CreateMinimalType1Cff();
         byte[] head = CreateHeadTable();
         byte[] maxp = CreateMaxpTable();
         byte[] name = CreateNameTable("MiniCFF");
@@ -109,6 +109,78 @@ internal static class FontBoxTestFixtures
             WritePadding(stream, tables[i].Length);
         }
 
+        return stream.ToArray();
+    }
+
+    public static byte[] CreateMinimalCffWithExpertCharsetEncoding()
+    {
+        return CreateMinimalType1Cff(useExpertCharsetEncoding: true);
+    }
+
+    public static byte[] CreateMinimalCidCff()
+    {
+        byte[] nameIndex = BuildIndex([Encoding.ASCII.GetBytes("MiniCID")]);
+        byte[] stringIndex = BuildIndex([Encoding.ASCII.GetBytes("Adobe"), Encoding.ASCII.GetBytes("Identity")]);
+        byte[] globalSubrIndex = BuildIndex([]);
+        byte[] charStringsIndex = BuildIndex([[14], [14]]);
+        byte[] charsetData = [0, 0, 42]; // format 0, gid 1 -> cid 42
+        byte[] fdSelectData = [0, 0, 0]; // format 0, two gids mapped to FD 0
+        byte[] privateDict = BuildDict(
+            EncodeInteger(500), [20],
+            EncodeInteger(0), [21]);
+
+        byte[] topDict = [];
+        byte[] fdDict = [];
+        while (true)
+        {
+            byte[] topDictIndex = BuildIndex([topDict]);
+            byte[] fdArrayIndex = BuildIndex([fdDict]);
+            int prefix = 4 + nameIndex.Length + topDictIndex.Length + stringIndex.Length + globalSubrIndex.Length;
+            int charStringsOffset = prefix;
+            int charsetOffset = charStringsOffset + charStringsIndex.Length;
+            int fdSelectOffset = charsetOffset + charsetData.Length;
+            int fdArrayOffset = fdSelectOffset + fdSelectData.Length;
+            int privateOffset = fdArrayOffset + fdArrayIndex.Length;
+
+            byte[] nextFdDict = BuildDict(
+                EncodeInteger(privateDict.Length), EncodeInteger(privateOffset), [18]);
+            byte[] nextFdArrayIndex = BuildIndex([nextFdDict]);
+            privateOffset = fdArrayOffset + nextFdArrayIndex.Length;
+            nextFdDict = BuildDict(
+                EncodeInteger(privateDict.Length), EncodeInteger(privateOffset), [18]);
+
+            byte[] nextTopDict = BuildDict(
+                EncodeInteger(391), EncodeInteger(392), EncodeInteger(0), [12, 30], // ROS
+                EncodeInteger(charsetOffset), [15],
+                EncodeInteger(charStringsOffset), [17],
+                EncodeInteger(fdArrayOffset), [12, 36],
+                EncodeInteger(fdSelectOffset), [12, 37]);
+
+            if (nextTopDict.SequenceEqual(topDict) && nextFdDict.SequenceEqual(fdDict))
+            {
+                topDict = nextTopDict;
+                fdDict = nextFdDict;
+                break;
+            }
+
+            topDict = nextTopDict;
+            fdDict = nextFdDict;
+        }
+
+        byte[] topDictIndexFinal = BuildIndex([topDict]);
+        byte[] fdArrayIndexFinal = BuildIndex([fdDict]);
+
+        using MemoryStream stream = new();
+        stream.Write([1, 0, 4, 1]);
+        stream.Write(nameIndex);
+        stream.Write(topDictIndexFinal);
+        stream.Write(stringIndex);
+        stream.Write(globalSubrIndex);
+        stream.Write(charStringsIndex);
+        stream.Write(charsetData);
+        stream.Write(fdSelectData);
+        stream.Write(fdArrayIndexFinal);
+        stream.Write(privateDict);
         return stream.ToArray();
     }
 
@@ -298,7 +370,7 @@ internal static class FontBoxTestFixtures
         return stream.ToArray();
     }
 
-    private static byte[] CreateMinimalCff()
+    private static byte[] CreateMinimalType1Cff(bool useExpertCharsetEncoding = false)
     {
         byte[] nameIndex = BuildIndex([Encoding.ASCII.GetBytes("MiniCFF")]);
         byte[] stringIndex = BuildIndex([]);
@@ -318,6 +390,10 @@ internal static class FontBoxTestFixtures
             byte[] nextTopDict = BuildDict(
                 EncodeInteger(0), EncodeInteger(0), EncodeInteger(500), EncodeInteger(700), [5],
                 EncodeInteger(charStringsOffset), [17],
+                useExpertCharsetEncoding ? EncodeInteger(1) : [],
+                useExpertCharsetEncoding ? [15] : [],
+                useExpertCharsetEncoding ? EncodeInteger(1) : [],
+                useExpertCharsetEncoding ? [16] : [],
                 EncodeInteger(privateDict.Length), EncodeInteger(privateOffset), [18]);
             if (nextTopDict.SequenceEqual(topDict))
             {
