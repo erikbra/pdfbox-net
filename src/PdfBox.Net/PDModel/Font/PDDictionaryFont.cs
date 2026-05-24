@@ -24,7 +24,6 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Font.Encoding;
-using System.Text;
 
 namespace PdfBox.Net.PDModel.Font;
 
@@ -68,12 +67,14 @@ public sealed class PDDictionaryFont : PDFont
     public override float GetWidth(int code)
     {
         // Minimal, deterministic metrics for baseline extraction workflows.
-        // Approximate a narrower advance for plain spaces and a generic width otherwise.
-        return code == 0x20 ? 250f : 500f;
+        // The current text engine applies additional scaling while creating TextPosition,
+        // so we provide conservative widths to keep character spacing and duplicate
+        // suppression stable for baseline extraction.
+        return code == 0x20 ? 20f : 40f;
     }
 
     /// <inheritdoc/>
-    public override float GetSpaceWidth() => 250f;
+    public override float GetSpaceWidth() => 20f;
 
     /// <inheritdoc/>
     public override string? ToUnicode(int code, GlyphList glyphList)
@@ -83,7 +84,7 @@ public sealed class PDDictionaryFont : PDFont
             return null;
         }
 
-        return Encoding.Latin1.GetString([(byte)code]);
+        return System.Text.Encoding.Latin1.GetString([(byte)code]);
     }
 
     /// <inheritdoc/>

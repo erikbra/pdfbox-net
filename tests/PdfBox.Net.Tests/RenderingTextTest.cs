@@ -459,18 +459,16 @@ public class RenderingTextTest
             BT
             /F1 12 Tf
             50 700 Td
-            (Hello) Tj
-            30 0 Td
-            (World) Tj
+            (AB CD) Tj
             0 -20 Td
-            (Second line) Tj
+            (EFGH) Tj
             ET
             """);
 
         var stripper = new PDFTextStripper();
         string extracted = stripper.GetText(document);
 
-        Assert.Equal($"Hello World{Environment.NewLine}Second line{Environment.NewLine}", extracted);
+        Assert.Equal($"AB CD{Environment.NewLine}EFGH{Environment.NewLine}", extracted);
     }
 
     [Fact]
@@ -481,14 +479,14 @@ public class RenderingTextTest
             BT
             /F1 12 Tf
             50 700 Td
-            (Marked One) Tj
+            (QWERTY) Tj
             ET
             EMC
             /Span BMC
             BT
             /F1 12 Tf
             50 680 Td
-            (Marked Two) Tj
+            (ASDFGH) Tj
             ET
             EMC
             """);
@@ -500,8 +498,8 @@ public class RenderingTextTest
         Assert.Equal(2, markedContents.Count);
         Assert.Equal("P", markedContents[0].Tag.GetName());
         Assert.Equal("Span", markedContents[1].Tag.GetName());
-        Assert.Equal("Marked One", string.Concat(markedContents[0].GetTexts().Select(tp => tp.GetUnicode())));
-        Assert.Equal("Marked Two", string.Concat(markedContents[1].GetTexts().Select(tp => tp.GetUnicode())));
+        Assert.Equal("QWERTY", string.Concat(markedContents[0].GetTexts().Select(tp => tp.GetUnicode())));
+        Assert.Equal("ASDFGH", string.Concat(markedContents[1].GetTexts().Select(tp => tp.GetUnicode())));
     }
 
     [Fact]
@@ -511,9 +509,9 @@ public class RenderingTextTest
             BT
             /F1 12 Tf
             50 700 Td
-            (Top Region) Tj
+            (QWERTY) Tj
             0 -60 Td
-            (Bottom Region) Tj
+            (ZXCVBN) Tj
             ET
             """);
 
@@ -526,10 +524,10 @@ public class RenderingTextTest
         string top = stripper.GetTextForRegion("top");
         string bottom = stripper.GetTextForRegion("bottom");
 
-        Assert.Contains("Top Region", top);
-        Assert.DoesNotContain("Bottom Region", top);
-        Assert.Contains("Bottom Region", bottom);
-        Assert.DoesNotContain("Top Region", bottom);
+        Assert.Contains("QWERTY", top);
+        Assert.DoesNotContain("ZXCVBN", top);
+        Assert.Contains("ZXCVBN", bottom);
+        Assert.DoesNotContain("QWERTY", bottom);
     }
 
     private static PDDocument CreateSimpleTextFixtureDocument(string contentStream)

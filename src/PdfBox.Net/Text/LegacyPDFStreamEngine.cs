@@ -129,7 +129,7 @@ public class LegacyPDFStreamEngine : PDFStreamEngine
         float tx = displacementX * fontSize * horizontalScaling;
         float ty = displacement.GetY() * fontSize;
         Matrix td = Matrix.GetTranslateInstance(tx, ty);
-        Matrix nextTextRenderingMatrix = td.Multiply(textMatrix).Multiply(ctm);
+        Matrix nextTextRenderingMatrix = td.Multiply(textRenderingMatrix);
         float nextX = nextTextRenderingMatrix.GetTranslateX();
         float nextY = nextTextRenderingMatrix.GetTranslateY();
 
