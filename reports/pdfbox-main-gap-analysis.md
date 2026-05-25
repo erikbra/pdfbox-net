@@ -353,28 +353,26 @@ Also `AwtStubs.cs` (Java AWT placeholder types for .NET).
 
 ## Key remaining gaps by priority
 
-### Priority 1 — Full `pdmodel.documentinterchange` conversion (tagged PDF/logical structure) ✅
-**Scope:** `org.apache.pdfbox.pdmodel.documentinterchange`
+### Priority 1 — PDModel font stack completion and parity hardening ⚠️
+**Scope:** `org.apache.pdfbox.pdmodel.font`
 
-This milestone is now complete for the current parity target via issues #43–#47.
-Future work in this package is expected to be incremental parity hardening rather than
-major missing-class backfill.
+`pdmodel.font` is now the highest-leverage dependency-safe gap to close next:
+- Text extraction fidelity still depends on complete font widths/encodings/ToUnicode behavior.
+- Rendering and interactive form appearance paths depend on real font metrics/mapping.
+- The current package remains around ~60% complete with the highest unresolved core dependencies.
 
 Planned execution issues:
-- `issues/43-documentinterchange-structure-tree-core.md`
-- `issues/44-documentinterchange-marked-content-and-object-references.md`
-- `issues/45-documentinterchange-attributes-and-role-map.md`
-- `issues/46-documentinterchange-parent-tree-and-integration.md`
-- `issues/47-documentinterchange-regression-traceability-closeout.md`
+- `issues/48-pdmodel-font-core-descriptor-and-factory-foundation.md`
+- `issues/49-pdmodel-font-type1-standard14-parity.md`
+- `issues/50-pdmodel-font-truetype-cidtype2-parity.md`
+- `issues/51-pdmodel-font-type0-cidtype0-and-unicode-integration.md`
+- `issues/52-pdmodel-font-regression-coverage-and-traceability-closeout.md`
 
 ### Priority 2 — PDModel interactive completion and parity hardening ⚠️
 **Scope:** `org.apache.pdfbox.pdmodel.interactive`
 
-The parser/load milestone (#37–#41) is now complete. All fixture types (classic xref,
-flate-content, xref-stream, object-stream) load and roundtrip correctly.
-
-Interactive parity hardening remains high value, but is now positioned after finishing
-the `documentinterchange` package to fully close one major untouched area first.
+Interactive parity remains high value, but should follow the `pdmodel.font` milestone so
+form fields, annotation appearance, and destination text handling have stable font behavior.
 
 **See:** `issues/32-pdmodel-interactive-port.md`
 
@@ -409,7 +407,7 @@ quick win bundled into the next operators PR.
 ## Dependency order
 
 ```
-PDModel documentinterchange full conversion (#43–#47)
+PDModel font stack completion (#48–#52)
 PDModel interactive hardening (#32 remaining scope)
 Rendering .NET graphics (#33) — mostly independent of above
 Encryption decryption (#34) — independent of above
@@ -420,7 +418,7 @@ Close/Fill operators (#36) — independent quick win
 
 | Priority | Issue | Files | Effort |
 |---|---|---|---|
-| 1 | #43–#47 PDModel documentinterchange full conversion | ~12–18 | 4–6 days |
+| 1 | #48–#52 PDModel font stack completion | ~12–18 remaining | 4–6 days |
 | 2 | #32 PDModel interactive completion | ~10–16 remaining | 3–5 days |
 | 3 | #33 Rendering .NET graphics | ~5 (adapt) | 3–5 days |
 | 4 | #34 Encryption decryption | ~3 | 1–2 days |

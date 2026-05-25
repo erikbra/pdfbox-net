@@ -245,3 +245,18 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
 - The plan is specific enough to open the next 4-5 implementation issues directly.
 - Chunk boundaries are larger than prior file-level slices while staying dependency-safe.
 - Every chunk includes explicit scope, entry/exit criteria, risks, PR slicing, and definition of done.
+
+---
+
+## Status refresh (2026-05-25) and next recommended execution chunk
+
+- Chunks 1 and 2 are effectively complete for current parity targets (COS foundation + parser/writer bridge).
+- The `pdmodel.documentinterchange` milestone is complete through issues #43–#47 with fixture-backed regression coverage.
+- The next largest dependency-safe chunk to execute fully is now **`pdmodel.font` completion** before broader interactive/rendering hardening.
+
+### Next issue series prepared for that chunk
+- `issues/48-pdmodel-font-core-descriptor-and-factory-foundation.md`
+- `issues/49-pdmodel-font-type1-standard14-parity.md`
+- `issues/50-pdmodel-font-truetype-cidtype2-parity.md`
+- `issues/51-pdmodel-font-type0-cidtype0-and-unicode-integration.md`
+- `issues/52-pdmodel-font-regression-coverage-and-traceability-closeout.md`
