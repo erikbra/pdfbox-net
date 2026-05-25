@@ -306,11 +306,12 @@ Also `AwtStubs.cs` (Java AWT placeholder types for .NET).
 - AcroForm appearance/value pipeline is still partial.
 - Interactive coverage remains uneven (several classes still `partially-in-sync`).
 
-### `org.apache.pdfbox.pdmodel.documentinterchange` — ~10% ⚠️
+### `org.apache.pdfbox.pdmodel.documentinterchange` — ~35% ⚠️
 
-**Ported (1):** `PDMarkedContent.cs`.
-**Missing (~9):** Tagged PDF structure elements, marked content attributes,
-accessibility properties, artifact types, etc.
+**Ported (5):** `PDMarkedContent.cs`, `PDStructureNode.cs`, `PDStructureTreeRoot.cs`,
+`PDStructureElement.cs`, `Revisions.cs`.
+**Missing (~6):** Tagged PDF reference wrappers, attribute objects, class/role-map
+parity, and remaining accessibility/tagged-PDF support types.
 
 ---
 
