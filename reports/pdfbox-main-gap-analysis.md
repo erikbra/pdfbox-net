@@ -1,7 +1,7 @@
 # PDFBox Main Module Gap Analysis
 
-Date: 2026-05-24 (updated)
-Previous date: 2026-05-24 (first edition was written before the most recent PRs landed)
+Date: 2026-05-25 (updated)
+Previous date: 2026-05-24
 Reference upstream Java repository: Apache PDFBox trunk
 Reference commit: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 
@@ -13,20 +13,20 @@ Reference commit: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 | `org.apache.pdfbox.contentstream` (engine) | ~5 | 3 | ~2 | ~60% ⚠️ |
 | `org.apache.pdfbox.contentstream.operator` | ~60 | 73† | ~2 | ~97% ✅ |
 | `org.apache.pdfbox.filter` | ~18 | 17 | ~1 | ~94% ✅ |
-| `org.apache.pdfbox.pdfparser` | ~8 | 9† | ~3 | ~70% ⚠️ |
+| `org.apache.pdfbox.pdfparser` | ~8 | 11† | ~1 | ~90% ✅ |
 | `org.apache.pdfbox.pdfwriter` | ~5 | 4 | ~1 | ~80% ⚠️ |
 | `org.apache.pdfbox.pdmodel` (root) | ~10 | 9 | ~1 | ~90% ✅ |
-| `org.apache.pdfbox.pdmodel.common` | ~15 | 3 | ~12 | ~20% ❌ |
+| `org.apache.pdfbox.pdmodel.common` | ~35 | 34 | ~1 | ~97% ✅ |
 | `org.apache.pdfbox.pdmodel.encryption` | ~12 | 11 | ~3 | ~75% ⚠️ |
 | `org.apache.pdfbox.pdmodel.font` | ~30 | 18 | ~12 | ~60% ⚠️ |
 | `org.apache.pdfbox.pdmodel.graphics` | ~40 | 24 | ~16 | ~60% ⚠️ |
-| `org.apache.pdfbox.pdmodel.interactive` | ~30 | 2 | ~28 | ~7% ❌ |
+| `org.apache.pdfbox.pdmodel.interactive` | ~35 | 22 | ~13 | ~63% ⚠️ |
 | `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 1 | ~9 | ~10% ⚠️ |
 | `org.apache.pdfbox.rendering` | ~12 | 11 | ~4 | ~75% ⚠️ |
 | `org.apache.pdfbox.text` | ~6 | 6 | 0 | ~100% ✅* |
 | `org.apache.pdfbox.util` | ~15 | 10 | ~5 | ~67% ⚠️ |
 | `org.apache.pdfbox.printing` | ~4 | 4 | 0 | ~100% ✅ |
-| **TOTAL** | **~320** | **~230** | **~90** | **~70%** |
+| **TOTAL** | **~340** | **~283** | **~57** | **~83%** |
 
 † The C# operator count (73) is higher than the Java ~60 because some Java files each handle
 a single operator while the C# port includes the Operator/OperatorName/OperatorProcessor base
@@ -37,7 +37,7 @@ direct Java counterparts.
 
 ---
 
-## Coverage refresh from traceability artifacts (2026-05-24)
+## Coverage refresh from traceability artifacts (2026-05-25)
 
 This snapshot was recalculated from current report data in:
 - `reports/conversion-records.json`
@@ -46,28 +46,42 @@ This snapshot was recalculated from current report data in:
 
 ### Conversion inventory
 
-- Conversion rows: **286** (`276` unique source->target pairs)
+- Conversion rows: **289** (`279` unique source->target pairs)
 - Port modes:
   - `mechanical`: **143**
-  - `adapted`: **109**
-  - `native-test`: **28**
+  - `adapted`: **110**
+  - `native-test`: **30**
   - `partial`: **4**
   - `adapted-minimal`: **2**
 - Upstream test mappings converted: **25**
 
 ### Traceability status coverage
 
-- Traceability rows: **289**
-- `in-sync`: **216** (~74.7%)
+- Traceability rows: **293**
+- `in-sync`: **220** (~75.1%)
 - `partially-in-sync`: **18** (~6.2%)
 - `partial`: **11** (~3.8%)
-- blank status (needs classification/backfill): **44** (~15.2%)
+- blank status (needs classification/backfill): **44** (~15.0%)
 
 ### Immediate coverage-report follow-up
 
-- The highest-leverage report cleanup is to classify the **44** blank-status
+- The highest-leverage report cleanup remains classifying the **44** blank-status
   traceability rows (mostly `contentstream/operator/*` mappings) as explicit
   `in-sync`/`partial`/`deferred` statuses.
+- `PDFObjectStreamParser` now has a conversion record row but still needs an explicit
+  traceability parity row/status entry.
+
+## Completed since previous edition ✅
+
+- **Issue #35 (`pdmodel/common`) is functionally complete for this slice.**
+  The package is no longer a major gap: it now includes tree nodes, file specification
+  types, page labels/ranges, and the full `PDFunction` Type 0/2/3/4 stack with Type 4
+  parser/operators.
+- **Issues #37 and #38 (parser scaffold + classic xref parsing) are complete and merged.**
+  Header/version parsing, `startxref` discovery, classic xref table parsing, trailer
+  resolution, `/Prev` loop guards, and malformed xref validation are in place with tests.
+- **`PDDocument.Load()` is now wired to `PDFParser`** with deterministic fixture coverage
+  for classic xref, flate-content, and xref-stream paths (`FullPdfDocumentLoadingTest`).
 
 ## Fully or near-fully ported ✅
 
@@ -134,8 +148,15 @@ All 4 files ported:
 **Ported (11 C# files):** `COSParser.cs`, `PDFDocumentParser.cs`, `PDFParser.cs`,
 `PDFObjectStreamParser.cs`, `PDFStreamParser.cs`, `XrefTrailerResolver.cs`, plus 6 xref-type files.
 
+**Completed in latest slices (#37/#38):**
+- `%PDF-` header/version parsing and deterministic `startxref` lookup.
+- Classic xref-table + trailer parsing with `/Prev` recursion guard behavior.
+- Malformed xref subsection/entry validation with dedicated regression tests.
+
 **Remaining:**
-- `FDFParser.java` — FDF (Form Data Format) file parser.
+- `FDFParser.java` — FDF (Form Data Format) parser is still missing.
+- Add explicit fixture coverage for object-stream-heavy PDFs (`/ObjStm`) to close #39 confidence.
+- Expand `COSParser` parity beyond the currently tracked low-level subset.
 
 ### `org.apache.pdfbox.pdfwriter` — ~80%
 
@@ -152,9 +173,12 @@ All 4 files ported:
 Also: `RenderingSupportStubs.cs` (stubs for patterns, optional content, etc.) and
 `TextStubs.cs` (stubs for PDOutlineItem, PDThreadBead).
 
-**Remaining:** Full xref/cross-reference aware document load path is not yet implemented
-(see pdfparser gaps above). `RenderingSupportStubs.cs` and `TextStubs.cs` contain items
-that will be promoted to real implementations in future issues.
+**Completed recently:**
+- `PDDocument.Load(...)` now routes through `PDFParser` and can load deterministic fixture PDFs
+  through xref-table/xref-stream paths.
+
+**Remaining:** `RenderingSupportStubs.cs` and `TextStubs.cs` still contain deferred placeholder
+implementations that should be promoted to real types in future slices.
 
 ### `org.apache.pdfbox.pdmodel.encryption` — ~75%
 
@@ -233,38 +257,36 @@ Also `AwtStubs.cs` (Java AWT placeholder types for .NET).
 
 ---
 
-## Packages with major gaps ❌
+## Packages with major shifts and remaining gaps
 
-### `org.apache.pdfbox.pdmodel.common` — ~20%
+### `org.apache.pdfbox.pdmodel.common` — ~95% ✅
 
-**Ported (3):** `PDRectangle.cs`, `PDStream.cs`, `PDMetadata.cs`.
+**Now ported (34+ files):**
+- Tree nodes: `PDNameTreeNode`, `PDNumberTreeNode`
+- File specifications: `PDFileSpecification`, `PDSimpleFileSpecification`,
+  `PDComplexFileSpecification`, `PDEmbeddedFile`
+- Labels/ranges/wrappers: `PDPageLabels`, `PDPageLabelRange`, `PDRange`,
+  `PDDictionaryWrapper`, `PDTypedDictionaryWrapper`, `PDDestinationOrAction`
+- Function stack: `PDFunction` + Type 0/2/3/4 + Type4 parser/operator infrastructure
+- Existing core types remain: `PDRectangle`, `PDStream`, `PDMetadata`, `COSArrayList`
 
-**Missing (~12 classes):**
-- `PDNameTreeNode.java` — name-keyed tree node (for embedded files, destinations)
-- `PDNumberTreeNode.java` — number-keyed tree node (for page labels, etc.)
-- `PDDestination.java` — navigation destination (GoTo actions, links)
-- `PDFileSpecification.java` — file attachment reference
-- `PDTextStream.java` — text-type stream wrapper
-- `PDPageLabels.java` — page label ranges
-- `PDRange.java` — numeric range descriptor
-- `PDFunction` concrete types (Type 0 Sampled, Type 2 Exponential, Type 3 Stitching,
-  Type 4 PostScript) — base stub exists in `RenderingSupportStubs.cs` but no subtypes
+**Remaining (minor):**
+- `PDRectangle` still has deferred transform/path parity methods.
+- Report hygiene: one `partially-in-sync` status remains for `PDRectangle`.
 
-### `org.apache.pdfbox.pdmodel.interactive` — ~7% ❌
+### `org.apache.pdfbox.pdmodel.interactive` — ~65% ⚠️
 
-**Ported (stubs only):** `PDOutlineItem.cs` (stub), `PDThreadBead.cs` (stub)
-— both in `TextStubs.cs`.
+**Now ported (major expansion):**
+- Outline/navigation: `PDDocumentOutline`, `PDOutlineNode`, `PDOutlineItem`, destination types.
+- Actions: `PDAction`, `PDActionFactory`, `PDActionGoTo`, `PDActionLaunch`,
+  `PDActionURI`, `PDActionJavaScript`, `PDActionNamed`, `PDActionRemoteGoTo`.
+- Annotation base + multiple concrete subtypes (Link, Text, FreeText, Line, Square, Circle,
+  Highlight/Underline/Squiggly/StrikeOut, Stamp, FileAttachment, Widget, etc.).
+- Forms baseline: `PDAcroForm`, `PDField`, `PDTextField`, `PDCheckBox`, `PDUnknownField`.
 
-**Missing (~28 full implementations):**
-- Document outline: `PDDocumentOutline.java`, `PDOutlineNode.java`, `PDOutlineItem.java` (real)
-- Actions (~8): `PDActionGoTo.java`, `PDActionLaunch.java`, `PDActionURI.java`,
-  `PDActionJavaScript.java`, `PDActionNamed.java`, `PDActionRemoteGoTo.java`, etc.
-- Annotations (~15+): `PDAnnotation.java` base + all subtypes (Link, Text, FreeText, Line,
-  Square, Circle, Polygon, PolyLine, Highlight, Underline, Squiggly, StrikeOut, Stamp, Caret,
-  Ink, Popup, FileAttachment, Sound, Movie, Widget, Screen, PrinterMark, etc.)
-- `PDPageTransition.java`
-- Viewer preferences, threading, embedded files
-- Forms (AcroForm): `PDAcroForm.java`, `PDField.java`, etc.
+**Remaining:**
+- AcroForm appearance/value pipeline is still partial.
+- Interactive coverage remains uneven (several classes still `partially-in-sync`).
 
 ### `org.apache.pdfbox.pdmodel.documentinterchange` — ~10% ⚠️
 
@@ -276,29 +298,24 @@ accessibility properties, artifact types, etc.
 
 ## Key remaining gaps by priority
 
-### Priority 1 — Full PDF document loading (CRITICAL PATH, next large piece)
-**Scope:** `org.apache.pdfbox.pdfparser` — full `PDFParser`/`PDFDocumentParser`
-orchestration, `PDFObjectStreamParser`, and `PDDocument.Load()` integration.
+### Priority 1 — Parser/load closeout for remaining #39/#41 scope
+**Scope:** Finish object-stream-heavy fixture coverage, resolver hardening, and report closeout
+for the PDF loading milestone.
 
-The current `PDDocument.Load()` extracts only a raw dictionary from the file. Real PDF loading
-requires reading the xref table (or cross-reference stream), resolving object references
-on-demand, decompressing object streams, and wiring everything into `COSDocument` + `PDDocument`.
-Without this, the library cannot load actual PDFs from disk.
+**Already done:** #37 and #38 are merged; parser bootstrap, classic xref-table traversal, and
+`PDDocument.Load()` parser integration are now in place.
 
-**Execution plan (issue series):**
-- `issues/37-pdf-loading-parser-scaffold-and-startxref.md`
-- `issues/38-pdf-loading-xref-table-and-trailer-resolution.md`
-- `issues/39-pdf-loading-xref-stream-and-object-stream-parser.md`
-- `issues/40-pdf-loading-cosdocument-resolution-and-pddocument-integration.md`
-- `issues/41-pdf-loading-regression-fixtures-roundtrip-and-report-closeout.md`
+**Remaining execution plan:**
+- `issues/39-pdf-loading-xref-stream-and-object-stream-parser.md` (fixture confidence + edge hardening)
+- `issues/41-pdf-loading-regression-fixtures-roundtrip-and-report-closeout.md` (closeout + reporting)
 
-### Priority 2 — PDModel interactive layer (~28 files) ❌
+### Priority 2 — PDModel interactive completion and parity hardening ⚠️
 **Scope:** `org.apache.pdfbox.pdmodel.interactive`
 
-Annotations, actions, bookmarks, outlines, viewer preferences, and forms are entirely absent
-(only two empty stubs). These are present in almost every real-world PDF.
+This is no longer empty; the core action/annotation/outline/form scaffolding exists.
+The remaining work is parity hardening, missing class coverage, and full form behavior.
 
-**See:** `issues/32-pdmodel-interactive-port.md` (new)
+**See:** `issues/32-pdmodel-interactive-port.md`
 
 ### Priority 3 — Rendering with real .NET graphics
 **Scope:** Replace `AwtStubs.cs` with platform-appropriate .NET rendering
@@ -317,32 +334,22 @@ present; only the cryptographic decryption flow is missing.
 
 **See:** `issues/34-encryption-decryption.md` (new)
 
-### Priority 5 — PDModel/Common completeness (~12 files)
-**Scope:** `org.apache.pdfbox.pdmodel.common`
-
-PDNameTreeNode, PDNumberTreeNode, PDDestination, PDFileSpecification, PDPageLabels, PDRange,
-PDFunction subtypes. Required for document outlines, embedded files, destinations, and page
-label support.
-
-**See:** `issues/35-pdmodel-common-completeness.md` (new)
-
-### Priority 6 — Missing operator processors (2 files)
+### Priority 5 — Missing operator processors (2 files)
 **Scope:** `b` and `b*` graphics operators
 
 `CloseAndFillNonZeroAndStrokePath` and `CloseAndFillEvenOddAndStrokePath` are defined in
 `OperatorName.cs` but have no processor class or registration. Small scope; should be a
 quick win bundled into the next operators PR.
 
-**See:** `issues/36-close-fill-operators.md` (new)
+**See:** `issues/36-close-fill-operators.md`
 
 ---
 
 ## Dependency order
 
 ```
-Full PDF loading series (#37-#41)
-    └── PDModel interactive (#32) — annotations/actions can be read from real docs
-            └── PDModel common completeness (#35) — tree nodes needed by interactive
+Parser/load closeout (#39/#41 remaining)
+    └── PDModel interactive hardening (#32 remaining scope)
 Rendering .NET graphics (#33) — mostly independent of above
 Encryption decryption (#34) — independent of above
 Close/Fill operators (#36) — independent quick win
@@ -352,10 +359,9 @@ Close/Fill operators (#36) — independent quick win
 
 | Priority | Issue | Files | Effort |
 |---|---|---|---|
-| 1 | #37–#41 Full PDF document loading series | ~5 core files + tests/reporting | 3–5 days |
-| 2 | #32 PDModel interactive port | ~28 | 4–6 days |
+| 1 | #39 + #41 parser/load closeout | ~3–5 + tests/reporting | 2–4 days |
+| 2 | #32 PDModel interactive completion | ~10–16 remaining | 3–5 days |
 | 3 | #33 Rendering .NET graphics | ~5 (adapt) | 3–5 days |
 | 4 | #34 Encryption decryption | ~3 | 1–2 days |
-| 5 | #35 PDModel/Common completeness | ~12 | 2–3 days |
-| 6 | #36 Close/Fill operators | 2 | 0.5 days |
-| | **Total** | **~55** | **~13–20 engineer-days** |
+| 5 | #36 Close/Fill operators | 2 | 0.5 days |
+| | **Total** | **~23–31** | **~9.5–16.5 engineer-days** |
