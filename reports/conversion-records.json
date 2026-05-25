@@ -2642,5 +2642,37 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Deterministic minimal tagged PDF fixture for end-to-end structure-tree and parent-tree regression coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/IterativeMergeSort.java",
+    "target_path": "src/PdfBox.Net/Util/IterativeMergeSort.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port of iterative (bottom-up) merge sort. Java List<T>/Comparator adapted to IList<T>/IComparer<T>. System.arraycopy replaced with Array.Copy. Suppressed Java raw-type warnings have no equivalent in C#."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Version.java",
+    "target_path": "src/PdfBox.Net/Util/Version.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted port of PDFBox version reader. Java reads version.properties via classloader; .NET adaptation uses AssemblyInformationalVersionAttribute and falls back to Assembly.GetName().Version. Fallback null-on-error semantics are preserved."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/XMLUtil.java",
+    "target_path": "src/PdfBox.Net/Util/XMLUtil.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port of XML utility. Java DocumentBuilderFactory hardening (disallow-doctype-decl, external-general/parameter-entities, load-external-dtd, XInclude-aware=false) mapped to XmlReaderSettings with DtdProcessing.Prohibit and XmlResolver=null. Document returned as XmlDocument instead of org.w3c.dom.Document. GetNodeValue adapted to iterate XmlNode children and collect XmlText values."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriterXRefEntry.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/COSWriterXRefEntry.cs",
+    "source_commit": "2.0 branch (class removed from trunk during 3.x refactor)",
+    "port_mode": "mechanical",
+    "sync_commit": "2.0 branch",
+    "conversion_notes": "Mechanical port of xref entry value object from the PDFBox 2.0 branch (the class was inlined into COSWriter during the 3.x series). Java mutable fields with private setters adapted to C# auto-properties. static NULLENTRY initializer preserved via static constructor. IComparable<COSWriterXRefEntry> mirrors Comparable<COSWriterXRefEntry>."
   }
 ]
