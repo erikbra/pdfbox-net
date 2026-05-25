@@ -2808,8 +2808,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T22:35:00Z",
-    "note": "Parser now consumes dedicated bootstrap state to enforce `%PDF-` header/version validation and deterministic startxref discovery before xref traversal."
+    "last_checked_utc": "2026-05-24T22:55:00Z",
+    "note": "Parser now consumes dedicated bootstrap state, shares xref traversal state to prevent cyclic /Prev recursion, and enforces strict xref entry-state parsing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFDocumentParser.java",
@@ -2830,5 +2830,15 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T22:35:00Z",
     "note": "Regression coverage for parser bootstrap header/startxref behavior on fixture and malformed inputs."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefTableTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T22:55:00Z",
+    "note": "Regression coverage for classic xref-table trailer resolution, cyclic /Prev guard behavior, and malformed xref subsection/entry rejection."
   }
 ]
