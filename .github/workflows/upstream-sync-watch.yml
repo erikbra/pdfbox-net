@@ -1,0 +1,235 @@
+name: Upstream Sync Watch
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Compare tracked commit with upstream trunk
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+          import urllib.error
+
+          state_path = "reports/upstream-sync-state.json"
+          with open(state_path, "r", encoding="utf-8") as f:
+              state = json.load(f)
+
+          upstream_repo = state["upstream_repository"]
+          upstream_branch = state["upstream_branch"]
+          tracked_commit = state["tracked_commit"]
+
+          with urllib.request.urlopen(
+              f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_branch}"
+          ) as resp:
+              upstream_commit = json.load(resp)["sha"]
+
+          if upstream_commit == tracked_commit:
+              print("Tracked commit already matches upstream trunk.")
+              raise SystemExit(0)
+
+          owner, repo = os.environ["REPO"].split("/", 1)
+          token = os.environ["GITHUB_TOKEN"]
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+
+          issue_title = "Upstream PDFBox has new commits to sync"
+          issue_body = (
+              "Upstream PDFBox trunk has moved beyond our tracked commit.\n\n"
+              f"- Tracked commit: `{tracked_commit}`\n"
+              f"- Latest upstream commit: `{upstream_commit}`\n\n"
+              f"Compare: https://github.com/{upstream_repo}/compare/{tracked_commit}...{upstream_commit}\n\n"
+              f"After syncing changes, update `{state_path}` with the new tracked commit."
+          )
+
+          search_url = (
+              f"https://api.github.com/repos/{owner}/{repo}/issues"
+              "?state=open&per_page=100"
+          )
+          req = urllib.request.Request(search_url, headers=headers)
+          with urllib.request.urlopen(req) as resp:
+              issues = json.load(resp)
+
+          existing = None
+          for issue in issues:
+              if issue.get("title") == issue_title:
+                  existing = issue
+                  break
+
+          if existing is None:
+              create_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
+              payload = json.dumps(
+                  {
+                      "title": issue_title,
+                      "body": issue_body,
+                  }
+              ).encode("utf-8")
+              create_req = urllib.request.Request(
+                  create_url, data=payload, headers=headers, method="POST"
+              )
+              with urllib.request.urlopen(create_req) as resp:
+                  created = json.load(resp)
+              print(f"Created upstream-sync issue #{created['number']}.")
+          else:
+              update_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{existing['number']}"
+              payload = json.dumps({"body": issue_body}).encode("utf-8")
+              update_req = urllib.request.Request(
+                  update_url, data=payload, headers=headers, method="PATCH"
+              )
+              with urllib.request.urlopen(update_req) as resp:
+                  updated = json.load(resp)
+              print(f"Updated upstream-sync issue #{updated['number']}.")
+          PY
+
+  scan-missing-ports:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Scan upstream Java files vs ported source paths
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          from datetime import datetime, timezone
+          from pathlib import Path
+          import urllib.request
+
+          sync_state_path = Path("reports/upstream-sync-state.json")
+          coverage_state_path = Path("reports/upstream-port-coverage-state.json")
+
+          with sync_state_path.open("r", encoding="utf-8") as f:
+              sync_state = json.load(f)
+
+          upstream_repo = sync_state["upstream_repository"]
+          upstream_branch = sync_state["upstream_branch"]
+
+          headers = {
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+          token = os.environ.get("GITHUB_TOKEN", "")
+          if token:
+              headers["Authorization"] = f"Bearer {token}"
+
+          def read_json(url: str) -> dict:
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req) as resp:
+                  return json.load(resp)
+
+          upstream_commit = read_json(
+              f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_branch}"
+          )["sha"]
+          tree = read_json(
+              f"https://api.github.com/repos/{upstream_repo}/git/trees/{upstream_branch}?recursive=1"
+          )["tree"]
+
+          upstream_java_paths = sorted(
+              item["path"]
+              for item in tree
+              if item.get("type") == "blob"
+              and item.get("path", "").endswith(".java")
+              and "/src/main/java/" in item.get("path", "")
+          )
+
+          source_path_re = re.compile(r"PDFBOX_SOURCE_PATH:\s*(.+?)\s*$")
+          ported_source_paths = set()
+          for cs_file in Path("src").rglob("*.cs"):
+              try:
+                  text = cs_file.read_text(encoding="utf-8")
+              except UnicodeDecodeError:
+                  continue
+              for line in text.splitlines():
+                  m = source_path_re.search(line)
+                  if not m:
+                      continue
+                  source_path = m.group(1).strip()
+                  if source_path.startswith("("):
+                      break
+                  ported_source_paths.add(source_path)
+                  break
+
+          missing_paths = [p for p in upstream_java_paths if p not in ported_source_paths]
+          missing_hash = hashlib.sha256("\n".join(missing_paths).encode("utf-8")).hexdigest()
+          now_utc = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+          previous_coverage = {}
+          if coverage_state_path.exists():
+              with coverage_state_path.open("r", encoding="utf-8") as f:
+                  previous_coverage = json.load(f)
+
+          coverage_state = {
+              "upstream_repository": upstream_repo,
+              "upstream_branch": upstream_branch,
+              "upstream_head_commit": upstream_commit,
+              "last_scan_utc": now_utc,
+              "upstream_java_files_total": len(upstream_java_paths),
+              "ported_java_files_total": len(ported_source_paths),
+              "missing_java_files_total": len(missing_paths),
+              "missing_source_paths_sha256": missing_hash,
+              "missing_source_paths_sample": missing_paths[:500],
+              "missing_source_paths_sample_truncated": len(missing_paths) > 500,
+              "note": "Missing Java source paths are upstream src/main/java files without matching PDFBOX_SOURCE_PATH provenance in the .NET port.",
+          }
+
+          sync_state["latest_upstream_commit_seen"] = upstream_commit
+          sync_state["last_port_coverage_scan_utc"] = now_utc
+          sync_state["upstream_java_files_total"] = len(upstream_java_paths)
+          sync_state["ported_java_files_total"] = len(ported_source_paths)
+          sync_state["missing_java_files_total"] = len(missing_paths)
+          sync_state["missing_source_paths_sha256"] = missing_hash
+
+          with coverage_state_path.open("w", encoding="utf-8") as f:
+              json.dump(coverage_state, f, indent=2)
+              f.write("\n")
+
+          with sync_state_path.open("w", encoding="utf-8") as f:
+              json.dump(sync_state, f, indent=2)
+              f.write("\n")
+
+          previous_missing_hash = previous_coverage.get("missing_source_paths_sha256", "")
+          previous_head = previous_coverage.get("upstream_head_commit", "")
+          changed = (
+              previous_missing_hash != missing_hash
+              or previous_head != upstream_commit
+          )
+          Path(".scan-state-changed").write_text("true" if changed else "false", encoding="utf-8")
+          print(f"State changed: {changed}")
+          PY
+
+      - name: Commit updated state jsons
+        run: |
+          if [ "$(cat .scan-state-changed)" != "true" ]; then
+            echo "No upstream coverage state changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/upstream-sync-state.json reports/upstream-port-coverage-state.json
+          git commit -m "chore: refresh upstream port coverage state"
+          git push

@@ -203,8 +203,19 @@ Course decision: stay on the current direction (mechanical parity first, then fe
 
 - Keep provenance headers (`PDFBOX_SOURCE_PATH`, commit, mode, last sync commit) on every ported file.
 - Record each slice in `reports/conversion-records.json`, `reports/normalization-records.json`, and `reports/traceability-parity-report.json`.
+- Keep `reports/upstream-sync-state.json` updated with the newest upstream commit covered by merged sync work.
 - Prefer mechanical test ports first; only redesign tests when they depend on Java-only APIs or non-deterministic external resources.
 - Break work into folder-level or class-cluster issues so each PR has a clear upstream scope and passing test slice.
+
+### Automated upstream watch
+
+- Scheduled workflow: `.github/workflows/upstream-sync-watch.yml`
+- Cadence: daily at 07:00 UTC (plus manual dispatch)
+- Job `check-upstream`: compares `reports/upstream-sync-state.json` against `apache/pdfbox` `trunk` and creates/updates a single open "Upstream PDFBox has new commits to sync" issue when new upstream commits exist
+- Job `scan-missing-ports`: scans all upstream `src/main/java` files and compares them to `PDFBOX_SOURCE_PATH` metadata in local `.cs` ports
+- State artifacts refreshed when drift is detected:
+  - `reports/upstream-sync-state.json` (commit + summary counters + latest scan timestamp)
+  - `reports/upstream-port-coverage-state.json` (scan snapshot + missing-path sample/hash)
 
 ### Current issue slice delivered here
 

@@ -1,0 +1,13 @@
+{
+  "upstream_repository": "apache/pdfbox",
+  "upstream_branch": "trunk",
+  "tracked_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+  "tracked_commit_updated_utc": "2026-05-25T09:41:14.885Z",
+  "note": "Update tracked_commit whenever a sync batch lands so upstream-watch automation can detect new upstream commits.",
+  "latest_upstream_commit_seen": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+  "last_port_coverage_scan_utc": "2026-05-25T09:44:33.232Z",
+  "upstream_java_files_total": 1067,
+  "ported_java_files_total": 408,
+  "missing_java_files_total": 662,
+  "missing_source_paths_sha256": "3bf19b50147ccec3c83e51aa6f6236f8627af235f3e76e2ccb803cc5dffcaaf4"
+}
