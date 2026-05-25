@@ -165,10 +165,21 @@ public sealed class PDDocument : IDisposable
         EnsureNotDisposed();
         _trailer.SetItem(COSName.ROOT, GetDocumentCatalog().GetCOSObject());
         _trailer.SetItem(COSName.GetPDFName("Info"), GetDocumentInformation().GetCOSObject());
-        output.Write(Encoding.ASCII.GetBytes($"%PDF-{_headerVersion.ToString("0.0", CultureInfo.InvariantCulture)}\n"));
-        COSWriter writer = new(output);
-        writer.Write(_trailer);
-        output.Write(Encoding.ASCII.GetBytes("\n%%EOF\n"));
+
+        byte[] headerBytes = Encoding.ASCII.GetBytes($"%PDF-{_headerVersion.ToString("0.0", CultureInfo.InvariantCulture)}\n");
+        byte[] trailerBytes;
+        using (MemoryStream trailerBuffer = new())
+        {
+            COSWriter writer = new(trailerBuffer);
+            writer.Write(_trailer);
+            trailerBytes = trailerBuffer.ToArray();
+        }
+
+        long startXref = headerBytes.Length;
+        output.Write(headerBytes);
+        output.Write(Encoding.ASCII.GetBytes("xref\n0 1\n0000000000 65535 f \ntrailer\n"));
+        output.Write(trailerBytes);
+        output.Write(Encoding.ASCII.GetBytes($"\nstartxref\n{startXref.ToString(CultureInfo.InvariantCulture)}\n%%EOF\n"));
     }
 
     /// <summary>
