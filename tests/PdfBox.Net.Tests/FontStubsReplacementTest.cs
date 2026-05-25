@@ -49,6 +49,19 @@ public class FontStubsReplacementTest
         }
     }
 
+    [Theory]
+    [InlineData("CourierCourierNew", "Courier")]
+    [InlineData("Times", "Times-Roman")]
+    [InlineData("Times,BoldItalic", "Times-BoldItalic")]
+    [InlineData("Symbol,BoldItalic", "Symbol")]
+    [InlineData("ArialMT", "Helvetica")]
+    [InlineData("Arial-BoldItalicMT", "Helvetica-BoldOblique")]
+    public void Standard14Fonts_MapsKnownAliases(string alias, string expectedCanonical)
+    {
+        Assert.Equal(expectedCanonical, Standard14Fonts.GetMappedFontName(alias));
+        Assert.True(Standard14Fonts.IsStandard14Font(alias));
+    }
+
     [Fact]
     public void PDFontDescriptor_ReturnsConfiguredMetrics()
     {
@@ -152,6 +165,35 @@ public class FontStubsReplacementTest
 
         Assert.Equal("A", font.ToUnicode(0x41, glyphList));
         Assert.Equal("B", font.ToUnicode(0x42, glyphList));
+    }
+
+    [Fact]
+    public void PDType1Font_UsesEmbeddedType1EncodingWhenDictionaryEncodingMissing()
+    {
+        var descriptor = new COSDictionary();
+        descriptor.SetItem(COSName.GetPDFName("FontFile"), CreateFontFileStream(FontBoxTestFixtures.CreateMinimalType1Pfb()));
+
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "Type1");
+        dict.SetName(COSName.GetPDFName("BaseFont"), "TestFont");
+        dict.SetItem(COSName.GetPDFName("FontDescriptor"), descriptor);
+
+        PDFont font = PDFontFactory.CreateFont(dict);
+        GlyphList glyphList = GlyphList.GetAdobeGlyphList();
+
+        Assert.Equal("A", font.ToUnicode(65, glyphList));
+        Assert.Null(font.ToUnicode(33, glyphList));
+    }
+
+    [Fact]
+    public void DictionaryEncoding_UsesZapfDingbatsEncodingForZapfBase14Font()
+    {
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("BaseFont"), "ZapfDingbats");
+
+        PdfBox.Net.PDModel.Font.Encoding.Encoding encoding = DictionaryEncoding.ResolveEncoding(dict);
+
+        Assert.Equal("a1", encoding.GetName(33));
     }
 
     [Fact]
@@ -262,6 +304,15 @@ end
         var stream = new COSStream();
         using Stream output = stream.CreateOutputStream();
         byte[] bytes = System.Text.Encoding.ASCII.GetBytes(cmap);
+        output.Write(bytes, 0, bytes.Length);
+        output.Close();
+        return stream;
+    }
+
+    private static COSStream CreateFontFileStream(byte[] bytes)
+    {
+        var stream = new COSStream();
+        using Stream output = stream.CreateOutputStream();
         output.Write(bytes, 0, bytes.Length);
         output.Close();
         return stream;

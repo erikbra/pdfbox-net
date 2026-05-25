@@ -59,9 +59,18 @@ public sealed class DictionaryEncoding : Encoding
         {
             COSName name => ResolveNamedEncoding(name.GetName()),
             COSDictionary => new DictionaryEncoding(fontDictionary),
-            _ => Standard14Fonts.IsSymbolicFont(fontDictionary.GetNameAsString(COSName.GetPDFName("BaseFont")) ?? string.Empty)
-                ? SymbolEncoding.INSTANCE
-                : WinAnsiEncoding.INSTANCE,
+            _ => ResolveStandard14FallbackEncoding(fontDictionary.GetNameAsString(COSName.GetPDFName("BaseFont"))),
+        };
+    }
+
+    internal static Encoding ResolveStandard14FallbackEncoding(string? fontName)
+    {
+        string? mappedName = Standard14Fonts.GetMappedFontName(fontName);
+        return mappedName switch
+        {
+            "Symbol" => SymbolEncoding.INSTANCE,
+            "ZapfDingbats" => ZapfDingbatsEncoding.INSTANCE,
+            _ => WinAnsiEncoding.INSTANCE,
         };
     }
 

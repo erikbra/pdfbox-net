@@ -59,6 +59,18 @@ public static class Standard14Fonts
         ["CourierNew,Bold"] = "Courier-Bold",
         ["CourierNew,Italic"] = "Courier-Oblique",
         ["CourierNew,BoldItalic"] = "Courier-BoldOblique",
+        ["CourierCourierNew"] = "Courier",
+        ["Symbol,Italic"] = "Symbol",
+        ["Symbol,Bold"] = "Symbol",
+        ["Symbol,BoldItalic"] = "Symbol",
+        ["Times"] = "Times-Roman",
+        ["Times,Italic"] = "Times-Italic",
+        ["Times,Bold"] = "Times-Bold",
+        ["Times,BoldItalic"] = "Times-BoldItalic",
+        ["ArialMT"] = "Helvetica",
+        ["Arial-ItalicMT"] = "Helvetica-Oblique",
+        ["Arial-BoldMT"] = "Helvetica-Bold",
+        ["Arial-BoldItalicMT"] = "Helvetica-BoldOblique",
     };
 
     private static readonly HashSet<string> CanonicalStandard14 =
