@@ -19,6 +19,7 @@ public class PDFParserXrefStreamObjectStreamTest
 
         PDFParser parser = new(input);
         ParsedPDFDocument parsed = parser.Parse();
+        Assert.Same(parsed.Trailer, parsed.Document.GetTrailer());
 
         COSObject infoRef = Assert.IsType<COSObject>(parsed.Trailer.GetItem(COSName.GetPDFName("Info")));
         Assert.Equal(5L, infoRef.GetKey()!.GetNumber());

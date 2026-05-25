@@ -43,6 +43,7 @@ public sealed class PDDocument : IDisposable
 {
     private const string DefaultVersion = "1.4";
 
+    private readonly COSDocument _document;
     private readonly COSDictionary _trailer;
     private readonly float _headerVersion;
     private bool _disposed;
@@ -50,14 +51,15 @@ public sealed class PDDocument : IDisposable
     private PDDocumentInformation? _documentInformation;
 
     public PDDocument()
-        : this(CreateEmptyTrailer(), ParseVersion(DefaultVersion))
+        : this(CreateNewDocument())
     {
     }
 
-    private PDDocument(COSDictionary trailer, float headerVersion)
+    private PDDocument(COSDocument document)
     {
-        _trailer = trailer;
-        _headerVersion = headerVersion;
+        _document = document ?? throw new ArgumentNullException(nameof(document));
+        _trailer = _document.GetTrailer() ?? throw new IOException("Document trailer dictionary is missing.");
+        _headerVersion = _document.GetVersion();
     }
 
     /// <summary>
@@ -79,30 +81,11 @@ public sealed class PDDocument : IDisposable
     public static PDDocument Load(Stream input, string? password)
     {
         ArgumentNullException.ThrowIfNull(input);
-        byte[] bytes = ReadAllBytes(input);
-        using MemoryStream parseInput = new(bytes, writable: false);
-        try
-        {
-            PDFParser parser = new(parseInput);
-            ParsedPDFDocument parsed = parser.Parse();
-            PDDocument doc = new(parsed.Trailer, parsed.HeaderVersion);
-            doc.DecryptIfNeeded(password);
-            return doc;
-        }
-        catch (IOException ex) when (ex.Message.Contains("startxref", StringComparison.Ordinal))
-        {
-            string content = Encoding.Latin1.GetString(bytes);
-            string payload = ExtractDictionaryPayload(content);
-            float headerVersion = ExtractHeaderVersion(content);
-
-            COSBase parsed = COSParser.Parse(payload);
-            if (parsed is not COSDictionary trailer)
-            {
-                throw new IOException("Expected document trailer dictionary.");
-            }
-
-            return new PDDocument(trailer, headerVersion);
-        }
+        PDFParser parser = new(input);
+        ParsedPDFDocument parsed = parser.Parse();
+        PDDocument doc = new(parsed.Document);
+        doc.DecryptIfNeeded(password);
+        return doc;
     }
 
     /// <summary>
@@ -205,7 +188,13 @@ public sealed class PDDocument : IDisposable
     /// </summary>
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
+        _document.Dispose();
     }
 
     /// <summary>
@@ -393,6 +382,15 @@ public sealed class PDDocument : IDisposable
         }
     }
 
+    private static COSDocument CreateNewDocument()
+    {
+        COSDocument document = new();
+        document.SetVersion(ParseVersion(DefaultVersion));
+        document.SetTrailer(CreateEmptyTrailer());
+        document.GetDocumentState().SetParsing(false);
+        return document;
+    }
+
     private static COSDictionary CreateEmptyTrailer()
     {
         COSDictionary trailer = new();
@@ -425,48 +423,6 @@ public sealed class PDDocument : IDisposable
         }
 
         root.SetItem(COSName.PAGES, pages);
-    }
-
-    private static byte[] ReadAllBytes(Stream input)
-    {
-        using MemoryStream buffer = new();
-        input.CopyTo(buffer);
-        return buffer.ToArray();
-    }
-
-    private static string ExtractDictionaryPayload(string content)
-    {
-        if (!content.StartsWith("%PDF-", StringComparison.Ordinal))
-        {
-            return content;
-        }
-
-        int dictionaryStart = content.IndexOf("<<", StringComparison.Ordinal);
-        if (dictionaryStart < 0)
-        {
-            throw new IOException("PDF content does not contain a COS trailer dictionary.");
-        }
-
-        int eofMarker = content.LastIndexOf("%%EOF", StringComparison.Ordinal);
-        if (eofMarker < 0 || eofMarker <= dictionaryStart)
-        {
-            eofMarker = content.Length;
-        }
-
-        return content.Substring(dictionaryStart, eofMarker - dictionaryStart).Trim();
-    }
-
-    private static float ExtractHeaderVersion(string content)
-    {
-        if (!content.StartsWith("%PDF-", StringComparison.Ordinal))
-        {
-            return ParseVersion(DefaultVersion);
-        }
-
-        int headerEnd = content.IndexOf('\n');
-        string headerLine = headerEnd >= 0 ? content[..headerEnd] : content;
-        string value = headerLine.Substring("%PDF-".Length).Trim();
-        return ParseVersion(value, ParseVersion(DefaultVersion));
     }
 
     private static float ParseVersion(string value)
