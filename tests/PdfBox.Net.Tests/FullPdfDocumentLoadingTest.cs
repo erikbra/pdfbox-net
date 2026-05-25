@@ -32,6 +32,7 @@ public class FullPdfDocumentLoadingTest
     [InlineData("classic-xref-fixture.pdf", 1, "Classic Fixture", "pdfbox-net")]
     [InlineData("flate-content-fixture.pdf", 1, "Classic Fixture", "pdfbox-net")]
     [InlineData("xref-stream-fixture.pdf", 1, "XRef Stream Fixture", "pdfbox-net")]
+    [InlineData("xref-stream-object-stream-fixture.pdf", 1, "XRef Stream + ObjStm Fixture", "pdfbox-net")]
     public void FullLoaderReadsRealPdfFixtures(string fixtureName, int expectedPages, string expectedTitle, string expectedAuthor)
     {
         string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureName);
