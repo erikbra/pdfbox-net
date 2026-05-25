@@ -2498,5 +2498,53 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "16 issue-45 tests covering role-map round-trip, standard-type resolution, PDAttributeObject factory dispatch, PDDefaultAttributeObject, PDUserAttributeObject user-property CRUD, PDStructureElement attribute CRUD and change notification, and PDStructureTreeRoot ClassMap single/list/null variants."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureTreeRoot.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureTreeRoot.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #46: added GetParentTree/SetParentTree/GetParentTreeEntries parent-tree accessors and PDNumberTreeNode.Common using directive."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureTreeRoot.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDParentTreeNumberTreeNode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Typed PDNumberTreeNode subclass for the parent tree (ParentTree entry). Overrides ConvertCOSToPD to produce PDStructureElement instances; GetStructureElements handles both single-dict and array-of-dict values stored at each numeric key."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDLayoutAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDLayoutAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Layout attribute object (O=Layout) with typed accessors for Placement, WritingMode, TextAlign, Width, Height, SpaceBefore, SpaceAfter, StartIndent, EndIndent, TextIndent, BaselineShift, LineHeight, BlockAlign, InlineAlign, ColumnCount."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDListAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDListAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "List attribute object (O=List) with typed accessor for ListNumbering keyword."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDTableAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDTableAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Table attribute object (O=Table) with typed accessors for RowSpan, ColSpan, Headers, Scope, Summary, Short."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDParentTreeIntegrationTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "29 issue-46 tests covering parent-tree round-trip, single-element lookup, array-value lookup, missing-key guard, end-to-end catalog→StructTreeRoot→ParentTree→elements traversal, multi-page stability, and all three new attribute subtypes plus factory dispatch."
   }
 ]

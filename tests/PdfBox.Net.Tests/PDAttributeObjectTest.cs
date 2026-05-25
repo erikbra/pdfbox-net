@@ -275,7 +275,8 @@ public class PDAttributeObjectTest
 
         Dictionary<string, object> classMap = root.GetClassMap();
         Assert.Single(classMap);
-        PDAttributeObject resolved = Assert.IsType<PDDefaultAttributeObject>(classMap["MyClass"]);
+        PDAttributeObject resolved = Assert.IsAssignableFrom<PDAttributeObject>(classMap["MyClass"]);
+        Assert.IsType<PDLayoutAttributeObject>(resolved);
         Assert.Equal("Layout", resolved.GetOwner());
     }
 
