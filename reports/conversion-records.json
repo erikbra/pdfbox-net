@@ -1231,7 +1231,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Added default font provider implementation."
+    "conversion_notes": "Added default font provider wrapper with injectable file-system lookup for deterministic tests."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
@@ -1295,7 +1295,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Added cross-platform file system font discovery provider."
+    "conversion_notes": "Added cross-platform file system font discovery provider with stable ordered enumeration and subset-prefix normalization."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
@@ -1311,7 +1311,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Added global font mapper singleton wiring."
+    "conversion_notes": "Added lazy global font mapper singleton wiring."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
@@ -1319,7 +1319,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Replaced font stubs with concrete PDModel font hierarchy and concrete Type1/TrueType/Type0/CID font implementations."
+    "conversion_notes": "Replaced font stubs with concrete PDModel font hierarchy, descendant descriptor fallback, and CID width handling for composite fonts."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontDescriptor.java",
@@ -1327,7 +1327,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Added PDFontDescriptor metrics and bounding box extraction from font descriptor dictionaries."
+    "conversion_notes": "Added PDFontDescriptor metric normalization, flag helpers, panose access, and descriptor dictionary accessors."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDSimpleFont.java",
@@ -1359,7 +1359,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Implemented composite Type0 font and descendant CID font wiring."
+    "conversion_notes": "Implemented composite Type0 font wiring with descendant descriptor and CID width delegation."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
@@ -1367,7 +1367,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Implemented CIDFontType2 wrapper for embedded TrueType fonts."
+    "conversion_notes": "Implemented CIDFontType2 wrapper for embedded TrueType fonts with shared CID width default handling."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",

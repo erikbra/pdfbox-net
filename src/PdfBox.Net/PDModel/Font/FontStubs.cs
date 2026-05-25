@@ -32,6 +32,7 @@ using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.FontBox.Type1;
 using PdfBox.Net.FontBox.Util;
 using PdfBox.Net.IO;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Font.Encoding;
 using PdfBox.Net.Util;
 using PdfBox.Net.Util.Geometry;
@@ -477,6 +478,18 @@ namespace PdfBox.Net.PDModel.Font
         public PDCIDFont? GetDescendantFont() => _descendantFont;
 
         public override bool IsVertical() => _descendantFont?.IsVertical() ?? base.IsVertical();
+        public override float GetWidth(int code) => _descendantFont?.GetWidth(CodeToCID(code)) ?? base.GetWidth(code);
+        public override float GetAverageFontWidth() => _descendantFont?.GetAverageFontWidth() ?? base.GetAverageFontWidth();
+        public override float GetSpaceWidth() => _descendantFont?.GetSpaceWidth() ?? base.GetSpaceWidth();
+        public override PDFontDescriptor? GetFontDescriptor() => base.GetFontDescriptor() ?? _descendantFont?.GetFontDescriptor();
+
+        public override BoundingBox GetBoundingBox()
+        {
+            BoundingBox bbox = base.GetBoundingBox();
+            return bbox.GetWidth() == 0 && bbox.GetHeight() == 0
+                ? _descendantFont?.GetBoundingBox() ?? bbox
+                : bbox;
+        }
 
         public override bool HasGlyph(int code)
         {
@@ -503,12 +516,96 @@ namespace PdfBox.Net.PDModel.Font
 
     public abstract class PDCIDFont : PDFont
     {
+        private static readonly COSName WidthsKey = COSName.GetPDFName("Widths");
+        private static readonly COSName WKey = COSName.GetPDFName("W");
+        private static readonly COSName DWKey = COSName.GetPDFName("DW");
+
+        private readonly Dictionary<int, float> _widthsByCid = [];
+        private readonly float _defaultWidth;
+
         protected PDCIDFont(COSDictionary fontDictionary)
             : base(fontDictionary)
         {
+            _defaultWidth = fontDictionary.GetFloat(DWKey, 1000f);
+            ReadCIDWidths(fontDictionary.GetCOSArray(WKey), _widthsByCid);
         }
 
         public virtual int CodeToCID(int code) => code;
+
+        public override float GetWidth(int code)
+        {
+            if (_widthsByCid.TryGetValue(code, out float width))
+            {
+                return width;
+            }
+
+            if (FontDictionary.GetCOSArray(WidthsKey) != null)
+            {
+                float baseWidth = base.GetWidth(code);
+                if (baseWidth > 0)
+                {
+                    return baseWidth;
+                }
+            }
+
+            return _defaultWidth;
+        }
+
+        private static void ReadCIDWidths(COSArray? widths, Dictionary<int, float> widthsByCid)
+        {
+            if (widths == null)
+            {
+                return;
+            }
+
+            int index = 0;
+            while (index < widths.Size())
+            {
+                if (widths.GetObject(index) is not COSNumber startNumber)
+                {
+                    index++;
+                    continue;
+                }
+
+                int startCid = startNumber.IntValue();
+                index++;
+                if (index >= widths.Size())
+                {
+                    break;
+                }
+
+                if (widths.GetObject(index) is COSArray rangeWidths)
+                {
+                    for (int offset = 0; offset < rangeWidths.Size(); offset++)
+                    {
+                        if (rangeWidths.GetObject(offset) is COSNumber widthNumber)
+                        {
+                            widthsByCid[startCid + offset] = widthNumber.FloatValue();
+                        }
+                    }
+
+                    index++;
+                    continue;
+                }
+
+                if (widths.GetObject(index) is COSNumber endNumber &&
+                    index + 1 < widths.Size() &&
+                    widths.GetObject(index + 1) is COSNumber widthNumberForRange)
+                {
+                    int endCid = endNumber.IntValue();
+                    float width = widthNumberForRange.FloatValue();
+                    for (int cid = startCid; cid <= endCid; cid++)
+                    {
+                        widthsByCid[cid] = width;
+                    }
+
+                    index += 2;
+                    continue;
+                }
+
+                index++;
+            }
+        }
     }
 
     public sealed class PDCIDFontType0 : PDCIDFont
@@ -569,18 +666,41 @@ namespace PdfBox.Net.PDModel.Font
 
     public class PDFontDescriptor
     {
+        private const int FlagFixedPitch = 1;
+        private const int FlagSerif = 2;
+        private const int FlagSymbolic = 4;
+        private const int FlagScript = 8;
+        private const int FlagNonSymbolic = 32;
+        private const int FlagItalic = 64;
+        private const int FlagAllCap = 65536;
+        private const int FlagSmallCap = 131072;
+        private const int FlagForceBold = 262144;
+
+        private static readonly COSName FontNameKey = COSName.GetPDFName("FontName");
+        private static readonly COSName FontFamilyKey = COSName.GetPDFName("FontFamily");
+        private static readonly COSName FontWeightKey = COSName.GetPDFName("FontWeight");
+        private static readonly COSName FontStretchKey = COSName.GetPDFName("FontStretch");
         private static readonly COSName CapHeightKey = COSName.GetPDFName("CapHeight");
         private static readonly COSName AscentKey = COSName.GetPDFName("Ascent");
         private static readonly COSName DescentKey = COSName.GetPDFName("Descent");
+        private static readonly COSName LeadingKey = COSName.GetPDFName("Leading");
         private static readonly COSName StemVKey = COSName.GetPDFName("StemV");
         private static readonly COSName StemHKey = COSName.GetPDFName("StemH");
         private static readonly COSName MissingWidthKey = COSName.GetPDFName("MissingWidth");
+        private static readonly COSName AverageWidthKey = COSName.GetPDFName("AvgWidth");
+        private static readonly COSName MaxWidthKey = COSName.GetPDFName("MaxWidth");
         private static readonly COSName FontBBoxKey = COSName.GetPDFName("FontBBox");
         private static readonly COSName XHeightKey = COSName.GetPDFName("XHeight");
         private static readonly COSName ItalicAngleKey = COSName.GetPDFName("ItalicAngle");
         private static readonly COSName FlagsKey = COSName.GetPDFName("Flags");
+        private static readonly COSName CharSetKey = COSName.GetPDFName("CharSet");
+        private static readonly COSName StyleKey = COSName.GetPDFName("Style");
+        private static readonly COSName PanoseKey = COSName.GetPDFName("Panose");
 
         private readonly COSDictionary _dictionary;
+        private float _xHeight = float.NegativeInfinity;
+        private float _capHeight = float.NegativeInfinity;
+        private int _flags = -1;
 
         public PDFontDescriptor()
             : this(new COSDictionary())
@@ -594,34 +714,88 @@ namespace PdfBox.Net.PDModel.Font
 
         public COSDictionary GetCOSObject() => _dictionary;
 
-        public float GetCapHeight() => _dictionary.GetFloat(CapHeightKey, 0f);
+        public string? GetFontName() => _dictionary.GetNameAsString(FontNameKey);
+        public string? GetFontFamily() => _dictionary.GetString(FontFamilyKey);
+        public float GetFontWeight() => _dictionary.GetFloat(FontWeightKey, 0f);
+        public string? GetFontStretch() => _dictionary.GetNameAsString(FontStretchKey);
+        public int GetFlags() => _flags == -1 ? _flags = _dictionary.GetInt(FlagsKey, 0) : _flags;
         public float GetAscent() => _dictionary.GetFloat(AscentKey, 0f);
         public float GetDescent() => _dictionary.GetFloat(DescentKey, 0f);
+        public float GetLeading() => _dictionary.GetFloat(LeadingKey, 0f);
         public float GetStemV() => _dictionary.GetFloat(StemVKey, 0f);
         public float GetStemH() => _dictionary.GetFloat(StemHKey, 0f);
         public float GetMissingWidth() => _dictionary.GetFloat(MissingWidthKey, 0f);
-        public float GetXHeight() => _dictionary.GetFloat(XHeightKey, 0f);
+        public float GetAverageWidth() => _dictionary.GetFloat(AverageWidthKey, 0f);
+        public float GetMaxWidth() => _dictionary.GetFloat(MaxWidthKey, 0f);
         public float GetItalicAngle() => _dictionary.GetFloat(ItalicAngleKey, 0f);
+        public string? GetCharSet() => _dictionary.GetString(CharSetKey);
 
-        public bool IsFixedPitch()
+        public float GetCapHeight()
         {
-            int flags = _dictionary.GetInt(FlagsKey, 0);
-            return (flags & 1) != 0;
+            if (float.IsNegativeInfinity(_capHeight))
+            {
+                _capHeight = Math.Abs(_dictionary.GetFloat(CapHeightKey, 0f));
+            }
+
+            return _capHeight;
+        }
+
+        public float GetXHeight()
+        {
+            if (float.IsNegativeInfinity(_xHeight))
+            {
+                _xHeight = Math.Abs(_dictionary.GetFloat(XHeightKey, 0f));
+            }
+
+            return _xHeight;
+        }
+
+        public bool HasWidths() => _dictionary.ContainsKey(AverageWidthKey) || _dictionary.ContainsKey(MissingWidthKey);
+        public bool HasMissingWidth() => _dictionary.ContainsKey(MissingWidthKey);
+        public bool IsFixedPitch() => IsFlagBitOn(FlagFixedPitch);
+        public bool IsSerif() => IsFlagBitOn(FlagSerif);
+        public bool IsSymbolic() => IsFlagBitOn(FlagSymbolic);
+        public bool IsScript() => IsFlagBitOn(FlagScript);
+        public bool IsNonSymbolic() => IsFlagBitOn(FlagNonSymbolic);
+        public bool IsItalic() => IsFlagBitOn(FlagItalic);
+        public bool IsAllCap() => IsFlagBitOn(FlagAllCap);
+        public bool IsSmallCap() => IsFlagBitOn(FlagSmallCap);
+        public bool IsForceBold() => IsFlagBitOn(FlagForceBold);
+        public PDRectangle? GetFontBoundingBoxRectangle()
+        {
+            COSArray? bbox = _dictionary.GetCOSArray(FontBBoxKey);
+            return bbox == null ? null : new PDRectangle(bbox);
         }
 
         public BoundingBox GetFontBoundingBox()
         {
-            COSArray? bbox = _dictionary.GetCOSArray(FontBBoxKey);
-            if (bbox == null || bbox.Size() < 4)
+            PDRectangle? bbox = GetFontBoundingBoxRectangle();
+            if (bbox == null)
             {
                 return new BoundingBox();
             }
 
-            float llx = bbox.GetObject(0) is COSNumber n0 ? n0.FloatValue() : 0f;
-            float lly = bbox.GetObject(1) is COSNumber n1 ? n1.FloatValue() : 0f;
-            float urx = bbox.GetObject(2) is COSNumber n2 ? n2.FloatValue() : 0f;
-            float ury = bbox.GetObject(3) is COSNumber n3 ? n3.FloatValue() : 0f;
-            return new BoundingBox(llx, lly, urx, ury);
+            return new BoundingBox(bbox.GetLowerLeftX(), bbox.GetLowerLeftY(), bbox.GetUpperRightX(), bbox.GetUpperRightY());
+        }
+
+        public PDPanose? GetPanose()
+        {
+            COSDictionary? style = _dictionary.GetCOSDictionary(StyleKey);
+            if (style?.GetDictionaryObject(PanoseKey) is COSString panose)
+            {
+                byte[] bytes = panose.GetBytes();
+                if (bytes.Length >= PDPanose.PanoseLength)
+                {
+                    return new PDPanose(bytes);
+                }
+            }
+
+            return null;
+        }
+
+        private bool IsFlagBitOn(int bit)
+        {
+            return (GetFlags() & bit) != 0;
         }
     }
 }

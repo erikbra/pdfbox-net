@@ -29,11 +29,12 @@ namespace PdfBox.Net.PDModel.Font;
 
 public static class FontMappers
 {
-    private static FontMapper _instance = new DefaultFontProvider();
+    private static readonly Lazy<FontMapper> DefaultInstance = new(() => new DefaultFontProvider());
+    private static FontMapper? _instance;
 
     public static FontMapper Instance
     {
-        get => _instance;
+        get => _instance ?? DefaultInstance.Value;
         set => _instance = value ?? throw new ArgumentNullException(nameof(value));
     }
 }

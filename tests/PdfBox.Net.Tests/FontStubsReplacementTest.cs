@@ -74,6 +74,30 @@ public class FontStubsReplacementTest
     }
 
     [Fact]
+    public void PDFontDescriptor_NormalizesMetricsAndExposesFlags()
+    {
+        var descriptorDict = new COSDictionary();
+        descriptorDict.SetFloat(COSName.GetPDFName("CapHeight"), -700f);
+        descriptorDict.SetFloat(COSName.GetPDFName("XHeight"), -450f);
+        descriptorDict.SetInt(COSName.GetPDFName("Flags"), 1 | 4 | 64);
+        descriptorDict.SetString(COSName.GetPDFName("FontFamily"), "Mini Family");
+        descriptorDict.SetName(COSName.GetPDFName("FontName"), "MiniPS");
+        descriptorDict.SetFloat(COSName.GetPDFName("AvgWidth"), 520f);
+
+        PDFontDescriptor descriptor = new(descriptorDict);
+
+        Assert.Equal(700f, descriptor.GetCapHeight());
+        Assert.Equal(450f, descriptor.GetXHeight());
+        Assert.Equal("MiniPS", descriptor.GetFontName());
+        Assert.Equal("Mini Family", descriptor.GetFontFamily());
+        Assert.True(descriptor.HasWidths());
+        Assert.True(descriptor.IsFixedPitch());
+        Assert.True(descriptor.IsSymbolic());
+        Assert.True(descriptor.IsItalic());
+        Assert.False(descriptor.IsNonSymbolic());
+    }
+
+    [Fact]
     public void PDType1Font_UsesWidthsArrayFromFontDictionary()
     {
         var dict = new COSDictionary();
@@ -141,6 +165,77 @@ public class FontStubsReplacementTest
 
         Assert.Same(ttf, cidFont.GetTrueTypeFont());
         Assert.Equal(1000, cidFont.GetTrueTypeFont().GetUnitsPerEm());
+    }
+
+    [Fact]
+    public void PDFontFactory_Type0_UsesDescendantDescriptorAndWidths()
+    {
+        var descriptorDict = new COSDictionary();
+        descriptorDict.SetFloat(COSName.GetPDFName("MissingWidth"), 333f);
+        descriptorDict.SetItem(COSName.GetPDFName("FontBBox"), COSArray.Of(0f, -10f, 900f, 880f));
+
+        var descendantDict = new COSDictionary();
+        descendantDict.SetName(COSName.GetPDFName("Subtype"), "CIDFontType0");
+        descendantDict.SetFloat(COSName.GetPDFName("DW"), 444f);
+        descendantDict.SetItem(COSName.GetPDFName("FontDescriptor"), descriptorDict);
+
+        var widths = new COSArray();
+        widths.Add(COSInteger.Get(65));
+        widths.Add(COSArray.Of(500f, 510f));
+        widths.Add(COSInteger.Get(90));
+        widths.Add(COSInteger.Get(91));
+        widths.Add(new COSFloat(620f));
+        descendantDict.SetItem(COSName.GetPDFName("W"), widths);
+
+        var descendants = new COSArray();
+        descendants.Add(descendantDict);
+
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "Type0");
+        dict.SetItem(COSName.GetPDFName("DescendantFonts"), descendants);
+
+        PDFont font = PDFontFactory.CreateFont(dict);
+
+        Assert.IsType<PDType0Font>(font);
+        Assert.Equal(500f, font.GetWidth(65));
+        Assert.Equal(510f, font.GetWidth(66));
+        Assert.Equal(620f, font.GetWidth(90));
+        Assert.Equal(620f, font.GetWidth(91));
+        Assert.Equal(444f, font.GetWidth(120));
+        Assert.Equal(333f, font.GetFontDescriptor()!.GetMissingWidth());
+
+        var bbox = font.GetBoundingBox();
+        Assert.Equal(-10f, bbox.GetLowerLeftY());
+        Assert.Equal(900f, bbox.GetUpperRightX());
+    }
+
+    [Fact]
+    public void FileSystemFontProvider_PrefersStableSortedFontPath()
+    {
+        string root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        string firstDir = Path.Combine(root, "a");
+        string secondDir = Path.Combine(root, "b");
+        Directory.CreateDirectory(firstDir);
+        Directory.CreateDirectory(secondDir);
+
+        try
+        {
+            File.WriteAllBytes(Path.Combine(secondDir, "MiniFont.ttf"), FontBoxTestFixtures.CreateMinimalTrueType());
+            string preferredPath = Path.Combine(firstDir, "MiniFont.ttf");
+            File.WriteAllBytes(preferredPath, FontBoxTestFixtures.CreateMinimalTrueType());
+
+            FileSystemFontProvider provider = new([root]);
+
+            Assert.Equal(preferredPath, provider.FindFontFile("MiniFont"));
+            Assert.Equal(preferredPath, provider.FindFontFile("ABCDEF+MiniFont"));
+        }
+        finally
+        {
+            if (Directory.Exists(root))
+            {
+                Directory.Delete(root, recursive: true);
+            }
+        }
     }
 
     private static COSStream CreateToUnicodeStream(string bfCharLines)
