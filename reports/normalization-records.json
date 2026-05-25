@@ -1970,5 +1970,38 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Adds fixture and synthetic tests for trailer reference resolution, cyclic /Prev traversal safety, and malformed xref subsection/entry validation."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefStreamObjectStreamTest.cs",
+    "normalization_applied": false,
+    "change_categories": [
+      "Native test coverage added for xref-stream and object-stream compressed indirect object resolution"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Fixture-based coverage for type-2 xref entries and object-stream extraction; verifies Info dict fields from a compressed indirect object."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/FullPdfDocumentLoadingTest.cs",
+    "normalization_applied": false,
+    "change_categories": [
+      "Native test coverage added for full PDDocument.Load pipeline across all fixture types"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Theory-driven fixture coverage for classic xref, flate-content, xref-stream, and object-stream paths; verifies page count, title, and author via PDDocument API."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentLoadSaveRoundtripTest.cs",
+    "normalization_applied": false,
+    "change_categories": [
+      "Native roundtrip smoke tests added for load-save-reload cycle across parser-integrated fixture paths"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Fixture-driven load→save→reload smoke checks for classic xref, flate-content, xref-stream, and object-stream paths. Validates page count, title, and author are preserved after the basic save/reload cycle."
   }
 ]

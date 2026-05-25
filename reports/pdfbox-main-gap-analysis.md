@@ -1,7 +1,7 @@
 # PDFBox Main Module Gap Analysis
 
 Date: 2026-05-25 (updated)
-Previous date: 2026-05-24
+Previous date: 2026-05-25
 Reference upstream Java repository: Apache PDFBox trunk
 Reference commit: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 
@@ -82,6 +82,20 @@ This snapshot was recalculated from current report data in:
   resolution, `/Prev` loop guards, and malformed xref validation are in place with tests.
 - **`PDDocument.Load()` is now wired to `PDFParser`** with deterministic fixture coverage
   for classic xref, flate-content, and xref-stream paths (`FullPdfDocumentLoadingTest`).
+- **Issue #41 (parser milestone closeout) is complete.**
+  - `PDDocumentLoadSaveRoundtripTest` added: fixture-driven load → save → reload smoke
+    checks for all four parser paths (classic xref, flate-content, xref-stream,
+    object-stream). All 4 fixture types roundtrip successfully with page count and
+    metadata (title, author) preserved.
+  - `PDDocument.Save()` improved: now writes proper indirect object bodies (`N 0 obj …
+    endobj`) with a correct xref table, resolving the circular-reference stack overflow
+    that occurred when saving loaded PDFs with back-references in the page tree.
+  - `COSDictionary.WriteValuePDF` fixed: COSObjects with keys are now serialized as
+    `N M R` indirect references instead of being inlined recursively.
+  - Reporting artifacts (`conversion-records.json`, `normalization-records.json`,
+    `traceability-parity-report.json`) updated with entries for
+    `FullPdfDocumentLoadingTest.cs`, `PDFParserXrefStreamObjectStreamTest.cs`, and
+    `PDDocumentLoadSaveRoundtripTest.cs`.
 
 ## Fully or near-fully ported ✅
 
@@ -143,20 +157,24 @@ All 4 files ported:
 
 ## Substantially complete — minor gaps remain ⚠️
 
-### `org.apache.pdfbox.pdfparser` — ~90%
+### `org.apache.pdfbox.pdfparser` — ~93% ✅
 
 **Ported (11 C# files):** `COSParser.cs`, `PDFDocumentParser.cs`, `PDFParser.cs`,
 `PDFObjectStreamParser.cs`, `PDFStreamParser.cs`, `XrefTrailerResolver.cs`, plus 6 xref-type files.
 
-**Completed in latest slices (#37/#38):**
+**Completed in latest slices (#37/#38/#39/#41):**
 - `%PDF-` header/version parsing and deterministic `startxref` lookup.
 - Classic xref-table + trailer parsing with `/Prev` recursion guard behavior.
 - Malformed xref subsection/entry validation with dedicated regression tests.
+- Xref-stream and object-stream (type-1 and type-2) parsing with full fixture coverage.
+- `PDDocument.Save()` improved to write proper indirect object bodies + xref table,
+  enabling load → save → reload roundtrips for all parser-integrated fixture paths.
+- `COSDictionary.WriteValuePDF` fixed to write indirect references as `N M R` instead of
+  recursively inlining, preventing circular-reference stack overflows.
 
 **Remaining:**
 - `FDFParser.java` — FDF (Form Data Format) parser is still missing.
-- Add explicit fixture coverage for object-stream-heavy PDFs (`/ObjStm`) to close #39 confidence.
-- Expand `COSParser` parity beyond the currently tracked low-level subset.
+- `COSParser` parity beyond the currently tracked low-level subset.
 
 ### `org.apache.pdfbox.pdfwriter` — ~80%
 
@@ -298,26 +316,17 @@ accessibility properties, artifact types, etc.
 
 ## Key remaining gaps by priority
 
-### Priority 1 — Parser/load closeout for remaining #39/#41 scope
-**Scope:** Finish object-stream-heavy fixture coverage, resolver hardening, and report closeout
-for the PDF loading milestone.
-
-**Already done:** #37 and #38 are merged; parser bootstrap, classic xref-table traversal, and
-`PDDocument.Load()` parser integration are now in place.
-
-**Remaining execution plan:**
-- `issues/39-pdf-loading-xref-stream-and-object-stream-parser.md` (fixture confidence + edge hardening)
-- `issues/41-pdf-loading-regression-fixtures-roundtrip-and-report-closeout.md` (closeout + reporting)
-
-### Priority 2 — PDModel interactive completion and parity hardening ⚠️
+### Priority 1 — PDModel interactive completion and parity hardening ⚠️
 **Scope:** `org.apache.pdfbox.pdmodel.interactive`
 
-This is no longer empty; the core action/annotation/outline/form scaffolding exists.
-The remaining work is parity hardening, missing class coverage, and full form behavior.
+The parser/load milestone (#37–#41) is now complete. All fixture types (classic xref,
+flate-content, xref-stream, object-stream) load and roundtrip correctly.
+
+The highest-priority remaining area is interactive layer parity hardening.
 
 **See:** `issues/32-pdmodel-interactive-port.md`
 
-### Priority 3 — Rendering with real .NET graphics
+### Priority 2 — Rendering with real .NET graphics
 **Scope:** Replace `AwtStubs.cs` with platform-appropriate .NET rendering
 
 The rendering layer compiles and the logic is ported, but `AwtStubs.cs` means no real pixels
@@ -326,7 +335,7 @@ unlock actual PDF-to-image conversion.
 
 **See:** `issues/33-rendering-net-graphics.md` (new)
 
-### Priority 4 — StandardSecurityHandler decryption
+### Priority 3 — StandardSecurityHandler decryption
 **Scope:** `PrepareForDecryption` RC4/AES flow in `StandardSecurityHandler`
 
 Required for loading any password-protected PDF. The data model and structure types are
@@ -334,7 +343,7 @@ present; only the cryptographic decryption flow is missing.
 
 **See:** `issues/34-encryption-decryption.md` (new)
 
-### Priority 5 — Missing operator processors (2 files)
+### Priority 4 — Missing operator processors (2 files)
 **Scope:** `b` and `b*` graphics operators
 
 `CloseAndFillNonZeroAndStrokePath` and `CloseAndFillEvenOddAndStrokePath` are defined in
@@ -348,8 +357,7 @@ quick win bundled into the next operators PR.
 ## Dependency order
 
 ```
-Parser/load closeout (#39/#41 remaining)
-    └── PDModel interactive hardening (#32 remaining scope)
+PDModel interactive hardening (#32 remaining scope)
 Rendering .NET graphics (#33) — mostly independent of above
 Encryption decryption (#34) — independent of above
 Close/Fill operators (#36) — independent quick win
@@ -359,9 +367,8 @@ Close/Fill operators (#36) — independent quick win
 
 | Priority | Issue | Files | Effort |
 |---|---|---|---|
-| 1 | #39 + #41 parser/load closeout | ~3–5 + tests/reporting | 2–4 days |
-| 2 | #32 PDModel interactive completion | ~10–16 remaining | 3–5 days |
-| 3 | #33 Rendering .NET graphics | ~5 (adapt) | 3–5 days |
-| 4 | #34 Encryption decryption | ~3 | 1–2 days |
-| 5 | #36 Close/Fill operators | 2 | 0.5 days |
-| | **Total** | **~23–31** | **~9.5–16.5 engineer-days** |
+| 1 | #32 PDModel interactive completion | ~10–16 remaining | 3–5 days |
+| 2 | #33 Rendering .NET graphics | ~5 (adapt) | 3–5 days |
+| 3 | #34 Encryption decryption | ~3 | 1–2 days |
+| 4 | #36 Close/Fill operators | 2 | 0.5 days |
+| | **Total** | **~20–26** | **~7.5–12.5 engineer-days** |

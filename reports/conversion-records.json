@@ -2410,5 +2410,13 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Added xref-stream + object-stream coverage and validated parsed COSDocument/trailer integration for compressed indirect object resolution."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentLoadSaveRoundtripTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Added fixture-driven load→save→reload roundtrip smoke tests for all four parser-integrated paths (classic xref, flate-content, xref-stream, object-stream). Closes issue #41 regression fixture and roundtrip scope."
   }
 ]

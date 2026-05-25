@@ -167,19 +167,115 @@ public sealed class PDDocument : IDisposable
         _trailer.SetItem(COSName.GetPDFName("Info"), GetDocumentInformation().GetCOSObject());
 
         byte[] headerBytes = Encoding.ASCII.GetBytes($"%PDF-{_headerVersion.ToString("0.0", CultureInfo.InvariantCulture)}\n");
-        byte[] trailerBytes;
-        using (MemoryStream trailerBuffer = new())
+        output.Write(headerBytes);
+
+        // Collect all indirect (non-stream) objects referenced from the trailer.
+        List<(COSObjectKey Key, COSBase Inner)> indirectObjects = CollectIndirectObjects(_trailer);
+
+        // Write each indirect object, recording its byte offset for the xref table.
+        Dictionary<COSObjectKey, long> objectOffsets = new(indirectObjects.Count);
+        foreach ((COSObjectKey key, COSBase inner) in indirectObjects)
         {
-            COSWriter writer = new(trailerBuffer);
-            writer.Write(_trailer);
-            trailerBytes = trailerBuffer.ToArray();
+            objectOffsets[key] = output.Position;
+            byte[] objHeader = Encoding.ASCII.GetBytes(
+                $"{key.GetNumber()} {key.GetGeneration()} obj\n");
+            output.Write(objHeader);
+            byte[] body = COSWriter.Serialize(inner);
+            output.Write(body);
+            output.Write(Encoding.ASCII.GetBytes("\nendobj\n"));
         }
 
-        long startXref = headerBytes.Length;
-        output.Write(headerBytes);
-        output.Write(Encoding.ASCII.GetBytes("xref\n0 1\n0000000000 65535 f \ntrailer\n"));
-        output.Write(trailerBytes);
-        output.Write(Encoding.ASCII.GetBytes($"\nstartxref\n{startXref.ToString(CultureInfo.InvariantCulture)}\n%%EOF\n"));
+        // Determine the highest object number so we can size the xref table.
+        long maxObjectNumber = indirectObjects.Count > 0
+            ? indirectObjects.Max(x => x.Key.GetNumber())
+            : 0;
+
+        // Write the cross-reference table.
+        long xrefOffset = output.Position;
+        output.Write(Encoding.ASCII.GetBytes($"xref\n0 {maxObjectNumber + 1}\n"));
+        output.Write(Encoding.ASCII.GetBytes("0000000000 65535 f \n"));
+        for (long i = 1; i <= maxObjectNumber; i++)
+        {
+            COSObjectKey lookupKey = new(i, 0);
+            if (objectOffsets.TryGetValue(lookupKey, out long objOffset))
+            {
+                output.Write(Encoding.ASCII.GetBytes(
+                    $"{objOffset:D10} {lookupKey.GetGeneration():D5} n \n"));
+            }
+            else
+            {
+                output.Write(Encoding.ASCII.GetBytes("0000000000 65535 f \n"));
+            }
+        }
+
+        // Update /Size in the trailer before serializing it.
+        _trailer.SetInt(COSName.GetPDFName("Size"), checked((int)(maxObjectNumber + 1)));
+
+        output.Write(Encoding.ASCII.GetBytes("trailer\n"));
+        output.Write(COSWriter.Serialize(_trailer));
+        output.Write(Encoding.ASCII.GetBytes(
+            $"\nstartxref\n{xrefOffset.ToString(CultureInfo.InvariantCulture)}\n%%EOF\n"));
+    }
+
+    /// <summary>
+    /// Traverses the object graph starting from <paramref name="trailer"/> and returns all
+    /// indirect (non-stream) objects reachable from it, in object-number order.
+    /// COSStream objects are excluded because their binary data cannot be portably
+    /// serialized by this basic writer.
+    /// </summary>
+    private static List<(COSObjectKey Key, COSBase Inner)> CollectIndirectObjects(COSDictionary trailer)
+    {
+        Dictionary<COSObjectKey, COSBase> collected = [];
+        Queue<COSBase> pending = new();
+        pending.Enqueue(trailer);
+
+        while (pending.Count > 0)
+        {
+            COSBase current = pending.Dequeue();
+            switch (current)
+            {
+                case COSObject cosObj:
+                    COSObjectKey? key = cosObj.GetKey();
+                    COSBase? inner = cosObj.GetObject();
+                    if (key is not null && inner is not null && inner is not COSStream
+                        && !collected.ContainsKey(key))
+                    {
+                        collected[key] = inner;
+                        pending.Enqueue(inner);
+                    }
+
+                    break;
+
+                case COSDictionary dict:
+                    foreach (COSName name in dict.KeySet())
+                    {
+                        COSBase? val = dict.GetItem(name);
+                        if (val is not null)
+                        {
+                            pending.Enqueue(val);
+                        }
+                    }
+
+                    break;
+
+                case COSArray array:
+                    for (int i = 0; i < array.Size(); i++)
+                    {
+                        COSBase? element = array.Get(i);
+                        if (element is not null)
+                        {
+                            pending.Enqueue(element);
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+        return collected
+            .OrderBy(kv => kv.Key.GetNumber())
+            .Select(kv => (kv.Key, kv.Value))
+            .ToList();
     }
 
     /// <summary>
