@@ -2850,5 +2850,25 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T07:16:21Z",
     "note": "Regression coverage for xref-stream/object-stream resolution and parsed COSDocument/trailer integration."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/FullPdfDocumentLoadingTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:40:00Z",
+    "note": "Fixture-driven theory coverage for full PDDocument.Load pipeline: classic xref, flate-content, xref-stream, and object-stream paths. Verifies page count, title, and author across all parser-integrated fixture types."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentLoadSaveRoundtripTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:40:00Z",
+    "note": "Roundtrip smoke checks for all parser-integrated paths: load fixture → save to MemoryStream → reload → assert page count, title, and author are preserved. Closes issue #41 regression and roundtrip scope."
   }
 ]
