@@ -21,7 +21,7 @@ Reference commit: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 | `org.apache.pdfbox.pdmodel.font` | ~30 | 18 | ~12 | ~60% ⚠️ |
 | `org.apache.pdfbox.pdmodel.graphics` | ~40 | 24 | ~16 | ~60% ⚠️ |
 | `org.apache.pdfbox.pdmodel.interactive` | ~35 | 22 | ~13 | ~63% ⚠️ |
-| `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 1 | ~9 | ~10% ⚠️ |
+| `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 9 | ~5 | ~55% ⚠️ |
 | `org.apache.pdfbox.rendering` | ~12 | 11 | ~4 | ~75% ⚠️ |
 | `org.apache.pdfbox.text` | ~6 | 6 | 0 | ~100% ✅* |
 | `org.apache.pdfbox.util` | ~15 | 10 | ~5 | ~67% ⚠️ |
@@ -306,12 +306,14 @@ Also `AwtStubs.cs` (Java AWT placeholder types for .NET).
 - AcroForm appearance/value pipeline is still partial.
 - Interactive coverage remains uneven (several classes still `partially-in-sync`).
 
-### `org.apache.pdfbox.pdmodel.documentinterchange` — ~35% ⚠️
+### `org.apache.pdfbox.pdmodel.documentinterchange` — ~55% ⚠️
 
-**Ported (5):** `PDMarkedContent.cs`, `PDStructureNode.cs`, `PDStructureTreeRoot.cs`,
-`PDStructureElement.cs`, `Revisions.cs`.
-**Missing (~6):** Tagged PDF reference wrappers, attribute objects, class/role-map
-parity, and remaining accessibility/tagged-PDF support types.
+**Ported (9):** `PDMarkedContent.cs`, `PDStructureNode.cs`, `PDStructureTreeRoot.cs`,
+`PDStructureElement.cs`, `Revisions.cs`, `PDMarkedContentReference.cs`, `PDObjectReference.cs`,
+`PDAttributeObject.cs`, `PDDefaultAttributeObject.cs`, `PDUserAttributeObject.cs`, `PDUserProperty.cs`.
+**Missing (~4):** Parent-tree integration (`PDParentTreeValue`), tagged-PDF attribute subtypes
+(`PDLayoutAttributeObject`, `PDListAttributeObject`, `PDTableAttributeObject`,
+`PDPrintFieldAttributeObject`, `PDExportFormatAttributeObject`), and remaining accessibility types.
 
 ---
 

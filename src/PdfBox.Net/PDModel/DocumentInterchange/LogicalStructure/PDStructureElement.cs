@@ -111,6 +111,172 @@ public class PDStructureElement : PDStructureNode
     public void SetPage(PDPage? page) => GetCOSObject().SetItem(COSName.GetPDFName("Pg"), page);
 
     /// <summary>
+    /// Returns the attributes and their revision numbers (A entry).
+    /// </summary>
+    public Revisions<PDAttributeObject> GetAttributes()
+    {
+        Revisions<PDAttributeObject> attributes = new();
+        COSBase? a = GetCOSObject().GetDictionaryObject(COSName.A);
+        if (a is COSArray array)
+        {
+            PDAttributeObject? ao = null;
+            for (int i = 0; i < array.Size(); i++)
+            {
+                COSBase? item = array.GetObject(i);
+                if (item is COSDictionary dict)
+                {
+                    ao = PDAttributeObject.Create(dict);
+                    ao.SetStructureElement(this);
+                    attributes.AddObject(ao, 0);
+                }
+                else if (item is COSInteger revision && ao is not null)
+                {
+                    attributes.SetRevisionNumber(ao, revision.IntValue());
+                }
+            }
+        }
+        else if (a is COSDictionary singleDict)
+        {
+            PDAttributeObject ao = PDAttributeObject.Create(singleDict);
+            ao.SetStructureElement(this);
+            attributes.AddObject(ao, 0);
+        }
+
+        return attributes;
+    }
+
+    /// <summary>
+    /// Sets the attributes and their revision numbers (A entry).
+    /// </summary>
+    public void SetAttributes(Revisions<PDAttributeObject>? attributes)
+    {
+        if (attributes is null)
+        {
+            return;
+        }
+
+        if (attributes.Size() == 1 && attributes.GetRevisionNumber(0) == 0)
+        {
+            PDAttributeObject ao = attributes.GetObject(0);
+            ao.SetStructureElement(this);
+            GetCOSObject().SetItem(COSName.A, ao.GetCOSObject());
+            return;
+        }
+
+        COSArray array = new();
+        for (int i = 0; i < attributes.Size(); i++)
+        {
+            PDAttributeObject ao = attributes.GetObject(i);
+            ao.SetStructureElement(this);
+            int revisionNumber = attributes.GetRevisionNumber(i);
+            if (revisionNumber < 0)
+            {
+                throw new ArgumentException("The revision number shall be > -1", nameof(attributes));
+            }
+
+            array.Add(ao.GetCOSObject());
+            array.Add(COSInteger.Get(revisionNumber));
+        }
+
+        GetCOSObject().SetItem(COSName.A, array);
+    }
+
+    /// <summary>
+    /// Adds an attribute object to the A entry.
+    /// </summary>
+    public void AddAttribute(PDAttributeObject? attributeObject)
+    {
+        if (attributeObject is null)
+        {
+            return;
+        }
+
+        attributeObject.SetStructureElement(this);
+        COSBase? a = GetCOSObject().GetDictionaryObject(COSName.A);
+        COSArray array;
+        if (a is COSArray existing)
+        {
+            array = existing;
+        }
+        else
+        {
+            array = new COSArray();
+            if (a is not null)
+            {
+                array.Add(a);
+                array.Add(COSInteger.Get(0));
+            }
+        }
+
+        GetCOSObject().SetItem(COSName.A, array);
+        array.Add(attributeObject.GetCOSObject());
+        array.Add(COSInteger.Get(GetRevisionNumber()));
+    }
+
+    /// <summary>
+    /// Removes an attribute object from the A entry.
+    /// </summary>
+    public void RemoveAttribute(PDAttributeObject? attributeObject)
+    {
+        if (attributeObject is null)
+        {
+            return;
+        }
+
+        COSBase? a = GetCOSObject().GetDictionaryObject(COSName.A);
+        if (a is COSArray array)
+        {
+            array.RemoveObject(attributeObject.GetCOSObject());
+            if (array.Size() == 2 && array.GetInt(1) == 0)
+            {
+                GetCOSObject().SetItem(COSName.A, array.GetObject(0));
+            }
+        }
+        else
+        {
+            COSBase? directA = a is COSObject cosObject ? cosObject.GetObject() : a;
+            if (attributeObject.GetCOSObject().Equals(directA))
+            {
+                GetCOSObject().SetItem(COSName.A, (COSBase?)null);
+            }
+        }
+
+        attributeObject.SetStructureElement(null);
+    }
+
+    /// <summary>
+    /// Updates the revision number of the given attribute object when it changes.
+    /// Called by <see cref="PDAttributeObject.NotifyChanged"/>.
+    /// </summary>
+    public void AttributeChanged(PDAttributeObject attributeObject)
+    {
+        COSBase? a = GetCOSObject().GetDictionaryObject(COSName.A);
+        if (a is COSArray array)
+        {
+            for (int i = 0; i < array.Size(); i++)
+            {
+                COSBase? entry = array.GetObject(i);
+                if (entry is not null && entry.Equals(attributeObject.GetCOSObject()))
+                {
+                    if (i + 1 < array.Size() && array.Get(i + 1) is COSInteger)
+                    {
+                        array.Set(i + 1, COSInteger.Get(GetRevisionNumber()));
+                    }
+
+                    return;
+                }
+            }
+        }
+        else if (a is not null)
+        {
+            COSArray newArray = new();
+            newArray.Add(a);
+            newArray.Add(COSInteger.Get(GetRevisionNumber()));
+            GetCOSObject().SetItem(COSName.A, newArray);
+        }
+    }
+
+    /// <summary>
     /// Returns the class names and revision numbers (C).
     /// </summary>
     public Revisions<string> GetClassNames()

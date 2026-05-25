@@ -2037,9 +2037,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "note": "Ported structure-element core fields, class-name revision tracking, marked-content MCID linkage, and parent traversal helpers; attribute-object/reference overloads remain deferred to dedicated follow-up issues.",
-    "last_checked_utc": "2026-05-25T11:18:38Z"
+    "status": "in-sync",
+    "note": "Attribute CRUD (GetAttributes, SetAttributes, AddAttribute, RemoveAttribute, AttributeChanged) added in issue #45. Class-name, marked-content, and parent traversal helpers already present from issue #43.",
+    "last_checked_utc": "2026-05-25T12:37:50Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureNode.java",
@@ -2057,9 +2057,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "note": "Ported structure-tree-root core node wiring, K entry access, parent-tree next-key field, and role-map accessors needed by structure-element standard type resolution; ID tree/class map/parent-tree object support is deferred.",
-    "last_checked_utc": "2026-05-25T11:18:38Z"
+    "status": "in-sync",
+    "note": "ClassMap read/write accessors added in issue #45. Role-map, K entry, and parent-tree next-key already present from issue #43. ID tree and parent-tree object accessors deferred to issue #46.",
+    "last_checked_utc": "2026-05-25T12:37:50Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/Revisions.java",
@@ -2070,6 +2070,56 @@
     "status": "in-sync",
     "note": "Mechanical port of logical-structure revision pairing container used for revision-tracked structure metadata.",
     "last_checked_utc": "2026-05-25T11:18:38Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Abstract base with Create factory (dispatches on O entry), owner access, isEmpty check, and change notification hook. Tagged-PDF subtype fan-out (Layout, List, Table, PrintField, ExportFormat) deferred to a later slice; unknown owners fall back to PDDefaultAttributeObject.",
+    "last_checked_utc": "2026-05-25T12:37:50Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDDefaultAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDDefaultAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Generic attribute dictionary wrapper exposing raw name/value access and change notification.",
+    "last_checked_utc": "2026-05-25T12:37:50Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDUserAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDUserAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "User-properties attribute object (O=UserProperties) with list-based add/remove/set for PDUserProperty entries.",
+    "last_checked_utc": "2026-05-25T12:37:50Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDUserProperty.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDUserProperty.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Single user-property dictionary wrapper (N/V/F/H entries) with change notification back to parent PDUserAttributeObject.",
+    "last_checked_utc": "2026-05-25T12:37:50Z"
+  },
+  {
+    "source_path": "tests/PDAttributeObjectTest (native)",
+    "target_path": "tests/PdfBox.Net.Tests/PDAttributeObjectTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "note": "16 tests covering: role-map round-trip, standard-type resolution via role map, PDAttributeObject factory dispatch, PDDefaultAttributeObject get/set/names, PDUserAttributeObject add/remove/set user properties, PDUserProperty field access, PDStructureElement attribute CRUD and change notification, PDStructureTreeRoot ClassMap single/list/null round-trips.",
+    "last_checked_utc": "2026-05-25T12:37:50Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDMarkedContent.java",

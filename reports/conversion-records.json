@@ -2458,5 +2458,45 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Focused xUnit coverage for xmpbox constants and exception behavior in initial project bootstrap."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Abstract attribute-object base with Create factory (owner-based dispatch), isEmpty check, owner accessor, and change notification. Tagged-PDF specific subtypes (Layout, List, Table, PrintField, ExportFormat) deferred; unknown owners fall through to PDDefaultAttributeObject."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDDefaultAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDDefaultAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Generic attribute dictionary with GetAttributeNames/GetAttributeValue/SetAttribute and PotentiallyNotifyChanged wiring."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDUserAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDUserAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "User-properties attribute object (O=UserProperties) with COSArray-backed PDUserProperty list management."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDUserProperty.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDUserProperty.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Single user-property dictionary (N/V/F/H) with back-notification to parent PDUserAttributeObject when any field changes."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDAttributeObjectTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "16 issue-45 tests covering role-map round-trip, standard-type resolution, PDAttributeObject factory dispatch, PDDefaultAttributeObject, PDUserAttributeObject user-property CRUD, PDStructureElement attribute CRUD and change notification, and PDStructureTreeRoot ClassMap single/list/null variants."
   }
 ]
