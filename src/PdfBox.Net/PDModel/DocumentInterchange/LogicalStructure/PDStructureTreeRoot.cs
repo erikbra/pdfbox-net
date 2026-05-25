@@ -38,6 +38,7 @@ public class PDStructureTreeRoot : PDStructureNode
     public const string TYPE = "StructTreeRoot";
 
     private static readonly COSName RoleMapName = COSName.GetPDFName("RoleMap");
+    private static readonly COSName ClassMapName = COSName.GetPDFName("ClassMap");
     private static readonly COSName ParentTreeNextKeyName = COSName.GetPDFName("ParentTreeNextKey");
 
     /// <summary>
@@ -122,5 +123,81 @@ public class PDStructureTreeRoot : PDStructureNode
         }
 
         GetCOSObject().SetItem(RoleMapName, roleMapDictionary);
+    }
+
+    /// <summary>
+    /// Returns the class map (ClassMap entry). Values are either a single
+    /// <see cref="PDAttributeObject"/> or a <see cref="List{T}"/> of them.
+    /// </summary>
+    public Dictionary<string, object> GetClassMap()
+    {
+        Dictionary<string, object> classMap = new(StringComparer.Ordinal);
+        COSDictionary? classMapDictionary = GetCOSObject().GetCOSDictionary(ClassMapName);
+        if (classMapDictionary is null)
+        {
+            return classMap;
+        }
+
+        foreach (KeyValuePair<COSName, COSBase> entry in classMapDictionary.EntrySet())
+        {
+            COSBase value = entry.Value is COSObject cosObject && cosObject.GetObject() is COSBase unwrapped
+                ? unwrapped
+                : entry.Value;
+
+            if (value is COSDictionary dict)
+            {
+                classMap[entry.Key.GetName()] = PDAttributeObject.Create(dict);
+            }
+            else if (value is COSArray array)
+            {
+                List<PDAttributeObject> list = [];
+                for (int i = 0; i < array.Size(); i++)
+                {
+                    if (array.GetObject(i) is COSDictionary itemDict)
+                    {
+                        list.Add(PDAttributeObject.Create(itemDict));
+                    }
+                }
+
+                classMap[entry.Key.GetName()] = list;
+            }
+        }
+
+        return classMap;
+    }
+
+    /// <summary>
+    /// Sets the class map (ClassMap entry). Values must be either a
+    /// <see cref="PDAttributeObject"/> or a <see cref="IList{T}"/> of them.
+    /// Pass null or an empty map to remove the ClassMap entry.
+    /// </summary>
+    public void SetClassMap(IDictionary<string, object>? classMap)
+    {
+        if (classMap is null || classMap.Count == 0)
+        {
+            GetCOSObject().RemoveItem(ClassMapName);
+            return;
+        }
+
+        COSDictionary classMapDictionary = new();
+        foreach (KeyValuePair<string, object> entry in classMap)
+        {
+            if (entry.Value is PDAttributeObject single)
+            {
+                classMapDictionary.SetItem(entry.Key, single.GetCOSObject());
+            }
+            else if (entry.Value is IList<PDAttributeObject> list)
+            {
+                COSArray array = new();
+                foreach (PDAttributeObject ao in list)
+                {
+                    array.Add(ao.GetCOSObject());
+                }
+
+                classMapDictionary.SetItem(entry.Key, array);
+            }
+        }
+
+        GetCOSObject().SetItem(ClassMapName, classMapDictionary);
     }
 }
