@@ -1607,7 +1607,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Expanded catalog port with page tree access, version wiring, and page count integration for the chunk-3 document pipeline."
+    "conversion_notes": "Added MarkInfo get/set accessors to complete documentinterchange catalog integration path."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -2465,7 +2465,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Abstract attribute-object base with Create factory (owner-based dispatch), isEmpty check, owner accessor, and change notification. Tagged-PDF specific subtypes (Layout, List, Table, PrintField, ExportFormat) deferred; unknown owners fall through to PDDefaultAttributeObject."
+    "conversion_notes": "Expanded owner dispatch in Create factory to PrintField and export-format attribute subtypes."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDDefaultAttributeObject.java",
@@ -2545,6 +2545,102 @@
     "source_commit": "n/a",
     "port_mode": "native-test",
     "sync_commit": "n/a",
-    "conversion_notes": "29 issue-46 tests covering parent-tree round-trip, single-element lookup, array-value lookup, missing-key guard, end-to-end catalog→StructTreeRoot→ParentTree→elements traversal, multi-page stability, and all three new attribute subtypes plus factory dispatch."
+    "conversion_notes": "29 issue-46 tests covering parent-tree round-trip, single-element lookup, array-value lookup, missing-key guard, end-to-end catalog\u2192StructTreeRoot\u2192ParentTree\u2192elements traversal, multi-page stability, and all three new attribute subtypes plus factory dispatch."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDMarkInfo.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDMarkInfo.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "MarkInfo dictionary wrapper for tagged-PDF document metadata (Marked/UserProperties/Suspects)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDParentTreeValue.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDParentTreeValue.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Parent-tree value wrapper for dictionary or MCID-indexed array parent tree entries."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDPropertyList.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/MarkedContent/PDPropertyList.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Marked-content property-list dictionary wrapper with create helper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/prepress/PDBoxStyle.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/Prepress/PDBoxStyle.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Prepress box-style dictionary with guideline color/width/style and line-dash accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDArtifactMarkedContent.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/PDArtifactMarkedContent.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Artifact marked-content specialization (type, bbox, attached edges, subtype)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDExportFormatAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Export-format attribute object owners and list-numbering accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/PDFourColours.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Four-edge color wrapper used by tagged-PDF standard attributes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDPrintFieldAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "PrintField attribute object with role, checked state, and alternate-name accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/StandardStructureTypes.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Standard tagged-PDF structure-type constants inventory."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDMarkedContent.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/MarkedContent/PDMarkedContent.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Updated Create factory to dispatch Artifact tag to PDArtifactMarkedContent subtype for tagged-PDF parity."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/DocumentInterchangeRegressionCloseoutTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Issue-47 regression fixture and closeout tests for tagged read path, artifact subtype dispatch, attribute-owner dispatch, and helper types."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/Fixtures/TaggedPdf/minimal-tagged.pdf",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Deterministic minimal tagged PDF fixture for end-to-end structure-tree and parent-tree regression coverage."
   }
 ]

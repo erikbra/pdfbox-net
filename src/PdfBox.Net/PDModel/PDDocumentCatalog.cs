@@ -271,6 +271,23 @@ public sealed class PDDocumentCatalog : COSObjectable
     }
 
     /// <summary>
+    /// Returns the MarkInfo dictionary, if present.
+    /// </summary>
+    public PDMarkInfo? GetMarkInfo()
+    {
+        COSDictionary? markInfoDictionary = _root.GetCOSDictionary(COSName.MARK_INFO);
+        return markInfoDictionary is null ? null : new PDMarkInfo(markInfoDictionary);
+    }
+
+    /// <summary>
+    /// Sets the MarkInfo dictionary.
+    /// </summary>
+    public void SetMarkInfo(PDMarkInfo? markInfo)
+    {
+        _root.SetItem(COSName.MARK_INFO, markInfo);
+    }
+
+    /// <summary>
     /// Find the page destination from a named destination by looking it up in the document's
     /// /Dests dictionary.
     /// </summary>

@@ -1491,12 +1491,11 @@
     "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
     "normalization_applied": true,
     "change_categories": [
-      "High-fanout catalog dependencies trimmed to chunk-3 pipeline subset",
-      "Page tree access integrated through newly ported PDPageTree subset"
+      "Mechanical sync extension with targeted integration accessor addition"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Expanded catalog wrapper now exposes page tree and count wiring in addition to type/version inspection."
+    "note": "Added MarkInfo get/set accessors to complete documentinterchange catalog integration path."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
@@ -2058,5 +2057,148 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Native xUnit tests validate constants and exception constructor behavior for bootstrapped XmpBox types."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDMarkInfo.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDMarkInfo.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "MarkInfo dictionary wrapper for tagged-PDF document metadata (Marked/UserProperties/Suspects)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDParentTreeValue.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDParentTreeValue.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Parent-tree value wrapper for dictionary or MCID-indexed array parent tree entries."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDPropertyList.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/MarkedContent/PDPropertyList.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Marked-content property-list dictionary wrapper with create helper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/prepress/PDBoxStyle.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/Prepress/PDBoxStyle.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Prepress box-style dictionary with guideline color/width/style and line-dash accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDArtifactMarkedContent.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/PDArtifactMarkedContent.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Artifact marked-content specialization (type, bbox, attached edges, subtype)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDExportFormatAttributeObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Export-format attribute object owners and list-numbering accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/PDFourColours.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Four-edge color wrapper used by tagged-PDF standard attributes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDPrintFieldAttributeObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PrintField attribute object with role, checked state, and alternate-name accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/StandardStructureTypes.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Standard tagged-PDF structure-type constants inventory."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDMarkedContent.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/MarkedContent/PDMarkedContent.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Updated Create factory to dispatch Artifact tag to PDArtifactMarkedContent subtype for tagged-PDF parity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDAttributeObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Expanded owner dispatch in Create factory to PrintField and export-format attribute subtypes."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/DocumentInterchangeRegressionCloseoutTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused regression coverage and deterministic tagged fixture added for closeout milestone"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue-47 regression fixture and closeout tests for tagged read path, artifact subtype dispatch, attribute-owner dispatch, and helper types."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/Fixtures/TaggedPdf/minimal-tagged.pdf",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused regression coverage and deterministic tagged fixture added for closeout milestone"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Deterministic minimal tagged PDF fixture for end-to-end structure-tree and parent-tree regression coverage."
   }
 ]
