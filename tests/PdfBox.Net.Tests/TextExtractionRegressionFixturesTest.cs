@@ -68,15 +68,20 @@ public class TextExtractionRegressionFixturesTest
     }
 
     [Fact]
-    public void TextExtractionParityMatrix_ListsSupportedScenariosAndKnownGap()
+    public void Chunk4ParityMatrix_ListsSelectedFeatureSupportAndKnownGap()
     {
         string matrix = ReadFixtureText("parity-matrix.md");
-        Assert.Contains("| simple text extraction | ✅ supported |", matrix);
-        Assert.Contains("| line breaks | ✅ supported |", matrix);
-        Assert.Contains("| spacing-sensitive extraction | ✅ supported |", matrix);
-        Assert.Contains("| marked-content capture | ✅ supported |", matrix);
-        Assert.Contains("| multi-page extraction | ✅ supported |", matrix);
-        Assert.Contains("| paragraph boundaries | ⚠️ known gap |", matrix);
+        Assert.Contains("| metadata completeness | string metadata fields | ✅ supported |", matrix);
+        Assert.Contains("| metadata completeness | date metadata fields | ✅ supported |", matrix);
+        Assert.Contains("| metadata completeness | trapped/custom metadata | ✅ supported |", matrix);
+        Assert.Contains("| outlines/forms | document outline tree operations | ✅ supported |", matrix);
+        Assert.Contains("| outlines/forms | acroform field roundtrip | ✅ supported |", matrix);
+        Assert.Contains("| text baseline | simple text extraction | ✅ supported |", matrix);
+        Assert.Contains("| text baseline | line breaks | ✅ supported |", matrix);
+        Assert.Contains("| text baseline | spacing-sensitive extraction | ✅ supported |", matrix);
+        Assert.Contains("| text baseline | marked-content capture | ✅ supported |", matrix);
+        Assert.Contains("| text baseline | multi-page extraction | ✅ supported |", matrix);
+        Assert.Contains("| text baseline | paragraph boundaries | ⚠️ known gap |", matrix);
     }
 
     private static PDDocument CreateFixtureDocument(params string[] contentFixtureNames)
