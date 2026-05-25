@@ -30,6 +30,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Graphics.State;
 
 namespace PdfBox.Net.PDModel.Resources;
@@ -48,6 +49,7 @@ public class PDResources
     private static readonly COSName XObjectKey = COSName.GetPDFName("XObject");
     private static readonly COSName ExtGStateKey = COSName.GetPDFName("ExtGState");
     private static readonly COSName ColorSpaceKey = COSName.GetPDFName("ColorSpace");
+    private static readonly COSName ShadingKey = COSName.GetPDFName("Shading");
 
     private readonly COSDictionary _dict;
 
@@ -166,5 +168,33 @@ public class PDResources
         }
 
         return PDColorSpace.Create(entry, this);
+    }
+
+    // ── Shadings ──────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns the shading resource for the given name, or <see langword="null"/> if not present.
+    /// </summary>
+    /// <param name="name">The shading resource name (as used in the content stream "sh" operator).</param>
+    public PDShading? GetShading(COSName name)
+    {
+        COSDictionary? shadingSubDict = _dict.GetCOSDictionary(ShadingKey);
+        if (shadingSubDict is null) return null;
+
+        COSBase? entry = shadingSubDict.GetDictionaryObject(name);
+        if (entry is COSDictionary shadingDict)
+        {
+            return PDShading.Create(shadingDict);
+        }
+
+        return null;
+    }
+
+    /// <summary>Returns the names of all shading resources in this resource dictionary.</summary>
+    public IEnumerable<COSName> GetShadingNames()
+    {
+        COSDictionary? shadingSubDict = _dict.GetCOSDictionary(ShadingKey);
+        if (shadingSubDict is null) return Enumerable.Empty<COSName>();
+        return shadingSubDict.KeySet();
     }
 }

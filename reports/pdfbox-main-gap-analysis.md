@@ -19,14 +19,14 @@ Reference commit: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 | `org.apache.pdfbox.pdmodel.common` | ~35 | 34 | ~1 | ~97% ✅ |
 | `org.apache.pdfbox.pdmodel.encryption` | ~12 | 11 | ~3 | ~75% ⚠️ |
 | `org.apache.pdfbox.pdmodel.font` | ~30 | 18 | ~12 | ~60% ⚠️ |
-| `org.apache.pdfbox.pdmodel.graphics` | ~40 | 24 | ~16 | ~60% ⚠️ |
+| `org.apache.pdfbox.pdmodel.graphics` | ~40 | 33 | ~8 | ~82% ⚠️ |
 | `org.apache.pdfbox.pdmodel.interactive` | ~35 | 22 | ~13 | ~63% ⚠️ |
 | `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 22 | 0 | ~100% ✅ |
 | `org.apache.pdfbox.rendering` | ~12 | 11 | ~4 | ~75% ⚠️ |
 | `org.apache.pdfbox.text` | ~6 | 6 | 0 | ~100% ✅* |
 | `org.apache.pdfbox.util` | ~9 | 6 | ~3 | ~67% ⚠️ |
 | `org.apache.pdfbox.printing` | ~4 | 4 | 0 | ~100% ✅ |
-| **TOTAL** | **~334** | **~288** | **~46** | **~86%** |
+| **TOTAL** | **~334** | **~297** | **~37** | **~89%** |
 
 † The C# operator count (73) is higher than the Java ~60 because some Java files each handle
 a single operator while the C# port includes the Operator/OperatorName/OperatorProcessor base
@@ -46,22 +46,22 @@ This snapshot was recalculated from current report data in:
 
 ### Conversion inventory
 
-- Conversion rows: **329** (`317` unique source->target pairs)
+- Conversion rows: **340** (`328` unique source->target pairs)
 - Port modes:
-  - `mechanical`: **149**
-  - `adapted`: **137**
-  - `native-test`: **37**
+  - `mechanical`: **151**
+  - `adapted`: **147**
+  - `native-test`: **38**
   - `partial`: **4**
   - `adapted-minimal`: **2**
 - Upstream test mappings converted: **25**
 
 ### Traceability status coverage
 
-- Traceability rows: **338**
-- `in-sync`: **266** (~78.7%)
-- `partially-in-sync`: **18** (~5.3%)
-- `partial`: **10** (~3.0%)
-- blank status (needs classification/backfill): **44** (~13.0%)
+- Traceability rows: **349**
+- `in-sync`: **267** (~76.5%)
+- `partially-in-sync`: **28** (~8.0%)
+- `partial`: **10** (~2.9%)
+- blank status (needs classification/backfill): **44** (~12.6%)
 
 ### Immediate coverage-report follow-up
 
@@ -73,6 +73,34 @@ This snapshot was recalculated from current report data in:
 
 ## Completed since previous edition ✅
 
+- **Issue #53 (`pdmodel/graphics/shading` core and base types) is complete.**
+  - Ported the full `PDShading` abstract base class with all dictionary accessors
+    (`Background`, `BBox`, `AntiAlias`, `ColorSpace` via `CS`/`ColorSpace` dual key)
+    and the complete `PDShading.Create()` factory routing all 7 shading subtypes.
+  - Ported `PDShadingType1` (function-based): `Domain`, `Matrix` accessors.
+  - Ported `PDShadingType2` (axial): `Coords`, `Domain`, `Extend` accessors.
+  - Ported `PDShadingType3` (radial): extends `PDShadingType2`.
+  - Ported `PDTriangleBasedShadingType` (abstract base for types 4–7):
+    `BitsPerComponent`, `BitsPerCoordinate`, `NumberOfColorComponents`, `Decode`
+    accessors, and `Interpolate` helper. Stream rendering deferred.
+  - Ported `PDShadingType4` (free-form Gouraud): `BitsPerFlag` accessor.
+  - Ported `PDShadingType5` (lattice Gouraud): `VerticesPerRow` accessor.
+  - Ported `PDMeshBasedShadingType` (abstract base for types 6–7): hierarchy wiring.
+  - Ported `PDShadingType6` (Coons patch mesh) and `PDShadingType7` (tensor-product
+    patch mesh). Patch generation/rendering deferred.
+  - Wired function dependencies: `SetFunction(PDFunction)` / `SetFunction(COSArray)` /
+    `GetFunction()` / `EvalFunction(float)` / `EvalFunction(float[])` with per-spec
+    output clamping to `[0,1]`.
+  - Added `PDResources.GetShading(COSName)` and `GetShadingNames()`.
+  - Added 12 new `COSName` constants: `SHADING_TYPE`, `BACKGROUND`, `BBOX`,
+    `ANTI_ALIAS`, `CS`, `SHADING`, `COORDS`, `EXTEND`, `BITS_PER_COORDINATE`,
+    `BITS_PER_FLAG`, `VERTICES_PER_ROW`, `MATRIX`.
+  - Added `PDShadingTest` (43 tests): factory routing, all dictionary accessor
+    round-trips, function wiring, `EvalFunction` clamping, `PDResources` shading
+    lookup, and `COSName` constant value assertions.
+  - Deferred: `toPaint()` rendering hooks, `collectTriangles`/`collectPatches`
+    stream-based rendering methods (targeted for issue #56).
+  - Updated conversion/normalization/traceability artifacts.
 - **Issue #47 (`pdmodel/documentinterchange` regression + traceability closeout) is complete.**
   - Added deterministic tagged PDF fixture coverage (`Fixtures/TaggedPdf/minimal-tagged.pdf`) with
     end-to-end catalog → `StructTreeRoot` → `ParentTree` traversal assertions.

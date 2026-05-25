@@ -52,9 +52,14 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName AUTHOR = GetPDFName("Author");
     // B
     public static readonly COSName B = GetPDFName("B");
+    public static readonly COSName BACKGROUND = GetPDFName("Background");
     public static readonly COSName BE = GetPDFName("BE");
+    public static readonly COSName BBOX = GetPDFName("BBox");
     public static readonly COSName BS = GetPDFName("BS");
+    public static readonly COSName ANTI_ALIAS = GetPDFName("AntiAlias");
     public static readonly COSName BITS_PER_COMPONENT = GetPDFName("BitsPerComponent");
+    public static readonly COSName BITS_PER_COORDINATE = GetPDFName("BitsPerCoordinate");
+    public static readonly COSName BITS_PER_FLAG = GetPDFName("BitsPerFlag");
     public static readonly COSName BLACK_IS_1 = GetPDFName("BlackIs1");
     public static readonly COSName BLEED_BOX = GetPDFName("BleedBox");
     // C
@@ -70,9 +75,11 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName COLORS = GetPDFName("Colors");
     public static readonly COSName COLUMNS = GetPDFName("Columns");
     public static readonly COSName CONTENTS = GetPDFName("Contents");
+    public static readonly COSName COORDS = GetPDFName("Coords");
     public static readonly COSName COUNT = GetPDFName("Count");
     public static readonly COSName CREATION_DATE = GetPDFName("CreationDate");
     public static readonly COSName CREATOR = GetPDFName("Creator");
+    public static readonly COSName CS = GetPDFName("CS");
     public static readonly COSName CRYPT = GetPDFName("Crypt");
     public static readonly COSName CROP_BOX = GetPDFName("CropBox");
     // D
@@ -93,6 +100,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName EMBEDDED_FILE = GetPDFName("EmbeddedFile");
     public static readonly COSName ENCODE = GetPDFName("Encode");
     public static readonly COSName ENCODED_BYTE_ALIGN = GetPDFName("EncodedByteAlign");
+    public static readonly COSName EXTEND = GetPDFName("Extend");
     // E
     public static readonly COSName EMPTY = GetPDFName(string.Empty);
     // F
@@ -132,6 +140,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName M = GetPDFName("M");
     public static readonly COSName MAC = GetPDFName("Mac");
     public static readonly COSName MARK_INFO = GetPDFName("MarkInfo");
+    public static readonly COSName MATRIX = GetPDFName("Matrix");
     public static readonly COSName MEDIA_BOX = GetPDFName("MediaBox");
     public static readonly COSName METADATA = GetPDFName("Metadata");
     public static readonly COSName MOD_DATE = GetPDFName("ModDate");
@@ -175,6 +184,8 @@ public sealed class COSName : COSBase, IComparable<COSName>
     // S
     public static readonly COSName S = GetPDFName("S");
     public static readonly COSName SE = GetPDFName("SE");
+    public static readonly COSName SHADING = GetPDFName("Shading");
+    public static readonly COSName SHADING_TYPE = GetPDFName("ShadingType");
     public static readonly COSName SIZE = GetPDFName("Size");
     public static readonly COSName SMASK_IN_DATA = GetPDFName("SMaskInData");
     public static readonly COSName ST = GetPDFName("St");
@@ -195,6 +206,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     // V
     public static readonly COSName V = GetPDFName("V");
     public static readonly COSName VERSION = GetPDFName("Version");
+    public static readonly COSName VERTICES_PER_ROW = GetPDFName("VerticesPerRow");
     // W
     public static readonly COSName VIEWER_PREFERENCES = GetPDFName("ViewerPreferences");
     public static readonly COSName WIDTH = GetPDFName("Width");
