@@ -3250,5 +3250,45 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T16:44:05Z",
     "note": "Added CreateMinimalTrueTypeWithUpm(int) helper; CreateHeadTable now accepts unitsPerEm parameter."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:12:00Z",
+    "note": "Issue #51: added Type0 /Encoding CMap integration (stream + predefined identity fallback), CodeToCID via Type0 CMap, and ToUnicode fallback chaining to UCS2/descendant mapping."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:12:00Z",
+    "note": "Issue #51: added CIDSystemInfo access for descendant CJK/UCS2 integration heuristics in PDType0Font."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:12:00Z",
+    "note": "Issue #51: CIDFontType0 descendant behavior validated for Type0 CMap CID resolution and inherited width handling."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDType0FontCIDType0UnicodeIntegrationTest.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:12:00Z",
+    "note": "Issue #51 regression tests covering Type0/CIDFontType0 CMap CID mapping, composite ToUnicode fallback path, Identity-H fallback behavior, and PDFontFactory descendant dispatch."
   }
 ]
