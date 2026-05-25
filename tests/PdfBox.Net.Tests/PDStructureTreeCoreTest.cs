@@ -27,6 +27,7 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using Xunit;
 
 namespace PdfBox.Net.Tests;
@@ -105,5 +106,68 @@ public class PDStructureTreeCoreTest
         Assert.NotNull(resolved);
         Assert.Equal(42, resolved!.GetParentTreeNextKey());
         Assert.Equal(PDStructureTreeRoot.TYPE, resolved.GetTypeName());
+    }
+
+    [Fact]
+    public void StructureNode_ParseKids_ResolvesMarkedAndObjectReferences()
+    {
+        COSDictionary rootDictionary = new();
+        rootDictionary.SetName(COSName.TYPE, PDStructureTreeRoot.TYPE);
+
+        COSDictionary elementDictionary = new();
+        elementDictionary.SetName(COSName.TYPE, PDStructureElement.TYPE);
+        elementDictionary.SetName(COSName.S, "P");
+        elementDictionary.SetItem(COSName.P, rootDictionary);
+
+        COSDictionary markedReferenceDictionary = new();
+        markedReferenceDictionary.SetName(COSName.TYPE, PDMarkedContentReference.TYPE);
+        markedReferenceDictionary.SetInt(COSName.GetPDFName("MCID"), 9);
+
+        COSDictionary annotationDictionary = new();
+        annotationDictionary.SetName(COSName.TYPE, COSName.ANNOT.GetName());
+
+        COSDictionary objectReferenceDictionary = new();
+        objectReferenceDictionary.SetName(COSName.TYPE, PDObjectReference.TYPE);
+        objectReferenceDictionary.SetItem(COSName.GetPDFName("OBJ"), annotationDictionary);
+
+        COSArray kids = [COSInteger.Get(5), markedReferenceDictionary, objectReferenceDictionary];
+        elementDictionary.SetItem(COSName.K, kids);
+        rootDictionary.SetItem(COSName.K, elementDictionary);
+
+        PDStructureTreeRoot root = new(rootDictionary);
+        PDStructureElement element = Assert.IsType<PDStructureElement>(Assert.Single(root.GetKids()));
+        List<object> parsedKids = element.GetKids();
+
+        Assert.Equal(3, parsedKids.Count);
+        Assert.Equal(5, Assert.IsType<int>(parsedKids[0]));
+        Assert.Equal(9, Assert.IsType<PDMarkedContentReference>(parsedKids[1]).GetMCID());
+        Assert.IsAssignableFrom<PDAnnotation>(Assert.IsType<PDObjectReference>(parsedKids[2]).GetReferencedObject());
+    }
+
+    [Fact]
+    public void StructureElement_ReferenceKidOperations_RoundTrip()
+    {
+        PDStructureTreeRoot root = new();
+        PDStructureElement element = new("P", root);
+        root.AppendKid(element);
+
+        PDMarkedContentReference markedReference = new();
+        markedReference.SetMCID(17);
+
+        PDObjectReference objectReference = new();
+        objectReference.SetReferencedObject(new PDAnnotationText());
+
+        element.AppendKid(markedReference);
+        element.InsertBefore(objectReference, markedReference);
+
+        List<object> kids = element.GetKids();
+        Assert.Equal(2, kids.Count);
+        Assert.IsType<PDObjectReference>(kids[0]);
+        Assert.IsType<PDMarkedContentReference>(kids[1]);
+
+        element.RemoveKid(markedReference);
+        element.RemoveKid(objectReference);
+
+        Assert.Empty(element.GetKids());
     }
 }

@@ -365,6 +365,16 @@ public abstract class PDStructureNode : COSObjectable
             return new PDStructureTreeRoot(kidDictionary);
         }
 
+        if (PDObjectReference.TYPE.Equals(type, StringComparison.Ordinal))
+        {
+            return new PDObjectReference(kidDictionary);
+        }
+
+        if (PDMarkedContentReference.TYPE.Equals(type, StringComparison.Ordinal))
+        {
+            return new PDMarkedContentReference(kidDictionary);
+        }
+
         return kidDictionary;
     }
 
