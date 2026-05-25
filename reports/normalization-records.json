@@ -1251,7 +1251,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Implemented dictionary encoding resolution and Differences overrides."
+    "note": "Implemented dictionary encoding resolution and Differences overrides, including Symbol/ZapfDingbats Standard14 fallback routing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Encoding.java",
@@ -1383,7 +1383,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Implemented simple-font width, glyph, and encoding-backed unicode fallback behavior."
+    "note": "Implemented simple-font width, glyph, and encoding-backed unicode fallback behavior, with constructor-level Type1 encoding injection."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -1394,7 +1394,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Implemented Type1 font loading path and Standard14 fallback behavior."
+    "note": "Implemented Type1 loading with embedded PFB/segment parsing, mapped system-font fallback loading, and embedded encoding precedence."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
@@ -1471,7 +1471,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added canonical mapping for standard 14 PDF fonts and aliases."
+    "note": "Added canonical mapping for standard 14 PDF fonts with expanded upstream alias matrix compatibility names."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",

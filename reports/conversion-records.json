@@ -1239,7 +1239,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Implemented dictionary encoding resolution and Differences overrides."
+    "conversion_notes": "Implemented dictionary encoding resolution and Differences overrides, including Standard14 symbolic fallback to Symbol/ZapfDingbats encodings."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Encoding.java",
@@ -1335,7 +1335,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Implemented simple-font width, glyph, and encoding-backed unicode fallback behavior."
+    "conversion_notes": "Implemented simple-font width, glyph, and encoding-backed unicode fallback behavior, with constructor support for Type1-specific resolved encodings."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -1343,7 +1343,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Implemented Type1 font loading path and Standard14 fallback behavior."
+    "conversion_notes": "Implemented Type1 font loading with embedded PFB/segment support, mapped system-font fallback loading, and embedded encoding precedence for unicode/width lookup parity."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
@@ -1399,7 +1399,7 @@
     "source_commit": "trunk",
     "port_mode": "adapted",
     "sync_commit": "trunk",
-    "conversion_notes": "Added canonical mapping for standard 14 PDF fonts and aliases."
+    "conversion_notes": "Added canonical mapping for standard 14 PDF fonts, including upstream alias matrix coverage used by Acrobat/PDF.js compatibility names."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalGray.java",

@@ -2388,8 +2388,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Implemented simple-font width, glyph, and encoding-backed unicode fallback behavior."
+    "last_checked_utc": "2026-05-25T15:59:00Z",
+    "note": "Implemented simple-font width, glyph, and encoding-backed unicode fallback behavior, with constructor-level Type1 encoding injection support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
@@ -2418,8 +2418,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Implemented Type1 font loading path and Standard14 fallback behavior."
+    "last_checked_utc": "2026-05-25T15:59:00Z",
+    "note": "Implemented Type1 loading with embedded PFB/segment parsing, mapped system-font fallback loading, and embedded encoding precedence."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
@@ -2428,8 +2428,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added canonical mapping for standard 14 PDF fonts and aliases."
+    "last_checked_utc": "2026-05-25T15:59:00Z",
+    "note": "Added canonical mapping for standard 14 PDF fonts with expanded upstream alias matrix compatibility names."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
@@ -2438,8 +2438,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Implemented dictionary encoding resolution and Differences overrides."
+    "last_checked_utc": "2026-05-25T15:59:00Z",
+    "note": "Implemented dictionary encoding resolution and Differences overrides, including Symbol/ZapfDingbats Standard14 fallback routing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Encoding.java",
