@@ -2642,5 +2642,29 @@
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Deterministic minimal tagged PDF fixture for end-to-end structure-tree and parent-tree regression coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/IterativeMergeSort.java",
+    "target_path": "src/PdfBox.Net/Util/IterativeMergeSort.cs",
+    "source_commit": "55f159e4cea6fbf47bd8720885e709ed029d7c88",
+    "port_mode": "mechanical",
+    "sync_commit": "55f159e4cea6fbf47bd8720885e709ed029d7c88",
+    "conversion_notes": "Mechanical port of iterative (bottom-up) merge sort. Java List<T>/Comparator adapted to IList<T>/IComparer<T>. System.arraycopy replaced with Array.Copy. Suppressed Java raw-type warnings have no equivalent in C#."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Version.java",
+    "target_path": "src/PdfBox.Net/Util/Version.cs",
+    "source_commit": "d7be592bc0022cfa6fd3ffcdd5989b78bc827cb3",
+    "port_mode": "adapted",
+    "sync_commit": "d7be592bc0022cfa6fd3ffcdd5989b78bc827cb3",
+    "conversion_notes": "Adapted port of PDFBox version reader. Java reads version.properties via classloader; .NET adaptation uses AssemblyInformationalVersionAttribute and falls back to Assembly.GetName().Version. Fallback null-on-error semantics are preserved."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/XMLUtil.java",
+    "target_path": "src/PdfBox.Net/Util/XMLUtil.cs",
+    "source_commit": "be36ef01842885b556a4e7b40b5e2e8e7b1d2816",
+    "port_mode": "mechanical",
+    "sync_commit": "be36ef01842885b556a4e7b40b5e2e8e7b1d2816",
+    "conversion_notes": "Mechanical port of XML utility. Java DocumentBuilderFactory hardening (disallow-doctype-decl, external-general/parameter-entities, load-external-dtd, XInclude-aware=false) mapped to XmlReaderSettings with DtdProcessing.Prohibit and XmlResolver=null. Document returned as XmlDocument instead of org.w3c.dom.Document. GetNodeValue adapted to iterate XmlNode children and collect XmlText values."
   }
 ]
