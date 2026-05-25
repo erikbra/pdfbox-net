@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 
@@ -39,6 +40,7 @@ public class PDStructureTreeRoot : PDStructureNode
 
     private static readonly COSName RoleMapName = COSName.GetPDFName("RoleMap");
     private static readonly COSName ClassMapName = COSName.GetPDFName("ClassMap");
+    private static readonly COSName ParentTreeName = COSName.GetPDFName("ParentTree");
     private static readonly COSName ParentTreeNextKeyName = COSName.GetPDFName("ParentTreeNextKey");
 
     /// <summary>
@@ -76,6 +78,41 @@ public class PDStructureTreeRoot : PDStructureNode
     /// Sets the next key value to use in the parent tree.
     /// </summary>
     public void SetParentTreeNextKey(int parentTreeNextKey) => GetCOSObject().SetInt(ParentTreeNextKeyName, parentTreeNextKey);
+
+    /// <summary>
+    /// Returns the parent tree (ParentTree entry) as a typed number-tree node, or
+    /// <see langword="null"/> if not present.
+    /// </summary>
+    public PDParentTreeNumberTreeNode? GetParentTree()
+    {
+        COSDictionary? pt = GetCOSObject().GetCOSDictionary(ParentTreeName);
+        return pt is null ? null : new PDParentTreeNumberTreeNode(pt);
+    }
+
+    /// <summary>
+    /// Sets the parent tree (ParentTree entry).
+    /// </summary>
+    public void SetParentTree(PDNumberTreeNode? parentTree)
+    {
+        GetCOSObject().SetItem(ParentTreeName, parentTree);
+    }
+
+    /// <summary>
+    /// Returns the list of structure elements for the given parent-tree key (the
+    /// <c>StructParents</c> integer on a page or annotation).
+    /// </summary>
+    /// <param name="structParentsKey">
+    /// The integer key from the <c>StructParents</c> page-dictionary entry.
+    /// </param>
+    /// <returns>
+    /// A non-null list of resolved structure elements; empty when the key is not found or
+    /// there is no parent tree.
+    /// </returns>
+    public IList<PDStructureElement> GetParentTreeEntries(int structParentsKey)
+    {
+        PDParentTreeNumberTreeNode? parentTree = GetParentTree();
+        return parentTree is null ? [] : parentTree.GetStructureElements(structParentsKey);
+    }
 
     /// <summary>
     /// Returns the role map.

@@ -2058,8 +2058,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "note": "ClassMap read/write accessors added in issue #45. Role-map, K entry, and parent-tree next-key already present from issue #43. ID tree and parent-tree object accessors deferred to issue #46.",
-    "last_checked_utc": "2026-05-25T12:37:50Z"
+    "note": "Issue #46: GetParentTree/SetParentTree/GetParentTreeEntries parent-tree accessors added. ClassMap added in issue #45. Role-map, K entry, and parent-tree next-key from issue #43.",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/Revisions.java",
@@ -2078,8 +2078,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "note": "Abstract base with Create factory (dispatches on O entry), owner access, isEmpty check, and change notification hook. Tagged-PDF subtype fan-out (Layout, List, Table, PrintField, ExportFormat) deferred to a later slice; unknown owners fall back to PDDefaultAttributeObject.",
-    "last_checked_utc": "2026-05-25T12:37:50Z"
+    "note": "Abstract base with Create factory now dispatches on O entry to Layout, List, Table, and UserProperties subtypes; unknown owners fall back to PDDefaultAttributeObject.",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDDefaultAttributeObject.java",
@@ -2120,6 +2120,56 @@
     "status": "in-sync",
     "note": "16 tests covering: role-map round-trip, standard-type resolution via role map, PDAttributeObject factory dispatch, PDDefaultAttributeObject get/set/names, PDUserAttributeObject add/remove/set user properties, PDUserProperty field access, PDStructureElement attribute CRUD and change notification, PDStructureTreeRoot ClassMap single/list/null round-trips.",
     "last_checked_utc": "2026-05-25T12:37:50Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureTreeRoot.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDParentTreeNumberTreeNode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Issue #46: Typed number-tree node for the ParentTree entry. Handles both single structure-element dictionaries and arrays of structure element dictionaries via GetStructureElements(int).",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDLayoutAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDLayoutAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Issue #46: Layout attribute object (O=Layout) with typed accessors for core layout properties.",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDListAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDListAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Issue #46: List attribute object (O=List) with typed ListNumbering accessor.",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDTableAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDTableAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Issue #46: Table attribute object (O=Table) with typed accessors for RowSpan, ColSpan, Headers, Scope, Summary, Short.",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
+  },
+  {
+    "source_path": "tests/PDParentTreeIntegrationTest (native)",
+    "target_path": "tests/PdfBox.Net.Tests/PDParentTreeIntegrationTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "note": "29 issue-46 tests covering parent-tree set/get round-trip, single-element lookup, array-value lookup, missing-key guard, end-to-end catalog→StructTreeRoot→ParentTree traversal, multi-page stability, Layout/List/Table attribute object subtypes, and PDAttributeObject.Create factory dispatch.",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDMarkedContent.java",

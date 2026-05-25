@@ -71,6 +71,21 @@ public abstract class PDAttributeObject : PDDictionaryWrapper
             {
                 return new PDUserAttributeObject(dictionary);
             }
+
+            if (owner.Equals(PDLayoutAttributeObject.Owner, StringComparison.Ordinal))
+            {
+                return new PDLayoutAttributeObject(dictionary);
+            }
+
+            if (owner.Equals(PDListAttributeObject.Owner, StringComparison.Ordinal))
+            {
+                return new PDListAttributeObject(dictionary);
+            }
+
+            if (owner.Equals(PDTableAttributeObject.Owner, StringComparison.Ordinal))
+            {
+                return new PDTableAttributeObject(dictionary);
+            }
         }
 
         return new PDDefaultAttributeObject(dictionary);

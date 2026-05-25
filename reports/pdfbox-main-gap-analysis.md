@@ -21,7 +21,7 @@ Reference commit: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 | `org.apache.pdfbox.pdmodel.font` | ~30 | 18 | ~12 | ~60% ⚠️ |
 | `org.apache.pdfbox.pdmodel.graphics` | ~40 | 24 | ~16 | ~60% ⚠️ |
 | `org.apache.pdfbox.pdmodel.interactive` | ~35 | 22 | ~13 | ~63% ⚠️ |
-| `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 9 | ~5 | ~55% ⚠️ |
+| `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 13 | ~2 | ~75% ⚠️ |
 | `org.apache.pdfbox.rendering` | ~12 | 11 | ~4 | ~75% ⚠️ |
 | `org.apache.pdfbox.text` | ~6 | 6 | 0 | ~100% ✅* |
 | `org.apache.pdfbox.util` | ~15 | 10 | ~5 | ~67% ⚠️ |
@@ -73,6 +73,16 @@ This snapshot was recalculated from current report data in:
 
 ## Completed since previous edition ✅
 
+- **Issue #46 (`pdmodel/documentinterchange` parent-tree and integration) is complete.**
+  - `PDParentTreeNumberTreeNode`: typed number-tree node for the parent tree; handles both
+    single structure-element dictionary values and page-level arrays of structure elements.
+  - `PDStructureTreeRoot.GetParentTree()` / `SetParentTree()` / `GetParentTreeEntries(int)`:
+    fully wired parent-tree accessors enabling end-to-end page-key → structure-element resolution.
+  - `PDLayoutAttributeObject`, `PDListAttributeObject`, `PDTableAttributeObject`: typed
+    tagged-PDF attribute object subtypes; `PDAttributeObject.Create()` factory dispatches to them.
+  - `PDParentTreeIntegrationTest` (29 tests): covers parent-tree round-trip, single-element and
+    array-value lookups, missing-key guard, multi-page stability, end-to-end catalog traversal,
+    all three new attribute subtypes, and factory dispatch.
 - **Issue #35 (`pdmodel/common`) is functionally complete for this slice.**
   The package is no longer a major gap: it now includes tree nodes, file specification
   types, page labels/ranges, and the full `PDFunction` Type 0/2/3/4 stack with Type 4
@@ -306,14 +316,22 @@ Also `AwtStubs.cs` (Java AWT placeholder types for .NET).
 - AcroForm appearance/value pipeline is still partial.
 - Interactive coverage remains uneven (several classes still `partially-in-sync`).
 
-### `org.apache.pdfbox.pdmodel.documentinterchange` — ~55% ⚠️
+### `org.apache.pdfbox.pdmodel.documentinterchange` — ~75% ⚠️
 
-**Ported (9):** `PDMarkedContent.cs`, `PDStructureNode.cs`, `PDStructureTreeRoot.cs`,
+**Ported (13):** `PDMarkedContent.cs`, `PDStructureNode.cs`, `PDStructureTreeRoot.cs`,
 `PDStructureElement.cs`, `Revisions.cs`, `PDMarkedContentReference.cs`, `PDObjectReference.cs`,
-`PDAttributeObject.cs`, `PDDefaultAttributeObject.cs`, `PDUserAttributeObject.cs`, `PDUserProperty.cs`.
-**Missing (~4):** Parent-tree integration (`PDParentTreeValue`), tagged-PDF attribute subtypes
-(`PDLayoutAttributeObject`, `PDListAttributeObject`, `PDTableAttributeObject`,
-`PDPrintFieldAttributeObject`, `PDExportFormatAttributeObject`), and remaining accessibility types.
+`PDAttributeObject.cs`, `PDDefaultAttributeObject.cs`, `PDUserAttributeObject.cs`, `PDUserProperty.cs`,
+`PDParentTreeNumberTreeNode.cs`, `PDLayoutAttributeObject.cs`, `PDListAttributeObject.cs`,
+`PDTableAttributeObject.cs`.
+**Completed in issue #46:**
+- `PDParentTreeNumberTreeNode`: typed number-tree node for the `ParentTree` entry; handles both
+  single structure-element dictionary values and page-level arrays of structure elements.
+- `PDStructureTreeRoot.GetParentTree()` / `SetParentTree()` / `GetParentTreeEntries(int)`: fully
+  wired parent-tree accessors with end-to-end page-key → structure-element resolution.
+- `PDLayoutAttributeObject`, `PDListAttributeObject`, `PDTableAttributeObject`: typed tagged-PDF
+  attribute object subtypes with owner dispatch in `PDAttributeObject.Create()`.
+**Missing (~2–3):** Remaining tagged-PDF attribute subtypes (`PDPrintFieldAttributeObject`,
+`PDExportFormatAttributeObject`) and any accessibility-only types.
 
 ---
 
