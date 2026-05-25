@@ -46,22 +46,22 @@ This snapshot was recalculated from current report data in:
 
 ### Conversion inventory
 
-- Conversion rows: **289** (`279` unique source->target pairs)
+- Conversion rows: **291** (`281` unique source->target pairs)
 - Port modes:
   - `mechanical`: **143**
   - `adapted`: **110**
-  - `native-test`: **30**
+  - `native-test`: **32**
   - `partial`: **4**
   - `adapted-minimal`: **2**
 - Upstream test mappings converted: **25**
 
 ### Traceability status coverage
 
-- Traceability rows: **293**
-- `in-sync`: **220** (~75.1%)
+- Traceability rows: **296**
+- `in-sync`: **223** (~75.3%)
 - `partially-in-sync`: **18** (~6.2%)
 - `partial`: **11** (~3.8%)
-- blank status (needs classification/backfill): **44** (~15.0%)
+- blank status (needs classification/backfill): **44** (~14.9%)
 
 ### Immediate coverage-report follow-up
 
@@ -316,34 +316,49 @@ accessibility properties, artifact types, etc.
 
 ## Key remaining gaps by priority
 
-### Priority 1 — PDModel interactive completion and parity hardening ⚠️
+### Priority 1 — Full `pdmodel.documentinterchange` conversion (tagged PDF/logical structure) ⚠️
+**Scope:** `org.apache.pdfbox.pdmodel.documentinterchange`
+
+This remains the most under-converted major package in the `pdfbox` module
+(~10% mapped in this report). It is also a coherent package boundary that can be
+driven to full parity in a focused milestone instead of partial cross-package work.
+
+Planned execution issues:
+- `issues/43-documentinterchange-structure-tree-core.md`
+- `issues/44-documentinterchange-marked-content-and-object-references.md`
+- `issues/45-documentinterchange-attributes-and-role-map.md`
+- `issues/46-documentinterchange-parent-tree-and-integration.md`
+- `issues/47-documentinterchange-regression-traceability-closeout.md`
+
+### Priority 2 — PDModel interactive completion and parity hardening ⚠️
 **Scope:** `org.apache.pdfbox.pdmodel.interactive`
 
 The parser/load milestone (#37–#41) is now complete. All fixture types (classic xref,
 flate-content, xref-stream, object-stream) load and roundtrip correctly.
 
-The highest-priority remaining area is interactive layer parity hardening.
+Interactive parity hardening remains high value, but is now positioned after finishing
+the `documentinterchange` package to fully close one major untouched area first.
 
 **See:** `issues/32-pdmodel-interactive-port.md`
 
-### Priority 2 — Rendering with real .NET graphics
+### Priority 3 — Rendering with real .NET graphics
 **Scope:** Replace `AwtStubs.cs` with platform-appropriate .NET rendering
 
 The rendering layer compiles and the logic is ported, but `AwtStubs.cs` means no real pixels
 are produced. Adopting System.Drawing.Common, SkiaSharp, or Microsoft.Maui.Graphics would
 unlock actual PDF-to-image conversion.
 
-**See:** `issues/33-rendering-net-graphics.md` (new)
+**See:** `issues/33-rendering-net-graphics.md`
 
-### Priority 3 — StandardSecurityHandler decryption
+### Priority 4 — StandardSecurityHandler decryption
 **Scope:** `PrepareForDecryption` RC4/AES flow in `StandardSecurityHandler`
 
 Required for loading any password-protected PDF. The data model and structure types are
 present; only the cryptographic decryption flow is missing.
 
-**See:** `issues/34-encryption-decryption.md` (new)
+**See:** `issues/34-encryption-decryption.md`
 
-### Priority 4 — Missing operator processors (2 files)
+### Priority 5 — Missing operator processors (2 files)
 **Scope:** `b` and `b*` graphics operators
 
 `CloseAndFillNonZeroAndStrokePath` and `CloseAndFillEvenOddAndStrokePath` are defined in
@@ -357,6 +372,7 @@ quick win bundled into the next operators PR.
 ## Dependency order
 
 ```
+PDModel documentinterchange full conversion (#43–#47)
 PDModel interactive hardening (#32 remaining scope)
 Rendering .NET graphics (#33) — mostly independent of above
 Encryption decryption (#34) — independent of above
@@ -367,8 +383,9 @@ Close/Fill operators (#36) — independent quick win
 
 | Priority | Issue | Files | Effort |
 |---|---|---|---|
-| 1 | #32 PDModel interactive completion | ~10–16 remaining | 3–5 days |
-| 2 | #33 Rendering .NET graphics | ~5 (adapt) | 3–5 days |
-| 3 | #34 Encryption decryption | ~3 | 1–2 days |
-| 4 | #36 Close/Fill operators | 2 | 0.5 days |
-| | **Total** | **~20–26** | **~7.5–12.5 engineer-days** |
+| 1 | #43–#47 PDModel documentinterchange full conversion | ~12–18 | 4–6 days |
+| 2 | #32 PDModel interactive completion | ~10–16 remaining | 3–5 days |
+| 3 | #33 Rendering .NET graphics | ~5 (adapt) | 3–5 days |
+| 4 | #34 Encryption decryption | ~3 | 1–2 days |
+| 5 | #36 Close/Fill operators | 2 | 0.5 days |
+| | **Total** | **~32–44** | **~11.5–18.5 engineer-days** |
