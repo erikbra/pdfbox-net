@@ -186,7 +186,13 @@ internal static class FontBoxTestFixtures
 
     public static byte[] CreateMinimalTrueType()
     {
-        byte[] head = CreateHeadTable();
+        return CreateMinimalTrueTypeWithUpm(1000);
+    }
+
+    /// <summary>Creates a minimal TrueType with a custom unitsPerEm value and a fixed advance width of 500 design units.</summary>
+    public static byte[] CreateMinimalTrueTypeWithUpm(int unitsPerEm)
+    {
+        byte[] head = CreateHeadTable(unitsPerEm);
         byte[] maxp = CreateMaxpTable();
         byte[] name = CreateNameTable("MiniTTF");
         byte[] hhea = CreateHheaTable(numHMetrics: 2);
@@ -548,7 +554,7 @@ internal static class FontBoxTestFixtures
         stream.WriteByte((byte)(value >> 24));
     }
 
-    private static byte[] CreateHeadTable()
+    private static byte[] CreateHeadTable(int unitsPerEm = 1000)
     {
         using MemoryStream stream = new();
         WriteUInt32(stream, 0x00010000);
@@ -556,7 +562,7 @@ internal static class FontBoxTestFixtures
         WriteUInt32(stream, 0);
         WriteUInt32(stream, 0x5F0F3CF5);
         WriteUInt16(stream, 0);
-        WriteUInt16(stream, 1000);
+        WriteUInt16(stream, (ushort)unitsPerEm);
         WriteUInt32(stream, 0);
         WriteUInt32(stream, 0);
         WriteUInt32(stream, 0);
