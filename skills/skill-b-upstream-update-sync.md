@@ -42,22 +42,9 @@ Re-sync already tracked C# files when upstream PDFBox source files are rewritten
 - Nested `PORT-LOCAL` regions are invalid and must be treated as `needs-manual-sync`.
 - If a region marker is missing its pair, treat as `needs-manual-sync`.
 
-## Generation change policy
-
-When the upstream source being synced is from a **different PDFBox generation** than the
-value recorded in `PDFBOX_GENERATION`:
-
-1. Set `PDFBOX_GENERATION` in the provenance header to the new generation value (`3.x` or `4.x`).
-2. Flag the file in the sync log with `conflict_type: generation-switch`.
-3. Review known generation delta points (see `reports/multi-generation-feasibility-assessment.md`)
-   for files in that area before accepting the sync.
-
-Do **not** silently switch generations — always record the change in `sync_note`.
-
 ## Required sync log fields (per file)
 - `source_path`
 - `target_path`
-- `source_generation` (`3.x` | `4.x`)
 - `previous_sync_commit`
 - `new_sync_commit`
 - `conflict_type`

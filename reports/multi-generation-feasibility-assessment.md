@@ -189,30 +189,17 @@ first.
 **Recommended when:** There are confirmed end-users requiring stable-release 3.x
 behavior in production, with a separate team able to own the `gen-3.x` branch.
 
-### Option C — Single codebase + `PDFBOX_GENERATION` provenance field
+### Option C — Single codebase with per-file generation annotations
 
-Extend the existing provenance header schema with a `PDFBOX_GENERATION` field:
+Annotate files that have generation-specific divergence with inline comments or a light
+"generation delta note". Skill B (upstream sync) is extended to handle two possible
+upstream source references when a file differs between 3.x and 4.x.
 
-```csharp
-/*
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/.../SomeClass.java
- * PDFBOX_SOURCE_COMMIT: <sha>
- * PDFBOX_GENERATION: 4.x            ← NEW FIELD
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: <sha>
- */
-```
+**Pros:** No branch proliferation. Generation awareness is kept in the existing
+traceability system.
 
-Files with generation-specific divergence are annotated. Skill B (upstream sync) is
-extended to handle two possible upstream source references. A light per-file "generation
-delta note" is added when a file differs between 3.x and 4.x.
-
-**Pros:** No branch proliferation. Generation awareness is built into the existing
-traceability system. Developers can see at a glance which files have 3.x vs. 4.x
-semantics.
-
-**Cons:** Small overhead per ported file. Requires Skill A / Skill B updates. Dual-sync
-of divergent files is more complex.
+**Cons:** Per-file overhead. Requires Skill A / Skill B updates. Dual-sync of divergent
+files is more complex.
 
 **Recommended when:** The team wants to be generation-aware without forking the
 repository or managing a parallel branch.
@@ -221,29 +208,24 @@ repository or managing a parallel branch.
 
 ## 5. Recommendation
 
-**Adopt Option A short-term, with optional migration to Option C once divergence tracking
-becomes a recurring need.**
+**Adopt Option A — primary trunk (4.x) only, with this report as a reference if 3.x
+ever becomes a concrete requirement.**
 
 Rationale:
 1. The port is ~83% complete tracking trunk. Introducing 3.x parallel work now splits
    focus and risks slowing down the remaining 17%.
 2. The structural differences between 3.x and 4.x in the C# port are small (2–3 files
    with meaningful divergence).
-3. Adding a `PDFBOX_GENERATION` field to provenance headers (Option C prerequisite) is a
-   low-risk, additive change that can be done in one skill-documentation PR whenever
-   needed.
-4. A full 3.x backport slice (the files in §2.3, §2.4, §2.5) can be delivered in a
+3. A full 3.x backport slice (the files in §2.3, §2.4, §2.5) can be delivered in a
    focused PR of approximately **3–5 days effort** once a concrete 3.x user requirement
    is confirmed.
 
 ### Immediate actionable steps
 
-1. Update **Skill A** provenance header spec to include an optional `PDFBOX_GENERATION`
-   field (default: `4.x` for trunk, set to `3.x` for any 3.x-source files).
-2. Add this feasibility assessment to `reports/` and reference it from the planning
-   backlog.
-3. Open a tracking issue (`issues/42-multi-generation-support.md`) that captures the
-   known delta points and gates a 3.x port slice on an explicit requirement.
+1. Keep this feasibility assessment in `reports/` as a reference for the known delta
+   points should a 3.x requirement arise.
+2. Continue targeting trunk (4.x) exclusively until a concrete consumer requirement
+   mandates 3.x behavioural parity.
 
 ---
 
@@ -256,7 +238,7 @@ If a decision is made to port the 3.x generation:
 | `COSName.cs` — dual-map caching strategy | Replace WeakReference with dual-map + strong refs for static constants | 0.5 day |
 | `BaseParser.cs` — move parse-object logic back in | Port COS-parse methods from 3.x `BaseParser.java` into C# `BaseParser.cs` | 1–2 days |
 | `SmallMap.cs` — new file | Port `SmallMap.java` from 3.x | 0.5 day |
-| Provenance header updates for affected files | Update `PDFBOX_GENERATION`, sync commit SHA | 0.5 day |
+| Provenance header sync commit updates | Update sync commit SHAs for affected files | 0.5 day |
 | Test parity validation | Run tests, update reports | 0.5 day |
 | **Total** | | **3–4.5 days** |
 
@@ -280,5 +262,4 @@ opportunity cost: the port is still completing the remaining ~17% of trunk, and 
 focus before that baseline is stable would slow delivery without a confirmed consumer need.
 
 The recommendation is to **complete the trunk-targeting port first, then produce a 3.x
-generation slice on demand**, supported by the `PDFBOX_GENERATION` traceability field in
-provenance headers.
+generation slice on demand** if a concrete consumer requirement arises.

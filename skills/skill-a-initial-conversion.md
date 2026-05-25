@@ -42,7 +42,6 @@ Place this block at the **very top** of every converted C# file, before the Apac
  *
  * PDFBOX_SOURCE_PATH: <upstream relative path>
  * PDFBOX_SOURCE_COMMIT: <upstream commit sha>
- * PDFBOX_GENERATION: 4.x
  * PORT_MODE: mechanical|adapted
  * PORT_LAST_SYNC_COMMIT: <upstream commit sha>
  */
@@ -55,17 +54,6 @@ Place this block at the **very top** of every converted C# file, before the Apac
 
 > **Note**: all existing C# files in this port use block comment (`/* ... */`) format.
 > Do **not** use single-line `//` comments for the provenance block.
-
-### `PDFBOX_GENERATION` values
-
-| Value | Meaning |
-|---|---|
-| `4.x` | File was ported from the `trunk` (PDFBox 4.x development) branch — **default for new ports** |
-| `3.x` | File was ported from the `3.0` (PDFBox 3.x stable) branch |
-
-Use `4.x` for all new ports unless a specific requirement mandates 3.x source tracking.
-See `reports/multi-generation-feasibility-assessment.md` and `issues/42-multi-generation-support.md`
-for the full analysis and delta file list.
 
 ## Required conversion record fields (per file)
 - `source_path`
