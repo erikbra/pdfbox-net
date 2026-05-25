@@ -3290,5 +3290,115 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T21:12:00Z",
     "note": "Issue #51 regression tests covering Type0/CIDFontType0 CMap CID mapping, composite ToUnicode fallback path, Identity-H fallback behavior, and PDFontFactory descendant dispatch."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShading.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShading.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "All dictionary accessors and function wiring ported. toPaint() (rendering integration) deferred to issue #56."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType1.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType1.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Domain and Matrix accessors ported. toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType2.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType2.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Coords, Domain, Extend accessors ported. toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType3.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType3.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Inherits Type2 accessors, overrides GetShadingType(). toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDTriangleBasedShadingType.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDTriangleBasedShadingType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Dictionary accessors and Interpolate helper ported. collectTriangles/readVertex/getBounds stream rendering deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType4.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType4.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "BitsPerFlag accessor ported. collectTriangles stream rendering and toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType5.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType5.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "VerticesPerRow accessor ported. collectTriangles stream rendering and toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDMeshBasedShadingType.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDMeshBasedShadingType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Hierarchy wiring ported. collectPatches/readPatch/generatePatch stream rendering deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType6.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType6.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Hierarchy wiring ported. generatePatch (CoonsPatch) and rendering deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType7.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType7.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Hierarchy wiring ported. generatePatch (TensorPatch) and rendering deferred."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDShadingTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "43 native tests covering PDShading hierarchy: factory routing, all dictionary accessor round-trips, function wiring, EvalFunction clamping, PDResources shading lookup, and COSName constants."
   }
 ]

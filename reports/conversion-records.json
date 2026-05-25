@@ -2722,5 +2722,93 @@
     "port_mode": "adapted",
     "sync_commit": "trunk",
     "conversion_notes": "Added deterministic issue #51 regression tests for Type0/CIDFontType0 CMap CID resolution, composite ToUnicode fallback integration, Identity-H fallback handling, and descendant factory routing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShading.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShading.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported PDShading abstract base: dictionary accessors (Background, BBox, AntiAlias, ColorSpace), factory (Create), and function wiring (SetFunction/GetFunction/EvalFunction). toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType1.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType1.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported PDShadingType1 (function-based shading): Domain and Matrix accessors. SetMatrix uses AffineTransform-style 6-element COSArray to match codebase conventions. toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType2.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType2.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported PDShadingType2 (axial shading): Coords, Domain, and Extend accessors. toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType3.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType3.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported PDShadingType3 (radial shading): extends PDShadingType2, overrides GetShadingType(). toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDTriangleBasedShadingType.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDTriangleBasedShadingType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported PDTriangleBasedShadingType: BitsPerComponent, BitsPerCoordinate, NumberOfColorComponents, Decode accessors, and Interpolate helper. Stream-based collectTriangles/readVertex rendering methods deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType4.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType4.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported PDShadingType4 (free-form Gouraud mesh): BitsPerFlag accessor. Stream-based collectTriangles rendering deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType5.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType5.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported PDShadingType5 (lattice-form Gouraud mesh): VerticesPerRow accessor. Stream-based collectTriangles rendering deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDMeshBasedShadingType.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDMeshBasedShadingType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported PDMeshBasedShadingType abstract base (extends PDShadingType4). Stream-based collectPatches/readPatch/generatePatch rendering methods deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType6.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType6.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported PDShadingType6 (Coons patch mesh): extends PDMeshBasedShadingType. generatePatch/collectPatches rendering deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType7.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType7.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Ported PDShadingType7 (tensor-product patch mesh): extends PDMeshBasedShadingType. generatePatch/collectPatches rendering deferred."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDShadingTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added 43 deterministic tests for PDShading hierarchy: factory routing for all 7 types, dictionary parsing (Background, BBox, AntiAlias, Coords, Domain, Extend, Matrix, BitsPerFlag/Component/Coordinate, Decode, VerticesPerRow), function wiring and EvalFunction clamping, PDResources.GetShading lookup, and COSName constant values."
   }
 ]

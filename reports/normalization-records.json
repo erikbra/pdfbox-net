@@ -2244,5 +2244,53 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Added deterministic regression tests for Type0/CIDFontType0 CID mapping, composite ToUnicode fallback via mapped CID, Identity-H fallback, and descendant factory routing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
+    "target_path": "src/PdfBox.Net/COS/COSName.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Added shading-related COSName constants: SHADING_TYPE, BACKGROUND, BBOX, ANTI_ALIAS, CS, SHADING, COORDS, EXTEND, BITS_PER_COORDINATE, BITS_PER_FLAG, VERTICES_PER_ROW, MATRIX"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added 12 missing COSName constants required by the PDShading hierarchy and supporting dictionary accessors."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShading.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "toPaint() abstract method dropped (rendering deferred to issue #56)",
+      "getBounds() abstract method dropped (rendering deferred)",
+      "GetType() renamed with new keyword to avoid hiding object.GetType()"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDShading abstract base: rendering-only methods deferred. All dictionary parsing and function-evaluation paths ported."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDTriangleBasedShadingType.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "collectTriangles() dropped (rendering, deferred)",
+      "readVertex() dropped (rendering, deferred)",
+      "getBounds() dropped (rendering, deferred)"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDTriangleBasedShadingType: stream-parsing rendering methods omitted; dictionary-accessor parity complete."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Added GetShading(COSName) and GetShadingNames() methods wiring PDShading.Create() to resources lookup"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDResources extended with shading resource lookup to support the sh (ShadingFill) content-stream operator."
   }
 ]
