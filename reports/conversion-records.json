@@ -37,7 +37,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Mechanical port of COSDocument. Func<RandomAccessStreamCache> adapted to RandomAccessStreamCache.StreamCacheCreateFunction. COSName constants not yet present in C# COSName use GetPDFName(). VisitFromDocument added to ICOSVisitor as default interface method."
+    "conversion_notes": "Mechanical port of COSDocument. Func<RandomAccessStreamCache> adapted to RandomAccessStreamCache.StreamCacheCreateFunction. COSName constants not yet present in C# COSName use GetPDFName(). VisitFromDocument added to ICOSVisitor as default interface method. Added internal parser bridge access to the canonical object pool for parser/COSDocument integration."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocumentState.java",
@@ -1599,7 +1599,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Updated PDDocument.Load(Stream) to use the full PDFParser pipeline with legacy no-startxref fallback for existing simplified writer fixtures."
+    "conversion_notes": "Updated PDDocument.Load(Stream) to consume parser-produced COSDocument directly (trailer/xref/object graph integration), removed legacy raw-trailer fallback, and tied PDDocument disposal to underlying COSDocument lifetime."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -1719,7 +1719,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Refactored parser entry to consume PDFDocumentParser bootstrap state and hardened xref-table traversal with shared /Prev loop detection plus strict xref entry state validation."
+    "conversion_notes": "Refactored parser entry to consume PDFDocumentParser bootstrap state and hardened xref-table traversal with shared /Prev loop detection plus strict xref entry state validation. Parser now returns a populated COSDocument and shares the canonical COS object pool with trailer/object-stream resolution."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
@@ -2401,6 +2401,14 @@
     "source_commit": "n/a",
     "port_mode": "native-test",
     "sync_commit": "n/a",
-    "conversion_notes": "Added classic xref-table coverage for trailer reference resolution, /Prev loop safety, and malformed xref subsection/entry rejection."
+    "conversion_notes": "Added classic xref-table coverage for trailer reference resolution, /Prev loop safety, malformed xref subsection/entry rejection, and parsed COSDocument/trailer integration."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefStreamObjectStreamTest.cs",
+    "source_commit": "n/a",
+    "port_mode": "native-test",
+    "sync_commit": "n/a",
+    "conversion_notes": "Added xref-stream + object-stream coverage and validated parsed COSDocument/trailer integration for compressed indirect object resolution."
   }
 ]

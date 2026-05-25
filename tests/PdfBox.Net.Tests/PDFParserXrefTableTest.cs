@@ -20,6 +20,7 @@ public class PDFParserXrefTableTest
 
         PDFParser parser = new(input);
         ParsedPDFDocument parsed = parser.Parse();
+        Assert.Same(parsed.Trailer, parsed.Document.GetTrailer());
 
         COSObject rootRef = Assert.IsType<COSObject>(parsed.Trailer.GetItem(COSName.ROOT));
         COSDictionary root = Assert.IsType<COSDictionary>(rootRef.GetObject());
@@ -48,6 +49,7 @@ public class PDFParserXrefTableTest
         using MemoryStream input = new(bytes);
         PDFParser parser = new(input);
         ParsedPDFDocument parsed = parser.Parse();
+        Assert.Same(parsed.Trailer, parsed.Document.GetTrailer());
 
         COSObject rootRef = Assert.IsType<COSObject>(parsed.Trailer.GetItem(COSName.ROOT));
         COSDictionary root = Assert.IsType<COSDictionary>(rootRef.GetObject());

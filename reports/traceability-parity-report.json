@@ -486,8 +486,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T19:46:00Z",
-    "note": "Top-level COS document container; mechanical port with full object-table and xref dictionary mapping."
+    "last_checked_utc": "2026-05-25T07:16:21Z",
+    "note": "Top-level COS document container; mechanical port with full object-table/xref mapping plus parser bridge access to the canonical object pool for parser-to-COSDocument integration."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocumentState.java",
@@ -2050,8 +2050,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T17:10:51Z",
-    "note": "Open/load/save lifecycle expanded with page operations and version behavior over the COS parser/writer bridge; full PDF object/xref parsing and broader feature parity deferred."
+    "last_checked_utc": "2026-05-25T07:16:21Z",
+    "note": "Open/load/save lifecycle now integrates parser-produced COSDocument for trailer/xref/object graph loading, removes legacy raw-trailer fallback, and ties PDDocument disposal to COSDocument lifetime; broader feature parity remains deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -2808,8 +2808,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T22:55:00Z",
-    "note": "Parser now consumes dedicated bootstrap state, shares xref traversal state to prevent cyclic /Prev recursion, and enforces strict xref entry-state parsing."
+    "last_checked_utc": "2026-05-25T07:16:21Z",
+    "note": "Parser consumes dedicated bootstrap state, prevents cyclic /Prev recursion, enforces strict xref entry-state parsing, and now returns a populated COSDocument with canonical object-pool-backed trailer/object-stream resolution."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFDocumentParser.java",
@@ -2838,7 +2838,17 @@
     "sync_commit": "n/a",
     "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T22:55:00Z",
-    "note": "Regression coverage for classic xref-table trailer resolution, cyclic /Prev guard behavior, and malformed xref subsection/entry rejection."
+    "last_checked_utc": "2026-05-25T07:16:21Z",
+    "note": "Regression coverage for classic xref-table trailer resolution, cyclic /Prev guard behavior, malformed xref subsection/entry rejection, and parsed COSDocument/trailer wiring."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefStreamObjectStreamTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:16:21Z",
+    "note": "Regression coverage for xref-stream/object-stream resolution and parsed COSDocument/trailer integration."
   }
 ]

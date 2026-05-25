@@ -36,7 +36,8 @@ public sealed class PDFParser
     private static readonly byte[] EndStreamBytes = Encoding.ASCII.GetBytes("endstream");
 
     private readonly byte[] _data;
-    private readonly Dictionary<COSObjectKey, COSObject> _objectPool = [];
+    private readonly COSDocument _document = new();
+    private readonly Dictionary<COSObjectKey, COSObject> _objectPool;
     private readonly Dictionary<COSObjectKey, long> _resolvedXrefTable = [];
 
     public PDFParser(Stream input)
@@ -45,6 +46,7 @@ public sealed class PDFParser
         using MemoryStream buffer = new();
         input.CopyTo(buffer);
         _data = buffer.ToArray();
+        _objectPool = _document.GetObjectPool();
     }
 
     public ParsedPDFDocument Parse()
@@ -61,6 +63,10 @@ public sealed class PDFParser
         COSDictionary trailer = resolver.GetTrailer() ?? throw new IOException("Unable to resolve trailer dictionary.");
         Dictionary<COSObjectKey, long> xrefTable = resolver.GetXrefTable() ?? throw new IOException("Unable to resolve xref table.");
 
+        _document.SetVersion(headerVersion);
+        _document.SetStartXref(startXref);
+        _document.AddXRefTable(xrefTable);
+
         foreach ((COSObjectKey key, long value) in xrefTable)
         {
             _resolvedXrefTable[key] = value;
@@ -70,8 +76,10 @@ public sealed class PDFParser
         LoadIndirectObjectsFromXref();
         LoadCompressedObjects();
         BindTrailerReferences(trailer);
+        _document.SetTrailer(trailer);
+        _document.GetDocumentState().SetParsing(false);
 
-        return new ParsedPDFDocument(trailer, headerVersion);
+        return new ParsedPDFDocument(_document, trailer, headerVersion);
     }
 
     private void ParseXrefSection(long offset, XrefTrailerResolver resolver, HashSet<long> visited)
@@ -1000,4 +1008,4 @@ public sealed class PDFParser
     }
 }
 
-public sealed record ParsedPDFDocument(COSDictionary Trailer, float HeaderVersion);
+public sealed record ParsedPDFDocument(COSDocument Document, COSDictionary Trailer, float HeaderVersion);

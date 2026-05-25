@@ -478,6 +478,15 @@ public class COSDocument : COSBase, IDisposable
     }
 
     /// <summary>
+    /// Internal parser bridge for sharing the canonical indirect-object pool with parser components.
+    /// </summary>
+    /// <returns>The live object pool dictionary.</returns>
+    internal Dictionary<COSObjectKey, COSObject> GetObjectPool()
+    {
+        return _objectPool;
+    }
+
+    /// <summary>
     /// Populate XRef HashMap with given values.
     /// Each entry maps ObjectKeys to byte offsets in the file.
     /// </summary>
