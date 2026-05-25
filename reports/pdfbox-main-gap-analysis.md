@@ -24,9 +24,9 @@ Reference commit: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 | `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 22 | 0 | ~100% ✅ |
 | `org.apache.pdfbox.rendering` | ~12 | 11 | ~4 | ~75% ⚠️ |
 | `org.apache.pdfbox.text` | ~6 | 6 | 0 | ~100% ✅* |
-| `org.apache.pdfbox.util` | ~15 | 10 | ~5 | ~67% ⚠️ |
+| `org.apache.pdfbox.util` | ~9 | 6 | ~3 | ~67% ⚠️ |
 | `org.apache.pdfbox.printing` | ~4 | 4 | 0 | ~100% ✅ |
-| **TOTAL** | **~340** | **~292** | **~48** | **~86%** |
+| **TOTAL** | **~334** | **~288** | **~46** | **~86%** |
 
 † The C# operator count (73) is higher than the Java ~60 because some Java files each handle
 a single operator while the C# port includes the Operator/OperatorName/OperatorProcessor base
@@ -284,15 +284,16 @@ Also `AwtStubs.cs` (Java AWT placeholder types for .NET).
 
 ### `org.apache.pdfbox.util` — ~67%
 
-**Ported (10):** `Vector.cs`, `Matrix.cs`, `AffineTransform.cs`, `DateConverter.cs`,
-`Hex.cs`, `NumberFormatUtil.cs`, `GregorianCalendar.cs`, `ParsePosition.cs`,
-`SimpleTimeZone.cs`, `StringUtil.cs`.
+**Direct upstream util files ported (6/9):**
+- `Vector.cs`, `Matrix.cs`, `DateConverter.cs`, `Hex.cs`, `NumberFormatUtil.cs`, `StringUtil.cs`
 
-**Remaining (~5):**
-- `SmallMap.java` — small-map optimization for low-entry-count dictionaries
-- `IteratorChain.java` — chained iterator over multiple collections
-- `CharUtils.java` — character classification utilities (whitespace, line-terminators)
-- Potentially 1–2 more minor utilities.
+**Additional supporting utility adapters (non-upstream helpers):**
+- `AffineTransform.cs`, `GregorianCalendar.cs`, `ParsePosition.cs`, `SimpleTimeZone.cs`
+
+**Remaining direct upstream util files (~3):**
+- `IterativeMergeSort.java`
+- `Version.java`
+- `XMLUtil.java`
 
 ---
 
