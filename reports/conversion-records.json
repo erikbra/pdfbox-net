@@ -2666,5 +2666,29 @@
     "port_mode": "mechanical",
     "sync_commit": "be36ef01842885b556a4e7b40b5e2e8e7b1d2816",
     "conversion_notes": "Mechanical port of XML utility. Java DocumentBuilderFactory hardening (disallow-doctype-decl, external-general/parameter-entities, load-external-dtd, XInclude-aware=false) mapped to XmlReaderSettings with DtdProcessing.Prohibit and XmlResolver=null. Document returned as XmlDocument instead of org.w3c.dom.Document. GetNodeValue adapted to iterate XmlNode children and collect XmlText values."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeFont.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeFont.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Fixed GetWidth(string name) to scale advance width by 1000/unitsPerEm for non-1000-UPM fonts, aligning with upstream Java parity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "PDCIDFont: Added HasExplicitCidWidth helper and promoted _defaultWidth to protected DefaultWidth for subclass TTF-width fallback."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDTrueTypeFontAndCIDType2Test.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added 24 deterministic fixture tests for PDTrueTypeFont and PDCIDFontType2 parity (issue #50): UPM scaling, CIDToGIDMap, TTF width fallback, ToUnicode cmap fallback, Type0 descendant integration."
   }
 ]

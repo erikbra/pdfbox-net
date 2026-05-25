@@ -295,9 +295,9 @@
     "source_commit": "trunk",
     "sync_commit": "trunk",
     "port_mode": "adapted",
-    "status": "partial",
-    "last_checked_utc": "2026-05-23T20:54:48Z",
-    "note": "TrueType font model with table lookup. Accessors for unported tables (cmap, glyf, etc.) not yet present (issue #9)."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T16:44:05Z",
+    "note": "GetWidth(string name) now scales by 1000/unitsPerEm. Core TTF parsing and metrics aligned. Vertical, GSUB advanced paths deferred."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/DamagedFontException.java",
@@ -2328,8 +2328,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-25T15:32:21Z",
-    "note": "Implemented CIDFontType2 wrapper for embedded TrueType fonts with shared CID width default handling."
+    "last_checked_utc": "2026-05-25T16:44:05Z",
+    "note": "CIDToGIDMap support (Identity and stream), CodeToGID method, TTF advance-width fallback in GetWidth, ToUnicodeFallback via reverse cmap. Vertical metrics deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",
@@ -2398,8 +2398,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Implemented TrueType font loading and cmap-backed unicode fallback behavior."
+    "last_checked_utc": "2026-05-25T16:44:05Z",
+    "note": "ToUnicodeFallback via TTF unicode cmap, width extraction using UPM-scaled TTF advance widths. Baseline extraction and layout scenarios covered."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
@@ -3230,5 +3230,25 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T14:10:22Z",
     "note": "Deterministic minimal tagged PDF fixture for end-to-end structure-tree and parent-tree regression coverage."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDTrueTypeFontAndCIDType2Test.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T16:44:05Z",
+    "note": "24 deterministic fixture tests: UPM scaling, CIDToGIDMap identity/stream, TTF width fallback, ToUnicode cmap fallback, Type0/CIDFontType2 integration (issue #50)."
+  },
+  {
+    "source_path": "tests/PdfBox.Net.Tests/FontBoxTestFixtures.cs",
+    "target_path": "tests/PdfBox.Net.Tests/FontBoxTestFixtures.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T16:44:05Z",
+    "note": "Added CreateMinimalTrueTypeWithUpm(int) helper; CreateHeadTable now accepts unitsPerEm parameter."
   }
 ]

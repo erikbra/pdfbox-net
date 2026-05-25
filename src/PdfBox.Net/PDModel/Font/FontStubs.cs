@@ -588,8 +588,8 @@ namespace PdfBox.Net.PDModel.Font
         {
             if (_descendantFont is PDCIDFontType2 type2)
             {
-                int cid = CodeToCID(code);
-                return type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(cid) != null;
+                int gid = type2.CodeToGID(CodeToCID(code));
+                return type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(gid) != null;
             }
 
             return false;
@@ -599,8 +599,8 @@ namespace PdfBox.Net.PDModel.Font
         {
             if (_descendantFont is PDCIDFontType2 type2)
             {
-                int cid = CodeToCID(code);
-                return type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(cid)?.GetPath() ?? new GeneralPath();
+                int gid = type2.CodeToGID(CodeToCID(code));
+                return type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(gid)?.GetPath() ?? new GeneralPath();
             }
 
             return new GeneralPath();
@@ -614,16 +614,19 @@ namespace PdfBox.Net.PDModel.Font
         private static readonly COSName DWKey = COSName.GetPDFName("DW");
 
         private readonly Dictionary<int, float> _widthsByCid = [];
-        private readonly float _defaultWidth;
+        protected readonly float DefaultWidth;
 
         protected PDCIDFont(COSDictionary fontDictionary)
             : base(fontDictionary)
         {
-            _defaultWidth = fontDictionary.GetFloat(DWKey, 1000f);
+            DefaultWidth = fontDictionary.GetFloat(DWKey, 1000f);
             ReadCIDWidths(fontDictionary.GetCOSArray(WKey), _widthsByCid);
         }
 
         public virtual int CodeToCID(int code) => code;
+
+        /// <summary>Returns true when the CID widths dictionary (W array) contains an explicit entry for the given CID.</summary>
+        protected bool HasExplicitCidWidth(int cid) => _widthsByCid.ContainsKey(cid);
 
         public override float GetWidth(int code)
         {
@@ -641,7 +644,7 @@ namespace PdfBox.Net.PDModel.Font
                 }
             }
 
-            return _defaultWidth;
+            return DefaultWidth;
         }
 
         private static void ReadCIDWidths(COSArray? widths, Dictionary<int, float> widthsByCid)
@@ -713,15 +716,18 @@ namespace PdfBox.Net.PDModel.Font
     {
         private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
         private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
+        private static readonly COSName CIDToGIDMapKey = COSName.GetPDFName("CIDToGIDMap");
 
         private readonly TrueTypeFont _trueTypeFont;
         private readonly CmapLookup? _unicodeCmap;
+        private readonly int[]? _cidToGid;
 
         public PDCIDFontType2(COSDictionary dictionary, TrueTypeFont? trueTypeFont = null)
             : base(dictionary)
         {
             _trueTypeFont = trueTypeFont ?? new TrueTypeFont();
             _unicodeCmap = _trueTypeFont.GetUnicodeCmapLookup(false);
+            _cidToGid = ReadCidToGidMap(dictionary);
         }
 
         internal static PDCIDFontType2 Load(COSDictionary dictionary)
@@ -751,9 +757,88 @@ namespace PdfBox.Net.PDModel.Font
 
         public TrueTypeFont GetTrueTypeFont() => _trueTypeFont;
 
-        public override int CodeToCID(int code)
+        /// <summary>
+        /// Maps a CID to a glyph ID (GID) using the CIDToGIDMap entry.
+        /// When the CIDToGIDMap is "Identity" or absent, returns the CID as the GID.
+        /// </summary>
+        public int CodeToGID(int cid)
         {
-            return _unicodeCmap?.GetGlyphId(code) ?? code;
+            if (_cidToGid != null)
+            {
+                return (cid >= 0 && cid < _cidToGid.Length) ? _cidToGid[cid] : 0;
+            }
+
+            return cid;
+        }
+
+        /// <summary>
+        /// Returns the ToUnicode string for the given character code via the TTF unicode cmap
+        /// when no explicit ToUnicode CMap is present in the font dictionary.
+        /// </summary>
+        protected override string? ToUnicodeFallback(int code, GlyphList glyphList)
+        {
+            if (_unicodeCmap != null)
+            {
+                List<int>? charCodes = _unicodeCmap.GetCharCodes(CodeToGID(code));
+                if (charCodes != null && charCodes.Count > 0)
+                {
+                    return char.ConvertFromUtf32(charCodes[0]);
+                }
+            }
+
+            return base.ToUnicodeFallback(code, glyphList);
+        }
+
+        /// <summary>
+        /// Returns the width for the given character code. Explicit W/DW dictionary entries take
+        /// precedence; when absent, falls back to the TTF advance width scaled to PDF text units.
+        /// </summary>
+        public override float GetWidth(int code)
+        {
+            if (HasExplicitCidWidth(code))
+            {
+                return base.GetWidth(code);
+            }
+
+            // Fall back to TTF advance width scaled to 1000-unit PDF space.
+            int gid = CodeToGID(code);
+            int unitsPerEm = _trueTypeFont.GetUnitsPerEm();
+            return _trueTypeFont.GetAdvanceWidth(gid) * 1000f / unitsPerEm;
+        }
+
+        private static int[]? ReadCidToGidMap(COSDictionary dictionary)
+        {
+            COSBase? entry = dictionary.GetDictionaryObject(CIDToGIDMapKey);
+            if (entry is COSName name && string.Equals(name.GetName(), "Identity", StringComparison.Ordinal))
+            {
+                // Identity: CID == GID, no explicit mapping needed.
+                return null;
+            }
+
+            if (entry is COSStream stream)
+            {
+                try
+                {
+                    using Stream input = stream.CreateInputStream();
+                    using MemoryStream buffer = new();
+                    input.CopyTo(buffer);
+                    byte[] bytes = buffer.ToArray();
+                    int count = bytes.Length / 2;
+                    int[] map = new int[count];
+                    for (int i = 0; i < count; i++)
+                    {
+                        map[i] = (bytes[i * 2] << 8) | bytes[i * 2 + 1];
+                    }
+
+                    return map;
+                }
+                catch
+                {
+                    // Fall back to identity mapping.
+                }
+            }
+
+            return null;
         }
     }
 

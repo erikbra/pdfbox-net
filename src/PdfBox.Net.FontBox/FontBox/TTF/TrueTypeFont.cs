@@ -347,7 +347,9 @@ public class TrueTypeFont : FontBoxFont, IDisposable
     public float GetWidth(string name)
     {
         int gid = NameToGID(name);
-        return GetAdvanceWidth(gid);
+        int advance = GetAdvanceWidth(gid);
+        int unitsPerEm = GetUnitsPerEm();
+        return unitsPerEm != 1000 ? advance * 1000f / unitsPerEm : advance;
     }
 
     public bool HasGlyph(string name)
