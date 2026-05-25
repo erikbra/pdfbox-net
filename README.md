@@ -129,6 +129,7 @@ Skill definitions are split into focused files in [`SKILLS.md`](SKILLS.md), incl
 ## Immediate next steps
 
 1. Create module-level backlog (`io`, `fontbox`, `xmpbox`, `pdfbox`) with complexity tags.
+   - XmpBox planning issue: [`issues/42-xmpbox-porting-plan.md`](issues/42-xmpbox-porting-plan.md)
 2. Build a representative PDF test corpus (happy path + malformed/security cases).
 3. Implement a minimal vertical slice: open PDF -> read metadata/text -> save PDF.
 4. Decide early whether public API parity or .NET idioms take priority for v1.
