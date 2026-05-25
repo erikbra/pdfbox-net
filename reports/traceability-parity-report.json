@@ -2869,6 +2869,56 @@
     "port_mode": "native-test",
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T07:40:00Z",
-    "note": "Roundtrip smoke checks for all parser-integrated paths: load fixture → save to MemoryStream → reload → assert page count, title, and author are preserved. Closes issue #41 regression and roundtrip scope."
+    "note": "Roundtrip smoke checks for all parser-integrated paths: load fixture \u2192 save to MemoryStream \u2192 reload \u2192 assert page count, title, and author are preserved. Closes issue #41 regression and roundtrip scope."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XmpConstants.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/XmpConstants.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T11:10:23Z",
+    "note": "Mechanical xmpbox constants port for RDF/xpacket defaults and core attribute names."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpParsingException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpParsingException.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T11:10:23Z",
+    "note": "Mechanical parsing exception port with ErrorType enum and typed constructors."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializationException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpSerializationException.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T11:10:23Z",
+    "note": "Mechanical serialization exception port with message/cause constructor parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XmpSchemaException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XmpSchemaException.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T11:10:23Z",
+    "note": "Mechanical schema exception port with message/cause constructor parity."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpCoreTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T11:10:23Z",
+    "note": "Focused xUnit coverage for xmpbox constants and exception behavior in initial project bootstrap."
   }
 ]

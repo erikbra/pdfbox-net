@@ -8,8 +8,10 @@
     <Project Path="src/PdfBox.Net.FontBox/PdfBox.Net.FontBox.csproj" />
     <Project Path="src/PdfBox.Net.IO/PdfBox.Net.IO.csproj" />
     <Project Path="src/PdfBox.Net/PdfBox.Net.csproj" />
+    <Project Path="src/PdfBox.Net.XmpBox/PdfBox.Net.XmpBox.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj" />
+    <Project Path="tests/PdfBox.Net.XmpBox.Tests/PdfBox.Net.XmpBox.Tests.csproj" />
   </Folder>
 </Solution>

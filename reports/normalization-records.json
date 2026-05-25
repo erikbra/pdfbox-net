@@ -2002,6 +2002,61 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Fixture-driven load→save→reload smoke checks for classic xref, flate-content, xref-stream, and object-stream paths. Validates page count, title, and author are preserved after the basic save/reload cycle."
+    "note": "Fixture-driven load\u2192save\u2192reload smoke checks for classic xref, flate-content, xref-stream, and object-stream paths. Validates page count, title, and author are preserved after the basic save/reload cycle."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XmpConstants.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/XmpConstants.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical constants port normalized to C# constant naming and nullable default-bytes field."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpParsingException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpParsingException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical exception port normalized with C# enum/property patterns while preserving constructor behavior."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializationException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpSerializationException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical exception port normalized to C# constructor declarations."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XmpSchemaException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XmpSchemaException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical schema exception port normalized to C# constructor declarations."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpCoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused xUnit v3 coverage added for initial xmpbox core slice"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Native xUnit tests validate constants and exception constructor behavior for bootstrapped XmpBox types."
   }
 ]
