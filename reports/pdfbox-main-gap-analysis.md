@@ -21,12 +21,12 @@ Reference commit: ccd281cfecedcc0ad39709bece5e67b19a54e8db
 | `org.apache.pdfbox.pdmodel.font` | ~30 | 18 | ~12 | ~60% ⚠️ |
 | `org.apache.pdfbox.pdmodel.graphics` | ~40 | 24 | ~16 | ~60% ⚠️ |
 | `org.apache.pdfbox.pdmodel.interactive` | ~35 | 22 | ~13 | ~63% ⚠️ |
-| `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 13 | ~2 | ~75% ⚠️ |
+| `org.apache.pdfbox.pdmodel.documentinterchange` | ~10 | 22 | 0 | ~100% ✅ |
 | `org.apache.pdfbox.rendering` | ~12 | 11 | ~4 | ~75% ⚠️ |
 | `org.apache.pdfbox.text` | ~6 | 6 | 0 | ~100% ✅* |
 | `org.apache.pdfbox.util` | ~15 | 10 | ~5 | ~67% ⚠️ |
 | `org.apache.pdfbox.printing` | ~4 | 4 | 0 | ~100% ✅ |
-| **TOTAL** | **~340** | **~283** | **~57** | **~83%** |
+| **TOTAL** | **~340** | **~292** | **~48** | **~86%** |
 
 † The C# operator count (73) is higher than the Java ~60 because some Java files each handle
 a single operator while the C# port includes the Operator/OperatorName/OperatorProcessor base
@@ -46,22 +46,22 @@ This snapshot was recalculated from current report data in:
 
 ### Conversion inventory
 
-- Conversion rows: **291** (`281` unique source->target pairs)
+- Conversion rows: **319** (`309` unique source->target pairs)
 - Port modes:
-  - `mechanical`: **143**
-  - `adapted`: **110**
-  - `native-test`: **32**
+  - `mechanical`: **147**
+  - `adapted`: **129**
+  - `native-test`: **37**
   - `partial`: **4**
   - `adapted-minimal`: **2**
 - Upstream test mappings converted: **25**
 
 ### Traceability status coverage
 
-- Traceability rows: **296**
-- `in-sync`: **223** (~75.3%)
-- `partially-in-sync`: **18** (~6.2%)
-- `partial`: **11** (~3.8%)
-- blank status (needs classification/backfill): **44** (~14.9%)
+- Traceability rows: **332**
+- `in-sync`: **259** (~78.0%)
+- `partially-in-sync`: **18** (~5.4%)
+- `partial`: **11** (~3.3%)
+- blank status (needs classification/backfill): **44** (~13.3%)
 
 ### Immediate coverage-report follow-up
 
@@ -73,6 +73,17 @@ This snapshot was recalculated from current report data in:
 
 ## Completed since previous edition ✅
 
+- **Issue #47 (`pdmodel/documentinterchange` regression + traceability closeout) is complete.**
+  - Added deterministic tagged PDF fixture coverage (`Fixtures/TaggedPdf/minimal-tagged.pdf`) with
+    end-to-end catalog → `StructTreeRoot` → `ParentTree` traversal assertions.
+  - Completed remaining documentinterchange class ports for current parity target:
+    `PDMarkInfo`, `PDParentTreeValue`, `PDPropertyList`, `PDBoxStyle`,
+    `PDArtifactMarkedContent`, `PDPrintFieldAttributeObject`,
+    `PDExportFormatAttributeObject`, `PDFourColours`, and `StandardStructureTypes`.
+  - Extended `PDAttributeObject.Create()` owner dispatch for `PrintField` and export-format owners.
+  - Added `PDDocumentCatalog.GetMarkInfo()/SetMarkInfo()` integration accessors.
+  - Updated conversion/normalization/traceability artifacts and set all documentinterchange
+    traceability rows to explicit `in-sync` statuses.
 - **Issue #46 (`pdmodel/documentinterchange` parent-tree and integration) is complete.**
   - `PDParentTreeNumberTreeNode`: typed number-tree node for the parent tree; handles both
     single structure-element dictionary values and page-level arrays of structure elements.
@@ -316,13 +327,15 @@ Also `AwtStubs.cs` (Java AWT placeholder types for .NET).
 - AcroForm appearance/value pipeline is still partial.
 - Interactive coverage remains uneven (several classes still `partially-in-sync`).
 
-### `org.apache.pdfbox.pdmodel.documentinterchange` — ~75% ⚠️
+### `org.apache.pdfbox.pdmodel.documentinterchange` — ~100% ✅
 
-**Ported (13):** `PDMarkedContent.cs`, `PDStructureNode.cs`, `PDStructureTreeRoot.cs`,
+**Ported (22):** `PDMarkedContent.cs`, `PDStructureNode.cs`, `PDStructureTreeRoot.cs`,
 `PDStructureElement.cs`, `Revisions.cs`, `PDMarkedContentReference.cs`, `PDObjectReference.cs`,
 `PDAttributeObject.cs`, `PDDefaultAttributeObject.cs`, `PDUserAttributeObject.cs`, `PDUserProperty.cs`,
 `PDParentTreeNumberTreeNode.cs`, `PDLayoutAttributeObject.cs`, `PDListAttributeObject.cs`,
-`PDTableAttributeObject.cs`.
+`PDTableAttributeObject.cs`, `PDMarkInfo.cs`, `PDParentTreeValue.cs`, `PDPropertyList.cs`,
+`PDBoxStyle.cs`, `PDArtifactMarkedContent.cs`, `PDPrintFieldAttributeObject.cs`,
+`PDExportFormatAttributeObject.cs`, `PDFourColours.cs`, `StandardStructureTypes.cs`.
 **Completed in issue #46:**
 - `PDParentTreeNumberTreeNode`: typed number-tree node for the `ParentTree` entry; handles both
   single structure-element dictionary values and page-level arrays of structure elements.
@@ -330,19 +343,21 @@ Also `AwtStubs.cs` (Java AWT placeholder types for .NET).
   wired parent-tree accessors with end-to-end page-key → structure-element resolution.
 - `PDLayoutAttributeObject`, `PDListAttributeObject`, `PDTableAttributeObject`: typed tagged-PDF
   attribute object subtypes with owner dispatch in `PDAttributeObject.Create()`.
-**Missing (~2–3):** Remaining tagged-PDF attribute subtypes (`PDPrintFieldAttributeObject`,
-`PDExportFormatAttributeObject`) and any accessibility-only types.
+**Issue #47 closeout:**
+- Deterministic tagged fixture and regression tests now cover structure tree, parent-tree lookups,
+  attribute-owner dispatch, artifact subtype dispatch, and closeout helper types.
+- Traceability rows in this package are fully classified with explicit `in-sync` statuses.
 
 ---
 
 ## Key remaining gaps by priority
 
-### Priority 1 — Full `pdmodel.documentinterchange` conversion (tagged PDF/logical structure) ⚠️
+### Priority 1 — Full `pdmodel.documentinterchange` conversion (tagged PDF/logical structure) ✅
 **Scope:** `org.apache.pdfbox.pdmodel.documentinterchange`
 
-This remains the most under-converted major package in the `pdfbox` module
-(~10% mapped in this report). It is also a coherent package boundary that can be
-driven to full parity in a focused milestone instead of partial cross-package work.
+This milestone is now complete for the current parity target via issues #43–#47.
+Future work in this package is expected to be incremental parity hardening rather than
+major missing-class backfill.
 
 Planned execution issues:
 - `issues/43-documentinterchange-structure-tree-core.md`

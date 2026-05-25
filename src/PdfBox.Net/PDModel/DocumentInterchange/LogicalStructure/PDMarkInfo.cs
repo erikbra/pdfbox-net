@@ -34,6 +34,10 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// </summary>
 public class PDMarkInfo : COSObjectable
 {
+    private static readonly COSName MarkedName = COSName.GetPDFName("Marked");
+    private static readonly COSName UserPropertiesName = COSName.GetPDFName("UserProperties");
+    private static readonly COSName SuspectsName = COSName.GetPDFName("Suspects");
+
     private readonly COSDictionary _dictionary;
 
     public PDMarkInfo()
@@ -49,13 +53,12 @@ public class PDMarkInfo : COSObjectable
     public COSDictionary GetCOSObject() => _dictionary;
     COSBase COSObjectable.GetCOSObject() => _dictionary;
 
-    public bool IsMarked() => _dictionary.GetBoolean("Marked", false);
-    public void SetMarked(bool value) => _dictionary.SetBoolean("Marked", value);
+    public bool IsMarked() => _dictionary.GetBoolean(MarkedName, false);
+    public void SetMarked(bool value) => _dictionary.SetBoolean(MarkedName, value);
 
-    public bool UsesUserProperties() => _dictionary.GetBoolean("UserProperties", false);
-    public void SetUserProperties(bool value) => _dictionary.SetBoolean("UserProperties", value);
+    public bool UsesUserProperties() => _dictionary.GetBoolean(UserPropertiesName, false);
+    public void SetUserProperties(bool value) => _dictionary.SetBoolean(UserPropertiesName, value);
 
-    public bool IsSuspect() => _dictionary.GetBoolean("Suspects", false);
-    public void SetSuspect(bool value) => _dictionary.SetBoolean("Suspects", value);
+    public bool IsSuspect() => _dictionary.GetBoolean(SuspectsName, false);
+    public void SetSuspect(bool value) => _dictionary.SetBoolean(SuspectsName, value);
 }
-

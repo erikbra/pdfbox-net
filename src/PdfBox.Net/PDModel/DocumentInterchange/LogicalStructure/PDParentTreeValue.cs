@@ -48,6 +48,5 @@ public class PDParentTreeValue : COSObjectable
 
     public COSBase GetCOSObject() => _value;
 
-    public override string ToString() => _value.ToString();
+    public override string ToString() => _value.ToString() ?? string.Empty;
 }
-

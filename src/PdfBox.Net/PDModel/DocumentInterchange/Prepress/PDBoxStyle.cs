@@ -38,6 +38,7 @@ public class PDBoxStyle : COSObjectable
 {
     public const string GuidelineStyleSolid = "S";
     public const string GuidelineStyleDashed = "D";
+    private static readonly COSName WidthName = COSName.GetPDFName("W");
 
     private readonly COSDictionary _dictionary;
 
@@ -74,8 +75,8 @@ public class PDBoxStyle : COSObjectable
         _dictionary.SetItem(COSName.C, color?.ToCOSArray());
     }
 
-    public float GetGuidelineWidth() => _dictionary.GetFloat(COSName.W, 1f);
-    public void SetGuidelineWidth(float width) => _dictionary.SetFloat(COSName.W, width);
+    public float GetGuidelineWidth() => _dictionary.GetFloat(WidthName, 1f);
+    public void SetGuidelineWidth(float width) => _dictionary.SetFloat(WidthName, width);
 
     public string GetGuidelineStyle() => _dictionary.GetNameAsString(COSName.S, GuidelineStyleSolid);
     public void SetGuidelineStyle(string style) => _dictionary.SetName(COSName.S, style);
@@ -98,4 +99,3 @@ public class PDBoxStyle : COSObjectable
         _dictionary.SetItem(COSName.D, dashArray);
     }
 }
-
