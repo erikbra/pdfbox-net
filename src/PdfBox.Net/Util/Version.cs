@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/util/Version.java
- * PDFBOX_SOURCE_COMMIT: trunk
+ * PDFBOX_SOURCE_COMMIT: d7be592bc0022cfa6fd3ffcdd5989b78bc827cb3
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: trunk
+ * PORT_LAST_SYNC_COMMIT: d7be592bc0022cfa6fd3ffcdd5989b78bc827cb3
  *
  * Adaptation notes: Java reads a bundled version.properties file via the classloader. In .NET the
  * equivalent is the assembly informational version stored in assembly metadata. The properties-file

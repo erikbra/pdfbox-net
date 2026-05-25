@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/util/IterativeMergeSort.java
- * PDFBOX_SOURCE_COMMIT: trunk
+ * PDFBOX_SOURCE_COMMIT: 55f159e4cea6fbf47bd8720885e709ed029d7c88
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: trunk
+ * PORT_LAST_SYNC_COMMIT: 55f159e4cea6fbf47bd8720885e709ed029d7c88
  */
 
 /*

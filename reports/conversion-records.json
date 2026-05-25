@@ -2646,33 +2646,33 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/IterativeMergeSort.java",
     "target_path": "src/PdfBox.Net/Util/IterativeMergeSort.cs",
-    "source_commit": "trunk",
+    "source_commit": "55f159e4cea6fbf47bd8720885e709ed029d7c88",
     "port_mode": "mechanical",
-    "sync_commit": "trunk",
+    "sync_commit": "55f159e4cea6fbf47bd8720885e709ed029d7c88",
     "conversion_notes": "Mechanical port of iterative (bottom-up) merge sort. Java List<T>/Comparator adapted to IList<T>/IComparer<T>. System.arraycopy replaced with Array.Copy. Suppressed Java raw-type warnings have no equivalent in C#."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Version.java",
     "target_path": "src/PdfBox.Net/Util/Version.cs",
-    "source_commit": "trunk",
+    "source_commit": "d7be592bc0022cfa6fd3ffcdd5989b78bc827cb3",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "d7be592bc0022cfa6fd3ffcdd5989b78bc827cb3",
     "conversion_notes": "Adapted port of PDFBox version reader. Java reads version.properties via classloader; .NET adaptation uses AssemblyInformationalVersionAttribute and falls back to Assembly.GetName().Version. Fallback null-on-error semantics are preserved."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/XMLUtil.java",
     "target_path": "src/PdfBox.Net/Util/XMLUtil.cs",
-    "source_commit": "trunk",
+    "source_commit": "be36ef01842885b556a4e7b40b5e2e8e7b1d2816",
     "port_mode": "mechanical",
-    "sync_commit": "trunk",
+    "sync_commit": "be36ef01842885b556a4e7b40b5e2e8e7b1d2816",
     "conversion_notes": "Mechanical port of XML utility. Java DocumentBuilderFactory hardening (disallow-doctype-decl, external-general/parameter-entities, load-external-dtd, XInclude-aware=false) mapped to XmlReaderSettings with DtdProcessing.Prohibit and XmlResolver=null. Document returned as XmlDocument instead of org.w3c.dom.Document. GetNodeValue adapted to iterate XmlNode children and collect XmlText values."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriterXRefEntry.java",
     "target_path": "src/PdfBox.Net/PdfWriter/COSWriterXRefEntry.cs",
-    "source_commit": "2.0 branch (class removed from trunk during 3.x refactor)",
+    "source_commit": "c628b70c3c02f2cea1de87c02a873b73bb8b1976",
     "port_mode": "mechanical",
-    "sync_commit": "2.0 branch",
-    "conversion_notes": "Mechanical port of xref entry value object from the PDFBox 2.0 branch (the class was inlined into COSWriter during the 3.x series). Java mutable fields with private setters adapted to C# auto-properties. static NULLENTRY initializer preserved via static constructor. IComparable<COSWriterXRefEntry> mirrors Comparable<COSWriterXRefEntry>."
+    "sync_commit": "c628b70c3c02f2cea1de87c02a873b73bb8b1976",
+    "conversion_notes": "Mechanical port of xref entry value object. The upstream class was removed in commit 26c2267b1e45c11dcd650435c1fedcaeedf1f469 (PDFBOX-4952) and replaced by separated xref-entry classes; this port is based on the last upstream revision (c628b70c) and is retained for incremental-save parity. Java mutable fields with private setters adapted to C# auto-properties. static NULLENTRY initializer preserved via static constructor. IComparable<COSWriterXRefEntry> mirrors Comparable<COSWriterXRefEntry>."
   }
 ]

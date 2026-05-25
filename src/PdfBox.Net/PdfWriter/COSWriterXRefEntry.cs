@@ -3,9 +3,14 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriterXRefEntry.java
- * PDFBOX_SOURCE_COMMIT: 2.0 branch (class removed from trunk during 3.x refactor)
+ * PDFBOX_SOURCE_COMMIT: c628b70c3c02f2cea1de87c02a873b73bb8b1976
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 2.0 branch
+ * PORT_LAST_SYNC_COMMIT: c628b70c3c02f2cea1de87c02a873b73bb8b1976
+ *
+ * Upstream note: this class was removed in commit 26c2267b1e45c11dcd650435c1fedcaeedf1f469
+ * (PDFBOX-4952) and replaced by separated xref-entry classes. This port is based on the
+ * last upstream revision of the file (c628b70c) and is retained here for incremental-save
+ * parity.
  */
 
 /*

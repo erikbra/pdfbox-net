@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/util/XMLUtil.java
- * PDFBOX_SOURCE_COMMIT: trunk
+ * PDFBOX_SOURCE_COMMIT: be36ef01842885b556a4e7b40b5e2e8e7b1d2816
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: trunk
+ * PORT_LAST_SYNC_COMMIT: be36ef01842885b556a4e7b40b5e2e8e7b1d2816
  */
 
 /*
