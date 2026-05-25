@@ -252,11 +252,16 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
 
 - Chunks 1 and 2 are effectively complete for current parity targets (COS foundation + parser/writer bridge).
 - The `pdmodel.documentinterchange` milestone is complete through issues #43–#47 with fixture-backed regression coverage.
-- The next largest dependency-safe chunk to execute fully is now **`pdmodel.font` completion** before broader interactive/rendering hardening.
+- The `pdmodel.font` milestone has advanced through #50 (TrueType/CIDType2 parity); #51 and #52 remain as closeout slices.
+- The next large dependency-safe chunk to execute fully after font closeout is now **`pdmodel.graphics` completion**.
 
-### Next issue series prepared for that chunk
-- `issues/48-pdmodel-font-core-descriptor-and-factory-foundation.md`
-- `issues/49-pdmodel-font-type1-standard14-parity.md`
-- `issues/50-pdmodel-font-truetype-cidtype2-parity.md`
+### Remaining font closeout issues
 - `issues/51-pdmodel-font-type0-cidtype0-and-unicode-integration.md`
 - `issues/52-pdmodel-font-regression-coverage-and-traceability-closeout.md`
+
+### Next issue series prepared for the graphics chunk
+- `issues/53-pdmodel-graphics-shading-and-core-types.md`
+- `issues/54-pdmodel-graphics-patterns-optional-content-and-inline-image.md`
+- `issues/55-pdmodel-graphics-state-and-xobject-integration.md`
+- `issues/56-graphics-contentstream-and-rendering-integration.md`
+- `issues/57-pdmodel-graphics-regression-coverage-and-traceability-closeout.md`
