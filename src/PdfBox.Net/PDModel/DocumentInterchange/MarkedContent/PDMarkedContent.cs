@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics;
+using PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf;
 using PdfBox.Net.Text;
 
 namespace PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
@@ -47,7 +48,7 @@ public class PDMarkedContent
     private readonly List<TextPosition> _texts = new();
     private readonly List<PDXObject> _xobjects = new();
 
-    private PDMarkedContent(COSName tag, COSDictionary? properties)
+    protected PDMarkedContent(COSName tag, COSDictionary? properties)
     {
         Tag = tag;
         Properties = properties;
@@ -66,7 +67,15 @@ public class PDMarkedContent
     public string? GetLanguage() => Properties?.GetNameAsString(COSName.LANG);
 
     /// <summary>Creates a new marked-content sequence with the given tag and properties.</summary>
-    public static PDMarkedContent Create(COSName tag, COSDictionary? properties) => new(tag, properties);
+    public static PDMarkedContent Create(COSName tag, COSDictionary? properties)
+    {
+        if (tag.Equals(COSName.GetPDFName("Artifact")))
+        {
+            return new PDArtifactMarkedContent(properties ?? new COSDictionary());
+        }
+
+        return new PDMarkedContent(tag, properties);
+    }
 
     /// <summary>Adds a nested marked-content sequence.</summary>
     public void AddMarkedContent(PDMarkedContent markedContent) => _markedContents.Add(markedContent);

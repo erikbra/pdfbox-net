@@ -86,6 +86,22 @@ public abstract class PDAttributeObject : PDDictionaryWrapper
             {
                 return new PDTableAttributeObject(dictionary);
             }
+
+            if (owner.Equals(PDPrintFieldAttributeObject.OwnerPrintField, StringComparison.Ordinal))
+            {
+                return new PDPrintFieldAttributeObject(dictionary);
+            }
+
+            if (owner.Equals(PDExportFormatAttributeObject.OwnerXml1_00, StringComparison.Ordinal) ||
+                owner.Equals(PDExportFormatAttributeObject.OwnerHtml3_20, StringComparison.Ordinal) ||
+                owner.Equals(PDExportFormatAttributeObject.OwnerHtml4_01, StringComparison.Ordinal) ||
+                owner.Equals(PDExportFormatAttributeObject.OwnerOeb1_00, StringComparison.Ordinal) ||
+                owner.Equals(PDExportFormatAttributeObject.OwnerRtf1_05, StringComparison.Ordinal) ||
+                owner.Equals(PDExportFormatAttributeObject.OwnerCss1_00, StringComparison.Ordinal) ||
+                owner.Equals(PDExportFormatAttributeObject.OwnerCss2_00, StringComparison.Ordinal))
+            {
+                return new PDExportFormatAttributeObject(dictionary);
+            }
         }
 
         return new PDDefaultAttributeObject(dictionary);
