@@ -2690,5 +2690,37 @@
     "port_mode": "adapted",
     "sync_commit": "trunk",
     "conversion_notes": "Added 24 deterministic fixture tests for PDTrueTypeFont and PDCIDFontType2 parity (issue #50): UPM scaling, CIDToGIDMap, TTF width fallback, ToUnicode cmap fallback, Type0 descendant integration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Issue #51: wired Type0 /Encoding CMap parsing (stream and predefined identity fallback), CodeToCID via Type0 CMap, and composite ToUnicode fallback chaining to UCS2/preferred descendant mapping."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Issue #51: added CIDSystemInfo accessor for composite Type0 CMap/UCS2 integration paths."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Issue #51: validated CIDFontType0 descendant integration through Type0 encoding CMap-driven CID resolution and width delegation."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDType0FontCIDType0UnicodeIntegrationTest.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Added deterministic issue #51 regression tests for Type0/CIDFontType0 CMap CID resolution, composite ToUnicode fallback integration, Identity-H fallback handling, and descendant factory routing."
   }
 ]

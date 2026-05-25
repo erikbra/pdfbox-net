@@ -2200,5 +2200,49 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Deterministic minimal tagged PDF fixture for end-to-end structure-tree and parent-tree regression coverage."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox composite-font CMap semantics adapted to existing .NET font model"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Issue #51: added /Encoding CMap parsing, predefined Identity-H/V fallback CMap, descendant-CJK UCS2 lookup attempt, and Type0 ToUnicode fallback chaining to descendant mapping."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox composite-font metadata access adapted to existing .NET font model"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #51: added CIDSystemInfo accessor to support Type0 CMap/UCS2 integration heuristics."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java PDFBox descendant CIDFontType0 integration verified via Type0 CMap path tests"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #51: no API expansion required beyond inherited CID behavior; integration coverage added for Type0 CMap-driven CID and widths."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDType0FontCIDType0UnicodeIntegrationTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused composite-font regression coverage added for issue #51"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added deterministic regression tests for Type0/CIDFontType0 CID mapping, composite ToUnicode fallback via mapped CID, Identity-H fallback, and descendant factory routing."
   }
 ]
