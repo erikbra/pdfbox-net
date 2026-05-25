@@ -29,10 +29,25 @@ namespace PdfBox.Net.PDModel.Font;
 
 public sealed class DefaultFontProvider : FontMapper
 {
-    private readonly FileSystemFontProvider _provider = new();
+    private readonly FileSystemFontProvider _provider;
+
+    public DefaultFontProvider()
+        : this(new FileSystemFontProvider())
+    {
+    }
+
+    internal DefaultFontProvider(FileSystemFontProvider provider)
+    {
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+    }
 
     public string? FindFontFile(string postScriptName)
     {
+        if (string.IsNullOrWhiteSpace(postScriptName))
+        {
+            return null;
+        }
+
         return _provider.FindFontFile(postScriptName);
     }
 }

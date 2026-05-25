@@ -38,17 +38,14 @@ public sealed class FileSystemFontProvider
 
     public FileSystemFontProvider(IEnumerable<string> searchDirectories)
     {
-        foreach (string directory in searchDirectories)
+        foreach (string directory in NormalizeSearchDirectories(searchDirectories))
         {
             if (!Directory.Exists(directory))
             {
                 continue;
             }
 
-            foreach (string file in Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)
-                .Where(f => f.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase) ||
-                            f.EndsWith(".otf", StringComparison.OrdinalIgnoreCase) ||
-                            f.EndsWith(".pfb", StringComparison.OrdinalIgnoreCase)))
+            foreach (string file in EnumerateFontFiles(directory))
             {
                 string postScriptName = Path.GetFileNameWithoutExtension(file);
                 if (!_fontsByPostScriptName.ContainsKey(postScriptName))
@@ -61,7 +58,13 @@ public sealed class FileSystemFontProvider
 
     public string? FindFontFile(string postScriptName)
     {
-        return _fontsByPostScriptName.TryGetValue(postScriptName, out string? file) ? file : null;
+        if (string.IsNullOrWhiteSpace(postScriptName))
+        {
+            return null;
+        }
+
+        string normalizedName = NormalizePostScriptName(postScriptName);
+        return _fontsByPostScriptName.TryGetValue(normalizedName, out string? file) ? file : null;
     }
 
     private static IEnumerable<string> GetDefaultSearchDirectories()
@@ -78,5 +81,58 @@ public sealed class FileSystemFontProvider
         }
 
         return ["/usr/share/fonts", "/usr/local/share/fonts", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".fonts")];
+    }
+
+    private static IEnumerable<string> NormalizeSearchDirectories(IEnumerable<string> searchDirectories)
+    {
+        ArgumentNullException.ThrowIfNull(searchDirectories);
+
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+        foreach (string directory in searchDirectories)
+        {
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                continue;
+            }
+
+            string fullPath = Path.GetFullPath(directory);
+            if (seen.Add(fullPath))
+            {
+                yield return fullPath;
+            }
+        }
+    }
+
+    private static IEnumerable<string> EnumerateFontFiles(string directory)
+    {
+        try
+        {
+            return Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)
+                .Where(IsSupportedFontFile)
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }
+        catch (IOException)
+        {
+            return [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+
+    private static bool IsSupportedFontFile(string path)
+    {
+        return path.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase) ||
+               path.EndsWith(".otf", StringComparison.OrdinalIgnoreCase) ||
+               path.EndsWith(".pfb", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizePostScriptName(string postScriptName)
+    {
+        string value = postScriptName.Trim();
+        int plus = value.IndexOf('+');
+        return plus > 0 ? value[(plus + 1)..] : value;
     }
 }
