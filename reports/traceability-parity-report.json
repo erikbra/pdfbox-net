@@ -2288,8 +2288,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added default font provider implementation."
+    "last_checked_utc": "2026-05-25T15:32:21Z",
+    "note": "Added default font provider wrapper with injectable file-system lookup for deterministic tests."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
@@ -2298,8 +2298,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added cross-platform file system font discovery provider."
+    "last_checked_utc": "2026-05-25T15:32:21Z",
+    "note": "Added cross-platform file system font discovery provider with stable ordered enumeration and subset-prefix normalization."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
@@ -2318,8 +2318,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added global font mapper singleton wiring."
+    "last_checked_utc": "2026-05-25T15:32:21Z",
+    "note": "Added lazy global font mapper singleton wiring."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
@@ -2328,8 +2328,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Implemented CIDFontType2 wrapper for embedded TrueType fonts."
+    "last_checked_utc": "2026-05-25T15:32:21Z",
+    "note": "Implemented CIDFontType2 wrapper for embedded TrueType fonts with shared CID width default handling."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",
@@ -2348,8 +2348,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Replaced font stubs with concrete PDModel font hierarchy and concrete Type1/TrueType/Type0/CID font implementations."
+    "last_checked_utc": "2026-05-25T15:32:21Z",
+    "note": "Replaced font stubs with concrete PDModel font hierarchy, descendant descriptor fallback, and CID width handling for composite fonts."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontDescriptor.java",
@@ -2358,8 +2358,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added PDFontDescriptor metrics and bounding box extraction from font descriptor dictionaries."
+    "last_checked_utc": "2026-05-25T15:32:21Z",
+    "note": "Added PDFontDescriptor metric normalization, flag helpers, panose access, and descriptor dictionary accessors."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
@@ -2408,8 +2408,8 @@
     "sync_commit": "trunk",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Implemented composite Type0 font and descendant CID font wiring."
+    "last_checked_utc": "2026-05-25T15:32:21Z",
+    "note": "Implemented composite Type0 font wiring with descendant descriptor and CID width delegation."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",

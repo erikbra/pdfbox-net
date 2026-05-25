@@ -1240,7 +1240,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added default font provider implementation."
+    "note": "Added default font provider wrapper with injectable file-system lookup for deterministic tests."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
@@ -1328,7 +1328,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added cross-platform file system font discovery provider."
+    "note": "Added cross-platform file system font discovery provider with stable ordered enumeration and subset-prefix normalization."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
@@ -1350,7 +1350,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added global font mapper singleton wiring."
+    "note": "Added lazy global font mapper singleton wiring."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
@@ -1361,7 +1361,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Replaced font stubs with concrete PDModel font hierarchy and concrete Type1/TrueType/Type0/CID font implementations."
+    "note": "Replaced font stubs with concrete PDModel font hierarchy, descendant descriptor fallback, and CID width handling for composite fonts."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontDescriptor.java",
@@ -1372,7 +1372,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added PDFontDescriptor metrics and bounding box extraction from font descriptor dictionaries."
+    "note": "Added PDFontDescriptor metric normalization, flag helpers, panose access, and descriptor dictionary accessors."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDSimpleFont.java",
@@ -1416,7 +1416,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Implemented composite Type0 font and descendant CID font wiring."
+    "note": "Implemented composite Type0 font wiring with descendant descriptor and CID width delegation."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
@@ -1427,7 +1427,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Implemented CIDFontType2 wrapper for embedded TrueType fonts."
+    "note": "Implemented CIDFontType2 wrapper for embedded TrueType fonts with shared CID width default handling."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",

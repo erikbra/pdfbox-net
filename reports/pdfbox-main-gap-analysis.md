@@ -245,8 +245,8 @@ implementations that should be promoted to real types in future slices.
 - `PDType3Font` — exists as an abstract stub in `RenderingSupportStubs.cs`; no real
   glyph-width or rendering implementation.
 - `PDCIDFontType0.java` — CID font backed by CFF/Type1 outlines; partial or missing.
-- Full `FontDescriptorFactory`/font-resolution chain needed for embedded font loading.
-- `FontMapper` implementations may be partial.
+- Full `FontDescriptorFactory`/font-substitution chain remains deferred, but descriptor fallback,
+  CID width defaults, and deterministic provider lookup are now wired for the current parity slice.
 
 ### `org.apache.pdfbox.pdmodel.graphics` — ~60%
 
