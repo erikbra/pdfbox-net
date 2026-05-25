@@ -3290,5 +3290,15 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T21:12:00Z",
     "note": "Issue #51 regression tests covering Type0/CIDFontType0 CMap CID mapping, composite ToUnicode fallback path, Identity-H fallback behavior, and PDFontFactory descendant dispatch."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/TextExtractionRegressionFixturesTest.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:20:46Z",
+    "note": "Issue #52 closeout smoke tests for extraction paths depending on completed font behavior: embedded TrueType unicode fallback, Type0/CIDFontType2 composite mapping, and Type0/CIDFontType0 ToUnicode mapping."
   }
 ]

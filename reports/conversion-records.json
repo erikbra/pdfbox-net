@@ -2722,5 +2722,13 @@
     "port_mode": "adapted",
     "sync_commit": "trunk",
     "conversion_notes": "Added deterministic issue #51 regression tests for Type0/CIDFontType0 CMap CID resolution, composite ToUnicode fallback integration, Identity-H fallback handling, and descendant factory routing."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/TextExtractionRegressionFixturesTest.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Issue #52 closeout: added extraction smoke coverage for embedded TrueType fallback, Type0/CIDFontType2 composite fallback, and Type0/CIDFontType0 ToUnicode CMap mapping."
   }
 ]

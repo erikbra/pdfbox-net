@@ -2244,5 +2244,16 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Added deterministic regression tests for Type0/CIDFontType0 CID mapping, composite ToUnicode fallback via mapped CID, Identity-H fallback, and descendant factory routing."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/TextExtractionRegressionFixturesTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Focused font extraction smoke coverage added for issue #52 closeout"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added deterministic extraction smoke tests covering Standard14/Type1 baseline plus embedded TrueType and composite Type0/CID paths (CIDFontType2 fallback and CIDFontType0 ToUnicode)."
   }
 ]

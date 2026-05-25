@@ -46,10 +46,10 @@ This snapshot was recalculated from current report data in:
 
 ### Conversion inventory
 
-- Conversion rows: **319** (`309` unique source->target pairs)
+- Conversion rows: **320** (`310` unique source->target pairs)
 - Port modes:
   - `mechanical`: **147**
-  - `adapted`: **129**
+  - `adapted`: **130**
   - `native-test`: **37**
   - `partial`: **4**
   - `adapted-minimal`: **2**
@@ -57,11 +57,11 @@ This snapshot was recalculated from current report data in:
 
 ### Traceability status coverage
 
-- Traceability rows: **332**
-- `in-sync`: **259** (~78.0%)
+- Traceability rows: **333**
+- `in-sync`: **260** (~78.1%)
 - `partially-in-sync`: **18** (~5.4%)
 - `partial`: **11** (~3.3%)
-- blank status (needs classification/backfill): **44** (~13.3%)
+- blank status (needs classification/backfill): **44** (~13.2%)
 
 ### Immediate coverage-report follow-up
 
@@ -73,6 +73,11 @@ This snapshot was recalculated from current report data in:
 
 ## Completed since previous edition ✅
 
+- **Issue #52 (`pdmodel/font` regression coverage + traceability closeout) is complete for the current parity target.**
+  - Added extraction smoke coverage that exercises completed font behavior through `PDFTextStripper`
+    across embedded TrueType and composite Type0/CID paths.
+  - Refreshed conversion, normalization, and traceability artifacts for the closeout test coverage.
+  - Updated `pdmodel.font` milestone narrative to explicitly classify remaining deferred scope.
 - **Issue #47 (`pdmodel/documentinterchange` regression + traceability closeout) is complete.**
   - Added deterministic tagged PDF fixture coverage (`Fixtures/TaggedPdf/minimal-tagged.pdf`) with
     end-to-end catalog → `StructTreeRoot` → `ParentTree` traversal assertions.
@@ -232,7 +237,7 @@ implementations that should be promoted to real types in future slices.
 - `PublicKeySecurityHandler.java` — public-key (certificate-based) decryption — missing.
 - `PublicKeyDecryptionMaterial.java` — missing.
 
-### `org.apache.pdfbox.pdmodel.font` — ~60%
+### `org.apache.pdfbox.pdmodel.font` — ~60% (current parity target complete)
 
 **Ported (18):** Real `PDFont` abstract base, `PDVectorFont`, `PDSimpleFont`, `PDType1Font`,
 `PDTrueTypeFont`, `PDType0Font`, `PDCIDFont` hierarchy; `PDFontDescriptor`, `PDDictionaryFont`,
@@ -241,7 +246,7 @@ implementations that should be promoted to real types in future slices.
 (`DictionaryEncoding`, `Encoding`, `GlyphList`, `MacRomanEncoding`, `SymbolEncoding`,
 `Type1Encoding`, `WinAnsiEncoding`, `ZapfDingbatsEncoding`).
 
-**Still missing or stub-level:**
+**Explicitly deferred beyond current parity target:**
 - `PDType3Font` — exists as an abstract stub in `RenderingSupportStubs.cs`; no real
   glyph-width or rendering implementation.
 - `PDCIDFontType0.java` — CID font backed by CFF/Type1 outlines; partial or missing.
@@ -353,30 +358,15 @@ Also `AwtStubs.cs` (Java AWT placeholder types for .NET).
 
 ## Key remaining gaps by priority
 
-### Priority 1 — PDModel font stack completion and parity hardening ⚠️
-**Scope:** `org.apache.pdfbox.pdmodel.font`
-
-`pdmodel.font` is now the highest-leverage dependency-safe gap to close next:
-- Text extraction fidelity still depends on complete font widths/encodings/ToUnicode behavior.
-- Rendering and interactive form appearance paths depend on real font metrics/mapping.
-- The current package remains around ~60% complete with the highest unresolved core dependencies.
-
-Planned execution issues:
-- `issues/48-pdmodel-font-core-descriptor-and-factory-foundation.md`
-- `issues/49-pdmodel-font-type1-standard14-parity.md`
-- `issues/50-pdmodel-font-truetype-cidtype2-parity.md`
-- `issues/51-pdmodel-font-type0-cidtype0-and-unicode-integration.md`
-- `issues/52-pdmodel-font-regression-coverage-and-traceability-closeout.md`
-
-### Priority 2 — PDModel interactive completion and parity hardening ⚠️
+### Priority 1 — PDModel interactive completion and parity hardening ⚠️
 **Scope:** `org.apache.pdfbox.pdmodel.interactive`
 
-Interactive parity remains high value, but should follow the `pdmodel.font` milestone so
-form fields, annotation appearance, and destination text handling have stable font behavior.
+With `pdmodel.font` milestone #48–#52 closed for the current parity target, interactive parity
+is now the highest-leverage dependency-safe next step.
 
 **See:** `issues/32-pdmodel-interactive-port.md`
 
-### Priority 3 — Rendering with real .NET graphics
+### Priority 2 — Rendering with real .NET graphics
 **Scope:** Replace `AwtStubs.cs` with platform-appropriate .NET rendering
 
 The rendering layer compiles and the logic is ported, but `AwtStubs.cs` means no real pixels
@@ -385,7 +375,7 @@ unlock actual PDF-to-image conversion.
 
 **See:** `issues/33-rendering-net-graphics.md`
 
-### Priority 4 — StandardSecurityHandler decryption
+### Priority 3 — StandardSecurityHandler decryption
 **Scope:** `PrepareForDecryption` RC4/AES flow in `StandardSecurityHandler`
 
 Required for loading any password-protected PDF. The data model and structure types are
@@ -393,7 +383,7 @@ present; only the cryptographic decryption flow is missing.
 
 **See:** `issues/34-encryption-decryption.md`
 
-### Priority 5 — Missing operator processors (2 files)
+### Priority 4 — Missing operator processors (2 files)
 **Scope:** `b` and `b*` graphics operators
 
 `CloseAndFillNonZeroAndStrokePath` and `CloseAndFillEvenOddAndStrokePath` are defined in
@@ -407,7 +397,6 @@ quick win bundled into the next operators PR.
 ## Dependency order
 
 ```
-PDModel font stack completion (#48–#52)
 PDModel interactive hardening (#32 remaining scope)
 Rendering .NET graphics (#33) — mostly independent of above
 Encryption decryption (#34) — independent of above
@@ -418,9 +407,8 @@ Close/Fill operators (#36) — independent quick win
 
 | Priority | Issue | Files | Effort |
 |---|---|---|---|
-| 1 | #48–#52 PDModel font stack completion | ~12–18 remaining | 4–6 days |
-| 2 | #32 PDModel interactive completion | ~10–16 remaining | 3–5 days |
-| 3 | #33 Rendering .NET graphics | ~5 (adapt) | 3–5 days |
-| 4 | #34 Encryption decryption | ~3 | 1–2 days |
-| 5 | #36 Close/Fill operators | 2 | 0.5 days |
-| | **Total** | **~32–44** | **~11.5–18.5 engineer-days** |
+| 1 | #32 PDModel interactive completion | ~10–16 remaining | 3–5 days |
+| 2 | #33 Rendering .NET graphics | ~5 (adapt) | 3–5 days |
+| 3 | #34 Encryption decryption | ~3 | 1–2 days |
+| 4 | #36 Close/Fill operators | 2 | 0.5 days |
+| | **Total** | **~20–26** | **~7.5–12.5 engineer-days** |
