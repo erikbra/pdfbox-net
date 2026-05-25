@@ -1,0 +1,101 @@
+name: Upstream Sync Watch
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Compare tracked commit with upstream trunk
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+          import urllib.error
+
+          state_path = "reports/upstream-sync-state.json"
+          with open(state_path, "r", encoding="utf-8") as f:
+              state = json.load(f)
+
+          upstream_repo = state["upstream_repository"]
+          upstream_branch = state["upstream_branch"]
+          tracked_commit = state["tracked_commit"]
+
+          with urllib.request.urlopen(
+              f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_branch}"
+          ) as resp:
+              upstream_commit = json.load(resp)["sha"]
+
+          if upstream_commit == tracked_commit:
+              print("Tracked commit already matches upstream trunk.")
+              raise SystemExit(0)
+
+          owner, repo = os.environ["REPO"].split("/", 1)
+          token = os.environ["GITHUB_TOKEN"]
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+
+          issue_title = "Upstream PDFBox has new commits to sync"
+          issue_body = (
+              "Upstream PDFBox trunk has moved beyond our tracked commit.\n\n"
+              f"- Tracked commit: `{tracked_commit}`\n"
+              f"- Latest upstream commit: `{upstream_commit}`\n\n"
+              f"Compare: https://github.com/{upstream_repo}/compare/{tracked_commit}...{upstream_commit}\n\n"
+              f"After syncing changes, update `{state_path}` with the new tracked commit."
+          )
+
+          search_url = (
+              f"https://api.github.com/repos/{owner}/{repo}/issues"
+              "?state=open&per_page=100"
+          )
+          req = urllib.request.Request(search_url, headers=headers)
+          with urllib.request.urlopen(req) as resp:
+              issues = json.load(resp)
+
+          existing = None
+          for issue in issues:
+              if issue.get("title") == issue_title:
+                  existing = issue
+                  break
+
+          if existing is None:
+              create_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
+              payload = json.dumps(
+                  {
+                      "title": issue_title,
+                      "body": issue_body,
+                  }
+              ).encode("utf-8")
+              create_req = urllib.request.Request(
+                  create_url, data=payload, headers=headers, method="POST"
+              )
+              with urllib.request.urlopen(create_req) as resp:
+                  created = json.load(resp)
+              print(f"Created upstream-sync issue #{created['number']}.")
+          else:
+              update_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{existing['number']}"
+              payload = json.dumps({"body": issue_body}).encode("utf-8")
+              update_req = urllib.request.Request(
+                  update_url, data=payload, headers=headers, method="PATCH"
+              )
+              with urllib.request.urlopen(update_req) as resp:
+                  updated = json.load(resp)
+              print(f"Updated upstream-sync issue #{updated['number']}.")
+          PY
