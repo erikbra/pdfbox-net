@@ -8,6 +8,7 @@ This document captures the project split decision using upstream published Maven
 | --- | --- | --- | --- |
 | `org.apache.pdfbox:pdfbox-io` | `io/src/main/java/org/apache/pdfbox/io/**` | `src/PdfBox.Net.IO/PdfBox.Net.IO.csproj` | `src/PdfBox.Net.IO/IO/**` |
 | `org.apache.pdfbox:fontbox` | `fontbox/src/main/java/org/apache/fontbox/**` | `src/PdfBox.Net.FontBox/PdfBox.Net.FontBox.csproj` | `src/PdfBox.Net.FontBox/FontBox/**` |
+| `org.apache.pdfbox:xmpbox` | `xmpbox/src/main/java/org/apache/xmpbox/**` | `src/PdfBox.Net.XmpBox/PdfBox.Net.XmpBox.csproj` | `src/PdfBox.Net.XmpBox/XmpBox/**` |
 | `org.apache.pdfbox:pdfbox` | `pdfbox/src/main/java/org/apache/pdfbox/**` (except IO artifact scope) | `src/PdfBox.Net/PdfBox.Net.csproj` | `src/PdfBox.Net/**` |
 
 Dependency direction:
@@ -21,7 +22,6 @@ Dependency direction:
 | Java Maven artifact | Java package/folder scope (source) | Recommended .NET project |
 | --- | --- | --- |
 | `org.apache.pdfbox:fontbox` | `fontbox/src/main/java/org/apache/fontbox/**` | `src/PdfBox.Net.FontBox/PdfBox.Net.FontBox.csproj` |
-| `org.apache.pdfbox:xmpbox` | `xmpbox/src/main/java/org/apache/xmpbox/**` | `src/PdfBox.Net.XmpBox/PdfBox.Net.XmpBox.csproj` |
 | `org.apache.pdfbox:preflight` | `preflight/src/main/java/org/apache/pdfbox/preflight/**` | `src/PdfBox.Net.Preflight/PdfBox.Net.Preflight.csproj` |
 | `org.apache.pdfbox:pdfbox-tools` | `tools/src/main/java/org/apache/pdfbox/tools/**` | `src/PdfBox.Net.Tools/PdfBox.Net.Tools.csproj` (optional tooling layer) |
 
