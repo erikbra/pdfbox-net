@@ -679,7 +679,17 @@ public class COSDictionary : COSBase, COSUpdateInfo
                 cosDictionary.WritePDF(output);
                 break;
             case COSObject cosObject:
-                if (cosObject.GetObject() is null)
+                COSObjectKey? cosObjectKey = cosObject.GetKey();
+                if (cosObjectKey is not null)
+                {
+                    // Indirect reference: write as "N M R" to avoid inlining and cycles.
+                    string indirectRef = $"{cosObjectKey.GetNumber()} {cosObjectKey.GetGeneration()} R";
+                    foreach (char c in indirectRef)
+                    {
+                        output.WriteByte((byte)c);
+                    }
+                }
+                else if (cosObject.GetObject() is null)
                 {
                     COSNull.NULL.WritePDF(output);
                 }
