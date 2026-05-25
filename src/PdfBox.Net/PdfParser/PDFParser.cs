@@ -227,16 +227,17 @@ public sealed class PDFParser
                 long field3 = ReadBigEndian(bytes, cursor, w2, 0);
                 cursor += w2;
 
-                COSObjectKey key = new(firstObjectNumber + i, checked((int)field3));
                 switch (type)
                 {
                     case 0:
                         break;
                     case 1:
+                        COSObjectKey key = new(firstObjectNumber + i, checked((int)field3));
                         resolver.SetXRef(key, field2);
                         break;
                     case 2:
-                        resolver.SetXRef(key, -field2);
+                        COSObjectKey compressedObjectKey = new(firstObjectNumber + i, 0);
+                        resolver.SetXRef(compressedObjectKey, -field2);
                         break;
                 }
             }
