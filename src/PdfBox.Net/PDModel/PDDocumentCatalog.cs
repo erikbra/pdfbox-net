@@ -28,6 +28,7 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
+using PdfBox.Net.PDModel.Graphics.OptionalContent;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
@@ -285,6 +286,17 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetMarkInfo(PDMarkInfo? markInfo)
     {
         _root.SetItem(COSName.MARK_INFO, markInfo);
+    }
+
+    public PDOptionalContentProperties? GetOCProperties()
+    {
+        COSDictionary? properties = _root.GetCOSDictionary(COSName.GetPDFName("OCProperties"));
+        return properties is null ? null : new PDOptionalContentProperties(properties);
+    }
+
+    public void SetOCProperties(PDOptionalContentProperties? ocProperties)
+    {
+        _root.SetItem(COSName.GetPDFName("OCProperties"), ocProperties);
     }
 
     /// <summary>

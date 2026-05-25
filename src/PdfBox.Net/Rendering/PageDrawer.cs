@@ -30,6 +30,7 @@ using PdfBox.Net.ContentStream;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Annotations;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Form;
@@ -58,6 +59,8 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private readonly GeneralPath _linePath = new();
     private readonly Matrix _initialMatrix = new();
     private Point2D? _currentPoint;
+    private readonly Stack<bool> _hiddenMarkedContentStack = new();
+    private int _nestedHiddenOptionalContentCount;
 
     // Page height in PDF points, used to flip the Y axis when converting
     // from PDF space (Y-up, origin bottom-left) to canvas space (Y-down).
@@ -362,50 +365,125 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     public override void BeginMarkedContentSequence(COSName tag, COSDictionary? properties)
     {
+        bool hidden = properties is not null && IsHiddenOCG(PDPropertyList.Create(properties));
+        _hiddenMarkedContentStack.Push(hidden);
+        if (hidden)
+        {
+            _nestedHiddenOptionalContentCount++;
+        }
     }
 
     public override void EndMarkedContentSequence()
     {
+        if (_hiddenMarkedContentStack.Count == 0)
+        {
+            return;
+        }
+
+        if (_hiddenMarkedContentStack.Pop() && _nestedHiddenOptionalContentCount > 0)
+        {
+            _nestedHiddenOptionalContentCount--;
+        }
     }
 
     private bool IsContentRendered()
     {
-        return true;
+        return _nestedHiddenOptionalContentCount == 0;
     }
 
-    private bool IsHiddenOCG(PDPropertyList propertyList)
+    private bool IsHiddenOCG(PDPropertyList? propertyList)
     {
-        return false;
+        return propertyList switch
+        {
+            null => false,
+            PDOptionalContentGroup group => group.GetRenderState(_parameters.GetDestination()) switch
+            {
+                PDOptionalContentGroup.RenderState.ON => false,
+                PDOptionalContentGroup.RenderState.OFF => true,
+                _ => !GetRenderer().IsGroupEnabled(group)
+            },
+            PDOptionalContentMembershipDictionary ocmd => IsHiddenOCMD(ocmd),
+            _ => false
+        };
     }
 
     private bool IsHiddenOCMD(PDOptionalContentMembershipDictionary ocmd)
     {
-        return false;
+        COSArray? visibilityExpression = ocmd.GetVisibilityExpression();
+        if (visibilityExpression is not null)
+        {
+            return IsHiddenVisibilityExpression(visibilityExpression);
+        }
+
+        IReadOnlyList<PDPropertyList> ocgs = ocmd.GetOCGs();
+        COSName visibilityPolicy = ocmd.GetVisibilityPolicy();
+        string policy = visibilityPolicy.GetName();
+
+        int hiddenCount = ocgs.Count(IsHiddenOCG);
+        return policy switch
+        {
+            "AllOn" => hiddenCount > 0,
+            "AnyOff" => hiddenCount == 0,
+            "AllOff" => hiddenCount != ocgs.Count,
+            _ => hiddenCount == ocgs.Count
+        };
     }
 
     private bool IsHiddenVisibilityExpression(COSArray veArray)
     {
-        return false;
+        return veArray.GetObject(0) switch
+        {
+            COSName op when op.GetName() == "And" => IsHiddenAndVisibilityExpression(veArray),
+            COSName op when op.GetName() == "Or" => IsHiddenOrVisibilityExpression(veArray),
+            COSName op when op.GetName() == "Not" => IsHiddenNotVisibilityExpression(veArray),
+            _ => false
+        };
     }
 
     private bool IsHiddenAndVisibilityExpression(COSArray veArray)
     {
+        for (int i = 1; i < veArray.Size(); i++)
+        {
+            if (IsVisibilityOperandHidden(veArray.GetObject(i)))
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 
     private bool IsHiddenOrVisibilityExpression(COSArray veArray)
     {
-        return false;
+        for (int i = 1; i < veArray.Size(); i++)
+        {
+            if (!IsVisibilityOperandHidden(veArray.GetObject(i)))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private bool IsHiddenNotVisibilityExpression(COSArray veArray)
     {
-        return false;
+        return veArray.Size() < 2 || !IsVisibilityOperandHidden(veArray.GetObject(1));
     }
 
     private static LookupTable GetInvLookupTable()
     {
         return new LookupTable();
+    }
+
+    private bool IsVisibilityOperandHidden(COSBase? operand)
+    {
+        return operand switch
+        {
+            COSDictionary dictionary => IsHiddenOCG(PDPropertyList.Create(dictionary)),
+            COSArray expression => IsHiddenVisibilityExpression(expression),
+            _ => false
+        };
     }
 
     // ── SkiaSharp helpers ─────────────────────────────────────────────────────
