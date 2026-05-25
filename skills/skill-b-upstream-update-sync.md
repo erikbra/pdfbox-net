@@ -19,6 +19,9 @@ Re-sync already tracked C# files when upstream PDFBox source files are rewritten
   - `// PORT-LOCAL-START`
   - `// PORT-LOCAL-END`
 - Maintain a verbatim-first sync stance: keep regenerated C# output and comments as close as possible to upstream Java wording and structure, except where C# syntax/runtime differences require adaptation.
+- Prefer a two-lane model:
+  - mechanical core remains upstream-linked and regularly re-synced;
+  - .NET-specific behavior is kept in wrapper/adapter types, or isolated inside `PORT-LOCAL` regions when it must stay in the converted file.
 
 ## Sync workflow (required)
 1. Regenerate the target C# file mechanically from the updated upstream Java file.
@@ -41,6 +44,8 @@ Re-sync already tracked C# files when upstream PDFBox source files are rewritten
 - A `PORT-LOCAL` region must be non-overlapping and fully bounded.
 - Nested `PORT-LOCAL` regions are invalid and must be treated as `needs-manual-sync`.
 - If a region marker is missing its pair, treat as `needs-manual-sync`.
+- Keep each region narrowly scoped and include a short reason comment so future sync reviews can validate intent.
+- If local code intentionally changes behavior/API semantics, ensure file metadata is set to `PORT_MODE: adapted`.
 
 ## Required sync log fields (per file)
 - `source_path`

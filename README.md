@@ -71,6 +71,25 @@ Yes — that is a practical and recommended architecture.
 
 Main trade-off: some extra indirection/allocation can occur, but this is usually manageable if wrappers are thin and performance-critical paths can still access lower-level primitives directly.
 
+### Working model: keep upstream linkage while shipping .NET-native improvements
+
+Use a **two-lane file strategy**:
+
+1. **Mechanical lane (upstream-linked)**
+   - Keep the converted file close to upstream and retain provenance fields:
+     - `PDFBOX_SOURCE_PATH`
+     - `PDFBOX_SOURCE_COMMIT`
+     - `PORT_MODE`
+     - `PORT_LAST_SYNC_COMMIT`
+   - Re-sync this lane with Skill B whenever upstream changes.
+
+2. **Adaptation lane (.NET-specific improvements)**
+   - Prefer placing .NET-specific behavior in a wrapper/adapter type around the mechanical core.
+   - If a change must live in the converted file, isolate it in bounded `PORT-LOCAL` regions so Skill B can preserve it during re-sync.
+   - Mark the file `PORT_MODE: adapted` whenever behavior/API intentionally diverges from upstream parity.
+
+This keeps upstream mergeability while still allowing targeted performance and idiomatic .NET improvements.
+
 ### Proposed conversion "skills" (automation-ready)
 
 Skill definitions are split into focused files in [`SKILLS.md`](SKILLS.md), including usage order and individual skill details for:
