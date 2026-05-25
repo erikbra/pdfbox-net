@@ -359,6 +359,22 @@ public class PDStructureElement : PDStructureNode
     }
 
     /// <summary>
+    /// Appends a marked-content reference kid.
+    /// </summary>
+    public void AppendKid(PDMarkedContentReference? markedContentReference)
+    {
+        AppendObjectableKid(markedContentReference);
+    }
+
+    /// <summary>
+    /// Appends an object reference kid.
+    /// </summary>
+    public void AppendKid(PDObjectReference? objectReference)
+    {
+        AppendObjectableKid(objectReference);
+    }
+
+    /// <summary>
     /// Inserts a marked-content identifier kid before a reference kid.
     /// </summary>
     public void InsertBefore(COSInteger? markedContentIdentifier, object? refKid)
@@ -367,11 +383,43 @@ public class PDStructureElement : PDStructureNode
     }
 
     /// <summary>
+    /// Inserts a marked-content reference kid before a reference kid.
+    /// </summary>
+    public void InsertBefore(PDMarkedContentReference? markedContentReference, object? refKid)
+    {
+        InsertObjectableBefore(markedContentReference, refKid);
+    }
+
+    /// <summary>
+    /// Inserts an object reference kid before a reference kid.
+    /// </summary>
+    public void InsertBefore(PDObjectReference? objectReference, object? refKid)
+    {
+        InsertObjectableBefore(objectReference, refKid);
+    }
+
+    /// <summary>
     /// Removes a marked-content identifier kid.
     /// </summary>
     public void RemoveKid(COSInteger? markedContentIdentifier)
     {
         RemoveKid((COSBase?)markedContentIdentifier);
+    }
+
+    /// <summary>
+    /// Removes a marked-content reference kid.
+    /// </summary>
+    public void RemoveKid(PDMarkedContentReference? markedContentReference)
+    {
+        RemoveObjectableKid(markedContentReference);
+    }
+
+    /// <summary>
+    /// Removes an object reference kid.
+    /// </summary>
+    public void RemoveKid(PDObjectReference? objectReference)
+    {
+        RemoveObjectableKid(objectReference);
     }
 
     private PDStructureTreeRoot? GetStructureTreeRoot()

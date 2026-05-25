@@ -38,7 +38,7 @@ namespace PdfBox.Net.PDModel.Graphics;
 /// The base class provides access to the underlying COS stream dictionary.
 /// Concrete subclasses (image XObjects, form XObjects) extend this with type-specific behavior.
 /// </summary>
-public class PDXObject
+public class PDXObject : COSObjectable
 {
     private static readonly COSName SubtypeName = COSName.GetPDFName("Subtype");
     private static readonly COSName GroupName = COSName.GetPDFName("Group");
@@ -102,6 +102,8 @@ public class PDXObject
 
     /// <summary>Returns the underlying COS stream, or null if this object has no backing stream.</summary>
     public COSStream? GetCOSObject() => _stream?.GetCOSObject();
+
+    COSBase COSObjectable.GetCOSObject() => GetCOSObject() ?? COSNull.NULL;
 
     /// <summary>Returns the subtype name from the stream dictionary, or null.</summary>
     public string? GetSubtype() => _stream?.GetCOSObject().GetNameAsString(SubtypeName);
