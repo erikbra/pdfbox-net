@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
@@ -250,6 +251,23 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetAcroForm(PDAcroForm? acroForm)
     {
         _root.SetItem(COSName.ACRO_FORM, acroForm);
+    }
+
+    /// <summary>
+    /// Returns the structure tree root, if present.
+    /// </summary>
+    public PDStructureTreeRoot? GetStructureTreeRoot()
+    {
+        COSDictionary? structureTreeRootDictionary = _root.GetCOSDictionary(COSName.GetPDFName("StructTreeRoot"));
+        return structureTreeRootDictionary is null ? null : new PDStructureTreeRoot(structureTreeRootDictionary);
+    }
+
+    /// <summary>
+    /// Sets the structure tree root.
+    /// </summary>
+    public void SetStructureTreeRoot(PDStructureTreeRoot? structureTreeRoot)
+    {
+        _root.SetItem(COSName.GetPDFName("StructTreeRoot"), structureTreeRoot);
     }
 
     /// <summary>
