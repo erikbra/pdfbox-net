@@ -38,6 +38,11 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 /// </summary>
 public class PDMarkedContent
 {
+    private static readonly COSName McidName = COSName.GetPDFName("MCID");
+    private static readonly COSName AltName = COSName.GetPDFName("Alt");
+    private static readonly COSName ActualTextName = COSName.GetPDFName("ActualText");
+    private static readonly COSName ExpandedFormName = COSName.GetPDFName("E");
+
     private readonly List<PDMarkedContent> _markedContents = new();
     private readonly List<TextPosition> _texts = new();
     private readonly List<PDXObject> _xobjects = new();
@@ -54,6 +59,12 @@ public class PDMarkedContent
     /// <summary>The optional properties dictionary for this sequence.</summary>
     public COSDictionary? Properties { get; }
 
+    /// <summary>The marked-content identifier, or -1 if none exists.</summary>
+    public int GetMCID() => Properties is null ? -1 : Properties.GetInt(McidName);
+
+    /// <summary>The language override (Lang), if present.</summary>
+    public string? GetLanguage() => Properties?.GetNameAsString(COSName.LANG);
+
     /// <summary>Creates a new marked-content sequence with the given tag and properties.</summary>
     public static PDMarkedContent Create(COSName tag, COSDictionary? properties) => new(tag, properties);
 
@@ -67,7 +78,13 @@ public class PDMarkedContent
     public void AddXObject(PDXObject xobject) => _xobjects.Add(xobject);
 
     /// <summary>Returns the ActualText override from the properties dictionary, if present.</summary>
-    public string? GetActualText() => Properties?.GetString(COSName.GetPDFName("ActualText"));
+    public string? GetActualText() => Properties?.GetString(ActualTextName);
+
+    /// <summary>Returns the alternate description (Alt), if present.</summary>
+    public string? GetAlternateDescription() => Properties?.GetString(AltName);
+
+    /// <summary>Returns the expanded form (E), if present.</summary>
+    public string? GetExpandedForm() => Properties?.GetString(ExpandedFormName);
 
     /// <summary>Returns all nested marked-content sequences, in order of appearance.</summary>
     public IReadOnlyList<PDMarkedContent> GetMarkedContents() => _markedContents;
