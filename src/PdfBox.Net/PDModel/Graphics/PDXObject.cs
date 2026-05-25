@@ -103,7 +103,11 @@ public class PDXObject : COSObjectable
     /// <summary>Returns the underlying COS stream, or null if this object has no backing stream.</summary>
     public COSStream? GetCOSObject() => _stream?.GetCOSObject();
 
-    COSBase COSObjectable.GetCOSObject() => GetCOSObject() ?? COSNull.NULL;
+    COSBase COSObjectable.GetCOSObject()
+    {
+        COSBase? cosObject = _stream?.GetCOSObject();
+        return cosObject ?? COSNull.NULL;
+    }
 
     /// <summary>Returns the subtype name from the stream dictionary, or null.</summary>
     public string? GetSubtype() => _stream?.GetCOSObject().GetNameAsString(SubtypeName);
