@@ -5,9 +5,9 @@
   "tracked_commit_updated_utc": "2026-05-25T09:41:14.885Z",
   "note": "Update tracked_commit whenever a sync batch lands so upstream-watch automation can detect new upstream commits.",
   "latest_upstream_commit_seen": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-  "last_port_coverage_scan_utc": "2026-05-25T15:27:12.992Z",
+  "last_port_coverage_scan_utc": "2026-05-26T08:14:02.737Z",
   "upstream_java_files_total": 1067,
-  "ported_java_files_total": 434,
-  "missing_java_files_total": 639,
-  "missing_source_paths_sha256": "10bf795f7b10e829f6a0f568015a64a66da61c20f157ea7f0f5cd286a98ed249"
+  "ported_java_files_total": 454,
+  "missing_java_files_total": 619,
+  "missing_source_paths_sha256": "f2b96ac6be7285670e35486b59126d96112132cc0570f335b4e096b5e3f352a1"
 }
