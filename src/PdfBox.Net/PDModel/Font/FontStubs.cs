@@ -39,7 +39,7 @@ using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.PDModel.Font
 {
-    public interface PDFontLike
+    public partial interface PDFontLike
     {
         string GetName();
     }
@@ -245,7 +245,7 @@ namespace PdfBox.Net.PDModel.Font
         }
     }
 
-    public abstract class PDVectorFont : PDFont
+    public abstract partial class PDVectorFont : PDFont
     {
         protected PDVectorFont(COSDictionary fontDictionary)
             : base(fontDictionary)
@@ -256,9 +256,11 @@ namespace PdfBox.Net.PDModel.Font
         public abstract GeneralPath GetNormalizedPath(int code);
     }
 
-    public abstract class PDSimpleFont : PDVectorFont
+    public abstract partial class PDSimpleFont : PDVectorFont
     {
         private readonly PdfBox.Net.PDModel.Font.Encoding.Encoding _encoding;
+
+        protected PdfBox.Net.PDModel.Font.Encoding.Encoding FontEncoding => _encoding;
 
         protected PDSimpleFont(COSDictionary fontDictionary)
             : this(fontDictionary, null)
@@ -350,7 +352,7 @@ namespace PdfBox.Net.PDModel.Font
         public abstract bool IsStandard14();
     }
 
-    public sealed class PDType1Font : PDSimpleFont
+    public partial class PDType1Font : PDSimpleFont
     {
         private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
         private static readonly COSName FontFileKey = COSName.GetPDFName("FontFile");
@@ -489,7 +491,7 @@ namespace PdfBox.Net.PDModel.Font
         }
     }
 
-    public sealed class PDTrueTypeFont : PDSimpleFont
+    public partial class PDTrueTypeFont : PDSimpleFont
     {
         private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
         private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
@@ -545,7 +547,7 @@ namespace PdfBox.Net.PDModel.Font
         }
     }
 
-    public sealed class PDType0Font : PDVectorFont
+    public partial class PDType0Font : PDVectorFont
     {
         private static readonly COSName EncodingKey = COSName.GetPDFName("Encoding");
         private static readonly COSName CidSystemInfoKey = COSName.GetPDFName("CIDSystemInfo");
@@ -779,7 +781,7 @@ end
         }
     }
 
-    public abstract class PDCIDFont : PDFont
+    public abstract partial class PDCIDFont : PDFont
     {
         private static readonly COSName WidthsKey = COSName.GetPDFName("Widths");
         private static readonly COSName WKey = COSName.GetPDFName("W");
@@ -883,7 +885,7 @@ end
         }
     }
 
-    public sealed class PDCIDFontType0 : PDCIDFont
+    public partial class PDCIDFontType0 : PDCIDFont
     {
         public PDCIDFontType0(COSDictionary dictionary)
             : base(dictionary)
@@ -891,7 +893,7 @@ end
         }
     }
 
-    public sealed class PDCIDFontType2 : PDCIDFont
+    public partial class PDCIDFontType2 : PDCIDFont
     {
         private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
         private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
@@ -1021,7 +1023,7 @@ end
         }
     }
 
-    public class PDFontDescriptor
+    public partial class PDFontDescriptor
     {
         private const int FlagFixedPitch = 1;
         private const int FlagSerif = 2;

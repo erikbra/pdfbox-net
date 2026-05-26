@@ -99,6 +99,9 @@ public sealed class DictionaryEncoding : Encoding
         return name switch
         {
             "MacRomanEncoding" => MacRomanEncoding.INSTANCE,
+            "MacOSRomanEncoding" => MacOSRomanEncoding.INSTANCE,
+            "MacExpertEncoding" => MacExpertEncoding.INSTANCE,
+            "StandardEncoding" => StandardEncoding.INSTANCE,
             "WinAnsiEncoding" => WinAnsiEncoding.INSTANCE,
             "SymbolEncoding" => SymbolEncoding.INSTANCE,
             "ZapfDingbatsEncoding" => ZapfDingbatsEncoding.INSTANCE,

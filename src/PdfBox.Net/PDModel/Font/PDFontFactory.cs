@@ -41,7 +41,9 @@ public static class PDFontFactory
         return subtype switch
         {
             "Type0" => PDType0Font.Load(dictionary),
-            "Type1" or "MMType1" => PDType1Font.Load(dictionary),
+            "Type1" => PDType1CFont.Load(dictionary) ?? PDType1Font.Load(dictionary),
+            "MMType1" => new PDMMType1Font(dictionary),
+            "Type3" => new PDType3Font(dictionary),
             "TrueType" => PDTrueTypeFont.Load(dictionary) ?? (PDFont)PDDictionaryFont.Create(dictionary),
             "CIDFontType0" => new PDCIDFontType0(dictionary),
             "CIDFontType2" => PDCIDFontType2.Load(dictionary),

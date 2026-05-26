@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted rendering-support stubs derived from Apache PDFBox model and rendering dependencies.
+ * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDVectorFont.java
  * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: trunk
@@ -25,20 +25,8 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.COS;
+namespace PdfBox.Net.PDModel.Font;
 
-namespace PdfBox.Net.PDModel.Font
+public abstract partial class PDVectorFont
 {
-    public abstract class PDType3Font : PDFont
-    {
-        protected PDType3Font()
-            : base(new COSDictionary())
-        {
-        }
-
-        public override string GetName()
-        {
-            return GetType().Name;
-        }
-    }
 }
