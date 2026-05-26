@@ -1,7 +1,7 @@
 # FontBox Port Gap Analysis
 
-Date: 2026-05-24 (updated from 2026-05-23)
-Reference commit (Java upstream): `6b9b255eb471b384bac3d2d55c4e47f24fac6dac` (trunk)
+Date: 2026-05-25
+Reference commit (Java upstream): `a71c5679d69bc3fd3ab15e248b69441ee91dca6c` (trunk)
 Reference commit (C# ported): current branch
 
 ## Summary
@@ -24,10 +24,15 @@ Reference commit (C# ported): current branch
 | `org.apache.fontbox.util.autodetect` | 7 | 7 | 0 | 100% ✅ |
 | **TOTAL** | **143** | **144** | **0** | **~100%** ✅ |
 
-> Note: C# file count is 144 because `ttf/model` gained `GlyphIdListComparer.cs`, a C#-specific
-> helper with no direct Java counterpart. `TTFSupportStubs.cs` is also a C#-only scaffolding file.
-> `src/PdfBox.Net.FontBox/Util/Geometry/GeneralPath.cs` is a C# geometry utility that has no
-> 1:1 Java counterpart in fontbox proper.
+> **Note on C# file counts:** The "C# ported" column counts direct Java-equivalent ports plus
+> `GlyphIdListComparer.cs` (a C#-specific `IComparer<IList<int>>` helper in `ttf/model` that has
+> no Java counterpart but is logically part of that package), giving 144 total.
+> Three additional C#-only files exist in the project but are excluded from the table counts:
+> - `TTFSupportStubs.cs` — C#-only scaffolding shim in the TTF root package
+> - `MemoryTTFDataStream.cs` — C#-only in-memory TTF data stream; `MemoryTTFDataStream.java`
+>   does not exist in the upstream Apache PDFBox source (verified at both reference commits)
+> - `src/PdfBox.Net.FontBox/Util/Geometry/GeneralPath.cs` — C# geometry utility outside the
+>   fontbox package hierarchy with no counterpart in the fontbox module
 
 ---
 
@@ -81,8 +86,7 @@ GSUB-aware cmap lookup, TTF subsetter, and TrueType Collection support:
 - `GlyphSubstitutionTable.cs`, `GlyphTable.cs`
 - `HeaderTable.cs`, `HorizontalHeaderTable.cs`, `HorizontalMetricsTable.cs`
 - `IndexToLocationTable.cs`, `KerningSubtable.cs`, `KerningTable.cs`
-- `MaximumProfileTable.cs`, `MemoryTTFDataStream.cs`
-- `NameRecord.cs`, `NamingTable.cs`
+- `MaximumProfileTable.cs`, `NameRecord.cs`, `NamingTable.cs`
 - `OS2WindowsMetricsTable.cs`, `OTFParser.cs`, `OTLTable.cs`
 - `OpenTypeFont.cs`, `OpenTypeScript.cs`, `PostScriptTable.cs`
 - `RandomAccessReadDataStream.cs`, `RandomAccessReadUnbufferedDataStream.cs`
@@ -90,6 +94,9 @@ GSUB-aware cmap lookup, TTF subsetter, and TrueType Collection support:
 - `TTFParser.cs`, `TTFSubsetter.cs`, `TTFTable.cs`
 - `TrueTypeCollection.cs`, `TrueTypeFont.cs`
 - `VerticalHeaderTable.cs`, `VerticalMetricsTable.cs`, `VerticalOriginTable.cs`, `WGL4Names.cs`
+
+C#-only extras in this package (no Java counterparts): `MemoryTTFDataStream.cs`,
+`TTFSupportStubs.cs`
 
 ### `org.apache.fontbox.ttf.gsub` — 13/13 (was 0%)
 All 13 GSUB worker files ported:
@@ -139,7 +146,7 @@ analysis date. All charstring infrastructure, charset/encoding tables, full TTF/
 stack, GSUB pipeline, AFM, and CMap packages are complete.
 
 Future work in this area would be:
-- Upstream sync: re-checking for Java-side changes against `ccd281cfecedcc0ad39709bece5e67b19a54e8db`
+- Upstream sync: re-checking for Java-side changes against `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
 - Functional validation: end-to-end tests using real font files (TTF, OTF, CFF, Type1)
 - TTFSubsetter: the port exists but some methods throw `NotSupportedException`; these
   need completing once font embedding in PDF creation is a priority.
