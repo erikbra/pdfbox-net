@@ -27,11 +27,11 @@
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
-public sealed class MacRomanEncoding : Encoding
+public class MacRomanEncoding : Encoding
 {
     public static readonly MacRomanEncoding INSTANCE = new();
 
-    private MacRomanEncoding()
+    protected MacRomanEncoding()
     {
         foreach (KeyValuePair<int, string> kv in PdfBox.Net.FontBox.Encoding.MacRomanEncoding.INSTANCE.GetCodeToNameMap())
         {

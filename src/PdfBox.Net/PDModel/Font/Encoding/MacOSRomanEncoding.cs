@@ -49,7 +49,7 @@ public sealed class MacOSRomanEncoding : MacRomanEncoding
         (240, "apple"),
     ];
 
-    public static readonly MacOSRomanEncoding INSTANCE = new();
+    public new static readonly MacOSRomanEncoding INSTANCE = new();
 
     private MacOSRomanEncoding()
     {

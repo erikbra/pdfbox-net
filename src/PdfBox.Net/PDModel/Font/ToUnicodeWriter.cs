@@ -57,7 +57,7 @@ public sealed class ToUnicodeWriter
     public void WriteTo(Stream output)
     {
         ArgumentNullException.ThrowIfNull(output);
-        using StreamWriter writer = new(output, Encoding.ASCII, leaveOpen: true);
+        using StreamWriter writer = new(output, System.Text.Encoding.ASCII, leaveOpen: true);
         WriteLine(writer, "/CIDInit /ProcSet findresource begin");
         WriteLine(writer, "12 dict begin\n");
         WriteLine(writer, "begincmap");

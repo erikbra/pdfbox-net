@@ -23,15 +23,15 @@ public class PDModelFontBackfillTest
         var fontDict = new COSDictionary();
         fontDict.SetName(COSName.SUBTYPE, "Type3");
         fontDict.SetName(COSName.NAME, "MiniType3");
-        fontDict.SetItem(COSName.FONT_MATRIX, COSArray.Of(0.001f, 0f, 0f, 0.001f, 0f, 0f));
-        fontDict.SetItem(COSName.FONT_BBOX, COSArray.Of(0f, 0f, 0f, 0f));
+        fontDict.SetItem(COSName.GetPDFName("FontMatrix"), COSArray.Of(0.001f, 0f, 0f, 0.001f, 0f, 0f));
+        fontDict.SetItem(COSName.GetPDFName("FontBBox"), COSArray.Of(0f, 0f, 0f, 0f));
         fontDict.SetInt(COSName.GetPDFName("FirstChar"), 65);
         fontDict.SetInt(COSName.GetPDFName("LastChar"), 65);
-        fontDict.SetName(COSName.ENCODING, "WinAnsiEncoding");
+        fontDict.SetName(COSName.GetPDFName("Encoding"), "WinAnsiEncoding");
 
         var charProcs = new COSDictionary();
         charProcs.SetItem(COSName.GetPDFName("A"), CreateContentStream("500 0 -10 -20 200 300 d1"));
-        fontDict.SetItem(COSName.CHAR_PROCS, charProcs);
+        fontDict.SetItem(COSName.GetPDFName("CharProcs"), charProcs);
 
         PDFont font = PDFontFactory.CreateFont(fontDict);
 
@@ -49,7 +49,7 @@ public class PDModelFontBackfillTest
     {
         var fontDict = new COSDictionary();
         fontDict.SetName(COSName.SUBTYPE, "Type3");
-        fontDict.SetName(COSName.ENCODING, "WinAnsiEncoding");
+        fontDict.SetName(COSName.GetPDFName("Encoding"), "WinAnsiEncoding");
         PDType3Font font = new(fontDict);
         PDType3CharProc charProc = new(font, CreateContentStream("600 0 1 2 11 22 d1"));
 
@@ -64,7 +64,7 @@ public class PDModelFontBackfillTest
     {
         var dict = new COSDictionary();
         dict.SetName(COSName.SUBTYPE, "MMType1");
-        dict.SetName(COSName.BASE_FONT, "Helvetica");
+        dict.SetName(COSName.GetPDFName("BaseFont"), "Helvetica");
 
         PDFont font = PDFontFactory.CreateFont(dict);
 
@@ -75,11 +75,11 @@ public class PDModelFontBackfillTest
     public void PDFontFactory_Type1_WithEmbeddedFontFile3_ReturnsPDType1CFont()
     {
         var descriptor = new COSDictionary();
-        descriptor.SetItem(COSName.GetPDFName("FontFile3"), CreateBinaryStream(FontBoxTestFixtures.CreateMinimalType1Cff()));
+        descriptor.SetItem(COSName.GetPDFName("FontFile3"), CreateBinaryStream(FontBoxTestFixtures.CreateMinimalOpenTypeCff()));
 
         var dict = new COSDictionary();
         dict.SetName(COSName.SUBTYPE, "Type1");
-        dict.SetName(COSName.BASE_FONT, "MiniCFF");
+        dict.SetName(COSName.GetPDFName("BaseFont"), "MiniCFF");
         dict.SetItem(COSName.GetPDFName("FontDescriptor"), descriptor);
 
         PDFont font = PDFontFactory.CreateFont(dict);
@@ -100,7 +100,7 @@ public class PDModelFontBackfillTest
 
         using MemoryStream stream = new();
         writer.WriteTo(stream);
-        string text = Encoding.ASCII.GetString(stream.ToArray());
+        string text = System.Text.Encoding.ASCII.GetString(stream.ToArray());
 
         Assert.Contains("beginbfrange", text);
         Assert.Contains("endbfrange", text);
@@ -122,13 +122,13 @@ public class PDModelFontBackfillTest
     public void DictionaryEncoding_ResolvesAdditionalNamedEncodings()
     {
         var dict = new COSDictionary();
-        dict.SetName(COSName.ENCODING, "StandardEncoding");
+        dict.SetName(COSName.GetPDFName("Encoding"), "StandardEncoding");
         Assert.Equal("A", DictionaryEncoding.ResolveEncoding(dict).GetName(65));
 
-        dict.SetName(COSName.ENCODING, "MacOSRomanEncoding");
+        dict.SetName(COSName.GetPDFName("Encoding"), "MacOSRomanEncoding");
         Assert.Equal("apple", DictionaryEncoding.ResolveEncoding(dict).GetName(240));
 
-        dict.SetName(COSName.ENCODING, "MacExpertEncoding");
+        dict.SetName(COSName.GetPDFName("Encoding"), "MacExpertEncoding");
         Assert.Equal("AEsmall", DictionaryEncoding.ResolveEncoding(dict).GetName(190));
     }
 
@@ -153,7 +153,7 @@ public class PDModelFontBackfillTest
 
     private static COSStream CreateContentStream(string content)
     {
-        return CreateBinaryStream(Encoding.ASCII.GetBytes(content));
+        return CreateBinaryStream(System.Text.Encoding.ASCII.GetBytes(content));
     }
 
     private static COSStream CreateBinaryStream(byte[] bytes)

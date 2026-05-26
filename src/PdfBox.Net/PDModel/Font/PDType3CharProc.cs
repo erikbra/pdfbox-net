@@ -60,6 +60,7 @@ public sealed class PDType3CharProc
     public PDRectangle? GetGlyphBBox()
     {
         if (!TryReadLeadingOperator(out Operator? op, out List<COSBase> arguments) ||
+            op is null ||
             !string.Equals(op.GetName(), "d1", StringComparison.Ordinal) ||
             arguments.Count < 6 ||
             arguments[2] is not COSNumber x ||
@@ -82,7 +83,7 @@ public sealed class PDType3CharProc
             throw new IOException("Unexpected end of Type 3 charproc stream.");
         }
 
-        string name = op.GetName();
+        string name = op?.GetName() ?? throw new IOException("Unexpected end of Type 3 charproc stream.");
         if (!string.Equals(name, "d0", StringComparison.Ordinal) && !string.Equals(name, "d1", StringComparison.Ordinal))
         {
             throw new IOException("First operator must be d0 or d1.");

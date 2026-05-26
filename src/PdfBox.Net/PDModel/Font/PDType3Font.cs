@@ -39,8 +39,8 @@ namespace PdfBox.Net.PDModel.Font;
 public sealed class PDType3Font : PDSimpleFont
 {
     private static readonly COSName NameKey = COSName.NAME;
-    private static readonly COSName CharProcsKey = COSName.CHAR_PROCS;
-    private static readonly COSName FontBBoxKey = COSName.FONT_BBOX;
+    private static readonly COSName CharProcsKey = COSName.GetPDFName("CharProcs");
+    private static readonly COSName FontBBoxKey = COSName.GetPDFName("FontBBox");
     private static readonly COSName FirstCharKey = COSName.GetPDFName("FirstChar");
     private static readonly COSName LastCharKey = COSName.GetPDFName("LastChar");
     private static readonly COSName ResourcesKey = COSName.RESOURCES;
@@ -223,7 +223,7 @@ public sealed class PDType3Font : PDSimpleFont
 
     private static PdfBox.Net.PDModel.Font.Encoding.Encoding ResolveEncoding(COSDictionary dictionary)
     {
-        return dictionary.GetDictionaryObject(COSName.ENCODING) is null
+        return dictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is null
             ? new PdfBox.Net.PDModel.Font.Encoding.Encoding()
             : DictionaryEncoding.ResolveEncoding(dictionary);
     }
