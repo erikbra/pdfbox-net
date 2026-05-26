@@ -28,6 +28,8 @@
  */
 
 using System.Text;
+using PdfBox.Net.IO;
+using PdfBox.Net;
 using PdfBox.Net.PDModel;
 
 namespace PdfBox.Net.Tests;
@@ -127,4 +129,32 @@ public class PDDocumentPipelineTest
     {
         return Path.Combine(AppContext.BaseDirectory, "Fixtures", "minimal-document-fixture.pdf");
     }
+
+
+    [Fact]
+    public void LoaderLoadsFixtureFromByteArray()
+    {
+        byte[] fixtureBytes = File.ReadAllBytes(GetFixturePath());
+        using PDDocument document = Loader.LoadPDF(fixtureBytes);
+
+        Assert.Equal("Chunk3 Fixture", document.GetDocumentInformation().GetTitle());
+    }
+
+    [Fact]
+    public void LoaderLoadsFixtureFromPath()
+    {
+        using PDDocument document = Loader.LoadPDF(GetFixturePath());
+
+        Assert.Equal("pdfbox-net", document.GetDocumentInformation().GetAuthor());
+    }
+
+    [Fact]
+    public void LoaderLoadsFixtureFromRandomAccessRead()
+    {
+        using RandomAccessReadBuffer read = new(File.ReadAllBytes(GetFixturePath()));
+        using PDDocument document = Loader.LoadPDF(read);
+
+        Assert.Equal("Catalog", document.GetDocumentCatalog().GetTypeName());
+    }
+
 }

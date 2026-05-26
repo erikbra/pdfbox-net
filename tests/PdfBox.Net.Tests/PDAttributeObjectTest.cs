@@ -316,4 +316,21 @@ public class PDAttributeObjectTest
 
         Assert.Empty(root.GetClassMap());
     }
+
+
+    [Fact]
+    public void PDAttributeObject_Create_ReturnsTaggedPdfSubtypes_ForKnownOwners()
+    {
+        COSDictionary layout = new();
+        layout.SetName(COSName.GetPDFName("O"), PDLayoutAttributeObject.Owner);
+        COSDictionary list = new();
+        list.SetName(COSName.GetPDFName("O"), PDListAttributeObject.Owner);
+        COSDictionary table = new();
+        table.SetName(COSName.GetPDFName("O"), PDTableAttributeObject.Owner);
+
+        Assert.IsType<PDLayoutAttributeObject>(PDAttributeObject.Create(layout));
+        Assert.IsType<PDListAttributeObject>(PDAttributeObject.Create(list));
+        Assert.IsType<PDTableAttributeObject>(PDAttributeObject.Create(table));
+    }
+
 }
