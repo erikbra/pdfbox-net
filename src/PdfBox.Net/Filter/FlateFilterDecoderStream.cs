@@ -21,8 +21,13 @@ public sealed class FlateFilterDecoderStream : Stream
         _input = input ?? throw new ArgumentNullException(nameof(input));
 
         // PDF flate streams normally include a zlib wrapper header.
-        _input.ReadByte();
-        _input.ReadByte();
+        int cmf = _input.ReadByte();
+        int flg = _input.ReadByte();
+        if (cmf == -1 || flg == -1)
+        {
+            throw new IOException("Unexpected end of stream while reading zlib header.");
+        }
+
         _inflater = new DeflateStream(_input, CompressionMode.Decompress, leaveOpen: true);
     }
 
