@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapperImpl.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/util/filetypedetector/FileType.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
@@ -25,29 +25,25 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.PDModel.Font;
+namespace PdfBox.Net.Util.FileTypeDetector;
 
-public sealed class DefaultFontProvider : FontMapper
+public enum FileType
 {
-    private readonly FileSystemFontProvider _provider;
-
-    public DefaultFontProvider()
-        : this(new FileSystemFontProvider())
-    {
-    }
-
-    internal DefaultFontProvider(FileSystemFontProvider provider)
-    {
-        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-    }
-
-    public string? FindFontFile(string postScriptName)
-    {
-        if (string.IsNullOrWhiteSpace(postScriptName))
-        {
-            return null;
-        }
-
-        return _provider.FindFontFile(postScriptName);
-    }
+    UNKNOWN,
+    JPEG,
+    TIFF,
+    PSD,
+    PNG,
+    BMP,
+    GIF,
+    ICO,
+    PCX,
+    RIFF,
+    ARW,
+    CRW,
+    CR2,
+    NEF,
+    ORF,
+    RAF,
+    RW2
 }

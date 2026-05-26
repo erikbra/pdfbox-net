@@ -275,31 +275,4 @@ public class PDRectangle : COSObjectable
     {
         return $"[{GetLowerLeftX()},{GetLowerLeftY()},{GetUpperRightX()},{GetUpperRightY()}]";
     }
-
-    /// <summary>
-    /// An immutable subclass of <see cref="PDRectangle"/> that throws on mutation attempts.
-    /// </summary>
-    private sealed class PDImmutableRectangle : PDRectangle
-    {
-        internal PDImmutableRectangle(float width, float height)
-            : base(width, height)
-        {
-        }
-
-        /// <inheritdoc/>
-        public override void SetLowerLeftX(float value) =>
-            throw new NotSupportedException("This rectangle is immutable.");
-
-        /// <inheritdoc/>
-        public override void SetLowerLeftY(float value) =>
-            throw new NotSupportedException("This rectangle is immutable.");
-
-        /// <inheritdoc/>
-        public override void SetUpperRightX(float value) =>
-            throw new NotSupportedException("This rectangle is immutable.");
-
-        /// <inheritdoc/>
-        public override void SetUpperRightY(float value) =>
-            throw new NotSupportedException("This rectangle is immutable.");
-    }
 }

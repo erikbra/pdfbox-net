@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapperImpl.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDImmutableRectangle.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
@@ -25,29 +25,23 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.PDModel.Font;
+namespace PdfBox.Net.PDModel.Common;
 
-public sealed class DefaultFontProvider : FontMapper
+/// <summary>
+/// Immutable <see cref="PDRectangle"/>.
+/// </summary>
+public sealed class PDImmutableRectangle : PDRectangle
 {
-    private readonly FileSystemFontProvider _provider;
-
-    public DefaultFontProvider()
-        : this(new FileSystemFontProvider())
+    public PDImmutableRectangle(float width, float height)
+        : base(width, height)
     {
     }
 
-    internal DefaultFontProvider(FileSystemFontProvider provider)
-    {
-        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-    }
+    public override void SetLowerLeftX(float value) => throw new NotSupportedException("This rectangle is immutable.");
 
-    public string? FindFontFile(string postScriptName)
-    {
-        if (string.IsNullOrWhiteSpace(postScriptName))
-        {
-            return null;
-        }
+    public override void SetLowerLeftY(float value) => throw new NotSupportedException("This rectangle is immutable.");
 
-        return _provider.FindFontFile(postScriptName);
-    }
+    public override void SetUpperRightX(float value) => throw new NotSupportedException("This rectangle is immutable.");
+
+    public override void SetUpperRightY(float value) => throw new NotSupportedException("This rectangle is immutable.");
 }

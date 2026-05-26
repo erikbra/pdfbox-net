@@ -130,6 +130,17 @@ public class TestPDRectangle
         Assert.Equal(rect.GetHeight(), translated.GetUpperRightY());
     }
 
+
+    [Fact]
+    public void ImmutableRectangleRejectsMutation()
+    {
+        PDImmutableRectangle rect = new(50f, 75f);
+
+        Assert.Equal(50f, rect.GetWidth());
+        Assert.Equal(75f, rect.GetHeight());
+        Assert.Throws<NotSupportedException>(() => rect.SetUpperRightX(100f));
+    }
+
     [Fact]
     public void LetterConstantImmutable()
     {

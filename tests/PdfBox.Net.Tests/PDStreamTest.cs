@@ -1,5 +1,6 @@
 using System.Text;
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.Tests;
@@ -25,4 +26,25 @@ public class PDStreamTest
         Assert.Single(stream.GetFilters());
         Assert.Equal(COSName.FLATE_DECODE, stream.GetFilters()[0]);
     }
+
+
+    [Fact]
+    public void ObjectStreamCreateSetsObjStmMetadata()
+    {
+        using PDDocument document = new();
+        PDObjectStream stream = PDObjectStream.CreateStream(document);
+
+        Assert.Equal("ObjStm", stream.GetTypeName());
+        stream.SetNumberOfObjects(3);
+        stream.SetFirstByteOffset(42);
+
+        Assert.Equal(3, stream.GetNumberOfObjects());
+        Assert.Equal(42, stream.GetFirstByteOffset());
+
+        PDObjectStream extension = PDObjectStream.CreateStream(document);
+        stream.SetExtends(extension);
+        Assert.NotNull(stream.GetExtends());
+        Assert.Equal("ObjStm", stream.GetExtends()!.GetTypeName());
+    }
+
 }
