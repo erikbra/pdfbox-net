@@ -1,5 +1,35 @@
 [
   {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDShadingTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "43 native tests covering PDShading hierarchy: factory routing, all dictionary accessor round-trips, function wiring, EvalFunction clamping, PDResources shading lookup, and COSName constants."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDTrueTypeFontAndCIDType2Test.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T16:44:05Z",
+    "note": "24 deterministic fixture tests: UPM scaling, CIDToGIDMap identity/stream, TTF width fallback, ToUnicode cmap fallback, Type0/CIDFontType2 integration (issue #50)."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDType0FontCIDType0UnicodeIntegrationTest.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:12:00Z",
+    "note": "Issue #51 regression tests covering Type0/CIDFontType0 CMap CID mapping, composite ToUnicode fallback path, Identity-H fallback behavior, and PDFontFactory descendant dispatch."
+  },
+  {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/EncodedFont.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/EncodedFont.cs",
     "source_commit": "trunk",
@@ -691,11 +721,81 @@
   },
   {
     "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/DocumentInterchangeRegressionCloseoutTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "Issue-47 regression fixture and closeout tests for tagged read path, artifact subtype dispatch, attribute-owner dispatch, and helper types."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/FileTypeDetectorTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "Regression coverage for PNG/GIF/unknown file-signature detection and stream-position reset behavior."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/Fixtures/TaggedPdf/minimal-tagged.pdf",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "Deterministic minimal tagged PDF fixture for end-to-end structure-tree and parent-tree regression coverage."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/FullPdfDocumentLoadingTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:40:00Z",
+    "note": "Fixture-driven theory coverage for full PDDocument.Load pipeline: classic xref, flate-content, xref-stream, and object-stream paths. Verifies page count, title, and author across all parser-integrated fixture types."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/FullPdfDocumentLoadingTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:40:00Z",
+    "note": "Fixture-driven theory coverage for full PDDocument.Load pipeline: classic xref, flate-content, xref-stream, and object-stream paths. Verifies page count, title, and author across all parser-integrated fixture types."
+  },
+  {
+    "source_path": "n/a",
     "target_path": "tests/PdfBox.Net.Tests/OperatorProcessorsTest.cs",
     "source_commit": "n/a",
     "port_mode": "native-test",
     "sync_commit": "n/a",
     "conversion_notes": "Expanded operator processor tests to cover state, path, painting, clipping, color, inline-image hooks, type3, compatibility, and multi-operator scenario."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentLoadSaveRoundtripTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:40:00Z",
+    "note": "Roundtrip smoke checks for all parser-integrated paths: load fixture \u2192 save to MemoryStream \u2192 reload \u2192 assert page count, title, and author are preserved. Closes issue #41 regression and roundtrip scope."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentLoadSaveRoundtripTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:40:00Z",
+    "note": "Roundtrip smoke checks for all parser-integrated paths: load fixture \u2192 save to MemoryStream \u2192 reload \u2192 assert page count, title, and author are preserved. Closes issue #41 regression and roundtrip scope."
   },
   {
     "source_path": "n/a",
@@ -706,6 +806,66 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T16:41:22Z",
     "note": "Added ExtGState accessor/copy behavior coverage for alpha, blend mode, line join, and dash pattern."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFDocumentParserTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T22:35:00Z",
+    "note": "Regression coverage for parser bootstrap header/startxref behavior on fixture and malformed inputs."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFDocumentParserTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-24T22:35:00Z",
+    "note": "Regression coverage for parser bootstrap header/startxref behavior on fixture and malformed inputs."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefStreamObjectStreamTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:16:21Z",
+    "note": "Regression coverage for xref-stream/object-stream resolution and parsed COSDocument/trailer integration."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefStreamObjectStreamTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:16:21Z",
+    "note": "Regression coverage for xref-stream/object-stream resolution and parsed COSDocument/trailer integration."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefTableTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:16:21Z",
+    "note": "Regression coverage for classic xref-table trailer resolution, cyclic /Prev guard behavior, malformed xref subsection/entry rejection, and parsed COSDocument/trailer wiring."
+  },
+  {
+    "source_path": "n/a",
+    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefTableTest.cs",
+    "source_commit": "n/a",
+    "sync_commit": "n/a",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T07:16:21Z",
+    "note": "Regression coverage for classic xref-table trailer resolution, cyclic /Prev guard behavior, malformed xref subsection/entry rejection, and parsed COSDocument/trailer wiring."
   },
   {
     "source_path": "n/a",
@@ -759,53 +919,23 @@
   },
   {
     "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDFDocumentParserTest.cs",
+    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpCoreTest.cs",
     "source_commit": "n/a",
     "sync_commit": "n/a",
     "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T22:35:00Z",
-    "note": "Regression coverage for parser bootstrap header/startxref behavior on fixture and malformed inputs."
+    "last_checked_utc": "2026-05-25T11:10:23Z",
+    "note": "Focused xUnit coverage for xmpbox constants and exception behavior in initial project bootstrap."
   },
   {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefTableTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T07:16:21Z",
-    "note": "Regression coverage for classic xref-table trailer resolution, cyclic /Prev guard behavior, malformed xref subsection/entry rejection, and parsed COSDocument/trailer wiring."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefStreamObjectStreamTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T07:16:21Z",
-    "note": "Regression coverage for xref-stream/object-stream resolution and parsed COSDocument/trailer integration."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/FullPdfDocumentLoadingTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T07:40:00Z",
-    "note": "Fixture-driven theory coverage for full PDDocument.Load pipeline: classic xref, flate-content, xref-stream, and object-stream paths. Verifies page count, title, and author across all parser-integrated fixture types."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDDocumentLoadSaveRoundtripTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T07:40:00Z",
-    "note": "Roundtrip smoke checks for all parser-integrated paths: load fixture \u2192 save to MemoryStream \u2192 reload \u2192 assert page count, title, and author are preserved. Closes issue #41 regression and roundtrip scope."
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/Loader.java",
+    "target_path": "src/PdfBox.Net/Loader.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partial",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "PDF byte-array, file-path, and RandomAccessRead entry points are implemented; FDF/XFDF and public-key overloads remain deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
@@ -833,7 +963,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColorN.java",
@@ -841,7 +974,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColorSpace.java",
@@ -849,7 +985,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingDeviceCMYKColor.java",
@@ -857,7 +996,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingDeviceGrayColor.java",
@@ -865,7 +1007,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingDeviceRGBColor.java",
@@ -873,7 +1018,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingColor.java",
@@ -881,7 +1029,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingColorN.java",
@@ -889,7 +1040,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingColorSpace.java",
@@ -897,7 +1051,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingDeviceCMYKColor.java",
@@ -905,7 +1062,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingDeviceGrayColor.java",
@@ -913,7 +1073,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingDeviceRGBColor.java",
@@ -921,7 +1084,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
+    "conversion_notes": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "status": "in-sync",
+    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/AppendRectangleToPath.java",
@@ -929,15 +1095,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginCompatibilitySection.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/BeginCompatibilitySection.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginInlineImage.java",
@@ -945,15 +1106,32 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginInlineImageData.java",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginInlineImage.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/BeginInlineImageData.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "partially-in-sync",
+    "note": "Inline-image processing is split across BeginInlineImage, BeginInlineImageData, and EndInlineImage in the .NET port while staying within the current graphics-engine architecture.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginInlineImage.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/EndInlineImage.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "partially-in-sync",
+    "note": "Inline-image processing is split across BeginInlineImage, BeginInlineImageData, and EndInlineImage in the .NET port while staying within the current graphics-engine architecture.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ClipEvenOddRule.java",
@@ -961,7 +1139,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ClipNonZeroRule.java",
@@ -969,7 +1150,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CloseAndStrokePath.java",
@@ -977,7 +1161,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ClosePath.java",
@@ -985,7 +1172,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CurveTo.java",
@@ -993,7 +1183,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CurveToReplicateFinalPoint.java",
@@ -1001,7 +1194,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CurveToReplicateInitialPoint.java",
@@ -1009,23 +1205,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/EndCompatibilitySection.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/EndCompatibilitySection.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/EndInlineImage.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/EndInlineImage.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/EndPath.java",
@@ -1033,7 +1216,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/FillEvenOddAndStrokePath.java",
@@ -1041,7 +1227,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/FillEvenOddRule.java",
@@ -1049,7 +1238,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/FillNonZeroAndStrokePath.java",
@@ -1057,7 +1249,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/FillNonZeroRule.java",
@@ -1065,7 +1260,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/LineTo.java",
@@ -1073,7 +1271,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/MoveTo.java",
@@ -1081,7 +1282,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ShadingFill.java",
@@ -1089,7 +1293,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/StrokePath.java",
@@ -1097,7 +1304,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetFlatness.java",
@@ -1105,7 +1315,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation.",
+    "status": "in-sync",
+    "note": "Ported missing state operator processor for content stream graphics state mutation.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetGraphicsStateParameters.java",
@@ -1118,12 +1331,15 @@
     "note": "Implemented gs operator resource lookup and PDExtendedGraphicsState application."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineCap.java",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineCapStyle.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineCap.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation.",
+    "status": "in-sync",
+    "note": "Ported missing state operator processor for content stream graphics state mutation.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineDashPattern.java",
@@ -1131,15 +1347,32 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation.",
+    "status": "in-sync",
+    "note": "Ported missing state operator processor for content stream graphics state mutation.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineJoin.java",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineJoinStyle.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoin.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation.",
+    "status": "in-sync",
+    "note": "Ported missing state operator processor for content stream graphics state mutation.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineMiterLimit.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetMiterLimit.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "mechanical",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation.",
+    "status": "in-sync",
+    "note": "Ported missing state operator processor for content stream graphics state mutation.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineWidth.java",
@@ -1147,15 +1380,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetMiterLimit.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetMiterLimit.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "mechanical",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation.",
+    "status": "in-sync",
+    "note": "Ported missing state operator processor for content stream graphics state mutation.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetRenderingIntent.java",
@@ -1163,7 +1391,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation."
+    "conversion_notes": "Ported missing state operator processor for content stream graphics state mutation.",
+    "status": "in-sync",
+    "note": "Ported missing state operator processor for content stream graphics state mutation.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/type3/SetType3GlyphWidth.java",
@@ -1171,7 +1402,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/type3/SetType3GlyphWidthAndBoundingBox.java",
@@ -1179,7 +1413,10 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
+    "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "status": "in-sync",
+    "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
+    "last_checked_utc": "2026-05-26T19:50:25Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
@@ -1562,7 +1799,7 @@
     "note": "Low-level parser subset ported for token/object flow (comments, names, strings, arrays, dictionaries, booleans, null, numbers); broader parser orchestration remains out of chunk-2 scope."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFDocumentParser.java",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java",
     "target_path": "src/PdfBox.Net/PdfParser/PDFDocumentParser.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
@@ -1692,6 +1929,16 @@
     "note": "Adapted COSArray-backed collection port using Collection<T> to preserve PD/COS synchronization semantics."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/COSDictionaryMap.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "Dictionary-backed map synchronization and primitive conversion helpers are covered by COSDictionaryTest."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSObjectable.java",
     "target_path": "src/PdfBox.Net/COS/COSObjectable.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
@@ -1722,6 +1969,16 @@
     "note": "Mechanical wrapper for COS dictionaries used by higher PD model types."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDImmutableRectangle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDImmutableRectangle.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "Standalone immutable rectangle type now mirrors upstream and is covered by TestPDRectangle."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDMetadata.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/PDMetadata.cs",
     "source_commit": "trunk",
@@ -1750,6 +2007,16 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T20:48:52Z",
     "note": "Adapted number-tree node port using Activator-based value construction in place of Java reflection."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDObjectStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/Common/PDObjectStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "Object-stream wrapper metadata accessors and Extends linkage are covered by PDStreamTest."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabelRange.java",
@@ -2032,6 +2299,46 @@
     "note": "Adapted Type 4 stack operators port using list rotation helpers for .NET."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "Abstract base with Create factory now dispatches UserProperties, Layout, List, Table, PrintField, and export-format owners; unknown owners fall back to PDDefaultAttributeObject."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDDefaultAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDDefaultAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Generic attribute dictionary wrapper exposing raw name/value access and change notification.",
+    "last_checked_utc": "2026-05-25T12:37:50Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDMarkInfo.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDMarkInfo.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "MarkInfo dictionary wrapper for tagged-PDF document metadata (Marked/UserProperties/Suspects)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDParentTreeValue.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDParentTreeValue.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "Parent-tree value wrapper for dictionary or MCID-indexed array parent tree entries."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureElement.java",
     "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureElement.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
@@ -2053,6 +2360,16 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureTreeRoot.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDParentTreeNumberTreeNode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Issue #46: Typed number-tree node for the ParentTree entry. Handles both single structure-element dictionaries and arrays of structure element dictionaries via GetStructureElements(int).",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureTreeRoot.java",
     "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureTreeRoot.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
@@ -2060,36 +2377,6 @@
     "status": "in-sync",
     "note": "Issue #46: GetParentTree/SetParentTree/GetParentTreeEntries parent-tree accessors added. ClassMap added in issue #45. Role-map, K entry, and parent-tree next-key from issue #43.",
     "last_checked_utc": "2026-05-25T13:18:00Z"
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/Revisions.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/Revisions.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "note": "Mechanical port of logical-structure revision pairing container used for revision-tracked structure metadata.",
-    "last_checked_utc": "2026-05-25T11:18:38Z"
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDAttributeObject.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDAttributeObject.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Abstract base with Create factory now dispatches UserProperties, Layout, List, Table, PrintField, and export-format owners; unknown owners fall back to PDDefaultAttributeObject."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDDefaultAttributeObject.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDDefaultAttributeObject.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "note": "Generic attribute dictionary wrapper exposing raw name/value access and change notification.",
-    "last_checked_utc": "2026-05-25T12:37:50Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDUserAttributeObject.java",
@@ -2112,64 +2399,14 @@
     "last_checked_utc": "2026-05-25T12:37:50Z"
   },
   {
-    "source_path": "tests/PDAttributeObjectTest (native)",
-    "target_path": "tests/PdfBox.Net.Tests/PDAttributeObjectTest.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/Revisions.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/Revisions.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
+    "port_mode": "mechanical",
     "status": "in-sync",
-    "note": "16 tests covering: role-map round-trip, standard-type resolution via role map, PDAttributeObject factory dispatch, PDDefaultAttributeObject get/set/names, PDUserAttributeObject add/remove/set user properties, PDUserProperty field access, PDStructureElement attribute CRUD and change notification, PDStructureTreeRoot ClassMap single/list/null round-trips.",
-    "last_checked_utc": "2026-05-25T12:37:50Z"
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureTreeRoot.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDParentTreeNumberTreeNode.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "note": "Issue #46: Typed number-tree node for the ParentTree entry. Handles both single structure-element dictionaries and arrays of structure element dictionaries via GetStructureElements(int).",
-    "last_checked_utc": "2026-05-25T13:18:00Z"
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDLayoutAttributeObject.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDLayoutAttributeObject.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "note": "Issue #46: Layout attribute object (O=Layout) with typed accessors for core layout properties.",
-    "last_checked_utc": "2026-05-25T13:18:00Z"
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDListAttributeObject.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDListAttributeObject.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "note": "Issue #46: List attribute object (O=List) with typed ListNumbering accessor.",
-    "last_checked_utc": "2026-05-25T13:18:00Z"
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDTableAttributeObject.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDTableAttributeObject.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "note": "Issue #46: Table attribute object (O=Table) with typed accessors for RowSpan, ColSpan, Headers, Scope, Summary, Short.",
-    "last_checked_utc": "2026-05-25T13:18:00Z"
-  },
-  {
-    "source_path": "tests/PDParentTreeIntegrationTest (native)",
-    "target_path": "tests/PdfBox.Net.Tests/PDParentTreeIntegrationTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "note": "29 issue-46 tests covering parent-tree set/get round-trip, single-element lookup, array-value lookup, missing-key guard, end-to-end catalog\u2192StructTreeRoot\u2192ParentTree traversal, multi-page stability, Layout/List/Table attribute object subtypes, and PDAttributeObject.Create factory dispatch.",
-    "last_checked_utc": "2026-05-25T13:18:00Z"
+    "note": "Mechanical port of logical-structure revision pairing container used for revision-tracked structure metadata.",
+    "last_checked_utc": "2026-05-25T11:18:38Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDMarkedContent.java",
@@ -2180,6 +2417,106 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T14:10:22Z",
     "note": "Marked-content model now includes Artifact subtype dispatch via PDMarkedContent.Create while preserving MCID/language/alternate/expanded text accessors and hierarchical content capture."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDPropertyList.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/MarkedContent/PDPropertyList.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "Marked-content property-list dictionary wrapper with create helper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/prepress/PDBoxStyle.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/Prepress/PDBoxStyle.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "Prepress box-style dictionary with guideline color/width/style and line-dash accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDArtifactMarkedContent.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/PDArtifactMarkedContent.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "Artifact marked-content specialization (type, bbox, attached edges, subtype)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDExportFormatAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "Export-format attribute object owners and list-numbering accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/PDFourColours.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "Four-edge color wrapper used by tagged-PDF standard attributes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDLayoutAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Issue #46: Layout attribute object (O=Layout) with typed accessors for core layout properties.",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDListAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Issue #46: List attribute object (O=List) with typed ListNumbering accessor.",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDPrintFieldAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "PrintField attribute object with role, checked state, and alternate-name accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDTableAttributeObject.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "note": "Issue #46: Table attribute object (O=Table) with typed accessors for RowSpan, ColSpan, Headers, Scope, Summary, Short.",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/StandardStructureTypes.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T14:10:22Z",
+    "note": "Standard tagged-PDF structure-type constants inventory."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/AccessPermission.java",
@@ -2282,16 +2619,6 @@
     "note": "Class shell and constructors are ported; full standard security algorithm flow is deferred."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/DefaultFontProvider.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T15:32:21Z",
-    "note": "Added default font provider wrapper with injectable file-system lookup for deterministic tests."
-  },
-  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
     "source_commit": "trunk",
@@ -2312,6 +2639,16 @@
     "note": "Added font mapper interface."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapperImpl.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T15:32:21Z",
+    "note": "Added default font provider wrapper with injectable file-system lookup for deterministic tests."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMappers.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontMappers.cs",
     "source_commit": "trunk",
@@ -2320,6 +2657,26 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T15:32:21Z",
     "note": "Added lazy global font mapper singleton wiring."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:12:00Z",
+    "note": "Issue #51: added CIDSystemInfo access for descendant CJK/UCS2 integration heuristics in PDType0Font."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:12:00Z",
+    "note": "Issue #51: CIDFontType0 descendant behavior validated for Type0 CMap CID resolution and inherited width handling."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
@@ -2410,6 +2767,16 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T15:32:21Z",
     "note": "Implemented composite Type0 font wiring with descendant descriptor and CID width delegation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T21:12:00Z",
+    "note": "Issue #51: added Type0 /Encoding CMap integration (stream + predefined identity fallback), CodeToCID via Type0 CMap, and ToUnicode fallback chaining to UCS2/descendant mapping."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -2550,6 +2917,106 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T16:41:22Z",
     "note": "Implemented basic image XObject decode and metadata access for DeviceRGB/Flate test path."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDMeshBasedShadingType.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDMeshBasedShadingType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Hierarchy wiring ported. collectPatches/readPatch/generatePatch stream rendering deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShading.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShading.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "All dictionary accessors and function wiring ported. toPaint() (rendering integration) deferred to issue #56."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType1.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType1.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Domain and Matrix accessors ported. toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType2.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType2.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Coords, Domain, Extend accessors ported. toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType3.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType3.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Inherits Type2 accessors, overrides GetShadingType(). toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType4.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType4.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "BitsPerFlag accessor ported. collectTriangles stream rendering and toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType5.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType5.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "VerticesPerRow accessor ported. collectTriangles stream rendering and toPaint() deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType6.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType6.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Hierarchy wiring ported. generatePatch (CoonsPatch) and rendering deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType7.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType7.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Hierarchy wiring ported. generatePatch (TensorPatch) and rendering deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDTriangleBasedShadingType.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDTriangleBasedShadingType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "partially-in-sync",
+    "last_checked_utc": "2026-05-25T21:55:00Z",
+    "note": "Dictionary accessors and Interpolate helper ported. collectTriangles/readVertex/getBounds stream rendering deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDExtendedGraphicsState.java",
@@ -2812,6 +3279,16 @@
     "note": "Core AcroForm and basic field model ported; full form appearance/value infrastructure remains deferred."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/IterativeMergeSort.java",
+    "target_path": "src/PdfBox.Net/Util/IterativeMergeSort.cs",
+    "source_commit": "55f159e4cea6fbf47bd8720885e709ed029d7c88",
+    "sync_commit": "55f159e4cea6fbf47bd8720885e709ed029d7c88",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "Bottom-up merge sort port is present and covered by IterativeMergeSortTest."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java",
     "target_path": "src/PdfBox.Net/Util/Vector.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
@@ -2820,6 +3297,56 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-18T21:48:54Z",
     "note": "First pdfbox utility leaf port used to seed the wider pdfbox conversion backlog."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Version.java",
+    "target_path": "src/PdfBox.Net/Util/Version.cs",
+    "source_commit": "d7be592bc0022cfa6fd3ffcdd5989b78bc827cb3",
+    "sync_commit": "d7be592bc0022cfa6fd3ffcdd5989b78bc827cb3",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "Assembly metadata-backed version lookup preserves PDFBox null-on-error semantics and is covered by VersionTest."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/XMLUtil.java",
+    "target_path": "src/PdfBox.Net/Util/XMLUtil.cs",
+    "source_commit": "be36ef01842885b556a4e7b40b5e2e8e7b1d2816",
+    "sync_commit": "be36ef01842885b556a4e7b40b5e2e8e7b1d2816",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "XML parsing hardening and node-value helpers are covered by XMLUtilTest."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/filetypedetector/ByteTrie.java",
+    "target_path": "src/PdfBox.Net/Util/FileTypeDetector/ByteTrie.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "Prefix-tree helper now backs file-signature detection for the filetypedetector package."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/filetypedetector/FileType.java",
+    "target_path": "src/PdfBox.Net/Util/FileTypeDetector/FileType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "File-type enum now closes the remaining util.filetypedetector package gap."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/filetypedetector/FileTypeDetector.java",
+    "target_path": "src/PdfBox.Net/Util/FileTypeDetector/FileTypeDetector.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-26T19:50:25Z",
+    "note": "Magic-number detection now covers seekable streams and byte arrays with regression coverage in FileTypeDetectorTest."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSDictionaryTest.java",
@@ -3012,6 +3539,36 @@
     "note": "Added .NET encryption baseline tests for AccessPermission, PDEncryption, and StandardSecurityHandler instantiation."
   },
   {
+    "source_path": "tests/PDAttributeObjectTest (native)",
+    "target_path": "tests/PdfBox.Net.Tests/PDAttributeObjectTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "note": "16 tests covering: role-map round-trip, standard-type resolution via role map, PDAttributeObject factory dispatch, PDDefaultAttributeObject get/set/names, PDUserAttributeObject add/remove/set user properties, PDUserProperty field access, PDStructureElement attribute CRUD and change notification, PDStructureTreeRoot ClassMap single/list/null round-trips.",
+    "last_checked_utc": "2026-05-25T12:37:50Z"
+  },
+  {
+    "source_path": "tests/PDParentTreeIntegrationTest (native)",
+    "target_path": "tests/PdfBox.Net.Tests/PDParentTreeIntegrationTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "note": "29 issue-46 tests covering parent-tree set/get round-trip, single-element lookup, array-value lookup, missing-key guard, end-to-end catalog\u2192StructTreeRoot\u2192ParentTree traversal, multi-page stability, Layout/List/Table attribute object subtypes, and PDAttributeObject.Create factory dispatch.",
+    "last_checked_utc": "2026-05-25T13:18:00Z"
+  },
+  {
+    "source_path": "tests/PdfBox.Net.Tests/FontBoxTestFixtures.cs",
+    "target_path": "tests/PdfBox.Net.Tests/FontBoxTestFixtures.cs",
+    "source_commit": "trunk",
+    "sync_commit": "trunk",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T16:44:05Z",
+    "note": "Added CreateMinimalTrueTypeWithUpm(int) helper; CreateHeadTable now accepts unitsPerEm parameter."
+  },
+  {
     "source_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
     "target_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
     "source_commit": "trunk",
@@ -3022,56 +3579,6 @@
     "note": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
   },
   {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDFDocumentParserTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T22:35:00Z",
-    "note": "Regression coverage for parser bootstrap header/startxref behavior on fixture and malformed inputs."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefTableTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T07:16:21Z",
-    "note": "Regression coverage for classic xref-table trailer resolution, cyclic /Prev guard behavior, malformed xref subsection/entry rejection, and parsed COSDocument/trailer wiring."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDFParserXrefStreamObjectStreamTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T07:16:21Z",
-    "note": "Regression coverage for xref-stream/object-stream resolution and parsed COSDocument/trailer integration."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/FullPdfDocumentLoadingTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T07:40:00Z",
-    "note": "Fixture-driven theory coverage for full PDDocument.Load pipeline: classic xref, flate-content, xref-stream, and object-stream paths. Verifies page count, title, and author across all parser-integrated fixture types."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/PDDocumentLoadSaveRoundtripTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T07:40:00Z",
-    "note": "Roundtrip smoke checks for all parser-integrated paths: load fixture \u2192 save to MemoryStream \u2192 reload \u2192 assert page count, title, and author are preserved. Closes issue #41 regression and roundtrip scope."
-  },
-  {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XmpConstants.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/XmpConstants.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
@@ -3080,6 +3587,16 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T11:10:23Z",
     "note": "Mechanical xmpbox constants port for RDF/xpacket defaults and core attribute names."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XmpSchemaException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XmpSchemaException.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-25T11:10:23Z",
+    "note": "Mechanical schema exception port with message/cause constructor parity."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpParsingException.java",
@@ -3100,305 +3617,5 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T11:10:23Z",
     "note": "Mechanical serialization exception port with message/cause constructor parity."
-  },
-  {
-    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XmpSchemaException.java",
-    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XmpSchemaException.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T11:10:23Z",
-    "note": "Mechanical schema exception port with message/cause constructor parity."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpCoreTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T11:10:23Z",
-    "note": "Focused xUnit coverage for xmpbox constants and exception behavior in initial project bootstrap."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDMarkInfo.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDMarkInfo.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "MarkInfo dictionary wrapper for tagged-PDF document metadata (Marked/UserProperties/Suspects)."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDParentTreeValue.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDParentTreeValue.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Parent-tree value wrapper for dictionary or MCID-indexed array parent tree entries."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDPropertyList.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/MarkedContent/PDPropertyList.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Marked-content property-list dictionary wrapper with create helper."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/prepress/PDBoxStyle.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/Prepress/PDBoxStyle.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Prepress box-style dictionary with guideline color/width/style and line-dash accessors."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDArtifactMarkedContent.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/PDArtifactMarkedContent.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Artifact marked-content specialization (type, bbox, attached edges, subtype)."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDExportFormatAttributeObject.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Export-format attribute object owners and list-numbering accessors."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/PDFourColours.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Four-edge color wrapper used by tagged-PDF standard attributes."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDPrintFieldAttributeObject.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "PrintField attribute object with role, checked state, and alternate-name accessors."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/StandardStructureTypes.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Standard tagged-PDF structure-type constants inventory."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/DocumentInterchangeRegressionCloseoutTest.cs",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Issue-47 regression fixture and closeout tests for tagged read path, artifact subtype dispatch, attribute-owner dispatch, and helper types."
-  },
-  {
-    "source_path": "n/a",
-    "target_path": "tests/PdfBox.Net.Tests/Fixtures/TaggedPdf/minimal-tagged.pdf",
-    "source_commit": "n/a",
-    "sync_commit": "n/a",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Deterministic minimal tagged PDF fixture for end-to-end structure-tree and parent-tree regression coverage."
-  },
-  {
-    "source_path": null,
-    "target_path": "tests/PdfBox.Net.Tests/PDTrueTypeFontAndCIDType2Test.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T16:44:05Z",
-    "note": "24 deterministic fixture tests: UPM scaling, CIDToGIDMap identity/stream, TTF width fallback, ToUnicode cmap fallback, Type0/CIDFontType2 integration (issue #50)."
-  },
-  {
-    "source_path": "tests/PdfBox.Net.Tests/FontBoxTestFixtures.cs",
-    "target_path": "tests/PdfBox.Net.Tests/FontBoxTestFixtures.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T16:44:05Z",
-    "note": "Added CreateMinimalTrueTypeWithUpm(int) helper; CreateHeadTable now accepts unitsPerEm parameter."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T21:12:00Z",
-    "note": "Issue #51: added Type0 /Encoding CMap integration (stream + predefined identity fallback), CodeToCID via Type0 CMap, and ToUnicode fallback chaining to UCS2/descendant mapping."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T21:12:00Z",
-    "note": "Issue #51: added CIDSystemInfo access for descendant CJK/UCS2 integration heuristics in PDType0Font."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T21:12:00Z",
-    "note": "Issue #51: CIDFontType0 descendant behavior validated for Type0 CMap CID resolution and inherited width handling."
-  },
-  {
-    "source_path": null,
-    "target_path": "tests/PdfBox.Net.Tests/PDType0FontCIDType0UnicodeIntegrationTest.cs",
-    "source_commit": "trunk",
-    "sync_commit": "trunk",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T21:12:00Z",
-    "note": "Issue #51 regression tests covering Type0/CIDFontType0 CMap CID mapping, composite ToUnicode fallback path, Identity-H fallback behavior, and PDFontFactory descendant dispatch."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShading.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShading.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "All dictionary accessors and function wiring ported. toPaint() (rendering integration) deferred to issue #56."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType1.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType1.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "Domain and Matrix accessors ported. toPaint() deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType2.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType2.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "Coords, Domain, Extend accessors ported. toPaint() deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType3.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType3.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "Inherits Type2 accessors, overrides GetShadingType(). toPaint() deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDTriangleBasedShadingType.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDTriangleBasedShadingType.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "Dictionary accessors and Interpolate helper ported. collectTriangles/readVertex/getBounds stream rendering deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType4.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType4.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "BitsPerFlag accessor ported. collectTriangles stream rendering and toPaint() deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType5.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType5.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "VerticesPerRow accessor ported. collectTriangles stream rendering and toPaint() deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDMeshBasedShadingType.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDMeshBasedShadingType.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "Hierarchy wiring ported. collectPatches/readPatch/generatePatch stream rendering deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType6.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType6.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "Hierarchy wiring ported. generatePatch (CoonsPatch) and rendering deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType7.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType7.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "Hierarchy wiring ported. generatePatch (TensorPatch) and rendering deferred."
-  },
-  {
-    "source_path": null,
-    "target_path": "tests/PdfBox.Net.Tests/PDShadingTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-25T21:55:00Z",
-    "note": "43 native tests covering PDShading hierarchy: factory routing, all dictionary accessor round-trips, function wiring, EvalFunction clamping, PDResources shading lookup, and COSName constants."
   }
 ]

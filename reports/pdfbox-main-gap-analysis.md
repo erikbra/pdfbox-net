@@ -19,7 +19,7 @@ Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
 
 | Package family | Java files | Mapped C# ports | Missing | % Done |
 |---|---:|---:|---:|---:|
-| `org.apache.pdfbox` (root) | 1 | 0 | 1 | 0.0% |
+| `org.apache.pdfbox` (root) | 1 | 1 | 0 | 100.0% |
 | `org.apache.pdfbox.contentstream` | 3 | 2 | 1 | 66.7% |
 | `org.apache.pdfbox.contentstream.operator` | 76 | 63 | 13 | 82.9% |
 | `org.apache.pdfbox.cos` | 24 | 24 | 0 | 100.0% |
@@ -28,8 +28,8 @@ Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
 | `org.apache.pdfbox.pdfparser` (+ `xref`) | 18 | 11 | 7 | 61.1% |
 | `org.apache.pdfbox.pdfwriter` (+ `compress`) | 7 | 4 | 3 | 57.1% |
 | `org.apache.pdfbox.pdmodel` (root) | 25 | 8 | 17 | 32.0% |
-| `org.apache.pdfbox.pdmodel.common` | 37 | 34 | 3 | 91.9% |
-| `org.apache.pdfbox.pdmodel.documentinterchange` | 24 | 20 | 4 | 83.3% |
+| `org.apache.pdfbox.pdmodel.common` | 37 | 37 | 0 | 100.0% |
+| `org.apache.pdfbox.pdmodel.documentinterchange` | 24 | 23 | 1 | 95.8% |
 | `org.apache.pdfbox.pdmodel.encryption` | 19 | 11 | 8 | 57.9% |
 | `org.apache.pdfbox.pdmodel.fdf` | 30 | 0 | 30 | 0.0% |
 | `org.apache.pdfbox.pdmodel.fixup` | 8 | 0 | 8 | 0.0% |
@@ -39,8 +39,8 @@ Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
 | `org.apache.pdfbox.printing` | 4 | 4 | 0 | 100.0% |
 | `org.apache.pdfbox.rendering` | 10 | 10 | 0 | 100.0% |
 | `org.apache.pdfbox.text` | 6 | 6 | 0 | 100.0% |
-| `org.apache.pdfbox.util` (+ `filetypedetector`) | 12 | 9 | 3 | 75.0% |
-| **TOTAL** | **618** | **327** | **291** | **52.9%** |
+| `org.apache.pdfbox.util` (+ `filetypedetector`) | 12 | 12 | 0 | 100.0% |
+| **TOTAL** | **618** | **337** | **281** | **54.5%** |
 
 ### What changed versus the previous report
 
@@ -52,7 +52,7 @@ Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
   - `util.filetypedetector`
   - the deeper `pdmodel.interactive` and `pdmodel.graphics` subpackages
 - As a result, the previous `~89%` figure was materially overstated for current upstream scope.
-  The direct main-module coverage is currently **327 / 618 = 52.9%**.
+  The direct main-module coverage is currently **337 / 618 = 54.5%**.
 
 ---
 
@@ -60,13 +60,15 @@ Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
 
 ### Fully mapped (100%)
 
+- `org.apache.pdfbox` (root package) — **1 / 1**
 - `org.apache.pdfbox.cos` — **24 / 24**
 - `org.apache.pdfbox.printing` — **4 / 4**
 - `org.apache.pdfbox.rendering` — **10 / 10**
 - `org.apache.pdfbox.text` — **6 / 6**
-- `org.apache.pdfbox.util` (core package only) — **9 / 9**
+- `org.apache.pdfbox.util` (+ `filetypedetector`) — **12 / 12**
 - `org.apache.pdfbox.pdfparser.xref` — **6 / 6**
 - `org.apache.pdfbox.pdfwriter` (root package only) — **3 / 3**
+- `org.apache.pdfbox.pdmodel.common` — **37 / 37**
 - `org.apache.pdfbox.pdmodel.common.filespecification` — **4 / 4**
 - `org.apache.pdfbox.pdmodel.common.function` — **6 / 6**
 - `org.apache.pdfbox.pdmodel.common.function.type4` — **11 / 11**
@@ -77,13 +79,11 @@ Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
 
 ### High coverage but not yet closed
 
-- `org.apache.pdfbox.pdmodel.common` overall — **34 / 37**
-  - Remaining: `COSDictionaryMap`, `PDImmutableRectangle`, `PDObjectStream`
 - `org.apache.pdfbox.contentstream.operator` overall — **63 / 76**
   - Strongest subareas: text **16 / 16**, color **12 / 13**, marked-content **5 / 6**
   - Remaining gaps are concentrated in graphics and state operators
-- `org.apache.pdfbox.pdmodel.documentinterchange` overall — **20 / 24**
-  - Remaining tagged-PDF files: `PDLayoutAttributeObject`, `PDListAttributeObject`, `PDStandardAttributeObject`, `PDTableAttributeObject`
+- `org.apache.pdfbox.pdmodel.documentinterchange` overall — **23 / 24**
+  - Remaining tagged-PDF file: `PDStandardAttributeObject`
 
 ---
 
@@ -185,34 +185,33 @@ Still entirely unported:
 - `PageExtractor`
 - `Splitter`
 
-### `org.apache.pdfbox.util.filetypedetector` — 0 / 3 mapped
+### `org.apache.pdfbox.util.filetypedetector` — 3 / 3 mapped
 
-Still missing:
+Mapped:
 - `ByteTrie`
 - `FileType`
 - `FileTypeDetector`
 
-### Root/main-package gap
+### Root/main-package coverage
 
-- `org.apache.pdfbox.Loader` remains missing.
+- `org.apache.pdfbox.Loader` now has first-pass PDF entry-point coverage (`partial` parity; FDF/XFDF and public-key overloads remain deferred).
 
 ---
 
 ## Traceability quality inside the mapped set
 
-Among the **230** current traceability rows that already point into the pdfbox main module:
+Among the **238** current traceability rows that already point into the pdfbox main module:
 
-- `in-sync`: **158**
-- `partially-in-sync`: **23**
-- `partial`: **6**
-- blank / unclassified: **43**
+- `in-sync`: **206**
+- `partially-in-sync`: **25**
+- `partial`: **7**
+- blank / unclassified: **0**
 
 ### Highest-value traceability cleanup
 
-The largest report-hygiene gap is still the **43 blank-status rows**, concentrated mostly in
-`contentstream.operator.color`, `contentstream.operator.graphics`, and `contentstream.operator.state`.
-Those classes are mapped, but the report metadata still understates their status because they have not
-been explicitly classified.
+The previously unclassified operator rows in `contentstream.operator.color`,
+`contentstream.operator.graphics`, and `contentstream.operator.state` are now explicitly classified,
+so the touched operator families no longer carry blank-status traceability rows.
 
 ### Known partial / partially-in-sync hotspots
 
@@ -228,19 +227,14 @@ So even within the 327 mapped upstream files, a meaningful subset is still only 
 
 ---
 
-## Legacy mapping cleanup needed
+## Legacy mapping cleanup
 
-The union of provenance headers and traceability rows currently includes **15 upstream paths that do not exist at the tracked upstream commit anymore**.
-These are mostly path-drift / rename cases and should be normalized before the next automated coverage refresh.
-
-Current examples:
-- old operator path names such as `SetLineCap`, `SetLineJoin`, `SetMiterLimit`
-- old graphics/operator aliases such as `BeginCompatibilitySection`, `BeginInlineImageData`, `EndCompatibilitySection`, `EndInlineImage`
-- `PDFDocumentParser`
-- logical-structure-path entries for `PDLayoutAttributeObject`, `PDListAttributeObject`, `PDTableAttributeObject`
-- `DefaultFontProvider`
-
-These rows do not affect the 618-file upstream denominator, but they can inflate local “ported” impressions if not called out explicitly.
+The previously called-out stale path-drift examples have been normalized or removed from the auditable
+records. This cleanup covered:
+- renamed state operators (`SetLineCapStyle`, `SetLineJoinStyle`, `SetLineMiterLimit`)
+- inline-image mapping normalization onto the current upstream `BeginInlineImage`
+- parser/font/tagged-PDF path drift (`PDFParser`, `FontMapperImpl`, and tagged-PDF attribute objects)
+- removal of obsolete compatibility-section alias rows from the traceability records
 
 ---
 
@@ -250,13 +244,14 @@ These rows do not affect the 618-file upstream denominator, but they can inflate
 2. Finish the remaining `pdmodel.font` milestone work.
 3. Continue `pdmodel.graphics`, especially shading helpers, image types, and remaining color abstractions.
 4. Tackle `pdmodel.interactive` in dependency-ordered slices, starting with forms/action coverage before appearance handlers and signatures.
-5. Add first-pass coverage for untouched families: `multipdf`, `pdmodel.fdf`, `pdmodel.fixup`, `util.filetypedetector`, and `Loader`.
+5. Add first-pass coverage for untouched families: `multipdf`, `pdmodel.fdf`, and `pdmodel.fixup`.
 
 ## Bottom line
 
 The pdfbox main module is **much broader than the older estimate-based report reflected**. The port is strong in
-`cos`, `pdmodel.common`, `contentstream.operator`, `rendering`, `text`, `printing`, and core utility layers, but the
-full upstream main-module inventory is only **52.9% directly mapped today (327 / 618 files)**.
+`cos`, `pdmodel.common`, `contentstream.operator`, `rendering`, `text`, `printing`, and utility layers (including
+`filetypedetector`), but the full upstream main-module inventory is still only **54.5% directly mapped today
+(337 / 618 files)**.
 
 The biggest remaining source-volume is concentrated in:
 - `pdmodel.interactive`
