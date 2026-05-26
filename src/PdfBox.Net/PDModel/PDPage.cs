@@ -311,7 +311,66 @@ public sealed class PDPage : COSObjectable
 
     public IEnumerable<PDThreadBead> GetThreadBeads()
     {
-        return Array.Empty<PDThreadBead>();
+        COSArray? beads = _page.GetCOSArray(COSName.B);
+        if (beads == null)
+        {
+            beads = new COSArray();
+        }
+
+        List<PDThreadBead> pdObjects = new(beads.Size());
+        for (int i = 0; i < beads.Size(); i++)
+        {
+            if (beads.GetObject(i) is COSDictionary dictionary)
+            {
+                pdObjects.Add(new PDThreadBead(dictionary));
+            }
+        }
+
+        return new COSArrayList<PDThreadBead>(pdObjects, beads);
+    }
+
+    /// <summary>
+    /// Sets the list of thread beads.
+    /// </summary>
+    /// <param name="beads">A list of <see cref="PDThreadBead"/> objects or null.</param>
+    public void SetThreadBeads(IList<PDThreadBead>? beads)
+    {
+        if (beads == null)
+        {
+            _page.RemoveItem(COSName.B);
+            return;
+        }
+
+        _page.SetItem(COSName.B, COSArrayList<object>.ConverterToCOSArray(beads.Cast<object>().ToList()));
+    }
+
+    /// <summary>
+    /// Gets the page transition associated with this page, if any.
+    /// </summary>
+    public PDTransition? GetTransition()
+    {
+        COSDictionary? transition = _page.GetCOSDictionary(COSName.GetPDFName("Trans"));
+        return transition != null ? new PDTransition(transition) : null;
+    }
+
+    /// <summary>
+    /// Sets the page transition.
+    /// </summary>
+    /// <param name="transition">The transition to set, or null to clear.</param>
+    public void SetTransition(PDTransition? transition)
+    {
+        _page.SetItem(COSName.GetPDFName("Trans"), transition);
+    }
+
+    /// <summary>
+    /// Sets the page transition and display duration.
+    /// </summary>
+    /// <param name="transition">The transition to set.</param>
+    /// <param name="duration">The maximum display duration in seconds.</param>
+    public void SetTransition(PDTransition transition, float duration)
+    {
+        _page.SetItem(COSName.GetPDFName("Trans"), transition);
+        _page.SetItem(COSName.GetPDFName("Dur"), new COSFloat(duration));
     }
 
     /// <summary>
