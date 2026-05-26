@@ -63,6 +63,29 @@ public class FilterTest
     }
 
     [Fact]
+    public void ASCII85StreamRoundTrip()
+    {
+        byte[] source = Encoding.ASCII.GetBytes("ASCII85 stream helper parity.");
+        byte[] encoded;
+        using (MemoryStream encodedSink = new())
+        {
+            using (ASCII85OutputStream output = new(encodedSink))
+            {
+                output.Write(source, 0, source.Length);
+            }
+
+            encoded = encodedSink.ToArray();
+        }
+
+        using MemoryStream encodedSource = new(encoded);
+        using ASCII85InputStream input = new(encodedSource);
+        using MemoryStream decoded = new();
+        input.CopyTo(decoded);
+
+        Assert.Equal(source, decoded.ToArray());
+    }
+
+    [Fact]
     public void RunLengthRoundTrip()
     {
         RunLengthDecodeFilter filter = new();
@@ -84,6 +107,18 @@ public class FilterTest
         byte[] decoded = Decode(filter, encoded, new COSDictionary());
 
         Assert.Equal(source, decoded);
+    }
+
+    [Fact]
+    public void FlateDecoderStreamDecodesZlibFixture()
+    {
+        byte[] source = Encoding.ASCII.GetBytes("Flate decoder stream fixture");
+        byte[] compressedFixture = CompressWithZlib(source);
+        using MemoryStream compressed = new(compressedFixture);
+        using FlateFilterDecoderStream stream = new(compressed);
+        using MemoryStream decoded = new();
+        stream.CopyTo(decoded);
+        Assert.Equal(source, decoded.ToArray());
     }
 
     [Fact]
