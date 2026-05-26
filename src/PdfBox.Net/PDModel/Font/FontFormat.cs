@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted rendering-support stubs derived from Apache PDFBox model and rendering dependencies.
+ * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java
- * PDFBOX_SOURCE_COMMIT: trunk
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontFormat.java
+ * PDFBOX_SOURCE_COMMIT: 6fb59026d40259cb40c7cfa23b79dd515723aefb
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: trunk
+ * PORT_LAST_SYNC_COMMIT: 6fb59026d40259cb40c7cfa23b79dd515723aefb
  */
 
 /*
@@ -25,20 +25,11 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.COS;
+namespace PdfBox.Net.PDModel.Font;
 
-namespace PdfBox.Net.PDModel.Font
+public enum FontFormat
 {
-    public abstract class PDType3Font : PDFont
-    {
-        protected PDType3Font()
-            : base(new COSDictionary())
-        {
-        }
-
-        public override string GetName()
-        {
-            return GetType().Name;
-        }
-    }
+    TTF,
+    OTF,
+    PFB,
 }

@@ -2,10 +2,10 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Type1Encoding.java
- * PDFBOX_SOURCE_COMMIT: e270e8a7950e27ee5409031cc0bdabab562c6985
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontCache.java
+ * PDFBOX_SOURCE_COMMIT: 5ae1692a652cde45116a73893998d4cab8bbd12b
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: e270e8a7950e27ee5409031cc0bdabab562c6985
+ * PORT_LAST_SYNC_COMMIT: 5ae1692a652cde45116a73893998d4cab8bbd12b
  */
 
 /*
@@ -25,18 +25,28 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.FontBox.Type1;
+using System.Collections.Concurrent;
+using PdfBox.Net.FontBox;
 
-namespace PdfBox.Net.PDModel.Font.Encoding;
+namespace PdfBox.Net.PDModel.Font;
 
-public sealed class Type1Encoding : Encoding
+public sealed class FontCache
 {
-    public Type1Encoding(Type1Font type1Font)
+    private readonly ConcurrentDictionary<FontInfo, WeakReference<FontBoxFont>> _cache = new();
+
+    public void AddFont(FontInfo info, FontBoxFont font)
     {
-        ArgumentNullException.ThrowIfNull(type1Font);
-        foreach (KeyValuePair<int, string> kv in type1Font.GetEncoding().GetCodeToNameMap())
-        {
-            AddCharacterEncoding(kv.Key, kv.Value);
-        }
+        ArgumentNullException.ThrowIfNull(info);
+        ArgumentNullException.ThrowIfNull(font);
+        _cache[info] = new WeakReference<FontBoxFont>(font);
+    }
+
+    public FontBoxFont? GetFont(FontInfo info)
+    {
+        ArgumentNullException.ThrowIfNull(info);
+        return _cache.TryGetValue(info, out WeakReference<FontBoxFont>? reference) &&
+               reference.TryGetTarget(out FontBoxFont? font)
+            ? font
+            : null;
     }
 }

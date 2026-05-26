@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java
- * PDFBOX_SOURCE_COMMIT: trunk
+ * PDFBOX_SOURCE_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: trunk
+ * PORT_LAST_SYNC_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  */
 
 /*
@@ -41,7 +41,9 @@ public static class PDFontFactory
         return subtype switch
         {
             "Type0" => PDType0Font.Load(dictionary),
-            "Type1" or "MMType1" => PDType1Font.Load(dictionary),
+            "Type1" => (PDFont?)PDType1CFont.Load(dictionary) ?? PDType1Font.Load(dictionary),
+            "MMType1" => new PDMMType1Font(dictionary),
+            "Type3" => new PDType3Font(dictionary),
             "TrueType" => PDTrueTypeFont.Load(dictionary) ?? (PDFont)PDDictionaryFont.Create(dictionary),
             "CIDFontType0" => new PDCIDFontType0(dictionary),
             "CIDFontType2" => PDCIDFontType2.Load(dictionary),

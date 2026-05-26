@@ -2,10 +2,10 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Type1Encoding.java
- * PDFBOX_SOURCE_COMMIT: e270e8a7950e27ee5409031cc0bdabab562c6985
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/CIDFontMapping.java
+ * PDFBOX_SOURCE_COMMIT: 5ae1692a652cde45116a73893998d4cab8bbd12b
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: e270e8a7950e27ee5409031cc0bdabab562c6985
+ * PORT_LAST_SYNC_COMMIT: 5ae1692a652cde45116a73893998d4cab8bbd12b
  */
 
 /*
@@ -25,18 +25,24 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.FontBox.Type1;
+using PdfBox.Net.FontBox;
+using PdfBox.Net.FontBox.TTF;
 
-namespace PdfBox.Net.PDModel.Font.Encoding;
+namespace PdfBox.Net.PDModel.Font;
 
-public sealed class Type1Encoding : Encoding
+public sealed class CIDFontMapping : FontMapping<FontBoxFont>
 {
-    public Type1Encoding(Type1Font type1Font)
+    private readonly OpenTypeFont? _cidFont;
+    private readonly FontBoxFont? _trueTypeFont;
+
+    public CIDFontMapping(OpenTypeFont? font, FontBoxFont? trueTypeFont, bool isFallback)
+        : base(font ?? trueTypeFont ?? throw new ArgumentNullException(nameof(trueTypeFont)), isFallback)
     {
-        ArgumentNullException.ThrowIfNull(type1Font);
-        foreach (KeyValuePair<int, string> kv in type1Font.GetEncoding().GetCodeToNameMap())
-        {
-            AddCharacterEncoding(kv.Key, kv.Value);
-        }
+        _cidFont = font;
+        _trueTypeFont = trueTypeFont;
     }
+
+    public FontBoxFont? GetTrueTypeFont() => _trueTypeFont;
+
+    public bool IsCIDFont() => _cidFont != null;
 }

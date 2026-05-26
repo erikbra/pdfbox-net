@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java
- * PDFBOX_SOURCE_COMMIT: trunk
+ * PDFBOX_SOURCE_COMMIT: b9fd9df12a5655a57c810fd2fa24a76817e19b0c
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: trunk
+ * PORT_LAST_SYNC_COMMIT: b9fd9df12a5655a57c810fd2fa24a76817e19b0c
  */
 
 /*
@@ -99,6 +99,9 @@ public sealed class DictionaryEncoding : Encoding
         return name switch
         {
             "MacRomanEncoding" => MacRomanEncoding.INSTANCE,
+            "MacOSRomanEncoding" => MacOSRomanEncoding.INSTANCE,
+            "MacExpertEncoding" => MacExpertEncoding.INSTANCE,
+            "StandardEncoding" => StandardEncoding.INSTANCE,
             "WinAnsiEncoding" => WinAnsiEncoding.INSTANCE,
             "SymbolEncoding" => SymbolEncoding.INSTANCE,
             "ZapfDingbatsEncoding" => ZapfDingbatsEncoding.INSTANCE,

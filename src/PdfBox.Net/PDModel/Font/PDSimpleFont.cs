@@ -2,10 +2,10 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Type1Encoding.java
- * PDFBOX_SOURCE_COMMIT: e270e8a7950e27ee5409031cc0bdabab562c6985
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDSimpleFont.java
+ * PDFBOX_SOURCE_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: e270e8a7950e27ee5409031cc0bdabab562c6985
+ * PORT_LAST_SYNC_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  */
 
 /*
@@ -25,18 +25,8 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.FontBox.Type1;
+namespace PdfBox.Net.PDModel.Font;
 
-namespace PdfBox.Net.PDModel.Font.Encoding;
-
-public sealed class Type1Encoding : Encoding
+public abstract partial class PDSimpleFont
 {
-    public Type1Encoding(Type1Font type1Font)
-    {
-        ArgumentNullException.ThrowIfNull(type1Font);
-        foreach (KeyValuePair<int, string> kv in type1Font.GetEncoding().GetCodeToNameMap())
-        {
-            AddCharacterEncoding(kv.Key, kv.Value);
-        }
-    }
 }

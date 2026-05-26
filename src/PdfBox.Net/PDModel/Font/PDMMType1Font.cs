@@ -2,10 +2,10 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Type1Encoding.java
- * PDFBOX_SOURCE_COMMIT: e270e8a7950e27ee5409031cc0bdabab562c6985
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDMMType1Font.java
+ * PDFBOX_SOURCE_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: e270e8a7950e27ee5409031cc0bdabab562c6985
+ * PORT_LAST_SYNC_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  */
 
 /*
@@ -25,18 +25,14 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.FontBox.Type1;
+using PdfBox.Net.COS;
 
-namespace PdfBox.Net.PDModel.Font.Encoding;
+namespace PdfBox.Net.PDModel.Font;
 
-public sealed class Type1Encoding : Encoding
+public sealed class PDMMType1Font : PDType1Font
 {
-    public Type1Encoding(Type1Font type1Font)
+    public PDMMType1Font(COSDictionary dictionary)
+        : base(dictionary)
     {
-        ArgumentNullException.ThrowIfNull(type1Font);
-        foreach (KeyValuePair<int, string> kv in type1Font.GetEncoding().GetCodeToNameMap())
-        {
-            AddCharacterEncoding(kv.Key, kv.Value);
-        }
     }
 }
