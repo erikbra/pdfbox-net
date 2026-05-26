@@ -32,6 +32,7 @@ using PdfBox.Net.PDModel.Graphics.OptionalContent;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
+using PdfBox.Net.PDModel.Interactive.ViewerPreferences;
 
 namespace PdfBox.Net.PDModel;
 
@@ -238,6 +239,40 @@ public sealed class PDDocumentCatalog : COSObjectable
     }
 
     /// <summary>
+    /// Gets the viewer preferences dictionary, if present.
+    /// </summary>
+    public PDViewerPreferences? GetViewerPreferences()
+    {
+        COSDictionary? viewerPreferences = _root.GetCOSDictionary(COSName.VIEWER_PREFERENCES);
+        return viewerPreferences is null ? null : new PDViewerPreferences(viewerPreferences);
+    }
+
+    /// <summary>
+    /// Sets the viewer preferences dictionary.
+    /// </summary>
+    public void SetViewerPreferences(PDViewerPreferences? preferences)
+    {
+        _root.SetItem(COSName.VIEWER_PREFERENCES, preferences);
+    }
+
+    /// <summary>
+    /// Gets the names dictionary, if present.
+    /// </summary>
+    public PDDocumentNameDictionary? GetNames()
+    {
+        COSDictionary? names = _root.GetCOSDictionary(COSName.NAMES);
+        return names is null ? null : new PDDocumentNameDictionary(this, names);
+    }
+
+    /// <summary>
+    /// Sets the names dictionary.
+    /// </summary>
+    public void SetNames(PDDocumentNameDictionary? names)
+    {
+        _root.SetItem(COSName.NAMES, names);
+    }
+
+    /// <summary>
     /// Returns the document AcroForm dictionary if present.
     /// </summary>
     public PDAcroForm? GetAcroForm()
@@ -300,31 +335,46 @@ public sealed class PDDocumentCatalog : COSObjectable
     }
 
     /// <summary>
-    /// Find the page destination from a named destination by looking it up in the document's
-    /// /Dests dictionary.
+    /// Find the page destination from a named destination.
     /// </summary>
     /// <param name="namedDest">The named destination.</param>
     /// <returns>A PDPageDestination object or null if not found.</returns>
     public PDPageDestination? FindNamedDestinationPage(PDNamedDestination namedDest)
     {
-        // Look up /Dests dictionary from catalog
-        COSDictionary? destsDict = _root.GetCOSDictionary(COSName.DESTS);
-        if (destsDict != null)
+        string? name = namedDest.GetNamedDestination();
+        if (name is null)
         {
-            string? name = namedDest.GetNamedDestination();
-            if (name != null)
+            return null;
+        }
+
+        PDDocumentNameDictionary? namesDict = GetNames();
+        if (namesDict is not null)
+        {
+            PDDestinationNameTreeNode? destsTree = namesDict.GetDests();
+            if (destsTree is not null)
             {
-                COSBase? destObj = destsDict.GetDictionaryObject(COSName.GetPDFName(name));
-                if (destObj != null)
+                PDPageDestination? treeDestination = destsTree.GetValue(name);
+                if (treeDestination is not null)
                 {
-                    PDDestination? dest = PDDestination.Create(destObj);
-                    if (dest is PDPageDestination pageDest)
-                    {
-                        return pageDest;
-                    }
+                    return treeDestination;
                 }
             }
         }
+
+        COSDictionary? destsDict = _root.GetCOSDictionary(COSName.DESTS);
+        if (destsDict is not null)
+        {
+            COSBase? destObj = destsDict.GetDictionaryObject(COSName.GetPDFName(name));
+            if (destObj is not null)
+            {
+                PDDestination? dest = PDDestination.Create(destObj);
+                if (dest is PDPageDestination pageDest)
+                {
+                    return pageDest;
+                }
+            }
+        }
+
         return null;
     }
 }
