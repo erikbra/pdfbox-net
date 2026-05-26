@@ -70,7 +70,7 @@ public class PDThread : COSObjectable
     /// <returns>The thread information.</returns>
     public PDDocumentInformation? GetThreadInfo()
     {
-        COSDictionary? info = _thread.GetCOSDictionary(COSName.I);
+        COSDictionary? info = _thread.GetCOSDictionary(COSName.GetPDFName("I"));
         return info != null ? new PDDocumentInformation(info) : null;
     }
 
@@ -80,7 +80,7 @@ public class PDThread : COSObjectable
     /// <param name="info">The info dictionary about this thread.</param>
     public void SetThreadInfo(PDDocumentInformation? info)
     {
-        _thread.SetItem(COSName.I, info);
+        _thread.SetItem(COSName.GetPDFName("I"), info);
     }
 
     /// <summary>

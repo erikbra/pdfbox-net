@@ -47,7 +47,7 @@ public class PDModelInteractiveSliceBTest
 
         PDPage? resolved = outlineItem.FindDestinationPage(document);
         Assert.NotNull(resolved);
-        Assert.Equal(second.GetCOSObject(), resolved!.GetCOSObject());
+        Assert.True(ReferenceEquals(second.GetCOSObject(), resolved!.GetCOSObject()));
     }
 
     [Fact]
@@ -71,8 +71,8 @@ public class PDModelInteractiveSliceBTest
         Assert.NotNull(firstFromThread);
         Assert.Equal("Article thread", thread.GetThreadInfo()!.GetTitle());
         Assert.NotNull(firstFromThread!.GetRectangle());
-        Assert.Equal(firstBead.GetCOSObject(), firstFromThread.GetPreviousBead()!.GetCOSObject());
-        Assert.Equal(secondBead.GetCOSObject(), firstFromThread.GetNextBead()!.GetCOSObject());
+        Assert.True(ReferenceEquals(secondBead.GetCOSObject(), firstFromThread.GetPreviousBead()!.GetCOSObject()));
+        Assert.True(ReferenceEquals(secondBead.GetCOSObject(), firstFromThread.GetNextBead()!.GetCOSObject()));
     }
 
     [Fact]

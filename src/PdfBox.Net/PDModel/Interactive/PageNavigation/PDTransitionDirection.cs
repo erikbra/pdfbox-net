@@ -53,7 +53,7 @@ internal static class PDTransitionDirectionExtensions
             PDTransitionDirection.RIGHT_TO_LEFT => COSInteger.Get(180),
             PDTransitionDirection.TOP_TO_BOTTOM => COSInteger.Get(270),
             PDTransitionDirection.TOP_LEFT_TO_BOTTOM_RIGHT => COSInteger.Get(315),
-            PDTransitionDirection.NONE => COSName.NONE,
+            PDTransitionDirection.NONE => COSName.GetPDFName("None"),
             _ => COSInteger.ZERO
         };
     }

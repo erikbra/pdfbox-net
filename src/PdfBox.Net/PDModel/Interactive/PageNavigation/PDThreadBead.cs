@@ -163,7 +163,7 @@ public class PDThreadBead : COSObjectable
     /// <returns>The part of the page that this bead covers.</returns>
     public virtual PDRectangle? GetRectangle()
     {
-        COSArray? array = _bead.GetCOSArray(COSName.R);
+        COSArray? array = _bead.GetCOSArray(COSName.GetPDFName("R"));
         return array != null ? new PDRectangle(array) : null;
     }
 
@@ -173,6 +173,6 @@ public class PDThreadBead : COSObjectable
     /// <param name="rect">The portion of the page that this bead covers.</param>
     public void SetRectangle(PDRectangle? rect)
     {
-        _bead.SetItem(COSName.R, rect);
+        _bead.SetItem(COSName.GetPDFName("R"), rect);
     }
 }
