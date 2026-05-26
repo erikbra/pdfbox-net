@@ -255,6 +255,23 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
 - The `pdmodel.font` milestone has advanced through #50 (TrueType/CIDType2 parity); #51 and #52 remain as closeout slices.
 - The next large dependency-safe chunk to execute fully after font closeout is now **`pdmodel.graphics` completion**.
 
+## 100% parity finish line (2026-05-26 refresh)
+
+- Treat main-module parity as:
+  - **618 / 618** upstream `pdfbox/src/main/java` files mapped
+  - **0** blank traceability statuses
+  - **0** obsolete/stale upstream-path mappings
+  - all current `partial` / `partially-in-sync` hotspots either closed or explicitly burned down in the same milestone closeout
+- Keep the issue flow dependency-first:
+  1. report/inventory hygiene + near-complete small gaps
+  2. font completion
+  3. graphics completion
+  4. filter/parser/writer completeness
+  5. interactive slices A-H
+  6. FDF + fixup
+  7. multipdf
+  8. encryption/public-key closeout and final parity burn-down
+
 ### Remaining font closeout issues
 - `issues/51-pdmodel-font-type0-cidtype0-and-unicode-integration.md`
 - `issues/52-pdmodel-font-regression-coverage-and-traceability-closeout.md`
@@ -265,3 +282,25 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
 - `issues/55-pdmodel-graphics-state-and-xobject-integration.md`
 - `issues/56-graphics-contentstream-and-rendering-integration.md`
 - `issues/57-pdmodel-graphics-regression-coverage-and-traceability-closeout.md`
+
+### Follow-on issue series prepared for full main-module parity
+- `issues/58-report-traceability-and-small-gap-hygiene.md`
+- `issues/59-pdmodel-font-backfill-after-closeout.md`
+- `issues/60-filter-parser-writer-completeness.md`
+- `issues/61-pdmodel-interactive-slice-a-utilities-names-and-viewer-preferences.md`
+- `issues/62-pdmodel-interactive-slice-b-destinations-outlines-and-navigation.md`
+- `issues/63-pdmodel-interactive-slice-c-actions-and-additional-actions.md`
+- `issues/64-pdmodel-interactive-slice-d-annotation-core-and-appearance-dictionaries.md`
+- `issues/65-pdmodel-interactive-slice-e-acroform-core-and-field-tree.md`
+- `issues/66-pdmodel-interactive-slice-f-annotation-appearance-handlers-and-generation.md`
+- `issues/67-pdmodel-interactive-slice-g-digital-signatures-visible-signatures-and-measurement.md`
+- `issues/68-pdmodel-interactive-slice-h-regression-traceability-and-closeout.md`
+- `issues/69-pdmodel-fdf-document-core.md`
+- `issues/70-pdmodel-fdf-field-page-template-model.md`
+- `issues/71-pdmodel-fdf-annotation-mirror-types.md`
+- `issues/72-pdmodel-fdf-regression-traceability-and-closeout.md`
+- `issues/73-pdmodel-fixup-core-and-processors.md`
+- `issues/74-multipdf-clone-merge-foundation.md`
+- `issues/75-multipdf-page-extraction-and-splitting.md`
+- `issues/76-multipdf-overlay-layer-and-closeout.md`
+- `issues/77-encryption-publickey-factory-provider-closeout.md`
