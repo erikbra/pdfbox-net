@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.OptionalContent;
 
 namespace PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 
@@ -38,7 +39,14 @@ public class PDPropertyList : COSObjectable
 
     public static PDPropertyList Create(COSDictionary dict)
     {
-        return new PDPropertyList(dict);
+        ArgumentNullException.ThrowIfNull(dict);
+
+        return dict.GetDictionaryObject(COSName.TYPE) switch
+        {
+            COSName type when type.Equals(COSName.GetPDFName("OCG")) => new PDOptionalContentGroup(dict),
+            COSName type when type.Equals(COSName.GetPDFName("OCMD")) => new PDOptionalContentMembershipDictionary(dict),
+            _ => new PDPropertyList(dict)
+        };
     }
 
     protected PDPropertyList()
@@ -54,4 +62,3 @@ public class PDPropertyList : COSObjectable
     public COSDictionary GetCOSObject() => Dict;
     COSBase COSObjectable.GetCOSObject() => Dict;
 }
-

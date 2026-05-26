@@ -28,8 +28,10 @@
 using System.IO;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Graphics.Patterns;
 using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Graphics.State;
 
@@ -50,6 +52,8 @@ public class PDResources
     private static readonly COSName ExtGStateKey = COSName.GetPDFName("ExtGState");
     private static readonly COSName ColorSpaceKey = COSName.GetPDFName("ColorSpace");
     private static readonly COSName ShadingKey = COSName.GetPDFName("Shading");
+    private static readonly COSName PatternKey = COSName.GetPDFName("Pattern");
+    private static readonly COSName PropertiesKey = COSName.GetPDFName("Properties");
 
     private readonly COSDictionary _dict;
 
@@ -196,5 +200,39 @@ public class PDResources
         COSDictionary? shadingSubDict = _dict.GetCOSDictionary(ShadingKey);
         if (shadingSubDict is null) return Enumerable.Empty<COSName>();
         return shadingSubDict.KeySet();
+    }
+
+    public PDAbstractPattern? GetPattern(COSName name)
+    {
+        COSDictionary? patternSubDict = _dict.GetCOSDictionary(PatternKey);
+        if (patternSubDict is null) return null;
+
+        return patternSubDict.GetDictionaryObject(name) is COSDictionary patternDict
+            ? PDAbstractPattern.Create(patternDict)
+            : null;
+    }
+
+    public IEnumerable<COSName> GetPatternNames()
+    {
+        COSDictionary? patternSubDict = _dict.GetCOSDictionary(PatternKey);
+        if (patternSubDict is null) return Enumerable.Empty<COSName>();
+        return patternSubDict.KeySet();
+    }
+
+    public PDPropertyList? GetProperties(COSName name)
+    {
+        COSDictionary? propertiesSubDict = _dict.GetCOSDictionary(PropertiesKey);
+        if (propertiesSubDict is null) return null;
+
+        return propertiesSubDict.GetDictionaryObject(name) is COSDictionary propertyDict
+            ? PDPropertyList.Create(propertyDict)
+            : null;
+    }
+
+    public IEnumerable<COSName> GetPropertiesNames()
+    {
+        COSDictionary? propertiesSubDict = _dict.GetCOSDictionary(PropertiesKey);
+        if (propertiesSubDict is null) return Enumerable.Empty<COSName>();
+        return propertiesSubDict.KeySet();
     }
 }

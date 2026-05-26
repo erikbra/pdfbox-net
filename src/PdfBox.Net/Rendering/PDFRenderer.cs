@@ -203,7 +203,9 @@ public class PDFRenderer
 
     public bool IsGroupEnabled(PDOptionalContentGroup group)
     {
-        return true;
+        ArgumentNullException.ThrowIfNull(group);
+        PDOptionalContentProperties? ocProperties = document.GetDocumentCatalog().GetOCProperties();
+        return ocProperties is null || ocProperties.IsGroupEnabled(group);
     }
 
     protected virtual PageDrawer CreatePageDrawer(PageDrawerParameters parameters)
