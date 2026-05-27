@@ -146,6 +146,35 @@ public class FDFDictionary : COSObjectable
         _fdf.SetName(EncodingName, encoding);
     }
 
+    public List<FDFAnnotation>? GetAnnotations()
+    {
+        COSArray? array = _fdf.GetCOSArray(COSName.ANNOTS);
+        if (array is null)
+        {
+            return null;
+        }
+
+        List<FDFAnnotation> annotations = [];
+        for (int i = 0; i < array.Size(); i++)
+        {
+            if (array.GetObject(i) is COSDictionary dictionary)
+            {
+                FDFAnnotation? annotation = FDFAnnotation.Create(dictionary);
+                if (annotation is not null)
+                {
+                    annotations.Add(annotation);
+                }
+            }
+        }
+
+        return annotations;
+    }
+
+    public void SetAnnotations(IList<FDFAnnotation>? annotations)
+    {
+        _fdf.SetItem(COSName.ANNOTS, annotations is null ? null : new COSArray(annotations));
+    }
+
     public FDFJavaScript? GetJavaScript()
     {
         COSDictionary? dictionary = _fdf.GetCOSDictionary(JavaScriptName);
