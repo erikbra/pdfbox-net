@@ -217,6 +217,61 @@ public abstract class PDAnnotation : COSObjectable
         return _dictionary;
     }
 
+    public COSName? GetAppearanceState()
+    {
+        return _dictionary.GetCOSName(COSName.AS);
+    }
+
+    public void SetAppearanceState(string? appearanceState)
+    {
+        _dictionary.SetName(COSName.AS, appearanceState);
+    }
+
+    public void SetAppearanceState(COSName? appearanceState)
+    {
+        _dictionary.SetItem(COSName.AS, appearanceState);
+    }
+
+    public PDAppearanceDictionary? GetAppearance()
+    {
+        COSDictionary? appearance = _dictionary.GetCOSDictionary(COSName.GetPDFName("AP"));
+        return appearance != null ? new PDAppearanceDictionary(appearance) : null;
+    }
+
+    public void SetAppearance(PDAppearanceDictionary? appearance)
+    {
+        _dictionary.SetItem(COSName.GetPDFName("AP"), appearance);
+    }
+
+    public PDAppearanceStream? GetNormalAppearanceStream()
+    {
+        PDAppearanceDictionary? appearance = GetAppearance();
+        if (appearance == null)
+        {
+            return null;
+        }
+
+        PDAppearanceEntry? normalAppearance = appearance.GetNormalAppearance();
+        if (normalAppearance == null)
+        {
+            return null;
+        }
+
+        if (normalAppearance.IsSubDictionary())
+        {
+            COSName? state = GetAppearanceState();
+            if (state == null)
+            {
+                return null;
+            }
+
+            IDictionary<COSName, PDAppearanceStream> subDictionary = normalAppearance.GetSubDictionary();
+            return subDictionary.TryGetValue(state, out PDAppearanceStream? stream) ? stream : null;
+        }
+
+        return normalAppearance.IsStream() ? normalAppearance.GetAppearanceStream() : null;
+    }
+
     /// <summary>
     /// Returns the underlying COS dictionary.
     /// </summary>
@@ -426,5 +481,14 @@ public abstract class PDAnnotation : COSObjectable
     public void SetColor(PDColor? c)
     {
         _dictionary.SetItem(COSName.C, c?.ToCOSArray());
+    }
+
+    public virtual void ConstructAppearances()
+    {
+    }
+
+    public virtual void ConstructAppearances(PDDocument? document)
+    {
+        ConstructAppearances();
     }
 }

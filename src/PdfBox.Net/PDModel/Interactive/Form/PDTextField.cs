@@ -59,6 +59,8 @@ public sealed class PDTextField : PDVariableText
     public void SetValue(string? value)
     {
         dictionary.SetString(COSName.V, value);
+        AppearanceGeneratorHelper helper = new(this);
+        helper.SetAppearanceValue(value);
     }
 
     public bool IsMultiline() => dictionary.GetFlag(COSName.GetPDFName("FF"), FlagMultiline);

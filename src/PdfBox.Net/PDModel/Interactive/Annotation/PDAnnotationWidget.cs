@@ -66,4 +66,5 @@ public sealed class PDAnnotationWidget : PDAnnotation
     {
         GetCOSDictionary().SetItem(COSName.AA, actions);
     }
+
 }

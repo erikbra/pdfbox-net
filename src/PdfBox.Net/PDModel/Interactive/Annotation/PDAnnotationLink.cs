@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Interactive.Action;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
@@ -37,6 +38,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotationLink</c>.</remarks>
 public class PDAnnotationLink : PDAnnotation
 {
+    private PDAppearanceHandler? customAppearanceHandler;
+
     /// <summary>Highlight mode — no highlighting.</summary>
     public const string HighlightModeNone = "N";
     /// <summary>Highlight mode — invert the annotation.</summary>
@@ -116,5 +119,25 @@ public class PDAnnotationLink : PDAnnotation
     public void SetHighlightMode(string? mode)
     {
         GetCOSDictionary().SetName(COSName.GetPDFName("H"), mode);
+    }
+
+    public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
+    {
+        customAppearanceHandler = appearanceHandler;
+    }
+
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
+    }
+
+    public override void ConstructAppearances(PDDocument? document)
+    {
+        if (customAppearanceHandler == null)
+        {
+            customAppearanceHandler = new PDLinkAppearanceHandler(this, document);
+        }
+
+        customAppearanceHandler.GenerateAppearanceStreams();
     }
 }

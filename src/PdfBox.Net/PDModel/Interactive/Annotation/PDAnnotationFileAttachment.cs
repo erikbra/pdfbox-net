@@ -28,11 +28,14 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common.FileSpecification;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
 public sealed class PDAnnotationFileAttachment : PDAnnotationMarkup
 {
+    private PDAppearanceHandler? customAppearanceHandler;
+
     public const string SUB_TYPE = "FileAttachment";
 
     public PDAnnotationFileAttachment()
@@ -54,5 +57,25 @@ public sealed class PDAnnotationFileAttachment : PDAnnotationMarkup
     public void SetFile(PDFileSpecification? file)
     {
         GetCOSDictionary().SetItem(COSName.GetPDFName("FS"), file);
+    }
+
+    public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
+    {
+        customAppearanceHandler = appearanceHandler;
+    }
+
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
+    }
+
+    public override void ConstructAppearances(PDDocument? document)
+    {
+        if (customAppearanceHandler == null)
+        {
+            customAppearanceHandler = new PDFileAttachmentAppearanceHandler(this, document);
+        }
+
+        customAppearanceHandler.GenerateAppearanceStreams();
     }
 }

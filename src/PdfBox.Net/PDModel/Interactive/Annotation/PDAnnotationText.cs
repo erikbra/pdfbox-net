@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
@@ -35,6 +36,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotationText</c>.</remarks>
 public class PDAnnotationText : PDAnnotationMarkup
 {
+    private PDAppearanceHandler? customAppearanceHandler;
+
     /// <summary>Constant for the name of a text annotation.</summary>
     public const string NameComment = "Comment";
     /// <summary>Constant for the name of a text annotation.</summary>
@@ -105,5 +108,25 @@ public class PDAnnotationText : PDAnnotationMarkup
     public string? GetName()
     {
         return GetCOSDictionary().GetNameAsString(COSName.NAME);
+    }
+
+    public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
+    {
+        customAppearanceHandler = appearanceHandler;
+    }
+
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
+    }
+
+    public override void ConstructAppearances(PDDocument? document)
+    {
+        if (customAppearanceHandler == null)
+        {
+            customAppearanceHandler = new PDTextAppearanceHandler(this, document);
+        }
+
+        customAppearanceHandler.GenerateAppearanceStreams();
     }
 }
