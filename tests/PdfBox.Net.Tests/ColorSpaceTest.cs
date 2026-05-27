@@ -100,4 +100,27 @@ public class ColorSpaceTest
         PDColorSpace cs = PDColorSpaceFactory.Create(COSName.GetPDFName("Cs1"), resources);
         Assert.Same(PDDeviceCMYK.Instance, cs);
     }
+
+    [Fact]
+    public void PDIndexed_Create_ValidatesParameters()
+    {
+        PDColorSpace baseColorSpace = PDDeviceRGB.Instance;
+        byte[] lookupDataEmpty = new byte[5];
+        const int highValue = 5;
+        byte[] lookupData = COSString.ParseHex("AA1166112233000000FEDC014561FEDC34DA").GetBytes();
+
+        Assert.Throws<ArgumentException>(() => PDIndexed.Create(baseColorSpace, 0, null));
+        Assert.Throws<ArgumentException>(() => PDIndexed.Create(null, 0, lookupDataEmpty));
+        Assert.Throws<ArgumentOutOfRangeException>(() => PDIndexed.Create(baseColorSpace, -1, lookupDataEmpty));
+        Assert.Throws<ArgumentOutOfRangeException>(() => PDIndexed.Create(baseColorSpace, 256, lookupDataEmpty));
+        Assert.Throws<ArgumentException>(() => PDIndexed.Create(baseColorSpace, highValue, lookupDataEmpty));
+
+        PDIndexed indexed = PDIndexed.Create(baseColorSpace, highValue, lookupData);
+        lookupData[0] = 0;
+        float[] rgb = indexed.ToRGB([0]);
+
+        Assert.Equal(170f / 255f, rgb[0], 6);
+        Assert.Equal(17f / 255f, rgb[1], 6);
+        Assert.Equal(102f / 255f, rgb[2], 6);
+    }
 }
