@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDCheckBox.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDPushButton.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -25,49 +25,48 @@
  * limitations under the License.
  */
 
-
 using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public sealed class PDCheckBox : PDButton
+public class PDPushButton : PDButton
 {
-    public PDCheckBox(PDAcroForm acroForm)
+    public PDPushButton(PDAcroForm acroForm)
         : base(acroForm)
     {
+        dictionary.SetFlag(COSName.GetPDFName("FF"), FlagPushButton, true);
     }
 
-    internal PDCheckBox(PDAcroForm acroForm, COSDictionary dictionary)
+    internal PDPushButton(PDAcroForm acroForm, COSDictionary dictionary)
         : base(acroForm, dictionary)
     {
     }
 
-    public bool IsChecked()
+    public override List<string> GetExportValues()
     {
-        return string.Equals(GetValue(), GetOnValue(), StringComparison.Ordinal);
+        return [];
     }
 
-    public void Check()
+    public override void SetExportValues(IList<string>? values)
     {
-        SetValue(GetOnValue());
-    }
-
-    public void UnCheck()
-    {
-        SetValue("Off");
-    }
-
-    public string GetOnValue()
-    {
-        ISet<string> onValues = GetOnValues();
-        foreach (string onValue in onValues)
+        if (values != null && values.Count > 0)
         {
-            if (!string.Equals(onValue, "Off", StringComparison.Ordinal))
-            {
-                return onValue;
-            }
+            throw new ArgumentException("A push button shall not use the Opt entry.", nameof(values));
         }
+    }
 
-        return "Yes";
+    public override string GetValue()
+    {
+        return string.Empty;
+    }
+
+    public override string GetDefaultValue()
+    {
+        return string.Empty;
+    }
+
+    public override ISet<string> GetOnValues()
+    {
+        return new HashSet<string>();
     }
 }

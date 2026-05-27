@@ -33,6 +33,10 @@ namespace PdfBox.Net.PDModel.Interactive.Form;
 
 public abstract class PDField : COSObjectable
 {
+    private const int FlagReadOnly = 1;
+    private const int FlagRequired = 1 << 1;
+    private const int FlagNoExport = 1 << 2;
+
     protected readonly PDAcroForm acroForm;
     protected readonly COSDictionary dictionary;
 
@@ -50,13 +54,12 @@ public abstract class PDField : COSObjectable
 
     public static PDField FromDictionary(PDAcroForm acroForm, COSDictionary dictionary)
     {
-        string? fieldType = dictionary.GetNameAsString(COSName.GetPDFName("FT"));
-        return fieldType switch
-        {
-            "Tx" => new PDTextField(acroForm, dictionary),
-            "Btn" => new PDCheckBox(acroForm, dictionary),
-            _ => new PDUnknownField(acroForm, dictionary)
-        };
+        return FromDictionary(acroForm, dictionary, null);
+    }
+
+    public static PDField FromDictionary(PDAcroForm acroForm, COSDictionary dictionary, PDNonTerminalField? parent)
+    {
+        return PDFieldFactory.CreateField(acroForm, dictionary, parent);
     }
 
     public COSBase GetCOSObject()
@@ -71,6 +74,11 @@ public abstract class PDField : COSObjectable
 
     public void SetPartialName(string? name)
     {
+        if (!string.IsNullOrEmpty(name) && name.Contains('.', StringComparison.Ordinal))
+        {
+            throw new ArgumentException($"A field partial name shall not contain a period character: {name}", nameof(name));
+        }
+
         dictionary.SetString(COSName.T, name);
     }
 
@@ -92,7 +100,7 @@ public abstract class PDField : COSObjectable
         return string.IsNullOrEmpty(partial) ? parentName : $"{parentName}.{partial}";
     }
 
-    public string? GetFieldType()
+    public virtual string? GetFieldType()
     {
         return dictionary.GetNameAsString(COSName.GetPDFName("FT"));
     }
@@ -101,6 +109,63 @@ public abstract class PDField : COSObjectable
     {
         COSDictionary? aa = dictionary.GetCOSDictionary(COSName.AA);
         return aa != null ? new PDFormFieldAdditionalActions(aa) : null;
+    }
+
+    public void SetReadOnly(bool readOnly)
+    {
+        dictionary.SetFlag(COSName.GetPDFName("FF"), FlagReadOnly, readOnly);
+    }
+
+    public bool IsReadOnly()
+    {
+        return dictionary.GetFlag(COSName.GetPDFName("FF"), FlagReadOnly);
+    }
+
+    public void SetRequired(bool required)
+    {
+        dictionary.SetFlag(COSName.GetPDFName("FF"), FlagRequired, required);
+    }
+
+    public bool IsRequired()
+    {
+        return dictionary.GetFlag(COSName.GetPDFName("FF"), FlagRequired);
+    }
+
+    public void SetNoExport(bool noExport)
+    {
+        dictionary.SetFlag(COSName.GetPDFName("FF"), FlagNoExport, noExport);
+    }
+
+    public bool IsNoExport()
+    {
+        return dictionary.GetFlag(COSName.GetPDFName("FF"), FlagNoExport);
+    }
+
+    protected COSBase? GetInheritableAttribute(COSName key)
+    {
+        if (dictionary.ContainsKey(key))
+        {
+            return dictionary.GetDictionaryObject(key);
+        }
+
+        COSDictionary? parent = dictionary.GetCOSDictionary(COSName.PARENT, COSName.P);
+        if (parent != null)
+        {
+            return GetInheritableAttribute(parent, key);
+        }
+
+        return ((COSDictionary)acroForm.GetCOSObject()).GetDictionaryObject(key);
+    }
+
+    private static COSBase? GetInheritableAttribute(COSDictionary dictionary, COSName key)
+    {
+        if (dictionary.ContainsKey(key))
+        {
+            return dictionary.GetDictionaryObject(key);
+        }
+
+        COSDictionary? parent = dictionary.GetCOSDictionary(COSName.PARENT, COSName.P);
+        return parent != null ? GetInheritableAttribute(parent, key) : null;
     }
 
     public abstract string? GetValueAsString();

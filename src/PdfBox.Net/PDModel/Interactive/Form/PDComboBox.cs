@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDCheckBox.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDComboBox.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -25,49 +25,32 @@
  * limitations under the License.
  */
 
-
 using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public sealed class PDCheckBox : PDButton
+public sealed class PDComboBox : PDChoice
 {
-    public PDCheckBox(PDAcroForm acroForm)
+    private const int FlagEdit = 1 << 18;
+
+    public PDComboBox(PDAcroForm acroForm)
         : base(acroForm)
     {
+        SetCombo(true);
     }
 
-    internal PDCheckBox(PDAcroForm acroForm, COSDictionary dictionary)
+    internal PDComboBox(PDAcroForm acroForm, COSDictionary dictionary)
         : base(acroForm, dictionary)
     {
     }
 
-    public bool IsChecked()
+    public bool IsEdit()
     {
-        return string.Equals(GetValue(), GetOnValue(), StringComparison.Ordinal);
+        return dictionary.GetFlag(COSName.GetPDFName("FF"), FlagEdit);
     }
 
-    public void Check()
+    public void SetEdit(bool edit)
     {
-        SetValue(GetOnValue());
-    }
-
-    public void UnCheck()
-    {
-        SetValue("Off");
-    }
-
-    public string GetOnValue()
-    {
-        ISet<string> onValues = GetOnValues();
-        foreach (string onValue in onValues)
-        {
-            if (!string.Equals(onValue, "Off", StringComparison.Ordinal))
-            {
-                return onValue;
-            }
-        }
-
-        return "Yes";
+        dictionary.SetFlag(COSName.GetPDFName("FF"), FlagEdit, edit);
     }
 }

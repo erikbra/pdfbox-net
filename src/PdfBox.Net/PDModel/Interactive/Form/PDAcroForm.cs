@@ -28,6 +28,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
@@ -40,6 +41,7 @@ public sealed class PDAcroForm : COSObjectable
     {
         _document = document ?? throw new ArgumentNullException(nameof(document));
         _dictionary = new COSDictionary();
+        _dictionary.SetItem(COSName.GetPDFName("Fields"), new COSArray());
     }
 
     public PDAcroForm(PDDocument document, COSDictionary dictionary)
@@ -75,6 +77,54 @@ public sealed class PDAcroForm : COSObjectable
     public void SetFields(IList<PDField>? fields)
     {
         _dictionary.SetItem(COSName.GetPDFName("Fields"), COSArrayList<object>.ConverterToCOSArray(fields?.Cast<object>().ToList()));
+    }
+
+    public IEnumerator<PDField> GetFieldIterator()
+    {
+        return new PDFieldTree(this).GetEnumerator();
+    }
+
+    public PDFieldTree GetFieldTree()
+    {
+        return new PDFieldTree(this);
+    }
+
+    public string GetDefaultAppearance()
+    {
+        return _dictionary.GetString(COSName.GetPDFName("DA"), string.Empty) ?? string.Empty;
+    }
+
+    public void SetDefaultAppearance(string? daValue)
+    {
+        _dictionary.SetString(COSName.GetPDFName("DA"), daValue);
+    }
+
+    public bool GetNeedAppearances()
+    {
+        return _dictionary.GetBoolean(COSName.GetPDFName("NeedAppearances"), false);
+    }
+
+    public void SetNeedAppearances(bool? value)
+    {
+        if (value.HasValue)
+        {
+            _dictionary.SetBoolean(COSName.GetPDFName("NeedAppearances"), value.Value);
+        }
+        else
+        {
+            _dictionary.RemoveItem(COSName.GetPDFName("NeedAppearances"));
+        }
+    }
+
+    public PDResources? GetDefaultResources()
+    {
+        COSDictionary? dr = _dictionary.GetCOSDictionary(COSName.GetPDFName("DR"));
+        return dr == null ? null : new PDResources(dr);
+    }
+
+    public void SetDefaultResources(PDResources? resources)
+    {
+        _dictionary.SetItem(COSName.GetPDFName("DR"), resources?.GetCOSObject());
     }
 
     internal PDDocument GetDocument()

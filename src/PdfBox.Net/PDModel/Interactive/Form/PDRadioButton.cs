@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDCheckBox.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDRadioButton.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -25,49 +25,37 @@
  * limitations under the License.
  */
 
-
 using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public sealed class PDCheckBox : PDButton
+public sealed class PDRadioButton : PDButton
 {
-    public PDCheckBox(PDAcroForm acroForm)
+    private const int FlagNoToggleToOff = 1 << 14;
+
+    public PDRadioButton(PDAcroForm acroForm)
         : base(acroForm)
     {
+        dictionary.SetFlag(COSName.GetPDFName("FF"), FlagRadio, true);
     }
 
-    internal PDCheckBox(PDAcroForm acroForm, COSDictionary dictionary)
+    internal PDRadioButton(PDAcroForm acroForm, COSDictionary dictionary)
         : base(acroForm, dictionary)
     {
     }
 
-    public bool IsChecked()
+    public void SetRadiosInUnison(bool radiosInUnison)
     {
-        return string.Equals(GetValue(), GetOnValue(), StringComparison.Ordinal);
+        dictionary.SetFlag(COSName.GetPDFName("FF"), FlagRadiosInUnison, radiosInUnison);
     }
 
-    public void Check()
+    public bool IsRadiosInUnison()
     {
-        SetValue(GetOnValue());
+        return dictionary.GetFlag(COSName.GetPDFName("FF"), FlagRadiosInUnison);
     }
 
-    public void UnCheck()
+    public bool IsNoToggleToOff()
     {
-        SetValue("Off");
-    }
-
-    public string GetOnValue()
-    {
-        ISet<string> onValues = GetOnValues();
-        foreach (string onValue in onValues)
-        {
-            if (!string.Equals(onValue, "Off", StringComparison.Ordinal))
-            {
-                return onValue;
-            }
-        }
-
-        return "Yes";
+        return dictionary.GetFlag(COSName.GetPDFName("FF"), FlagNoToggleToOff);
     }
 }
