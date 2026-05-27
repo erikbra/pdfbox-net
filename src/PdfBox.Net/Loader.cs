@@ -27,6 +27,7 @@
 
 using PdfBox.Net.IO;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Fdf;
 
 namespace PdfBox.Net;
 
@@ -90,6 +91,27 @@ public static class Loader
     {
         _ = streamCacheCreateFunction ?? throw new ArgumentNullException(nameof(streamCacheCreateFunction));
         return LoadPDF(randomAccessRead, password);
+    }
+
+    public static FDFDocument LoadFDF(byte[] input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+
+        using MemoryStream stream = new(input, writable: false);
+        return FDFDocument.Load(stream);
+    }
+
+    public static FDFDocument LoadFDF(string filePath)
+    {
+        ArgumentNullException.ThrowIfNull(filePath);
+        return FDFDocument.Load(filePath);
+    }
+
+    public static FDFDocument LoadFDF(RandomAccessRead randomAccessRead)
+    {
+        ArgumentNullException.ThrowIfNull(randomAccessRead);
+        byte[] bytes = ReadAllBytes(randomAccessRead);
+        return LoadFDF(bytes);
     }
 
     private static byte[] ReadAllBytes(RandomAccessRead randomAccessRead)

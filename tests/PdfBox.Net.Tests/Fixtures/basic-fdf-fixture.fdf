@@ -1,0 +1,13 @@
+%FDF-1.2
+1 0 obj
+<< /FDF << /Status (fixture-status) /Encoding /PDFDocEncoding /JavaScript << /Before (before-script) /After (after-script) >> >> >>
+endobj
+xref
+0 2
+0000000000 65535 f 
+0000000009 00000 n 
+trailer
+<< /Root 1 0 R /Size 2 >>
+startxref
+156
+%%EOF
