@@ -13,10 +13,11 @@ This index splits the conversion workflow into small, focused skills.
 4. Run **Skill E** after updates/normalization to produce traceability/parity status.
 5. Consult **Skill G** whenever the Java source uses NIO, `BitSet`, `LinkedHashMap` LRU,
    `IOUtils`, Log4j, or any other API with a non-obvious C# mapping.
-6. Apply **Skill H** when running orchestrated, issue-by-issue PR approval.
-7. Port JavaDoc documentation comments from each upstream Java file into XML documentation
+6. Apply **Skill H** when reviewing PRs for approval.
+7. Apply **Skill I** to orchestrate issue-by-issue execution and merge flow.
+8. Port JavaDoc documentation comments from each upstream Java file into XML documentation
    comments in the converted C# file as part of the mechanical conversion/sync flow.
-8. Port code and comments as verbatim as possible from the Java source; only adapt where
+9. Port code and comments as verbatim as possible from the Java source; only adapt where
    required for C# correctness or unavoidable platform differences.
 
 ## Skill files
@@ -29,6 +30,7 @@ This index splits the conversion workflow into small, focused skills.
 - [Skill F - Compile-oriented normalization pass](skills/skill-f-compile-oriented-normalization.md)
 - [Skill G - Java → C# API and type mapping reference](skills/skill-g-java-csharp-api-mappings.md)
 - [Skill H - Automatic PR approval checklist](skills/AUTOMATIC-PR-APPROVAL.md)
+- [Skill I - Orchestrating sequential issue delivery](skills/ORCHESTRATING-ISSUES.md)
 - [Worked example - end-to-end flow A->F->E](skills/worked-example-a-to-f-to-e.md)
 
 ## Pilot evaluation
