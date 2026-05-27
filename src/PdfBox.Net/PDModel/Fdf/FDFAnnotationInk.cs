@@ -4,6 +4,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public class FDFAnnotationInk : FDFAnnotation
 {
+    private static readonly COSName InkListName = COSName.GetPDFName("InkList");
+
     public const string Subtype = "Ink";
 
     public FDFAnnotationInk()
@@ -24,12 +26,12 @@ public class FDFAnnotationInk : FDFAnnotation
             value.Add(COSArray.Of(item));
         }
 
-        Annot.SetItem(COSName.INKLIST, value);
+        Annot.SetItem(InkListName, value);
     }
 
     public List<float[]>? GetInkList()
     {
-        COSArray? array = Annot.GetCOSArray(COSName.INKLIST);
+        COSArray? array = Annot.GetCOSArray(InkListName);
         if (array is null)
         {
             return null;

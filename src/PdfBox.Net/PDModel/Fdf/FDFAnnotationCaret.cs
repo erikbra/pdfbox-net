@@ -5,6 +5,9 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public class FDFAnnotationCaret : FDFAnnotation
 {
+    private static readonly COSName RdName = COSName.GetPDFName("RD");
+    private static readonly COSName SyName = COSName.GetPDFName("Sy");
+
     public const string Subtype = "Caret";
 
     public FDFAnnotationCaret()
@@ -17,19 +20,19 @@ public class FDFAnnotationCaret : FDFAnnotation
     {
     }
 
-    public void SetFringe(PDRectangle? fringe) => Annot.SetItem(COSName.RD, fringe);
+    public void SetFringe(PDRectangle? fringe) => Annot.SetItem(RdName, fringe);
 
     public PDRectangle? GetFringe()
     {
-        COSArray? array = Annot.GetCOSArray(COSName.RD);
+        COSArray? array = Annot.GetCOSArray(RdName);
         return array is null ? null : new PDRectangle(array);
     }
 
     public void SetSymbol(string? symbol)
     {
         string newSymbol = symbol == "paragraph" ? "P" : "None";
-        Annot.SetString(COSName.SY, newSymbol);
+        Annot.SetString(SyName, newSymbol);
     }
 
-    public string? GetSymbol() => Annot.GetString(COSName.SY);
+    public string? GetSymbol() => Annot.GetString(SyName);
 }

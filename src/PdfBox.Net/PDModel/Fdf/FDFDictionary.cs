@@ -38,6 +38,7 @@ public class FDFDictionary : COSObjectable
     private static readonly COSName StatusName = COSName.GetPDFName("Status");
     private static readonly COSName EncodingName = COSName.GetPDFName("Encoding");
     private static readonly COSName JavaScriptName = COSName.GetPDFName("JavaScript");
+    private static readonly COSName AnnotsName = COSName.GetPDFName("Annots");
 
     private readonly COSDictionary _fdf;
 
@@ -148,7 +149,7 @@ public class FDFDictionary : COSObjectable
 
     public List<FDFAnnotation>? GetAnnotations()
     {
-        COSArray? array = _fdf.GetCOSArray(COSName.ANNOTS);
+        COSArray? array = _fdf.GetCOSArray(AnnotsName);
         if (array is null)
         {
             return null;
@@ -172,7 +173,7 @@ public class FDFDictionary : COSObjectable
 
     public void SetAnnotations(IList<FDFAnnotation>? annotations)
     {
-        _fdf.SetItem(COSName.ANNOTS, annotations is null ? null : new COSArray(annotations));
+        _fdf.SetItem(AnnotsName, annotations is null ? null : new COSArray(annotations));
     }
 
     public FDFJavaScript? GetJavaScript()

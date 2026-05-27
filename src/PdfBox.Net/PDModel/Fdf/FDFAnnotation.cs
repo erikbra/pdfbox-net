@@ -16,6 +16,8 @@ public abstract class FDFAnnotation : COSObjectable
     private const int FlagLocked = 1 << 7;
     private const int FlagToggleNoView = 1 << 8;
     private const int FlagLockedContents = 1 << 9;
+    private static readonly COSName SubjName = COSName.GetPDFName("Subj");
+    private static readonly COSName ItName = COSName.GetPDFName("IT");
 
     protected readonly COSDictionary Annot;
 
@@ -128,11 +130,11 @@ public abstract class FDFAnnotation : COSObjectable
     public float GetOpacity() => Annot.GetFloat(COSName.CA, 1f);
     public void SetOpacity(float opacity) => Annot.SetFloat(COSName.CA, opacity);
 
-    public string? GetSubject() => Annot.GetString(COSName.SUBJ);
-    public void SetSubject(string? subject) => Annot.SetString(COSName.SUBJ, subject);
+    public string? GetSubject() => Annot.GetString(SubjName);
+    public void SetSubject(string? subject) => Annot.SetString(SubjName, subject);
 
-    public string? GetIntent() => Annot.GetNameAsString(COSName.IT);
-    public void SetIntent(string? intent) => Annot.SetName(COSName.IT, intent);
+    public string? GetIntent() => Annot.GetNameAsString(ItName);
+    public void SetIntent(string? intent) => Annot.SetName(ItName, intent);
 
     public string? GetRichContents() => GetStringOrStream(Annot.GetDictionaryObject(COSName.RC));
     public void SetRichContents(string? richContents)

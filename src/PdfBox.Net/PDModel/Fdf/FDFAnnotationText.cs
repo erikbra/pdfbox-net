@@ -1,10 +1,11 @@
 using PdfBox.Net.COS;
-using PdfBox.Net.PDModel.Interactive.Annotation;
-
 namespace PdfBox.Net.PDModel.Fdf;
 
 public class FDFAnnotationText : FDFAnnotation
 {
+    private static readonly COSName StateName = COSName.GetPDFName("State");
+    private static readonly COSName StateModelName = COSName.GetPDFName("StateModel");
+
     public const string Subtype = "Text";
 
     public FDFAnnotationText()
@@ -19,13 +20,13 @@ public class FDFAnnotationText : FDFAnnotation
 
     public void SetIcon(string? icon) => Annot.SetName(COSName.NAME, icon);
 
-    public string GetIcon() => Annot.GetNameAsString(COSName.NAME, PDAnnotationText.NAME_NOTE);
+    public string GetIcon() => Annot.GetNameAsString(COSName.NAME, "Note");
 
-    public string? GetState() => Annot.GetString(COSName.STATE);
+    public string? GetState() => Annot.GetString(StateName);
 
-    public void SetState(string? state) => Annot.SetString(COSName.STATE, state);
+    public void SetState(string? state) => Annot.SetString(StateName, state);
 
-    public string? GetStateModel() => Annot.GetString(COSName.STATE_MODEL);
+    public string? GetStateModel() => Annot.GetString(StateModelName);
 
-    public void SetStateModel(string? stateModel) => Annot.SetString(COSName.STATE_MODEL, stateModel);
+    public void SetStateModel(string? stateModel) => Annot.SetString(StateModelName, stateModel);
 }

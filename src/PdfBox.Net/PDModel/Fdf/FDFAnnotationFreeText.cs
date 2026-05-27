@@ -5,6 +5,13 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public class FDFAnnotationFreeText : FDFAnnotation
 {
+    private static readonly COSName ClName = COSName.GetPDFName("CL");
+    private static readonly COSName QName = COSName.GetPDFName("Q");
+    private static readonly COSName DaName = COSName.GetPDFName("DA");
+    private static readonly COSName DsName = COSName.GetPDFName("DS");
+    private static readonly COSName RdName = COSName.GetPDFName("RD");
+    private static readonly COSName LeName = COSName.GetPDFName("LE");
+
     public const string Subtype = "FreeText";
 
     public FDFAnnotationFreeText()
@@ -17,9 +24,9 @@ public class FDFAnnotationFreeText : FDFAnnotation
     {
     }
 
-    public void SetCallout(float[]? callout) => Annot.SetItem(COSName.CL, callout is null ? null : COSArray.Of(callout));
+    public void SetCallout(float[]? callout) => Annot.SetItem(ClName, callout is null ? null : COSArray.Of(callout));
 
-    public float[]? GetCallout() => Annot.GetCOSArray(COSName.CL)?.ToFloatArray();
+    public float[]? GetCallout() => Annot.GetCOSArray(ClName)?.ToFloatArray();
 
     public void SetJustification(string? justification)
     {
@@ -29,32 +36,43 @@ public class FDFAnnotationFreeText : FDFAnnotation
             "right" => 2,
             _ => 0
         };
-        Annot.SetInt(COSName.Q, quadding);
+        Annot.SetInt(QName, quadding);
     }
 
-    public string GetJustification() => Annot.GetInt(COSName.Q, 0).ToString();
+    public string GetJustification()
+    {
+        return Annot.GetInt(QName, 0) switch
+        {
+            1 => "centered",
+            2 => "right",
+            _ => "left"
+        };
+    }
 
     public void SetRotation(int rotation) => Annot.SetInt(COSName.ROTATE, rotation);
 
-    public string? GetRotation() => Annot.GetString(COSName.ROTATE);
+    public int? GetRotation()
+    {
+        return Annot.GetDictionaryObject(COSName.ROTATE) is COSNumber rotation ? rotation.IntValue() : null;
+    }
 
-    public void SetDefaultAppearance(string? appearance) => Annot.SetString(COSName.DA, appearance);
+    public void SetDefaultAppearance(string? appearance) => Annot.SetString(DaName, appearance);
 
-    public string? GetDefaultAppearance() => Annot.GetString(COSName.DA);
+    public string? GetDefaultAppearance() => Annot.GetString(DaName);
 
-    public void SetDefaultStyle(string? style) => Annot.SetString(COSName.DS, style);
+    public void SetDefaultStyle(string? style) => Annot.SetString(DsName, style);
 
-    public string? GetDefaultStyle() => Annot.GetString(COSName.DS);
+    public string? GetDefaultStyle() => Annot.GetString(DsName);
 
-    public void SetFringe(PDRectangle? fringe) => Annot.SetItem(COSName.RD, fringe);
+    public void SetFringe(PDRectangle? fringe) => Annot.SetItem(RdName, fringe);
 
     public PDRectangle? GetFringe()
     {
-        COSArray? array = Annot.GetCOSArray(COSName.RD);
+        COSArray? array = Annot.GetCOSArray(RdName);
         return array is null ? null : new PDRectangle(array);
     }
 
-    public void SetLineEndingStyle(string? style) => Annot.SetName(COSName.LE, style);
+    public void SetLineEndingStyle(string? style) => Annot.SetName(LeName, style);
 
-    public string? GetLineEndingStyle() => Annot.GetNameAsString(COSName.LE);
+    public string? GetLineEndingStyle() => Annot.GetNameAsString(LeName);
 }

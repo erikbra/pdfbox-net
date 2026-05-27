@@ -60,7 +60,12 @@ public class FDFAnnotationMirrorTypesTest
 
         Assert.NotNull(annotations);
         Assert.Collection(annotations!,
-            a => Assert.Equal([1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f], Assert.IsType<FDFAnnotationHighlight>(a).GetCoords()),
+            a =>
+            {
+                float[]? coords = Assert.IsType<FDFAnnotationHighlight>(a).GetCoords();
+                Assert.NotNull(coords);
+                Assert.Equal([1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f], coords);
+            },
             a =>
             {
                 FDFAnnotationText loaded = Assert.IsType<FDFAnnotationText>(a);
@@ -76,25 +81,36 @@ public class FDFAnnotationMirrorTypesTest
             a =>
             {
                 FDFAnnotationSquare loaded = Assert.IsType<FDFAnnotationSquare>(a);
-                Assert.Equal([0.1f, 0.2f, 0.3f], loaded.GetInteriorColor());
+                float[]? interiorColor = loaded.GetInteriorColor();
+                Assert.NotNull(interiorColor);
+                Assert.Equal([0.1f, 0.2f, 0.3f], interiorColor);
                 Assert.NotNull(loaded.GetFringe());
             },
             a =>
             {
                 FDFAnnotationCircle loaded = Assert.IsType<FDFAnnotationCircle>(a);
-                Assert.Equal([0.4f, 0.5f, 0.6f], loaded.GetInteriorColor());
+                float[]? interiorColor = loaded.GetInteriorColor();
+                Assert.NotNull(interiorColor);
+                Assert.Equal([0.4f, 0.5f, 0.6f], interiorColor);
                 Assert.NotNull(loaded.GetFringe());
             },
             a =>
             {
                 FDFAnnotationLine loaded = Assert.IsType<FDFAnnotationLine>(a);
-                Assert.Equal([10f, 20f, 30f, 40f], loaded.GetLine());
+                float[]? lineCoords = loaded.GetLine();
+                Assert.NotNull(lineCoords);
+                Assert.Equal([10f, 20f, 30f, 40f], lineCoords);
                 Assert.Equal("OpenArrow", loaded.GetStartPointEndingStyle());
                 Assert.Equal("ClosedArrow", loaded.GetEndPointEndingStyle());
                 Assert.True(loaded.GetCaption());
                 Assert.Equal(6, loaded.GetCaptionHorizontalOffset());
                 Assert.Equal(7, loaded.GetCaptionVerticalOffset());
             },
-            a => Assert.Equal([11f, 12f, 13f, 14f, 15f, 16f, 17f, 18f], Assert.IsType<FDFAnnotationSquiggly>(a).GetCoords()));
+            a =>
+            {
+                float[]? coords = Assert.IsType<FDFAnnotationSquiggly>(a).GetCoords();
+                Assert.NotNull(coords);
+                Assert.Equal([11f, 12f, 13f, 14f, 15f, 16f, 17f, 18f], coords);
+            });
     }
 }

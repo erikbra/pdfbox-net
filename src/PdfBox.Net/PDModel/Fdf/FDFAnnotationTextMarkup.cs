@@ -4,6 +4,7 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public abstract class FDFAnnotationTextMarkup : FDFAnnotation
 {
+    private static readonly COSName QuadPointsName = COSName.GetPDFName("QuadPoints");
     protected FDFAnnotationTextMarkup()
     {
     }
@@ -15,11 +16,11 @@ public abstract class FDFAnnotationTextMarkup : FDFAnnotation
 
     public void SetCoords(float[]? coords)
     {
-        Annot.SetItem(COSName.QUADPOINTS, coords is null ? null : COSArray.Of(coords));
+        Annot.SetItem(QuadPointsName, coords is null ? null : COSArray.Of(coords));
     }
 
     public float[]? GetCoords()
     {
-        return Annot.GetCOSArray(COSName.QUADPOINTS)?.ToFloatArray();
+        return Annot.GetCOSArray(QuadPointsName)?.ToFloatArray();
     }
 }
