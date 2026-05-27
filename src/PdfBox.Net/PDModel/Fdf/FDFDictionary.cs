@@ -33,6 +33,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 public class FDFDictionary : COSObjectable
 {
     private static readonly COSName IdName = COSName.GetPDFName("ID");
+    private static readonly COSName FieldsName = COSName.GetPDFName("Fields");
+    private static readonly COSName PagesName = COSName.GetPDFName("Pages");
     private static readonly COSName StatusName = COSName.GetPDFName("Status");
     private static readonly COSName EncodingName = COSName.GetPDFName("Encoding");
     private static readonly COSName JavaScriptName = COSName.GetPDFName("JavaScript");
@@ -74,6 +76,31 @@ public class FDFDictionary : COSObjectable
         _fdf.SetItem(IdName, id);
     }
 
+    public List<FDFField>? GetFields()
+    {
+        COSArray? array = _fdf.GetCOSArray(FieldsName);
+        if (array is null)
+        {
+            return null;
+        }
+
+        List<FDFField> fields = [];
+        for (int i = 0; i < array.Size(); i++)
+        {
+            if (array.GetObject(i) is COSDictionary dictionary)
+            {
+                fields.Add(new FDFField(dictionary));
+            }
+        }
+
+        return fields;
+    }
+
+    public void SetFields(IList<FDFField>? fields)
+    {
+        _fdf.SetItem(FieldsName, fields is null ? null : new COSArray(fields));
+    }
+
     public string? GetStatus()
     {
         return _fdf.GetString(StatusName);
@@ -82,6 +109,31 @@ public class FDFDictionary : COSObjectable
     public void SetStatus(string? status)
     {
         _fdf.SetString(StatusName, status);
+    }
+
+    public List<FDFPage>? GetPages()
+    {
+        COSArray? array = _fdf.GetCOSArray(PagesName);
+        if (array is null)
+        {
+            return null;
+        }
+
+        List<FDFPage> pages = [];
+        for (int i = 0; i < array.Size(); i++)
+        {
+            if (array.GetObject(i) is COSDictionary dictionary)
+            {
+                pages.Add(new FDFPage(dictionary));
+            }
+        }
+
+        return pages;
+    }
+
+    public void SetPages(IList<FDFPage>? pages)
+    {
+        _fdf.SetItem(PagesName, pages is null ? null : new COSArray(pages));
     }
 
     public string GetEncoding()
