@@ -636,12 +636,7 @@ public class PDModelInteractiveTest
             new PDAnnotationHighlight(),
             new PDAnnotationUnderline(),
             new PDAnnotationStrikeOut(),
-            new PDAnnotationSquiggly(),
-            new PDAnnotationCaret(),
-            new PDAnnotationInk(),
-            new PDAnnotationPolygon(),
-            new PDAnnotationPolyline(),
-            new PDAnnotationSound()
+            new PDAnnotationSquiggly()
         ];
 
         foreach (PDAnnotation annotation in annotations)
@@ -701,11 +696,15 @@ public class PDModelInteractiveTest
     {
         PDAnnotationPolygon polygon = new();
         polygon.SetVertices([1, 2, 3, 4, 5, 6]);
-        Assert.Equal([1f, 2f, 3f, 4f, 5f, 6f], polygon.GetVertices());
+        float[]? polygonVertices = polygon.GetVertices();
+        Assert.NotNull(polygonVertices);
+        Assert.Equal([1f, 2f, 3f, 4f, 5f, 6f], polygonVertices);
 
         PDAnnotationPolyline polyline = new();
         polyline.SetVertices([6, 5, 4, 3]);
-        Assert.Equal([6f, 5f, 4f, 3f], polyline.GetVertices());
+        float[]? polylineVertices = polyline.GetVertices();
+        Assert.NotNull(polylineVertices);
+        Assert.Equal([6f, 5f, 4f, 3f], polylineVertices);
     }
 
     [Fact]

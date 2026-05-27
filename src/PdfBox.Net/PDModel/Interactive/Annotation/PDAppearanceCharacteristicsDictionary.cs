@@ -28,12 +28,12 @@ public sealed class PDAppearanceCharacteristicsDictionary : COSObjectable
 
     public int GetRotation()
     {
-        return dictionary.GetInt(COSName.R, 0);
+        return dictionary.GetInt(COSName.GetPDFName("R"), 0);
     }
 
     public void SetRotation(int rotation)
     {
-        dictionary.SetInt(COSName.R, rotation);
+        dictionary.SetInt(COSName.GetPDFName("R"), rotation);
     }
 
     public string? GetNormalCaption()

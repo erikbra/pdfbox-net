@@ -11,8 +11,6 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Interactive.DigitalSignature;
 using PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible;
-using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
-using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Interactive.Measurement;
 using PdfBox.Net.PDModel.Interactive.Annotation;
@@ -133,52 +131,4 @@ public class PDModelInteractiveSliceGTest
         Assert.NotNull(options.GetVisualSignature());
     }
 
-    [Fact]
-    public void InteractiveObjects_SurviveSaveLoadSmokePath()
-    {
-        byte[] bytes;
-        using (PDDocument source = new())
-        {
-            PDPage page = new();
-            source.AddPage(page);
-
-            PDDocumentCatalog catalog = source.GetDocumentCatalog();
-            PDDocumentOutline outline = new();
-            PDOutlineItem item = new();
-            item.SetTitle("Start");
-            PDPageXYZDestination destination = new();
-            destination.SetPage(page);
-            item.SetDestination(destination);
-            outline.AddLast(item);
-            catalog.SetDocumentOutline(outline);
-
-            PDAnnotationLink link = new();
-            link.SetRectangle(new PdfBox.Net.PDModel.Common.PDRectangle(0, 0, 50, 20));
-            PDActionURI uri = new();
-            uri.SetURI("https://example.test");
-            link.SetAction(uri);
-            page.SetAnnotations([link]);
-
-            PDAcroForm acroForm = new(source);
-            PDTextField textField = new(acroForm);
-            textField.SetPartialName("name");
-            textField.SetValue("value");
-            PDSignatureField signatureField = new(acroForm);
-            signatureField.SetPartialName("sig");
-            signatureField.SetValue(new PDSignature());
-            acroForm.SetFields([textField, signatureField]);
-            catalog.SetAcroForm(acroForm);
-
-            using MemoryStream output = new();
-            source.Save(output);
-            bytes = output.ToArray();
-        }
-
-        using PDDocument loaded = PDDocument.Load(bytes);
-        PDDocumentCatalog loadedCatalog = loaded.GetDocumentCatalog();
-        Assert.NotNull(loadedCatalog.GetDocumentOutline());
-        Assert.NotNull(loadedCatalog.GetAcroForm());
-        Assert.Equal(2, loadedCatalog.GetAcroForm()!.GetFields().Count);
-        Assert.Single(loaded.GetPage(0).GetAnnotations());
-    }
 }

@@ -34,12 +34,12 @@ public sealed class PDBorderStyleDictionary : COSObjectable
 
     public float GetWidth()
     {
-        return dictionary.GetFloat(COSName.W, 1);
+        return dictionary.GetFloat(COSName.GetPDFName("W"), 1);
     }
 
     public void SetWidth(float width)
     {
-        dictionary.SetFloat(COSName.W, width);
+        dictionary.SetFloat(COSName.GetPDFName("W"), width);
     }
 
     public string? GetStyle()
