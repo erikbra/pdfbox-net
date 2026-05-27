@@ -576,8 +576,14 @@ public class PDModelInteractiveTest
         Assert.IsType<PDAnnotationSquiggly>(PDAnnotation.CreateAnnotation(new PDAnnotationSquiggly().GetCOSObject()));
         Assert.IsType<PDAnnotationSquare>(PDAnnotation.CreateAnnotation(new PDAnnotationSquare().GetCOSObject()));
         Assert.IsType<PDAnnotationCircle>(PDAnnotation.CreateAnnotation(new PDAnnotationCircle().GetCOSObject()));
+        Assert.IsType<PDAnnotationCaret>(PDAnnotation.CreateAnnotation(new PDAnnotationCaret().GetCOSObject()));
         Assert.IsType<PDAnnotationFreeText>(PDAnnotation.CreateAnnotation(new PDAnnotationFreeText().GetCOSObject()));
         Assert.IsType<PDAnnotationLine>(PDAnnotation.CreateAnnotation(new PDAnnotationLine().GetCOSObject()));
+        Assert.IsType<PDAnnotationInk>(PDAnnotation.CreateAnnotation(new PDAnnotationInk().GetCOSObject()));
+        Assert.IsType<PDAnnotationPolygon>(PDAnnotation.CreateAnnotation(new PDAnnotationPolygon().GetCOSObject()));
+        Assert.IsType<PDAnnotationPolyline>(PDAnnotation.CreateAnnotation(new PDAnnotationPolyline().GetCOSObject()));
+        Assert.IsType<PDAnnotationPopup>(PDAnnotation.CreateAnnotation(new PDAnnotationPopup().GetCOSObject()));
+        Assert.IsType<PDAnnotationSound>(PDAnnotation.CreateAnnotation(new PDAnnotationSound().GetCOSObject()));
         Assert.IsType<PDAnnotationFileAttachment>(PDAnnotation.CreateAnnotation(new PDAnnotationFileAttachment().GetCOSObject()));
         Assert.IsType<PDAnnotationStamp>(PDAnnotation.CreateAnnotation(new PDAnnotationStamp().GetCOSObject()));
         Assert.IsType<PDAnnotationWidget>(PDAnnotation.CreateAnnotation(new PDAnnotationWidget().GetCOSObject()));
@@ -670,6 +676,71 @@ public class PDModelInteractiveTest
         PDAnnotationLink link = new();
         link.SetContents("My comment");
         Assert.Equal("My comment", link.GetContents());
+    }
+
+    [Fact]
+    public void PDAnnotationPopupOpenAndParentRoundtrip()
+    {
+        PDAnnotationText parent = new();
+        PDAnnotationPopup popup = new();
+        popup.SetParent(parent);
+        popup.SetOpen(true);
+
+        Assert.True(popup.GetOpen());
+        Assert.NotNull(popup.GetParent());
+        Assert.Equal(PDAnnotationText.SUB_TYPE, popup.GetParent()!.GetSubtype());
+    }
+
+    [Fact]
+    public void PDAnnotationPolygonAndPolylineVerticesRoundtrip()
+    {
+        PDAnnotationPolygon polygon = new();
+        polygon.SetVertices([1, 2, 3, 4, 5, 6]);
+        float[]? polygonVertices = polygon.GetVertices();
+        Assert.NotNull(polygonVertices);
+        Assert.Equal([1f, 2f, 3f, 4f, 5f, 6f], polygonVertices);
+
+        PDAnnotationPolyline polyline = new();
+        polyline.SetVertices([6, 5, 4, 3]);
+        float[]? polylineVertices = polyline.GetVertices();
+        Assert.NotNull(polylineVertices);
+        Assert.Equal([6f, 5f, 4f, 3f], polylineVertices);
+    }
+
+    [Fact]
+    public void AnnotationDictionariesRoundTrip()
+    {
+        PDBorderStyleDictionary borderStyle = new();
+        borderStyle.SetStyle(PDBorderStyleDictionary.STYLE_DASHED);
+        borderStyle.SetWidth(2.25f);
+        borderStyle.SetDashStyle(new COSArray { new COSFloat(3), new COSFloat(1) });
+
+        PDBorderEffectDictionary borderEffect = new();
+        borderEffect.SetStyle(PDBorderEffectDictionary.STYLE_CLOUDY);
+        borderEffect.SetIntensity(1.5f);
+
+        PDAnnotationSquare square = new();
+        square.SetBorderStyle(borderStyle);
+        square.SetBorderEffect(borderEffect);
+
+        Assert.Equal(PDBorderStyleDictionary.STYLE_DASHED, square.GetBorderStyle()!.GetStyle());
+        Assert.Equal(2.25f, square.GetBorderStyle()!.GetWidth());
+        Assert.Equal(PDBorderEffectDictionary.STYLE_CLOUDY, square.GetBorderEffect()!.GetStyle());
+        Assert.Equal(1.5f, square.GetBorderEffect()!.GetIntensity());
+
+        PDAppearanceCharacteristicsDictionary appearanceCharacteristics = new();
+        appearanceCharacteristics.SetRotation(90);
+        appearanceCharacteristics.SetNormalCaption("OK");
+        appearanceCharacteristics.SetRolloverCaption("Over");
+        appearanceCharacteristics.SetAlternateCaption("Down");
+        Assert.Equal(90, appearanceCharacteristics.GetRotation());
+        Assert.Equal("OK", appearanceCharacteristics.GetNormalCaption());
+        Assert.Equal("Over", appearanceCharacteristics.GetRolloverCaption());
+        Assert.Equal("Down", appearanceCharacteristics.GetAlternateCaption());
+
+        PDExternalDataDictionary externalData = new();
+        externalData.SetSubtype("Markup3D");
+        Assert.Equal("Markup3D", externalData.GetSubtype());
     }
 
     [Fact]

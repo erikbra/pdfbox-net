@@ -2110,6 +2110,1601 @@
     "note": "Added ZapfDingbats encoding map for PDModel fonts."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/AppearanceStyle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/AppearanceStyle.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/PlainText.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainTextFormatter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/PlainTextFormatter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/TextAlign.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/OpenMode.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/OpenMode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDAction.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDAction.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionEmbeddedGoTo.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionEmbeddedGoTo.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionGoTo.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionGoTo.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionHide.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionHide.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionImportData.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionImportData.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionJavaScript.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionJavaScript.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionLaunch.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionLaunch.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionMovie.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionMovie.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionNamed.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionNamed.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionRemoteGoTo.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionRemoteGoTo.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionResetForm.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionResetForm.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionSound.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionSound.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionSubmitForm.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionSubmitForm.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionThread.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionThread.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionURI.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDActionURI.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDAdditionalActions.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDAdditionalActions.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDAnnotationAdditionalActions.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDAnnotationAdditionalActions.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDDocumentCatalogAdditionalActions.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDDocumentCatalogAdditionalActions.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDFormFieldAdditionalActions.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDFormFieldAdditionalActions.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDPageAdditionalActions.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDPageAdditionalActions.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDTargetDirectory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDTargetDirectory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDURIDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDURIDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDWindowsLaunchParams.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Action/PDWindowsLaunchParams.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/AnnotationFilter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Annotations/AnnotationFilter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotation.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotation.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationCaret.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationCaret.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationCircle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationCircle.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationFileAttachment.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationFileAttachment.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationFreeText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationFreeText.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationHighlight.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationHighlight.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationInk.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationInk.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationLine.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationLine.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationLink.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationLink.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationMarkup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationMarkup.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPolygon.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationPolygon.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPolyline.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationPolyline.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPopup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationPopup.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationRubberStamp.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationStamp.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationSound.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationSound.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationSquare.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationSquare.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationSquareCircle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationSquareCircle.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationSquiggly.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationSquiggly.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationStrikeout.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationStrikeOut.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationText.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationTextMarkup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationTextMarkup.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationUnderline.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationUnderline.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationUnknown.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationUnknown.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationWidget.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationWidget.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceCharacteristicsDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAppearanceCharacteristicsDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAppearanceDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceEntry.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAppearanceEntry.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAppearanceStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDBorderEffectDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDBorderEffectDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDBorderStyleDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDBorderStyleDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDExternalDataDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDExternalDataDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/AnnotationBorder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/AnnotationBorder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/CloudyBorder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/CloudyBorder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAbstractAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDAbstractAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDCaretAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDCaretAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDCircleAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDCircleAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDFileAttachmentAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDFileAttachmentAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDFreeTextAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDFreeTextAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDHighlightAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDHighlightAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDInkAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDInkAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDLineAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDLineAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDLinkAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDLinkAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDPolygonAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDPolygonAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDPolylineAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDPolylineAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDSoundAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDSoundAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDSquareAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDSquareAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDSquigglyAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDSquigglyAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDStrikeoutAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDStrikeoutAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDTextAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDTextAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDUnderlineAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDUnderlineAppearanceHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/COSFilterInputStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/COSFilterInputStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/ExternalSigningSupport.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/ExternalSigningSupport.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDPropBuild.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/PDPropBuild.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDPropBuildDataDict.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/PDPropBuildDataDict.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSeedValue.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/PDSeedValue.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSeedValueCertificate.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/PDSeedValueCertificate.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSeedValueMDP.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/PDSeedValueMDP.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSeedValueTimeStamp.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/PDSeedValueTimeStamp.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSignature.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/PDSignature.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/SignatureInterface.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/SignatureInterface.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/SignatureOptions.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/SignatureOptions.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/SigningSupport.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/SigningSupport.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDFTemplateBuilder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/Visible/PDFTemplateBuilder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDFTemplateCreator.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/Visible/PDFTemplateCreator.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDFTemplateStructure.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/Visible/PDFTemplateStructure.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigBuilder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/Visible/PDVisibleSigBuilder.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigProperties.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/Visible/PDVisibleSigProperties.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSignDesigner.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/Visible/PDVisibleSignDesigner.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDDestination.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDDestination.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDNamedDestination.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDNamedDestination.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageDestination.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDPageDestination.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageFitDestination.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDPageFitDestination.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageFitHeightDestination.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDPageFitHeightDestination.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageFitRectangleDestination.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDPageFitRectangleDestination.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageFitWidthDestination.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDPageFitWidthDestination.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageXYZDestination.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDPageXYZDestination.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/outline/PDDocumentOutline.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Outline/PDDocumentOutline.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/outline/PDOutlineItem.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Outline/PDOutlineItem.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/outline/PDOutlineItemIterator.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Outline/PDOutlineItemIterator.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/outline/PDOutlineNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Outline/PDOutlineNode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/AppearanceGeneratorHelper.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/FieldUtils.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/FieldUtils.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDAcroForm.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDButton.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDButton.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDCheckBox.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDCheckBox.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDChoice.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDChoice.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDComboBox.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDComboBox.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDDefaultAppearanceString.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDDefaultAppearanceString.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDField.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDUnknownField.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDFieldFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDFieldFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDFieldTree.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDFieldTree.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDListBox.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDListBox.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDNonTerminalField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDNonTerminalField.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDPushButton.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDPushButton.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDRadioButton.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDRadioButton.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDSignatureField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDSignatureField.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDTerminalField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDTerminalField.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDTextField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDTextField.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDVariableText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDVariableText.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDXFAResource.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDXFAResource.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/ScriptingHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/ScriptingHandler.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDMeasureDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Measurement/PDMeasureDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDNumberFormatDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Measurement/PDNumberFormatDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDRectlinearMeasureDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Measurement/PDRectlinearMeasureDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDViewportDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Measurement/PDViewportDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDThread.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/PageNavigation/PDThread.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDThreadBead.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/PageNavigation/PDThreadBead.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDTransition.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/PageNavigation/PDTransition.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDTransitionDimension.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/PageNavigation/PDTransitionDimension.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDTransitionDirection.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/PageNavigation/PDTransitionDirection.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDTransitionMotion.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/PageNavigation/PDTransitionMotion.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDTransitionStyle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/PageNavigation/PDTransitionStyle.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/viewerpreferences/PDViewerPreferences.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/ViewerPreferences/PDViewerPreferences.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Vector.java",
     "target_path": "src/PdfBox.Net/Util/Vector.cs",
     "normalization_applied": true,

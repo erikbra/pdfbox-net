@@ -31,7 +31,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationSquare : PDAnnotationMarkup
+public sealed class PDAnnotationSquare : PDAnnotationSquareCircle
 {
     private PDAppearanceHandler? customAppearanceHandler;
 

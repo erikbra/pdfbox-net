@@ -13,6 +13,8 @@ using PdfBox.Net.PDModel.Interactive.DigitalSignature;
 using PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Interactive.Measurement;
+using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Interactive.Action;
 
 namespace PdfBox.Net.Tests;
 
@@ -128,4 +130,5 @@ public class PDModelInteractiveSliceGTest
         options.SetVisualSignature(properties);
         Assert.NotNull(options.GetVisualSignature());
     }
+
 }
