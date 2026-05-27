@@ -23,6 +23,7 @@
  */
 
 using PdfBox.Net.PDModel;
+using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
@@ -377,6 +378,118 @@ public class PDModelInteractiveTest
 
         action.SetOpenInNewWindow(OpenMode.UserPreference);
         Assert.Equal(OpenMode.UserPreference, action.GetOpenInNewWindow());
+    }
+
+    [Fact]
+    public void PDActionFactoryCreatesExtendedActions()
+    {
+        PDAction[] actions =
+        [
+            new PDActionEmbeddedGoTo(),
+            new PDActionHide(),
+            new PDActionImportData(),
+            new PDActionMovie(),
+            new PDActionSound(),
+            new PDActionSubmitForm(),
+            new PDActionResetForm(),
+            new PDActionThread()
+        ];
+
+        foreach (PDAction action in actions)
+        {
+            PDAction? restored = PDActionFactory.CreateAction(action.GetCOSObject());
+            Assert.NotNull(restored);
+            Assert.Equal(action.GetType(), restored!.GetType());
+        }
+    }
+
+    [Fact]
+    public void PDActionEmbeddedGoToDestinationUsesPageNumber()
+    {
+        PDActionEmbeddedGoTo action = new();
+        PDPageXYZDestination valid = new();
+        valid.SetPageNumber(2);
+        action.SetDestination(valid);
+        Assert.IsType<PDPageXYZDestination>(action.GetDestination());
+
+        PDPageXYZDestination invalid = new();
+        invalid.SetPage(new PDPage());
+        Assert.Throws<ArgumentException>(() => action.SetDestination(invalid));
+    }
+
+    [Fact]
+    public void PDActionSubmitAndResetFormDictionaryRoundtrip()
+    {
+        COSArray fields = new();
+        fields.Add(new COSString("Name"));
+        fields.Add(new COSString("Accepted"));
+
+        PDActionSubmitForm submit = new();
+        submit.SetFields(fields);
+        submit.SetFlags(5);
+        PDAction? restoredSubmit = PDActionFactory.CreateAction(submit.GetCOSObject());
+        Assert.IsType<PDActionSubmitForm>(restoredSubmit);
+        Assert.Equal(2, ((PDActionSubmitForm)restoredSubmit!).GetFields()!.Size());
+        Assert.Equal(5, ((PDActionSubmitForm)restoredSubmit).GetFlags());
+
+        PDActionResetForm reset = new();
+        reset.SetFields(fields);
+        reset.SetFlags(1);
+        PDAction? restoredReset = PDActionFactory.CreateAction(reset.GetCOSObject());
+        Assert.IsType<PDActionResetForm>(restoredReset);
+        Assert.Equal(2, ((PDActionResetForm)restoredReset!).GetFields()!.Size());
+        Assert.Equal(1, ((PDActionResetForm)restoredReset).GetFlags());
+    }
+
+    [Fact]
+    public void DocumentCatalogActionAndUriRoundtrip()
+    {
+        using PDDocument doc = new();
+        PDDocumentCatalog catalog = doc.GetDocumentCatalog();
+        PDActionURI openAction = new();
+        openAction.SetURI("https://open.example");
+        catalog.SetOpenAction(openAction);
+        PDAction? restoredOpen = catalog.GetOpenAction() as PDAction;
+        Assert.IsType<PDActionURI>(restoredOpen);
+        Assert.Equal("https://open.example", ((PDActionURI)restoredOpen!).GetURI());
+
+        PDDocumentCatalogAdditionalActions additional = new();
+        PDActionJavaScript wc = new("alert('wc');");
+        additional.SetWC(wc);
+        catalog.SetActions(additional);
+        PDDocumentCatalogAdditionalActions restoredAdditional = catalog.GetActions();
+        Assert.IsType<PDActionJavaScript>(restoredAdditional.GetWC());
+
+        PDURIDictionary uri = new();
+        uri.SetBase("https://base.example/");
+        catalog.SetURI(uri);
+        Assert.Equal("https://base.example/", catalog.GetURI()!.GetBase());
+    }
+
+    [Fact]
+    public void PageAnnotationAndFieldAdditionalActionsRoundtrip()
+    {
+        PDActionJavaScript js = new("console.log('x');");
+
+        PDPage page = new();
+        PDPageAdditionalActions pageActions = new();
+        pageActions.SetO(js);
+        page.SetActions(pageActions);
+        Assert.IsType<PDActionJavaScript>(page.GetActions().GetO());
+
+        PDAnnotationWidget widget = new();
+        PDAnnotationAdditionalActions widgetActions = new();
+        widgetActions.SetU(js);
+        widget.SetActions(widgetActions);
+        Assert.IsType<PDActionJavaScript>(widget.GetActions()!.GetU());
+
+        using PDDocument doc = new();
+        PDAcroForm acroForm = new(doc);
+        PDTextField textField = new(acroForm);
+        PDFormFieldAdditionalActions fieldActions = new();
+        fieldActions.SetK(js);
+        ((COSDictionary)textField.GetCOSObject()).SetItem(COSName.AA, fieldActions);
+        Assert.IsType<PDActionJavaScript>(textField.GetActions()!.GetK());
     }
 
     // ---------------------------------------------------------------------------

@@ -55,4 +55,15 @@ public sealed class PDAnnotationWidget : PDAnnotation
     {
         GetCOSDictionary().SetItem(COSName.A, action);
     }
+
+    public PDAnnotationAdditionalActions? GetActions()
+    {
+        COSDictionary? actions = GetCOSDictionary().GetCOSDictionary(COSName.AA);
+        return actions != null ? new PDAnnotationAdditionalActions(actions) : null;
+    }
+
+    public void SetActions(PDAnnotationAdditionalActions? actions)
+    {
+        GetCOSDictionary().SetItem(COSName.AA, actions);
+    }
 }

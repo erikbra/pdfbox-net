@@ -29,6 +29,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 using PdfBox.Net.PDModel.Graphics.OptionalContent;
+using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
@@ -239,6 +240,55 @@ public sealed class PDDocumentCatalog : COSObjectable
     }
 
     /// <summary>
+    /// Sets the Document Open Action for this object.
+    /// </summary>
+    /// <param name="action">The action to perform.</param>
+    public void SetOpenAction(PDDestinationOrAction? action)
+    {
+        _root.SetItem(COSName.OPEN_ACTION, action);
+    }
+
+    /// <summary>
+    /// Get the Document Open Action for this object.
+    /// </summary>
+    /// <returns>The action to perform when the document is opened.</returns>
+    public PDDestinationOrAction? GetOpenAction()
+    {
+        COSBase? openAction = _root.GetDictionaryObject(COSName.OPEN_ACTION);
+        if (openAction is COSDictionary actionDict)
+        {
+            return PDActionFactory.CreateAction(actionDict);
+        }
+        else if (openAction is COSArray)
+        {
+            return PDDestination.Create(openAction);
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Returns the additional actions for this document.
+    /// </summary>
+    public PDDocumentCatalogAdditionalActions GetActions()
+    {
+        COSDictionary? addAction = _root.GetCOSDictionary(COSName.AA);
+        if (addAction == null)
+        {
+            addAction = new COSDictionary();
+            _root.SetItem(COSName.AA, addAction);
+        }
+        return new PDDocumentCatalogAdditionalActions(addAction);
+    }
+
+    /// <summary>
+    /// Sets the additional actions for the document.
+    /// </summary>
+    public void SetActions(PDDocumentCatalogAdditionalActions? actions)
+    {
+        _root.SetItem(COSName.AA, actions);
+    }
+
+    /// <summary>
     /// Gets the viewer preferences dictionary, if present.
     /// </summary>
     public PDViewerPreferences? GetViewerPreferences()
@@ -332,6 +382,23 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetOCProperties(PDOptionalContentProperties? ocProperties)
     {
         _root.SetItem(COSName.GetPDFName("OCProperties"), ocProperties);
+    }
+
+    /// <summary>
+    /// Returns the document-level URI dictionary.
+    /// </summary>
+    public PDURIDictionary? GetURI()
+    {
+        COSDictionary? uri = _root.GetCOSDictionary(COSName.URI);
+        return uri == null ? null : new PDURIDictionary(uri);
+    }
+
+    /// <summary>
+    /// Sets the document-level URI dictionary.
+    /// </summary>
+    public void SetURI(PDURIDictionary? uri)
+    {
+        _root.SetItem(COSName.URI, uri);
     }
 
     /// <summary>
