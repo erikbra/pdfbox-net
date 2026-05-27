@@ -27,6 +27,7 @@
 
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Interactive.Action;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
@@ -94,6 +95,12 @@ public abstract class PDField : COSObjectable
     public string? GetFieldType()
     {
         return dictionary.GetNameAsString(COSName.GetPDFName("FT"));
+    }
+
+    public PDFormFieldAdditionalActions? GetActions()
+    {
+        COSDictionary? aa = dictionary.GetCOSDictionary(COSName.AA);
+        return aa != null ? new PDFormFieldAdditionalActions(aa) : null;
     }
 
     public abstract string? GetValueAsString();

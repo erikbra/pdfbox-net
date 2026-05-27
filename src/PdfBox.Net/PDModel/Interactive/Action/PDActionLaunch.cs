@@ -112,4 +112,101 @@ public class PDActionLaunch : PDAction
     {
         action.SetString(COSName.D, d);
     }
+
+    /// <summary>
+    /// This will get a dictionary containing Windows-specific launch parameters.
+    /// </summary>
+    /// <returns>The Win entry of the specific launch action dictionary.</returns>
+    public PDWindowsLaunchParams? GetWinLaunchParams()
+    {
+        COSDictionary? win = action.GetCOSDictionary(COSName.WIN);
+        return win != null ? new PDWindowsLaunchParams(win) : null;
+    }
+
+    /// <summary>
+    /// This will set a dictionary containing Windows-specific launch parameters.
+    /// </summary>
+    /// <param name="win">The Windows launch parameters.</param>
+    public void SetWinLaunchParams(PDWindowsLaunchParams? win)
+    {
+        action.SetItem(COSName.WIN, win);
+    }
+
+    /// <summary>
+    /// This will get the string specifying the operation to perform.
+    /// </summary>
+    /// <returns>The O entry of the specific Windows launch parameter dictionary.</returns>
+    public string? GetO()
+    {
+        return action.GetString(COSName.GetPDFName("O"));
+    }
+
+    /// <summary>
+    /// This will set the string specifying the operation to perform.
+    /// </summary>
+    /// <param name="o">The operation to perform.</param>
+    public void SetO(string? o)
+    {
+        action.SetString(COSName.GetPDFName("O"), o);
+    }
+
+    /// <summary>
+    /// This will get a parameter string to be passed to the application designated by the F entry.
+    /// </summary>
+    /// <returns>The P entry of the specific Windows launch parameter dictionary.</returns>
+    public string? GetP()
+    {
+        return action.GetString(COSName.P);
+    }
+
+    /// <summary>
+    /// This will set a parameter string to be passed to the application designated by the F entry.
+    /// </summary>
+    /// <param name="p">The parameter string.</param>
+    public void SetP(string? p)
+    {
+        action.SetString(COSName.P, p);
+    }
+
+    /// <summary>
+    /// This will specify whether to open the destination document in a new window, in the same
+    /// window, or behave in accordance with the current user preference.
+    /// </summary>
+    /// <returns>A flag specifying how to open the destination document.</returns>
+    public OpenMode GetOpenInNewWindow()
+    {
+        COSBase? dictionaryObject = GetCOSObject().GetDictionaryObject(COSName.NEW_WINDOW);
+        if (dictionaryObject is COSBoolean b)
+        {
+            return b.GetValue() ? OpenMode.NewWindow : OpenMode.SameWindow;
+        }
+        return OpenMode.UserPreference;
+    }
+
+    /// <summary>
+    /// This will specify whether to open the destination document in a new window.
+    /// </summary>
+    /// <param name="value">The flag value.</param>
+    public void SetOpenInNewWindow(OpenMode? value)
+    {
+        if (value == null)
+        {
+            GetCOSObject().RemoveItem(COSName.NEW_WINDOW);
+            return;
+        }
+        switch (value)
+        {
+            case OpenMode.UserPreference:
+                GetCOSObject().RemoveItem(COSName.NEW_WINDOW);
+                break;
+            case OpenMode.SameWindow:
+                GetCOSObject().SetBoolean(COSName.NEW_WINDOW, false);
+                break;
+            case OpenMode.NewWindow:
+                GetCOSObject().SetBoolean(COSName.NEW_WINDOW, true);
+                break;
+            default:
+                break;
+        }
+    }
 }

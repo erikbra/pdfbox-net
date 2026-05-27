@@ -51,10 +51,18 @@ public static class PDActionFactory
                 {
                     PDActionJavaScript.SUB_TYPE => new PDActionJavaScript(action),
                     PDActionGoTo.SUB_TYPE => new PDActionGoTo(action),
+                    PDActionEmbeddedGoTo.SUB_TYPE => new PDActionEmbeddedGoTo(action),
                     PDActionLaunch.SUB_TYPE => new PDActionLaunch(action),
                     PDActionRemoteGoTo.SUB_TYPE => new PDActionRemoteGoTo(action),
                     PDActionURI.SUB_TYPE => new PDActionURI(action),
                     PDActionNamed.SUB_TYPE => new PDActionNamed(action),
+                    PDActionMovie.SUB_TYPE => new PDActionMovie(action),
+                    PDActionSound.SUB_TYPE => new PDActionSound(action),
+                    PDActionHide.SUB_TYPE => new PDActionHide(action),
+                    PDActionImportData.SUB_TYPE => new PDActionImportData(action),
+                    PDActionSubmitForm.SUB_TYPE => new PDActionSubmitForm(action),
+                    PDActionResetForm.SUB_TYPE => new PDActionResetForm(action),
+                    PDActionThread.SUB_TYPE => new PDActionThread(action),
                     _ => null
                 };
             }
