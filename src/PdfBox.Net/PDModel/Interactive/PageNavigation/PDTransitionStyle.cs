@@ -1,13 +1,11 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Stub implementations for PDModel types required by the text extraction package
- * that have not yet been fully ported.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PORT_MODE: adapted
- *
- * NOTE: PDGraphicsState, PDTextState, PDMarkedContent, and PDXObject have been
- * promoted to their own files in the canonical namespace locations.
- * Only unported stubs remain here.
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDTransitionStyle.java
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_MODE: mechanical
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
 /*
@@ -27,13 +25,23 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.COS;
-using PdfBox.Net.PDModel.Common;
+namespace PdfBox.Net.PDModel.Interactive.PageNavigation;
 
-namespace PdfBox.Net.PDModel.Interactive.PageNavigation
+/// <summary>
+/// The transition style used when moving to a page during a presentation.
+/// </summary>
+public enum PDTransitionStyle
 {
-    public class PDThreadBead
-    {
-        public virtual PDRectangle? GetRectangle() => null;
-    }
+    Split,
+    Blinds,
+    Box,
+    Wipe,
+    Dissolve,
+    Glitter,
+    R,
+    Fly,
+    Push,
+    Cover,
+    Uncover,
+    Fade
 }
