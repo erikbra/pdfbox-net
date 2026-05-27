@@ -127,6 +127,41 @@ public sealed class PDAcroForm : COSObjectable
         _dictionary.SetItem(COSName.GetPDFName("DR"), resources?.GetCOSObject());
     }
 
+    public bool IsSignaturesExist()
+    {
+        int flags = _dictionary.GetInt(COSName.GetPDFName("SigFlags"), 0);
+        return (flags & 1) != 0;
+    }
+
+    public void SetSignaturesExist(bool value)
+    {
+        int current = _dictionary.GetInt(COSName.GetPDFName("SigFlags"), 0);
+        _dictionary.SetInt(COSName.GetPDFName("SigFlags"), value ? (current | 1) : (current & ~1));
+    }
+
+    public bool IsAppendOnly()
+    {
+        int flags = _dictionary.GetInt(COSName.GetPDFName("SigFlags"), 0);
+        return (flags & 2) != 0;
+    }
+
+    public void SetAppendOnly(bool value)
+    {
+        int current = _dictionary.GetInt(COSName.GetPDFName("SigFlags"), 0);
+        _dictionary.SetInt(COSName.GetPDFName("SigFlags"), value ? (current | 2) : (current & ~2));
+    }
+
+    public PDXFAResource? GetXFA()
+    {
+        COSBase? baseValue = _dictionary.GetDictionaryObject(COSName.GetPDFName("XFA"));
+        return baseValue != null ? new PDXFAResource(baseValue) : null;
+    }
+
+    public void SetXFA(PDXFAResource? xfa)
+    {
+        _dictionary.SetItem(COSName.GetPDFName("XFA"), xfa?.GetCOSObject());
+    }
+
     internal PDDocument GetDocument()
     {
         return _document;
