@@ -47,10 +47,10 @@ public sealed class PDDefaultAppearanceString
     {
         if (defaultAppearance == null)
         {
-            throw new ArgumentException("/DA is a required entry.", nameof(defaultAppearance));
+            throw new ArgumentException("Default appearance string is required.", nameof(defaultAppearance));
         }
 
-        _defaultResources = defaultResources ?? throw new ArgumentException("/DR is a required entry.", nameof(defaultResources));
+        _defaultResources = defaultResources ?? throw new ArgumentException("Default resources dictionary is required for font resolution.", nameof(defaultResources));
         ProcessAppearanceStringOperators(defaultAppearance.GetBytes());
     }
 

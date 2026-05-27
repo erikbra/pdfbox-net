@@ -87,7 +87,7 @@ public abstract class PDChoice : PDVariableText
 
         if (exportValues.Count != displayValues.Count)
         {
-            throw new ArgumentException("The number of export and display values shall be the same.");
+            throw new ArgumentException($"The number of export values ({exportValues.Count}) must match display values ({displayValues.Count}).");
         }
 
         List<FieldUtils.KeyValue> pairs = FieldUtils.ToKeyValueList(exportValues, displayValues);

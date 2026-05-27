@@ -129,7 +129,9 @@ public abstract class PDButton : PDField
         ISet<string> onValues = GetOnValues();
         if (onValues.Count > 0 && !onValues.Contains(value))
         {
-            throw new ArgumentException($"Invalid value '{value}' for field {GetFullyQualifiedName()}", nameof(value));
+            throw new ArgumentException(
+                $"Invalid value '{value}' for field {GetFullyQualifiedName()}. Valid values are: {string.Join(", ", onValues)} and Off.",
+                nameof(value));
         }
     }
 
