@@ -28,6 +28,7 @@ public sealed class PDAppearanceStream : PDFormXObject
 
     public void SetMatrix(float a, float b, float c, float d, float e, float f)
     {
+        COSStream cosStream = GetCOSObject() ?? throw new IOException("Appearance stream is missing backing COS stream.");
         COSArray matrix = new();
         matrix.Add(new COSFloat(a));
         matrix.Add(new COSFloat(b));
@@ -35,6 +36,6 @@ public sealed class PDAppearanceStream : PDFormXObject
         matrix.Add(new COSFloat(d));
         matrix.Add(new COSFloat(e));
         matrix.Add(new COSFloat(f));
-        GetCOSObject()?.SetItem(COSName.GetPDFName("Matrix"), matrix);
+        cosStream.SetItem(COSName.GetPDFName("Matrix"), matrix);
     }
 }

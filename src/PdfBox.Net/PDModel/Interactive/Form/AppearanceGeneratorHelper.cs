@@ -91,6 +91,7 @@ internal sealed class AppearanceGeneratorHelper
             rect.SetUpperRightY(rect.GetLowerLeftY() + 1);
         }
 
+        widget.SetRectangle(rect);
         stream.SetBBox(new PDRectangle(rect.GetLowerLeftX(), rect.GetLowerLeftY(), rect.GetWidth(), rect.GetHeight()));
         stream.SetMatrix(1, 0, 0, 1, -rect.GetLowerLeftX(), -rect.GetLowerLeftY());
         stream.SetResources(stream.GetResources() ?? new PDResources());

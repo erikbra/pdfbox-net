@@ -643,7 +643,9 @@ public class PDModelInteractiveTest
             Assert.NotNull(appearanceStream!.GetBBox());
             Assert.True(appearanceStream.GetBBox()!.GetWidth() > 0);
             Assert.True(appearanceStream.GetBBox()!.GetHeight() > 0);
-            Assert.NotEmpty(appearanceStream.GetContentStream().ToByteArray());
+            string generatedContent = System.Text.Encoding.ASCII.GetString(appearanceStream.GetContentStream().ToByteArray());
+            Assert.Contains("q", generatedContent, StringComparison.Ordinal);
+            Assert.Contains("Q", generatedContent, StringComparison.Ordinal);
         }
     }
 
@@ -658,6 +660,8 @@ public class PDModelInteractiveTest
         annotation.ConstructAppearances();
 
         Assert.True(handler.Generated);
+        Assert.Equal(1, handler.GenerateAppearanceStreamsCalls);
+        Assert.Equal(0, handler.GenerateNormalAppearanceCalls);
     }
 
     [Fact]
@@ -915,15 +919,19 @@ public class PDModelInteractiveTest
     private sealed class RecordingAppearanceHandler : PDAppearanceHandler
     {
         public bool Generated { get; private set; }
+        public int GenerateAppearanceStreamsCalls { get; private set; }
+        public int GenerateNormalAppearanceCalls { get; private set; }
 
         public void GenerateAppearanceStreams()
         {
             Generated = true;
+            GenerateAppearanceStreamsCalls++;
         }
 
         public void GenerateNormalAppearance()
         {
             Generated = true;
+            GenerateNormalAppearanceCalls++;
         }
 
         public void GenerateRolloverAppearance()
