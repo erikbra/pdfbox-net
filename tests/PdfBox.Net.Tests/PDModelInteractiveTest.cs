@@ -27,6 +27,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
 using PdfBox.Net.PDModel.Interactive.Form;
@@ -615,6 +616,51 @@ public class PDModelInteractiveTest
     }
 
     [Fact]
+    public void PDAnnotationAppearanceGenerationCreatesNormalStreams()
+    {
+        PDAnnotation[] annotations =
+        [
+            new PDAnnotationLink(),
+            new PDAnnotationText(),
+            new PDAnnotationLine(),
+            new PDAnnotationSquare(),
+            new PDAnnotationCircle(),
+            new PDAnnotationFreeText(),
+            new PDAnnotationFileAttachment(),
+            new PDAnnotationHighlight(),
+            new PDAnnotationUnderline(),
+            new PDAnnotationStrikeOut(),
+            new PDAnnotationSquiggly()
+        ];
+
+        foreach (PDAnnotation annotation in annotations)
+        {
+            annotation.SetRectangle(new PDRectangle(10, 20, 50, 15));
+            annotation.ConstructAppearances();
+
+            PDAppearanceStream? appearanceStream = annotation.GetNormalAppearanceStream();
+            Assert.NotNull(appearanceStream);
+            Assert.NotNull(appearanceStream!.GetBBox());
+            Assert.True(appearanceStream.GetBBox()!.GetWidth() > 0);
+            Assert.True(appearanceStream.GetBBox()!.GetHeight() > 0);
+            Assert.NotEmpty(appearanceStream.GetContentStream().ToByteArray());
+        }
+    }
+
+    [Fact]
+    public void PDAnnotationCustomAppearanceHandlerIsUsed()
+    {
+        PDAnnotationSquare annotation = new();
+        annotation.SetRectangle(new PDRectangle(0, 0, 10, 10));
+
+        RecordingAppearanceHandler handler = new();
+        annotation.SetCustomAppearanceHandler(handler);
+        annotation.ConstructAppearances();
+
+        Assert.True(handler.Generated);
+    }
+
+    [Fact]
     public void PDAnnotationContentsRoundtrip()
     {
         PDAnnotationLink link = new();
@@ -840,5 +886,52 @@ public class PDModelInteractiveTest
         Assert.Equal(11f, parsed.FontSize);
         Assert.NotNull(parsed.FontColor);
         Assert.Equal([0.1f, 0.2f, 0.3f], parsed.FontColor!.GetComponents());
+    }
+
+    [Fact]
+    public void PDTextFieldSetValueGeneratesWidgetAppearance()
+    {
+        using PDDocument doc = new();
+        PDAcroForm acroForm = new(doc);
+        PDTextField textField = new(acroForm);
+
+        COSDictionary widgetDictionary = new();
+        widgetDictionary.SetName(COSName.SUBTYPE, PDAnnotationWidget.SUB_TYPE);
+        widgetDictionary.SetItem(COSName.RECT, new PDRectangle(5, 5, 100, 20).GetCOSArray());
+
+        COSArray kids = new();
+        kids.Add(widgetDictionary);
+        ((COSDictionary)textField.GetCOSObject()).SetItem(COSName.KIDS, kids);
+
+        textField.SetValue("Widget value");
+
+        PDAnnotationWidget widget = new(widgetDictionary);
+        PDAppearanceStream? stream = widget.GetNormalAppearanceStream();
+        Assert.NotNull(stream);
+        byte[] data = stream!.GetContentStream().ToByteArray();
+        Assert.Contains("Widget value", System.Text.Encoding.ASCII.GetString(data), StringComparison.Ordinal);
+    }
+
+    private sealed class RecordingAppearanceHandler : PDAppearanceHandler
+    {
+        public bool Generated { get; private set; }
+
+        public void GenerateAppearanceStreams()
+        {
+            Generated = true;
+        }
+
+        public void GenerateNormalAppearance()
+        {
+            Generated = true;
+        }
+
+        public void GenerateRolloverAppearance()
+        {
+        }
+
+        public void GenerateDownAppearance()
+        {
+        }
     }
 }

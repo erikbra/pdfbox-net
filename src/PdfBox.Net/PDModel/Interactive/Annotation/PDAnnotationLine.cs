@@ -27,11 +27,14 @@
 
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
 public sealed class PDAnnotationLine : PDAnnotationMarkup
 {
+    private PDAppearanceHandler? customAppearanceHandler;
+
     public const string SUB_TYPE = "Line";
 
     public PDAnnotationLine()
@@ -74,5 +77,25 @@ public sealed class PDAnnotationLine : PDAnnotationMarkup
             lineArray.Add(new COSFloat(value));
         }
         GetCOSDictionary().SetItem(COSName.GetPDFName("L"), lineArray);
+    }
+
+    public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
+    {
+        customAppearanceHandler = appearanceHandler;
+    }
+
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
+    }
+
+    public override void ConstructAppearances(PDDocument? document)
+    {
+        if (customAppearanceHandler == null)
+        {
+            customAppearanceHandler = new PDLineAppearanceHandler(this, document);
+        }
+
+        customAppearanceHandler.GenerateAppearanceStreams();
     }
 }

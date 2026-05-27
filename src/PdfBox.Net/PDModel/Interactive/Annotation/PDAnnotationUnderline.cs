@@ -27,11 +27,14 @@
 
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
 public sealed class PDAnnotationUnderline : PDAnnotationTextMarkup
 {
+    private PDAppearanceHandler? customAppearanceHandler;
+
     public const string SUB_TYPE = "Underline";
 
     public PDAnnotationUnderline()
@@ -42,5 +45,25 @@ public sealed class PDAnnotationUnderline : PDAnnotationTextMarkup
     public PDAnnotationUnderline(COSDictionary dict)
         : base(dict)
     {
+    }
+
+    public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
+    {
+        customAppearanceHandler = appearanceHandler;
+    }
+
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
+    }
+
+    public override void ConstructAppearances(PDDocument? document)
+    {
+        if (customAppearanceHandler == null)
+        {
+            customAppearanceHandler = new PDUnderlineAppearanceHandler(this, document);
+        }
+
+        customAppearanceHandler.GenerateAppearanceStreams();
     }
 }

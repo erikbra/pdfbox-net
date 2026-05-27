@@ -169,4 +169,14 @@ public abstract class PDField : COSObjectable
     }
 
     public abstract string? GetValueAsString();
+
+    internal COSDictionary GetCOSDictionary()
+    {
+        return dictionary;
+    }
+
+    internal PDAcroForm GetAcroForm()
+    {
+        return acroForm;
+    }
 }

@@ -27,11 +27,14 @@
 
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
 public sealed class PDAnnotationSquiggly : PDAnnotationTextMarkup
 {
+    private PDAppearanceHandler? customAppearanceHandler;
+
     public const string SUB_TYPE = "Squiggly";
 
     public PDAnnotationSquiggly()
@@ -42,5 +45,25 @@ public sealed class PDAnnotationSquiggly : PDAnnotationTextMarkup
     public PDAnnotationSquiggly(COSDictionary dict)
         : base(dict)
     {
+    }
+
+    public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
+    {
+        customAppearanceHandler = appearanceHandler;
+    }
+
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
+    }
+
+    public override void ConstructAppearances(PDDocument? document)
+    {
+        if (customAppearanceHandler == null)
+        {
+            customAppearanceHandler = new PDSquigglyAppearanceHandler(this, document);
+        }
+
+        customAppearanceHandler.GenerateAppearanceStreams();
     }
 }
