@@ -66,4 +66,28 @@ public sealed class PDAnnotationWidget : PDAnnotation
     {
         GetCOSDictionary().SetItem(COSName.AA, actions);
     }
+
+    public PDAppearanceCharacteristicsDictionary? GetAppearanceCharacteristics()
+    {
+        return GetCOSDictionary().GetCOSDictionary(COSName.GetPDFName("MK")) is COSDictionary dictionary
+            ? new PDAppearanceCharacteristicsDictionary(dictionary)
+            : null;
+    }
+
+    public void SetAppearanceCharacteristics(PDAppearanceCharacteristicsDictionary? characteristics)
+    {
+        GetCOSDictionary().SetItem(COSName.GetPDFName("MK"), characteristics);
+    }
+
+    public PDBorderStyleDictionary? GetBorderStyle()
+    {
+        return GetCOSDictionary().GetCOSDictionary(COSName.BS) is COSDictionary dictionary
+            ? new PDBorderStyleDictionary(dictionary)
+            : null;
+    }
+
+    public void SetBorderStyle(PDBorderStyleDictionary? borderStyle)
+    {
+        GetCOSDictionary().SetItem(COSName.BS, borderStyle);
+    }
 }

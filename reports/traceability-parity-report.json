@@ -3065,8 +3065,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Annotation factory expanded to include additional interactive subtypes used in issue #32 scope."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationCircle.java",
@@ -3075,8 +3075,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationFileAttachment.java",
@@ -3105,8 +3105,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationLine.java",
@@ -3115,8 +3115,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationLink.java",
@@ -3135,8 +3135,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationRubberStamp.java",
@@ -3155,8 +3155,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationSquiggly.java",
@@ -3165,8 +3165,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationStrikeout.java",
@@ -3175,8 +3175,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationText.java",
@@ -3185,8 +3185,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationTextMarkup.java",
@@ -3205,8 +3205,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationUnknown.java",
@@ -3225,8 +3225,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Interactive annotation subtype class ported for issue #32 coverage."
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends the existing interactive annotation port with appearance-dictionary accessors and handler-backed generation support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDAcroForm.java",
@@ -3274,9 +3274,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Core AcroForm and basic field model ported; full form appearance/value infrastructure remains deferred."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 completes field-value appearance generation for text widgets on top of the slice-E structure port."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/IterativeMergeSort.java",
@@ -3617,5 +3617,245 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T11:10:23Z",
     "note": "Mechanical serialization exception port with message/cause constructor parity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAppearanceContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDAppearanceContentStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ported concrete appearance content-stream writing helpers for text, path, color, graphics-state, and border emission."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/AppearanceGeneratorHelper.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ported scoped AcroForm widget appearance generation for text and choice fields against the current content-stream stack."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDVariableText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDVariableText.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 added widget discovery and appearance construction hooks for variable-text fields."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDChoice.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDChoice.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 wires choice-field value changes into generated widget appearances."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDComboBox.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDComboBox.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 covers combo-box widget appearance generation through the shared appearance helper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDListBox.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDListBox.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 keeps list-box appearance paths aligned with the shared widget appearance helper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDDefaultAppearanceString.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDDefaultAppearanceString.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 extends default-appearance parsing with resource-copying and content-stream emission support for generated widgets."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAppearanceDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 adds the annotation appearance dictionary wrapper needed for handler-generated streams."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceEntry.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAppearanceEntry.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 adds appearance entry stream/subdictionary dispatch for widget and annotation generation paths."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAppearanceStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the appearance stream wrapper used by generated annotation and widget content streams."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDBorderStyleDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDBorderStyleDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the border-style dictionary subset required by widget, square, circle, and line appearance generation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceCharacteristicsDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAppearanceCharacteristicsDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the widget appearance-characteristics dictionary subset used during generated appearance initialization."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDAppearanceHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the annotation appearance-handler contract."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAbstractAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDAbstractAppearanceHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports shared annotation appearance-stream setup, opacity, and geometry helpers used by covered subtype handlers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDTextAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDTextAppearanceHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the PDTextAppearanceHandler subtype handler for deterministic generated annotation appearances."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDHighlightAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDHighlightAppearanceHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the PDHighlightAppearanceHandler subtype handler for deterministic generated annotation appearances."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDUnderlineAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDUnderlineAppearanceHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the PDUnderlineAppearanceHandler subtype handler for deterministic generated annotation appearances."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDStrikeoutAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDStrikeOutAppearanceHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the PDStrikeOutAppearanceHandler subtype handler for deterministic generated annotation appearances."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDSquigglyAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDSquigglyAppearanceHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the PDSquigglyAppearanceHandler subtype handler for deterministic generated annotation appearances."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDSquareAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDSquareAppearanceHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the PDSquareAppearanceHandler subtype handler for deterministic generated annotation appearances."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDCircleAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDCircleAppearanceHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the PDCircleAppearanceHandler subtype handler for deterministic generated annotation appearances."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDLineAppearanceHandler.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDLineAppearanceHandler.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 ports the PDLineAppearanceHandler subtype handler for deterministic generated annotation appearances."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/PlainText.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 fixes paragraph splitting for generated widget appearances on .NET regex semantics."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDAppearanceGenerationTest.cs",
+    "source_commit": "2026-05-27",
+    "sync_commit": "2026-05-27",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-27T16:36:31Z",
+    "note": "Issue #66 regression tests cover representative widget and annotation appearance generation and parse generated streams for structural validity."
   }
 ]

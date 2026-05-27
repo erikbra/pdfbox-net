@@ -28,6 +28,7 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
@@ -37,6 +38,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotation</c>.</remarks>
 public abstract class PDAnnotation : COSObjectable
 {
+    private static readonly COSName AppearanceName = COSName.GetPDFName("AP");
+
     /// <summary>An annotation flag.</summary>
     private const int FlagInvisible = 1 << 0;
     /// <summary>An annotation flag.</summary>
@@ -426,5 +429,40 @@ public abstract class PDAnnotation : COSObjectable
     public void SetColor(PDColor? c)
     {
         _dictionary.SetItem(COSName.C, c?.ToCOSArray());
+    }
+
+    public PDAppearanceDictionary? GetAppearance()
+    {
+        return GetCOSDictionary().GetCOSDictionary(AppearanceName) is COSDictionary dictionary
+            ? new PDAppearanceDictionary(dictionary)
+            : null;
+    }
+
+    public void SetAppearance(PDAppearanceDictionary? appearance)
+    {
+        GetCOSDictionary().SetItem(AppearanceName, appearance);
+    }
+
+    public string? GetAppearanceState()
+    {
+        return GetCOSDictionary().GetNameAsString(COSName.AS);
+    }
+
+    public void SetAppearanceState(string? state)
+    {
+        GetCOSDictionary().SetName(COSName.AS, state);
+    }
+
+    public PDAppearanceStream? GetNormalAppearanceStream()
+    {
+        return GetAppearance()?.GetNormalAppearance()?.IsStream() == true
+            ? GetAppearance()!.GetNormalAppearance()!.GetAppearanceStream()
+            : null;
+    }
+
+    public virtual void ConstructAppearances()
+    {
+        PDAppearanceHandler? handler = PDAppearanceHandlerFactory.Create(this);
+        handler?.GenerateAppearanceStreams();
     }
 }

@@ -100,6 +100,11 @@ public class PDResources
         return fontSubDict.KeySet();
     }
 
+    public void Put(COSName name, PDFont font)
+    {
+        PutInto(FontKey, name, font.GetCOSObject());
+    }
+
     // ── XObjects ─────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -141,6 +146,11 @@ public class PDResources
         return extGStateSubDict.GetDictionaryObject(name) is COSDictionary dict
             ? new PDExtendedGraphicsState(dict)
             : null;
+    }
+
+    public void Put(COSName name, PDExtendedGraphicsState graphicsState)
+    {
+        PutInto(ExtGStateKey, name, graphicsState.GetCOSObject());
     }
 
     // ── Color spaces ──────────────────────────────────────────────────────────
@@ -234,5 +244,12 @@ public class PDResources
         COSDictionary? propertiesSubDict = _dict.GetCOSDictionary(PropertiesKey);
         if (propertiesSubDict is null) return Enumerable.Empty<COSName>();
         return propertiesSubDict.KeySet();
+    }
+
+    private void PutInto(COSName category, COSName name, COSBase value)
+    {
+        COSDictionary subDictionary = _dict.GetCOSDictionary(category) ?? new COSDictionary();
+        subDictionary.SetItem(name, value);
+        _dict.SetItem(category, subDictionary);
     }
 }

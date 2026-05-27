@@ -29,6 +29,7 @@ using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.PdfParser;
 
@@ -125,5 +126,36 @@ public sealed class PDDefaultAppearanceString
         COSArray array = new();
         array.AddAll(operands);
         FontColor = new PDColor(array, colorSpace);
+    }
+
+    internal void CopyNeededResourcesTo(PDAppearanceStream appearanceStream)
+    {
+        ArgumentNullException.ThrowIfNull(appearanceStream);
+        if (FontName == null || Font == null)
+        {
+            return;
+        }
+
+        PDResources resources = appearanceStream.GetResources() ?? new PDResources();
+        appearanceStream.SetResources(resources);
+        if (resources.GetFont(FontName) == null)
+        {
+            resources.Put(FontName, Font);
+        }
+    }
+
+    internal void WriteTo(PDAppearanceContentStream contents, float fontSize)
+    {
+        ArgumentNullException.ThrowIfNull(contents);
+        if (FontName == null)
+        {
+            throw new IOException("Default appearance string is missing a font.");
+        }
+
+        contents.SetFont(FontName, fontSize);
+        if (FontColor != null)
+        {
+            contents.SetNonStrokingColor(FontColor);
+        }
     }
 }
