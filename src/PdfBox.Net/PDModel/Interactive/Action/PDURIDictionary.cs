@@ -35,6 +35,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// <remarks>Ported from Apache PDFBox <c>PDURIDictionary</c>.</remarks>
 public class PDURIDictionary : COSObjectable
 {
+    private static readonly COSName BaseName = COSName.GetPDFName("Base");
     private readonly COSDictionary _uriDictionary;
 
     /// <summary>
@@ -63,7 +64,7 @@ public class PDURIDictionary : COSObjectable
     /// </summary>
     public string? GetBase()
     {
-        return _uriDictionary.GetString("Base");
+        return _uriDictionary.GetString(BaseName);
     }
 
     /// <summary>
@@ -71,7 +72,6 @@ public class PDURIDictionary : COSObjectable
     /// </summary>
     public void SetBase(string? @base)
     {
-        _uriDictionary.SetString("Base", @base);
+        _uriDictionary.SetString(BaseName, @base);
     }
 }
-
