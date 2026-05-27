@@ -30,6 +30,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
 using PdfBox.Net.PDModel.Interactive.Form;
+using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.Tests;
 
@@ -699,5 +700,145 @@ public class PDModelInteractiveTest
         Assert.IsType<PDCheckBox>(fields[1]);
         Assert.Equal("value", ((PDTextField)fields[0]).GetValue());
         Assert.True(((PDCheckBox)fields[1]).IsChecked());
+    }
+
+    [Fact]
+    public void PDAcroFormFieldFactoryDispatchesBaselineTypes()
+    {
+        using PDDocument doc = new();
+        PDAcroForm acroForm = new(doc);
+
+        COSDictionary checkDict = new();
+        checkDict.SetName(COSName.GetPDFName("FT"), "Btn");
+
+        COSDictionary radioDict = new();
+        radioDict.SetName(COSName.GetPDFName("FT"), "Btn");
+        radioDict.SetInt(COSName.GetPDFName("FF"), 1 << 15);
+
+        COSDictionary pushDict = new();
+        pushDict.SetName(COSName.GetPDFName("FT"), "Btn");
+        pushDict.SetInt(COSName.GetPDFName("FF"), 1 << 16);
+
+        COSDictionary comboDict = new();
+        comboDict.SetName(COSName.GetPDFName("FT"), "Ch");
+        comboDict.SetInt(COSName.GetPDFName("FF"), 1 << 17);
+
+        COSDictionary listDict = new();
+        listDict.SetName(COSName.GetPDFName("FT"), "Ch");
+
+        Assert.IsType<PDCheckBox>(PDField.FromDictionary(acroForm, checkDict));
+        Assert.IsType<PDRadioButton>(PDField.FromDictionary(acroForm, radioDict));
+        Assert.IsType<PDPushButton>(PDField.FromDictionary(acroForm, pushDict));
+        Assert.IsType<PDComboBox>(PDField.FromDictionary(acroForm, comboDict));
+        Assert.IsType<PDListBox>(PDField.FromDictionary(acroForm, listDict));
+    }
+
+    [Fact]
+    public void PDAcroFormFieldTreeTraversesNestedFields()
+    {
+        using PDDocument doc = new();
+        PDAcroForm acroForm = new(doc);
+
+        COSDictionary parent = new();
+        parent.SetString(COSName.T, "parent");
+
+        COSDictionary child = new();
+        child.SetString(COSName.T, "child");
+        child.SetName(COSName.GetPDFName("FT"), "Tx");
+        child.SetItem(COSName.PARENT, parent);
+
+        COSArray kids = new();
+        kids.Add(child);
+        parent.SetItem(COSName.KIDS, kids);
+
+        acroForm.SetFields([PDField.FromDictionary(acroForm, parent)]);
+
+        List<PDField> traversed = acroForm.GetFieldTree().ToList();
+        Assert.Equal(2, traversed.Count);
+        Assert.IsType<PDNonTerminalField>(traversed[0]);
+        Assert.IsType<PDTextField>(traversed[1]);
+        Assert.Equal("parent.child", traversed[1].GetFullyQualifiedName());
+    }
+
+    [Fact]
+    public void PDAcroFormChoiceAndTextPropertyRoundtrip()
+    {
+        using PDDocument doc = new();
+        PDAcroForm acroForm = new(doc);
+
+        PDTextField text = new(acroForm);
+        text.SetPartialName("text");
+        text.SetMultiline(true);
+        text.SetDoNotScroll(true);
+        text.SetMaxLen(12);
+        text.SetDefaultValue("fallback");
+        text.SetValue("value");
+
+        PDComboBox combo = new(acroForm);
+        combo.SetPartialName("combo");
+        combo.SetOptions(["v1", "v2"], ["Display 1", "Display 2"]);
+        combo.SetCommitOnSelChange(true);
+        combo.SetEdit(true);
+        combo.SetValue("v2");
+
+        PDListBox list = new(acroForm);
+        list.SetPartialName("list");
+        list.SetMultiSelect(true);
+        list.SetOptions(["A", "B", "C"]);
+        list.SetValue(["A", "C"]);
+        list.SetTopIndex(1);
+
+        acroForm.SetFields([text, combo, list]);
+
+        IList<PDField> fields = acroForm.GetFields();
+        Assert.Equal(3, fields.Count);
+
+        PDTextField restoredText = Assert.IsType<PDTextField>(fields[0]);
+        Assert.True(restoredText.IsMultiline());
+        Assert.True(restoredText.DoNotScroll());
+        Assert.Equal(12, restoredText.GetMaxLen());
+        Assert.Equal("value", restoredText.GetValue());
+        Assert.Equal("fallback", restoredText.GetDefaultValue());
+
+        PDComboBox restoredCombo = Assert.IsType<PDComboBox>(fields[1]);
+        Assert.True(restoredCombo.IsCommitOnSelChange());
+        Assert.True(restoredCombo.IsEdit());
+        Assert.Equal(["v1", "v2"], restoredCombo.GetOptionsExportValues());
+        Assert.Equal(["Display 1", "Display 2"], restoredCombo.GetOptionsDisplayValues());
+        Assert.Equal(["v2"], restoredCombo.GetValue());
+
+        PDListBox restoredList = Assert.IsType<PDListBox>(fields[2]);
+        Assert.True(restoredList.IsMultiSelect());
+        Assert.Equal(1, restoredList.GetTopIndex());
+        Assert.Equal(["A", "C"], restoredList.GetValue());
+        Assert.Equal([0, 2], restoredList.GetSelectedOptionsIndex());
+    }
+
+    [Fact]
+    public void PDAcroFormDefaultAppearanceStringParsesFontAndColor()
+    {
+        using PDDocument doc = new();
+        PDAcroForm acroForm = new(doc);
+
+        COSDictionary fontEntry = new();
+        fontEntry.SetName(COSName.SUBTYPE, "Type1");
+        fontEntry.SetName(COSName.GetPDFName("BaseFont"), "Helvetica");
+
+        COSDictionary fontSubDictionary = new();
+        fontSubDictionary.SetItem(COSName.GetPDFName("F1"), fontEntry);
+
+        COSDictionary resourcesDictionary = new();
+        resourcesDictionary.SetItem(COSName.GetPDFName("Font"), fontSubDictionary);
+        acroForm.SetDefaultResources(new PDResources(resourcesDictionary));
+
+        PDTextField text = new(acroForm);
+        text.SetDefaultAppearance("/F1 11 Tf 0.1 0.2 0.3 rg");
+
+        PDDefaultAppearanceString parsed = text.GetDefaultAppearanceString();
+        Assert.Equal("F1", parsed.FontName!.GetName());
+        Assert.NotNull(parsed.Font);
+        Assert.Equal(11f, parsed.FontSize);
+        Assert.NotNull(parsed.FontColor);
+        Assert.Equal([0.1f, 0.2f, 0.3f], parsed.FontColor!.GetComponents());
     }
 }

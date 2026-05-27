@@ -4,7 +4,7 @@
 | metadata completeness | date metadata fields | ✅ supported | `TestPDDocumentInformation.CreationDateRoundtrip` and `ModificationDateRoundtrip` cover creation and modification dates. |
 | metadata completeness | trapped/custom metadata | ✅ supported | `TrappedValidValues`, `TrappedInvalidValueThrows`, and `CustomMetadataRoundtrip` validate the remaining v1 metadata baseline. |
 | outlines/forms | document outline tree operations | ✅ supported | `PDModelInteractiveTest` covers add/insert/sibling traversal and catalog roundtrip behaviors. |
-| outlines/forms | acroform field roundtrip | ✅ supported | `PDModelInteractiveTest.PDAcroFormFieldsRoundtrip` verifies text/check fields via catalog `GetAcroForm()`. |
+| outlines/forms | acroform field roundtrip | ✅ supported | `PDModelInteractiveTest.PDAcroFormFieldsRoundtrip`, `PDAcroFormFieldFactoryDispatchesBaselineTypes`, `PDAcroFormFieldTreeTraversesNestedFields`, `PDAcroFormChoiceAndTextPropertyRoundtrip`, and `PDAcroFormDefaultAppearanceStringParsesFontAndColor` cover field factory dispatch, field-tree traversal, baseline text/button/choice properties, and default-appearance parsing. |
 | text baseline | simple text extraction | ✅ supported | Deterministic fixture validates plain extraction across lines. |
 | text baseline | line breaks | ✅ supported | Separate text lines are emitted with line separators. |
 | text baseline | spacing-sensitive extraction | ✅ supported | Large positive text advance inserts a word separator. |

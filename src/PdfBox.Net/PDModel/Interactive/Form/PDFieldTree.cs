@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDCheckBox.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDFieldTree.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -25,49 +25,54 @@
  * limitations under the License.
  */
 
-
 using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public sealed class PDCheckBox : PDButton
+public sealed class PDFieldTree : IEnumerable<PDField>
 {
-    public PDCheckBox(PDAcroForm acroForm)
-        : base(acroForm)
+    private readonly PDAcroForm _acroForm;
+
+    public PDFieldTree(PDAcroForm acroForm)
     {
+        _acroForm = acroForm ?? throw new ArgumentNullException(nameof(acroForm));
     }
 
-    internal PDCheckBox(PDAcroForm acroForm, COSDictionary dictionary)
-        : base(acroForm, dictionary)
+    public IEnumerator<PDField> GetEnumerator()
     {
-    }
+        Queue<PDField> queue = new();
+        HashSet<COSDictionary> seen = [];
 
-    public bool IsChecked()
-    {
-        return string.Equals(GetValue(), GetOnValue(), StringComparison.Ordinal);
-    }
-
-    public void Check()
-    {
-        SetValue(GetOnValue());
-    }
-
-    public void UnCheck()
-    {
-        SetValue("Off");
-    }
-
-    public string GetOnValue()
-    {
-        ISet<string> onValues = GetOnValues();
-        foreach (string onValue in onValues)
+        foreach (PDField root in _acroForm.GetFields())
         {
-            if (!string.Equals(onValue, "Off", StringComparison.Ordinal))
-            {
-                return onValue;
-            }
+            Enqueue(root);
         }
 
-        return "Yes";
+        while (queue.Count > 0)
+        {
+            yield return queue.Dequeue();
+        }
+
+        void Enqueue(PDField field)
+        {
+            if (field.GetCOSObject() is not COSDictionary dict || !seen.Add(dict))
+            {
+                return;
+            }
+
+            queue.Enqueue(field);
+            if (field is PDNonTerminalField nonTerminal)
+            {
+                foreach (PDField child in nonTerminal.GetChildren())
+                {
+                    Enqueue(child);
+                }
+            }
+        }
+    }
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

@@ -30,7 +30,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public sealed class PDTextField : PDField
+public sealed class PDTextField : PDVariableText
 {
     public PDTextField(PDAcroForm acroForm)
         : base(acroForm)
@@ -43,15 +43,43 @@ public sealed class PDTextField : PDField
     {
     }
 
+    private const int FlagMultiline = 1 << 12;
+    private const int FlagPassword = 1 << 13;
+    private const int FlagFileSelect = 1 << 20;
+    private const int FlagDoNotSpellCheck = 1 << 22;
+    private const int FlagDoNotScroll = 1 << 23;
+    private const int FlagComb = 1 << 24;
+    private const int FlagRichText = 1 << 25;
+
     public string? GetValue()
     {
-        return dictionary.GetString(COSName.V);
+        return GetStringOrStream(GetInheritableAttribute(COSName.V));
     }
 
     public void SetValue(string? value)
     {
         dictionary.SetString(COSName.V, value);
     }
+
+    public bool IsMultiline() => dictionary.GetFlag(COSName.GetPDFName("FF"), FlagMultiline);
+    public void SetMultiline(bool multiline) => dictionary.SetFlag(COSName.GetPDFName("FF"), FlagMultiline, multiline);
+    public bool IsPassword() => dictionary.GetFlag(COSName.GetPDFName("FF"), FlagPassword);
+    public void SetPassword(bool password) => dictionary.SetFlag(COSName.GetPDFName("FF"), FlagPassword, password);
+    public bool IsFileSelect() => dictionary.GetFlag(COSName.GetPDFName("FF"), FlagFileSelect);
+    public void SetFileSelect(bool fileSelect) => dictionary.SetFlag(COSName.GetPDFName("FF"), FlagFileSelect, fileSelect);
+    public bool DoNotSpellCheck() => dictionary.GetFlag(COSName.GetPDFName("FF"), FlagDoNotSpellCheck);
+    public void SetDoNotSpellCheck(bool value) => dictionary.SetFlag(COSName.GetPDFName("FF"), FlagDoNotSpellCheck, value);
+    public bool DoNotScroll() => dictionary.GetFlag(COSName.GetPDFName("FF"), FlagDoNotScroll);
+    public void SetDoNotScroll(bool value) => dictionary.SetFlag(COSName.GetPDFName("FF"), FlagDoNotScroll, value);
+    public bool IsComb() => dictionary.GetFlag(COSName.GetPDFName("FF"), FlagComb);
+    public void SetComb(bool comb) => dictionary.SetFlag(COSName.GetPDFName("FF"), FlagComb, comb);
+    public bool IsRichText() => dictionary.GetFlag(COSName.GetPDFName("FF"), FlagRichText);
+    public void SetRichText(bool richText) => dictionary.SetFlag(COSName.GetPDFName("FF"), FlagRichText, richText);
+
+    public int GetMaxLen() => dictionary.GetInt(COSName.GetPDFName("MaxLen"), -1);
+    public void SetMaxLen(int maxLen) => dictionary.SetInt(COSName.GetPDFName("MaxLen"), maxLen);
+    public string GetDefaultValue() => GetStringOrStream(GetInheritableAttribute(COSName.GetPDFName("DV")));
+    public void SetDefaultValue(string? value) => dictionary.SetString(COSName.GetPDFName("DV"), value);
 
     public override string? GetValueAsString()
     {
