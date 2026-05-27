@@ -34,6 +34,7 @@ internal static class PDFieldFactory
     private const string FieldTypeText = "Tx";
     private const string FieldTypeButton = "Btn";
     private const string FieldTypeChoice = "Ch";
+    private const string FieldTypeSignature = "Sig";
 
     internal static PDField CreateField(PDAcroForm form, COSDictionary field, PDNonTerminalField? parent)
     {
@@ -53,6 +54,7 @@ internal static class PDFieldFactory
             FieldTypeChoice => CreateChoiceSubtype(form, field),
             FieldTypeText => new PDTextField(form, field),
             FieldTypeButton => CreateButtonSubtype(form, field),
+            FieldTypeSignature => new PDSignatureField(form, field),
             _ => new PDUnknownField(form, field)
         };
     }
