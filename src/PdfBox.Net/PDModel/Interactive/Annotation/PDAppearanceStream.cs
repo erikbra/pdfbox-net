@@ -26,17 +26,6 @@ public sealed class PDAppearanceStream : PDFormXObject
     {
     }
 
-    public void SetBBox(PDRectangle? rectangle)
-    {
-        if (rectangle == null)
-        {
-            GetCOSObject()?.RemoveItem(COSName.BBOX);
-            return;
-        }
-
-        GetCOSObject()?.SetItem(COSName.BBOX, rectangle.GetCOSArray());
-    }
-
     public void SetMatrix(float a, float b, float c, float d, float e, float f)
     {
         COSArray matrix = new();

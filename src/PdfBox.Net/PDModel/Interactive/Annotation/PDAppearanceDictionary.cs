@@ -42,12 +42,12 @@ public sealed class PDAppearanceDictionary : COSObjectable
         _dictionary.SetItem(COSName.N, entry.GetCOSObject());
     }
 
-    public PDAppearanceEntry? GetRolloverAppearance() => GetEntry(COSName.R);
+    public PDAppearanceEntry? GetRolloverAppearance() => GetEntry(COSName.GetPDFName("R"));
 
     public void SetRolloverAppearance(PDAppearanceEntry entry)
     {
         ArgumentNullException.ThrowIfNull(entry);
-        _dictionary.SetItem(COSName.R, entry.GetCOSObject());
+        _dictionary.SetItem(COSName.GetPDFName("R"), entry.GetCOSObject());
     }
 
     public PDAppearanceEntry? GetDownAppearance() => GetEntry(COSName.D);

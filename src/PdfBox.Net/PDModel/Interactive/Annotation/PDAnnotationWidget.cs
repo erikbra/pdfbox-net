@@ -67,21 +67,4 @@ public sealed class PDAnnotationWidget : PDAnnotation
         GetCOSDictionary().SetItem(COSName.AA, actions);
     }
 
-    public PDAppearanceDictionary? GetAppearance()
-    {
-        COSDictionary? appearance = GetCOSDictionary().GetCOSDictionary(COSName.GetPDFName("AP"));
-        return appearance != null ? new PDAppearanceDictionary(appearance) : null;
-    }
-
-    public void SetAppearance(PDAppearanceDictionary? appearance)
-    {
-        GetCOSDictionary().SetItem(COSName.GetPDFName("AP"), appearance);
-    }
-
-    public PDAppearanceStream? GetNormalAppearanceStream()
-    {
-        return GetAppearance()?.GetNormalAppearance()?.IsStream() == true
-            ? GetAppearance()!.GetNormalAppearance()!.GetAppearanceStream()
-            : null;
-    }
 }
