@@ -53,9 +53,11 @@ public class AcroFormGenerateAppearancesProcessor : AbstractProcessor
         }
         catch (IOException)
         {
+            // Keep fixup processing best-effort, matching PDFBox behavior for malformed fields.
         }
         catch (ArgumentException)
         {
+            // Keep fixup processing best-effort, matching PDFBox behavior for malformed fields.
         }
     }
 }
