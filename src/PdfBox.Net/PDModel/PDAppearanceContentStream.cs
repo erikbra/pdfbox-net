@@ -61,10 +61,12 @@ public sealed class PDAppearanceContentStream : IDisposable
         _output = output ?? throw new ArgumentNullException(nameof(output));
         _ownsStream = ownsStream;
         _writer = new ContentStreamWriter(_output);
+        SaveGraphicsState();
     }
 
     public void Dispose()
     {
+        RestoreGraphicsState();
         _output.Flush();
         if (_ownsStream)
         {
@@ -189,7 +191,11 @@ public sealed class PDAppearanceContentStream : IDisposable
         if (borderStyle != null &&
             string.Equals(borderStyle.GetStyle(), PDBorderStyleDictionary.STYLE_DASHED, StringComparison.Ordinal))
         {
-            SetLineDashPattern(borderStyle.GetDashStyle(), 0);
+            COSArray? dashArray = borderStyle.GetDashStyle();
+            if (dashArray != null)
+            {
+                SetLineDashPattern(dashArray.ToFloatArray(), 0);
+            }
         }
         else if (border.Size() > 3 && border.GetObject(3) is COSArray dashArray)
         {

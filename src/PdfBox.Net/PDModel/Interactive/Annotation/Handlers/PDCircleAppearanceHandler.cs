@@ -4,8 +4,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDCircleAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDCircleAppearanceHandler(PDAnnotationCircle annotation)
-        : base(annotation)
+    public PDCircleAppearanceHandler(PDAnnotationCircle annotation, PDDocument? document = null)
+        : base(annotation, document)
     {
     }
 

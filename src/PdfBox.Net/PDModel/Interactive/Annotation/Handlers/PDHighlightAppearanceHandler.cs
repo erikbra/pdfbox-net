@@ -2,8 +2,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDHighlightAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDHighlightAppearanceHandler(PDAnnotationHighlight annotation)
-        : base(annotation)
+    public PDHighlightAppearanceHandler(PDAnnotationHighlight annotation, PDDocument? document = null)
+        : base(annotation, document)
     {
     }
 
@@ -13,6 +13,7 @@ public sealed class PDHighlightAppearanceHandler : PDAbstractAppearanceHandler
         float[]? quadPoints = annotation.GetQuadPoints();
         if (quadPoints == null || quadPoints.Length < 8 || Color == null || Color.GetComponents().Length == 0)
         {
+            WriteDefaultNormalAppearance("PDHighlightAppearance");
             return;
         }
 

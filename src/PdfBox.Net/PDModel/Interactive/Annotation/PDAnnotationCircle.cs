@@ -27,11 +27,14 @@
 
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationCircle : PDAnnotationMarkup
+public sealed class PDAnnotationCircle : PDAnnotationSquareCircle
 {
+    private PDAppearanceHandler? customAppearanceHandler;
+
     public const string SUB_TYPE = "Circle";
 
     public PDAnnotationCircle()
@@ -42,5 +45,25 @@ public sealed class PDAnnotationCircle : PDAnnotationMarkup
     public PDAnnotationCircle(COSDictionary dict)
         : base(dict)
     {
+    }
+
+    public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
+    {
+        customAppearanceHandler = appearanceHandler;
+    }
+
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
+    }
+
+    public override void ConstructAppearances(PDDocument? document)
+    {
+        if (customAppearanceHandler == null)
+        {
+            customAppearanceHandler = new PDCircleAppearanceHandler(this, document);
+        }
+
+        customAppearanceHandler.GenerateAppearanceStreams();
     }
 }

@@ -10,6 +10,9 @@ public sealed class PDBorderStyleDictionary : COSObjectable
 
     public const string STYLE_SOLID = "S";
     public const string STYLE_DASHED = "D";
+    public const string STYLE_BEVELED = "B";
+    public const string STYLE_INSET = "I";
+    public const string STYLE_UNDERLINE = "U";
 
     private readonly COSDictionary _dictionary;
 
@@ -33,9 +36,9 @@ public sealed class PDBorderStyleDictionary : COSObjectable
 
     public void SetStyle(string style) => _dictionary.SetName(StyleName, style);
 
-    public float[] GetDashStyle()
+    public COSArray GetDashStyle()
     {
-        return _dictionary.GetCOSArray(DashName)?.ToFloatArray() ?? [3f];
+        return _dictionary.GetCOSArray(DashName) ?? new COSArray { new COSFloat(3f) };
     }
 
     public void SetDashStyle(float[] dashArray)
@@ -47,5 +50,10 @@ public sealed class PDBorderStyleDictionary : COSObjectable
         }
 
         _dictionary.SetItem(DashName, array);
+    }
+
+    public void SetDashStyle(COSArray? dashStyle)
+    {
+        _dictionary.SetItem(DashName, dashStyle);
     }
 }

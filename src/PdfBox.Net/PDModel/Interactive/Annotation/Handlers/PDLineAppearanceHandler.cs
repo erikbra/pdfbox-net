@@ -2,8 +2,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDLineAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDLineAppearanceHandler(PDAnnotationLine annotation)
-        : base(annotation)
+    public PDLineAppearanceHandler(PDAnnotationLine annotation, PDDocument? document = null)
+        : base(annotation, document)
     {
     }
 
@@ -13,6 +13,7 @@ public sealed class PDLineAppearanceHandler : PDAbstractAppearanceHandler
         float[]? line = annotation.GetLine();
         if (line == null || line.Length < 4 || Color == null)
         {
+            WriteDefaultNormalAppearance("PDLineAppearance");
             return;
         }
 

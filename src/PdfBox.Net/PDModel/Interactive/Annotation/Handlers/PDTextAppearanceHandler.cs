@@ -4,8 +4,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDTextAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDTextAppearanceHandler(PDAnnotationText annotation)
-        : base(annotation)
+    public PDTextAppearanceHandler(PDAnnotationText annotation, PDDocument? document = null)
+        : base(annotation, document)
     {
     }
 

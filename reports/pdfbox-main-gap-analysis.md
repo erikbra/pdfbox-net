@@ -1,6 +1,6 @@
 # PDFBox Main Module Gap Analysis
 
-Date: 2026-05-26
+Datetime (UTC): 2026-05-28T05:05:27.346+00:00
 Reference upstream Java repository: Apache PDFBox trunk
 Tracked parity baseline commit: `ccd281cfecedcc0ad39709bece5e67b19a54e8db`
 Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
@@ -31,16 +31,16 @@ Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
 | `org.apache.pdfbox.pdmodel.common` | 37 | 37 | 0 | 100.0% |
 | `org.apache.pdfbox.pdmodel.documentinterchange` | 24 | 23 | 1 | 95.8% |
 | `org.apache.pdfbox.pdmodel.encryption` | 19 | 11 | 8 | 57.9% |
-| `org.apache.pdfbox.pdmodel.fdf` | 30 | 0 | 30 | 0.0% |
+| `org.apache.pdfbox.pdmodel.fdf` | 30 | 30 | 0 | 100.0% |
 | `org.apache.pdfbox.pdmodel.fixup` | 8 | 0 | 8 | 0.0% |
 | `org.apache.pdfbox.pdmodel.font` | 51 | 24 | 27 | 47.1% |
 | `org.apache.pdfbox.pdmodel.graphics` | 90 | 39 | 51 | 43.3% |
-| `org.apache.pdfbox.pdmodel.interactive` | 144 | 43 | 101 | 29.9% |
+| `org.apache.pdfbox.pdmodel.interactive` | 144 | 144 | 0 | 100.0% |
 | `org.apache.pdfbox.printing` | 4 | 4 | 0 | 100.0% |
 | `org.apache.pdfbox.rendering` | 10 | 10 | 0 | 100.0% |
 | `org.apache.pdfbox.text` | 6 | 6 | 0 | 100.0% |
 | `org.apache.pdfbox.util` (+ `filetypedetector`) | 12 | 12 | 0 | 100.0% |
-| **TOTAL** | **618** | **337** | **281** | **54.5%** |
+| **TOTAL** | **618** | **468** | **150** | **75.7%** |
 
 ### What changed versus the previous report
 
@@ -52,7 +52,7 @@ Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
   - `util.filetypedetector`
   - the deeper `pdmodel.interactive` and `pdmodel.graphics` subpackages
 - As a result, the previous `~89%` figure was materially overstated for current upstream scope.
-  The direct main-module coverage is currently **337 / 618 = 54.5%**.
+  The direct main-module coverage is currently **468 / 618 = 75.7%**.
 
 ---
 
@@ -69,6 +69,7 @@ Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
 - `org.apache.pdfbox.pdfparser.xref` — **6 / 6**
 - `org.apache.pdfbox.pdfwriter` (root package only) — **3 / 3**
 - `org.apache.pdfbox.pdmodel.common` — **37 / 37**
+- `org.apache.pdfbox.pdmodel.fdf` — **30 / 30**
 - `org.apache.pdfbox.pdmodel.common.filespecification` — **4 / 4**
 - `org.apache.pdfbox.pdmodel.common.function` — **6 / 6**
 - `org.apache.pdfbox.pdmodel.common.function.type4` — **11 / 11**
@@ -89,23 +90,10 @@ Latest upstream head scanned: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
 
 ## Largest remaining gaps
 
-### `org.apache.pdfbox.pdmodel.interactive` — 43 / 144 mapped (101 missing)
+### `org.apache.pdfbox.pdmodel.interactive` — 144 / 144 mapped (0 missing)
 
-This is now the single largest unported family in the main module.
-
-Major zero-coverage subareas:
-- `interactive.annotation.handlers` — **0 / 20**
-- `interactive.digitalsignature` — **0 / 12**
-- `interactive.digitalsignature.visible` — **0 / 6**
-- `interactive.measurement` — **0 / 4**
-- `interactive.pagenavigation` — **0 / 7**
-- `interactive.viewerpreferences` — **0 / 1**
-- `interactive` root package — **0 / 4**
-
-Still-thin subareas:
-- `interactive.action` — **9 / 25**
-- `interactive.annotation` — **18 / 32**
-- `interactive.form` — **4 / 21**
+Interactive milestone closed for the current parity target; action, annotation, form,
+appearance-handler, signature, measurement, navigation, and viewer-preferences paths are all mapped.
 
 ### `org.apache.pdfbox.pdmodel.graphics` — 39 / 90 mapped (51 missing)
 
@@ -128,9 +116,10 @@ Breakdown:
 
 Still-missing examples include `CIDFontMapping`, `CMapManager`, `FontCache`, `FontMapperImpl`, `FontProvider`, `PDCIDFontType0`, `PDType3Font`, `ToUnicodeWriter`, and multiple encoding classes.
 
-### `org.apache.pdfbox.pdmodel.fdf` — 0 / 30 mapped
+### `org.apache.pdfbox.pdmodel.fdf` — 30 / 30 mapped
 
-No direct FDF package coverage is currently present.
+FDF milestone closed for the current parity target with regression coverage across document core,
+field/page/template model, annotation mirror types, and loader smoke paths.
 
 ### `org.apache.pdfbox.pdmodel.fixup` — 0 / 8 mapped
 
@@ -194,16 +183,16 @@ Mapped:
 
 ### Root/main-package coverage
 
-- `org.apache.pdfbox.Loader` now has first-pass PDF entry-point coverage (`partial` parity; FDF/XFDF and public-key overloads remain deferred).
+- `org.apache.pdfbox.Loader` now has first-pass PDF and FDF entry-point coverage (`partial` parity; XFDF and public-key overloads remain deferred).
 
 ---
 
 ## Traceability quality inside the mapped set
 
-Among the **238** current traceability rows that already point into the pdfbox main module:
+Among the **391** current traceability rows that already point into the pdfbox main module:
 
-- `in-sync`: **206**
-- `partially-in-sync`: **25**
+- `in-sync`: **364**
+- `partially-in-sync`: **20**
 - `partial`: **7**
 - blank / unclassified: **0**
 
@@ -219,11 +208,10 @@ so the touched operator families no longer carry blank-status traceability rows.
 - `PDDocument`, `PDDocumentCatalog`, `PDDocumentInformation`, `PDPage`, `PDPageTree`
 - `PDRectangle`
 - `StandardSecurityHandler`
-- `PDAcroForm`, `PDField`, `PDUnknownField`, `PDCheckBox`, `PDTextField`
 - `PDShading` and the current `PDShadingType*` hierarchy
 - Several image/filter implementations (`CCITTFaxFilter`, `CryptFilter`, `DCTFilter`, `JBIG2Filter`, `JPXFilter`)
 
-So even within the 327 mapped upstream files, a meaningful subset is still only partial parity rather than complete parity.
+So even within the 438 mapped upstream files, a meaningful subset is still only partial parity rather than complete parity.
 
 ---
 
@@ -243,20 +231,17 @@ records. This cleanup covered:
 1. Close traceability hygiene for already-mapped operator files (cheap accuracy win).
 2. Finish the remaining `pdmodel.font` milestone work.
 3. Continue `pdmodel.graphics`, especially shading helpers, image types, and remaining color abstractions.
-4. Tackle `pdmodel.interactive` in dependency-ordered slices, starting with forms/action coverage before appearance handlers and signatures.
-5. Add first-pass coverage for untouched families: `multipdf`, `pdmodel.fdf`, and `pdmodel.fixup`.
+4. Add first-pass coverage for untouched families: `multipdf` and `pdmodel.fixup`.
 
 ## Bottom line
 
 The pdfbox main module is **much broader than the older estimate-based report reflected**. The port is strong in
 `cos`, `pdmodel.common`, `contentstream.operator`, `rendering`, `text`, `printing`, and utility layers (including
-`filetypedetector`), but the full upstream main-module inventory is still only **54.5% directly mapped today
-(337 / 618 files)**.
+`filetypedetector`), and the refreshed inventory is now **75.7% directly mapped
+(468 / 618 files)**.
 
 The biggest remaining source-volume is concentrated in:
-- `pdmodel.interactive`
 - `pdmodel.graphics`
 - `pdmodel.font`
-- `pdmodel.fdf`
 - `pdmodel.fixup`
 - `multipdf`

@@ -2,8 +2,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDSquigglyAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDSquigglyAppearanceHandler(PDAnnotationSquiggly annotation)
-        : base(annotation)
+    public PDSquigglyAppearanceHandler(PDAnnotationSquiggly annotation, PDDocument? document = null)
+        : base(annotation, document)
     {
     }
 
@@ -12,6 +12,7 @@ public sealed class PDSquigglyAppearanceHandler : PDAbstractAppearanceHandler
         float[]? quadPoints = ((PDAnnotationSquiggly)Annotation).GetQuadPoints();
         if (quadPoints == null || quadPoints.Length < 8 || Color == null)
         {
+            WriteDefaultNormalAppearance("PDSquigglyAppearance");
             return;
         }
 

@@ -35,6 +35,18 @@ public sealed class PDAppearanceCharacteristicsDictionary : COSObjectable
 
     public void SetRotation(int rotation) => _dictionary.SetInt(RotationName, rotation);
 
+    public string? GetNormalCaption() => _dictionary.GetString(COSName.GetPDFName("CA"));
+
+    public void SetNormalCaption(string? caption) => _dictionary.SetString(COSName.GetPDFName("CA"), caption);
+
+    public string? GetRolloverCaption() => _dictionary.GetString(COSName.GetPDFName("RC"));
+
+    public void SetRolloverCaption(string? caption) => _dictionary.SetString(COSName.GetPDFName("RC"), caption);
+
+    public string? GetAlternateCaption() => _dictionary.GetString(COSName.GetPDFName("AC"));
+
+    public void SetAlternateCaption(string? caption) => _dictionary.SetString(COSName.GetPDFName("AC"), caption);
+
     private PDColor? GetColor(COSName key)
     {
         if (_dictionary.GetCOSArray(key) is not COSArray array)

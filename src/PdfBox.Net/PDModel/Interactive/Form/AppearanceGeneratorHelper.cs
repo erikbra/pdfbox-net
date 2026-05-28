@@ -14,6 +14,7 @@ using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Util;
+using System.Text;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
@@ -22,12 +23,23 @@ internal sealed class AppearanceGeneratorHelper
     private const float DefaultPadding = 1f;
 
     private readonly PDVariableText _field;
-    private readonly PDDefaultAppearanceString _defaultAppearance;
+    private readonly PDDefaultAppearanceString? _defaultAppearance;
 
     internal AppearanceGeneratorHelper(PDVariableText field)
     {
         _field = field ?? throw new ArgumentNullException(nameof(field));
-        _defaultAppearance = field.GetDefaultAppearanceString();
+        try
+        {
+            _defaultAppearance = field.GetDefaultAppearanceString();
+        }
+        catch (ArgumentException)
+        {
+            _defaultAppearance = null;
+        }
+        catch (IOException)
+        {
+            _defaultAppearance = null;
+        }
     }
 
     internal void SetAppearanceValue(string value)
@@ -46,6 +58,12 @@ internal sealed class AppearanceGeneratorHelper
 
             PDAppearanceStream stream = widget.GetNormalAppearanceStream() ?? PrepareNormalAppearanceStream(widget);
             appearance.SetNormalAppearance(stream);
+            if (_defaultAppearance?.Font == null)
+            {
+                WriteFallbackValue(stream, appearanceValue);
+                continue;
+            }
+
             InitializeWidgetAppearance(widget, stream);
             WriteValue(widget, stream, appearanceValue);
         }
@@ -110,6 +128,7 @@ internal sealed class AppearanceGeneratorHelper
 
     private void WriteValue(PDAnnotationWidget widget, PDAppearanceStream stream, string value)
     {
+        PDDefaultAppearanceString defaultAppearance = _defaultAppearance!;
         using MemoryStream buffer = new();
         using (PDAppearanceContentStream contents = new(stream, buffer))
         {
@@ -117,12 +136,12 @@ internal sealed class AppearanceGeneratorHelper
             PDRectangle clipRect = ApplyPadding(bbox, DefaultPadding);
             PDRectangle contentRect = ApplyPadding(clipRect, DefaultPadding);
 
-            _defaultAppearance.CopyNeededResourcesTo(stream);
+            defaultAppearance.CopyNeededResourcesTo(stream);
 
-            PDFont font = _defaultAppearance.Font
+            PDFont font = defaultAppearance.Font
                 ?? throw new IOException("Widget appearance generation requires a resolved font.");
 
-            float fontSize = _defaultAppearance.FontSize == 0 ? 12f : _defaultAppearance.FontSize;
+            float fontSize = defaultAppearance.FontSize == 0 ? 12f : defaultAppearance.FontSize;
             float boundingHeight = font.GetBoundingBox().GetHeight();
             float leading = boundingHeight > 0
                 ? boundingHeight * fontSize / 1000f
@@ -132,7 +151,7 @@ internal sealed class AppearanceGeneratorHelper
             contents.AddRect(clipRect.GetLowerLeftX(), clipRect.GetLowerLeftY(), clipRect.GetWidth(), clipRect.GetHeight());
             contents.Clip();
             contents.BeginText();
-            _defaultAppearance.WriteTo(contents, fontSize);
+            defaultAppearance.WriteTo(contents, fontSize);
 
             float baseline = contentRect.GetUpperRightY() - fontSize;
             AppearanceStyle style = new();
@@ -154,6 +173,27 @@ internal sealed class AppearanceGeneratorHelper
         }
 
         WriteToStream(buffer.ToArray(), stream);
+    }
+
+    private static void WriteFallbackValue(PDAppearanceStream stream, string value)
+    {
+        using Stream output = stream.GetCOSObject()!.CreateOutputStream();
+        using StreamWriter writer = new(output, Encoding.ASCII, leaveOpen: true);
+        writer.WriteLine("q");
+        writer.WriteLine("BT");
+        writer.Write('(');
+        writer.Write(EscapeLiteral(value));
+        writer.WriteLine(") Tj");
+        writer.WriteLine("ET");
+        writer.WriteLine("Q");
+        writer.Flush();
+    }
+
+    private static string EscapeLiteral(string value)
+    {
+        return value.Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("(", "\\(", StringComparison.Ordinal)
+            .Replace(")", "\\)", StringComparison.Ordinal);
     }
 
     private static void WriteToStream(byte[] data, PDAppearanceStream stream)

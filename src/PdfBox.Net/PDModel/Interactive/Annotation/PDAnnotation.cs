@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
@@ -82,14 +83,20 @@ public abstract class PDAnnotation : COSObjectable
             {
                 PDAnnotationLink.SUB_TYPE => new PDAnnotationLink(annotDic),
                 PDAnnotationText.SUB_TYPE => new PDAnnotationText(annotDic),
+                PDAnnotationPopup.SUB_TYPE => new PDAnnotationPopup(annotDic),
                 PDAnnotationHighlight.SUB_TYPE => new PDAnnotationHighlight(annotDic),
                 PDAnnotationUnderline.SUB_TYPE => new PDAnnotationUnderline(annotDic),
                 PDAnnotationStrikeOut.SUB_TYPE => new PDAnnotationStrikeOut(annotDic),
                 PDAnnotationSquiggly.SUB_TYPE => new PDAnnotationSquiggly(annotDic),
                 PDAnnotationSquare.SUB_TYPE => new PDAnnotationSquare(annotDic),
                 PDAnnotationCircle.SUB_TYPE => new PDAnnotationCircle(annotDic),
+                PDAnnotationCaret.SUB_TYPE => new PDAnnotationCaret(annotDic),
                 PDAnnotationFreeText.SUB_TYPE => new PDAnnotationFreeText(annotDic),
                 PDAnnotationLine.SUB_TYPE => new PDAnnotationLine(annotDic),
+                PDAnnotationInk.SUB_TYPE => new PDAnnotationInk(annotDic),
+                PDAnnotationPolygon.SUB_TYPE => new PDAnnotationPolygon(annotDic),
+                PDAnnotationPolyline.SUB_TYPE => new PDAnnotationPolyline(annotDic),
+                PDAnnotationSound.SUB_TYPE => new PDAnnotationSound(annotDic),
                 PDAnnotationFileAttachment.SUB_TYPE => new PDAnnotationFileAttachment(annotDic),
                 PDAnnotationStamp.SUB_TYPE => new PDAnnotationStamp(annotDic),
                 PDAnnotationWidget.SUB_TYPE => new PDAnnotationWidget(annotDic),
@@ -453,16 +460,42 @@ public abstract class PDAnnotation : COSObjectable
         GetCOSDictionary().SetName(COSName.AS, state);
     }
 
+    public void SetAppearanceState(COSName? state)
+    {
+        GetCOSDictionary().SetItem(COSName.AS, state);
+    }
+
     public PDAppearanceStream? GetNormalAppearanceStream()
     {
-        return GetAppearance()?.GetNormalAppearance()?.IsStream() == true
-            ? GetAppearance()!.GetNormalAppearance()!.GetAppearanceStream()
-            : null;
+        PDAppearanceEntry? normalAppearance = GetAppearance()?.GetNormalAppearance();
+        if (normalAppearance == null)
+        {
+            return null;
+        }
+
+        if (normalAppearance.IsSubDictionary())
+        {
+            COSName? state = GetCOSDictionary().GetCOSName(COSName.AS);
+            if (state == null)
+            {
+                return null;
+            }
+
+            IDictionary<COSName, PDAppearanceStream> subDictionary = normalAppearance.GetSubDictionary();
+            return subDictionary.TryGetValue(state, out PDAppearanceStream? stream) ? stream : null;
+        }
+
+        return normalAppearance.IsStream() ? normalAppearance.GetAppearanceStream() : null;
     }
 
     public virtual void ConstructAppearances()
     {
-        PDAppearanceHandler? handler = PDAppearanceHandlerFactory.Create(this);
+        ConstructAppearances(null);
+    }
+
+    public virtual void ConstructAppearances(PDDocument? document)
+    {
+        PDAppearanceHandler? handler = PDAppearanceHandlerFactory.Create(this, document);
         handler?.GenerateAppearanceStreams();
     }
 }

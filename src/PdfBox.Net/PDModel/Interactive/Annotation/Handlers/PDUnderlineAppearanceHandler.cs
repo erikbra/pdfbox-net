@@ -2,8 +2,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDUnderlineAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDUnderlineAppearanceHandler(PDAnnotationUnderline annotation)
-        : base(annotation)
+    public PDUnderlineAppearanceHandler(PDAnnotationUnderline annotation, PDDocument? document = null)
+        : base(annotation, document)
     {
     }
 
@@ -17,6 +17,7 @@ public sealed class PDUnderlineAppearanceHandler : PDAbstractAppearanceHandler
         float[]? quadPoints = annotation.GetQuadPoints();
         if (quadPoints == null || quadPoints.Length < 8 || Color == null)
         {
+            WriteDefaultNormalAppearance("PDUnderlineAppearance");
             return;
         }
 

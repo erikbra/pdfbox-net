@@ -9,10 +9,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 public abstract class PDAbstractAppearanceHandler : PDAppearanceHandler
 {
     private readonly PDAnnotation _annotation;
+    private readonly PDDocument? _document;
 
-    protected PDAbstractAppearanceHandler(PDAnnotation annotation)
+    protected PDAbstractAppearanceHandler(PDAnnotation annotation, PDDocument? document = null)
     {
         _annotation = annotation ?? throw new ArgumentNullException(nameof(annotation));
+        _document = document;
     }
 
     protected PDAnnotation Annotation => _annotation;
@@ -27,7 +29,8 @@ public abstract class PDAbstractAppearanceHandler : PDAppearanceHandler
         PDAppearanceDictionary appearance = _annotation.GetAppearance() ?? new PDAppearanceDictionary();
         _annotation.SetAppearance(appearance);
 
-        PDAppearanceStream stream = _annotation.GetNormalAppearanceStream() ?? new PDAppearanceStream(new COSStream());
+        PDAppearanceStream stream = _annotation.GetNormalAppearanceStream()
+            ?? (_document != null ? new PDAppearanceStream(_document) : new PDAppearanceStream(new COSStream()));
         stream.SetBBox(Rectangle);
         stream.SetMatrix(Matrix.GetTranslateInstance(-Rectangle.GetLowerLeftX(), -Rectangle.GetLowerLeftY()));
         if (stream.GetResources() == null)
@@ -42,6 +45,15 @@ public abstract class PDAbstractAppearanceHandler : PDAppearanceHandler
     protected PDAppearanceContentStream OpenNormalAppearanceContentStream()
     {
         return new PDAppearanceContentStream(GetOrCreateNormalAppearanceStream());
+    }
+
+    protected void WriteDefaultNormalAppearance(string marker)
+    {
+        _ = marker;
+
+        using PDAppearanceContentStream contents = OpenNormalAppearanceContentStream();
+        contents.SaveGraphicsState();
+        contents.RestoreGraphicsState();
     }
 
     protected void SetOpacity(PDAppearanceContentStream contents, float opacity)

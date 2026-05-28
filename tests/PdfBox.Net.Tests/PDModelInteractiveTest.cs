@@ -27,6 +27,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
 using PdfBox.Net.PDModel.Interactive.Form;
@@ -575,8 +576,14 @@ public class PDModelInteractiveTest
         Assert.IsType<PDAnnotationSquiggly>(PDAnnotation.CreateAnnotation(new PDAnnotationSquiggly().GetCOSObject()));
         Assert.IsType<PDAnnotationSquare>(PDAnnotation.CreateAnnotation(new PDAnnotationSquare().GetCOSObject()));
         Assert.IsType<PDAnnotationCircle>(PDAnnotation.CreateAnnotation(new PDAnnotationCircle().GetCOSObject()));
+        Assert.IsType<PDAnnotationCaret>(PDAnnotation.CreateAnnotation(new PDAnnotationCaret().GetCOSObject()));
         Assert.IsType<PDAnnotationFreeText>(PDAnnotation.CreateAnnotation(new PDAnnotationFreeText().GetCOSObject()));
         Assert.IsType<PDAnnotationLine>(PDAnnotation.CreateAnnotation(new PDAnnotationLine().GetCOSObject()));
+        Assert.IsType<PDAnnotationInk>(PDAnnotation.CreateAnnotation(new PDAnnotationInk().GetCOSObject()));
+        Assert.IsType<PDAnnotationPolygon>(PDAnnotation.CreateAnnotation(new PDAnnotationPolygon().GetCOSObject()));
+        Assert.IsType<PDAnnotationPolyline>(PDAnnotation.CreateAnnotation(new PDAnnotationPolyline().GetCOSObject()));
+        Assert.IsType<PDAnnotationPopup>(PDAnnotation.CreateAnnotation(new PDAnnotationPopup().GetCOSObject()));
+        Assert.IsType<PDAnnotationSound>(PDAnnotation.CreateAnnotation(new PDAnnotationSound().GetCOSObject()));
         Assert.IsType<PDAnnotationFileAttachment>(PDAnnotation.CreateAnnotation(new PDAnnotationFileAttachment().GetCOSObject()));
         Assert.IsType<PDAnnotationStamp>(PDAnnotation.CreateAnnotation(new PDAnnotationStamp().GetCOSObject()));
         Assert.IsType<PDAnnotationWidget>(PDAnnotation.CreateAnnotation(new PDAnnotationWidget().GetCOSObject()));
@@ -615,11 +622,125 @@ public class PDModelInteractiveTest
     }
 
     [Fact]
+    public void PDAnnotationAppearanceGenerationCreatesNormalStreams()
+    {
+        PDAnnotation[] annotations =
+        [
+            new PDAnnotationLink(),
+            new PDAnnotationText(),
+            new PDAnnotationLine(),
+            new PDAnnotationSquare(),
+            new PDAnnotationCircle(),
+            new PDAnnotationFreeText(),
+            new PDAnnotationFileAttachment(),
+            new PDAnnotationHighlight(),
+            new PDAnnotationUnderline(),
+            new PDAnnotationStrikeOut(),
+            new PDAnnotationSquiggly()
+        ];
+
+        foreach (PDAnnotation annotation in annotations)
+        {
+            annotation.SetRectangle(new PDRectangle(10, 20, 50, 15));
+            annotation.ConstructAppearances();
+
+            PDAppearanceStream? appearanceStream = annotation.GetNormalAppearanceStream();
+            Assert.NotNull(appearanceStream);
+            Assert.NotNull(appearanceStream!.GetBBox());
+            Assert.True(appearanceStream.GetBBox()!.GetWidth() > 0);
+            Assert.True(appearanceStream.GetBBox()!.GetHeight() > 0);
+            string generatedContent = System.Text.Encoding.ASCII.GetString(appearanceStream.GetContentStream().ToByteArray());
+            Assert.Contains("q", generatedContent, StringComparison.Ordinal);
+            Assert.Contains("Q", generatedContent, StringComparison.Ordinal);
+        }
+    }
+
+    [Fact]
+    public void PDAnnotationCustomAppearanceHandlerIsUsed()
+    {
+        PDAnnotationSquare annotation = new();
+        annotation.SetRectangle(new PDRectangle(0, 0, 10, 10));
+
+        RecordingAppearanceHandler handler = new();
+        annotation.SetCustomAppearanceHandler(handler);
+        annotation.ConstructAppearances();
+
+        Assert.True(handler.Generated);
+        Assert.Equal(1, handler.GenerateAppearanceStreamsCalls);
+        Assert.Equal(0, handler.GenerateNormalAppearanceCalls);
+    }
+
+    [Fact]
     public void PDAnnotationContentsRoundtrip()
     {
         PDAnnotationLink link = new();
         link.SetContents("My comment");
         Assert.Equal("My comment", link.GetContents());
+    }
+
+    [Fact]
+    public void PDAnnotationPopupOpenAndParentRoundtrip()
+    {
+        PDAnnotationText parent = new();
+        PDAnnotationPopup popup = new();
+        popup.SetParent(parent);
+        popup.SetOpen(true);
+
+        Assert.True(popup.GetOpen());
+        Assert.NotNull(popup.GetParent());
+        Assert.Equal(PDAnnotationText.SUB_TYPE, popup.GetParent()!.GetSubtype());
+    }
+
+    [Fact]
+    public void PDAnnotationPolygonAndPolylineVerticesRoundtrip()
+    {
+        PDAnnotationPolygon polygon = new();
+        polygon.SetVertices([1, 2, 3, 4, 5, 6]);
+        float[]? polygonVertices = polygon.GetVertices();
+        Assert.NotNull(polygonVertices);
+        Assert.Equal([1f, 2f, 3f, 4f, 5f, 6f], polygonVertices);
+
+        PDAnnotationPolyline polyline = new();
+        polyline.SetVertices([6, 5, 4, 3]);
+        float[]? polylineVertices = polyline.GetVertices();
+        Assert.NotNull(polylineVertices);
+        Assert.Equal([6f, 5f, 4f, 3f], polylineVertices);
+    }
+
+    [Fact]
+    public void AnnotationDictionariesRoundTrip()
+    {
+        PDBorderStyleDictionary borderStyle = new();
+        borderStyle.SetStyle(PDBorderStyleDictionary.STYLE_DASHED);
+        borderStyle.SetWidth(2.25f);
+        borderStyle.SetDashStyle(new COSArray { new COSFloat(3), new COSFloat(1) });
+
+        PDBorderEffectDictionary borderEffect = new();
+        borderEffect.SetStyle(PDBorderEffectDictionary.STYLE_CLOUDY);
+        borderEffect.SetIntensity(1.5f);
+
+        PDAnnotationSquare square = new();
+        square.SetBorderStyle(borderStyle);
+        square.SetBorderEffect(borderEffect);
+
+        Assert.Equal(PDBorderStyleDictionary.STYLE_DASHED, square.GetBorderStyle()!.GetStyle());
+        Assert.Equal(2.25f, square.GetBorderStyle()!.GetWidth());
+        Assert.Equal(PDBorderEffectDictionary.STYLE_CLOUDY, square.GetBorderEffect()!.GetStyle());
+        Assert.Equal(1.5f, square.GetBorderEffect()!.GetIntensity());
+
+        PDAppearanceCharacteristicsDictionary appearanceCharacteristics = new();
+        appearanceCharacteristics.SetRotation(90);
+        appearanceCharacteristics.SetNormalCaption("OK");
+        appearanceCharacteristics.SetRolloverCaption("Over");
+        appearanceCharacteristics.SetAlternateCaption("Down");
+        Assert.Equal(90, appearanceCharacteristics.GetRotation());
+        Assert.Equal("OK", appearanceCharacteristics.GetNormalCaption());
+        Assert.Equal("Over", appearanceCharacteristics.GetRolloverCaption());
+        Assert.Equal("Down", appearanceCharacteristics.GetAlternateCaption());
+
+        PDExternalDataDictionary externalData = new();
+        externalData.SetSubtype("Markup3D");
+        Assert.Equal("Markup3D", externalData.GetSubtype());
     }
 
     [Fact]
@@ -840,5 +961,56 @@ public class PDModelInteractiveTest
         Assert.Equal(11f, parsed.FontSize);
         Assert.NotNull(parsed.FontColor);
         Assert.Equal([0.1f, 0.2f, 0.3f], parsed.FontColor!.GetComponents());
+    }
+
+    [Fact]
+    public void PDTextFieldSetValueGeneratesWidgetAppearance()
+    {
+        using PDDocument doc = new();
+        PDAcroForm acroForm = new(doc);
+        PDTextField textField = new(acroForm);
+
+        COSDictionary widgetDictionary = new();
+        widgetDictionary.SetName(COSName.SUBTYPE, PDAnnotationWidget.SUB_TYPE);
+        widgetDictionary.SetItem(COSName.RECT, new PDRectangle(5, 5, 100, 20).GetCOSArray());
+
+        COSArray kids = new();
+        kids.Add(widgetDictionary);
+        ((COSDictionary)textField.GetCOSObject()).SetItem(COSName.KIDS, kids);
+
+        textField.SetValue("Widget value");
+
+        PDAnnotationWidget widget = new(widgetDictionary);
+        PDAppearanceStream? stream = widget.GetNormalAppearanceStream();
+        Assert.NotNull(stream);
+        byte[] data = stream!.GetContentStream().ToByteArray();
+        Assert.Contains("Widget value", System.Text.Encoding.ASCII.GetString(data), StringComparison.Ordinal);
+    }
+
+    private sealed class RecordingAppearanceHandler : PDAppearanceHandler
+    {
+        public bool Generated { get; private set; }
+        public int GenerateAppearanceStreamsCalls { get; private set; }
+        public int GenerateNormalAppearanceCalls { get; private set; }
+
+        public void GenerateAppearanceStreams()
+        {
+            Generated = true;
+            GenerateAppearanceStreamsCalls++;
+        }
+
+        public void GenerateNormalAppearance()
+        {
+            Generated = true;
+            GenerateNormalAppearanceCalls++;
+        }
+
+        public void GenerateRolloverAppearance()
+        {
+        }
+
+        public void GenerateDownAppearance()
+        {
+        }
     }
 }
