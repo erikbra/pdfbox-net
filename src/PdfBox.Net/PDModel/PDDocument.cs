@@ -403,8 +403,14 @@ public sealed class PDDocument : IDisposable
         COSArray? idArray = _trailer.GetCOSArray(COSName.GetPDFName("ID"));
 
         PDEncryption encryption = new(encryptDict);
-        StandardSecurityHandler handler = new();
-        StandardDecryptionMaterial material = new(password ?? string.Empty);
+        string filter = encryption.GetFilter() ?? PDEncryption.DEFAULT_NAME;
+        SecurityHandler<ProtectionPolicy>? handler = SecurityHandlerFactory.INSTANCE.NewSecurityHandlerForFilter(filter);
+        if (handler is null)
+        {
+            throw new IOException($"No security handler available for filter '{filter}'.");
+        }
+
+        DecryptionMaterial material = CreateDecryptionMaterialForLoad(handler, password);
         handler.PrepareForDecryption(encryption, idArray, material);
 
         // Walk the object graph starting from the trailer, but only decrypt strings and
@@ -471,6 +477,21 @@ public sealed class PDDocument : IDisposable
                     {
                         DecryptObjectGraph(value, handler, objNum, genNum, inIndirectObject, visited, encryptDict);
                     }
+                }
+
+                private static DecryptionMaterial CreateDecryptionMaterialForLoad(SecurityHandler<ProtectionPolicy> handler, string? password)
+                {
+                    if (handler is StandardSecurityHandler)
+                    {
+                        return new StandardDecryptionMaterial(password ?? string.Empty);
+                    }
+
+                    if (handler is PublicKeySecurityHandler)
+                    {
+                        throw new IOException("Public-key encrypted documents require PublicKeyDecryptionMaterial and are not supported by this Load overload.");
+                    }
+
+                    throw new IOException($"Unsupported security handler type '{handler.GetType().FullName}'.");
                 }
 
                 break;

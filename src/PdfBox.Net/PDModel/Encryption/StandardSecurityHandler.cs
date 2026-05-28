@@ -126,7 +126,7 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
 
         if (!isUserPassword && !isOwnerPassword)
         {
-            throw new IOException("Bad user password.");
+            throw new InvalidPasswordException("Cannot decrypt PDF, the password is incorrect.");
         }
 
         // Set up the security handler state.
@@ -210,7 +210,7 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
 
         if (fileKey is null)
         {
-            throw new IOException("Bad user password.");
+            throw new InvalidPasswordException("Cannot decrypt PDF, the password is incorrect.");
         }
 
         SetEncryptionKey(fileKey);
