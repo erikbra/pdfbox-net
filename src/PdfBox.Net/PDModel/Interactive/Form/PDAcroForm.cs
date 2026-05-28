@@ -162,6 +162,17 @@ public sealed class PDAcroForm : COSObjectable
         _dictionary.SetItem(COSName.GetPDFName("XFA"), xfa?.GetCOSObject());
     }
 
+    public void RefreshAppearances()
+    {
+        foreach (PDField field in GetFieldTree())
+        {
+            if (field is PDTerminalField terminalField)
+            {
+                terminalField.RefreshAppearance();
+            }
+        }
+    }
+
     internal PDDocument GetDocument()
     {
         return _document;

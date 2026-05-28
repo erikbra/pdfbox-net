@@ -28,6 +28,7 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
+using PdfBox.Net.PDModel.Fixup;
 using PdfBox.Net.PDModel.Graphics.OptionalContent;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Form;
@@ -47,6 +48,8 @@ public sealed class PDDocumentCatalog : COSObjectable
 {
     private readonly COSDictionary _root;
     private readonly PDDocument _document;
+    private Type? _acroFormFixupAppliedType;
+    private PDAcroForm? _cachedAcroForm;
 
     /// <summary>
     /// Constructor. Internal PDFBox use only! If you need to get the document catalog, call
@@ -327,8 +330,30 @@ public sealed class PDDocumentCatalog : COSObjectable
     /// </summary>
     public PDAcroForm? GetAcroForm()
     {
-        COSDictionary? formDictionary = _root.GetCOSDictionary(COSName.ACRO_FORM);
-        return formDictionary == null ? null : new PDAcroForm(_document, formDictionary);
+        return GetAcroForm(new AcroFormDefaultFixup(_document));
+    }
+
+    /// <summary>
+    /// Returns the document AcroForm dictionary if present and optionally applies a fixup first.
+    /// </summary>
+    /// <param name="acroFormFixup">The fixup to apply, or <see langword="null"/> to retrieve without mutation.</param>
+    public PDAcroForm? GetAcroForm(PDDocumentFixup? acroFormFixup)
+    {
+        Type? fixupType = acroFormFixup?.GetType();
+        if (acroFormFixup is not null && _acroFormFixupAppliedType != fixupType)
+        {
+            acroFormFixup.Apply();
+            _cachedAcroForm = null;
+            _acroFormFixupAppliedType = fixupType;
+        }
+
+        if (_cachedAcroForm is null)
+        {
+            COSDictionary? formDictionary = _root.GetCOSDictionary(COSName.ACRO_FORM);
+            _cachedAcroForm = formDictionary == null ? null : new PDAcroForm(_document, formDictionary);
+        }
+
+        return _cachedAcroForm;
     }
 
     /// <summary>
@@ -337,6 +362,8 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetAcroForm(PDAcroForm? acroForm)
     {
         _root.SetItem(COSName.ACRO_FORM, acroForm);
+        _cachedAcroForm = acroForm;
+        _acroFormFixupAppliedType = null;
     }
 
     /// <summary>

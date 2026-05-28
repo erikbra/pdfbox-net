@@ -65,5 +65,10 @@ public abstract class PDTerminalField : PDField
         ConstructAppearances();
     }
 
+    internal void RefreshAppearance()
+    {
+        ApplyChange();
+    }
+
     protected abstract void ConstructAppearances();
 }
