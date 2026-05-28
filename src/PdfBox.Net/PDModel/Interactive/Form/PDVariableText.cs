@@ -96,4 +96,10 @@ public abstract class PDVariableText : PDField
             _ => string.Empty
         };
     }
+
+    internal override void RefreshAppearance()
+    {
+        AppearanceGeneratorHelper helper = new(this);
+        helper.SetAppearanceValue(GetValueAsString());
+    }
 }

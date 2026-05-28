@@ -166,10 +166,7 @@ public sealed class PDAcroForm : COSObjectable
     {
         foreach (PDField field in GetFieldTree())
         {
-            if (field is PDTerminalField terminalField)
-            {
-                terminalField.RefreshAppearance();
-            }
+            field.RefreshAppearance();
         }
     }
 

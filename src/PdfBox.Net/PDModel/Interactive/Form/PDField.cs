@@ -179,4 +179,8 @@ public abstract class PDField : COSObjectable
     {
         return acroForm;
     }
+
+    internal virtual void RefreshAppearance()
+    {
+    }
 }
