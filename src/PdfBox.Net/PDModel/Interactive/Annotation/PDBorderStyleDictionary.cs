@@ -1,26 +1,20 @@
-/*
- * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source with AI assistance.
- *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDBorderStyleDictionary.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- */
-
 using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
 public sealed class PDBorderStyleDictionary : COSObjectable
 {
+    private static readonly COSName WidthName = COSName.GetPDFName("W");
+    private static readonly COSName StyleName = COSName.GetPDFName("S");
+    private static readonly COSName DashName = COSName.GetPDFName("D");
+
     public const string STYLE_SOLID = "S";
     public const string STYLE_DASHED = "D";
     public const string STYLE_BEVELED = "B";
     public const string STYLE_INSET = "I";
     public const string STYLE_UNDERLINE = "U";
 
-    private readonly COSDictionary dictionary;
+    private readonly COSDictionary _dictionary;
 
     public PDBorderStyleDictionary()
         : this(new COSDictionary())
@@ -29,41 +23,37 @@ public sealed class PDBorderStyleDictionary : COSObjectable
 
     public PDBorderStyleDictionary(COSDictionary dictionary)
     {
-        this.dictionary = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
+        _dictionary = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
     }
 
-    public float GetWidth()
+    public COSBase GetCOSObject() => _dictionary;
+
+    public float GetWidth() => _dictionary.GetFloat(WidthName, 1f);
+
+    public void SetWidth(float width) => _dictionary.SetFloat(WidthName, width);
+
+    public string GetStyle() => _dictionary.GetNameAsString(StyleName) ?? STYLE_SOLID;
+
+    public void SetStyle(string style) => _dictionary.SetName(StyleName, style);
+
+    public COSArray GetDashStyle()
     {
-        return dictionary.GetFloat(COSName.GetPDFName("W"), 1);
+        return _dictionary.GetCOSArray(DashName) ?? new COSArray { new COSFloat(3f) };
     }
 
-    public void SetWidth(float width)
+    public void SetDashStyle(float[] dashArray)
     {
-        dictionary.SetFloat(COSName.GetPDFName("W"), width);
-    }
+        COSArray array = new();
+        foreach (float value in dashArray)
+        {
+            array.Add(new COSFloat(value));
+        }
 
-    public string? GetStyle()
-    {
-        return dictionary.GetNameAsString(COSName.S);
-    }
-
-    public void SetStyle(string? style)
-    {
-        dictionary.SetName(COSName.S, style);
-    }
-
-    public COSArray? GetDashStyle()
-    {
-        return dictionary.GetCOSArray(COSName.D);
+        _dictionary.SetItem(DashName, array);
     }
 
     public void SetDashStyle(COSArray? dashStyle)
     {
-        dictionary.SetItem(COSName.D, dashStyle);
-    }
-
-    public COSBase GetCOSObject()
-    {
-        return dictionary;
+        _dictionary.SetItem(DashName, dashStyle);
     }
 }

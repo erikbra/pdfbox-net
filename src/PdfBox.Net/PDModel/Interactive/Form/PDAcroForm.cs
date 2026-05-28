@@ -166,4 +166,15 @@ public sealed class PDAcroForm : COSObjectable
     {
         return _document;
     }
+
+    public void RefreshAppearances()
+    {
+        foreach (PDField field in GetFieldTree())
+        {
+            if (field is PDVariableText variableText)
+            {
+                variableText.ConstructAppearances();
+            }
+        }
+    }
 }

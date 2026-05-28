@@ -44,7 +44,9 @@ public class PlainText
             return;
         }
 
-        string[] parts = Regex.Split(textValue.Replace('\t', ' '), "\\R");
+        string[] parts = Regex.Split(
+            textValue.Replace('\t', ' '),
+            @"(?:\r\n|[\n\v\f\r\u0085\u2028\u2029])");
         _paragraphs = new List<Paragraph>(parts.Length);
         foreach (string part in parts)
         {

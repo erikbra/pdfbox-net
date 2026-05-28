@@ -175,6 +175,7 @@ public abstract class PDChoice : PDVariableText
     {
         dictionary.SetString(COSName.V, value);
         SetSelectedOptionsIndex(null);
+        ConstructAppearances();
     }
 
     public void SetDefaultValue(string? value)
@@ -211,6 +212,7 @@ public abstract class PDChoice : PDVariableText
 
         List<int> indices = values.Select(v => options.IndexOf(v)).Where(i => i >= 0).Order().ToList();
         SetSelectedOptionsIndex(indices);
+        ConstructAppearances();
     }
 
     public List<string> GetValue()

@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.Color;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
@@ -36,6 +37,9 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotationMarkup</c>.</remarks>
 public abstract class PDAnnotationMarkup : PDAnnotation
 {
+    private static readonly COSName BorderName = COSName.GetPDFName("Border");
+    private static readonly COSName InteriorColorName = COSName.GetPDFName("IC");
+
     /// <summary>Constant for an annotation reply type.</summary>
     public const string RT_REPLY = "R";
     /// <summary>Constant for an annotation reply type.</summary>
@@ -88,5 +92,50 @@ public abstract class PDAnnotationMarkup : PDAnnotation
     public void SetConstantOpacity(float ca)
     {
         GetCOSDictionary().SetFloat(COSName.CA, ca);
+    }
+
+    public COSArray GetBorder()
+    {
+        return GetCOSDictionary().GetCOSArray(BorderName) ?? new COSArray { COSInteger.ZERO, COSInteger.ZERO, COSInteger.Get(1) };
+    }
+
+    public void SetBorder(COSArray? border)
+    {
+        GetCOSDictionary().SetItem(BorderName, border);
+    }
+
+    public PDBorderStyleDictionary? GetBorderStyle()
+    {
+        return GetCOSDictionary().GetCOSDictionary(COSName.BS) is COSDictionary dictionary
+            ? new PDBorderStyleDictionary(dictionary)
+            : null;
+    }
+
+    public void SetBorderStyle(PDBorderStyleDictionary? borderStyle)
+    {
+        GetCOSDictionary().SetItem(COSName.BS, borderStyle);
+    }
+
+    public PDColor? GetInteriorColor()
+    {
+        return GetCOSDictionary().GetCOSArray(InteriorColorName) is COSArray array
+            ? CreateColor(array)
+            : null;
+    }
+
+    public void SetInteriorColor(PDColor? color)
+    {
+        GetCOSDictionary().SetItem(InteriorColorName, color?.ToCOSArray());
+    }
+
+    protected static PDColor? CreateColor(COSArray array)
+    {
+        return array.Size() switch
+        {
+            1 => new PDColor(array, PdfBox.Net.PDModel.Graphics.Color.PDDeviceGray.Instance),
+            3 => new PDColor(array, PdfBox.Net.PDModel.Graphics.Color.PDDeviceRGB.Instance),
+            4 => new PDColor(array, PdfBox.Net.PDModel.Graphics.Color.PDDeviceCMYK.Instance),
+            _ => null
+        };
     }
 }
