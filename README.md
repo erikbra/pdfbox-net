@@ -213,10 +213,12 @@ Course decision: stay on the current direction (mechanical parity first, then fe
 - Scheduled workflow: `.github/workflows/upstream-sync-watch.yml`
 - Cadence: daily at 07:00 UTC (plus manual dispatch)
 - Job `check-upstream`: compares `reports/upstream-sync-state.json` against `apache/pdfbox` `trunk` and creates/updates a single open "Upstream PDFBox has new commits to sync" issue when new upstream commits exist
-- Job `scan-missing-ports`: scans all upstream `src/main/java` files and compares them to `PDFBOX_SOURCE_PATH` metadata in local `.cs` ports
+- Job `scan-missing-ports`: runs `tools/parity/generate_parity_inventory.py` and generates canonical parity inventory/report output using `PDFBOX_SOURCE_PATH` union traceability mappings
 - State artifacts refreshed when drift is detected:
   - `reports/upstream-sync-state.json` (commit + summary counters + latest scan timestamp)
   - `reports/upstream-port-coverage-state.json` (scan snapshot + missing-path sample/hash)
+  - `reports/.all-upstream-coverage.json` (module/family aggregate coverage details)
+  - `reports/pdfbox-main-gap-analysis.md` (human-readable gap analysis)
 
 ### Current issue slice delivered here
 
