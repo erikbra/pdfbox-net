@@ -33,6 +33,7 @@ public abstract class AbstractFixup : PDDocumentFixup
 
     protected AbstractFixup(PDDocument document)
     {
+        ArgumentNullException.ThrowIfNull(document);
         this.document = document;
     }
 
