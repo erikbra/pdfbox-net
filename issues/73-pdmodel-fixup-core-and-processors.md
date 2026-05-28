@@ -24,7 +24,7 @@ as a focused post-AcroForm milestone.
 - AcroForm and appearance-generation slices merged and green.
 
 ### Exit criteria
-- `pdmodel.fixup` reaches 8 / 8 mapped for the current parity target.
+- `pdmodel.fixup` reaches 8 / 8 mapped for the current parity target. ✅
 
 ### Risk register
 - Processor behavior can expose latent form-default and orphan-widget edge cases.
