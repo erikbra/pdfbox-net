@@ -1,0 +1,65 @@
+/*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
+ *
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PublicKeyProtectionPolicy.java
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ */
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+using System.Security.Cryptography.X509Certificates;
+
+namespace PdfBox.Net.PDModel.Encryption;
+
+public sealed class PublicKeyProtectionPolicy : ProtectionPolicy
+{
+    private readonly List<PublicKeyRecipient> _recipients = [];
+    private X509Certificate2? _decryptionCertificate;
+
+    public void AddRecipient(PublicKeyRecipient recipient)
+    {
+        ArgumentNullException.ThrowIfNull(recipient);
+        _recipients.Add(recipient);
+    }
+
+    public bool RemoveRecipient(PublicKeyRecipient recipient)
+    {
+        ArgumentNullException.ThrowIfNull(recipient);
+        return _recipients.Remove(recipient);
+    }
+
+    public IEnumerator<PublicKeyRecipient> GetRecipientsIterator()
+    {
+        return _recipients.GetEnumerator();
+    }
+
+    public X509Certificate2? GetDecryptionCertificate() => _decryptionCertificate;
+
+    public void SetDecryptionCertificate(X509Certificate2? decryptionCertificate)
+    {
+        _decryptionCertificate = decryptionCertificate;
+    }
+
+    public int GetNumberOfRecipients()
+    {
+        return _recipients.Count;
+    }
+}
