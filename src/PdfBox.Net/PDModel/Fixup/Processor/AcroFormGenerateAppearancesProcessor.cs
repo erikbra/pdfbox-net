@@ -52,9 +52,11 @@ public sealed class AcroFormGenerateAppearancesProcessor : AbstractProcessor
         }
         catch (IOException)
         {
+            // Best-effort fixup: preserve the document state if some appearances cannot be regenerated.
         }
         catch (ArgumentException)
         {
+            // Best-effort fixup: preserve the document state if some appearances cannot be regenerated.
         }
     }
 }
