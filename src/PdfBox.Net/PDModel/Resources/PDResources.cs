@@ -135,6 +135,53 @@ public class PDResources
         return stream?.GetNameAsString(COSName.GetPDFName("Subtype")) == "Image";
     }
 
+    /// <summary>Adds an XObject using an auto-generated name with the given prefix and returns that name.</summary>
+    public COSName Add(PDXObject xobject, string prefix)
+    {
+        ArgumentNullException.ThrowIfNull(xobject);
+        ArgumentException.ThrowIfNullOrEmpty(prefix);
+        COSDictionary subDict = _dict.GetCOSDictionary(XObjectKey) ?? new COSDictionary();
+        _dict.SetItem(XObjectKey, subDict);
+        COSName name = GenerateUniqueName(subDict, prefix);
+        subDict.SetItem(name, xobject.GetCOSObject());
+        return name;
+    }
+
+    /// <summary>Adds a form XObject resource with the given name.</summary>
+    public void Put(COSName name, PDXObject xobject)
+    {
+        PutInto(XObjectKey, name, xobject.GetCOSObject());
+    }
+
+    /// <summary>Adds a property list resource with the given name.</summary>
+    public void Put(COSName name, PDPropertyList properties)
+    {
+        PutInto(PropertiesKey, name, properties.GetCOSObject());
+    }
+
+    /// <summary>Adds a property list using an auto-generated name and returns that name.</summary>
+    public COSName Add(PDPropertyList properties, string prefix)
+    {
+        ArgumentNullException.ThrowIfNull(properties);
+        ArgumentException.ThrowIfNullOrEmpty(prefix);
+        COSDictionary subDict = _dict.GetCOSDictionary(PropertiesKey) ?? new COSDictionary();
+        _dict.SetItem(PropertiesKey, subDict);
+        COSName name = GenerateUniqueName(subDict, prefix);
+        subDict.SetItem(name, properties.GetCOSObject());
+        return name;
+    }
+
+    private static COSName GenerateUniqueName(COSDictionary dict, string prefix)
+    {
+        int counter = 0;
+        COSName name;
+        do
+        {
+            name = COSName.GetPDFName(prefix + counter++);
+        } while (dict.ContainsKey(name));
+        return name;
+    }
+
     public PDExtendedGraphicsState? GetExtGState(COSName name)
     {
         COSDictionary? extGStateSubDict = _dict.GetCOSDictionary(ExtGStateKey);

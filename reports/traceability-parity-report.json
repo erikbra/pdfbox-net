@@ -5267,5 +5267,45 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-28T07:50:20Z",
     "note": "Fixup regression tests for catalog fixup dispatch, default-resource repair, and orphan-widget rebuilding/generation paths."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/Splitter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T19:50:41Z",
+    "note": "Core page-by-page split using PDFCloneUtility. Structure-tree and annotation fixup omitted (not yet supported by the C# COS layer)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PageExtractor.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/PageExtractor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T19:50:41Z",
+    "note": "Thin wrapper around Splitter. Constructor overloads and StartPage/EndPage properties faithfully ported."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Overlay.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/Overlay.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T19:50:41Z",
+    "note": "Full foreground/background overlay with per-page/first/last/odd/even/all-pages overlay support. Java method overlay() renamed Process() to avoid C# member-name-equals-type-name restriction."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/LayerUtility.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/LayerUtility.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T19:50:41Z",
+    "note": "WrapInSaveRestore, ImportPageAsForm, AppendFormAsLayer, ImportOcProperties ported. Uses PDPageContentStream for marked-content layer writing."
   }
 ]
