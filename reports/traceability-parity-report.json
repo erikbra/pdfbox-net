@@ -5177,5 +5177,95 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-28T04:38:47Z",
     "note": "FDF annotation regression tests for subtype-factory dispatch and representative dictionary property round-trips."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/AbstractFixup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fixup/AbstractFixup.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T07:50:20Z",
+    "note": "PDModel fixup milestone parity row for issue #73."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/AcroFormDefaultFixup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fixup/AcroFormDefaultFixup.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T07:50:20Z",
+    "note": "PDModel fixup milestone parity row for issue #73."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/PDDocumentFixup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fixup/PDDocumentFixup.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T07:50:20Z",
+    "note": "PDModel fixup milestone parity row for issue #73."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AbstractProcessor.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fixup/Processor/AbstractProcessor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T07:50:20Z",
+    "note": "PDModel fixup milestone parity row for issue #73."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormDefaultsProcessor.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fixup/Processor/AcroFormDefaultsProcessor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T07:50:20Z",
+    "note": "PDModel fixup milestone parity row for issue #73."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormGenerateAppearancesProcessor.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fixup/Processor/AcroFormGenerateAppearancesProcessor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T07:50:20Z",
+    "note": "PDModel fixup milestone parity row for issue #73."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormOrphanWidgetsProcessor.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fixup/Processor/AcroFormOrphanWidgetsProcessor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T07:50:20Z",
+    "note": "PDModel fixup milestone parity row for issue #73."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/PDDocumentProcessor.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fixup/Processor/PDDocumentProcessor.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T07:50:20Z",
+    "note": "PDModel fixup milestone parity row for issue #73."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDDocumentFixupTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T07:50:20Z",
+    "note": "Fixup regression tests for catalog fixup dispatch, default-resource repair, and orphan-widget rebuilding/generation paths."
   }
 ]
