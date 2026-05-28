@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Fixup;
 using PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 using PdfBox.Net.PDModel.Graphics.OptionalContent;
 using PdfBox.Net.PDModel.Interactive.Action;
@@ -47,6 +48,8 @@ public sealed class PDDocumentCatalog : COSObjectable
 {
     private readonly COSDictionary _root;
     private readonly PDDocument _document;
+    private PDDocumentFixup? _acroFormFixupApplied;
+    private PDAcroForm? _cachedAcroForm;
 
     /// <summary>
     /// Constructor. Internal PDFBox use only! If you need to get the document catalog, call
@@ -327,8 +330,28 @@ public sealed class PDDocumentCatalog : COSObjectable
     /// </summary>
     public PDAcroForm? GetAcroForm()
     {
-        COSDictionary? formDictionary = _root.GetCOSDictionary(COSName.ACRO_FORM);
-        return formDictionary == null ? null : new PDAcroForm(_document, formDictionary);
+        return GetAcroForm(new AcroFormDefaultFixup(_document));
+    }
+
+    /// <summary>
+    /// Returns the document AcroForm dictionary if present.
+    /// </summary>
+    public PDAcroForm? GetAcroForm(PDDocumentFixup? acroFormFixup)
+    {
+        if (acroFormFixup != null && !ReferenceEquals(acroFormFixup, _acroFormFixupApplied))
+        {
+            acroFormFixup.Apply();
+            _cachedAcroForm = null;
+            _acroFormFixupApplied = acroFormFixup;
+        }
+
+        if (_cachedAcroForm == null)
+        {
+            COSDictionary? formDictionary = _root.GetCOSDictionary(COSName.ACRO_FORM);
+            _cachedAcroForm = formDictionary == null ? null : new PDAcroForm(_document, formDictionary);
+        }
+
+        return _cachedAcroForm;
     }
 
     /// <summary>
@@ -337,6 +360,7 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetAcroForm(PDAcroForm? acroForm)
     {
         _root.SetItem(COSName.ACRO_FORM, acroForm);
+        _cachedAcroForm = null;
     }
 
     /// <summary>
