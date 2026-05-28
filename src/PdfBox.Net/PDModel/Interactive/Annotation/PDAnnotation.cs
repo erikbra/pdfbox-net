@@ -26,8 +26,10 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
@@ -37,6 +39,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotation</c>.</remarks>
 public abstract class PDAnnotation : COSObjectable
 {
+    private static readonly COSName AppearanceName = COSName.GetPDFName("AP");
+
     /// <summary>An annotation flag.</summary>
     private const int FlagInvisible = 1 << 0;
     /// <summary>An annotation flag.</summary>
@@ -221,61 +225,6 @@ public abstract class PDAnnotation : COSObjectable
     public COSBase GetCOSObject()
     {
         return _dictionary;
-    }
-
-    public COSName? GetAppearanceState()
-    {
-        return _dictionary.GetCOSName(COSName.AS);
-    }
-
-    public void SetAppearanceState(string? appearanceState)
-    {
-        _dictionary.SetName(COSName.AS, appearanceState);
-    }
-
-    public void SetAppearanceState(COSName? appearanceState)
-    {
-        _dictionary.SetItem(COSName.AS, appearanceState);
-    }
-
-    public PDAppearanceDictionary? GetAppearance()
-    {
-        COSDictionary? appearance = _dictionary.GetCOSDictionary(COSName.GetPDFName("AP"));
-        return appearance != null ? new PDAppearanceDictionary(appearance) : null;
-    }
-
-    public void SetAppearance(PDAppearanceDictionary? appearance)
-    {
-        _dictionary.SetItem(COSName.GetPDFName("AP"), appearance);
-    }
-
-    public PDAppearanceStream? GetNormalAppearanceStream()
-    {
-        PDAppearanceDictionary? appearance = GetAppearance();
-        if (appearance == null)
-        {
-            return null;
-        }
-
-        PDAppearanceEntry? normalAppearance = appearance.GetNormalAppearance();
-        if (normalAppearance == null)
-        {
-            return null;
-        }
-
-        if (normalAppearance.IsSubDictionary())
-        {
-            COSName? state = GetAppearanceState();
-            if (state == null)
-            {
-                return null;
-            }
-
-            IDictionary<COSName, PDAppearanceStream> subDictionary = normalAppearance.GetSubDictionary();
-            return subDictionary.TryGetValue(state, out PDAppearanceStream? stream) ? stream : null;
-        }
-
-        return normalAppearance.IsStream() ? normalAppearance.GetAppearanceStream() : null;
     }
 
     /// <summary>
@@ -489,12 +438,64 @@ public abstract class PDAnnotation : COSObjectable
         _dictionary.SetItem(COSName.C, c?.ToCOSArray());
     }
 
+    public PDAppearanceDictionary? GetAppearance()
+    {
+        return GetCOSDictionary().GetCOSDictionary(AppearanceName) is COSDictionary dictionary
+            ? new PDAppearanceDictionary(dictionary)
+            : null;
+    }
+
+    public void SetAppearance(PDAppearanceDictionary? appearance)
+    {
+        GetCOSDictionary().SetItem(AppearanceName, appearance);
+    }
+
+    public string? GetAppearanceState()
+    {
+        return GetCOSDictionary().GetNameAsString(COSName.AS);
+    }
+
+    public void SetAppearanceState(string? state)
+    {
+        GetCOSDictionary().SetName(COSName.AS, state);
+    }
+
+    public void SetAppearanceState(COSName? state)
+    {
+        GetCOSDictionary().SetItem(COSName.AS, state);
+    }
+
+    public PDAppearanceStream? GetNormalAppearanceStream()
+    {
+        PDAppearanceEntry? normalAppearance = GetAppearance()?.GetNormalAppearance();
+        if (normalAppearance == null)
+        {
+            return null;
+        }
+
+        if (normalAppearance.IsSubDictionary())
+        {
+            COSName? state = GetCOSDictionary().GetCOSName(COSName.AS);
+            if (state == null)
+            {
+                return null;
+            }
+
+            IDictionary<COSName, PDAppearanceStream> subDictionary = normalAppearance.GetSubDictionary();
+            return subDictionary.TryGetValue(state, out PDAppearanceStream? stream) ? stream : null;
+        }
+
+        return normalAppearance.IsStream() ? normalAppearance.GetAppearanceStream() : null;
+    }
+
     public virtual void ConstructAppearances()
     {
+        ConstructAppearances(null);
     }
 
     public virtual void ConstructAppearances(PDDocument? document)
     {
-        ConstructAppearances();
+        PDAppearanceHandler? handler = PDAppearanceHandlerFactory.Create(this, document);
+        handler?.GenerateAppearanceStreams();
     }
 }

@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AbstractProcessor.java
- * PDFBOX_SOURCE_COMMIT: 69b430adb4b6642fc5241ff7426738c685661735
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 69b430adb4b6642fc5241ff7426738c685661735
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
 /*
@@ -33,7 +33,7 @@ public abstract class AbstractProcessor : PDDocumentProcessor
 
     protected AbstractProcessor(PDDocument document)
     {
-        this.document = document ?? throw new ArgumentNullException(nameof(document));
+        this.document = document;
     }
 
     public abstract void Process();

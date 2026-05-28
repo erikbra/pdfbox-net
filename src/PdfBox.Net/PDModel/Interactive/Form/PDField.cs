@@ -28,6 +28,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Interactive.Action;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
@@ -65,6 +66,11 @@ public abstract class PDField : COSObjectable
     public COSBase GetCOSObject()
     {
         return dictionary;
+    }
+
+    public PDAcroForm GetAcroForm()
+    {
+        return acroForm;
     }
 
     public string? GetPartialName()
@@ -168,6 +174,56 @@ public abstract class PDField : COSObjectable
         return parent != null ? GetInheritableAttribute(parent, key) : null;
     }
 
+    public virtual List<PDAnnotationWidget> GetWidgets()
+    {
+        if (string.Equals(dictionary.GetNameAsString(COSName.SUBTYPE), PDAnnotationWidget.SUB_TYPE, StringComparison.Ordinal))
+        {
+            return [new PDAnnotationWidget(dictionary)];
+        }
+
+        List<PDAnnotationWidget> widgets = [];
+        COSArray? kids = dictionary.GetCOSArray(COSName.KIDS);
+        if (kids == null)
+        {
+            return widgets;
+        }
+
+        for (int i = 0; i < kids.Size(); i++)
+        {
+            if (kids.GetObject(i) is COSDictionary kid &&
+                string.Equals(kid.GetNameAsString(COSName.SUBTYPE), PDAnnotationWidget.SUB_TYPE, StringComparison.Ordinal))
+            {
+                if (!kid.ContainsKey(COSName.PARENT))
+                {
+                    kid.SetItem(COSName.PARENT, dictionary);
+                }
+
+                widgets.Add(new PDAnnotationWidget(kid));
+            }
+        }
+
+        return widgets;
+    }
+
+    public virtual void SetWidgets(IList<PDAnnotationWidget>? widgets)
+    {
+        if (widgets == null || widgets.Count == 0)
+        {
+            dictionary.RemoveItem(COSName.KIDS);
+            return;
+        }
+
+        COSArray kids = new();
+        foreach (PDAnnotationWidget widget in widgets)
+        {
+            COSDictionary widgetDictionary = widget.GetCOSDictionary();
+            widgetDictionary.SetItem(COSName.PARENT, dictionary);
+            kids.Add(widgetDictionary);
+        }
+
+        dictionary.SetItem(COSName.KIDS, kids);
+    }
+
     public abstract string? GetValueAsString();
 
     internal COSDictionary GetCOSDictionary()
@@ -175,12 +231,4 @@ public abstract class PDField : COSObjectable
         return dictionary;
     }
 
-    internal PDAcroForm GetAcroForm()
-    {
-        return acroForm;
-    }
-
-    internal virtual void RefreshAppearance()
-    {
-    }
 }

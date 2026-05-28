@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/AbstractFixup.java
- * PDFBOX_SOURCE_COMMIT: d536932a65f5d26f5cabb96f62ff6d15e11fd805
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: d536932a65f5d26f5cabb96f62ff6d15e11fd805
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
 /*
@@ -33,7 +33,7 @@ public abstract class AbstractFixup : PDDocumentFixup
 
     protected AbstractFixup(PDDocument document)
     {
-        this.document = document ?? throw new ArgumentNullException(nameof(document));
+        this.document = document;
     }
 
     public abstract void Apply();

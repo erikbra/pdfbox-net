@@ -47,6 +47,39 @@ public sealed class PDIndexed : PDColorSpace
         _initialColor = new PDColor([0f], this);
     }
 
+    public static PDIndexed Create(PDColorSpace? baseColorSpace, int highValue, byte[]? lookupData)
+    {
+        if (baseColorSpace is null)
+        {
+            throw new ArgumentException("base must not be null");
+        }
+
+        if (lookupData is null)
+        {
+            throw new ArgumentException("lookupData must not be null");
+        }
+
+        if (highValue < 0 || highValue > 255)
+        {
+            throw new ArgumentOutOfRangeException(nameof(highValue), "hival has to be a positive value <= 255");
+        }
+
+        int expectedLength = (highValue + 1) * baseColorSpace.GetNumberOfComponents();
+        if (lookupData.Length < expectedLength)
+        {
+            throw new ArgumentException(
+                $"lookupData too short: expected at least {expectedLength} bytes ((hival+1) * components), got {lookupData.Length}");
+        }
+
+        byte[] lookupCopy = (byte[])lookupData.Clone();
+        var array = new COSArray();
+        array.Add(Indexed);
+        array.Add(baseColorSpace.GetCOSObject());
+        array.Add(COSInteger.Get(highValue));
+        array.Add(new COSString(lookupCopy, true));
+        return new PDIndexed(baseColorSpace, highValue, lookupCopy, array);
+    }
+
     public override string GetName() => Indexed.GetName();
 
     public override int GetNumberOfComponents() => 1;
@@ -91,5 +124,13 @@ public sealed class PDIndexed : PDColorSpace
         }
 
         return Array.Empty<byte>();
+    }
+
+    private PDIndexed(PDColorSpace baseColorSpace, int highValue, byte[] lookupData, COSArray array) : base(array)
+    {
+        _baseColorSpace = baseColorSpace;
+        _highValue = highValue;
+        _lookup = lookupData;
+        _initialColor = new PDColor([0f], this);
     }
 }

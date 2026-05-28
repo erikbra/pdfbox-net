@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/AcroFormDefaultFixup.java
- * PDFBOX_SOURCE_COMMIT: aa2d26fc40a6ffc20c77cae44081c9ef5b67daa6
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: aa2d26fc40a6ffc20c77cae44081c9ef5b67daa6
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
 /*
@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Interactive.Form;
 
 namespace PdfBox.Net.PDModel.Fixup;
 
-public sealed class AcroFormDefaultFixup : AbstractFixup
+public class AcroFormDefaultFixup : AbstractFixup
 {
     public AcroFormDefaultFixup(PDDocument document)
         : base(document)
@@ -42,16 +42,15 @@ public sealed class AcroFormDefaultFixup : AbstractFixup
         new AcroFormDefaultsProcessor(document).Process();
 
         PDAcroForm? acroForm = document.GetDocumentCatalog().GetAcroForm(null);
-        if (acroForm is null || !acroForm.GetNeedAppearances())
-        {
-            return;
-        }
 
-        if (acroForm.GetFields().Count == 0)
+        if (acroForm != null && acroForm.GetNeedAppearances())
         {
-            new AcroFormOrphanWidgetsProcessor(document).Process();
-        }
+            if (acroForm.GetFields().Count == 0)
+            {
+                new AcroFormOrphanWidgetsProcessor(document).Process();
+            }
 
-        new AcroFormGenerateAppearancesProcessor(document).Process();
+            new AcroFormGenerateAppearancesProcessor(document).Process();
+        }
     }
 }

@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormGenerateAppearancesProcessor.java
- * PDFBOX_SOURCE_COMMIT: 1241b948d8547aff8fc7873a8086f9d2455d5e5d
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 1241b948d8547aff8fc7873a8086f9d2455d5e5d
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
 /*
@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Interactive.Form;
 
 namespace PdfBox.Net.PDModel.Fixup.Processor;
 
-public sealed class AcroFormGenerateAppearancesProcessor : AbstractProcessor
+public class AcroFormGenerateAppearancesProcessor : AbstractProcessor
 {
     public AcroFormGenerateAppearancesProcessor(PDDocument document)
         : base(document)
@@ -40,7 +40,8 @@ public sealed class AcroFormGenerateAppearancesProcessor : AbstractProcessor
     public override void Process()
     {
         PDAcroForm? acroForm = document.GetDocumentCatalog().GetAcroForm(null);
-        if (acroForm is null)
+
+        if (acroForm == null)
         {
             return;
         }
@@ -52,11 +53,11 @@ public sealed class AcroFormGenerateAppearancesProcessor : AbstractProcessor
         }
         catch (IOException)
         {
-            // Best-effort fixup: preserve the document state if some appearances cannot be regenerated.
+            // Keep fixup processing best-effort, matching PDFBox behavior for malformed fields.
         }
         catch (ArgumentException)
         {
-            // Best-effort fixup: preserve the document state if some appearances cannot be regenerated.
+            // Keep fixup processing best-effort, matching PDFBox behavior for malformed fields.
         }
     }
 }

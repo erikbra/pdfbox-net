@@ -59,8 +59,14 @@ public sealed class PDTextField : PDVariableText
     public void SetValue(string? value)
     {
         dictionary.SetString(COSName.V, value);
+        if (!string.IsNullOrWhiteSpace(GetDefaultAppearance()) || !string.IsNullOrWhiteSpace(acroForm.GetDefaultAppearance()))
+        {
+            ConstructAppearances();
+            return;
+        }
+
         AppearanceGeneratorHelper helper = new(this);
-        helper.SetAppearanceValue(value);
+        helper.SetAppearanceValue(value ?? string.Empty);
     }
 
     public bool IsMultiline() => dictionary.GetFlag(COSName.GetPDFName("FF"), FlagMultiline);

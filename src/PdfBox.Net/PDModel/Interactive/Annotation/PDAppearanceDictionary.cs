@@ -1,19 +1,13 @@
-/*
- * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source with AI assistance.
- *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceDictionary.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- */
-
 using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
 public sealed class PDAppearanceDictionary : COSObjectable
 {
+    private static readonly COSName NormalName = COSName.N;
+    private static readonly COSName RolloverName = COSName.GetPDFName("R");
+    private static readonly COSName DownName = COSName.D;
+
     private readonly COSDictionary _dictionary;
 
     public PDAppearanceDictionary()
@@ -28,39 +22,26 @@ public sealed class PDAppearanceDictionary : COSObjectable
 
     public COSBase GetCOSObject() => _dictionary;
 
-    public PDAppearanceEntry? GetNormalAppearance() => GetEntry(COSName.N);
-
-    public void SetNormalAppearance(PDAppearanceStream stream)
+    public PDAppearanceEntry? GetNormalAppearance()
     {
-        ArgumentNullException.ThrowIfNull(stream);
-        _dictionary.SetItem(COSName.N, stream.GetCOSObject());
+        return _dictionary.GetDictionaryObject(NormalName) is COSBase entry ? new PDAppearanceEntry(entry) : null;
     }
 
-    public void SetNormalAppearance(PDAppearanceEntry entry)
+    public void SetNormalAppearance(PDAppearanceEntry appearance) => _dictionary.SetItem(NormalName, appearance);
+
+    public void SetNormalAppearance(PDAppearanceStream appearance) => _dictionary.SetItem(NormalName, appearance);
+
+    public PDAppearanceEntry? GetRolloverAppearance()
     {
-        ArgumentNullException.ThrowIfNull(entry);
-        _dictionary.SetItem(COSName.N, entry.GetCOSObject());
+        return _dictionary.GetDictionaryObject(RolloverName) is COSBase entry ? new PDAppearanceEntry(entry) : null;
     }
 
-    public PDAppearanceEntry? GetRolloverAppearance() => GetEntry(COSName.GetPDFName("R"));
+    public void SetRolloverAppearance(PDAppearanceEntry appearance) => _dictionary.SetItem(RolloverName, appearance);
 
-    public void SetRolloverAppearance(PDAppearanceEntry entry)
+    public PDAppearanceEntry? GetDownAppearance()
     {
-        ArgumentNullException.ThrowIfNull(entry);
-        _dictionary.SetItem(COSName.GetPDFName("R"), entry.GetCOSObject());
+        return _dictionary.GetDictionaryObject(DownName) is COSBase entry ? new PDAppearanceEntry(entry) : null;
     }
 
-    public PDAppearanceEntry? GetDownAppearance() => GetEntry(COSName.D);
-
-    public void SetDownAppearance(PDAppearanceEntry entry)
-    {
-        ArgumentNullException.ThrowIfNull(entry);
-        _dictionary.SetItem(COSName.D, entry.GetCOSObject());
-    }
-
-    private PDAppearanceEntry? GetEntry(COSName name)
-    {
-        COSBase? entry = _dictionary.GetDictionaryObject(name);
-        return entry != null ? new PDAppearanceEntry(entry) : null;
-    }
+    public void SetDownAppearance(PDAppearanceEntry appearance) => _dictionary.SetItem(DownName, appearance);
 }

@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormDefaultsProcessor.java
- * PDFBOX_SOURCE_COMMIT: 8c3cc02c967e80a02dcbd787af4d6393161d7bc8
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 8c3cc02c967e80a02dcbd787af4d6393161d7bc8
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
 /*
@@ -26,17 +26,18 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Fixup.Processor;
 
-public sealed class AcroFormDefaultsProcessor : AbstractProcessor
+public class AcroFormDefaultsProcessor : AbstractProcessor
 {
     private static readonly COSName FontKey = COSName.GetPDFName("Font");
     private static readonly COSName HelvKey = COSName.GetPDFName("Helv");
     private static readonly COSName ZaDbKey = COSName.GetPDFName("ZaDb");
-    private const string AdobeDefaultAppearanceString = "/Helv 0 Tf 0 g ";
+    private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
 
     public AcroFormDefaultsProcessor(PDDocument document)
         : base(document)
@@ -54,45 +55,49 @@ public sealed class AcroFormDefaultsProcessor : AbstractProcessor
 
     private static void VerifyOrCreateDefaults(PDAcroForm acroForm)
     {
-        COSDictionary acroFormDictionary = (COSDictionary)acroForm.GetCOSObject();
-        if (string.IsNullOrEmpty(acroForm.GetDefaultAppearance()))
+        const string adobeDefaultAppearanceString = "/Helv 0 Tf 0 g ";
+
+        if (acroForm.GetDefaultAppearance().Length == 0)
         {
-            acroForm.SetDefaultAppearance(AdobeDefaultAppearanceString);
-            acroFormDictionary.SetNeedToBeUpdated(true);
+            acroForm.SetDefaultAppearance(adobeDefaultAppearanceString);
+            ((COSDictionary)acroForm.GetCOSObject()).SetNeedToBeUpdated(true);
         }
 
         PDResources? defaultResources = acroForm.GetDefaultResources();
-        if (defaultResources is null)
+        if (defaultResources == null)
         {
             defaultResources = new PDResources();
             acroForm.SetDefaultResources(defaultResources);
-            acroFormDictionary.SetNeedToBeUpdated(true);
+            ((COSDictionary)acroForm.GetCOSObject()).SetNeedToBeUpdated(true);
         }
 
-        COSDictionary resourcesDictionary = defaultResources.GetCOSObject();
-        COSDictionary fontDictionary = resourcesDictionary.GetCOSDictionary(FontKey) ?? new COSDictionary();
-        if (!resourcesDictionary.ContainsKey(FontKey))
+        COSDictionary fontDict = defaultResources.GetCOSObject().GetCOSDictionary(FontKey) ?? new COSDictionary();
+        if (!defaultResources.GetCOSObject().ContainsKey(FontKey))
         {
-            resourcesDictionary.SetItem(FontKey, fontDictionary);
+            defaultResources.GetCOSObject().SetItem(FontKey, fontDict);
         }
 
-        EnsureFont(fontDictionary, HelvKey, "Helvetica", resourcesDictionary);
-        EnsureFont(fontDictionary, ZaDbKey, "ZapfDingbats", resourcesDictionary);
+        if (!fontDict.ContainsKey(HelvKey))
+        {
+            defaultResources.Put(HelvKey, CreateType1Standard14Font("Helvetica"));
+            defaultResources.GetCOSObject().SetNeedToBeUpdated(true);
+            fontDict.SetNeedToBeUpdated(true);
+        }
+
+        if (!fontDict.ContainsKey(ZaDbKey))
+        {
+            defaultResources.Put(ZaDbKey, CreateType1Standard14Font("ZapfDingbats"));
+            defaultResources.GetCOSObject().SetNeedToBeUpdated(true);
+            fontDict.SetNeedToBeUpdated(true);
+        }
     }
 
-    private static void EnsureFont(COSDictionary fontDictionary, COSName resourceName, string baseFontName, COSDictionary resourcesDictionary)
+    private static PDFont CreateType1Standard14Font(string baseFontName)
     {
-        if (fontDictionary.ContainsKey(resourceName))
-        {
-            return;
-        }
-
-        COSDictionary font = new();
-        font.SetName(COSName.TYPE, "Font");
-        font.SetName(COSName.SUBTYPE, "Type1");
-        font.SetName(COSName.GetPDFName("BaseFont"), baseFontName);
-        fontDictionary.SetItem(resourceName, font);
-        resourcesDictionary.SetNeedToBeUpdated(true);
-        fontDictionary.SetNeedToBeUpdated(true);
+        COSDictionary dictionary = new();
+        dictionary.SetName(COSName.TYPE, "Font");
+        dictionary.SetName(COSName.SUBTYPE, "Type1");
+        dictionary.SetName(BaseFontKey, baseFontName);
+        return PDFontFactory.CreateFont(dictionary);
     }
 }

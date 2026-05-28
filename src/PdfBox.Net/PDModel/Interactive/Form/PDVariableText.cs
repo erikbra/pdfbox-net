@@ -97,9 +97,19 @@ public abstract class PDVariableText : PDField
         };
     }
 
-    internal override void RefreshAppearance()
+    public virtual void ConstructAppearances()
     {
+        if (GetWidgets().Count == 0)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(GetDefaultAppearance()) && string.IsNullOrWhiteSpace(acroForm.GetDefaultAppearance()))
+        {
+            return;
+        }
+
         AppearanceGeneratorHelper helper = new(this);
-        helper.SetAppearanceValue(GetValueAsString());
+        helper.SetAppearanceValue(GetValueAsString() ?? string.Empty);
     }
 }
