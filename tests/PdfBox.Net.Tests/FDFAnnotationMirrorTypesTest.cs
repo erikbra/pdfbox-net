@@ -7,15 +7,35 @@ namespace PdfBox.Net.Tests;
 public class FDFAnnotationMirrorTypesTest
 {
     [Fact]
-    public void AnnotationFactoryMapsRepresentativeSubtypes()
+    public void AnnotationFactoryMapsAllSupportedSubtypes()
     {
         Assert.IsType<FDFAnnotationHighlight>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationHighlight().GetCOSObject()));
         Assert.IsType<FDFAnnotationText>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationText().GetCOSObject()));
+        Assert.IsType<FDFAnnotationCaret>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationCaret().GetCOSObject()));
+        Assert.IsType<FDFAnnotationFreeText>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationFreeText().GetCOSObject()));
+        Assert.IsType<FDFAnnotationFileAttachment>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationFileAttachment().GetCOSObject()));
+        Assert.IsType<FDFAnnotationInk>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationInk().GetCOSObject()));
         Assert.IsType<FDFAnnotationLink>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationLink().GetCOSObject()));
         Assert.IsType<FDFAnnotationSquare>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationSquare().GetCOSObject()));
         Assert.IsType<FDFAnnotationCircle>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationCircle().GetCOSObject()));
         Assert.IsType<FDFAnnotationLine>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationLine().GetCOSObject()));
+        Assert.IsType<FDFAnnotationPolygon>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationPolygon().GetCOSObject()));
+        Assert.IsType<FDFAnnotationPolyline>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationPolyline().GetCOSObject()));
+        Assert.IsType<FDFAnnotationSound>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationSound().GetCOSObject()));
         Assert.IsType<FDFAnnotationSquiggly>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationSquiggly().GetCOSObject()));
+        Assert.IsType<FDFAnnotationStamp>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationStamp().GetCOSObject()));
+        Assert.IsType<FDFAnnotationStrikeOut>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationStrikeOut().GetCOSObject()));
+        Assert.IsType<FDFAnnotationUnderline>(FDFAnnotation.Create((PdfBox.Net.COS.COSDictionary)new FDFAnnotationUnderline().GetCOSObject()));
+    }
+
+    [Fact]
+    public void AnnotationFactoryReturnsNullForUnknownSubtype()
+    {
+        PdfBox.Net.COS.COSDictionary dictionary = new();
+        dictionary.SetName(PdfBox.Net.COS.COSName.SUBTYPE, "UnknownSubtype");
+
+        Assert.Null(FDFAnnotation.Create(dictionary));
+        Assert.Null(FDFAnnotation.Create(null));
     }
 
     [Fact]

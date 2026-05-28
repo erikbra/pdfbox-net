@@ -391,7 +391,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Adapted Loader port for the current .NET PDF pipeline. PDF byte-array, file-path, and RandomAccessRead entry points are implemented; FDF/XFDF and public-key overloads remain deferred."
+    "conversion_notes": "Adapted Loader port for the current .NET PDF pipeline. PDF and FDF byte-array, file-path, and RandomAccessRead entry points are implemented; XFDF and public-key overloads remain deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
@@ -3838,5 +3838,269 @@
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Mechanical serialization exception port with message/cause constructor parity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCaret.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationCaret.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCircle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationCircle.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFileAttachment.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationFileAttachment.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFreeText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationFreeText.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationHighlight.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationHighlight.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationInk.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationInk.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLine.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationLine.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLink.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationLink.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolygon.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationPolygon.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolyline.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationPolyline.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSound.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSound.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSquare.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSquare.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSquiggly.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSquiggly.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationStamp.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationStamp.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationStrikeOut.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationStrikeOut.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationText.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationTextMarkup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationTextMarkup.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationUnderline.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationUnderline.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFCatalog.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFCatalog.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDocument.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDocument.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFField.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFIconFit.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFIconFit.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFJavaScript.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFJavaScript.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFNamedPageReference.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFNamedPageReference.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFOptionElement.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFOptionElement.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPage.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFPage.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPageInfo.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFPageInfo.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFTemplate.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFTemplate.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/FDFDocumentCoreTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added native xUnit regression tests for FDF document-core round-trips plus fixture-backed load/save parser smoke coverage."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/FDFFieldPageTemplateModelTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added native xUnit regression tests for FDF field hierarchy and page/template model round-trips."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/FDFAnnotationMirrorTypesTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added native xUnit regression tests for FDF annotation subtype factory routing and representative property round-trips."
   }
 ]

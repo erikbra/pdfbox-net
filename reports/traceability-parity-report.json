@@ -934,8 +934,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "partial",
-    "last_checked_utc": "2026-05-26T19:50:25Z",
-    "note": "PDF byte-array, file-path, and RandomAccessRead entry points are implemented; FDF/XFDF and public-key overloads remain deferred."
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDF byte-array, file-path, and RandomAccessRead entry points are implemented for both PDF and FDF loading; XFDF and public-key overloads remain deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
@@ -4847,5 +4847,335 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T11:10:23Z",
     "note": "Mechanical serialization exception port with message/cause constructor parity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCaret.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationCaret.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCircle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationCircle.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFileAttachment.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationFileAttachment.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFreeText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationFreeText.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationHighlight.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationHighlight.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationInk.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationInk.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLine.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationLine.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLink.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationLink.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolygon.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationPolygon.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolyline.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationPolyline.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSound.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSound.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSquare.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSquare.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSquiggly.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSquiggly.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationStamp.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationStamp.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationStrikeOut.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationStrikeOut.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationText.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationTextMarkup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationTextMarkup.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationUnderline.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationUnderline.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFCatalog.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFCatalog.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDocument.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDocument.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFField.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFIconFit.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFIconFit.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFJavaScript.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFJavaScript.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFNamedPageReference.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFNamedPageReference.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFOptionElement.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFOptionElement.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPage.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFPage.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPageInfo.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFPageInfo.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFTemplate.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFTemplate.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/FDFDocumentCoreTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "FDF document-core regression tests for dictionary round-trips plus fixture-backed load/save smoke paths."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/FDFFieldPageTemplateModelTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "FDF field/page/template regression tests for hierarchy, options/actions, icon-fit, and template/page wiring round-trips."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/FDFAnnotationMirrorTypesTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-28T04:38:47Z",
+    "note": "FDF annotation regression tests for subtype-factory dispatch and representative dictionary property round-trips."
   }
 ]
