@@ -110,116 +110,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          python - <<'PY'
-          import hashlib
-          import json
-          import os
-          import re
-          from datetime import datetime, timezone
-          from pathlib import Path
-          import urllib.request
-
-          sync_state_path = Path("reports/upstream-sync-state.json")
-          coverage_state_path = Path("reports/upstream-port-coverage-state.json")
-
-          with sync_state_path.open("r", encoding="utf-8") as f:
-              sync_state = json.load(f)
-
-          upstream_repo = sync_state["upstream_repository"]
-          upstream_branch = sync_state["upstream_branch"]
-
-          headers = {
-              "Accept": "application/vnd.github+json",
-              "X-GitHub-Api-Version": "2022-11-28",
-          }
-          token = os.environ.get("GITHUB_TOKEN", "")
-          if token:
-              headers["Authorization"] = f"Bearer {token}"
-
-          def read_json(url: str) -> dict:
-              req = urllib.request.Request(url, headers=headers)
-              with urllib.request.urlopen(req) as resp:
-                  return json.load(resp)
-
-          upstream_commit = read_json(
-              f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_branch}"
-          )["sha"]
-          tree = read_json(
-              f"https://api.github.com/repos/{upstream_repo}/git/trees/{upstream_branch}?recursive=1"
-          )["tree"]
-
-          upstream_java_paths = sorted(
-              item["path"]
-              for item in tree
-              if item.get("type") == "blob"
-              and item.get("path", "").endswith(".java")
-              and "/src/main/java/" in item.get("path", "")
-          )
-
-          source_path_re = re.compile(r"PDFBOX_SOURCE_PATH:\s*(.+?)\s*$")
-          ported_source_paths = set()
-          for cs_file in Path("src").rglob("*.cs"):
-              try:
-                  text = cs_file.read_text(encoding="utf-8")
-              except UnicodeDecodeError:
-                  continue
-              for line in text.splitlines():
-                  m = source_path_re.search(line)
-                  if not m:
-                      continue
-                  source_path = m.group(1).strip()
-                  if source_path.startswith("("):
-                      break
-                  ported_source_paths.add(source_path)
-                  break
-
-          missing_paths = [p for p in upstream_java_paths if p not in ported_source_paths]
-          missing_hash = hashlib.sha256("\n".join(missing_paths).encode("utf-8")).hexdigest()
-          now_utc = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
-
-          previous_coverage = {}
-          if coverage_state_path.exists():
-              with coverage_state_path.open("r", encoding="utf-8") as f:
-                  previous_coverage = json.load(f)
-
-          coverage_state = {
-              "upstream_repository": upstream_repo,
-              "upstream_branch": upstream_branch,
-              "upstream_head_commit": upstream_commit,
-              "last_scan_utc": now_utc,
-              "upstream_java_files_total": len(upstream_java_paths),
-              "ported_java_files_total": len(ported_source_paths),
-              "missing_java_files_total": len(missing_paths),
-              "missing_source_paths_sha256": missing_hash,
-              "missing_source_paths_sample": missing_paths[:500],
-              "missing_source_paths_sample_truncated": len(missing_paths) > 500,
-              "note": "Missing Java source paths are upstream src/main/java files without matching PDFBOX_SOURCE_PATH provenance in the .NET port.",
-          }
-
-          sync_state["latest_upstream_commit_seen"] = upstream_commit
-          sync_state["last_port_coverage_scan_utc"] = now_utc
-          sync_state["upstream_java_files_total"] = len(upstream_java_paths)
-          sync_state["ported_java_files_total"] = len(ported_source_paths)
-          sync_state["missing_java_files_total"] = len(missing_paths)
-          sync_state["missing_source_paths_sha256"] = missing_hash
-
-          with coverage_state_path.open("w", encoding="utf-8") as f:
-              json.dump(coverage_state, f, indent=2)
-              f.write("\n")
-
-          with sync_state_path.open("w", encoding="utf-8") as f:
-              json.dump(sync_state, f, indent=2)
-              f.write("\n")
-
-          previous_missing_hash = previous_coverage.get("missing_source_paths_sha256", "")
-          previous_head = previous_coverage.get("upstream_head_commit", "")
-          changed = (
-              previous_missing_hash != missing_hash
-              or previous_head != upstream_commit
-          )
-          Path(".scan-state-changed").write_text("true" if changed else "false", encoding="utf-8")
-          print(f"State changed: {changed}")
-          PY
+          python tools/parity/generate_parity_inventory.py --write-sync-state
 
       - name: Commit updated state jsons
         run: |
@@ -230,6 +121,6 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/upstream-sync-state.json reports/upstream-port-coverage-state.json
+          git add reports/upstream-sync-state.json reports/upstream-port-coverage-state.json reports/.all-upstream-coverage.json reports/pdfbox-main-gap-analysis.md
           git commit -m "chore: refresh upstream port coverage state"
           git push

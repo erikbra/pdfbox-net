@@ -1,28 +1,19 @@
 {
+  "generated_at_utc": "2026-05-28T21:18:49.934Z",
+  "upstream_repository": "apache/pdfbox",
+  "upstream_branch": "trunk",
   "upstream_head": "6196c451156dcce18d6c69c4deaa0935854d9a1a",
+  "tracked_parity_baseline_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+  "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
   "mapped": 692,
   "missing": 375,
   "modules": [
     {
-      "module": "pdfbox",
-      "java_files": 618,
-      "mapped": 527,
-      "missing": 91,
-      "pct": 85.3
-    },
-    {
-      "module": "fontbox",
-      "java_files": 143,
-      "mapped": 143,
-      "missing": 0,
-      "pct": 100.0
-    },
-    {
-      "module": "examples",
-      "java_files": 94,
+      "module": "benchmark",
+      "java_files": 3,
       "mapped": 0,
-      "missing": 94,
+      "missing": 3,
       "pct": 0.0
     },
     {
@@ -33,18 +24,18 @@
       "pct": 0.0
     },
     {
-      "module": "xmpbox",
-      "java_files": 74,
-      "mapped": 4,
-      "missing": 70,
-      "pct": 5.4
+      "module": "examples",
+      "java_files": 94,
+      "mapped": 0,
+      "missing": 94,
+      "pct": 0.0
     },
     {
-      "module": "tools",
-      "java_files": 26,
-      "mapped": 0,
-      "missing": 26,
-      "pct": 0.0
+      "module": "fontbox",
+      "java_files": 143,
+      "mapped": 143,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "io",
@@ -54,69 +45,267 @@
       "pct": 100.0
     },
     {
-      "module": "benchmark",
-      "java_files": 3,
-      "mapped": 0,
-      "missing": 3,
-      "pct": 0.0
-    }
-  ],
-  "families": [
-    {
-      "family": "pdfbox:pdfbox",
+      "module": "pdfbox",
       "java_files": 618,
       "mapped": 527,
       "missing": 91,
       "pct": 85.3
     },
     {
-      "family": "fontbox:fontbox",
-      "java_files": 143,
-      "mapped": 143,
-      "missing": 0,
-      "pct": 100.0
-    },
-    {
-      "family": "examples:pdfbox",
-      "java_files": 94,
-      "mapped": 0,
-      "missing": 94,
-      "pct": 0.0
-    },
-    {
-      "family": "debugger:pdfbox",
-      "java_files": 91,
-      "mapped": 0,
-      "missing": 91,
-      "pct": 0.0
-    },
-    {
-      "family": "xmpbox:xmpbox",
-      "java_files": 74,
-      "mapped": 4,
-      "missing": 70,
-      "pct": 5.4
-    },
-    {
-      "family": "tools:pdfbox",
+      "module": "tools",
       "java_files": 26,
       "mapped": 0,
       "missing": 26,
       "pct": 0.0
     },
     {
-      "family": "io:pdfbox",
+      "module": "xmpbox",
+      "java_files": 74,
+      "mapped": 4,
+      "missing": 70,
+      "pct": 5.4
+    }
+  ],
+  "families": [
+    {
+      "family": "benchmark:benchmark",
+      "java_files": 3,
+      "mapped": 0,
+      "missing": 3,
+      "pct": 0.0
+    },
+    {
+      "family": "debugger:debugger",
+      "java_files": 91,
+      "mapped": 0,
+      "missing": 91,
+      "pct": 0.0
+    },
+    {
+      "family": "examples:examples",
+      "java_files": 94,
+      "mapped": 0,
+      "missing": 94,
+      "pct": 0.0
+    },
+    {
+      "family": "fontbox:(root)",
+      "java_files": 2,
+      "mapped": 2,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "fontbox:afm",
+      "java_files": 8,
+      "mapped": 8,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "fontbox:cff",
+      "java_files": 26,
+      "mapped": 26,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "fontbox:cmap",
+      "java_files": 5,
+      "mapped": 5,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "fontbox:encoding",
+      "java_files": 4,
+      "mapped": 4,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "fontbox:pfb",
+      "java_files": 1,
+      "mapped": 1,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "fontbox:ttf",
+      "java_files": 83,
+      "mapped": 83,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "fontbox:type1",
+      "java_files": 6,
+      "mapped": 6,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "fontbox:util",
+      "java_files": 8,
+      "mapped": 8,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "io:io",
       "java_files": 18,
       "mapped": 18,
       "missing": 0,
       "pct": 100.0
+    },
+    {
+      "family": "pdfbox:(root)",
+      "java_files": 1,
+      "mapped": 1,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "pdfbox:contentstream",
+      "java_files": 79,
+      "mapped": 68,
+      "missing": 11,
+      "pct": 86.1
+    },
+    {
+      "family": "pdfbox:cos",
+      "java_files": 24,
+      "mapped": 24,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "pdfbox:filter",
+      "java_files": 23,
+      "mapped": 22,
+      "missing": 1,
+      "pct": 95.7
+    },
+    {
+      "family": "pdfbox:multipdf",
+      "java_files": 6,
+      "mapped": 6,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "pdfbox:pdfparser",
+      "java_files": 18,
+      "mapped": 11,
+      "missing": 7,
+      "pct": 61.1
+    },
+    {
+      "family": "pdfbox:pdfwriter",
+      "java_files": 7,
+      "mapped": 4,
+      "missing": 3,
+      "pct": 57.1
+    },
+    {
+      "family": "pdfbox:pdmodel",
+      "java_files": 428,
+      "mapped": 359,
+      "missing": 69,
+      "pct": 83.9
+    },
+    {
+      "family": "pdfbox:printing",
+      "java_files": 4,
+      "mapped": 4,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "pdfbox:rendering",
+      "java_files": 10,
+      "mapped": 10,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "pdfbox:text",
+      "java_files": 6,
+      "mapped": 6,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "pdfbox:util",
+      "java_files": 12,
+      "mapped": 12,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "tools:tools",
+      "java_files": 26,
+      "mapped": 0,
+      "missing": 26,
+      "pct": 0.0
+    },
+    {
+      "family": "xmpbox:(root)",
+      "java_files": 3,
+      "mapped": 1,
+      "missing": 2,
+      "pct": 33.3
+    },
+    {
+      "family": "xmpbox:schema",
+      "java_files": 15,
+      "mapped": 1,
+      "missing": 14,
+      "pct": 6.7
+    },
+    {
+      "family": "xmpbox:type",
+      "java_files": 50,
+      "mapped": 0,
+      "missing": 50,
+      "pct": 0.0
+    },
+    {
+      "family": "xmpbox:xml",
+      "java_files": 6,
+      "mapped": 2,
+      "missing": 4,
+      "pct": 33.3
     }
   ],
+  "traceability_status_counts": {
+    "total_rows": 458,
+    "in-sync": 427,
+    "partially-in-sync": 20,
+    "partial": 11
+  },
   "top_missing_modules": {
-    "benchmark": [
-      "benchmark/src/main/java/org/apache/pdfbox/benchmark/LoadAndSave.java",
-      "benchmark/src/main/java/org/apache/pdfbox/benchmark/Rendering.java",
-      "benchmark/src/main/java/org/apache/pdfbox/benchmark/TextExtraction.java"
+    "examples": [
+      "examples/src/main/java/org/apache/pdfbox/examples/ant/PDFToTextTask.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/AddBorderToField.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateCheckBox.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateMultiWidgetsForm.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreatePushButton.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateRadioButtons.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateSimpleForm.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateSimpleFormWithEmbeddedFont.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/DetermineTextFitsField.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FieldRemover.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FieldTriggers.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FillFormField.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/PrintFields.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/SetField.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/UpdateFieldOnDocumentOpen.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/package-info.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/lucene/IndexPDFFiles.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/lucene/LucenePDFDocument.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddAnnotations.java",
+      "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddImageToPDF.java"
     ],
     "debugger": [
       "debugger/src/main/java/org/apache/pdfbox/debugger/PDFDebugger.java",
@@ -140,28 +329,6 @@
       "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/SigFlag.java",
       "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontEncodingPaneController.java"
     ],
-    "examples": [
-      "examples/src/main/java/org/apache/pdfbox/examples/ant/PDFToTextTask.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/AddBorderToField.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateCheckBox.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateMultiWidgetsForm.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreatePushButton.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateRadioButtons.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateSimpleForm.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateSimpleFormWithEmbeddedFont.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/DetermineTextFitsField.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FieldRemover.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FieldTriggers.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FillFormField.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/PrintFields.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/SetField.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/UpdateFieldOnDocumentOpen.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/package-info.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/lucene/IndexPDFFiles.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/lucene/LucenePDFDocument.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddAnnotations.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddImageToPDF.java"
-    ],
     "pdfbox": [
       "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDContentStream.java",
       "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/MissingOperandException.java",
@@ -183,6 +350,28 @@
       "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSObjectPool.java"
+    ],
+    "xmpbox": [
+      "xmpbox/src/main/java/org/apache/xmpbox/DateConverter.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/XMPMetadata.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/ExifSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAExtensionSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractComplexProperty.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractField.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractSimpleProperty.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractStructuredType.java"
     ],
     "tools": [
       "tools/src/main/java/org/apache/pdfbox/tools/DecompressObjectstreams.java",
@@ -206,27 +395,10 @@
       "tools/src/main/java/org/apache/pdfbox/tools/PrintPDF.java",
       "tools/src/main/java/org/apache/pdfbox/tools/TextToPDF.java"
     ],
-    "xmpbox": [
-      "xmpbox/src/main/java/org/apache/xmpbox/DateConverter.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/XMPMetadata.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/ExifSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAExtensionSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractComplexProperty.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractField.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractSimpleProperty.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractStructuredType.java"
+    "benchmark": [
+      "benchmark/src/main/java/org/apache/pdfbox/benchmark/LoadAndSave.java",
+      "benchmark/src/main/java/org/apache/pdfbox/benchmark/Rendering.java",
+      "benchmark/src/main/java/org/apache/pdfbox/benchmark/TextExtraction.java"
     ]
   }
 }
