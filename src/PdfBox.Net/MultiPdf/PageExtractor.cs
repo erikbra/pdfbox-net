@@ -35,69 +35,71 @@ namespace PdfBox.Net.MultiPdf;
 public class PageExtractor
 {
     private readonly PDDocument _sourceDocument;
+    private int _startPage = 1;
+    private int _endPage;
 
     /// <summary>
-    /// Gets or sets the 1-based first page to extract (inclusive). Defaults to 1.
+    /// Creates a new extractor targeting all pages of the given document.
     /// </summary>
-    public int StartPage { get; set; } = 1;
-
-    /// <summary>
-    /// Gets or sets the 1-based last page to extract (inclusive).
-    /// Defaults to the total number of pages in the source document.
-    /// </summary>
-    public int EndPage { get; set; }
-
-    /// <summary>
-    /// Creates a new instance of <see cref="PageExtractor"/> that will extract all pages from
-    /// the given source document.
-    /// </summary>
-    /// <param name="sourceDocument">The document from which pages are extracted.</param>
+    /// <param name="sourceDocument">The document to extract pages from.</param>
     public PageExtractor(PDDocument sourceDocument)
     {
         _sourceDocument = sourceDocument ?? throw new ArgumentNullException(nameof(sourceDocument));
-        EndPage = sourceDocument.GetNumberOfPages();
+        _endPage = sourceDocument.GetNumberOfPages();
     }
 
     /// <summary>
-    /// Creates a new instance of <see cref="PageExtractor"/> that will extract the specified
-    /// range of pages from the given source document.
+    /// Creates a new extractor targeting a specific page range.
     /// </summary>
-    /// <param name="sourceDocument">The document from which pages are extracted.</param>
-    /// <param name="startPage">The 1-based first page to extract (inclusive).</param>
-    /// <param name="endPage">The 1-based last page to extract (inclusive).</param>
+    /// <param name="sourceDocument">The document to extract pages from.</param>
+    /// <param name="startPage">The first page to extract (1-based, inclusive).</param>
+    /// <param name="endPage">The last page to extract (1-based, inclusive).</param>
     public PageExtractor(PDDocument sourceDocument, int startPage, int endPage)
     {
         _sourceDocument = sourceDocument ?? throw new ArgumentNullException(nameof(sourceDocument));
-        StartPage = startPage;
-        EndPage = endPage;
+        _startPage = startPage;
+        _endPage = endPage;
     }
 
     /// <summary>
-    /// Extracts the configured page range into a new document and returns it.
+    /// Gets or sets the first page number to extract (1-based, inclusive).
     /// </summary>
-    /// <remarks>
-    /// Both <see cref="StartPage"/> and <see cref="EndPage"/> are inclusive. If
-    /// <see cref="EndPage"/> exceeds the number of pages in the source document the extraction
-    /// stops at the last page. If <see cref="StartPage"/> is less than 1 it is treated as 1.
-    /// If the resulting range is empty, an empty document is returned.
-    /// </remarks>
-    /// <returns>A new <see cref="PDDocument"/> containing the extracted pages.</returns>
+    public int StartPage
+    {
+        get => _startPage;
+        set => _startPage = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the last page number to extract (1-based, inclusive).
+    /// </summary>
+    public int EndPage
+    {
+        get => _endPage;
+        set => _endPage = value;
+    }
+
+    /// <summary>
+    /// Extracts the configured page range into a new document.
+    /// </summary>
+    /// <returns>A new document containing the extracted pages.</returns>
     public PDDocument Extract()
     {
-        int effectiveStart = Math.Max(StartPage, 1);
-        int effectiveEnd = Math.Min(EndPage, _sourceDocument.GetNumberOfPages());
+        int totalPages = _sourceDocument.GetNumberOfPages();
+        int start = Math.Max(_startPage, 1);
+        int end = Math.Min(_endPage, totalPages);
 
-        if (effectiveEnd - effectiveStart + 1 <= 0)
+        if (end - start + 1 <= 0)
         {
             return new PDDocument();
         }
 
         Splitter splitter = new();
-        splitter.SetStartPage(effectiveStart);
-        splitter.SetEndPage(effectiveEnd);
-        splitter.SetSplitAtPage(effectiveEnd - effectiveStart + 1);
+        splitter.StartPage = start;
+        splitter.EndPage = end;
+        splitter.SplitAtPage = end - start + 1;
 
-        List<PDDocument> split = splitter.Split(_sourceDocument);
-        return split[0];
+        IList<PDDocument> parts = splitter.Split(_sourceDocument);
+        return parts.Count > 0 ? parts[0] : new PDDocument();
     }
 }

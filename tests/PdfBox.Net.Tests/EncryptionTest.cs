@@ -1,6 +1,8 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Encryption;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 namespace PdfBox.Net.Tests;
 
@@ -73,6 +75,70 @@ public class EncryptionTest
         Assert.Equal(StandardSecurityHandler.FILTER, "Standard");
     }
 
+    [Fact]
+    public void SecurityHandlerFactory_ReturnsHandlersForKnownFilterAndPolicy()
+    {
+        SecurityHandlerFactory factory = SecurityHandlerFactory.INSTANCE;
+
+        SecurityHandler<ProtectionPolicy>? standardByFilter = factory.NewSecurityHandlerForFilter(StandardSecurityHandler.FILTER);
+        SecurityHandler<ProtectionPolicy>? pubKeyByFilter = factory.NewSecurityHandlerForFilter(PublicKeySecurityHandler.FILTER);
+        SecurityHandler<ProtectionPolicy>? standardByPolicy = factory.NewSecurityHandlerForPolicy(
+            new StandardProtectionPolicy("owner", "user", AccessPermission.GetOwnerAccessPermission()));
+        SecurityHandler<ProtectionPolicy>? pubKeyByPolicy = factory.NewSecurityHandlerForPolicy(new PublicKeyProtectionPolicy());
+
+        Assert.IsType<StandardSecurityHandler>(standardByFilter);
+        Assert.IsType<PublicKeySecurityHandler>(pubKeyByFilter);
+        Assert.IsType<StandardSecurityHandler>(standardByPolicy);
+        Assert.IsType<PublicKeySecurityHandler>(pubKeyByPolicy);
+    }
+
+    [Fact]
+    public void SecurityHandlerFactory_ReturnsNullForUnknownFilterOrPolicy()
+    {
+        SecurityHandlerFactory factory = SecurityHandlerFactory.INSTANCE;
+        Assert.Null(factory.NewSecurityHandlerForFilter("UnknownFilter"));
+        Assert.Null(factory.NewSecurityHandlerForPolicy(new TestProtectionPolicy()));
+    }
+
+    [Fact]
+    public void PublicKeyProtectionPolicy_TracksRecipients()
+    {
+        PublicKeyProtectionPolicy policy = new();
+        PublicKeyRecipient recipientA = new();
+        PublicKeyRecipient recipientB = new();
+        recipientA.SetPermission(new AccessPermission());
+        recipientB.SetPermission(AccessPermission.GetOwnerAccessPermission());
+
+        policy.AddRecipient(recipientA);
+        policy.AddRecipient(recipientB);
+
+        Assert.Equal(2, policy.GetNumberOfRecipients());
+        Assert.True(policy.RemoveRecipient(recipientA));
+        Assert.Equal(1, policy.GetNumberOfRecipients());
+    }
+
+    [Fact]
+    public void PublicKeyDecryptionMaterial_ExposesCertificateAndPrivateKey()
+    {
+        using RSA rsa = RSA.Create(2048);
+        CertificateRequest req = new("CN=pdfbox-net-test", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        using X509Certificate2 cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1));
+
+        PublicKeyDecryptionMaterial material = new(cert, "secret");
+
+        Assert.Equal(cert.Thumbprint, material.GetCertificate().Thumbprint);
+        Assert.Equal("secret", material.GetPassword());
+        Assert.IsAssignableFrom<RSA>(material.GetPrivateKey());
+    }
+
+    [Fact]
+    public void SecurityProvider_RoundTripsConfiguredProvider()
+    {
+        object provider = new();
+        SecurityProvider.SetProvider(provider);
+        Assert.Same(provider, SecurityProvider.GetProvider());
+    }
+
     // -----------------------------------------------------------------------
     // Fixture-based decryption tests
     // -----------------------------------------------------------------------
@@ -89,7 +155,7 @@ public class EncryptionTest
     public void Load_RC4EncryptedPdf_WithWrongPassword_ThrowsIOException()
     {
         string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "encrypted-rc4-test.pdf");
-        Assert.Throws<IOException>(() => PDDocument.Load(fixturePath, "wrongpassword"));
+        Assert.Throws<InvalidPasswordException>(() => PDDocument.Load(fixturePath, "wrongpassword"));
     }
 
     [Fact]
@@ -141,5 +207,9 @@ public class EncryptionTest
             password, ownerKey, unchecked((int)4294967292), docId, 3, 16, true);
 
         Assert.Equal(16, fileKey.Length);
+    }
+
+    private sealed class TestProtectionPolicy : ProtectionPolicy
+    {
     }
 }

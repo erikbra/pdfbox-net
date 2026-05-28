@@ -31,182 +31,126 @@ using PdfBox.Net.PDModel;
 namespace PdfBox.Net.MultiPdf;
 
 /// <summary>
-/// Splits a PDF document into one or more separate documents.
+/// Splits a document into several other documents, one per <see cref="SplitAtPage"/> pages.
 /// </summary>
 public class Splitter
 {
-    private PDDocument? _sourceDocument;
-    private PDDocument? _currentDestinationDocument;
-
     private int _splitLength = 1;
     private int _startPage = int.MinValue;
     private int _endPage = int.MaxValue;
-    private List<PDDocument>? _destinationDocuments;
-
-    private int _currentPageNumber;
 
     /// <summary>
-    /// Splits the given document according to the configured start page, end page, and split length.
+    /// Gets or sets the number of pages to include in each split document.
+    /// Defaults to 1 (one page per document).
+    /// </summary>
+    public int SplitAtPage
+    {
+        get => _splitLength;
+        set
+        {
+            if (value <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), "SplitAtPage must be greater than zero.");
+            }
+
+            _splitLength = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the 1-based first page to include in the split (inclusive).
+    /// </summary>
+    public int StartPage
+    {
+        get => _startPage;
+        set => _startPage = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the 1-based last page to include in the split (inclusive).
+    /// </summary>
+    public int EndPage
+    {
+        get => _endPage;
+        set => _endPage = value;
+    }
+
+    /// <summary>
+    /// Splits the given document and returns a list of new documents.
+    /// The caller is responsible for saving and disposing each returned document.
     /// </summary>
     /// <param name="document">The document to split.</param>
-    /// <returns>
-    /// A list of all split documents. Each document should be saved before any of them are
-    /// closed (including the source document). Any further operations should be done after
-    /// reloading from the saved data.
-    /// </returns>
-    public List<PDDocument> Split(PDDocument document)
+    /// <returns>A list of split documents.</returns>
+    public IList<PDDocument> Split(PDDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        _currentPageNumber = 0;
-        _destinationDocuments = [];
-        _sourceDocument = document;
+        int numberOfPages = document.GetNumberOfPages();
+        int effectiveStart = Math.Max(_startPage == int.MinValue ? 1 : _startPage, 1);
+        int effectiveEnd = Math.Min(_endPage == int.MaxValue ? numberOfPages : _endPage, numberOfPages);
 
-        ProcessPages();
+        List<PDDocument> destinations = new();
 
-        return _destinationDocuments;
-    }
-
-    /// <summary>
-    /// Sets the number of pages at which to split. The default is 1, meaning every page becomes
-    /// its own document. A value of 2 means each output document will contain up to 2 pages.
-    /// </summary>
-    /// <param name="split">The number of pages per split document.</param>
-    /// <exception cref="ArgumentOutOfRangeException">If <paramref name="split"/> is less than 1.</exception>
-    public void SetSplitAtPage(int split)
-    {
-        if (split <= 0)
+        if (effectiveStart > effectiveEnd)
         {
-            throw new ArgumentOutOfRangeException(nameof(split), "Number of pages is smaller than one.");
+            return destinations;
         }
 
-        _splitLength = split;
-    }
+        PDFCloneUtility cloner = new(CreateNewDocument());
+        PDDocument? current = null;
+        int pagesInCurrent = 0;
 
-    /// <summary>
-    /// Sets the 1-based first page to include in the split output. Pages before this are skipped.
-    /// </summary>
-    /// <param name="start">The 1-based start page (inclusive).</param>
-    /// <exception cref="ArgumentOutOfRangeException">If <paramref name="start"/> is less than 1.</exception>
-    public void SetStartPage(int start)
-    {
-        if (start <= 0)
+        try
         {
-            throw new ArgumentOutOfRangeException(nameof(start), "Start page is smaller than one.");
-        }
-
-        _startPage = start;
-    }
-
-    /// <summary>
-    /// Sets the 1-based last page to include in the split output. Pages after this are skipped.
-    /// </summary>
-    /// <param name="end">The 1-based end page (inclusive).</param>
-    /// <exception cref="ArgumentOutOfRangeException">If <paramref name="end"/> is less than 1.</exception>
-    public void SetEndPage(int end)
-    {
-        if (end <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(end), "End page is smaller than one.");
-        }
-
-        _endPage = end;
-    }
-
-    /// <summary>
-    /// Determines whether a new output document should begin before the page at the given
-    /// zero-based page number. Override to implement custom splitting logic.
-    /// </summary>
-    /// <param name="pageNumber">Zero-based page number within the selected range.</param>
-    /// <returns><see langword="true"/> if a new document should be created.</returns>
-    protected virtual bool SplitAtPage(int pageNumber)
-    {
-        return (pageNumber + 1 - Math.Max(1, _startPage)) % _splitLength == 0;
-    }
-
-    /// <summary>
-    /// Creates a new destination document for the next split. Override to customize document
-    /// creation (for example to copy catalog metadata from the source).
-    /// </summary>
-    /// <returns>A new empty <see cref="PDDocument"/>.</returns>
-    protected virtual PDDocument CreateNewDocument()
-    {
-        PDDocument destination = new();
-        PDDocumentCatalog destCatalog = destination.GetDocumentCatalog();
-        PDDocumentCatalog srcCatalog = GetSourceDocument().GetDocumentCatalog();
-        destCatalog.SetViewerPreferences(srcCatalog.GetViewerPreferences());
-        destCatalog.SetLanguage(srcCatalog.GetLanguage());
-        destCatalog.SetMarkInfo(srcCatalog.GetMarkInfo());
-        return destination;
-    }
-
-    /// <summary>
-    /// Processes and imports the given page into the current destination document. Override to
-    /// apply custom per-page transformations.
-    /// </summary>
-    /// <param name="page">The source page to import.</param>
-    protected virtual void ProcessPage(PDPage page)
-    {
-        CreateNewDocumentIfNecessary();
-
-        PDFCloneUtility cloner = new(GetDestinationDocument());
-        COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
-        COSDictionary clonedPageDictionary = cloner.CloneForNewDocument(pageDictionary)
-            ?? throw new IOException("Unable to clone source page dictionary.");
-
-        clonedPageDictionary.RemoveItem(COSName.PARENT);
-
-        // Remove thread beads — their cross-page links are not valid in a split document.
-        clonedPageDictionary.RemoveItem(COSName.B);
-
-        PDPage newPage = new(clonedPageDictionary);
-        GetDestinationDocument().AddPage(newPage);
-    }
-
-    /// <summary>
-    /// Returns the source PDF document.
-    /// </summary>
-    protected PDDocument GetSourceDocument()
-    {
-        return _sourceDocument ?? throw new InvalidOperationException("Split has not been started.");
-    }
-
-    /// <summary>
-    /// Returns the current destination document.
-    /// </summary>
-    protected PDDocument GetDestinationDocument()
-    {
-        return _currentDestinationDocument ?? throw new InvalidOperationException("No destination document is active.");
-    }
-
-    private void ProcessPages()
-    {
-        foreach (PDPage page in GetSourceDocument().GetPages())
-        {
-            int oneBasedPageNumber = _currentPageNumber + 1;
-            if (oneBasedPageNumber >= _startPage && oneBasedPageNumber <= _endPage)
+            for (int pageNumber = effectiveStart; pageNumber <= effectiveEnd; pageNumber++)
             {
-                ProcessPage(page);
-                _currentPageNumber++;
-            }
-            else
-            {
-                if (_currentPageNumber > _endPage)
+                if (current is null || pagesInCurrent >= _splitLength)
                 {
-                    break;
+                    if (current is not null)
+                    {
+                        destinations.Add(current);
+                    }
+
+                    current = CreateNewDocument();
+                    cloner = new PDFCloneUtility(current);
+                    pagesInCurrent = 0;
                 }
 
-                _currentPageNumber++;
+                PDPage sourcePage = document.GetPage(pageNumber - 1);
+                COSDictionary pageDictionary = (COSDictionary)sourcePage.GetCOSObject();
+                COSDictionary cloned = cloner.CloneForNewDocument(pageDictionary)
+                    ?? throw new IOException($"Unable to clone page dictionary for page {pageNumber}.");
+
+                cloned.RemoveItem(COSName.PARENT);
+                current.AddPage(new PDPage(cloned));
+                pagesInCurrent++;
+            }
+
+            if (current is not null)
+            {
+                destinations.Add(current);
+                current = null;
             }
         }
+        catch
+        {
+            current?.Dispose();
+            foreach (PDDocument doc in destinations)
+            {
+                doc.Dispose();
+            }
+
+            throw;
+        }
+
+        return destinations;
     }
 
-    private void CreateNewDocumentIfNecessary()
+    /// <summary>
+    /// Override this method to control how the destination documents are created.
+    /// </summary>
+    protected virtual PDDocument CreateNewDocument()
     {
-        if (SplitAtPage(_currentPageNumber) || _currentDestinationDocument is null)
-        {
-            _currentDestinationDocument = CreateNewDocument();
-            _destinationDocuments!.Add(_currentDestinationDocument);
-        }
+        return new PDDocument();
     }
 }

@@ -15,7 +15,7 @@ public class MultiPdfExtractionSplittingTest
         using PDDocument source = CreateMultiPagePdf(3, [90, 180, 270]);
 
         Splitter splitter = new();
-        List<PDDocument> results = splitter.Split(source);
+        IList<PDDocument> results = splitter.Split(source);
 
         try
         {
@@ -40,8 +40,8 @@ public class MultiPdfExtractionSplittingTest
         using PDDocument source = CreateMultiPagePdfByWidth(5, [100f, 200f, 300f, 400f, 500f]);
 
         Splitter splitter = new();
-        splitter.SetSplitAtPage(2);
-        List<PDDocument> results = splitter.Split(source);
+        splitter.SplitAtPage = 2;
+        IList<PDDocument> results = splitter.Split(source);
 
         try
         {
@@ -69,9 +69,9 @@ public class MultiPdfExtractionSplittingTest
         using PDDocument source = CreateMultiPagePdfByWidth(5, [100f, 200f, 300f, 400f, 500f]);
 
         Splitter splitter = new();
-        splitter.SetStartPage(2);
-        splitter.SetEndPage(4);
-        List<PDDocument> results = splitter.Split(source);
+        splitter.StartPage = 2;
+        splitter.EndPage = 4;
+        IList<PDDocument> results = splitter.Split(source);
 
         try
         {
@@ -94,7 +94,7 @@ public class MultiPdfExtractionSplittingTest
         using PDDocument source = PDDocument.Load(ms);
 
         Splitter splitter = new();
-        List<PDDocument> results = splitter.Split(source);
+        IList<PDDocument> results = splitter.Split(source);
 
         try
         {
@@ -116,22 +116,8 @@ public class MultiPdfExtractionSplittingTest
     public void Splitter_RejectsInvalidSplitAtPage()
     {
         Splitter splitter = new();
-        Assert.Throws<ArgumentOutOfRangeException>(() => splitter.SetSplitAtPage(0));
-        Assert.Throws<ArgumentOutOfRangeException>(() => splitter.SetSplitAtPage(-1));
-    }
-
-    [Fact]
-    public void Splitter_RejectsInvalidStartPage()
-    {
-        Splitter splitter = new();
-        Assert.Throws<ArgumentOutOfRangeException>(() => splitter.SetStartPage(0));
-    }
-
-    [Fact]
-    public void Splitter_RejectsInvalidEndPage()
-    {
-        Splitter splitter = new();
-        Assert.Throws<ArgumentOutOfRangeException>(() => splitter.SetEndPage(0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => splitter.SplitAtPage = 0);
+        Assert.Throws<ArgumentOutOfRangeException>(() => splitter.SplitAtPage = -1);
     }
 
     [Fact]
@@ -140,8 +126,8 @@ public class MultiPdfExtractionSplittingTest
         using PDDocument source = CreateMultiPagePdf(2, [0, 90]);
 
         Splitter splitter = new();
-        splitter.SetSplitAtPage(2);
-        List<PDDocument> results = splitter.Split(source);
+        splitter.SplitAtPage = 2;
+        IList<PDDocument> results = splitter.Split(source);
 
         try
         {

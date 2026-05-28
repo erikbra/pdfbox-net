@@ -447,6 +447,22 @@ public sealed class PDPage : COSObjectable
         return null;
     }
 
+    /// <summary>
+    /// Sets the resource dictionary for this page.
+    /// </summary>
+    /// <param name="resources">The resource dictionary, or <see langword="null"/> to remove it.</param>
+    public void SetResources(PDResources? resources)
+    {
+        if (resources is null)
+        {
+            _page.RemoveItem(COSName.RESOURCES);
+        }
+        else
+        {
+            _page.SetItem(COSName.RESOURCES, resources.GetCOSObject());
+        }
+    }
+
     public void RemovePageResourceFromCache()
     {
     }
