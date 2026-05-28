@@ -128,7 +128,7 @@ public class EncryptionTest
 
         Assert.Equal(cert.Thumbprint, material.GetCertificate().Thumbprint);
         Assert.Equal("secret", material.GetPassword());
-        Assert.IsType<RSA>(material.GetPrivateKey());
+        Assert.IsAssignableFrom<RSA>(material.GetPrivateKey());
     }
 
     [Fact]

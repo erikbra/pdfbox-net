@@ -64,7 +64,8 @@ public sealed class PublicKeySecurityHandler : SecurityHandler<ProtectionPolicy>
         if (defaultCryptFilterDictionary is not null)
         {
             COSName? cryptFilterMethod = defaultCryptFilterDictionary.GetCryptFilterMethod();
-            SetAES(COSName.AESV2.Equals(cryptFilterMethod) || COSName.AESV3.Equals(cryptFilterMethod));
+            string? cryptFilterName = cryptFilterMethod?.GetName();
+            SetAES(cryptFilterName is "AESV2" or "AESV3");
             SetStreamFilterName(encryption.GetStreamFilterName());
             SetStringFilterName(encryption.GetStringFilterName());
         }

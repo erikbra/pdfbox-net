@@ -479,21 +479,6 @@ public sealed class PDDocument : IDisposable
                     }
                 }
 
-                private static DecryptionMaterial CreateDecryptionMaterialForLoad(SecurityHandler<ProtectionPolicy> handler, string? password)
-                {
-                    if (handler is StandardSecurityHandler)
-                    {
-                        return new StandardDecryptionMaterial(password ?? string.Empty);
-                    }
-
-                    if (handler is PublicKeySecurityHandler)
-                    {
-                        throw new IOException("Public-key encrypted documents require PublicKeyDecryptionMaterial and are not supported by this Load overload.");
-                    }
-
-                    throw new IOException($"Unsupported security handler type '{handler.GetType().FullName}'.");
-                }
-
                 break;
 
             case COSArray cosArray:
@@ -508,6 +493,21 @@ public sealed class PDDocument : IDisposable
 
                 break;
         }
+    }
+
+    private static DecryptionMaterial CreateDecryptionMaterialForLoad(SecurityHandler<ProtectionPolicy> handler, string? password)
+    {
+        if (handler is StandardSecurityHandler)
+        {
+            return new StandardDecryptionMaterial(password ?? string.Empty);
+        }
+
+        if (handler is PublicKeySecurityHandler)
+        {
+            throw new IOException("Public-key encrypted documents require PublicKeyDecryptionMaterial and are not supported by this Load overload.");
+        }
+
+        throw new IOException($"Unsupported security handler type '{handler.GetType().FullName}'.");
     }
 
     private static COSDocument CreateNewDocument()
