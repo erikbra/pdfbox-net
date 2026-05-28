@@ -33,6 +33,7 @@ public abstract class AbstractProcessor : PDDocumentProcessor
 
     protected AbstractProcessor(PDDocument document)
     {
+        ArgumentNullException.ThrowIfNull(document);
         this.document = document;
     }
 
