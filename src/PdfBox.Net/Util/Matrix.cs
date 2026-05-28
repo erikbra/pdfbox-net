@@ -202,6 +202,37 @@ public sealed class Matrix
     }
 
     /// <summary>
+    /// Creates a Matrix from an AffineTransform.
+    /// </summary>
+    public Matrix(AffineTransform at)
+    {
+        ArgumentNullException.ThrowIfNull(at);
+        _single = new float[Size];
+        _single[0] = (float)at.ScaleX;
+        _single[1] = (float)at.ShearY;
+        _single[3] = (float)at.ShearX;
+        _single[4] = (float)at.ScaleY;
+        _single[6] = (float)at.TranslateX;
+        _single[7] = (float)at.TranslateY;
+        _single[8] = 1;
+    }
+
+    /// <summary>
+    /// Creates an AffineTransform from this matrix.
+    /// </summary>
+    public AffineTransform CreateAffineTransform()
+    {
+        return new AffineTransform(
+            _single[0], // m00 = scaleX
+            _single[1], // m10 = shearY
+            _single[3], // m01 = shearX
+            _single[4], // m11 = scaleY
+            _single[6], // m02 = translateX
+            _single[7]  // m12 = translateY
+        );
+    }
+
+    /// <summary>
     /// Creates a translating instance.
     /// </summary>
     /// <param name="tx">The x translation.</param>

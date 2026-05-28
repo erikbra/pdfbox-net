@@ -4336,5 +4336,54 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/Splitter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Simplified port: structure-tree / annotation fixup omitted"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Iterator-based split retained. Structure tree and named destination cloning not yet in scope."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PageExtractor.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/PageExtractor.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Faithful port. Delegates to Splitter."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Overlay.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/Overlay.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java method renamed: overlay() -> Process() (C# cannot have member with same name as enclosing type)",
+      "Java syntax leftovers -> C# syntax equivalents",
+      "IDisposable added for resource management"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Overlay.overlay() renamed to Overlay.Process() due to C# restriction. All overlay modes faithfully ported."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/LayerUtility.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/LayerUtility.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "document.getDocument().createCOSStream() replaced with new COSStream()",
+      "CloneMerge(PDResources,PDResources) replaced with CloneForNewDocument(COSDictionary)"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDPageContentStream used for AppendFormAsLayer. Resource cloning adapted due to PDResources not implementing COSObjectable."
   }
 ]

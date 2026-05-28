@@ -110,4 +110,23 @@ public class PDFormXObject : PDXObject
         float[] values = m.ToFloatArray();
         return new Matrix(values[0], values[1], values[2], values[3], values[4], values[5]);
     }
+
+    public void SetMatrix(Matrix matrix)
+    {
+        ArgumentNullException.ThrowIfNull(matrix);
+        COSArray m = new();
+        m.Add(new COSFloat(matrix.GetScaleX()));
+        m.Add(new COSFloat(matrix.GetShearY()));
+        m.Add(new COSFloat(matrix.GetShearX()));
+        m.Add(new COSFloat(matrix.GetScaleY()));
+        m.Add(new COSFloat(matrix.GetTranslateX()));
+        m.Add(new COSFloat(matrix.GetTranslateY()));
+        GetCOSObject()?.SetItem(MatrixName, m);
+    }
+
+    public void SetMatrix(AffineTransform at)
+    {
+        ArgumentNullException.ThrowIfNull(at);
+        SetMatrix(new Matrix(at));
+    }
 }
