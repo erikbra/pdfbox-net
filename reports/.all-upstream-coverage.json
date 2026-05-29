@@ -1,13 +1,13 @@
 {
-  "generated_at_utc": "2026-05-29T15:00:04.092Z",
+  "generated_at_utc": "2026-05-29T16:09:25.429Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "upstream_head": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
   "tracked_parity_baseline_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
-  "mapped": 786,
-  "missing": 281,
+  "mapped": 880,
+  "missing": 187,
   "modules": [
     {
       "module": "benchmark",
@@ -26,9 +26,9 @@
     {
       "module": "examples",
       "java_files": 94,
-      "mapped": 0,
-      "missing": 94,
-      "pct": 0.0
+      "mapped": 94,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "fontbox",
@@ -84,9 +84,9 @@
     {
       "family": "examples:examples",
       "java_files": 94,
-      "mapped": 0,
-      "missing": 94,
-      "pct": 0.0
+      "mapped": 94,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "fontbox:(root)",
@@ -279,34 +279,12 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 526,
-    "in-sync": 495,
+    "total_rows": 620,
+    "in-sync": 589,
     "partially-in-sync": 20,
     "partial": 11
   },
   "top_missing_modules": {
-    "examples": [
-      "examples/src/main/java/org/apache/pdfbox/examples/ant/PDFToTextTask.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/AddBorderToField.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateCheckBox.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateMultiWidgetsForm.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreatePushButton.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateRadioButtons.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateSimpleForm.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateSimpleFormWithEmbeddedFont.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/DetermineTextFitsField.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FieldRemover.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FieldTriggers.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FillFormField.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/PrintFields.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/SetField.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/UpdateFieldOnDocumentOpen.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/package-info.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/lucene/IndexPDFFiles.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/lucene/LucenePDFDocument.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddAnnotations.java",
-      "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddImageToPDF.java"
-    ],
     "debugger": [
       "debugger/src/main/java/org/apache/pdfbox/debugger/PDFDebugger.java",
       "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSArrayBased.java",

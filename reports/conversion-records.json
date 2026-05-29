@@ -4654,5 +4654,757 @@
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Added deterministic XmpBox regression coverage for primitive/simple property creation, array property handling, reflection-driven structured type instantiation, and DateConverter ISO8601 round-trips."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/ant/PDFToTextTask.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/AddBorderToField.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateCheckBox.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateMultiWidgetsForm.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreatePushButton.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateRadioButtons.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateSimpleForm.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateSimpleFormWithEmbeddedFont.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/DetermineTextFitsField.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FieldRemover.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FieldTriggers.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FillFormField.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/PrintFields.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/SetField.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/UpdateFieldOnDocumentOpen.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/package-info.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/lucene/IndexPDFFiles.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/lucene/LucenePDFDocument.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddAnnotations.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddImageToPDF.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddJavascript.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddMessageToEachPage.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddMetadataFromDocInfo.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/BengaliPdfGenerationHelloWorld.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreateBlankPDF.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreateBookmarks.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreateGradientShadingPDF.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreateLandscapePDF.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreatePDFA.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreatePageLabels.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreatePatternsPDF.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreatePortableCollection.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreateSeparationColorBox.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/EmbeddedFiles.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/EmbeddedFonts.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/EmbeddedMultipleFonts.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/EmbeddedVerticalFonts.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ExtractEmbeddedFiles.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ExtractMetadata.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ExtractTTFFonts.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/GoToSecondBookmarkOnOpen.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/HelloWorld.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/HelloWorldTTF.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/HelloWorldType1.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ImageToPDF.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/PrintBookmarks.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/PrintDocumentMetaData.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/PrintURLs.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/RemoveFirstPage.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ReplaceURLs.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/RubberStamp.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/RubberStampWithImage.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ShowColorBoxes.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ShowTextWithPositioning.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/SuperimposePage.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/UsingTextMatrix.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/printing/OpaquePDFRenderer.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/printing/Printing.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/rendering/CustomGraphicsStreamEngine.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/rendering/CustomPageDrawer.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CMSProcessableInputStream.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateEmbeddedTimeStamp.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateEmptySignatureForm.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignature.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignatureBase.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignedTimeStamp.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/TSAClient.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/ValidationTimeStamp.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CRLVerifier.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CertificateVerificationException.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CertificateVerificationResult.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CertificateVerifier.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/OcspHelper.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/RevokedCertificateException.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/AddValidationInformation.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/CertInformationCollector.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/CertInformationHelper.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/CertificateProccessingException.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/AddWatermarkText.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/ConnectedInputStream.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/DrawPrintTextLocations.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/ExtractTextByArea.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/ExtractTextSimple.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/PDFHighlighter.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/PDFMergerExample.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/PrintImageLocations.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/PrintTextColors.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/PrintTextLocations.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/RemoveAllText.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/SplitBooklet.java",
+    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
   }
 ]
