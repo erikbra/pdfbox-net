@@ -1,20 +1,20 @@
 {
-  "generated_at_utc": "2026-05-29T16:31:00.019Z",
+  "generated_at_utc": "2026-05-29T20:02:59.703Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "upstream_head": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
   "tracked_parity_baseline_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
-  "mapped": 971,
-  "missing": 96,
+  "mapped": 974,
+  "missing": 93,
   "modules": [
     {
       "module": "benchmark",
       "java_files": 3,
-      "mapped": 0,
-      "missing": 3,
-      "pct": 0.0
+      "mapped": 3,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "debugger",
@@ -70,9 +70,9 @@
     {
       "family": "benchmark:benchmark",
       "java_files": 3,
-      "mapped": 0,
-      "missing": 3,
-      "pct": 0.0
+      "mapped": 3,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "debugger:debugger",
@@ -306,11 +306,6 @@
       "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSObjectPool.java"
-    ],
-    "benchmark": [
-      "benchmark/src/main/java/org/apache/pdfbox/benchmark/LoadAndSave.java",
-      "benchmark/src/main/java/org/apache/pdfbox/benchmark/Rendering.java",
-      "benchmark/src/main/java/org/apache/pdfbox/benchmark/TextExtraction.java"
     ],
     "xmpbox": [
       "xmpbox/src/main/java/org/apache/xmpbox/xml/DomHelper.java",
