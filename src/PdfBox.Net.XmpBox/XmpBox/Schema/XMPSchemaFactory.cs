@@ -26,15 +26,22 @@
  */
 
 using System.Reflection;
+using PdfBox.Net.XmpBox.Type;
 
 namespace PdfBox.Net.XmpBox.Schema;
 
 public class XMPSchemaFactory
 {
     private readonly string namespaceUri;
-    private readonly Type schemaType;
+    private readonly global::System.Type schemaType;
+    private readonly PropertiesDescription propDef;
 
-    public XMPSchemaFactory(string namespaceUri, Type schemaType)
+    public XMPSchemaFactory(string namespaceUri, global::System.Type schemaType)
+        : this(namespaceUri, schemaType, new PropertiesDescription())
+    {
+    }
+
+    public XMPSchemaFactory(string namespaceUri, global::System.Type schemaType, PropertiesDescription propDef)
     {
         ArgumentException.ThrowIfNullOrEmpty(namespaceUri);
         ArgumentNullException.ThrowIfNull(schemaType);
@@ -46,11 +53,22 @@ public class XMPSchemaFactory
 
         this.namespaceUri = namespaceUri;
         this.schemaType = schemaType;
+        this.propDef = propDef;
     }
 
     public string GetNamespace()
     {
         return namespaceUri;
+    }
+
+    public PropertyTypeAttribute? GetPropertyType(string name)
+    {
+        return propDef.GetPropertyType(name);
+    }
+
+    public PropertiesDescription GetPropertyDefinition()
+    {
+        return propDef;
     }
 
     public XMPSchema CreateXMPSchema(XMPMetadata metadata, string? prefix)
@@ -59,7 +77,7 @@ public class XMPSchemaFactory
 
         try
         {
-            XMPSchema schema = CreateSchemaInstance(metadata, prefix);
+            XMPSchema schema = InstanciateXMPSchema(metadata, prefix);
             metadata.AddSchema(schema);
             return schema;
         }
@@ -67,6 +85,12 @@ public class XMPSchemaFactory
         {
             throw new XmpSchemaException("Cannot instantiate specified object schema", ex);
         }
+    }
+
+    public XMPSchema InstanciateXMPSchema(XMPMetadata metadata, string? prefix)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+        return CreateSchemaInstance(metadata, prefix);
     }
 
     private XMPSchema CreateSchemaInstance(XMPMetadata metadata, string? prefix)

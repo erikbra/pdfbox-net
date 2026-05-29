@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source for schema registration parity.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java
+ * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/type/DimensionsType.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
@@ -25,32 +25,42 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.XmpBox.Type;
+namespace PdfBox.Net.XmpBox.Type;
 
-namespace PdfBox.Net.XmpBox.Schema;
-
-[StructuredType("http://ns.adobe.com/pdf/1.3/", "pdf")]
-public class AdobePDFSchema : XMPSchema
+[StructuredType("http://ns.adobe.com/xap/1.0/sType/Dimensions#", "stDim")]
+public class DimensionsType : AbstractStructuredType
 {
-    public const string NamespaceUri = "http://ns.adobe.com/pdf/1.3/";
-    public const string PreferredPrefix = "pdf";
+    [PropertyType(XmpTypeName.Real)]
+    public static readonly string H = "h";
+
+    [PropertyType(XmpTypeName.Real)]
+    public static readonly string W = "w";
 
     [PropertyType(XmpTypeName.Text)]
-    public static readonly string KEYWORDS = "Keywords";
+    public static readonly string UNIT = "unit";
 
-    [PropertyType(XmpTypeName.Text)]
-    public static readonly string PDF_VERSION = "PDFVersion";
-
-    [PropertyType(XmpTypeName.Text)]
-    public static readonly string PRODUCER = "Producer";
-
-public AdobePDFSchema(XMPMetadata metadata)
-        : this(metadata, PreferredPrefix)
+    public DimensionsType(XMPMetadata metadata)
+        : base(metadata)
     {
     }
 
-    public AdobePDFSchema(XMPMetadata metadata, string ownPrefix)
-        : base(metadata, NamespaceUri, ownPrefix)
+    public float? GetH()
     {
+        return GetProperty(H) is RealType prop ? prop.Value : null;
+    }
+
+    public float? GetW()
+    {
+        return GetProperty(W) is RealType prop ? prop.Value : null;
+    }
+
+    public string? GetUnit()
+    {
+        return GetPropertyValueAsString(UNIT);
+    }
+
+    public override string ToString()
+    {
+        return $"DimensionsType{{{GetW()} x {GetH()} {GetUnit()}}}";
     }
 }

@@ -25,14 +25,62 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.XmpBox.Type;
+
 namespace PdfBox.Net.XmpBox.Schema;
 
+[StructuredType("http://purl.org/dc/elements/1.1/", "dc")]
 public class DublinCoreSchema : XMPSchema
 {
     public const string NamespaceUri = "http://purl.org/dc/elements/1.1/";
     public const string PreferredPrefix = "dc";
 
-    public DublinCoreSchema(XMPMetadata metadata)
+    [PropertyType(XmpTypeName.Text, Cardinality.Bag)]
+    public static readonly string CONTRIBUTOR = "contributor";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string COVERAGE = "coverage";
+
+    [PropertyType(XmpTypeName.Text, Cardinality.Seq)]
+    public static readonly string CREATOR = "creator";
+
+    [PropertyType(XmpTypeName.Date, Cardinality.Seq)]
+    public static readonly string DATE = "date";
+
+    [PropertyType(XmpTypeName.LangAlt)]
+    public static readonly string DESCRIPTION = "description";
+
+    [PropertyType(XmpTypeName.MIMEType)]
+    public static readonly string FORMAT = "format";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string IDENTIFIER = "identifier";
+
+    [PropertyType(XmpTypeName.Text, Cardinality.Bag)]
+    public static readonly string LANGUAGE = "language";
+
+    [PropertyType(XmpTypeName.Text, Cardinality.Bag)]
+    public static readonly string PUBLISHER = "publisher";
+
+    [PropertyType(XmpTypeName.Text, Cardinality.Bag)]
+    public static readonly string RELATION = "relation";
+
+    [PropertyType(XmpTypeName.LangAlt)]
+    public static readonly string RIGHTS = "rights";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string SOURCE = "source";
+
+    [PropertyType(XmpTypeName.Text, Cardinality.Bag)]
+    public static readonly string SUBJECT = "subject";
+
+    [PropertyType(XmpTypeName.LangAlt)]
+    public static readonly string TITLE = "title";
+
+    [PropertyType(XmpTypeName.Text, Cardinality.Bag)]
+    public static readonly string TYPE = "type";
+
+public DublinCoreSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }

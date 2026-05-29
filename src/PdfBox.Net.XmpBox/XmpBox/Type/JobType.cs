@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source for schema registration parity.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java
+ * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/type/JobType.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
@@ -25,32 +25,35 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.XmpBox.Type;
+namespace PdfBox.Net.XmpBox.Type;
 
-namespace PdfBox.Net.XmpBox.Schema;
-
-[StructuredType("http://ns.adobe.com/pdf/1.3/", "pdf")]
-public class AdobePDFSchema : XMPSchema
+[StructuredType("http://ns.adobe.com/xap/1.0/sType/Job#", "stJob")]
+public class JobType : AbstractStructuredType
 {
-    public const string NamespaceUri = "http://ns.adobe.com/pdf/1.3/";
-    public const string PreferredPrefix = "pdf";
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string ID = "id";
 
     [PropertyType(XmpTypeName.Text)]
-    public static readonly string KEYWORDS = "Keywords";
+    public static readonly string NAME = "name";
 
-    [PropertyType(XmpTypeName.Text)]
-    public static readonly string PDF_VERSION = "PDFVersion";
+    [PropertyType(XmpTypeName.URL)]
+    public static readonly string URL = "url";
 
-    [PropertyType(XmpTypeName.Text)]
-    public static readonly string PRODUCER = "Producer";
-
-public AdobePDFSchema(XMPMetadata metadata)
-        : this(metadata, PreferredPrefix)
+    public JobType(XMPMetadata metadata)
+        : this(metadata, null)
     {
     }
 
-    public AdobePDFSchema(XMPMetadata metadata, string ownPrefix)
-        : base(metadata, NamespaceUri, ownPrefix)
+    public JobType(XMPMetadata metadata, string? fieldPrefix)
+        : base(metadata, null, fieldPrefix, null)
     {
+        AddNamespace(GetNamespace()!, GetPrefix()!);
     }
+
+    public void SetId(string id) => AddSimpleProperty(ID, id);
+    public void SetName(string name) => AddSimpleProperty(NAME, name);
+    public void SetUrl(string name) => AddSimpleProperty(URL, name);
+    public string? GetId() => GetPropertyValueAsString(ID);
+    public string? GetName() => GetPropertyValueAsString(NAME);
+    public string? GetUrl() => GetPropertyValueAsString(URL);
 }

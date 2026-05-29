@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source for schema registration parity.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAExtensionSchema.java
+ * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/type/OECFType.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
@@ -25,26 +25,25 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.XmpBox.Type;
+namespace PdfBox.Net.XmpBox.Type;
 
-namespace PdfBox.Net.XmpBox.Schema;
-
-[StructuredType("http://www.aiim.org/pdfa/ns/extension/", "pdfaExtension")]
-public class PDFAExtensionSchema : XMPSchema
+[StructuredType("http://ns.adobe.com/exif/1.0/", "exif")]
+public class OECFType : AbstractStructuredType
 {
-    public const string NamespaceUri = "http://www.aiim.org/pdfa/ns/extension/";
-    public const string PreferredPrefix = "pdfaExtension";
+    [PropertyType(XmpTypeName.Integer)]
+    public static readonly string COLUMNS = "Columns";
 
-    [PropertyType(XmpTypeName.PDFASchema, Cardinality.Bag)]
-    public static readonly string SCHEMAS = "schemas";
+    [PropertyType(XmpTypeName.Text, Cardinality.Seq)]
+    public static readonly string NAMES = "Names";
 
-public PDFAExtensionSchema(XMPMetadata metadata)
-        : this(metadata, PreferredPrefix)
-    {
-    }
+    [PropertyType(XmpTypeName.Integer)]
+    public static readonly string ROWS = "Rows";
 
-    public PDFAExtensionSchema(XMPMetadata metadata, string ownPrefix)
-        : base(metadata, NamespaceUri, ownPrefix)
+    [PropertyType(XmpTypeName.Real, Cardinality.Seq)]
+    public static readonly string VALUES = "Values";
+
+    public OECFType(XMPMetadata metadata)
+        : base(metadata)
     {
     }
 }

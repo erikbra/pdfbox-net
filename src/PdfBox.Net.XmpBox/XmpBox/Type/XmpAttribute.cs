@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source for schema registration parity.
+ * Adapted from Apache PDFBox Java source; renamed from Attribute to XmpAttribute for C# compatibility.
  *
- * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAExtensionSchema.java
+ * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/type/Attribute.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -25,26 +25,21 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.XmpBox.Type;
 
-namespace PdfBox.Net.XmpBox.Schema;
+namespace PdfBox.Net.XmpBox.Type;
 
-[StructuredType("http://www.aiim.org/pdfa/ns/extension/", "pdfaExtension")]
-public class PDFAExtensionSchema : XMPSchema
+public class XmpAttribute
 {
-    public const string NamespaceUri = "http://www.aiim.org/pdfa/ns/extension/";
-    public const string PreferredPrefix = "pdfaExtension";
-
-    [PropertyType(XmpTypeName.PDFASchema, Cardinality.Bag)]
-    public static readonly string SCHEMAS = "schemas";
-
-public PDFAExtensionSchema(XMPMetadata metadata)
-        : this(metadata, PreferredPrefix)
+    public XmpAttribute(string? @namespace, string name, string value)
     {
+        Namespace = @namespace;
+        Name = name;
+        Value = value;
     }
 
-    public PDFAExtensionSchema(XMPMetadata metadata, string ownPrefix)
-        : base(metadata, NamespaceUri, ownPrefix)
-    {
-    }
+    public string? Namespace { get; }
+
+    public string Name { get; }
+
+    public string Value { get; set; }
 }

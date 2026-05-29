@@ -25,14 +25,32 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.XmpBox.Type;
+
 namespace PdfBox.Net.XmpBox.Schema;
 
+[StructuredType("http://ns.adobe.com/xap/1.0/rights/", "xmpRights")]
 public class XMPRightsManagementSchema : XMPSchema
 {
     public const string NamespaceUri = "http://ns.adobe.com/xap/1.0/rights/";
     public const string PreferredPrefix = "xmpRights";
 
-    public XMPRightsManagementSchema(XMPMetadata metadata)
+    [PropertyType(XmpTypeName.URL)]
+    public static readonly string CERTIFICATE = "Certificate";
+
+    [PropertyType(XmpTypeName.Boolean)]
+    public static readonly string MARKED = "Marked";
+
+    [PropertyType(XmpTypeName.ProperName, Cardinality.Bag)]
+    public static readonly string OWNER = "Owner";
+
+    [PropertyType(XmpTypeName.LangAlt)]
+    public static readonly string USAGETERMS = "UsageTerms";
+
+    [PropertyType(XmpTypeName.URL)]
+    public static readonly string WEBSTATEMENT = "WebStatement";
+
+public XMPRightsManagementSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }

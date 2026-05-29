@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source for schema registration parity.
+ * Adapted from Apache PDFBox Java source for C# collection parity.
  *
- * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAExtensionSchema.java
+ * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/type/PropertiesDescription.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -25,26 +25,31 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.XmpBox.Type;
 
-namespace PdfBox.Net.XmpBox.Schema;
+namespace PdfBox.Net.XmpBox.Type;
 
-[StructuredType("http://www.aiim.org/pdfa/ns/extension/", "pdfaExtension")]
-public class PDFAExtensionSchema : XMPSchema
+public class PropertiesDescription
 {
-    public const string NamespaceUri = "http://www.aiim.org/pdfa/ns/extension/";
-    public const string PreferredPrefix = "pdfaExtension";
+    private readonly Dictionary<string, PropertyTypeAttribute> types = new(StringComparer.Ordinal);
 
-    [PropertyType(XmpTypeName.PDFASchema, Cardinality.Bag)]
-    public static readonly string SCHEMAS = "schemas";
-
-public PDFAExtensionSchema(XMPMetadata metadata)
-        : this(metadata, PreferredPrefix)
+    public List<string> GetPropertiesNames()
     {
+        return [.. types.Keys];
     }
 
-    public PDFAExtensionSchema(XMPMetadata metadata, string ownPrefix)
-        : base(metadata, NamespaceUri, ownPrefix)
+    public void AddNewProperty(string name, PropertyTypeAttribute type)
     {
+        types[name] = type;
+    }
+
+    public PropertyTypeAttribute? GetPropertyType(string name)
+    {
+        types.TryGetValue(name, out PropertyTypeAttribute? value);
+        return value;
+    }
+
+    public override string ToString()
+    {
+        return $"PropertiesDescription{{types={{{string.Join(", ", types.Select(kv => $"{kv.Key}={kv.Value}"))}}}}}";
     }
 }

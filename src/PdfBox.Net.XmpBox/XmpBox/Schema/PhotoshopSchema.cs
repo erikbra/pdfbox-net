@@ -25,14 +25,77 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.XmpBox.Type;
+
 namespace PdfBox.Net.XmpBox.Schema;
 
+[StructuredType("http://ns.adobe.com/photoshop/1.0/", "photoshop")]
 public class PhotoshopSchema : XMPSchema
 {
     public const string NamespaceUri = "http://ns.adobe.com/photoshop/1.0/";
     public const string PreferredPrefix = "photoshop";
 
-    public PhotoshopSchema(XMPMetadata metadata)
+    [PropertyType(XmpTypeName.URI)]
+    public static readonly string ANCESTORID = "AncestorID";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string AUTHORS_POSITION = "AuthorsPosition";
+
+    [PropertyType(XmpTypeName.ProperName)]
+    public static readonly string CAPTION_WRITER = "CaptionWriter";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string CATEGORY = "Category";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string CITY = "City";
+
+    [PropertyType(XmpTypeName.Integer)]
+    public static readonly string COLOR_MODE = "ColorMode";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string COUNTRY = "Country";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string CREDIT = "Credit";
+
+    [PropertyType(XmpTypeName.Date)]
+    public static readonly string DATE_CREATED = "DateCreated";
+
+    [PropertyType(XmpTypeName.Text, Cardinality.Bag)]
+    public static readonly string DOCUMENT_ANCESTORS = "DocumentAncestors";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string HEADLINE = "Headline";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string HISTORY = "History";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string ICC_PROFILE = "ICCProfile";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string INSTRUCTIONS = "Instructions";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string SOURCE = "Source";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string STATE = "State";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string SUPPLEMENTAL_CATEGORIES = "SupplementalCategories";
+
+    [PropertyType(XmpTypeName.Layer, Cardinality.Seq)]
+    public static readonly string TEXT_LAYERS = "TextLayers";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string TRANSMISSION_REFERENCE = "TransmissionReference";
+
+    [PropertyType(XmpTypeName.Integer)]
+    public static readonly string URGENCY = "Urgency";
+
+public PhotoshopSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }

@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source for schema registration parity.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java
+ * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/type/FontType.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
@@ -25,32 +25,37 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.XmpBox.Type;
+namespace PdfBox.Net.XmpBox.Type;
 
-namespace PdfBox.Net.XmpBox.Schema;
-
-[StructuredType("http://ns.adobe.com/pdf/1.3/", "pdf")]
-public class AdobePDFSchema : XMPSchema
+[StructuredType("http://ns.adobe.com/xap/1.0/sType/Font#", "stFnt")]
+public class FontType : AbstractStructuredType
 {
-    public const string NamespaceUri = "http://ns.adobe.com/pdf/1.3/";
-    public const string PreferredPrefix = "pdf";
+    [PropertyType(XmpTypeName.Text, Cardinality.Seq)]
+    public static readonly string CHILD_FONT_FILES = "childFontFiles";
+
+    [PropertyType(XmpTypeName.Boolean)]
+    public static readonly string COMPOSITE = "composite";
 
     [PropertyType(XmpTypeName.Text)]
-    public static readonly string KEYWORDS = "Keywords";
+    public static readonly string FONT_FACE = "fontFace";
 
     [PropertyType(XmpTypeName.Text)]
-    public static readonly string PDF_VERSION = "PDFVersion";
+    public static readonly string FONT_FAMILY = "fontFamily";
 
     [PropertyType(XmpTypeName.Text)]
-    public static readonly string PRODUCER = "Producer";
+    public static readonly string FONT_FILE_NAME = "fontFileName";
 
-public AdobePDFSchema(XMPMetadata metadata)
-        : this(metadata, PreferredPrefix)
-    {
-    }
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string FONT_NAME = "fontName";
 
-    public AdobePDFSchema(XMPMetadata metadata, string ownPrefix)
-        : base(metadata, NamespaceUri, ownPrefix)
+    [PropertyType(XmpTypeName.Choice)]
+    public static readonly string FONT_TYPE = "fontType";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string VERSION_STRING = "versionString";
+
+    public FontType(XMPMetadata metadata)
+        : base(metadata)
     {
     }
 }
