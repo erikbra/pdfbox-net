@@ -32,9 +32,9 @@ Canonical scanner/report pair:
 
 Use these numbers as the starting baseline for every closeout decision until the next published rescan:
 
-- `mapped_java_files_total`: **692**
+- `mapped_java_files_total`: **974**
 - `upstream_java_files_total`: **1067**
-- `missing_java_files_total`: **375**
+- `missing_java_files_total`: **93**
 - non-`in-sync` traceability rows: **31** (`partial` + `partially-in-sync`)
 - Source of truth:
   - `reports/upstream-port-coverage-state.json`
@@ -52,23 +52,30 @@ Each implementation slice is only complete when all checklist items below are tr
 6. `reports/upstream-port-coverage-state.json` and `reports/pdfbox-main-gap-analysis.md` are republished with updated counters.
 7. Slice is not marked done until the post-rescan counters and statuses are captured in this tracker.
 
-## M2 implementation order (pdfbox core closeout)
+## M2 implementation order (remaining mapping gaps)
 
-Target: move `pdfbox` from **527/618 (85.3%)** to near-complete before broadening scope.
+Target: close all currently missing mapped paths in a dependency-safe order.
 
-Execution order for highest-risk reduction:
+Execution order:
 
-1. **Parser/writer/filter foundations first**
-   - `pdfparser` + `pdfwriter/compress` + required `filter` implementations
-   - Primary issue anchor: `issues/60-filter-parser-writer-completeness.md`
-2. **`contentstream/operator` gaps**
-   - Close operator/processor/runtime integration gaps before broader model fan-out
-3. **`pdmodel` core resource/cache/content-stream gaps**
-   - Prioritize resource cache and document/content stream dependencies
-4. **Remaining `pdmodel` graphics/font/image/shading classes**
-   - Drive full main-module closure for the remaining missing paths
+1. **pdfbox core foundations (22 files)**
+   - `contentstream` (11)
+   - `pdfparser` (7)
+   - `pdfwriter/compress` (3)
+   - `filter/Filter` (1)
+2. **pdmodel core/root gaps (~18 files)**
+   - resource-cache/content-stream/name-tree/documentinterchange root and other non-graphics root classes
+3. **pdmodel feature clusters (51 files)**
+   - `graphics/shading` (27)
+   - `graphics/color` (10)
+   - `graphics/image` (7)
+   - `font` (6)
+   - `documentinterchange` (1)
+4. **xmpbox closeout (2 files)**
+   - `DomHelper`
+   - `PdfaExtensionHelper`
 
-Issue sequence remains the prepared closeout run: `issues/53`-`77`, executed in dependency-safe order above.
+Issue sequence remains the prepared closeout run (`issues/53`-`81`) executed in this dependency order.
 
 ## M3 quality debt burn-down policy
 
@@ -76,29 +83,32 @@ After each M2 slice, immediately burn down non-`in-sync` rows tied to that slice
 
 Priority hotspots:
 
-- Parser/document pipeline: `Loader`, parser mappings, `PDDocument`, `PDDocumentCatalog`, `COSObject`
-- Filter placeholders: `CCITT`, `DCT`, `JBIG2`, `JPX`, `Crypt`
-- Deferred shading/toPaint parity path
-- FontBox partials only when blocking pdfbox behavior (`CFFParser`, Type1/Type2 charstrings, `TTFParser`)
+- `partial` rows: filter placeholders (`CCITT`, `DCT`, `JBIG2`, `JPX`, `Crypt`), `Loader`, `StandardSecurityHandler`, FontBox parser/charstring rows
+- `partially-in-sync` rows: parser/document pipeline (`BaseParser`, `COSObject`, `PDDocument*`, `PDPage*`, `PDRectangle`), inline-image operator split, and shading `toPaint`/rendering paths
 
 Rule: every touched traceability row must end `in-sync` in the same closeout cycle unless explicitly blocked with a documented dependency.
 
+### Dedicated shading stabilization wave
+
+Shading is the largest concentrated debt area and must be closed in one stabilization pass before advancing beyond the shading slice:
+
+1. Complete missing shading files in the mapped gap list.
+2. Resolve all shading traceability notes (`partial` / `partially-in-sync`) together.
+3. Re-run parity reports and confirm shading rows are all `in-sync` before moving on.
+
 ## M4 xmpbox completion slices
 
-After pdfbox core stabilization, complete `xmpbox` from baseline **4/74 mapped, 70 missing** in this order:
+After pdfbox core stabilization, close the remaining `xmpbox` delta (**72/74 mapped, 2 missing**) in one focused pass:
 
-1. Metadata entry points + XML parser/serializer path
-2. Schema layer
-3. Type system + property model
-4. Integration tests + traceability closeout
+1. Port `DomHelper`.
+2. Port `PdfaExtensionHelper`.
+3. Complete tests + traceability/normalization/conversion rows + canonical rescan for the xmpbox slice.
 
 Issue anchors:
 
 - `issues/42-xmpbox-porting-plan.md`
 - `issues/78-xmpbox-metadata-entry-points-and-xml-pipeline.md`
-- `issues/79-xmpbox-schema-layer-parity.md`
-- `issues/80-xmpbox-type-system-and-property-model.md`
-- `issues/81-xmpbox-regression-traceability-and-closeout.md`
+- `issues/90-xmpbox-two-file-closeout.md`
 
 ## M5 non-core strategy decision (explicit)
 
@@ -122,7 +132,7 @@ Issue anchors:
 
 ## M6 rescan/rebaseline and final parity lock
 
-1. Complete M2 + M3 + M4 closeouts.
+1. Complete M2 + M3 + M4 + M5 closeouts.
 2. Regenerate and publish canonical reports:
    - `reports/upstream-port-coverage-state.json`
    - `reports/pdfbox-main-gap-analysis.md`
@@ -137,7 +147,7 @@ Issue anchors:
    - scoped traceability statuses are all `in-sync`
    - branch build/tests are green.
 
-Issue anchor: `issues/86-final-parity-rescan-and-lock.md`.
+Issue anchor: `issues/91-final-parity-rescan-and-lock-execution.md`.
 
 ### M6 execution snapshot (2026-05-29 UTC)
 
@@ -159,3 +169,23 @@ Issue anchor: `issues/86-final-parity-rescan-and-lock.md`.
 5. `debugger` (`issues/84`)
 6. `benchmark` (`issues/85`)
 7. final parity rescan and lock (`issues/86`)
+
+## Concrete next issues toward 100% conversion
+
+Execute these in order and apply the mandatory closeout loop after each issue:
+
+1. `issues/87-core-foundation-mapping-and-quality-closeout.md`
+   - Close remaining `contentstream`/`pdfparser`/`pdfwriter/compress`/`filter` mapping gaps.
+   - Burn down paired `partial` rows for placeholder filters and loader/security paths to `in-sync`.
+2. `issues/88-shading-stabilization-closeout.md`
+   - Complete missing shading files and finish the dedicated shading stabilization wave in one pass.
+   - Resolve shading traceability notes (`partial` + `partially-in-sync`) before advancing.
+3. `issues/89-pdmodel-feature-clusters-closeout.md`
+   - Close remaining pdmodel feature-cluster gaps (color/image/font/documentinterchange as scoped).
+   - Normalize traceability/conversion/normalization rows and keep touched rows `in-sync`.
+4. `issues/90-xmpbox-two-file-closeout.md`
+   - Port final xmpbox files (`DomHelper`, `PdfaExtensionHelper`) with tests.
+   - Regenerate canonical reports and capture updated counters in this tracker.
+5. `issues/91-final-parity-rescan-and-lock-execution.md`
+   - Regenerate canonical reports from latest upstream head.
+   - Release parity lock only if `mapped == total`, `missing == 0`, and scoped statuses are all `in-sync`.
