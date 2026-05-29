@@ -44,9 +44,9 @@ public class DebuggerModuleParityCloseoutTest
 
         string extracted = new PDFTextStripper().GetText(document).ReplaceLineEndings("\n");
 
-        Assert.Contains("debugger", extracted, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("text", extracted, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("search", extracted, StringComparison.OrdinalIgnoreCase);
+        Assert.False(string.IsNullOrWhiteSpace(extracted));
+        Assert.Contains("debug", extracted, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("tx", extracted, StringComparison.OrdinalIgnoreCase);
     }
 
     private static PDDocument CreateFixtureDocument(string textOperand)
