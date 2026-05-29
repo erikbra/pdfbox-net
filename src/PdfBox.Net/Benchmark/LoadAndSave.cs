@@ -38,17 +38,17 @@ public static class LoadAndSave
 
     public static void SaveMediumFile() => SaveFile(MediumSizeTestFile);
 
-    public static void SaveIncrementalMediumFile() => SaveFile(MediumSizeTestFile);
+    public static void SaveIncrementalMediumFile() => SaveIncrementalFile(MediumSizeTestFile);
 
-    public static void SaveNoCompressionMediumFile() => SaveFile(MediumSizeTestFile);
+    public static void SaveNoCompressionMediumFile() => SaveFileNoCompression(MediumSizeTestFile);
 
     public static void LoadLargeFile() => LoadFile(LargeSizeTestFile);
 
     public static void SaveLargeFile() => SaveFile(LargeSizeTestFile);
 
-    public static void SaveIncrementalLargeFile() => SaveFile(LargeSizeTestFile);
+    public static void SaveIncrementalLargeFile() => SaveIncrementalFile(LargeSizeTestFile);
 
-    public static void SaveNoCompressionLargeFile() => SaveFile(LargeSizeTestFile);
+    public static void SaveNoCompressionLargeFile() => SaveFileNoCompression(LargeSizeTestFile);
 
     public static void LoadFile(string filePath)
     {
@@ -59,5 +59,17 @@ public static class LoadAndSave
     {
         using PDDocument document = Loader.LoadPDF(filePath);
         document.Save(Stream.Null);
+    }
+
+    public static void SaveIncrementalFile(string filePath)
+    {
+        _ = filePath;
+        throw new NotSupportedException("PDDocument.SaveIncremental is not available in this port.");
+    }
+
+    public static void SaveFileNoCompression(string filePath)
+    {
+        _ = filePath;
+        throw new NotSupportedException("PDDocument.Save with explicit compression parameters is not available in this port.");
     }
 }
