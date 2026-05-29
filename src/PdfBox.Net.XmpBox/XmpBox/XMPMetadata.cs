@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source for XMP metadata entry-point parity.
+ * Adapted from Apache PDFBox Java source for XMP metadata schema-layer parity.
  *
  * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/XMPMetadata.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
@@ -26,24 +26,42 @@
  */
 
 using System.Xml;
+using PdfBox.Net.XmpBox.Schema;
 
 namespace PdfBox.Net.XmpBox;
 
 /// <summary>
-/// Object representation of XMP metadata packet-level state.
+/// Object representation of XMP metadata packet-level and schema-level state.
 /// </summary>
 public class XMPMetadata
 {
+    private const string XmlnsNamespace = "http://www.w3.org/2000/xmlns/";
+
+    private static readonly IReadOnlyDictionary<string, Type> KnownSchemaTypesByNamespace =
+        new Dictionary<string, Type>(StringComparer.Ordinal)
+        {
+            [AdobePDFSchema.NamespaceUri] = typeof(AdobePDFSchema),
+            [DublinCoreSchema.NamespaceUri] = typeof(DublinCoreSchema),
+            [ExifSchema.NamespaceUri] = typeof(ExifSchema),
+            [PDFAExtensionSchema.NamespaceUri] = typeof(PDFAExtensionSchema),
+            [PDFAIdentificationSchema.NamespaceUri] = typeof(PDFAIdentificationSchema),
+            [PhotoshopSchema.NamespaceUri] = typeof(PhotoshopSchema),
+            [TiffSchema.NamespaceUri] = typeof(TiffSchema),
+            [XMPBasicJobTicketSchema.NamespaceUri] = typeof(XMPBasicJobTicketSchema),
+            [XMPBasicSchema.NamespaceUri] = typeof(XMPBasicSchema),
+            [XMPMediaManagementSchema.NamespaceUri] = typeof(XMPMediaManagementSchema),
+            [XMPPageTextSchema.NamespaceUri] = typeof(XMPPageTextSchema),
+            [XMPRightsManagementSchema.NamespaceUri] = typeof(XMPRightsManagementSchema)
+        };
+
     private readonly string? xpacketId;
     private readonly string? xpacketBegin;
     private readonly string? xpacketBytes;
     private readonly string? xpacketEncoding;
+    private readonly List<XMPSchema> schemas = [];
     private string xpacketEndData = XmpConstants.DefaultXpacketEnd;
     private XmlElement? rdfRoot;
 
-    /// <summary>
-    /// Constructor of an empty default XMP metadata instance.
-    /// </summary>
     protected XMPMetadata()
         : this(
             XmpConstants.DefaultXpacketBegin,
@@ -53,9 +71,6 @@ public class XMPMetadata
     {
     }
 
-    /// <summary>
-    /// Creates blank XMP metadata with specified packet parameters.
-    /// </summary>
     protected XMPMetadata(string? xpacketBegin, string? xpacketId, string? xpacketBytes, string? xpacketEncoding)
     {
         this.xpacketBegin = xpacketBegin;
@@ -64,17 +79,11 @@ public class XMPMetadata
         this.xpacketEncoding = xpacketEncoding;
     }
 
-    /// <summary>
-    /// Creates blank XMP metadata with default packet parameters.
-    /// </summary>
     public static XMPMetadata CreateXMPMetadata()
     {
         return new XMPMetadata();
     }
 
-    /// <summary>
-    /// Creates blank XMP metadata with specified packet parameters.
-    /// </summary>
     public static XMPMetadata CreateXMPMetadata(
         string? xpacketBegin,
         string? xpacketId,
@@ -84,67 +93,355 @@ public class XMPMetadata
         return new XMPMetadata(xpacketBegin, xpacketId, xpacketBytes, xpacketEncoding);
     }
 
-    /// <summary>
-    /// Gets xpacket bytes.
-    /// </summary>
     public string? GetXpacketBytes()
     {
         return xpacketBytes;
     }
 
-    /// <summary>
-    /// Gets xpacket encoding.
-    /// </summary>
     public string? GetXpacketEncoding()
     {
         return xpacketEncoding;
     }
 
-    /// <summary>
-    /// Gets xpacket begin.
-    /// </summary>
     public string? GetXpacketBegin()
     {
         return xpacketBegin;
     }
 
-    /// <summary>
-    /// Gets xpacket id.
-    /// </summary>
     public string? GetXpacketId()
     {
         return xpacketId;
     }
 
-    /// <summary>
-    /// Sets xpacket end PI value.
-    /// </summary>
+    public IReadOnlyList<XMPSchema> GetAllSchemas()
+    {
+        return [.. schemas];
+    }
+
     public void SetEndXPacket(string data)
     {
         xpacketEndData = data;
     }
 
-    /// <summary>
-    /// Gets xpacket end PI value.
-    /// </summary>
     public string GetEndXPacket()
     {
         return xpacketEndData;
     }
 
+    public XMPSchema? GetSchema(string nsUri)
+    {
+        return schemas.FirstOrDefault(schema => string.Equals(schema.GetNamespace(), nsUri, StringComparison.Ordinal));
+    }
+
+    public TSchema? GetSchema<TSchema>() where TSchema : XMPSchema
+    {
+        return schemas.OfType<TSchema>().FirstOrDefault();
+    }
+
+    public XMPSchema? GetSchema(string prefix, string nsUri)
+    {
+        return schemas.FirstOrDefault(schema =>
+            string.Equals(schema.GetPrefix(), prefix, StringComparison.Ordinal)
+            && string.Equals(schema.GetNamespace(), nsUri, StringComparison.Ordinal));
+    }
+
+    public XMPSchema CreateAndAddDefaultSchema(string nsPrefix, string nsUri)
+    {
+        XMPSchema schema = new(this, nsUri, nsPrefix);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public PDFAExtensionSchema CreateAndAddPDFAExtensionSchemaWithDefaultNS()
+    {
+        PDFAExtensionSchema schema = new(this);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public PDFAExtensionSchema CreateAndAddPDFAExtensionSchemaWithNS(IReadOnlyDictionary<string, string> _)
+    {
+        return CreateAndAddPDFAExtensionSchemaWithDefaultNS();
+    }
+
+    public PDFAExtensionSchema? GetPDFExtensionSchema()
+    {
+        return GetSchema<PDFAExtensionSchema>();
+    }
+
+    public PDFAIdentificationSchema CreateAndAddPDFAIdentificationSchema()
+    {
+        PDFAIdentificationSchema schema = new(this);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public PDFAIdentificationSchema? GetPDFAIdentificationSchema()
+    {
+        return GetSchema<PDFAIdentificationSchema>();
+    }
+
+    public DublinCoreSchema CreateAndAddDublinCoreSchema()
+    {
+        DublinCoreSchema schema = new(this);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public DublinCoreSchema? GetDublinCoreSchema()
+    {
+        return GetSchema<DublinCoreSchema>();
+    }
+
+    public XMPBasicJobTicketSchema CreateAndAddBasicJobTicketSchema()
+    {
+        XMPBasicJobTicketSchema schema = new(this);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public XMPBasicJobTicketSchema? GetBasicJobTicketSchema()
+    {
+        return GetSchema<XMPBasicJobTicketSchema>();
+    }
+
+    public XMPRightsManagementSchema CreateAndAddXMPRightsManagementSchema()
+    {
+        XMPRightsManagementSchema schema = new(this);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public XMPRightsManagementSchema? GetXMPRightsManagementSchema()
+    {
+        return GetSchema<XMPRightsManagementSchema>();
+    }
+
+    public XMPBasicSchema CreateAndAddXMPBasicSchema()
+    {
+        XMPBasicSchema schema = new(this);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public XMPBasicSchema? GetXMPBasicSchema()
+    {
+        return GetSchema<XMPBasicSchema>();
+    }
+
+    public XMPMediaManagementSchema CreateAndAddXMPMediaManagementSchema()
+    {
+        XMPMediaManagementSchema schema = new(this);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public XMPMediaManagementSchema? GetXMPMediaManagementSchema()
+    {
+        return GetSchema<XMPMediaManagementSchema>();
+    }
+
+    public PhotoshopSchema CreateAndAddPhotoshopSchema()
+    {
+        PhotoshopSchema schema = new(this);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public PhotoshopSchema? GetPhotoshopSchema()
+    {
+        return GetSchema<PhotoshopSchema>();
+    }
+
+    public AdobePDFSchema CreateAndAddAdobePDFSchema()
+    {
+        AdobePDFSchema schema = new(this);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public AdobePDFSchema? GetAdobePDFSchema()
+    {
+        return GetSchema<AdobePDFSchema>();
+    }
+
+    public XMPPageTextSchema CreateAndAddPageTextSchema()
+    {
+        XMPPageTextSchema schema = new(this);
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
+    }
+
+    public XMPPageTextSchema? GetPageTextSchema()
+    {
+        return GetSchema<XMPPageTextSchema>();
+    }
+
+    public void AddSchema(XMPSchema schema)
+    {
+        ArgumentNullException.ThrowIfNull(schema);
+
+        schemas.Add(schema);
+        if (rdfRoot is not null)
+        {
+            XmlElement description = schema.ToDescriptionElement(rdfRoot.OwnerDocument!);
+            rdfRoot.AppendChild(description);
+        }
+    }
+
+    public void RemoveSchema(XMPSchema schema)
+    {
+        ArgumentNullException.ThrowIfNull(schema);
+
+        schemas.Remove(schema);
+        if (rdfRoot is not null)
+        {
+            RemoveDescriptionForSchema(schema);
+        }
+    }
+
+    public void ClearSchemas()
+    {
+        schemas.Clear();
+        if (rdfRoot is not null)
+        {
+            rdfRoot.RemoveAll();
+            rdfRoot.SetAttribute($"xmlns:{XmpConstants.DefaultRdfPrefix}", XmpConstants.RdfNamespace);
+        }
+    }
+
     public void SetRdfRoot(XmlElement rdf)
     {
         ArgumentNullException.ThrowIfNull(rdf);
-        rdfRoot = (XmlElement)rdf.CloneNode(deep: true);
+
+        XmlDocument owner = new();
+        rdfRoot = (XmlElement)owner.ImportNode(rdf, deep: true);
+        ParseSchemasFromRdfRoot();
     }
 
     internal XmlElement? GetRdfRoot(XmlDocument ownerDocument)
     {
-        if (rdfRoot is null)
+        ArgumentNullException.ThrowIfNull(ownerDocument);
+
+        XmlElement? source = rdfRoot;
+        if (source is null && schemas.Count > 0)
+        {
+            source = BuildRdfRootFromSchemas();
+            rdfRoot = (XmlElement)source.CloneNode(deep: true);
+        }
+
+        if (source is null)
         {
             return null;
         }
 
-        return (XmlElement?)ownerDocument.ImportNode(rdfRoot, deep: true);
+        return (XmlElement?)ownerDocument.ImportNode(source, deep: true);
+    }
+
+    private XmlElement BuildRdfRootFromSchemas()
+    {
+        XmlDocument document = new();
+        XmlElement rdf = document.CreateElement(
+            XmpConstants.DefaultRdfPrefix,
+            XmpConstants.DefaultRdfLocalName,
+            XmpConstants.RdfNamespace);
+
+        foreach (XMPSchema schema in schemas)
+        {
+            rdf.AppendChild(schema.ToDescriptionElement(document));
+        }
+
+        return rdf;
+    }
+
+    private void ParseSchemasFromRdfRoot()
+    {
+        schemas.Clear();
+        if (rdfRoot is null)
+        {
+            return;
+        }
+
+        foreach (XmlNode child in rdfRoot.ChildNodes)
+        {
+            if (child is not XmlElement description ||
+                !string.Equals(description.NamespaceURI, XmpConstants.RdfNamespace, StringComparison.Ordinal) ||
+                !string.Equals(description.LocalName, XmpConstants.DescriptionName, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (XmlAttribute attribute in description.Attributes)
+            {
+                if (!IsSchemaNamespaceDeclaration(attribute))
+                {
+                    continue;
+                }
+
+                XMPSchema schema = CreateSchemaForNamespace(attribute.Value, attribute.LocalName);
+                schema.SetDescriptionElement(description);
+                schemas.Add(schema);
+            }
+        }
+    }
+
+    private static bool IsSchemaNamespaceDeclaration(XmlAttribute attribute)
+    {
+        return string.Equals(attribute.NamespaceURI, XmlnsNamespace, StringComparison.Ordinal)
+            && !string.Equals(attribute.LocalName, XmpConstants.DefaultRdfPrefix, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(attribute.LocalName)
+            && !string.IsNullOrWhiteSpace(attribute.Value);
+    }
+
+    private XMPSchema CreateSchemaForNamespace(string namespaceUri, string prefix)
+    {
+        if (KnownSchemaTypesByNamespace.TryGetValue(namespaceUri, out Type? schemaType))
+        {
+            return (XMPSchema)Activator.CreateInstance(schemaType, this, prefix)!;
+        }
+
+        return new XMPSchema(this, namespaceUri, prefix);
+    }
+
+    private void RemoveDescriptionForSchema(XMPSchema schema)
+    {
+        if (rdfRoot is null)
+        {
+            return;
+        }
+
+        XmlNode? nodeToRemove = null;
+        foreach (XmlNode child in rdfRoot.ChildNodes)
+        {
+            if (child is not XmlElement description ||
+                !string.Equals(description.LocalName, XmpConstants.DescriptionName, StringComparison.Ordinal) ||
+                !string.Equals(description.NamespaceURI, XmpConstants.RdfNamespace, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            string declaredNs = description.GetAttribute($"xmlns:{schema.GetPrefix()}");
+            if (string.Equals(declaredNs, schema.GetNamespace(), StringComparison.Ordinal))
+            {
+                nodeToRemove = child;
+                break;
+            }
+        }
+
+        if (nodeToRemove is not null)
+        {
+            rdfRoot.RemoveChild(nodeToRemove);
+        }
     }
 }

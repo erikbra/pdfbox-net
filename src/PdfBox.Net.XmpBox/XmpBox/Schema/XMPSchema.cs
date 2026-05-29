@@ -1,0 +1,120 @@
+/*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Adapted from Apache PDFBox Java source for schema registration parity.
+ *
+ * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ */
+
+using System.Xml;
+
+namespace PdfBox.Net.XmpBox.Schema;
+
+public class XMPSchema
+{
+    private readonly XMPMetadata metadata;
+    private readonly string namespaceUri;
+    private readonly string prefix;
+    private XmlElement? descriptionElement;
+
+    public XMPSchema(XMPMetadata metadata, string namespaceUri, string prefix)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+        ArgumentException.ThrowIfNullOrEmpty(namespaceUri);
+        ArgumentException.ThrowIfNullOrEmpty(prefix);
+
+        this.metadata = metadata;
+        this.namespaceUri = namespaceUri;
+        this.prefix = prefix;
+    }
+
+    public XMPMetadata GetMetadata()
+    {
+        return metadata;
+    }
+
+    public string GetNamespace()
+    {
+        return namespaceUri;
+    }
+
+    public string GetPrefix()
+    {
+        return prefix;
+    }
+
+    public string GetAboutValue()
+    {
+        XmlElement element = GetOrCreateDescriptionElement();
+        return element.GetAttribute(XmpConstants.AboutName, XmpConstants.RdfNamespace);
+    }
+
+    public void SetAboutAsSimple(string? about)
+    {
+        XmlElement element = GetOrCreateDescriptionElement();
+        if (about is null)
+        {
+            element.RemoveAttribute(XmpConstants.AboutName, XmpConstants.RdfNamespace);
+        }
+        else
+        {
+            element.SetAttribute(XmpConstants.AboutName, XmpConstants.RdfNamespace, about);
+        }
+    }
+
+    internal void SetDescriptionElement(XmlElement description)
+    {
+        ArgumentNullException.ThrowIfNull(description);
+        XmlDocument document = new();
+        descriptionElement = (XmlElement)document.ImportNode(description, deep: true);
+        EnsureNamespaceDeclaration(descriptionElement);
+    }
+
+    internal XmlElement ToDescriptionElement(XmlDocument ownerDocument)
+    {
+        ArgumentNullException.ThrowIfNull(ownerDocument);
+
+        XmlElement source = descriptionElement ?? CreateBlankDescription(ownerDocument);
+        if (descriptionElement is null)
+        {
+            descriptionElement = (XmlElement)source.CloneNode(deep: true);
+        }
+
+        XmlElement imported = (XmlElement)ownerDocument.ImportNode(source, deep: true);
+        EnsureNamespaceDeclaration(imported);
+        return imported;
+    }
+
+    private XmlElement GetOrCreateDescriptionElement()
+    {
+        if (descriptionElement is null)
+        {
+            XmlDocument document = new();
+            descriptionElement = CreateBlankDescription(document);
+            descriptionElement.SetAttribute(XmpConstants.AboutName, XmpConstants.RdfNamespace, string.Empty);
+        }
+
+        return descriptionElement;
+    }
+
+    private XmlElement CreateBlankDescription(XmlDocument ownerDocument)
+    {
+        XmlElement description = ownerDocument.CreateElement(
+            XmpConstants.DefaultRdfPrefix,
+            XmpConstants.DescriptionName,
+            XmpConstants.RdfNamespace);
+        EnsureNamespaceDeclaration(description);
+        return description;
+    }
+
+    private void EnsureNamespaceDeclaration(XmlElement element)
+    {
+        string xmlnsQualifiedName = $"xmlns:{prefix}";
+        if (!string.Equals(element.GetAttribute(xmlnsQualifiedName), namespaceUri, StringComparison.Ordinal))
+        {
+            element.SetAttribute(xmlnsQualifiedName, namespaceUri);
+        }
+    }
+}
