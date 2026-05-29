@@ -24,4 +24,10 @@
     <ProjectReference Include="..\..\src\PdfBox.Net.XmpBox\PdfBox.Net.XmpBox.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Fixtures\XmpBox\*.xmp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
