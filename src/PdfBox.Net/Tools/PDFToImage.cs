@@ -28,7 +28,7 @@ public static class PDFToImage
         {
             using BufferedImage image = renderer.RenderImageWithDPI(i, dpi);
             string path = $"{outputPrefix}-{i + 1}.png";
-            ImageIOUtil.WriteImage(image, path, 300);
+            ImageIOUtil.WriteImage(image, path, (int)MathF.Round(dpi));
             output.Add(path);
         }
 
