@@ -248,4 +248,16 @@ public class XmpCoreTest
         Assert.NotNull(reparsed.GetAdobePDFSchema());
         Assert.NotNull(reparsed.GetSchema("custom", "urn:custom:test"));
     }
+
+    [Fact]
+    public void PdfaExtensionSchemaWithNamespacesRequiresExtensionNamespace()
+    {
+        XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();
+
+        Assert.Throws<XmpSchemaException>(() =>
+            metadata.CreateAndAddPDFAExtensionSchemaWithNS(new Dictionary<string, string>
+            {
+                ["pdfaid"] = PDFAIdentificationSchema.NamespaceUri
+            }));
+    }
 }

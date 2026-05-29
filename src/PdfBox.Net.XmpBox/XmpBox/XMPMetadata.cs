@@ -161,9 +161,24 @@ public class XMPMetadata
         return schema;
     }
 
-    public PDFAExtensionSchema CreateAndAddPDFAExtensionSchemaWithNS(IReadOnlyDictionary<string, string> _)
+    public PDFAExtensionSchema CreateAndAddPDFAExtensionSchemaWithNS(IReadOnlyDictionary<string, string> namespaces)
     {
-        return CreateAndAddPDFAExtensionSchemaWithDefaultNS();
+        ArgumentNullException.ThrowIfNull(namespaces);
+        if (!namespaces.Values.Any(value => string.Equals(value, PDFAExtensionSchema.NamespaceUri, StringComparison.Ordinal)))
+        {
+            throw new XmpSchemaException(
+                $"Namespaces list must contain PDF/A extension namespace '{PDFAExtensionSchema.NamespaceUri}'.");
+        }
+
+        PDFAExtensionSchema schema = new(this);
+        foreach (KeyValuePair<string, string> entry in namespaces)
+        {
+            schema.AddNamespace(entry.Value, entry.Key);
+        }
+
+        schema.SetAboutAsSimple(string.Empty);
+        AddSchema(schema);
+        return schema;
     }
 
     public PDFAExtensionSchema? GetPDFExtensionSchema()

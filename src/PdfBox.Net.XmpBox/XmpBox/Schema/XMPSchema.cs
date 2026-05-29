@@ -17,6 +17,7 @@ public class XMPSchema
     private readonly XMPMetadata metadata;
     private readonly string namespaceUri;
     private readonly string prefix;
+    private readonly Dictionary<string, string> additionalNamespaces = new(StringComparer.Ordinal);
     private XmlElement? descriptionElement;
 
     public XMPSchema(XMPMetadata metadata, string namespaceUri, string prefix)
@@ -72,6 +73,18 @@ public class XMPSchema
         EnsureNamespaceDeclaration(descriptionElement);
     }
 
+    public void AddNamespace(string namespaceUri, string namespacePrefix)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(namespaceUri);
+        ArgumentException.ThrowIfNullOrEmpty(namespacePrefix);
+
+        additionalNamespaces[namespacePrefix] = namespaceUri;
+        if (descriptionElement is not null)
+        {
+            SetNamespaceAttribute(descriptionElement, namespacePrefix, namespaceUri);
+        }
+    }
+
     internal XmlElement ToDescriptionElement(XmlDocument ownerDocument)
     {
         ArgumentNullException.ThrowIfNull(ownerDocument);
@@ -112,6 +125,20 @@ public class XMPSchema
     private void EnsureNamespaceDeclaration(XmlElement element)
     {
         string xmlnsQualifiedName = $"xmlns:{prefix}";
+        if (!string.Equals(element.GetAttribute(xmlnsQualifiedName), namespaceUri, StringComparison.Ordinal))
+        {
+            element.SetAttribute(xmlnsQualifiedName, namespaceUri);
+        }
+
+        foreach (KeyValuePair<string, string> namespaceMapping in additionalNamespaces)
+        {
+            SetNamespaceAttribute(element, namespaceMapping.Key, namespaceMapping.Value);
+        }
+    }
+
+    private static void SetNamespaceAttribute(XmlElement element, string namespacePrefix, string namespaceUri)
+    {
+        string xmlnsQualifiedName = $"xmlns:{namespacePrefix}";
         if (!string.Equals(element.GetAttribute(xmlnsQualifiedName), namespaceUri, StringComparison.Ordinal))
         {
             element.SetAttribute(xmlnsQualifiedName, namespaceUri);
