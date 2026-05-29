@@ -1,13 +1,13 @@
 {
-  "generated_at_utc": "2026-05-28T21:18:49.934Z",
+  "generated_at_utc": "2026-05-29T08:18:06.675Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "upstream_head": "6196c451156dcce18d6c69c4deaa0935854d9a1a",
   "tracked_parity_baseline_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
-  "mapped": 692,
-  "missing": 375,
+  "mapped": 709,
+  "missing": 358,
   "modules": [
     {
       "module": "benchmark",
@@ -61,9 +61,9 @@
     {
       "module": "xmpbox",
       "java_files": 74,
-      "mapped": 4,
-      "missing": 70,
-      "pct": 5.4
+      "mapped": 21,
+      "missing": 53,
+      "pct": 28.4
     }
   ],
   "families": [
@@ -252,16 +252,16 @@
     {
       "family": "xmpbox:(root)",
       "java_files": 3,
-      "mapped": 1,
-      "missing": 2,
-      "pct": 33.3
+      "mapped": 2,
+      "missing": 1,
+      "pct": 66.7
     },
     {
       "family": "xmpbox:schema",
       "java_files": 15,
-      "mapped": 1,
-      "missing": 14,
-      "pct": 6.7
+      "mapped": 15,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "xmpbox:type",
@@ -273,14 +273,14 @@
     {
       "family": "xmpbox:xml",
       "java_files": 6,
-      "mapped": 2,
-      "missing": 4,
-      "pct": 33.3
+      "mapped": 4,
+      "missing": 2,
+      "pct": 66.7
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 458,
-    "in-sync": 427,
+    "total_rows": 475,
+    "in-sync": 444,
     "partially-in-sync": 20,
     "partial": 11
   },
@@ -353,25 +353,25 @@
     ],
     "xmpbox": [
       "xmpbox/src/main/java/org/apache/xmpbox/DateConverter.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/XMPMetadata.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/ExifSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAExtensionSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
       "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractComplexProperty.java",
       "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractField.java",
       "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractSimpleProperty.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractStructuredType.java"
+      "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractStructuredType.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/AgentNameType.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/ArrayProperty.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/Attribute.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/BadFieldValueException.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/BooleanType.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/CFAPatternType.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/Cardinality.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/ChoiceType.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/ColorantType.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/ComplexPropertyContainer.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/DateType.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/DefinedStructuredType.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/DeviceSettingsType.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/DimensionsType.java",
+      "xmpbox/src/main/java/org/apache/xmpbox/type/FlashType.java"
     ],
     "tools": [
       "tools/src/main/java/org/apache/pdfbox/tools/DecompressObjectstreams.java",
