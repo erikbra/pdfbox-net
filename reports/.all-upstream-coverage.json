@@ -1,13 +1,13 @@
 {
-  "generated_at_utc": "2026-05-29T16:09:25.429Z",
+  "generated_at_utc": "2026-05-29T16:31:00.019Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "upstream_head": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
   "tracked_parity_baseline_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
-  "mapped": 880,
-  "missing": 187,
+  "mapped": 971,
+  "missing": 96,
   "modules": [
     {
       "module": "benchmark",
@@ -19,9 +19,9 @@
     {
       "module": "debugger",
       "java_files": 91,
-      "mapped": 0,
-      "missing": 91,
-      "pct": 0.0
+      "mapped": 91,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "examples",
@@ -77,9 +77,9 @@
     {
       "family": "debugger:debugger",
       "java_files": 91,
-      "mapped": 0,
-      "missing": 91,
-      "pct": 0.0
+      "mapped": 91,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "examples:examples",
@@ -279,34 +279,12 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 620,
-    "in-sync": 589,
+    "total_rows": 711,
+    "in-sync": 680,
     "partially-in-sync": 20,
     "partial": 11
   },
   "top_missing_modules": {
-    "debugger": [
-      "debugger/src/main/java/org/apache/pdfbox/debugger/PDFDebugger.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSArrayBased.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSDeviceN.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSIndexed.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSSeparation.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/ColorBarCellRenderer.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/DeviceNColorant.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/DeviceNTableModel.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/IndexedColorant.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/IndexedTableModel.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/AnnotFlag.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/EncryptFlag.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FieldFlag.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/Flag.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPane.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPaneView.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FontFlag.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/PanoseFlag.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/SigFlag.java",
-      "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontEncodingPaneController.java"
-    ],
     "pdfbox": [
       "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDContentStream.java",
       "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/MissingOperandException.java",
