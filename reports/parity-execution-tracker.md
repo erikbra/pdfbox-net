@@ -139,6 +139,17 @@ Issue anchors:
 
 Issue anchor: `issues/86-final-parity-rescan-and-lock.md`.
 
+### M6 execution snapshot (2026-05-29 UTC)
+
+- Canonical rescan regenerated from upstream head `7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf`.
+- Captured counters:
+  - `mapped_java_files_total`: **974**
+  - `upstream_java_files_total`: **1067**
+  - `missing_java_files_total`: **93**
+  - non-`in-sync` scoped traceability rows: **31** (`partial`: 11, `partially-in-sync`: 20)
+- Build/tests status for this branch: **green** (`dotnet build PdfBoxNet.slnx`, `dotnet test PdfBoxNet.slnx --no-build`).
+- Final parity lock decision: **NOT RELEASED** (gates remain unmet: `mapped != total`, `missing != 0`, scoped traceability includes non-`in-sync` rows).
+
 ## Execution order
 
 1. `pdfbox` core closeout (`issues/53`-`77`)
