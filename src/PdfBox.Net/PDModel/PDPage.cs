@@ -26,11 +26,14 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.ContentStream;
+using PdfBox.Net.IO;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.PageNavigation;
 using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel;
 
@@ -40,7 +43,7 @@ namespace PdfBox.Net.PDModel;
 /// <remarks>
 /// Ported from Apache PDFBox <c>PDPage</c>.
 /// </remarks>
-public sealed class PDPage : COSObjectable
+public sealed class PDPage : COSObjectable, PDContentStream
 {
     private readonly COSDictionary _page;
     private PDRectangle? _mediaBox;
@@ -432,6 +435,23 @@ public sealed class PDPage : COSObjectable
         return _page.GetDictionaryObject(COSName.CONTENTS);
     }
 
+    Stream? PDContentStream.GetContents()
+    {
+        COSBase? contents = GetContents();
+        return contents switch
+        {
+            COSStream stream => stream.CreateInputStream(),
+            COSArray array => CreateConcatenatedContentsStream(array),
+            _ => null,
+        };
+    }
+
+    RandomAccessRead? PDContentStream.GetContentsForRandomAccess()
+    {
+        Stream? contents = ((PDContentStream)this).GetContents();
+        return contents is null ? null : new RandomAccessReadBuffer(contents);
+    }
+
     /// <summary>
     /// Returns the resource dictionary for this page, or <see langword="null"/> if none is set.
     /// Resources are inherited from parent nodes in the page tree when not set directly on the page.
@@ -446,6 +466,10 @@ public sealed class PDPage : COSObjectable
 
         return null;
     }
+
+    PDRectangle? PDContentStream.GetBBox() => GetCropBox();
+
+    Matrix PDContentStream.GetMatrix() => new();
 
     /// <summary>
     /// Sets the resource dictionary for this page.
@@ -479,5 +503,30 @@ public sealed class PDPage : COSObjectable
         result.SetUpperRightX(Math.Min(mediaBox.GetUpperRightX(), box.GetUpperRightX()));
         result.SetUpperRightY(Math.Min(mediaBox.GetUpperRightY(), box.GetUpperRightY()));
         return result;
+    }
+
+    private static Stream CreateConcatenatedContentsStream(COSArray array)
+    {
+        MemoryStream output = new();
+        bool first = true;
+        foreach (COSBase? item in array)
+        {
+            if (item is not COSStream stream)
+            {
+                continue;
+            }
+
+            if (!first)
+            {
+                output.WriteByte((byte)'\n');
+            }
+
+            using Stream input = stream.CreateInputStream();
+            input.CopyTo(output);
+            first = false;
+        }
+
+        output.Position = 0;
+        return output;
     }
 }

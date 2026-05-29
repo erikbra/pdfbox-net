@@ -26,12 +26,14 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.ContentStream;
+using PdfBox.Net.IO;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics.Patterns;
 
-public class PDTilingPattern : PDAbstractPattern
+public class PDTilingPattern : PDAbstractPattern, PDContentStream
 {
     public const int PAINT_COLORED = 1;
     public const int PAINT_UNCOLORED = 2;
@@ -85,6 +87,8 @@ public class PDTilingPattern : PDAbstractPattern
     public PDStream GetContentStream() => new((COSStream)GetCOSObject());
 
     public Stream GetContents() => GetContentStream().CreateInputStream();
+
+    public RandomAccessRead GetContentsForRandomAccess() => new RandomAccessReadBuffer(GetContents());
 
     public PDResources? GetResources()
     {
