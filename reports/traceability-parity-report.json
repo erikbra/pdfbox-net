@@ -4849,6 +4849,36 @@
     "note": "Mechanical serialization exception port with message/cause constructor parity."
   },
   {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XMPMetadata.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/XMPMetadata.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:05:40Z",
+    "note": "Issue #78 slice entry point: adapted metadata model for xpacket fields and RDF payload."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomXmpParser.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:05:40Z",
+    "note": "Issue #78 slice entry point: adapted secure DOM parser pipeline with strict/lenient xpacket handling."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializer.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpSerializer.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:05:40Z",
+    "note": "Issue #78 slice entry point: adapted serializer pipeline for deterministic xpacket and RDF output."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
     "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
