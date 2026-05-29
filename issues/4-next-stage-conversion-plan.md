@@ -261,8 +261,8 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
   - `reports/upstream-port-coverage-state.json`
   - `reports/pdfbox-main-gap-analysis.md`
 - Current baseline snapshot:
-  - **692 / 1067** mapped (64.9%)
-  - **375** missing
+  - **974 / 1067** mapped (91.3%)
+  - **93** missing
   - **31** non-`in-sync` traceability rows
 - Every slice now follows the locked closeout loop:
   1. code/test completion
@@ -271,11 +271,14 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
   4. canonical rescan regeneration
   5. tracker counter/status capture before marking done
 - Updated dependency-first implementation order:
-  1. parser/writer/filter foundations (`issues/60`)
-  2. `contentstream/operator` gaps
-  3. `pdmodel` resource/cache/content-stream core
-  4. remaining `pdmodel` graphics/font/image/shading classes
-  5. `xmpbox` slices after core stabilization
+  1. pdfbox core foundations (`contentstream` 11, `pdfparser` 7, `pdfwriter/compress` 3, `filter/Filter` 1)
+  2. `pdmodel` core/root gaps (resource-cache/content-stream/name-tree/documentinterchange root and related non-graphics roots)
+  3. `pdmodel` feature clusters (`graphics/shading` 27, `graphics/color` 10, `graphics/image` 7, `font` 6, `documentinterchange` 1)
+  4. dedicated shading stabilization wave (close missing shading files plus all shading traceability notes in one pass)
+  5. xmpbox closeout (`DomHelper`, `PdfaExtensionHelper`)
+  6. per-slice quality debt burn-down to `in-sync` (do not defer):
+     - `partial`: `CCITT`/`DCT`/`JBIG2`/`JPX`/`Crypt`, `Loader`, `StandardSecurityHandler`, FontBox parser/charstring rows
+     - `partially-in-sync`: `BaseParser`, `COSObject`, `PDDocument*`, `PDPage*`, `PDRectangle`, inline-image split, shading `toPaint`/rendering paths
 
 ### Remaining font closeout issues
 - `issues/51-pdmodel-font-type0-cidtype0-and-unicode-integration.md`
