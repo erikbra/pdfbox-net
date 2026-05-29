@@ -169,3 +169,23 @@ Issue anchor: `issues/86-final-parity-rescan-and-lock.md`.
 5. `debugger` (`issues/84`)
 6. `benchmark` (`issues/85`)
 7. final parity rescan and lock (`issues/86`)
+
+## Concrete next issues toward 100% conversion
+
+Execute these in order and apply the mandatory closeout loop after each issue:
+
+1. `issues/60-filter-parser-writer-completeness.md`
+   - Close remaining `contentstream`/`pdfparser`/`pdfwriter/compress`/`filter` mapping gaps.
+   - Burn down paired `partial` rows for placeholder filters and loader/security paths to `in-sync`.
+2. `issues/53-pdmodel-graphics-shading-and-core-types.md`
+   - Complete missing shading files and finish the dedicated shading stabilization wave in one pass.
+   - Resolve shading traceability notes (`partial` + `partially-in-sync`) before advancing.
+3. `issues/57-pdmodel-graphics-regression-coverage-and-traceability-closeout.md`
+   - Close remaining pdmodel feature-cluster gaps (color/image/font/documentinterchange as scoped).
+   - Normalize traceability/conversion/normalization rows and keep touched rows `in-sync`.
+4. `issues/81-xmpbox-regression-traceability-and-closeout.md`
+   - Port final xmpbox files (`DomHelper`, `PdfaExtensionHelper`) with tests.
+   - Regenerate canonical reports and capture updated counters in this tracker.
+5. `issues/86-final-parity-rescan-and-lock.md`
+   - Regenerate canonical reports from latest upstream head.
+   - Release parity lock only if `mapped == total`, `missing == 0`, and scoped statuses are all `in-sync`.
