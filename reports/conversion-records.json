@@ -3840,6 +3840,30 @@
     "conversion_notes": "Mechanical serialization exception port with message/cause constructor parity."
   },
   {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XMPMetadata.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/XMPMetadata.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted metadata entry-point port focused on xpacket state and RDF payload retention for parser/serializer wiring."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomXmpParser.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted secure DOM parser entry-point with strict/lenient xpacket handling and RDF root extraction."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializer.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpSerializer.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted serializer entry-point to emit deterministic xpacket and RDF output from metadata state."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
     "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",

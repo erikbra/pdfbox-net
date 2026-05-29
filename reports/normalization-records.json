@@ -3978,6 +3978,42 @@
     "note": "Mechanical exception port normalized to C# constructor declarations."
   },
   {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XMPMetadata.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/XMPMetadata.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adapted metadata entry-point port to preserve xpacket fields and RDF payload in a .NET XML model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomXmpParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adapted parser entry-point with secure XmlReader settings, strict/lenient xpacket validation, and namespace/root checks."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializer.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpSerializer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adapted serializer entry-point to deterministic XmlWriter-based xpacket and RDF output."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
     "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs",
     "normalization_applied": true,
