@@ -1,5 +1,6 @@
 using PdfBox.Net.PDModel;
 using PdfBox.Net.Tools;
+using PdfBoxToolsVersion = PdfBox.Net.Tools.Version;
 
 namespace PdfBox.Net.Tests;
 
@@ -8,7 +9,7 @@ public class ToolsModuleParityCloseoutTest
     [Fact]
     public void Version_GetVersion_DoesNotThrow()
     {
-        string? version = Version.GetVersion();
+        string? version = PdfBoxToolsVersion.GetVersion();
         if (version is not null)
         {
             Assert.NotEmpty(version);
@@ -35,12 +36,15 @@ public class ToolsModuleParityCloseoutTest
     [Fact]
     public void PDFMerger_And_PDFSplit_ProcessFixtureDocuments()
     {
-        string fixture = GetFixturePath("minimal-document-fixture.pdf");
         string tempDir = Path.Combine(Path.GetTempPath(), "pdfbox-net-tools-test", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
+        string sourceA = Path.Combine(tempDir, "source-a.pdf");
+        string sourceB = Path.Combine(tempDir, "source-b.pdf");
+        CreateSinglePagePdf(sourceA);
+        CreateSinglePagePdf(sourceB);
 
         string mergedPath = Path.Combine(tempDir, "merged.pdf");
-        PDFMerger.Merge(mergedPath, fixture, fixture);
+        PDFMerger.Merge(mergedPath, sourceA, sourceB);
 
         using (PDDocument merged = Loader.LoadPDF(mergedPath))
         {
@@ -49,7 +53,7 @@ public class ToolsModuleParityCloseoutTest
 
         IReadOnlyList<string> splitFiles = PDFSplit.Split(mergedPath, tempDir, splitAtPage: 1);
         Assert.Equal(2, splitFiles.Count);
-        Assert.All(splitFiles, File.Exists);
+        Assert.All(splitFiles, path => Assert.True(File.Exists(path)));
     }
 
     [Fact]
@@ -58,8 +62,11 @@ public class ToolsModuleParityCloseoutTest
         Assert.Throws<NotSupportedException>(() => Decrypt.Run());
     }
 
-    private static string GetFixturePath(string fileName)
+    private static void CreateSinglePagePdf(string filePath)
     {
-        return Path.Combine(AppContext.BaseDirectory, "Fixtures", fileName);
+        using PDDocument document = new();
+        document.AddPage(new PDPage());
+        document.Save(filePath);
     }
+
 }
