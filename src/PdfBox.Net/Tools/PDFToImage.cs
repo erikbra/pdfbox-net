@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Adapted from Apache PDFBox Java source with AI assistance.
+ *
+ * PDFBOX_SOURCE_PATH: tools/src/main/java/org/apache/pdfbox/tools/PDFToImage.java
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ */
+
+using PdfBox.Net.PDModel;
+using PdfBox.Net.Rendering;
+using PdfBox.Net.Tools.ImageIO;
+
+namespace PdfBox.Net.Tools;
+
+public static class PDFToImage
+{
+    public static IReadOnlyList<string> RenderPng(string inputFile, string outputPrefix, float dpi = 96f)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(inputFile);
+        ArgumentException.ThrowIfNullOrWhiteSpace(outputPrefix);
+
+        using PDDocument document = Loader.LoadPDF(inputFile);
+        PDFRenderer renderer = new(document);
+        List<string> output = new(document.GetNumberOfPages());
+        for (int i = 0; i < document.GetNumberOfPages(); i++)
+        {
+            using BufferedImage image = renderer.RenderImageWithDPI(i, dpi);
+            string path = $"{outputPrefix}-{i + 1}.png";
+            ImageIOUtil.WriteImage(image, path, 300);
+            output.Add(path);
+        }
+
+        return output;
+    }
+}
