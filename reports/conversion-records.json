@@ -383,7 +383,7 @@
     "source_commit": "n/a",
     "port_mode": "native-test",
     "sync_commit": "n/a",
-    "conversion_notes": "Focused xUnit coverage for xmpbox constants and exception behavior in initial project bootstrap."
+    "conversion_notes": "Expanded focused xUnit coverage for schema creation/lookup registration and deterministic schema roundtrip serialization/parsing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/Loader.java",
@@ -3845,7 +3845,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Adapted metadata entry-point port focused on xpacket state and RDF payload retention for parser/serializer wiring."
+    "conversion_notes": "Adapted metadata port to add schema registration, typed schema create/get APIs, namespace-aware schema parsing, and RDF synthesis for schema-backed serialization."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
@@ -4126,5 +4126,117 @@
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Added native xUnit regression tests for FDF annotation subtype factory routing and representative property round-trips."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted base schema abstraction for namespace/prefix identity, rdf:about handling, and description-element persistence used by parser/serializer registration flows."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchemaFactory.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted schema factory for namespace-to-schema instantiation with optional prefix override and metadata registration wiring."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/AdobePDFSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted Adobe PDF schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/DublinCoreSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted Dublin Core schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/ExifSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/ExifSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted Exif schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAExtensionSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PDFAExtensionSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted PDF/A extension schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PDFAIdentificationSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted PDF/A identification schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PhotoshopSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted Photoshop schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/TiffSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted TIFF schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPBasicJobTicketSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted XMP basic job ticket schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPBasicSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted XMP basic schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPMediaManagementSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted XMP media management schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPPageTextSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted XMP page text schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPRightsManagementSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Adapted XMP rights management schema class shell with preferred namespace/prefix constructors for typed registration parity."
   }
 ]
