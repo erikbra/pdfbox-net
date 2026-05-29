@@ -108,7 +108,7 @@ Issue anchors:
 
 - `issues/42-xmpbox-porting-plan.md`
 - `issues/78-xmpbox-metadata-entry-points-and-xml-pipeline.md`
-- `issues/81-xmpbox-regression-traceability-and-closeout.md`
+- `issues/90-xmpbox-two-file-closeout.md`
 
 ## M5 non-core strategy decision (explicit)
 
@@ -147,7 +147,7 @@ Issue anchors:
    - scoped traceability statuses are all `in-sync`
    - branch build/tests are green.
 
-Issue anchor: `issues/86-final-parity-rescan-and-lock.md`.
+Issue anchor: `issues/91-final-parity-rescan-and-lock-execution.md`.
 
 ### M6 execution snapshot (2026-05-29 UTC)
 
@@ -174,18 +174,18 @@ Issue anchor: `issues/86-final-parity-rescan-and-lock.md`.
 
 Execute these in order and apply the mandatory closeout loop after each issue:
 
-1. `issues/60-filter-parser-writer-completeness.md`
+1. `issues/87-core-foundation-mapping-and-quality-closeout.md`
    - Close remaining `contentstream`/`pdfparser`/`pdfwriter/compress`/`filter` mapping gaps.
    - Burn down paired `partial` rows for placeholder filters and loader/security paths to `in-sync`.
-2. `issues/53-pdmodel-graphics-shading-and-core-types.md`
+2. `issues/88-shading-stabilization-closeout.md`
    - Complete missing shading files and finish the dedicated shading stabilization wave in one pass.
    - Resolve shading traceability notes (`partial` + `partially-in-sync`) before advancing.
-3. `issues/57-pdmodel-graphics-regression-coverage-and-traceability-closeout.md`
+3. `issues/89-pdmodel-feature-clusters-closeout.md`
    - Close remaining pdmodel feature-cluster gaps (color/image/font/documentinterchange as scoped).
    - Normalize traceability/conversion/normalization rows and keep touched rows `in-sync`.
-4. `issues/81-xmpbox-regression-traceability-and-closeout.md`
+4. `issues/90-xmpbox-two-file-closeout.md`
    - Port final xmpbox files (`DomHelper`, `PdfaExtensionHelper`) with tests.
    - Regenerate canonical reports and capture updated counters in this tracker.
-5. `issues/86-final-parity-rescan-and-lock.md`
+5. `issues/91-final-parity-rescan-and-lock-execution.md`
    - Regenerate canonical reports from latest upstream head.
    - Release parity lock only if `mapped == total`, `missing == 0`, and scoped statuses are all `in-sync`.
