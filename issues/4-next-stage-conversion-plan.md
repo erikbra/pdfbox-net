@@ -255,22 +255,27 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
 - The `pdmodel.font` milestone has advanced through #50 (TrueType/CIDType2 parity); #51 and #52 remain as closeout slices.
 - The next large dependency-safe chunk to execute fully after font closeout is now **`pdmodel.graphics` completion**.
 
-## 100% parity finish line (2026-05-26 refresh)
+## Parity execution refresh (2026-05-29)
 
-- Treat main-module parity as:
-  - **618 / 618** upstream `pdfbox/src/main/java` files mapped
-  - **0** blank traceability statuses
-  - **0** obsolete/stale upstream-path mappings
-  - all current `partial` / `partially-in-sync` hotspots either closed or explicitly burned down in the same milestone closeout
-- Keep the issue flow dependency-first:
-  1. report/inventory hygiene + near-complete small gaps
-  2. font completion
-  3. graphics completion
-  4. filter/parser/writer completeness
-  5. interactive slices A-H
-  6. FDF + fixup
-  7. multipdf
-  8. encryption/public-key closeout and final parity burn-down
+- Canonical progress sources are now fixed to:
+  - `reports/upstream-port-coverage-state.json`
+  - `reports/pdfbox-main-gap-analysis.md`
+- Current baseline snapshot:
+  - **692 / 1067** mapped (64.9%)
+  - **375** missing
+  - **31** non-`in-sync` traceability rows
+- Every slice now follows the locked closeout loop:
+  1. code/test completion
+  2. green build/tests
+  3. traceability/conversion/normalization updates
+  4. canonical rescan regeneration
+  5. tracker counter/status capture before marking done
+- Updated dependency-first implementation order:
+  1. parser/writer/filter foundations (`issues/60`)
+  2. `contentstream/operator` gaps
+  3. `pdmodel` resource/cache/content-stream core
+  4. remaining `pdmodel` graphics/font/image/shading classes
+  5. `xmpbox` slices after core stabilization
 
 ### Remaining font closeout issues
 - `issues/51-pdmodel-font-type0-cidtype0-and-unicode-integration.md`
@@ -304,3 +309,18 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
 - `issues/75-multipdf-page-extraction-and-splitting.md`
 - `issues/76-multipdf-overlay-layer-and-closeout.md`
 - `issues/77-encryption-publickey-factory-provider-closeout.md`
+
+### XmpBox issue series prepared for M4 execution
+- `issues/78-xmpbox-metadata-entry-points-and-xml-pipeline.md`
+- `issues/79-xmpbox-schema-layer-parity.md`
+- `issues/80-xmpbox-type-system-and-property-model.md`
+- `issues/81-xmpbox-regression-traceability-and-closeout.md`
+
+### Non-core issue series prepared for M5 execution order
+- `issues/82-tools-module-parity-closeout.md`
+- `issues/83-examples-module-parity-closeout.md`
+- `issues/84-debugger-module-parity-closeout.md`
+- `issues/85-benchmark-module-parity-closeout.md`
+
+### Final parity lock issue prepared for M6
+- `issues/86-final-parity-rescan-and-lock.md`

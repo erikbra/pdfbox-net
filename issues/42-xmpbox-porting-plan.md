@@ -30,10 +30,10 @@ Create a dependency-ordered implementation plan for `xmpbox/**` with its own ass
    - Confirm `PdfBox.Net.XmpBox` remains independently buildable/testable.
 
 ### Proposed follow-up issue drafts
-- `issues/43-xmpbox-core-model-and-namespaces.md`
-- `issues/44-xmpbox-types-and-structured-properties.md`
-- `issues/45-xmpbox-parser-serializer-roundtrip.md`
-- `issues/46-xmpbox-project-split-and-integration.md`
+- `issues/78-xmpbox-metadata-entry-points-and-xml-pipeline.md`
+- `issues/79-xmpbox-schema-layer-parity.md`
+- `issues/80-xmpbox-type-system-and-property-model.md`
+- `issues/81-xmpbox-regression-traceability-and-closeout.md`
 
 ### Exit criteria
 - Dedicated `PdfBox.Net.XmpBox` project exists and builds.
