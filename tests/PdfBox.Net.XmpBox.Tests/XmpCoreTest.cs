@@ -194,4 +194,70 @@ public class XmpCoreTest
         Assert.Contains("<x:xmpmeta", serialized);
         Assert.Contains("<rdf:RDF", serialized);
     }
+
+    [Fact]
+    public void MetadataCanCreateAndLookupTypedSchemas()
+    {
+        XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();
+
+        DublinCoreSchema dc = metadata.CreateAndAddDublinCoreSchema();
+        AdobePDFSchema pdf = metadata.CreateAndAddAdobePDFSchema();
+
+        Assert.Same(dc, metadata.GetDublinCoreSchema());
+        Assert.Same(pdf, metadata.GetAdobePDFSchema());
+        Assert.Same(dc, metadata.GetSchema(DublinCoreSchema.NamespaceUri));
+        Assert.Same(pdf, metadata.GetSchema(AdobePDFSchema.PreferredPrefix, AdobePDFSchema.NamespaceUri));
+        Assert.Equal(string.Empty, dc.GetAboutValue());
+    }
+
+    [Fact]
+    public void ParserRegistersKnownSchemasFromRdfDescriptions()
+    {
+        DomXmpParser parser = new();
+        XMPMetadata metadata = parser.Parse(Encoding.UTF8.GetBytes(ValidXmpPacket));
+
+        DublinCoreSchema? dc = metadata.GetDublinCoreSchema();
+
+        Assert.NotNull(dc);
+        Assert.Equal(DublinCoreSchema.PreferredPrefix, dc!.GetPrefix());
+        Assert.Contains(metadata.GetAllSchemas(), schema => schema is DublinCoreSchema);
+    }
+
+    [Fact]
+    public void SchemaRegistrationRoundtripsDeterministically()
+    {
+        XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();
+        metadata.CreateAndAddDublinCoreSchema();
+        metadata.CreateAndAddAdobePDFSchema();
+        metadata.CreateAndAddDefaultSchema("custom", "urn:custom:test");
+
+        XmpSerializer serializer = new();
+        DomXmpParser parser = new();
+
+        using MemoryStream firstOutput = new();
+        serializer.Serialize(metadata, firstOutput, withXpacket: true);
+        string firstSerialized = Encoding.UTF8.GetString(firstOutput.ToArray());
+
+        XMPMetadata reparsed = parser.Parse(Encoding.UTF8.GetBytes(firstSerialized));
+        using MemoryStream secondOutput = new();
+        serializer.Serialize(reparsed, secondOutput, withXpacket: true);
+        string secondSerialized = Encoding.UTF8.GetString(secondOutput.ToArray());
+
+        Assert.Equal(firstSerialized, secondSerialized);
+        Assert.NotNull(reparsed.GetDublinCoreSchema());
+        Assert.NotNull(reparsed.GetAdobePDFSchema());
+        Assert.NotNull(reparsed.GetSchema("custom", "urn:custom:test"));
+    }
+
+    [Fact]
+    public void PdfaExtensionSchemaWithNamespacesRequiresExtensionNamespace()
+    {
+        XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();
+
+        Assert.Throws<XmpSchemaException>(() =>
+            metadata.CreateAndAddPDFAExtensionSchemaWithNS(new Dictionary<string, string>
+            {
+                ["pdfaid"] = PDFAIdentificationSchema.NamespaceUri
+            }));
+    }
 }

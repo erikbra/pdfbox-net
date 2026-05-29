@@ -924,8 +924,8 @@
     "sync_commit": "n/a",
     "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-25T11:10:23Z",
-    "note": "Focused xUnit coverage for xmpbox constants and exception behavior in initial project bootstrap."
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Expanded focused xUnit coverage for schema creation/lookup registration and deterministic schema roundtrip serialization/parsing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/Loader.java",
@@ -4855,8 +4855,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T05:05:40Z",
-    "note": "Issue #78 slice entry point: adapted metadata model for xpacket fields and RDF payload."
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted metadata port to add schema registration, typed schema create/get APIs, namespace-aware schema parsing, and RDF synthesis for schema-backed serialization."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
@@ -5337,5 +5337,145 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-28T19:50:41Z",
     "note": "WrapInSaveRestore, ImportPageAsForm, AppendFormAsLayer, ImportOcProperties ported. Uses PDPageContentStream for marked-content layer writing."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted base schema abstraction for namespace/prefix identity, rdf:about handling, and description-element persistence used by parser/serializer registration flows."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchemaFactory.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted schema factory for namespace-to-schema instantiation with optional prefix override and metadata registration wiring."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/AdobePDFSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted Adobe PDF schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/DublinCoreSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted Dublin Core schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/ExifSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/ExifSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted Exif schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAExtensionSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PDFAExtensionSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted PDF/A extension schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PDFAIdentificationSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted PDF/A identification schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PhotoshopSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted Photoshop schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/TiffSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted TIFF schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPBasicJobTicketSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted XMP basic job ticket schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPBasicSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted XMP basic schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPMediaManagementSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted XMP media management schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPPageTextSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted XMP page text schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPRightsManagementSchema.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T05:30:00Z",
+    "note": "Adapted XMP rights management schema class shell with preferred namespace/prefix constructors for typed registration parity."
   }
 ]

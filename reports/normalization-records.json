@@ -816,11 +816,14 @@
     "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpCoreTest.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Focused xUnit v3 coverage added for initial xmpbox core slice"
+      "Focused xUnit v3 coverage added for schema-layer parity"
     ],
     "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": true,
+    "upstream_tests_pending": false,
     "compiles_after_change": true,
-    "note": "Native xUnit tests validate constants and exception constructor behavior for bootstrapped XmpBox types."
+    "note": "Expanded focused xUnit coverage for schema creation/lookup registration and deterministic schema roundtrip serialization/parsing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/Loader.java",
@@ -3983,11 +3986,14 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
+      ".NET XML/collection adaptations for parity behavior"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
     "compiles_after_change": true,
-    "note": "Adapted metadata entry-point port to preserve xpacket fields and RDF payload in a .NET XML model."
+    "note": "Adapted metadata port to add schema registration, typed schema create/get APIs, namespace-aware schema parsing, and RDF synthesis for schema-backed serialization."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
@@ -4421,5 +4427,215 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "PDPageContentStream used for AppendFormAsLayer. Resource cloning adapted due to PDResources not implementing COSObjectable."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted base schema abstraction for namespace/prefix identity, rdf:about handling, and description-element persistence used by parser/serializer registration flows."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchemaFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted schema factory for namespace-to-schema instantiation with optional prefix override and metadata registration wiring."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/AdobePDFSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted Adobe PDF schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/DublinCoreSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted Dublin Core schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/ExifSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/ExifSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted Exif schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAExtensionSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PDFAExtensionSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted PDF/A extension schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PDFAIdentificationSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted PDF/A identification schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PhotoshopSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted Photoshop schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/TiffSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted TIFF schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPBasicJobTicketSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted XMP basic job ticket schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPBasicSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted XMP basic schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPMediaManagementSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted XMP media management schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPPageTextSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted XMP page text schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPRightsManagementSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted XMP rights management schema class shell with preferred namespace/prefix constructors for typed registration parity."
   }
 ]
