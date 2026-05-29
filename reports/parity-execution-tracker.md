@@ -92,7 +92,13 @@ After pdfbox core stabilization, complete `xmpbox` from baseline **4/74 mapped, 
 3. Type system + property model
 4. Integration tests + traceability closeout
 
-Issue anchor: `issues/42-xmpbox-porting-plan.md` and its follow-on slice execution.
+Issue anchors:
+
+- `issues/42-xmpbox-porting-plan.md`
+- `issues/78-xmpbox-metadata-entry-points-and-xml-pipeline.md`
+- `issues/79-xmpbox-schema-layer-parity.md`
+- `issues/80-xmpbox-type-system-and-property-model.md`
+- `issues/81-xmpbox-regression-traceability-and-closeout.md`
 
 ## M5 non-core strategy decision (explicit)
 
@@ -106,6 +112,13 @@ Execution order:
 4. `benchmark`
 
 This order must remain explicit in parity updates so global coverage trend interpretation stays consistent.
+
+Issue anchors:
+
+- `issues/82-tools-module-parity-closeout.md`
+- `issues/83-examples-module-parity-closeout.md`
+- `issues/84-debugger-module-parity-closeout.md`
+- `issues/85-benchmark-module-parity-closeout.md`
 
 ## M6 rescan/rebaseline and final parity lock
 
@@ -124,12 +137,14 @@ This order must remain explicit in parity updates so global coverage trend inter
    - scoped traceability statuses are all `in-sync`
    - branch build/tests are green.
 
+Issue anchor: `issues/86-final-parity-rescan-and-lock.md`.
+
 ## Execution order
 
 1. `pdfbox` core closeout (`issues/53`-`77`)
-2. `xmpbox` closeout
-3. `tools`
-4. `examples`
-5. `debugger`
-6. `benchmark`
-7. final parity rescan and lock
+2. `xmpbox` closeout (`issues/78`-`81`)
+3. `tools` (`issues/82`)
+4. `examples` (`issues/83`)
+5. `debugger` (`issues/84`)
+6. `benchmark` (`issues/85`)
+7. final parity rescan and lock (`issues/86`)

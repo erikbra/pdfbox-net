@@ -309,3 +309,18 @@ Produce a concrete, dependency-aware roadmap for the next PDFBox -> .NET convers
 - `issues/75-multipdf-page-extraction-and-splitting.md`
 - `issues/76-multipdf-overlay-layer-and-closeout.md`
 - `issues/77-encryption-publickey-factory-provider-closeout.md`
+
+### XmpBox issue series prepared for M4 execution
+- `issues/78-xmpbox-metadata-entry-points-and-xml-pipeline.md`
+- `issues/79-xmpbox-schema-layer-parity.md`
+- `issues/80-xmpbox-type-system-and-property-model.md`
+- `issues/81-xmpbox-regression-traceability-and-closeout.md`
+
+### Non-core issue series prepared for M5 execution order
+- `issues/82-tools-module-parity-closeout.md`
+- `issues/83-examples-module-parity-closeout.md`
+- `issues/84-debugger-module-parity-closeout.md`
+- `issues/85-benchmark-module-parity-closeout.md`
+
+### Final parity lock issue prepared for M6
+- `issues/86-final-parity-rescan-and-lock.md`
