@@ -25,14 +25,20 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.XmpBox.Type;
+
 namespace PdfBox.Net.XmpBox.Schema;
 
+[StructuredType("http://www.aiim.org/pdfa/ns/extension/", "pdfaExtension")]
 public class PDFAExtensionSchema : XMPSchema
 {
     public const string NamespaceUri = "http://www.aiim.org/pdfa/ns/extension/";
     public const string PreferredPrefix = "pdfaExtension";
 
-    public PDFAExtensionSchema(XMPMetadata metadata)
+    [PropertyType(XmpTypeName.PDFASchema, Cardinality.Bag)]
+    public static readonly string SCHEMAS = "schemas";
+
+public PDFAExtensionSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }

@@ -5477,5 +5477,525 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T05:30:00Z",
     "note": "Adapted XMP rights management schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/DateConverter.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/DateConverter.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported PDFBox date parsing/ISO8601 formatting utilities for DateTimeOffset-based XmpBox type support."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractComplexProperty.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractComplexProperty.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the abstract complex-property base with container and namespace-prefix registry support."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractField.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractField.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the abstract XMP field base with metadata/property-name/attribute support."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractSimpleProperty.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractSimpleProperty.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the abstract simple-property base with namespace, prefix, raw-value, and string/value APIs."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractStructuredType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractStructuredType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the abstract structured-type base with reflection-driven property helpers and namespace metadata."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AgentNameType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/AgentNameType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of AgentNameType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ArrayProperty.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ArrayProperty.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the XMP array property model for Bag/Seq/Alt content handling."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/BadFieldValueException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/BadFieldValueException.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the XmpBox bad field value exception used by type instantiation and parsing."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/BooleanType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/BooleanType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of BooleanType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/CFAPatternType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/CFAPatternType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of CFAPatternType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/Cardinality.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/Cardinality.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported cardinality model with C# enum/extension adaptation for simple and array property handling."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ChoiceType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ChoiceType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of ChoiceType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ColorantType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ColorantType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of ColorantType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ComplexPropertyContainer.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ComplexPropertyContainer.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the complex property container for child property lookup, comparison, and removal."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/DateType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/DateType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of DateType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/DefinedStructuredType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/DefinedStructuredType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the runtime-defined structured type container used by PDF/A extension metadata."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/DeviceSettingsType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/DeviceSettingsType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of DeviceSettingsType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/DimensionsType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/DimensionsType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of DimensionsType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/FlashType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/FlashType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of FlashType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/FontType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/FontType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of FontType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/GPSCoordinateType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/GPSCoordinateType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of GPSCoordinateType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/GUIDType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/GUIDType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of GUIDType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/IntegerType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/IntegerType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of IntegerType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/JobType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/JobType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of JobType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/LayerType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/LayerType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of LayerType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/LocaleType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/LocaleType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of LocaleType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/MIMEType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/MIMEType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of MIMEType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/OECFType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/OECFType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of OECFType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/PDFAFieldType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/PDFAFieldType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of PDFAFieldType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/PDFAPropertyType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/PDFAPropertyType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of PDFAPropertyType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/PDFASchemaType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/PDFASchemaType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of PDFASchemaType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/PDFATypeType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/PDFATypeType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of PDFATypeType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/PartType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/PartType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of PartType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ProperNameType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ProperNameType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of ProperNameType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/PropertiesDescription.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/PropertiesDescription.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the property-description registry used by TypeMapping and schema factories."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/PropertyType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/PropertyTypeAttribute.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the Java @PropertyType model as a C# attribute plus enum-backed runtime mapping support."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/RationalType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/RationalType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of RationalType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/RealType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/RealType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of RealType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/RenditionClassType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/RenditionClassType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of RenditionClassType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ResourceEventType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ResourceEventType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of ResourceEventType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ResourceRefType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ResourceRefType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of ResourceRefType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/StructuredType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/StructuredTypeAttribute.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the Java @StructuredType model as a C# attribute for schema and structured-type reflection."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/TextType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/TextType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of TextType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ThumbnailType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ThumbnailType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of ThumbnailType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/TypeMapping.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/TypeMapping.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the central XmpBox type mapping registry, reflection scanners, and property/structured factory helpers."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/Types.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/Types.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the XmpBox runtime type registry as a C# enum-like class with implementing-class metadata."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/URIType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/URIType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of URIType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/URLType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/URLType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of URLType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/VersionType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/VersionType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of VersionType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/XPathType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/XPathType.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Mechanical port of XPathType from Apache PDFBox xmpbox type model."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/Attribute.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/XmpAttribute.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Ported the XML attribute POJO from Attribute.java under the C#-safe XmpAttribute name."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpTypeTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T08:00:00Z",
+    "note": "Added deterministic XmpBox tests for primitive/simple properties, array properties, structured type instantiation, and ISO8601 date round-trips."
   }
 ]

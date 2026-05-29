@@ -7,9 +7,9 @@
   "latest_upstream_commit_seen": "6196c451156dcce18d6c69c4deaa0935854d9a1a",
   "last_port_coverage_scan_utc": "2026-05-29T08:18:06.675Z",
   "upstream_java_files_total": 1067,
-  "ported_java_files_total": 709,
-  "missing_java_files_total": 358,
-  "missing_source_paths_sha256": "6679fe7b3e1f64a62644bb89640f40b1570018051aee2a2b3fe017e293ddae78",
+  "ported_java_files_total": 760,
+  "missing_java_files_total": 307,
+  "missing_source_paths_sha256": "b6ae2b6e7b709a1d15c6a4669e3220e3fada7fa122bc6bc2b1422ab2905f75e3",
   "scan_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "parity_target": {
     "mapped_java_files_total": 1067,

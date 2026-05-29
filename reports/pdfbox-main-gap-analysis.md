@@ -23,15 +23,15 @@ Latest upstream head scanned: `6196c451156dcce18d6c69c4deaa0935854d9a1a`
 | `io` | 18 | 18 | 0 | 100.0% |
 | `pdfbox` | 618 | 527 | 91 | 85.3% |
 | `tools` | 26 | 0 | 26 | 0.0% |
-| `xmpbox` | 74 | 21 | 53 | 28.4% |
-| **TOTAL** | **1067** | **709** | **358** | **66.4%** |
+| `xmpbox` | 74 | 72 | 2 | 97.3% |
+| **TOTAL** | **1067** | **760** | **307** | **71.2%** |
 
-Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **709 / 853 = 83.1%**.
+Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **760 / 853 = 89.1%**.
 
 ## Traceability status for mapped upstream source rows
 
-Among **475** rows with scoped upstream `source_path`:
-- `in-sync`: **444**
+Among **526** rows with scoped upstream `source_path`:
+- `in-sync`: **495**
 - `partially-in-sync`: **20**
 - `partial`: **11**
 

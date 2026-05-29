@@ -25,14 +25,20 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.XmpBox.Type;
+
 namespace PdfBox.Net.XmpBox.Schema;
 
+[StructuredType("http://ns.adobe.com/xap/1.0/bj/", "xmpBJ")]
 public class XMPBasicJobTicketSchema : XMPSchema
 {
     public const string NamespaceUri = "http://ns.adobe.com/xap/1.0/bj/";
     public const string PreferredPrefix = "xmpBJ";
 
-    public XMPBasicJobTicketSchema(XMPMetadata metadata)
+    [PropertyType(XmpTypeName.Job, Cardinality.Bag)]
+    public static readonly string JOB_REF = "JobRef";
+
+public XMPBasicJobTicketSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }

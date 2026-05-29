@@ -25,14 +25,53 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.XmpBox.Type;
+
 namespace PdfBox.Net.XmpBox.Schema;
 
+[StructuredType("http://ns.adobe.com/xap/1.0/", "xmp")]
 public class XMPBasicSchema : XMPSchema
 {
     public const string NamespaceUri = "http://ns.adobe.com/xap/1.0/";
     public const string PreferredPrefix = "xmp";
 
-    public XMPBasicSchema(XMPMetadata metadata)
+    [PropertyType(XmpTypeName.XPath, Cardinality.Bag)]
+    public static readonly string ADVISORY = "Advisory";
+
+    [PropertyType(XmpTypeName.URL)]
+    public static readonly string BASEURL = "BaseURL";
+
+    [PropertyType(XmpTypeName.Date)]
+    public static readonly string CREATEDATE = "CreateDate";
+
+    [PropertyType(XmpTypeName.AgentName)]
+    public static readonly string CREATORTOOL = "CreatorTool";
+
+    [PropertyType(XmpTypeName.Text, Cardinality.Bag)]
+    public static readonly string IDENTIFIER = "Identifier";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string LABEL = "Label";
+
+    [PropertyType(XmpTypeName.Date)]
+    public static readonly string METADATADATE = "MetadataDate";
+
+    [PropertyType(XmpTypeName.Date)]
+    public static readonly string MODIFYDATE = "ModifyDate";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string NICKNAME = "Nickname";
+
+    [PropertyType(XmpTypeName.Integer)]
+    public static readonly string RATING = "Rating";
+
+    [PropertyType(XmpTypeName.Thumbnail, Cardinality.Alt)]
+    public static readonly string THUMBNAILS = "Thumbnails";
+
+    [PropertyType(XmpTypeName.Date)]
+    public static readonly string MODIFIER_DATE = "ModifierDate";
+
+public XMPBasicSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }

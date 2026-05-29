@@ -27,6 +27,7 @@
 
 using System.Xml;
 using PdfBox.Net.XmpBox.Schema;
+using XmpTypeMapping = PdfBox.Net.XmpBox.Type.TypeMapping;
 
 namespace PdfBox.Net.XmpBox;
 
@@ -37,8 +38,8 @@ public class XMPMetadata
 {
     private const string XmlnsNamespace = "http://www.w3.org/2000/xmlns/";
 
-    private static readonly IReadOnlyDictionary<string, Type> KnownSchemaTypesByNamespace =
-        new Dictionary<string, Type>(StringComparer.Ordinal)
+    private static readonly IReadOnlyDictionary<string, global::System.Type> KnownSchemaTypesByNamespace =
+        new Dictionary<string, global::System.Type>(StringComparer.Ordinal)
         {
             [AdobePDFSchema.NamespaceUri] = typeof(AdobePDFSchema),
             [DublinCoreSchema.NamespaceUri] = typeof(DublinCoreSchema),
@@ -59,6 +60,7 @@ public class XMPMetadata
     private readonly string? xpacketBytes;
     private readonly string? xpacketEncoding;
     private readonly List<XMPSchema> schemas = [];
+    private readonly XmpTypeMapping typeMapping;
     private string xpacketEndData = XmpConstants.DefaultXpacketEnd;
     private XmlElement? rdfRoot;
 
@@ -77,6 +79,7 @@ public class XMPMetadata
         this.xpacketId = xpacketId;
         this.xpacketBytes = xpacketBytes;
         this.xpacketEncoding = xpacketEncoding;
+        typeMapping = new XmpTypeMapping(this);
     }
 
     public static XMPMetadata CreateXMPMetadata()
@@ -91,6 +94,11 @@ public class XMPMetadata
         string? xpacketEncoding)
     {
         return new XMPMetadata(xpacketBegin, xpacketId, xpacketBytes, xpacketEncoding);
+    }
+
+    public XmpTypeMapping GetTypeMapping()
+    {
+        return typeMapping;
     }
 
     public string? GetXpacketBytes()
@@ -421,7 +429,13 @@ public class XMPMetadata
 
     private XMPSchema CreateSchemaForNamespace(string namespaceUri, string prefix)
     {
-        if (KnownSchemaTypesByNamespace.TryGetValue(namespaceUri, out Type? schemaType))
+        XMPSchemaFactory? factory = typeMapping.GetSchemaFactory(namespaceUri);
+        if (factory is not null)
+        {
+            return factory.InstanciateXMPSchema(this, prefix);
+        }
+
+        if (KnownSchemaTypesByNamespace.TryGetValue(namespaceUri, out global::System.Type? schemaType))
         {
             return (XMPSchema)Activator.CreateInstance(schemaType, this, prefix)!;
         }

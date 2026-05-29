@@ -25,14 +25,32 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.XmpBox.Type;
+
 namespace PdfBox.Net.XmpBox.Schema;
 
+[StructuredType("http://ns.adobe.com/xap/1.0/t/pg/", "xmpTPg")]
 public class XMPPageTextSchema : XMPSchema
 {
     public const string NamespaceUri = "http://ns.adobe.com/xap/1.0/t/pg/";
     public const string PreferredPrefix = "xmpTPg";
 
-    public XMPPageTextSchema(XMPMetadata metadata)
+    [PropertyType(XmpTypeName.Dimensions)]
+    public static readonly string MAX_PAGE_SIZE = "MaxPageSize";
+
+    [PropertyType(XmpTypeName.Integer)]
+    public static readonly string N_PAGES = "NPages";
+
+    [PropertyType(XmpTypeName.Text, Cardinality.Seq)]
+    public static readonly string PLATENAMES = "PlateNames";
+
+    [PropertyType(XmpTypeName.Colorant, Cardinality.Seq)]
+    public static readonly string COLORANTS = "Colorants";
+
+    [PropertyType(XmpTypeName.Font, Cardinality.Bag)]
+    public static readonly string FONTS = "Fonts";
+
+public XMPPageTextSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }

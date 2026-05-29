@@ -25,14 +25,26 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.XmpBox.Type;
+
 namespace PdfBox.Net.XmpBox.Schema;
 
+[StructuredType("http://ns.adobe.com/pdf/1.3/", "pdf")]
 public class AdobePDFSchema : XMPSchema
 {
     public const string NamespaceUri = "http://ns.adobe.com/pdf/1.3/";
     public const string PreferredPrefix = "pdf";
 
-    public AdobePDFSchema(XMPMetadata metadata)
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string KEYWORDS = "Keywords";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string PDF_VERSION = "PDFVersion";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string PRODUCER = "Producer";
+
+public AdobePDFSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }

@@ -25,14 +25,29 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.XmpBox.Type;
+
 namespace PdfBox.Net.XmpBox.Schema;
 
+[StructuredType("http://www.aiim.org/pdfa/ns/id/", "pdfaid")]
 public class PDFAIdentificationSchema : XMPSchema
 {
     public const string NamespaceUri = "http://www.aiim.org/pdfa/ns/id/";
     public const string PreferredPrefix = "pdfaid";
 
-    public PDFAIdentificationSchema(XMPMetadata metadata)
+    [PropertyType(XmpTypeName.Integer)]
+    public static readonly string PART = "part";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string AMD = "amd";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string CONFORMANCE = "conformance";
+
+    [PropertyType(XmpTypeName.Integer)]
+    public static readonly string REV = "rev";
+
+public PDFAIdentificationSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }

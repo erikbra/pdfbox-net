@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
+ *
+ * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/type/FontType.java
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_MODE: mechanical
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ */
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+namespace PdfBox.Net.XmpBox.Type;
+
+[StructuredType("http://ns.adobe.com/xap/1.0/sType/Font#", "stFnt")]
+public class FontType : AbstractStructuredType
+{
+    [PropertyType(XmpTypeName.Text, Cardinality.Seq)]
+    public static readonly string CHILD_FONT_FILES = "childFontFiles";
+
+    [PropertyType(XmpTypeName.Boolean)]
+    public static readonly string COMPOSITE = "composite";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string FONT_FACE = "fontFace";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string FONT_FAMILY = "fontFamily";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string FONT_FILE_NAME = "fontFileName";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string FONT_NAME = "fontName";
+
+    [PropertyType(XmpTypeName.Choice)]
+    public static readonly string FONT_TYPE = "fontType";
+
+    [PropertyType(XmpTypeName.Text)]
+    public static readonly string VERSION_STRING = "versionString";
+
+    public FontType(XMPMetadata metadata)
+        : base(metadata)
+    {
+    }
+}
