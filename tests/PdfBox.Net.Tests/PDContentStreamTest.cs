@@ -52,7 +52,7 @@ public class PDContentStreamTest
     public void PDTilingPatternImplementsContentStreamContract()
     {
         PDTilingPattern pattern = new();
-        using (Stream output = pattern.GetCOSObject().CreateOutputStream())
+        using (Stream output = ((COSStream)pattern.GetCOSObject()).CreateOutputStream())
         {
             byte[] bytes = Encoding.ASCII.GetBytes("0 0 m");
             output.Write(bytes, 0, bytes.Length);
