@@ -5997,5 +5997,15 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T08:00:00Z",
     "note": "Added deterministic XmpBox tests for primitive/simple properties, array properties, structured type instantiation, and ISO8601 date round-trips."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpRegressionFixturesTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-29T13:45:00Z",
+    "note": "Fixture-backed regression tests for XmpBox parser/schema/type flows (issue #81): roundtrip determinism for dc-format, multi-schema, and pdfa-identification packets; xpacket attribute preservation; schema extraction and namespace/prefix fidelity for DublinCore, AdobePDF, XMPBasic, and PDFAIdentification schemas; lenient-mode no-xpacket parsing; serializer schema-count roundtrip; and GetSchema overload coverage."
   }
 ]
