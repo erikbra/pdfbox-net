@@ -159,6 +159,23 @@ public class XmpCoreTest
     }
 
     [Fact]
+    public void ParserSupportsQuotedXpacketValuesContainingSpaces()
+    {
+        const string packetWithSpacedId = """
+            <?xpacket begin="﻿" id="my custom packet id"?>
+            <x:xmpmeta xmlns:x="adobe:ns:meta/">
+              <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+            </x:xmpmeta>
+            <?xpacket end="w"?>
+            """;
+
+        DomXmpParser parser = new();
+        XMPMetadata metadata = parser.Parse(Encoding.UTF8.GetBytes(packetWithSpacedId));
+
+        Assert.Equal("my custom packet id", metadata.GetXpacketId());
+    }
+
+    [Fact]
     public void SerializerCanWriteWithoutXpacketInstructions()
     {
         XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();

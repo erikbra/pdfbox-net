@@ -53,7 +53,6 @@ public class XmpSerializer
         }
 
         writer.WriteStartElement("x", "xmpmeta", "adobe:ns:meta/");
-        writer.WriteAttributeString("xmlns", "x", null, "adobe:ns:meta/");
 
         XmlDocument ownerDocument = new();
         XmlElement? rdfElement = metadata.GetRdfRoot(ownerDocument);

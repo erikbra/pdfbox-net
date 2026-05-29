@@ -26,12 +26,17 @@
  */
 
 using System.Xml;
+using System.Text.RegularExpressions;
 using static PdfBox.Net.XmpBox.Xml.XmpParsingException;
 
 namespace PdfBox.Net.XmpBox.Xml;
 
 public class DomXmpParser
 {
+    private static readonly Regex XpacketAttributeRegex =
+        new(@"(?<name>[A-Za-z_:][A-Za-z0-9_.:-]*)\s*=\s*(?<quote>['""])(?<value>.*?)\k<quote>",
+            RegexOptions.Compiled);
+
     private readonly XmlReaderSettings readerSettings = new()
     {
         DtdProcessing = DtdProcessing.Prohibit,
@@ -104,7 +109,7 @@ public class DomXmpParser
         }
         else
         {
-            metadata = ParseInitialXpacket(startPi);
+            metadata = ParseInitialXpacket(startPi!);
         }
 
         while (TryReadProcessingInstruction(nodes, ref index, out _))
@@ -129,7 +134,7 @@ public class DomXmpParser
         }
         else
         {
-            ParseEndPacket(metadata, endPi);
+            ParseEndPacket(metadata, endPi!);
         }
 
         if (index < nodes.Count)
@@ -173,27 +178,27 @@ public class DomXmpParser
         string? bytes = null;
         string? encoding = null;
 
-        string[] tokens = data.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        foreach (string token in tokens)
+        MatchCollection matches = XpacketAttributeRegex.Matches(data);
+        if (matches.Count == 0)
         {
-            if (token.Length < 4 || (token[^1] != '"' && token[^1] != '\''))
+            throw new XmpParsingException(
+                ErrorType.XpacketBadStart,
+                $"Cannot understand PI data part : '{data}'");
+        }
+
+        int consumed = 0;
+        foreach (Match match in matches)
+        {
+            if (!string.IsNullOrWhiteSpace(data[consumed..match.Index]))
             {
                 throw new XmpParsingException(
                     ErrorType.XpacketBadStart,
-                    $"Cannot understand PI data part : '{token}' in '{data}'");
+                    $"Cannot understand PI data part : '{data}'");
             }
 
-            char quote = token[^1];
-            int position = token.IndexOf($"={quote}", StringComparison.Ordinal);
-            if (position <= 0 || token.Length - 1 < position + 2)
-            {
-                throw new XmpParsingException(
-                    ErrorType.XpacketBadStart,
-                    $"Cannot understand PI data part : '{token}' in '{data}'");
-            }
-
-            string name = token[..position];
-            string value = token[(position + 2)..^1];
+            consumed = match.Index + match.Length;
+            string name = match.Groups["name"].Value;
+            string value = match.Groups["value"].Value;
             switch (name)
             {
                 case "id":
@@ -211,8 +216,15 @@ public class DomXmpParser
                 default:
                     throw new XmpParsingException(
                         ErrorType.XpacketBadStart,
-                        $"Unknown attribute in xpacket PI : '{token}'");
+                        $"Unknown attribute in xpacket PI : '{name}'");
             }
+        }
+
+        if (!string.IsNullOrWhiteSpace(data[consumed..]))
+        {
+            throw new XmpParsingException(
+                ErrorType.XpacketBadStart,
+                $"Cannot understand PI data part : '{data}'");
         }
 
         return XMPMetadata.CreateXMPMetadata(begin, id, bytes, encoding);
