@@ -22,7 +22,7 @@ Canonical scanner/report pair:
   - [x] Canonical mapping method formalized (provenance union traceability)
   - [x] Automated workflow scan uses canonical generator
   - [x] Coverage state, aggregate coverage JSON, and gap analysis are generated together
-- [ ] M2: Close remaining `pdfbox` missing files (`contentstream/operator`, `filter`, `pdfparser`, `pdfwriter`, `pdmodel`)
+- [x] M2: Close remaining `pdfbox` missing files (`contentstream/operator`, `filter`, `pdfparser`, `pdfwriter`, `pdmodel`)
 - [ ] M3: Burn down `partial` / `partially-in-sync` quality debt for core modules
 - [x] M4: Complete `xmpbox` parity slices
 - [x] M5: Complete non-core modules (`tools`, `examples`, `debugger`, `benchmark`)
@@ -32,9 +32,9 @@ Canonical scanner/report pair:
 
 Use these numbers as the starting baseline for every closeout decision until the next published rescan:
 
-- `mapped_java_files_total`: **1035**
+- `mapped_java_files_total`: **1067**
 - `upstream_java_files_total`: **1067**
-- `missing_java_files_total`: **32**
+- `missing_java_files_total`: **0**
 - non-`in-sync` traceability rows: **21** (`partial`: 11, `partially-in-sync`: 10)
 - Source of truth:
   - `reports/upstream-port-coverage-state.json`
@@ -165,23 +165,42 @@ Issue anchor: `issues/91-final-parity-rescan-and-lock-execution.md`.
 - Canonical rescan regenerated from latest upstream head `eeb5d611e0cea8beac3d7025a4dbccbef51d5caf`.
 - Tracked parity baseline commit: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`.
 - Captured counters:
-  - `mapped_java_files_total`: **1035**
+  - `mapped_java_files_total`: **1067**
   - `upstream_java_files_total`: **1067**
-  - `missing_java_files_total`: **32**
+  - `missing_java_files_total`: **0**
   - non-`in-sync` scoped traceability rows: **21** (`partial`: 11, `partially-in-sync`: 10)
 - Build/tests status for this branch: **green** (`dotnet build PdfBoxNet.slnx` — 0 errors; `dotnet test PdfBoxNet.slnx --no-build` — 1049 passed, 0 failed).
-- Progress since prior snapshot: missing −61 (93 → 32); non-`in-sync` rows −10 (31 → 21).
+- Progress since prior snapshot: missing −93 (93 → 0); non-`in-sync` rows −10 (31 → 21).
 - Lock gate evaluation:
 
   | Gate | Required | Actual | Met? |
   |---|---|---|---|
-  | `mapped_java_files_total == upstream_java_files_total` | 1067 | 1035 | ❌ |
-  | `missing_java_files_total == 0` | 0 | 32 | ❌ |
+  | `mapped_java_files_total == upstream_java_files_total` | 1067 | 1067 | ✅ |
+  | `missing_java_files_total == 0` | 0 | 0 | ✅ |
   | All scoped traceability rows `in-sync` | 0 non-`in-sync` | 21 | ❌ |
   | Branch build/tests green | all pass | 1049/1049 | ✅ |
 
-- Final parity lock decision: **NOT REACHED** (gates remain unmet: `mapped != total`, `missing != 0`, 21 non-`in-sync` traceability rows remain).
-- Remaining work: close 32 missing `pdfbox` files (contentstream, pdfparser, pdfwriter/compress, pdmodel) and resolve 21 non-`in-sync` traceability rows before the lock can be released.
+- Final parity lock decision: **NOT REACHED** (gate still unmet: 21 non-`in-sync` traceability rows remain).
+- Remaining work: resolve 21 non-`in-sync` traceability rows before the lock can be released.
+
+### M6 execution snapshot (2026-05-30 UTC) — post-refresh
+
+- Canonical reports regenerated at `2026-05-30T20:58:25.328Z` from upstream head `eeb5d611e0cea8beac3d7025a4dbccbef51d5caf`.
+- Captured counters (from `reports/upstream-port-coverage-state.json`):
+  - `mapped_java_files_total`: **1067**
+  - `upstream_java_files_total`: **1067**
+  - `missing_java_files_total`: **0**
+  - non-`in-sync` scoped traceability rows: **21** (`partial`: 11, `partially-in-sync`: 10)
+- Lock gate evaluation remains unchanged:
+
+  | Gate | Required | Actual | Met? |
+  |---|---|---|---|
+  | `mapped_java_files_total == upstream_java_files_total` | 1067 | 1067 | ✅ |
+  | `missing_java_files_total == 0` | 0 | 0 | ✅ |
+  | All scoped traceability rows `in-sync` | 0 non-`in-sync` | 21 | ❌ |
+  | Branch build/tests green | all pass | pending this slice | ⏳ |
+
+- Next large parity-completion wave: **semantic/traceability closeout of parser + PDModel document pipeline + filter/security + FontBox parser rows**.
 
 ### M6 execution snapshot (2026-05-30 UTC) — issue #96
 
@@ -207,30 +226,24 @@ Issue anchor: `issues/91-final-parity-rescan-and-lock-execution.md`.
 
 ## Execution order
 
-1. `pdfbox` core closeout (`issues/53`-`77`)
-2. `xmpbox` closeout (`issues/78`-`81`)
-3. `tools` (`issues/82`)
-4. `examples` (`issues/83`)
-5. `debugger` (`issues/84`)
-6. `benchmark` (`issues/85`)
-7. final parity rescan and lock (`issues/86`)
+1. parser/contentstream semantic closeout (`issues/97`)
+2. PDModel document pipeline semantic closeout (`issues/98`)
+3. filter/security + FontBox parser semantic closeout (`issues/99`)
+4. final parity lock rerun (`issues/100`)
 
 ## Concrete next issues toward 100% conversion
 
 Execute these in order and apply the mandatory closeout loop after each issue:
 
-1. `issues/92-core-operators-parser-writer-gap-closeout.md`
-   - Close remaining `contentstream/operator` (4), `pdfparser` (7), and `pdfwriter/compress` (3) missing files.
-   - Keep touched parser/contentstream/writer traceability rows `in-sync`.
-2. `issues/93-pdmodel-resource-contentstream-gap-closeout.md`
-   - Close remaining pdmodel foundation gaps around resource cache/content stream/name-tree roots (11 files).
-   - Reconcile touched pdmodel traceability/conversion/normalization rows.
-3. `issues/94-pdmodel-graphics-blend-state-gap-closeout.md`
-   - Close final missing pdmodel graphics/blend/state files (7 files) to reach `missing_java_files_total == 0`.
-   - Validate touched rendering/contentstream integration rows as `in-sync`.
-4. `issues/95-traceability-debt-burndown-final-closeout.md`
-   - Burn down remaining scoped non-`in-sync` traceability rows to zero (current baseline: 21).
-   - Resolve both `partial` and `partially-in-sync` rows across `fontbox` and `pdfbox`.
-5. `issues/96-final-parity-lock-rerun.md`
-   - Regenerate canonical reports from latest upstream head and rerun lock gates.
-   - Release parity lock only if `mapped == total`, `missing == 0`, and scoped statuses are all `in-sync`.
+1. `issues/97-parser-inline-image-traceability-closeout.md`
+   - Resolve parser/contentstream focused non-`in-sync` rows (`BeginInlineImage`, `BaseParser`, `COSObject`, `Loader`).
+   - Keep split inline-image operator behavior mechanically aligned to upstream Java semantics.
+2. `issues/98-pdmodel-document-pipeline-traceability-closeout.md`
+   - Resolve PDModel document-pipeline non-`in-sync` rows (`PDDocument`, `PDDocumentCatalog`, `PDDocumentInformation`, `PDPage`, `PDPageTree`, `PDRectangle`).
+   - Close remaining parity notes for document load/save/page traversal behavior.
+3. `issues/99-filter-security-fontbox-traceability-closeout.md`
+   - Resolve remaining filter/security/font-parser non-`in-sync` rows (`CCITTFax`, `Crypt`, `DCT`, `JBIG2`, `JPX`, `StandardSecurityHandler`, `CFFParser`, `Type1/Type2CharString`, `TTFParser`).
+   - Ensure adaptation notes are reduced to `in-sync` justifications or eliminated by implementation updates.
+4. `issues/100-final-traceability-lock-rerun.md`
+   - Regenerate canonical reports, verify zero scoped non-`in-sync` rows, and rerun full lock gates.
+   - Record final release decision in the tracker with full counters.
