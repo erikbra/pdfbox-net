@@ -1,6 +1,6 @@
 # PDFBox .NET parity execution tracker
 
-Last updated (UTC): 2026-05-29
+Last updated (UTC): 2026-05-30
 
 ## 100% parity target (canonical)
 
@@ -24,18 +24,18 @@ Canonical scanner/report pair:
   - [x] Coverage state, aggregate coverage JSON, and gap analysis are generated together
 - [ ] M2: Close remaining `pdfbox` missing files (`contentstream/operator`, `filter`, `pdfparser`, `pdfwriter`, `pdmodel`)
 - [ ] M3: Burn down `partial` / `partially-in-sync` quality debt for core modules
-- [ ] M4: Complete `xmpbox` parity slices
-- [ ] M5: Complete non-core modules (`tools`, `examples`, `debugger`, `benchmark`)
+- [x] M4: Complete `xmpbox` parity slices
+- [x] M5: Complete non-core modules (`tools`, `examples`, `debugger`, `benchmark`)
 - [ ] M6: Final rescan at latest upstream head and release parity lock
 
 ## Baseline lock (from canonical reports)
 
 Use these numbers as the starting baseline for every closeout decision until the next published rescan:
 
-- `mapped_java_files_total`: **974**
+- `mapped_java_files_total`: **1035**
 - `upstream_java_files_total`: **1067**
-- `missing_java_files_total`: **93**
-- non-`in-sync` traceability rows: **31** (`partial` + `partially-in-sync`)
+- `missing_java_files_total`: **32**
+- non-`in-sync` traceability rows: **21** (`partial`: 11, `partially-in-sync`: 10)
 - Source of truth:
   - `reports/upstream-port-coverage-state.json`
   - `reports/pdfbox-main-gap-analysis.md`
@@ -159,6 +159,29 @@ Issue anchor: `issues/91-final-parity-rescan-and-lock-execution.md`.
   - non-`in-sync` scoped traceability rows: **31** (`partial`: 11, `partially-in-sync`: 20)
 - Build/tests status for this branch: **green** (`dotnet build PdfBoxNet.slnx`, `dotnet test PdfBoxNet.slnx --no-build`).
 - Final parity lock decision: **NOT REACHED** (gates remain unmet: `mapped != total`, `missing != 0`, scoped traceability includes non-`in-sync` rows).
+
+### M6 execution snapshot (2026-05-30 UTC) — issue #91
+
+- Canonical rescan regenerated from latest upstream head `eeb5d611e0cea8beac3d7025a4dbccbef51d5caf`.
+- Tracked parity baseline commit: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`.
+- Captured counters:
+  - `mapped_java_files_total`: **1035**
+  - `upstream_java_files_total`: **1067**
+  - `missing_java_files_total`: **32**
+  - non-`in-sync` scoped traceability rows: **21** (`partial`: 11, `partially-in-sync`: 10)
+- Build/tests status for this branch: **green** (`dotnet build PdfBoxNet.slnx` — 0 errors; `dotnet test PdfBoxNet.slnx --no-build` — 1049 passed, 0 failed).
+- Progress since prior snapshot: missing −61 (93 → 32); non-`in-sync` rows −10 (31 → 21).
+- Lock gate evaluation:
+
+  | Gate | Required | Actual | Met? |
+  |---|---|---|---|
+  | `mapped_java_files_total == upstream_java_files_total` | 1067 | 1035 | ❌ |
+  | `missing_java_files_total == 0` | 0 | 32 | ❌ |
+  | All scoped traceability rows `in-sync` | 0 non-`in-sync` | 21 | ❌ |
+  | Branch build/tests green | all pass | 1049/1049 | ✅ |
+
+- Final parity lock decision: **NOT REACHED** (gates remain unmet: `mapped != total`, `missing != 0`, 21 non-`in-sync` traceability rows remain).
+- Remaining work: close 32 missing `pdfbox` files (contentstream, pdfparser, pdfwriter/compress, pdmodel) and resolve 21 non-`in-sync` traceability rows before the lock can be released.
 
 ## Execution order
 
