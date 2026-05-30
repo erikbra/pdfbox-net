@@ -38,6 +38,7 @@ namespace PdfBox.Net.PDModel;
 public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
 {
     private readonly COSDictionary _root;
+    private readonly PDDocument? _document;
 
     /// <summary>
     /// Constructor for embedding.
@@ -71,6 +72,8 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
         {
             _root = root;
         }
+
+        _document = null;
     }
 
     /// <summary>
@@ -81,6 +84,7 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
     internal PDPageTree(COSDictionary root, PDDocument document)
         : this(root)
     {
+        _document = document;
     }
 
     /// <inheritdoc/>
@@ -148,7 +152,7 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
         }
 
         COSDictionary page = GetPageDictionary(index);
-        return new PDPage(page);
+        return new PDPage(page, _document?.GetResourceCache());
     }
 
     /// <summary>
@@ -217,7 +221,7 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
         {
             if (kids.GetObject(i) is COSDictionary pageDictionary)
             {
-                yield return new PDPage(pageDictionary);
+                yield return new PDPage(pageDictionary, _document?.GetResourceCache());
             }
         }
     }
