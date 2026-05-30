@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Rendering;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
 
@@ -62,5 +64,11 @@ public class PDShadingType5 : PDTriangleBasedShadingType
     public void SetVerticesPerRow(int verticesPerRow)
     {
         GetCOSObject().SetInt(COSName.VERTICES_PER_ROW, verticesPerRow);
+    }
+
+    /// <inheritdoc/>
+    public override IPaint ToPaint(Matrix matrix)
+    {
+        return new Type5ShadingPaint(this, matrix);
     }
 }

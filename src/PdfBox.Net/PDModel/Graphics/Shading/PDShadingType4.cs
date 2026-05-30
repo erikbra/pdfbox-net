@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Rendering;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
 
@@ -62,5 +64,11 @@ public class PDShadingType4 : PDTriangleBasedShadingType
     public void SetBitsPerFlag(int bitsPerFlag)
     {
         GetCOSObject().SetInt(COSName.BITS_PER_FLAG, bitsPerFlag);
+    }
+
+    /// <inheritdoc/>
+    public override IPaint ToPaint(Matrix matrix)
+    {
+        return new Type4ShadingPaint(this, matrix);
     }
 }

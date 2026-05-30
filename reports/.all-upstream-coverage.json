@@ -1,13 +1,13 @@
 {
-  "generated_at_utc": "2026-05-29T22:45:33.335Z",
+  "generated_at_utc": "2026-05-30T09:28:39.262Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "upstream_head": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
   "tracked_parity_baseline_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
-  "mapped": 982,
-  "missing": 85,
+  "mapped": 1009,
+  "missing": 58,
   "modules": [
     {
       "module": "benchmark",
@@ -47,9 +47,9 @@
     {
       "module": "pdfbox",
       "java_files": 618,
-      "mapped": 535,
-      "missing": 83,
-      "pct": 86.6
+      "mapped": 562,
+      "missing": 56,
+      "pct": 90.9
     },
     {
       "module": "tools",
@@ -210,9 +210,9 @@
     {
       "family": "pdfbox:pdmodel",
       "java_files": 428,
-      "mapped": 359,
-      "missing": 69,
-      "pct": 83.9
+      "mapped": 386,
+      "missing": 42,
+      "pct": 90.2
     },
     {
       "family": "pdfbox:printing",
@@ -279,9 +279,9 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 711,
-    "in-sync": 680,
-    "partially-in-sync": 20,
+    "total_rows": 738,
+    "in-sync": 717,
+    "partially-in-sync": 10,
     "partial": 11
   },
   "top_missing_modules": {
