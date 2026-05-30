@@ -1140,6 +1140,55 @@
     "note": "Skill G mapping: Java virtual dispatch for overridden mutators mapped to C# virtual/override to preserve read-only semantics when referenced as COSDictionary."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/LayerUtility.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/LayerUtility.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "document.getDocument().createCOSStream() replaced with new COSStream()",
+      "CloneMerge(PDResources,PDResources) replaced with CloneForNewDocument(COSDictionary)"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDPageContentStream used for AppendFormAsLayer. Resource cloning adapted due to PDResources not implementing COSObjectable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Overlay.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/Overlay.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java method renamed: overlay() -> Process() (C# cannot have member with same name as enclosing type)",
+      "Java syntax leftovers -> C# syntax equivalents",
+      "IDisposable added for resource management"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Overlay.overlay() renamed to Overlay.Process() due to C# restriction. All overlay modes faithfully ported."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PageExtractor.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/PageExtractor.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Faithful port. Delegates to Splitter."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/Splitter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Simplified port: structure-tree / annotation fixup omitted"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Iterator-based split retained. Structure tree and named destination cloning not yet in scope."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
     "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
     "normalization_applied": true,
@@ -1825,6 +1874,366 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Standard tagged-PDF structure-type constants inventory."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCaret.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationCaret.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCircle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationCircle.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFileAttachment.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationFileAttachment.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFreeText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationFreeText.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationHighlight.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationHighlight.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationInk.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationInk.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLine.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationLine.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLink.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationLink.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolygon.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationPolygon.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolyline.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationPolyline.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSound.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSound.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSquare.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSquare.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSquiggly.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSquiggly.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationStamp.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationStamp.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationStrikeOut.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationStrikeOut.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationText.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationTextMarkup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationTextMarkup.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationUnderline.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationUnderline.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFCatalog.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFCatalog.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDocument.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDocument.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFField.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFField.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFIconFit.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFIconFit.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFJavaScript.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFJavaScript.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFNamedPageReference.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFNamedPageReference.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFOptionElement.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFOptionElement.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPage.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFPage.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPageInfo.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFPageInfo.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFTemplate.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFTemplate.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
@@ -3937,50 +4346,6 @@
     "note": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
   },
   {
-    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XmpConstants.java",
-    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/XmpConstants.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mechanical constants port normalized to C# constant naming and nullable default-bytes field."
-  },
-  {
-    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XmpSchemaException.java",
-    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XmpSchemaException.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mechanical schema exception port normalized to C# constructor declarations."
-  },
-  {
-    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpParsingException.java",
-    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpParsingException.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mechanical exception port normalized with C# enum/property patterns while preserving constructor behavior."
-  },
-  {
-    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializationException.java",
-    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpSerializationException.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mechanical exception port normalized to C# constructor declarations."
-  },
-  {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XMPMetadata.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/XMPMetadata.cs",
     "normalization_applied": true,
@@ -3996,467 +4361,15 @@
     "note": "Adapted metadata port to add schema registration, typed schema create/get APIs, namespace-aware schema parsing, and RDF synthesis for schema-backed serialization."
   },
   {
-    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
-    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomXmpParser.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Adapted parser entry-point with secure XmlReader settings, strict/lenient xpacket validation, and namespace/root checks."
-  },
-  {
-    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializer.java",
-    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpSerializer.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Adapted serializer entry-point to deterministic XmlWriter-based xpacket and RDF output."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCaret.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationCaret.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCircle.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationCircle.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFileAttachment.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationFileAttachment.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFreeText.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationFreeText.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationHighlight.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationHighlight.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationInk.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationInk.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLine.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationLine.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLink.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationLink.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolygon.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationPolygon.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolyline.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationPolyline.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSound.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSound.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSquare.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSquare.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSquiggly.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSquiggly.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationStamp.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationStamp.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationStrikeOut.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationStrikeOut.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationText.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationText.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationTextMarkup.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationTextMarkup.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationUnderline.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationUnderline.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFCatalog.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFCatalog.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDictionary.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDictionary.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDocument.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDocument.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFField.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFField.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFIconFit.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFIconFit.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFJavaScript.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFJavaScript.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFNamedPageReference.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFNamedPageReference.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFOptionElement.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFOptionElement.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPage.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFPage.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPageInfo.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFPageInfo.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFTemplate.java",
-    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFTemplate.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections/IO idioms adapted to .NET equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
-    "target_path": "src/PdfBox.Net/MultiPdf/Splitter.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Simplified port: structure-tree / annotation fixup omitted"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Iterator-based split retained. Structure tree and named destination cloning not yet in scope."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PageExtractor.java",
-    "target_path": "src/PdfBox.Net/MultiPdf/PageExtractor.cs",
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XmpConstants.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/XmpConstants.cs",
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Faithful port. Delegates to Splitter."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Overlay.java",
-    "target_path": "src/PdfBox.Net/MultiPdf/Overlay.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java method renamed: overlay() -> Process() (C# cannot have member with same name as enclosing type)",
-      "Java syntax leftovers -> C# syntax equivalents",
-      "IDisposable added for resource management"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Overlay.overlay() renamed to Overlay.Process() due to C# restriction. All overlay modes faithfully ported."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/LayerUtility.java",
-    "target_path": "src/PdfBox.Net/MultiPdf/LayerUtility.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "document.getDocument().createCOSStream() replaced with new COSStream()",
-      "CloneMerge(PDResources,PDResources) replaced with CloneForNewDocument(COSDictionary)"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "PDPageContentStream used for AppendFormAsLayer. Resource cloning adapted due to PDResources not implementing COSObjectable."
-  },
-  {
-    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
-    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchema.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      ".NET XML/collection adaptations for parity behavior"
-    ],
-    "semantic_risk": "low",
-    "behavior_change_risk": "low",
-    "upstream_tests_added": false,
-    "upstream_tests_pending": true,
-    "compiles_after_change": true,
-    "note": "Adapted base schema abstraction for namespace/prefix identity, rdf:about handling, and description-element persistence used by parser/serializer registration flows."
-  },
-  {
-    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
-    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchemaFactory.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      ".NET XML/collection adaptations for parity behavior"
-    ],
-    "semantic_risk": "low",
-    "behavior_change_risk": "low",
-    "upstream_tests_added": false,
-    "upstream_tests_pending": true,
-    "compiles_after_change": true,
-    "note": "Adapted schema factory for namespace-to-schema instantiation with optional prefix override and metadata registration wiring."
+    "note": "Mechanical constants port normalized to C# constant naming and nullable default-bytes field."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
@@ -4637,5 +4550,116 @@
     "upstream_tests_pending": true,
     "compiles_after_change": true,
     "note": "Adapted XMP rights management schema class shell with preferred namespace/prefix constructors for typed registration parity."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchema.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted base schema abstraction for namespace/prefix identity, rdf:about handling, and description-element persistence used by parser/serializer registration flows."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchemaFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "low",
+    "behavior_change_risk": "low",
+    "upstream_tests_added": false,
+    "upstream_tests_pending": true,
+    "compiles_after_change": true,
+    "note": "Adapted schema factory for namespace-to-schema instantiation with optional prefix override and metadata registration wiring."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XmpSchemaException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XmpSchemaException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical schema exception port normalized to C# constructor declarations."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomHelper.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomHelper.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted DOM helper normalization for XmlElement/XmlQualifiedName APIs while preserving child-node and parseType checks."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomXmpParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adapted parser entry-point with secure XmlReader settings, strict/lenient xpacket validation, and namespace/root checks."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/PdfaExtensionHelper.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      ".NET XML/collection adaptations for parity behavior"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adapted PDF/A extension helper normalization to traverse XML DOM and update TypeMapping schema/property definitions in .NET."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpParsingException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpParsingException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical exception port normalized with C# enum/property patterns while preserving constructor behavior."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializationException.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpSerializationException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanical exception port normalized to C# constructor declarations."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializer.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/XmpSerializer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Java collections/IO idioms adapted to .NET equivalents"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adapted serializer entry-point to deterministic XmlWriter-based xpacket and RDF output."
   }
 ]

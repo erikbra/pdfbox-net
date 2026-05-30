@@ -1,9 +1,9 @@
 # PDFBox Upstream Java Gap Analysis (All Modules)
 
-Datetime (UTC): 2026-05-30T09:28:39.262Z
+Datetime (UTC): 2026-05-30T14:11:53.560Z
 Reference upstream Java repository: Apache PDFBox trunk
 Tracked parity baseline commit: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`
-Latest upstream head scanned: `7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf`
+Latest upstream head scanned: `eeb5d611e0cea8beac3d7025a4dbccbef51d5caf`
 
 ## Scope and method
 
@@ -21,17 +21,17 @@ Latest upstream head scanned: `7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf`
 | `examples` | 94 | 94 | 0 | 100.0% |
 | `fontbox` | 143 | 143 | 0 | 100.0% |
 | `io` | 18 | 18 | 0 | 100.0% |
-| `pdfbox` | 618 | 562 | 56 | 90.9% |
+| `pdfbox` | 618 | 586 | 32 | 94.8% |
 | `tools` | 26 | 26 | 0 | 100.0% |
-| `xmpbox` | 74 | 72 | 2 | 97.3% |
-| **TOTAL** | **1067** | **1009** | **58** | **94.6%** |
+| `xmpbox` | 74 | 74 | 0 | 100.0% |
+| **TOTAL** | **1067** | **1035** | **32** | **97.0%** |
 
-Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **795 / 853 = 93.2%**.
+Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **821 / 853 = 96.2%**.
 
 ## Traceability status for mapped upstream source rows
 
-Among **738** rows with scoped upstream `source_path`:
-- `in-sync`: **717**
+Among **764** rows with scoped upstream `source_path`:
+- `in-sync`: **743**
 - `partially-in-sync`: **10**
 - `partial`: **11**
 

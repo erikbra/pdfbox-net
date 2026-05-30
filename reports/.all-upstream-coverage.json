@@ -1,13 +1,13 @@
 {
-  "generated_at_utc": "2026-05-30T09:28:39.262Z",
+  "generated_at_utc": "2026-05-30T14:11:53.560Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
-  "upstream_head": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+  "upstream_head": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
   "tracked_parity_baseline_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
-  "mapped": 1009,
-  "missing": 58,
+  "mapped": 1035,
+  "missing": 32,
   "modules": [
     {
       "module": "benchmark",
@@ -47,9 +47,9 @@
     {
       "module": "pdfbox",
       "java_files": 618,
-      "mapped": 562,
-      "missing": 56,
-      "pct": 90.9
+      "mapped": 586,
+      "missing": 32,
+      "pct": 94.8
     },
     {
       "module": "tools",
@@ -61,9 +61,9 @@
     {
       "module": "xmpbox",
       "java_files": 74,
-      "mapped": 72,
-      "missing": 2,
-      "pct": 97.3
+      "mapped": 74,
+      "missing": 0,
+      "pct": 100.0
     }
   ],
   "families": [
@@ -210,9 +210,9 @@
     {
       "family": "pdfbox:pdmodel",
       "java_files": 428,
-      "mapped": 386,
-      "missing": 42,
-      "pct": 90.2
+      "mapped": 410,
+      "missing": 18,
+      "pct": 95.8
     },
     {
       "family": "pdfbox:printing",
@@ -273,14 +273,14 @@
     {
       "family": "xmpbox:xml",
       "java_files": 6,
-      "mapped": 4,
-      "missing": 2,
-      "pct": 66.7
+      "mapped": 6,
+      "missing": 0,
+      "pct": 100.0
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 738,
-    "in-sync": 717,
+    "total_rows": 764,
+    "in-sync": 743,
     "partially-in-sync": 10,
     "partial": 11
   },
@@ -306,10 +306,6 @@
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java"
-    ],
-    "xmpbox": [
-      "xmpbox/src/main/java/org/apache/xmpbox/xml/DomHelper.java",
-      "xmpbox/src/main/java/org/apache/xmpbox/xml/PdfaExtensionHelper.java"
     ]
   }
 }

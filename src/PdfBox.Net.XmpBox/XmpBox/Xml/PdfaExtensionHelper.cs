@@ -57,7 +57,7 @@ public static class PdfaExtensionHelper
         }
     }
 
-    private static void CheckNamespaceDeclaration(XmlAttribute attr, Type clz)
+    private static void CheckNamespaceDeclaration(XmlAttribute attr, global::System.Type clz)
     {
         if (!string.Equals(attr.Prefix, "xmlns", StringComparison.Ordinal))
         {
@@ -344,7 +344,7 @@ public static class PdfaExtensionHelper
         }
     }
 
-    private static XmlElement? GetChildElement(XmlElement parent, Type typeClass, string localName)
+    private static XmlElement? GetChildElement(XmlElement parent, global::System.Type typeClass, string localName)
     {
         string namespaceUri = GetStructuredType(typeClass).Namespace;
         return DomHelper.GetElementChildren(parent)
@@ -352,7 +352,7 @@ public static class PdfaExtensionHelper
                 && string.Equals(e.LocalName, localName, StringComparison.Ordinal));
     }
 
-    private static string? GetChildText(XmlElement parent, Type typeClass, string localName)
+    private static string? GetChildText(XmlElement parent, global::System.Type typeClass, string localName)
     {
         XmlElement? child = GetChildElement(parent, typeClass, localName);
         if (child is null)
@@ -363,7 +363,7 @@ public static class PdfaExtensionHelper
         return string.IsNullOrWhiteSpace(child.InnerText) ? null : child.InnerText.Trim();
     }
 
-    private static StructuredTypeAttribute GetStructuredType(Type type)
+    private static StructuredTypeAttribute GetStructuredType(global::System.Type type)
     {
         return type.GetCustomAttributes(typeof(StructuredTypeAttribute), inherit: true)
             .Cast<StructuredTypeAttribute>()
