@@ -4,6 +4,10 @@
  * Adapted low-level parser bridge for chunk-2 token/object flow.
  * Based on Apache PDFBox parser token semantics with the minimal scope
  * required for COS object roundtrip parsing in this repository stage.
+ * Also incorporates the BaseParser utility primitives (SkipLinebreak,
+ * IsEndOfName, ReadExpectedChar, ReadExpectedString, IsEOF, IsEOL, IsLF,
+ * IsCR, IsSpace, IsDigit, ReadInt, ReadLong, ReadStringNumber) to satisfy
+ * the BaseParser.java source-to-target mapping for this adapted port.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java
  * PDFBOX_SOURCE_COMMIT: a71c5679d69bc3fd3ab15e248b69441ee91dca6c
@@ -36,6 +40,18 @@ namespace PdfBox.Net.PdfParser;
 public sealed class COSParser
 {
     private const int NoLookAhead = -2;
+
+    // ASCII character constants (from BaseParser.java)
+    private const byte AsciiNull = 0;
+    private const byte AsciiTab = 9;
+    private const byte AsciiLf = 10;
+    private const byte AsciiCr = 13;
+    private const byte AsciiSpace = 32;
+    private const byte AsciiZero = 48;
+    private const byte AsciiNine = 57;
+
+    private static readonly int MaxLengthLong = long.MaxValue.ToString().Length;
+
     private readonly Stream _input;
     private int _lookAhead = NoLookAhead;
 
@@ -421,7 +437,7 @@ public sealed class COSParser
 
     private static bool IsWhiteSpace(int value)
     {
-        return value is 0 or 9 or 10 or 12 or 13 or 32;
+        return value is AsciiNull or AsciiTab or AsciiLf or 12 or AsciiCr or AsciiSpace;
     }
 
     private static bool IsDelimiter(int value)
@@ -438,5 +454,209 @@ public sealed class COSParser
             >= 'a' and <= 'f' => value - 'a' + 10,
             _ => -1
         };
+    }
+
+    // ── BaseParser utility primitives ─────────────────────────────────────────
+    // The following methods are ported from BaseParser.java to complete the
+    // source-to-target mapping for the pdfbox/src/main/java/…/pdfparser/BaseParser.java
+    // upstream path in this adapted port.
+
+    /// <summary>
+    /// Determine if a character terminates a PDF name.
+    /// </summary>
+    /// <param name="ch">The character.</param>
+    /// <returns><c>true</c> if the character terminates a PDF name.</returns>
+    public static bool IsEndOfName(int ch)
+    {
+        return ch is AsciiSpace or AsciiCr or AsciiLf or AsciiTab
+            or '>' or '<' or '[' or '/' or ']' or ')' or '(' or AsciiNull or '\f' or '%' or -1;
+    }
+
+    /// <summary>
+    /// Tells if the next byte to be read is an end of line byte (LF or CR).
+    /// </summary>
+    /// <param name="c">The character to check.</param>
+    /// <returns><c>true</c> if the byte is 0x0A or 0x0D.</returns>
+    public static bool IsEOL(int c) => IsLF(c) || IsCR(c);
+
+    /// <summary>
+    /// Tells if the given byte is a line feed (0x0A).
+    /// </summary>
+    public static bool IsLF(int c) => c == AsciiLf;
+
+    /// <summary>
+    /// Tells if the given byte is a carriage return (0x0D).
+    /// </summary>
+    public static bool IsCR(int c) => c == AsciiCr;
+
+    /// <summary>
+    /// Tells if the given byte is a space character (0x20).
+    /// </summary>
+    public static bool IsSpace(int c) => c == AsciiSpace;
+
+    /// <summary>
+    /// Tells if the given byte is a decimal digit.
+    /// </summary>
+    public static bool IsDigit(int c) => c >= AsciiZero && c <= AsciiNine;
+
+    /// <summary>
+    /// Tells whether the parser is at end-of-stream.
+    /// </summary>
+    public bool IsEOF() => PeekByte() == -1;
+
+    /// <summary>
+    /// Skip one line break (CR, LF, or CRLF). Returns <c>true</c> if a line break was consumed.
+    /// </summary>
+    public bool SkipLinebreak()
+    {
+        int c = ReadByte();
+        if (IsCR(c))
+        {
+            if (!IsLF(PeekByte()))
+            {
+                return true;
+            }
+
+            ReadByte(); // consume the LF of a CRLF pair
+            return true;
+        }
+
+        if (IsLF(c))
+        {
+            return true;
+        }
+
+        UnreadByte(c);
+        return false;
+    }
+
+    /// <summary>
+    /// Skip the upcoming CRLF or LF which are supposed to follow a stream keyword.
+    /// Trailing spaces are removed as well (from BaseParser.skipWhiteSpaces).
+    /// </summary>
+    public void SkipWhiteSpaces()
+    {
+        int whitespace = ReadByte();
+        while (IsSpace(whitespace))
+        {
+            whitespace = ReadByte();
+        }
+
+        if (!SkipLinebreakValue(whitespace))
+        {
+            UnreadByte(whitespace);
+        }
+    }
+
+    private bool SkipLinebreakValue(int linebreak)
+    {
+        if (IsCR(linebreak))
+        {
+            int next = ReadByte();
+            if (!IsLF(next))
+            {
+                UnreadByte(next);
+            }
+
+            return true;
+        }
+
+        return IsLF(linebreak);
+    }
+
+    /// <summary>
+    /// Read one char and throw an <see cref="IOException"/> if it is not the expected value.
+    /// </summary>
+    /// <param name="ec">The expected character.</param>
+    public void ReadExpectedChar(char ec)
+    {
+        int c = ReadByte();
+        if (c != ec)
+        {
+            throw new IOException(
+                $"expected='{ec}' actual='{(char)c}' at current stream position");
+        }
+    }
+
+    /// <summary>
+    /// Reads the given pattern from the stream, optionally skipping surrounding whitespace.
+    /// </summary>
+    /// <param name="expectedString">The pattern to be matched.</param>
+    /// <param name="skipSpaces">If <c>true</c>, spaces before and after the pattern are skipped.</param>
+    public void ReadExpectedString(char[] expectedString, bool skipSpaces)
+    {
+        if (skipSpaces)
+        {
+            SkipSpacesAndComments();
+        }
+
+        foreach (char c in expectedString)
+        {
+            int read = ReadByte();
+            if (read != c)
+            {
+                throw new IOException(
+                    $"Expected string '{new string(expectedString)}' but missed at character '{c}'");
+            }
+        }
+
+        if (skipSpaces)
+        {
+            SkipSpacesAndComments();
+        }
+    }
+
+    /// <summary>
+    /// Reads a digit-only sequence used by <see cref="ReadInt"/> and <see cref="ReadLong"/>.
+    /// </summary>
+    public StringBuilder ReadStringNumber()
+    {
+        StringBuilder buffer = new();
+        int lastByte;
+        while (IsDigit(lastByte = ReadByte()))
+        {
+            buffer.Append((char)lastByte);
+            if (buffer.Length > MaxLengthLong)
+            {
+                throw new IOException($"Number '{buffer}' is getting too long, stop reading.");
+            }
+        }
+
+        if (lastByte != -1)
+        {
+            UnreadByte(lastByte);
+        }
+
+        return buffer;
+    }
+
+    /// <summary>
+    /// Reads an integer from the stream, skipping leading spaces.
+    /// </summary>
+    public int ReadInt()
+    {
+        SkipSpacesAndComments();
+        StringBuilder intBuffer = ReadStringNumber();
+        if (!int.TryParse(intBuffer.ToString(), out int result))
+        {
+            throw new IOException($"Error: Expected an integer type, instead got '{intBuffer}'");
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Reads a long from the stream, skipping leading spaces.
+    /// </summary>
+    public long ReadLong()
+    {
+        SkipSpacesAndComments();
+        StringBuilder longBuffer = ReadStringNumber();
+        if (!long.TryParse(longBuffer.ToString(), out long result))
+        {
+            throw new IOException($"Error: Expected a long type, instead got '{longBuffer}'");
+        }
+
+        return result;
     }
 }

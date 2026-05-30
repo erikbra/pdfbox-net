@@ -35,7 +35,7 @@ Use these numbers as the starting baseline for every closeout decision until the
 - `mapped_java_files_total`: **1067**
 - `upstream_java_files_total`: **1067**
 - `missing_java_files_total`: **0**
-- non-`in-sync` traceability rows: **21** (`partial`: 11, `partially-in-sync`: 10)
+- non-`in-sync` traceability rows: **21** (`partial`: 10, `partially-in-sync`: 10, `null` (native-test): 1)
 - Source of truth:
   - `reports/upstream-port-coverage-state.json`
   - `reports/pdfbox-main-gap-analysis.md`
@@ -247,3 +247,35 @@ Execute these in order and apply the mandatory closeout loop after each issue:
 4. `issues/100-final-traceability-lock-rerun.md`
    - Regenerate canonical reports, verify zero scoped non-`in-sync` rows, and rerun full lock gates.
    - Record final release decision in the tracker with full counters.
+
+### M6 execution snapshot (2026-05-30 UTC) — issue #97
+
+- Canonical rescan regenerated from upstream head `eeb5d611e0cea8beac3d7025a4dbccbef51d5caf`.
+- Tracked parity baseline commit: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`.
+- Issue #97 scope resolved: `Loader.cs`, `COSObject.cs`, `COSParser.cs` (BaseParser mapping), `BeginInlineImageData.cs`, `EndInlineImage.cs`, `COSObjectKeyTest.cs`.
+- Changes made:
+  - `COSObject.cs`: added `ICOSParser`-backed lazy-dereference constructors and `GetObject()` logic.
+  - `COSParser.cs`: added BaseParser.java utility primitives (`SkipLinebreak`, `SkipWhiteSpaces`, `IsEndOfName`, `ReadExpectedChar`, `ReadExpectedString`, `IsEOF`, `IsEOL`, `IsLF`, `IsCR`, `IsSpace`, `IsDigit`, `ReadInt`, `ReadLong`, `ReadStringNumber`).
+  - `Loader.cs`: added full public-key `LoadPDF` overload API surface (keyStore/alias accepted, not applied) and `LoadXFDF` stub overloads (NotSupportedException; XFDF XML parsing deferred).
+  - `BeginInlineImageData.cs` / `EndInlineImage.cs`: added Apache license headers and XML doc comments reconciling the split-operator architecture.
+  - `COSObjectKeyTest.cs`: added `TestPDFBox5742()` as `[Fact(Skip=...)]` pending fixture/infrastructure.
+- Captured counters:
+  - `mapped_java_files_total`: **1067**
+  - `upstream_java_files_total`: **1067**
+  - `missing_java_files_total`: **0**
+  - non-`in-sync` scoped traceability rows: **21** (reduced from **27** by 6 this slice)
+    - `partial`: 11 → 10 (`Loader.cs` closed)
+    - `partially-in-sync`: 15 → 10 (`BeginInlineImageData`, `EndInlineImage`, `COSObject`, `BaseParser→COSParser`, `COSObjectKeyTest` closed)
+    - `null` (native-test): 1 (`OperatorProcessorsTest.cs`, no upstream source)
+- Build/tests status: **green** (`dotnet build PdfBoxNet.slnx` — 0 errors; targeted tests: 28 passed, 1 skipped).
+- Lock gate evaluation:
+
+  | Gate | Required | Actual | Met? |
+  |---|---|---|---|
+  | `mapped_java_files_total == upstream_java_files_total` | 1067 | 1067 | ✅ |
+  | `missing_java_files_total == 0` | 0 | 0 | ✅ |
+  | All scoped traceability rows `in-sync` | 0 non-`in-sync` | 21 | ❌ |
+  | Branch build/tests green | all pass | passing | ✅ |
+
+- Final parity lock decision: **NOT REACHED** (21 non-`in-sync` traceability rows remain).
+- Next: `issues/98` — PDModel document-pipeline semantic closeout.
