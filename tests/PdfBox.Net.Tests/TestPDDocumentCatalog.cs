@@ -25,7 +25,11 @@
  * limitations under the License.
  */
 
+using System.Text;
+using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Interactive.PageNavigation;
 
 namespace PdfBox.Net.Tests;
 
@@ -104,5 +108,55 @@ public class TestPDDocumentCatalog
             document.GetDocumentCatalog().SetPageMode(mode);
             Assert.Equal(mode, document.GetDocumentCatalog().GetPageMode());
         }
+    }
+
+    [Fact]
+    public void HandleBooleanInOpenAction()
+    {
+        using PDDocument document = new();
+
+        ((COSDictionary)document.GetDocumentCatalog().GetCOSObject()).SetBoolean(COSName.OPEN_ACTION, false);
+
+        Assert.Null(document.GetDocumentCatalog().GetOpenAction());
+    }
+
+    [Fact]
+    public void ThreadsAllowNullAndEmpty()
+    {
+        using PDDocument document = new();
+        PDDocumentCatalog catalog = document.GetDocumentCatalog();
+
+        Assert.Empty(catalog.GetThreads());
+
+        catalog.SetThreads([]);
+        Assert.Empty(catalog.GetThreads());
+
+        catalog.SetThreads(null);
+        Assert.Empty(catalog.GetThreads());
+    }
+
+    [Fact]
+    public void OutputIntentsRoundtrip()
+    {
+        using PDDocument document = new();
+        PDDocumentCatalog catalog = document.GetDocumentCatalog();
+
+        Assert.Empty(catalog.GetOutputIntents());
+
+        using MemoryStream colorProfile = new(Encoding.ASCII.GetBytes("dummy-icc-profile"));
+        PDOutputIntent outputIntent = new(document, colorProfile);
+        outputIntent.SetInfo("sRGB IEC61966-2.1");
+        outputIntent.SetOutputCondition("sRGB IEC61966-2.1");
+        outputIntent.SetOutputConditionIdentifier("sRGB IEC61966-2.1");
+        outputIntent.SetRegistryName("http://www.color.org");
+
+        catalog.AddOutputIntent(outputIntent);
+
+        IList<PDOutputIntent> outputIntents = catalog.GetOutputIntents();
+        Assert.Single(outputIntents);
+        Assert.Equal("sRGB IEC61966-2.1", outputIntents[0].GetInfo());
+
+        catalog.SetOutputIntents(outputIntents);
+        Assert.Single(catalog.GetOutputIntents());
     }
 }

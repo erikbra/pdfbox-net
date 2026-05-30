@@ -28,12 +28,14 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Fixup;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 using PdfBox.Net.PDModel.Graphics.OptionalContent;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
+using PdfBox.Net.PDModel.Interactive.PageNavigation;
 using PdfBox.Net.PDModel.Interactive.ViewerPreferences;
 
 namespace PdfBox.Net.PDModel;
@@ -223,6 +225,31 @@ public sealed class PDDocumentCatalog : COSObjectable
         _root.SetItem(COSName.PAGE_LABELS, labels);
     }
 
+    public IList<PDThread> GetThreads()
+    {
+        COSArray? threads = _root.GetCOSArray(COSName.THREADS);
+        if (threads is null)
+        {
+            return new COSArrayList<PDThread>(_root, COSName.THREADS);
+        }
+
+        List<PDThread> pdObjects = new(threads.Size());
+        for (int i = 0; i < threads.Size(); i++)
+        {
+            if (threads.GetObject(i) is COSDictionary dictionary)
+            {
+                pdObjects.Add(new PDThread(dictionary));
+            }
+        }
+
+        return new COSArrayList<PDThread>(pdObjects, threads);
+    }
+
+    public void SetThreads(IList<PDThread>? threads)
+    {
+        _root.SetItem(COSName.THREADS, COSArrayList<object>.ConverterToCOSArray(threads?.Cast<object>().ToList()));
+    }
+
     /// <summary>
     /// Get the outline associated with this document or null if it does not exist.
     /// </summary>
@@ -306,6 +333,39 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetViewerPreferences(PDViewerPreferences? preferences)
     {
         _root.SetItem(COSName.VIEWER_PREFERENCES, preferences);
+    }
+
+    public IList<PDOutputIntent> GetOutputIntents()
+    {
+        COSArray? outputIntents = _root.GetCOSArray(COSName.OUTPUT_INTENTS);
+        if (outputIntents is null)
+        {
+            return [];
+        }
+
+        List<PDOutputIntent> retval = new(outputIntents.Size());
+        for (int i = 0; i < outputIntents.Size(); i++)
+        {
+            if (outputIntents.GetObject(i) is COSDictionary dictionary)
+            {
+                retval.Add(new PDOutputIntent(dictionary));
+            }
+        }
+
+        return retval;
+    }
+
+    public void AddOutputIntent(PDOutputIntent outputIntent)
+    {
+        ArgumentNullException.ThrowIfNull(outputIntent);
+
+        List<PDOutputIntent> outputIntents = [.. GetOutputIntents(), outputIntent];
+        SetOutputIntents(outputIntents);
+    }
+
+    public void SetOutputIntents(IList<PDOutputIntent>? outputIntents)
+    {
+        _root.SetItem(COSName.OUTPUT_INTENTS, COSArrayList<object>.ConverterToCOSArray(outputIntents?.Cast<object>().ToList()));
     }
 
     /// <summary>

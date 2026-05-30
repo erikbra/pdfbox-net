@@ -227,12 +227,18 @@ public sealed class PDDocument : IDisposable
     private static List<(COSObjectKey Key, COSBase Inner)> CollectIndirectObjects(COSDictionary trailer)
     {
         Dictionary<COSObjectKey, COSBase> collected = [];
+        HashSet<COSBase> visited = new(ReferenceEqualityComparer.Instance);
         Queue<COSBase> pending = new();
         pending.Enqueue(trailer);
 
         while (pending.Count > 0)
         {
             COSBase current = pending.Dequeue();
+            if (!visited.Add(current))
+            {
+                continue;
+            }
+
             switch (current)
             {
                 case COSObject cosObj:
