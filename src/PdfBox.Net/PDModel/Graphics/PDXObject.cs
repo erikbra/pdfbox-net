@@ -46,6 +46,7 @@ public class PDXObject : COSObjectable
     private static readonly COSName TransparencyName = COSName.GetPDFName("Transparency");
     private static readonly COSName FormName = COSName.GetPDFName("Form");
     private static readonly COSName ImageName = COSName.GetPDFName("Image");
+    private static readonly COSName PsName = COSName.GetPDFName("PS");
 
     private readonly PDStream? _stream;
 
@@ -94,6 +95,11 @@ public class PDXObject : COSObjectable
             return new PDFormXObject(stream);
         }
 
+        if (string.Equals(subtype, PsName.GetName(), StringComparison.Ordinal))
+        {
+            return new PDPostScriptXObject(stream);
+        }
+
         return new PDXObject(stream);
     }
 
@@ -111,4 +117,16 @@ public class PDXObject : COSObjectable
 
     /// <summary>Returns the subtype name from the stream dictionary, or null.</summary>
     public string? GetSubtype() => _stream?.GetCOSObject().GetNameAsString(SubtypeName);
+
+    protected void SetXObjectSubtype(string subtype)
+    {
+        COSStream? cos = _stream?.GetCOSObject();
+        if (cos is null)
+        {
+            return;
+        }
+
+        cos.SetName(COSName.TYPE, "XObject");
+        cos.SetName(SubtypeName, subtype);
+    }
 }

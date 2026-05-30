@@ -66,9 +66,11 @@ public class PDTextState
     public float GetWordSpacing() => WordSpacing;
     public float GetLeading() => Leading;
     public int GetRenderingMode() => RenderingMode;
+    public global::PdfBox.Net.PDModel.Graphics.State.RenderingMode GetRenderingModeInstance() => RenderingModeExtensions.FromInt(RenderingMode);
     public float GetRise() => Rise;
     public PdfBox.Net.PDModel.Font.PDFont? GetFont() => Font;
     public bool GetKnockoutFlag() => KnockoutFlag;
+    public void SetRenderingMode(global::PdfBox.Net.PDModel.Graphics.State.RenderingMode renderingMode) => RenderingMode = renderingMode.IntValue();
     public void SetKnockoutFlag(bool knockoutFlag) => KnockoutFlag = knockoutFlag;
 
     /// <summary>Creates a shallow copy of this text state (fonts are shared references).</summary>

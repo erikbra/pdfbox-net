@@ -838,6 +838,61 @@
     "note": "Implements PDF and FDF load entry points for current parity scope; XFDF and public-key security overloads remain deferred."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Legacy DrawObject package path kept mapped to shared C# Do-operator implementation for parity continuity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetColor.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/DrawObject.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/markedcontent/DrawObject.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/MarkedContent/DrawObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetMatrix.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetMatrix.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
     "target_path": "src/PdfBox.Net/COS/COSArray.cs",
     "normalization_applied": true,
@@ -872,19 +927,6 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Preserved singleton semantics and identity-based equality behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
-    "target_path": "src/PdfBox.Net/COS/COSDictionary.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "LinkedHashMap behavior mapped to insertion-order .NET Dictionary",
-      "Update-state propagation added for incremental-save parity"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Adapted dictionary/object dereference semantics and added recursive update-state propagation needed for incremental-save object collection."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
@@ -956,30 +998,6 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Preserved integer cache window and invalid value sentinels while mapping writePDF to Stream.Write."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
-    "target_path": "src/PdfBox.Net/COS/COSName.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Concurrent weak-reference cache adapted to .NET concurrent dictionary"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Mapped COSName interning and byte-preserving behavior to .NET while preserving visitor and serialization semantics for foundational container usage."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
-    "target_path": "src/PdfBox.Net/COS/COSName.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Added constant entries for PDModel-layer keys"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Added alphabetized static constants required by PDModel classes: CREATION_DATE, MOD_DATE, TRAPPED, MEDIA_BOX, CROP_BOX, BLEED_BOX, TRIM_BOX, ART_BOX, ROTATE, PAGE, PAGES, KIDS, COUNT, CATALOG, ROOT, VERSION, PAGE_LAYOUT, PAGE_MODE, LANG, RESOURCES, STRUCT_PARENTS, TITLE, AUTHOR, SUBJECT, KEYWORDS, CREATOR, PRODUCER, NAMES, DESTS, MARK_INFO, OUTPUT_INTENTS, OPEN_ACTION, METADATA, VIEWER_PREFERENCES, OUTLINES, THREADS, ACRO_FORM, AA."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
@@ -1201,6 +1219,50 @@
     "note": "Implemented a bounded parser subset (names, strings, arrays, dictionaries, booleans, null, numbers) required for chunk-2 object flow without high-level document parsing orchestration."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/BruteForceParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/EndstreamFilterStream.java",
+    "target_path": "src/PdfBox.Net/PdfParser/EndstreamFilterStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/FDFParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/FDFParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java",
     "target_path": "src/PdfBox.Net/PdfParser/PDFDocumentParser.cs",
     "normalization_applied": true,
@@ -1226,6 +1288,39 @@
     "note": "PDFParser now consumes ParserBootstrapState generated by PDFDocumentParser and hardens classic xref-table parsing against malformed entries and cyclic /Prev chains."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXRefStream.java",
+    "target_path": "src/PdfBox.Net/PdfParser/PDFXRefStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/PDFXrefStreamParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/XrefParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
     "target_path": "src/PdfBox.Net/PdfWriter/COSStandardOutputStream.cs",
     "normalization_applied": true,
@@ -1248,6 +1343,85 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Added minimal serialization entry point that reuses existing COS type writers and COSStandardOutputStream behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSObjectPool.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSObjectPool.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterCompressionPool.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSWriterCompressionPool.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterObjectStream.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSWriterObjectStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
+    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCache.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Reference-model adaptation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "SoftReference-based cache adapted to WeakReference while preserving stable-removal threshold behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCacheCreateImpl.java",
+    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCacheCreateImpl.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Factory implementation normalized to C# class with Create() method."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/MissingResourceException.java",
+    "target_path": "src/PdfBox.Net/PDModel/MissingResourceException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Exception subclass ported one-to-one."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "API surface adaptation"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Introduced shared subset writer foundation reused by new form/pattern content stream wrappers."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
@@ -1286,6 +1460,28 @@
     "note": "Ported string-based document information metadata accessors required for minimal open/inspect/save pipeline coverage."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentNameDestinationDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ported destination dictionary lookup semantics for array and dictionary-with-/D forms."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDFormContentStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Constructor adapted to ensure form resources are initialized before writing."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
     "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
     "normalization_applied": true,
@@ -1309,6 +1505,17 @@
     "note": "Introduces focused PDPageTree behaviors used by document open/inspect/save and page ownership updates."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPatternContentStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Constructor adapted to ensure tiling pattern resources are initialized before writing."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
     "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
     "normalization_applied": true,
@@ -1318,6 +1525,17 @@
     "semantic_risk": "medium",
     "compiles_after_change": true,
     "note": "Updated resource font lookup to construct concrete PDFont instances via PDFontFactory."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDStructureElementNameTreeNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDStructureElementNameTreeNode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Name-tree node conversion and child-node factory mapped directly."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
@@ -1340,6 +1558,39 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Java enum's stringValue()/fromString() methods moved to static extension/factory class per C# enum convention."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCache.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interface ported one-to-one using nullable returns for cache misses."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheCreateFunction.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheCreateFunction.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Functional-interface adaptation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java functional interface mapped to C# delegate."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Static cache factory normalized with nullable delegate support to allow disabling cache."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java",
@@ -2394,17 +2645,6 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Implemented composite Type0 font wiring with descendant descriptor and CID width delegation."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "normalization_applied": true,
-    "change_categories": [
       "Java PDFBox composite-font CMap semantics adapted to existing .NET font model"
     ],
     "semantic_risk": "medium",
@@ -2520,6 +2760,83 @@
     "semantic_risk": "medium",
     "compiles_after_change": true,
     "note": "Added ZapfDingbats encoding map for PDModel fonts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDFontSetting.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/PDFontSetting.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted COSObjectable wrapper and dropped checked IOException surface because PDFontFactory is managed."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDPostScriptXObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/PDPostScriptXObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mapped COSName.PS subtype handling onto the existing PDXObject stream wrapper model."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendComposite.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/BlendComposite.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java AWT imaging APIs -> managed .NET helper"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "System.Drawing/AWT composite context was adapted into reusable managed blending methods for renderer integration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/BlendMode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java inner functional interfaces -> C# enum extensions"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Re-expressed the Java class singleton model as enum values plus extension-based parsing and blend functions."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDTransparencyGroupAttributes.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Form/PDTransparencyGroupAttributes.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Retained COS dictionary semantics while using nullable cached PDColorSpace accessors."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingIntent.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/RenderingIntent.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java enum methods -> C# enum extensions"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted Java enum string payloads into extension methods while preserving the RelativeColorimetric fallback."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingMode.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/RenderingMode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java enum methods -> C# enum extensions"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted numeric Java enum helpers into .NET enum extensions and added PDTextState convenience methods."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/AppearanceStyle.java",
@@ -4661,293 +4978,5 @@
     "semantic_risk": "medium",
     "compiles_after_change": true,
     "note": "Adapted serializer entry-point to deterministic XmlWriter-based xpacket and RDF output."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetColor.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetColor.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/DrawObject.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/markedcontent/DrawObject.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/MarkedContent/DrawObject.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetMatrix.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetMatrix.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/BruteForceParser.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/EndstreamFilterStream.java",
-    "target_path": "src/PdfBox.Net/PdfParser/EndstreamFilterStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/FDFParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/FDFParser.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXRefStream.java",
-    "target_path": "src/PdfBox.Net/PdfParser/PDFXRefStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/PDFXrefStreamParser.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/XrefParser.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSObjectPool.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSObjectPool.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterCompressionPool.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSWriterCompressionPool.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterObjectStream.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSWriterObjectStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Legacy DrawObject package path kept mapped to shared C# Do-operator implementation for parity continuity."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
-    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCache.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Reference-model adaptation"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "SoftReference-based cache adapted to WeakReference while preserving stable-removal threshold behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCacheCreateImpl.java",
-    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCacheCreateImpl.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Factory implementation normalized to C# class with Create() method."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/MissingResourceException.java",
-    "target_path": "src/PdfBox.Net/PDModel/MissingResourceException.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Exception subclass ported one-to-one."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "API surface adaptation"
-    ],
-    "semantic_risk": "medium",
-    "compiles_after_change": true,
-    "note": "Introduced shared subset writer foundation reused by new form/pattern content stream wrappers."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocumentNameDestinationDictionary.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Ported destination dictionary lookup semantics for array and dictionary-with-/D forms."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDFormContentStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Constructor adapted to ensure form resources are initialized before writing."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDPatternContentStream.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Constructor adapted to ensure tiling pattern resources are initialized before writing."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDStructureElementNameTreeNode.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDStructureElementNameTreeNode.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Name-tree node conversion and child-node factory mapped directly."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
-    "target_path": "src/PdfBox.Net/PDModel/ResourceCache.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Interface ported one-to-one using nullable returns for cache misses."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheCreateFunction.java",
-    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheCreateFunction.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Functional-interface adaptation"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Java functional interface mapped to C# delegate."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheFactory.java",
-    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheFactory.cs",
-    "normalization_applied": true,
-    "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
-    ],
-    "semantic_risk": "low",
-    "compiles_after_change": true,
-    "note": "Static cache factory normalized with nullable delegate support to allow disabling cache."
   }
 ]

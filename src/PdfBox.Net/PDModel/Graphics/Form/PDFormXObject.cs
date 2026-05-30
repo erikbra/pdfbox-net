@@ -54,12 +54,7 @@ public class PDFormXObject : PDXObject, PDContentStream
 
     private void InitializeSubtype()
     {
-        COSStream? cos = GetCOSObject();
-        if (cos is not null)
-        {
-            cos.SetName(COSName.TYPE, "XObject");
-            cos.SetName(COSName.GetPDFName("Subtype"), "Form");
-        }
+        SetXObjectSubtype("Form");
     }
 
     public int GetFormType() => GetCOSObject()?.GetInt(FormTypeName, 1) ?? 1;
