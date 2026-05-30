@@ -50,7 +50,7 @@ public class PDFMarkedContentExtractor : LegacyPDFStreamEngine
         AddOperator(new BeginMarkedContentSequenceWithProperties(this));
         AddOperator(new BeginMarkedContentSequence(this));
         AddOperator(new EndMarkedContentSequence(this));
-        AddOperator(new DrawObject(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.MarkedContent.DrawObject(this));
         AddOperator(new MarkedContentPoint(this));
         AddOperator(new MarkedContentPointWithProperties(this));
     }

@@ -2,10 +2,10 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/DrawObject.java
- * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/markedcontent/DrawObject.java
+ * PDFBOX_SOURCE_COMMIT: a71c5679d69bc3fd3ab15e248b69441ee91dca6c
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: a71c5679d69bc3fd3ab15e248b69441ee91dca6c
  */
 
 /*
@@ -28,13 +28,8 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics;
 
-namespace PdfBox.Net.ContentStream.Operator;
+namespace PdfBox.Net.ContentStream.Operator.MarkedContent;
 
-/// <summary>
-/// Processes the PDF "Do" operator: invoke a named XObject.
-/// For baseline extraction this delegates to the engine's XObject hook so that
-/// subclasses (e.g. rendering engines) can override the behavior.
-/// </summary>
 public sealed class DrawObject : OperatorProcessor
 {
     public DrawObject(PDFStreamEngine context)
@@ -46,29 +41,15 @@ public sealed class DrawObject : OperatorProcessor
     {
         if (operands.Count == 0 || operands[0] is not COSName name)
         {
-            return;
+            throw new MissingOperandException(op, operands);
         }
 
-        var resources = Context.GetResources();
-        if (resources is null)
-        {
-            Context.XObject(new PDXObject());
-            return;
-        }
-
-        if (resources.IsImageXObject(name))
-        {
-            return;
-        }
-
-        PDXObject? xobject = resources.GetXObject(name);
+        PDXObject? xobject = Context.GetResources()?.GetXObject(name);
         if (xobject is null)
         {
-            Context.XObject(new PDXObject());
+            return;
         }
-        else
-        {
-            Context.XObject(xobject);
-        }
+
+        Context.XObject(xobject);
     }
 }

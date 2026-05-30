@@ -3,32 +3,29 @@
  * PORT_MODE: adapted
  */
 
-using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics.Color;
 
 namespace PdfBox.Net.ContentStream.Operator.Color;
 
-public sealed class SetNonStrokingColor : OperatorProcessor
+public class SetNonStrokingColor : SetColor
 {
-    public SetNonStrokingColor(PDFStreamEngine context) : base(OperatorName.NON_STROKING_COLOR, context) { }
-
-    public override void Process(Operator op, IList<COSBase> operands)
+    protected SetNonStrokingColor(string name, PDFStreamEngine context)
+        : base(name, context)
     {
-        float[] components = GetColorComponents(operands);
-        if (components.Length == 0) return;
-        PDColorSpace colorSpace = Context.GetGraphicsState().GetNonStrokingColorSpace();
-        Context.SetNonStrokingColor(new PDColor(components, colorSpace));
     }
 
-    private static float[] GetColorComponents(IList<COSBase> operands)
+    public SetNonStrokingColor(PDFStreamEngine context)
+        : this(OperatorName.NON_STROKING_COLOR, context)
     {
-        float[] components = new float[operands.Count];
-        for (int i = 0; i < operands.Count; i++)
-        {
-            if (operands[i] is not COSNumber number) return Array.Empty<float>();
-            components[i] = number.FloatValue();
-        }
+    }
 
-        return components;
+    protected override PDColorSpace GetColorSpace()
+    {
+        return Context.GetGraphicsState().GetNonStrokingColorSpace();
+    }
+
+    protected override void SetColorValue(PDColor color)
+    {
+        Context.SetNonStrokingColor(color);
     }
 }
