@@ -394,7 +394,7 @@ public class PDResources
         return propertiesSubDict.KeySet();
     }
 
-    private void PutInto(COSName category, COSName name, COSBase value)
+    private void PutInto(COSName category, COSName name, COSBase? value)
     {
         COSDictionary subDictionary = _dict.GetCOSDictionary(category) ?? new COSDictionary();
         subDictionary.SetItem(name, value);
