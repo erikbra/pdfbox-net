@@ -42,7 +42,7 @@ namespace PdfBox.Net.ContentStream.Operator.Graphics;
 /// </remarks>
 public sealed class BeginInlineImageData : OperatorProcessor
 {
-    /// <summary>Initialises the processor bound to the given stream engine context.</summary>
+    /// <summary>Initializes the processor bound to the given stream engine context.</summary>
     public BeginInlineImageData(PDFStreamEngine context) : base(OperatorName.BEGIN_INLINE_IMAGE_DATA, context) { }
 
     /// <inheritdoc/>

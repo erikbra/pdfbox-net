@@ -119,7 +119,7 @@ public class COSObject : COSBase, COSUpdateInfo
                 // mark as dereferenced to avoid endless recursions
                 _isDereferenced = true;
                 _baseObject = _parser.DereferenceCOSObject(this);
-                GetUpdateState().DereferenceChild(_baseObject);
+                _updateState.DereferenceChild(_baseObject);
             }
             catch (IOException e)
             {
@@ -158,7 +158,7 @@ public class COSObject : COSBase, COSUpdateInfo
     {
         if (_baseObject is not null)
         {
-            GetUpdateState().Update();
+            _updateState.Update();
         }
 
         _baseObject = COSNull.NULL;
