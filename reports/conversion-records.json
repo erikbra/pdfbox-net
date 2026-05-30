@@ -6350,5 +6350,197 @@
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Adapted serializer entry-point to emit deterministic xpacket and RDF output from metadata state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDTristimulus.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDTristimulus.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port of three-float XYZ tristimulus wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDGamma.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDGamma.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port of three-float RGB gamma wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEBasedColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCIEBasedColorSpace.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port of abstract base class; AWT imaging methods omitted."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEDictionaryBasedColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCIEDictionaryBasedColorSpace.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Java java.awt.color.ColorSpace.CS_CIEXYZ replaced with Bradford XYZ->sRGB matrix."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceColorSpace.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port of abstract base class."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNAttributes.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceNAttributes.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port; COSDictionaryMap<String,PDSeparation> expressed as IDictionary."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNProcess.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceNProcess.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port of dictionary wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDJPXColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDJPXColorSpace.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "java.awt.color.ColorSpace replaced with direct component-count/range parameters."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDOutputIntent.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDOutputIntent.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "java.awt.color.ICC_Profile replaced with raw stream byte copy."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSpecialColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDSpecialColorSpace.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port of empty abstract base."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PDImage.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Existing adapted abstract class; traceability record added."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CCITTFactory.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted stub; CCITT/TIFF imaging requires platform-specific APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CustomFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CustomFactory.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted stub; custom raster factory requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/JPEGFactory.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted stub; JPEG image factory requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/LosslessFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/LosslessFactory.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted stub; lossless image factory requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PNGConverter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PNGConverter.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted stub; PNG converter requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/SampledImageReader.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/SampledImageReader.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted stub; sampled image reader requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/CIDSystemInfo.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/CIDSystemInfo.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port of CIDSystemInfo data class."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Subsetter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Subsetter.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port of Subsetter interface; renamed ISubsetter per C# conventions."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/TrueTypeEmbedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/TrueTypeEmbedder.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted stub; font subsetting deferred pending PDFontDescriptor setters."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFontEmbedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDTrueTypeFontEmbedder.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted stub; PDTrueTypeFont embedding deferred pending PDFontDescriptor setters."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2Embedder.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted stub; PDCIDFontType2 embedding deferred pending PDFontDescriptor setters."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1FontEmbedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType1FontEmbedder.cs",
+    "source_commit": "trunk",
+    "port_mode": "adapted",
+    "sync_commit": "trunk",
+    "conversion_notes": "Adapted stub; PDType1Font embedding deferred pending PfbParser port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDStandardAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStandardAttributeObject.cs",
+    "source_commit": "trunk",
+    "port_mode": "mechanical",
+    "sync_commit": "trunk",
+    "conversion_notes": "Mechanical port; placed in LogicalStructure namespace where subclasses reside."
   }
 ]
