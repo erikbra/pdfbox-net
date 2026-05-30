@@ -25,6 +25,14 @@
   },
   {
     "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDModelResourceContentStreamGapTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added targeted issue #93 regression tests for resource-cache integration, destination dictionary resolution, and form/pattern content stream wrappers."
+  },
+  {
+    "source_path": null,
     "target_path": "tests/PdfBox.Net.Tests/PDShadingTest.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
@@ -1914,12 +1922,20 @@
     "conversion_notes": "Added active resource tracking and form XObject content traversal."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/DrawObject.java",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
     "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
     "port_mode": "adapted",
     "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Aligned Do operator mapping to current upstream graphics package and retained XObject dispatch semantics in the content stream pipeline."
+    "conversion_notes": "Legacy DrawObject mapping retained for compatibility while graphics/markedcontent DrawObject variants are ported."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetColor.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColor.java",
@@ -1934,16 +1950,6 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColorN.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetNonStrokingColorN.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:43:34Z",
-    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColorSpace.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetNonStrokingColorSpace.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
@@ -2002,16 +2008,6 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingColorN.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetStrokingColorN.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:43:34Z",
-    "note": "Ported missing color operator processor for stroking/non-stroking color and color-space state."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingColorSpace.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetStrokingColorSpace.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "mechanical",
@@ -2188,6 +2184,14 @@
     "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/DrawObject.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Aligned Do operator mapping to current upstream graphics package and retained XObject dispatch semantics in the content stream pipeline."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/EndPath.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/EndPath.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
@@ -2278,6 +2282,14 @@
     "note": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/markedcontent/DrawObject.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/MarkedContent/DrawObject.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetFlatness.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetFlatness.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
@@ -2344,6 +2356,14 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T15:43:34Z",
     "note": "Ported missing state operator processor for content stream graphics state mutation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetMatrix.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetMatrix.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetRenderingIntent.java",
@@ -2680,6 +2700,38 @@
     "conversion_notes": "Added low-level token/object parser bridge adapted from upstream BaseParser semantics for dictionary/array/name/string/number/null/boolean COS parsing roundtrip scope."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/BruteForceParser.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/EndstreamFilterStream.java",
+    "target_path": "src/PdfBox.Net/PdfParser/EndstreamFilterStream.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/FDFParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/FDFParser.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFObjectStreamParser.java",
     "target_path": "src/PdfBox.Net/PdfParser/PDFObjectStreamParser.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
@@ -2704,6 +2756,30 @@
     "conversion_notes": "Refactored parser entry to consume PDFDocumentParser bootstrap state and hardened xref-table traversal with shared /Prev loop detection plus strict xref entry state validation. Parser now returns a populated COSDocument and shares the canonical COS object pool with trailer/object-stream resolution."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXRefStream.java",
+    "target_path": "src/PdfBox.Net/PdfParser/PDFXRefStream.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/PDFXrefStreamParser.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/XrefParser.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
     "target_path": "src/PdfBox.Net/PdfWriter/COSStandardOutputStream.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
@@ -2715,17 +2791,33 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
     "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added minimal low-level writer bridge for deterministic COS object serialization, reusing existing COS serialization and COSStandardOutputStream."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Extended COSWriter to implement ICOSVisitor: added VisitFromXxx methods for all COS types and rerouted Write(COSBase?) through visitor dispatch (value.Accept(this)). VisitFromDocument is a no-op; VisitFromObject dereferences the inner object. Existing static Serialize/WriteString helpers preserved."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSObjectPool.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSObjectPool.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterCompressionPool.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSWriterCompressionPool.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterObjectStream.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSWriterObjectStream.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/CompressParameters.java",
@@ -2736,12 +2828,36 @@
     "conversion_notes": "Mechanical port of CompressParameters."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
+    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCache.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added weak-reference resource cache with stable-eviction behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCacheCreateImpl.java",
+    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCacheCreateImpl.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added cache factory implementation with stable-cache toggle."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/MissingResourceException.java",
+    "target_path": "src/PdfBox.Net/PDModel/MissingResourceException.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Expanded PDDocument with page-level operations (add/get/remove/count/pages), version semantics, and envelope-aware save/load over the existing COS parser/writer bridge."
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added missing named-resource exception type."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: introduced shared content-stream writer foundation for form/pattern streams."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
@@ -2757,31 +2873,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added MarkInfo get/set accessors to complete documentinterchange catalog integration path."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Expanded PDDocumentCatalog with PageLayout, PageMode, Language getters/setters. High-fanout catalog methods deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Expanded PDDocumentCatalog with AcroForm getters/setters and PDAcroForm integration."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocumentInformation.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported core document info dictionary wrapper subset for metadata inspection/update in the minimal chunk-3 open/inspect/save pipeline."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
@@ -2792,20 +2884,20 @@
     "conversion_notes": "Expanded PDDocumentInformation with date (CreationDate/ModDate via PDF date string encoding) and trapped field methods. Calendar->DateTimeOffset adaptation documented."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentNameDestinationDictionary.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
+    "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported the low-dependency PDPage wrapper subset required for page tree membership and document add/get/remove page pipeline operations."
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added /Dests name-dictionary destination resolver."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDFormContentStream.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
+    "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Expanded PDPage with MediaBox, CropBox, BleedBox, TrimBox, ArtBox, Rotation, StructParents, HasContents. Default constructor now initializes LETTER MediaBox per upstream. ClipToMediaBox helper included."
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added form XObject content-stream writer wrapper."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
@@ -2821,15 +2913,15 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported a focused PDPageTree subset (enumeration, count, index lookup, add/remove/get) aligned to chunk-3 open/inspect/save lifecycle requirements."
+    "conversion_notes": "Expanded PDPageTree with GetInheritableAttribute (cycle-safe attribute inheritance), bad-PDF repair for Page-root-instead-of-Pages. Constructors refactored to use COSName constants."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPatternContentStream.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
+    "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Expanded PDPageTree with GetInheritableAttribute (cycle-safe attribute inheritance), bad-PDF repair for Page-root-instead-of-Pages. Constructors refactored to use COSName constants."
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added tiling-pattern content-stream writer wrapper."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
@@ -2838,6 +2930,14 @@
     "port_mode": "adapted",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "conversion_notes": "Added ExtGState and typed XObject lookup helpers for gs/Do processing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDStructureElementNameTreeNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDStructureElementNameTreeNode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added structure-element name-tree node mapping."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
@@ -2854,6 +2954,30 @@
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Ported PageMode enum one-to-one with string-value extension and fromString factory."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCache.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added resource-cache contract."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheCreateFunction.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheCreateFunction.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: mapped functional cache factory interface to C# delegate."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheFactory.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added configurable document resource-cache factory."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java",
@@ -3685,14 +3809,6 @@
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
     "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "PDCIDFont: Added HasExplicitCidWidth helper and promoted _defaultWidth to protected DefaultWidth for subclass TTF-width fallback."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Issue #51: added CIDSystemInfo accessor for composite Type0 CMap/UCS2 integration paths."
   },
   {
@@ -3782,14 +3898,6 @@
     "port_mode": "adapted",
     "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Adapted stub; PDTrueTypeFont embedding deferred pending PDFontDescriptor setters."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Implemented composite Type0 font wiring with descendant descriptor and CID width delegation."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
@@ -3896,6 +4004,14 @@
     "conversion_notes": "Added ZapfDingbats encoding map for PDModel fonts."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDFontSetting.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/PDFontSetting.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported graphics-state font setting COS array wrapper with PDFont/PDFontFactory integration."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDLineDashPattern.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDLineDashPattern.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
@@ -3904,12 +4020,36 @@
     "conversion_notes": "Replaced dash-pattern stub with immutable COS-backed line dash pattern model."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDPostScriptXObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/PDPostScriptXObject.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Added PostScript XObject subtype wrapper and factory recognition in PDXObject."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDXObject.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/PDXObject.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
     "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Added subtype-based XObject factory for form/transparency/image streams."
+    "conversion_notes": "Added subtype-based XObject factory for form/transparency/image/PostScript streams."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendComposite.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/BlendComposite.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Replaced java.awt Composite implementation with a managed span-based blend helper using PDFBox channel math."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/BlendMode.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Expanded blend mode coverage to all PDFBox blend modes and ported separable/non-separable blend math helpers."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEBasedColorSpace.java",
@@ -4118,6 +4258,14 @@
     "port_mode": "mechanical",
     "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added transparency-group subtype over PDFormXObject."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDTransparencyGroupAttributes.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Form/PDTransparencyGroupAttributes.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported transparency group attribute dictionary wrapper with cached color-space lookup."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java",
@@ -4510,6 +4658,22 @@
     "port_mode": "adapted",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "conversion_notes": "Added text knockout flag state used by ExtGState TK mapping."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingIntent.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/RenderingIntent.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported rendering intent enum with PDF string conversion helpers and state overloads."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingMode.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/State/RenderingMode.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported text rendering mode enum with fill/stroke/clip helpers and PDTextState integration."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/AppearanceStyle.java",
@@ -6558,213 +6722,5 @@
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Adapted serializer entry-point to emit deterministic xpacket and RDF output from metadata state."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetColor.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetColor.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/markedcontent/DrawObject.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/MarkedContent/DrawObject.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetMatrix.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetMatrix.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/BruteForceParser.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/EndstreamFilterStream.java",
-    "target_path": "src/PdfBox.Net/PdfParser/EndstreamFilterStream.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/FDFParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/FDFParser.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXRefStream.java",
-    "target_path": "src/PdfBox.Net/PdfParser/PDFXRefStream.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/PDFXrefStreamParser.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
-    "target_path": "src/PdfBox.Net/PdfParser/XrefParser.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSObjectPool.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSObjectPool.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterCompressionPool.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSWriterCompressionPool.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterObjectStream.java",
-    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSWriterObjectStream.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
-    "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Legacy DrawObject mapping retained for compatibility while graphics/markedcontent DrawObject variants are ported."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
-    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCache.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added weak-reference resource cache with stable-eviction behavior."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCacheCreateImpl.java",
-    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCacheCreateImpl.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added cache factory implementation with stable-cache toggle."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/MissingResourceException.java",
-    "target_path": "src/PdfBox.Net/PDModel/MissingResourceException.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added missing named-resource exception type."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: introduced shared content-stream writer foundation for form/pattern streams."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDDocumentNameDestinationDictionary.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added /Dests name-dictionary destination resolver."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDFormContentStream.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added form XObject content-stream writer wrapper."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDPatternContentStream.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added tiling-pattern content-stream writer wrapper."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDStructureElementNameTreeNode.java",
-    "target_path": "src/PdfBox.Net/PDModel/PDStructureElementNameTreeNode.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added structure-element name-tree node mapping."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
-    "target_path": "src/PdfBox.Net/PDModel/ResourceCache.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added resource-cache contract."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheCreateFunction.java",
-    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheCreateFunction.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: mapped functional cache factory interface to C# delegate."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheFactory.java",
-    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheFactory.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added configurable document resource-cache factory."
-  },
-  {
-    "source_path": null,
-    "target_path": "tests/PdfBox.Net.Tests/PDModelResourceContentStreamGapTest.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added targeted issue #93 regression tests for resource-cache integration, destination dictionary resolution, and form/pattern content stream wrappers."
   }
 ]

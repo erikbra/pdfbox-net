@@ -55,7 +55,7 @@ public sealed class PDFontSetting : COSObjectable
         return _fontSetting.GetObject(0) is COSDictionary dictionary ? PDFontFactory.CreateFont(dictionary) : null;
     }
 
-    public void SetFont(PDFont? font) => _fontSetting.Set(0, font);
+    public void SetFont(PDFont? font) => _fontSetting.Set(0, (COSObjectable?)font);
 
     public float GetFontSize()
     {

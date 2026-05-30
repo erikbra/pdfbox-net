@@ -33,6 +33,8 @@ namespace PdfBox.Net.PDModel.Graphics.Form;
 
 public sealed class PDTransparencyGroupAttributes : COSObjectable
 {
+    private static readonly COSName IsolatedName = COSName.GetPDFName("I");
+
     private readonly COSDictionary _dictionary;
     private PDColorSpace? _colorSpace;
 
@@ -63,7 +65,7 @@ public sealed class PDTransparencyGroupAttributes : COSObjectable
         return _colorSpace;
     }
 
-    public bool IsIsolated() => _dictionary.GetBoolean(COSName.I, false);
+    public bool IsIsolated() => _dictionary.GetBoolean(IsolatedName, false);
 
     public bool IsKnockout() => _dictionary.GetBoolean(COSName.K, false);
 }

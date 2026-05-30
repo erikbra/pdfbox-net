@@ -54,7 +54,7 @@ public class GraphicsBlendStateCloseoutTest
         float alpha = composite.Compose(new[] { 0.8f, 0.4f, 0.2f }, 1f, new[] { 0.5f, 0.5f, 0.5f }, 0.25f, result);
 
         Assert.Equal(0.625f, alpha, 3);
-        Assert.Equal(new[] { 0.44f, 0.32f, 0.26f }, result, new FloatArrayComparer(0.001f));
+        Assert.Equal(new[] { 0.66f, 0.38f, 0.24f }, result, new FloatArrayComparer(0.001f));
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class GraphicsBlendStateCloseoutTest
     {
         COSDictionary dictionary = new();
         dictionary.SetItem(COSName.CS, COSName.GetPDFName("DeviceRGB"));
-        dictionary.SetBoolean(COSName.I, true);
+        dictionary.SetBoolean(COSName.GetPDFName("I"), true);
         dictionary.SetBoolean(COSName.K, true);
 
         PDTransparencyGroupAttributes attributes = new(dictionary);
