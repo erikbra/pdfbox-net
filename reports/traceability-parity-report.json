@@ -76,8 +76,8 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T13:45:00Z",
-    "note": "Fixture-backed regression tests for XmpBox parser/schema/type flows (issue #81): roundtrip determinism for dc-format, multi-schema, and pdfa-identification packets; xpacket attribute preservation; schema extraction and namespace/prefix fidelity for DublinCore, AdobePDF, XMPBasic, and PDFAIdentification schemas; lenient-mode no-xpacket parsing; serializer schema-count roundtrip; and GetSchema overload coverage."
+    "last_checked_utc": "2026-05-30T14:30:00Z",
+    "note": "Fixture-backed regression tests for XmpBox parser/schema/type flows (issues #81/#90): roundtrip determinism; xpacket and schema extraction assertions; lenient parsing checks; serializer roundtrip schema-count checks; and helper coverage for DomHelper plus PdfaExtensionHelper namespace/mapping behavior."
   },
   {
     "source_path": null,
@@ -4449,6 +4449,16 @@
     "note": "PrintField attribute object with role, checked state, and alternate-name accessors."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDStandardAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStandardAttributeObject.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Mechanical port of PDStandardAttributeObject; placed in LogicalStructure namespace where its subclasses reside."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java",
     "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDTableAttributeObject.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
@@ -4949,6 +4959,16 @@
     "note": "PDModel fixup milestone parity row for issue #73."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/CIDSystemInfo.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/CIDSystemInfo.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Mechanical port of CIDSystemInfo data class for FontMapper API."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
@@ -5017,6 +5037,16 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T16:44:05Z",
     "note": "CIDToGIDMap support (Identity and stream), CodeToGID method, TTF advance-width fallback in GetWidth, ToUnicodeFallback via reverse cmap. Vertical metrics deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2Embedder.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted stub \u2013 PDCIDFontType2 embedding deferred pending PDFontDescriptor setters and CMap/ToUnicode support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",
@@ -5089,6 +5119,16 @@
     "note": "ToUnicodeFallback via TTF unicode cmap, width extraction using UPM-scaled TTF advance widths. Baseline extraction and layout scenarios covered."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFontEmbedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDTrueTypeFontEmbedder.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted stub \u2013 PDTrueTypeFont embedding deferred pending PDFontDescriptor setters."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
@@ -5119,6 +5159,16 @@
     "note": "Implemented Type1 loading with embedded PFB/segment parsing, mapped system-font fallback loading, and embedded encoding precedence."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1FontEmbedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType1FontEmbedder.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted stub \u2013 PDType1Font embedding deferred pending PfbParser port and PDFontDescriptor setters."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/Standard14Fonts.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
@@ -5127,6 +5177,26 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T15:59:00Z",
     "note": "Added canonical mapping for standard 14 PDF fonts with expanded upstream alias matrix compatibility names."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Subsetter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Subsetter.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Mechanical port of Subsetter interface (renamed ISubsetter per .NET conventions)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/TrueTypeEmbedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/TrueTypeEmbedder.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted stub \u2013 full font subsetting requires PDFontDescriptor setter APIs and document-writing layer, deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
@@ -5219,6 +5289,106 @@
     "note": "Added subtype-based XObject factory for form/transparency/image streams."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEBasedColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCIEBasedColorSpace.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Mechanical port of PDCIEBasedColorSpace abstract base; toRGBImage/toRawImage imaging methods deferred (AWT not available)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEDictionaryBasedColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCIEDictionaryBasedColorSpace.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted port of PDCIEDictionaryBasedColorSpace; Java java.awt.color.ColorSpace.CS_CIEXYZ replaced with inline Bradford XYZ->sRGB matrix."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceColorSpace.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Mechanical port of PDDeviceColorSpace abstract base."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNAttributes.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceNAttributes.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Mechanical port of PDDeviceNAttributes; COSDictionaryMap<String,PDSeparation> expressed as IDictionary."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNProcess.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceNProcess.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Mechanical port of PDDeviceNProcess dictionary wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDGamma.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDGamma.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Mechanical port of PDGamma (three-float RGB gamma wrapper for tagged-PDF colours)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDJPXColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDJPXColorSpace.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted port of PDJPXColorSpace; java.awt.color.ColorSpace replaced with direct component-count/range parameters."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDOutputIntent.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDOutputIntent.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted port of PDOutputIntent; java.awt.color.ICC_Profile replaced with raw stream byte copy (N component count not pre-parsed)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSpecialColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDSpecialColorSpace.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Mechanical port of PDSpecialColorSpace empty abstract base."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDTristimulus.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDTristimulus.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Mechanical port of PDTristimulus (three-float XYZ tristimulus wrapper)."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDFormXObject.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Form/PDFormXObject.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
@@ -5239,6 +5409,56 @@
     "note": "Added transparency-group subtype over PDFormXObject."
   },
   {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CCITTFactory.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted stub \u2013 CCITT/TIFF imaging requires platform-specific APIs not yet available."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CustomFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CustomFactory.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted stub \u2013 custom raster factory requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/JPEGFactory.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted stub \u2013 JPEG image factory requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/LosslessFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/LosslessFactory.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted stub \u2013 lossless image factory requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PDImage.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "PDImage.java mapped to existing adapted PDImage.cs abstract class."
+  },
+  {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImageXObject.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PDImageXObject.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
@@ -5247,6 +5467,26 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-24T16:41:22Z",
     "note": "Implemented basic image XObject decode and metadata access for DeviceRGB/Flate test path."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PNGConverter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PNGConverter.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted stub \u2013 PNG converter requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/SampledImageReader.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/SampledImageReader.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T12:49:25Z",
+    "note": "Adapted stub \u2013 sampled image reader requires platform-specific imaging APIs."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java",
@@ -8089,6 +8329,16 @@
     "note": "Mechanical port of XPathType from Apache PDFBox xmpbox type model."
   },
   {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomHelper.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomHelper.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T14:30:00Z",
+    "note": "Issue #90 closeout: adapted XML DOM helper parity for child element selection, QName extraction, and rdf:parseType resource checks."
+  },
+  {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomXmpParser.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
@@ -8097,6 +8347,16 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T05:05:40Z",
     "note": "Issue #78 slice entry point: adapted secure DOM parser pipeline with strict/lenient xpacket handling."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/PdfaExtensionHelper.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T14:30:00Z",
+    "note": "Issue #90 closeout: adapted PDF/A extension namespace validation plus schema/type/property mapping population from extension RDF declarations."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpParsingException.java",
@@ -8127,245 +8387,5 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T05:05:40Z",
     "note": "Issue #78 slice entry point: adapted serializer pipeline for deterministic xpacket and RDF output."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDTristimulus.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDTristimulus.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Mechanical port of PDTristimulus (three-float XYZ tristimulus wrapper)."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDGamma.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDGamma.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Mechanical port of PDGamma (three-float RGB gamma wrapper for tagged-PDF colours)."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEBasedColorSpace.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCIEBasedColorSpace.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Mechanical port of PDCIEBasedColorSpace abstract base; toRGBImage/toRawImage imaging methods deferred (AWT not available)."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEDictionaryBasedColorSpace.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCIEDictionaryBasedColorSpace.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted port of PDCIEDictionaryBasedColorSpace; Java java.awt.color.ColorSpace.CS_CIEXYZ replaced with inline Bradford XYZ->sRGB matrix."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceColorSpace.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceColorSpace.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Mechanical port of PDDeviceColorSpace abstract base."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNAttributes.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceNAttributes.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Mechanical port of PDDeviceNAttributes; COSDictionaryMap<String,PDSeparation> expressed as IDictionary."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNProcess.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceNProcess.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Mechanical port of PDDeviceNProcess dictionary wrapper."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDJPXColorSpace.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDJPXColorSpace.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted port of PDJPXColorSpace; java.awt.color.ColorSpace replaced with direct component-count/range parameters."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDOutputIntent.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDOutputIntent.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted port of PDOutputIntent; java.awt.color.ICC_Profile replaced with raw stream byte copy (N component count not pre-parsed)."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSpecialColorSpace.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDSpecialColorSpace.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Mechanical port of PDSpecialColorSpace empty abstract base."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PDImage.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "PDImage.java mapped to existing adapted PDImage.cs abstract class."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CCITTFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 CCITT/TIFF imaging requires platform-specific APIs not yet available."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CustomFactory.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CustomFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 custom raster factory requires platform-specific imaging APIs."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/JPEGFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 JPEG image factory requires platform-specific imaging APIs."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/LosslessFactory.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/LosslessFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 lossless image factory requires platform-specific imaging APIs."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PNGConverter.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PNGConverter.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 PNG converter requires platform-specific imaging APIs."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/SampledImageReader.java",
-    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/SampledImageReader.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 sampled image reader requires platform-specific imaging APIs."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/CIDSystemInfo.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/CIDSystemInfo.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Mechanical port of CIDSystemInfo data class for FontMapper API."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Subsetter.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/Subsetter.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Mechanical port of Subsetter interface (renamed ISubsetter per .NET conventions)."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/TrueTypeEmbedder.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/TrueTypeEmbedder.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 full font subsetting requires PDFontDescriptor setter APIs and document-writing layer, deferred."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFontEmbedder.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/PDTrueTypeFontEmbedder.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 PDTrueTypeFont embedding deferred pending PDFontDescriptor setters."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2Embedder.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 PDCIDFontType2 embedding deferred pending PDFontDescriptor setters and CMap/ToUnicode support."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1FontEmbedder.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/PDType1FontEmbedder.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "adapted",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 PDType1Font embedding deferred pending PfbParser port and PDFontDescriptor setters."
-  },
-  {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDStandardAttributeObject.java",
-    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStandardAttributeObject.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "mechanical",
-    "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Mechanical port of PDStandardAttributeObject; placed in LogicalStructure namespace where its subclasses reside."
   }
 ]

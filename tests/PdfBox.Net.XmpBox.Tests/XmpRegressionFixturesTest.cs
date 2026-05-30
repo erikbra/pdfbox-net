@@ -9,8 +9,10 @@
  */
 
 using PdfBox.Net.XmpBox.Schema;
+using PdfBox.Net.XmpBox.Type;
 using PdfBox.Net.XmpBox.Xml;
 using System.Text;
+using System.Xml;
 using Xunit;
 
 namespace PdfBox.Net.XmpBox.Tests;
@@ -34,6 +36,43 @@ public class XmpRegressionFixturesTest
     private static string ReadFixtureText(string fixtureName)
     {
         return Encoding.UTF8.GetString(ReadFixtureBytes(fixtureName));
+    }
+
+    private static byte[] BuildPdfaExtensionFixture()
+    {
+        string xml = $"""
+            <?xpacket begin="{XmpConstants.DefaultXpacketBegin}" id="{XmpConstants.DefaultXpacketId}"?>
+            <x:xmpmeta xmlns:x="adobe:ns:meta/">
+              <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description rdf:about=""
+                    xmlns:pdfaExtension="http://www.aiim.org/pdfa/ns/extension/"
+                    xmlns:pdfaSchema="http://www.aiim.org/pdfa/ns/schema#"
+                    xmlns:pdfaProperty="http://www.aiim.org/pdfa/ns/property#">
+                  <pdfaExtension:schemas>
+                    <rdf:Bag>
+                      <rdf:li rdf:parseType="Resource">
+                        <pdfaSchema:schema>Example PDF/A extension</pdfaSchema:schema>
+                        <pdfaSchema:namespaceURI>http://example.com/ns/schema/1.0/</pdfaSchema:namespaceURI>
+                        <pdfaSchema:prefix>ex</pdfaSchema:prefix>
+                        <pdfaSchema:property>
+                          <rdf:Seq>
+                            <rdf:li rdf:parseType="Resource">
+                              <pdfaProperty:name>ExampleProp</pdfaProperty:name>
+                              <pdfaProperty:valueType>Text</pdfaProperty:valueType>
+                              <pdfaProperty:category>external</pdfaProperty:category>
+                              <pdfaProperty:description>Example property description</pdfaProperty:description>
+                            </rdf:li>
+                          </rdf:Seq>
+                        </pdfaSchema:property>
+                      </rdf:li>
+                    </rdf:Bag>
+                  </pdfaExtension:schemas>
+                </rdf:Description>
+              </rdf:RDF>
+            </x:xmpmeta>
+            <?xpacket end="w"?>
+            """;
+        return Encoding.UTF8.GetBytes(xml);
     }
 
     // -------------------------------------------------------------------------
@@ -258,5 +297,66 @@ public class XmpRegressionFixturesTest
 
         Assert.NotNull(schema);
         Assert.IsType<PDFAIdentificationSchema>(schema);
+    }
+
+    [Fact]
+    public void DomHelper_IsParseTypeResourceAndGetQName_WorkOnStructuredRdfNode()
+    {
+        XmlDocument document = new();
+        document.LoadXml(
+            """
+            <rdf:li xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:parseType="Resource">
+              <child />
+            </rdf:li>
+            """);
+
+        XmlElement node = document.DocumentElement!;
+        XmlQualifiedName qName = DomHelper.GetQName(node);
+
+        Assert.True(DomHelper.IsParseTypeResource(node));
+        Assert.Equal(XmpConstants.ListName, qName.Name);
+        Assert.Equal(XmpConstants.RdfNamespace, qName.Namespace);
+    }
+
+    [Fact]
+    public void DomHelper_GetUniqueElementChild_ThrowsWhenTwoElementChildrenExist()
+    {
+        XmlDocument document = new();
+        document.LoadXml("<rdf:Description xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><a/><b/></rdf:Description>");
+
+        XmlElement description = document.DocumentElement!;
+        XmpParsingException ex = Assert.Throws<XmpParsingException>(() => DomHelper.GetUniqueElementChild(description));
+
+        Assert.Equal(XmpParsingException.ErrorType.Undefined, ex.Type);
+    }
+
+    [Fact]
+    public void PdfaExtensionHelper_ValidateNaming_ThrowsOnInvalidNamespaceDefinition()
+    {
+        XmlDocument document = new();
+        document.LoadXml("<rdf:Description xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:pdfaExtension=\"http://example.invalid/ns\" />");
+
+        XmpParsingException ex = Assert.Throws<XmpParsingException>(
+            () => PdfaExtensionHelper.ValidateNaming(XMPMetadata.CreateXMPMetadata(), document.DocumentElement!));
+
+        Assert.Equal(XmpParsingException.ErrorType.InvalidPdfaSchema, ex.Type);
+    }
+
+    [Fact]
+    public void PdfaExtensionHelper_PopulateSchemaMapping_RegistersExtensionPropertyDefinition()
+    {
+        DomXmpParser parser = new();
+        XMPMetadata metadata = parser.Parse(BuildPdfaExtensionFixture());
+
+        PdfaExtensionHelper.PopulateSchemaMapping(metadata, strictParsing: true);
+
+        const string customNamespace = "http://example.com/ns/schema/1.0/";
+        XMPSchemaFactory? factory = metadata.GetTypeMapping().GetSchemaFactory(customNamespace);
+        PropertyTypeAttribute? propertyType = factory?.GetPropertyType("ExampleProp");
+
+        Assert.NotNull(factory);
+        Assert.NotNull(propertyType);
+        Assert.Equal(Types.Text, propertyType!.Type);
+        Assert.Equal(Cardinality.Simple, propertyType.Card);
     }
 }
