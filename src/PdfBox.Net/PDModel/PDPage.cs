@@ -46,6 +46,7 @@ namespace PdfBox.Net.PDModel;
 public sealed class PDPage : COSObjectable, PDContentStream
 {
     private readonly COSDictionary _page;
+    private readonly ResourceCache? _resourceCache;
     private PDRectangle? _mediaBox;
 
     /// <summary>
@@ -73,8 +74,14 @@ public sealed class PDPage : COSObjectable, PDContentStream
     /// </summary>
     /// <param name="pageDictionary">A page dictionary in a PDF document.</param>
     public PDPage(COSDictionary pageDictionary)
+        : this(pageDictionary, null)
+    {
+    }
+
+    internal PDPage(COSDictionary pageDictionary, ResourceCache? resourceCache)
     {
         _page = pageDictionary ?? throw new ArgumentNullException(nameof(pageDictionary));
+        _resourceCache = resourceCache;
     }
 
     /// <summary>
@@ -461,7 +468,7 @@ public sealed class PDPage : COSObjectable, PDContentStream
         COSBase? resourceBase = PDPageTree.GetInheritableAttribute(_page, COSName.RESOURCES);
         if (resourceBase is COSDictionary resourceDict)
         {
-            return new PDResources(resourceDict);
+            return new PDResources(resourceDict, _resourceCache);
         }
 
         return null;
@@ -489,6 +496,41 @@ public sealed class PDPage : COSObjectable, PDContentStream
 
     public void RemovePageResourceFromCache()
     {
+        if (_resourceCache is null)
+        {
+            return;
+        }
+
+        RemovePageResources(COSName.GetPDFName("Font"), indirect => _resourceCache.RemoveFont(indirect));
+        RemovePageResources(COSName.GetPDFName("ColorSpace"), indirect => _resourceCache.RemoveColorSpace(indirect));
+        RemovePageResources(COSName.GetPDFName("XObject"), indirect => _resourceCache.RemoveXObject(indirect));
+        RemovePageResources(COSName.GetPDFName("ExtGState"), indirect => _resourceCache.RemoveExtState(indirect));
+        RemovePageResources(COSName.GetPDFName("Shading"), indirect => _resourceCache.RemoveShading(indirect));
+        RemovePageResources(COSName.GetPDFName("Pattern"), indirect => _resourceCache.RemovePattern(indirect));
+        RemovePageResources(COSName.GetPDFName("Properties"), indirect => _resourceCache.RemoveProperties(indirect));
+    }
+
+    private void RemovePageResources(COSName category, Action<COSObject> removeAction)
+    {
+        COSBase? resourceBase = PDPageTree.GetInheritableAttribute(_page, COSName.RESOURCES);
+        if (resourceBase is not COSDictionary resources)
+        {
+            return;
+        }
+
+        COSDictionary? categoryDictionary = resources.GetCOSDictionary(category);
+        if (categoryDictionary is null)
+        {
+            return;
+        }
+
+        foreach (COSName name in categoryDictionary.KeySet())
+        {
+            if (categoryDictionary.GetItem(name) is COSObject indirect)
+            {
+                removeAction(indirect);
+            }
+        }
     }
 
     /// <summary>

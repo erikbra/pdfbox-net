@@ -6670,5 +6670,101 @@
     "port_mode": "adapted",
     "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
     "conversion_notes": "Legacy DrawObject mapping retained for compatibility while graphics/markedcontent DrawObject variants are ported."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
+    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCache.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added weak-reference resource cache with stable-eviction behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCacheCreateImpl.java",
+    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCacheCreateImpl.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added cache factory implementation with stable-cache toggle."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/MissingResourceException.java",
+    "target_path": "src/PdfBox.Net/PDModel/MissingResourceException.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added missing named-resource exception type."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: introduced shared content-stream writer foundation for form/pattern streams."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentNameDestinationDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added /Dests name-dictionary destination resolver."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDFormContentStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added form XObject content-stream writer wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPatternContentStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added tiling-pattern content-stream writer wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDStructureElementNameTreeNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDStructureElementNameTreeNode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added structure-element name-tree node mapping."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCache.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added resource-cache contract."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheCreateFunction.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheCreateFunction.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: mapped functional cache factory interface to C# delegate."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheFactory.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: added configurable document resource-cache factory."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDModelResourceContentStreamGapTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added targeted issue #93 regression tests for resource-cache integration, destination dictionary resolution, and form/pattern content stream wrappers."
   }
 ]

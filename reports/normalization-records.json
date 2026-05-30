@@ -4826,5 +4826,128 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Legacy DrawObject package path kept mapped to shared C# Do-operator implementation for parity continuity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
+    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCache.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "Reference-model adaptation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "SoftReference-based cache adapted to WeakReference while preserving stable-removal threshold behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCacheCreateImpl.java",
+    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCacheCreateImpl.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Factory implementation normalized to C# class with Create() method."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/MissingResourceException.java",
+    "target_path": "src/PdfBox.Net/PDModel/MissingResourceException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Exception subclass ported one-to-one."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents",
+      "API surface adaptation"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Introduced shared subset writer foundation reused by new form/pattern content stream wrappers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentNameDestinationDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ported destination dictionary lookup semantics for array and dictionary-with-/D forms."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDFormContentStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Constructor adapted to ensure form resources are initialized before writing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPatternContentStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Constructor adapted to ensure tiling pattern resources are initialized before writing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDStructureElementNameTreeNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDStructureElementNameTreeNode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Name-tree node conversion and child-node factory mapped directly."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCache.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Interface ported one-to-one using nullable returns for cache misses."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheCreateFunction.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheCreateFunction.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Functional-interface adaptation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java functional interface mapped to C# delegate."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax leftovers -> C# syntax equivalents"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Static cache factory normalized with nullable delegate support to allow disabling cache."
   }
 ]

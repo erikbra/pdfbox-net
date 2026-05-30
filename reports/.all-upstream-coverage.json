@@ -1,13 +1,13 @@
 {
-  "generated_at_utc": "2026-05-30T16:40:33.967Z",
+  "generated_at_utc": "2026-05-30T18:42:23.000Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "upstream_head": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
   "tracked_parity_baseline_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
-  "mapped": 1049,
-  "missing": 18,
+  "mapped": 1060,
+  "missing": 7,
   "modules": [
     {
       "module": "benchmark",
@@ -47,9 +47,9 @@
     {
       "module": "pdfbox",
       "java_files": 618,
-      "mapped": 600,
-      "missing": 18,
-      "pct": 97.1
+      "mapped": 611,
+      "missing": 7,
+      "pct": 98.9
     },
     {
       "module": "tools",
@@ -210,9 +210,9 @@
     {
       "family": "pdfbox:pdmodel",
       "java_files": 428,
-      "mapped": 410,
-      "missing": 18,
-      "pct": 95.8
+      "mapped": 421,
+      "missing": 7,
+      "pct": 98.4
     },
     {
       "family": "pdfbox:printing",
@@ -279,24 +279,13 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 778,
-    "in-sync": 757,
+    "total_rows": 789,
+    "in-sync": 768,
     "partially-in-sync": 10,
     "partial": 11
   },
   "top_missing_modules": {
     "pdfbox": [
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCacheCreateImpl.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/MissingResourceException.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDStructureElementNameTreeNode.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheCreateFunction.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheFactory.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDFontSetting.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDPostScriptXObject.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendComposite.java",

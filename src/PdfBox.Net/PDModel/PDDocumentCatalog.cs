@@ -455,15 +455,8 @@ public sealed class PDDocumentCatalog : COSObjectable
         COSDictionary? destsDict = _root.GetCOSDictionary(COSName.DESTS);
         if (destsDict is not null)
         {
-            COSBase? destObj = destsDict.GetDictionaryObject(COSName.GetPDFName(name));
-            if (destObj is not null)
-            {
-                PDDestination? dest = PDDestination.Create(destObj);
-                if (dest is PDPageDestination pageDest)
-                {
-                    return pageDest;
-                }
-            }
+            PDDestination? destination = new PDDocumentNameDestinationDictionary(destsDict).GetDestination(name);
+            return destination as PDPageDestination;
         }
 
         return null;

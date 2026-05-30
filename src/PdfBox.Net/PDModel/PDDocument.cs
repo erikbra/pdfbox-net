@@ -49,6 +49,7 @@ public sealed class PDDocument : IDisposable
     private bool _disposed;
     private PDDocumentCatalog? _documentCatalog;
     private PDDocumentInformation? _documentInformation;
+    private ResourceCache? _resourceCache = ResourceCacheFactory.CreateResourceCache();
 
     public PDDocument()
         : this(CreateNewDocument())
@@ -380,6 +381,24 @@ public sealed class PDDocument : IDisposable
         }
 
         GetDocumentCatalog().SetVersion(version.ToString("0.0", CultureInfo.InvariantCulture));
+    }
+
+    /// <summary>
+    /// Returns the resource cache associated with this document, or <see langword="null"/> if disabled.
+    /// </summary>
+    public ResourceCache? GetResourceCache()
+    {
+        EnsureNotDisposed();
+        return _resourceCache;
+    }
+
+    /// <summary>
+    /// Sets the resource cache associated with this document.
+    /// </summary>
+    public void SetResourceCache(ResourceCache? resourceCache)
+    {
+        EnsureNotDisposed();
+        _resourceCache = resourceCache;
     }
 
     private void EnsureNotDisposed()

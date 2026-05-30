@@ -8527,5 +8527,125 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-30T16:30:07Z",
     "note": "Legacy DrawObject source path retained as in-sync mapping to shared Do-operator implementation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
+    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCache.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: weak-reference resource cache with stable-removal tracking ported."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCacheCreateImpl.java",
+    "target_path": "src/PdfBox.Net/PDModel/DefaultResourceCacheCreateImpl.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: default resource cache factory implementation ported."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/MissingResourceException.java",
+    "target_path": "src/PdfBox.Net/PDModel/MissingResourceException.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: missing named-resource exception mapped one-to-one."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: shared content-stream writing foundation added for form/pattern wrappers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentNameDestinationDictionary.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: /Dests destination dictionary resolver ported and integrated in catalog named-destination lookup."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDFormContentStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: form XObject content-stream wrapper added."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPatternContentStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: tiling-pattern content-stream wrapper added."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDStructureElementNameTreeNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDStructureElementNameTreeNode.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: structure-element name-tree node ported."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCache.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: document resource-cache contract added."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheCreateFunction.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheCreateFunction.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: cache creator functional interface mapped to delegate."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/ResourceCacheFactory.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 pdmodel foundation closeout: global resource-cache factory ported with cache-disable support."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDModelResourceContentStreamGapTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T18:45:00Z",
+    "note": "Issue #93 targeted regression tests for resource-cache flow, destination dictionary lookup, and new content-stream wrappers."
   }
 ]

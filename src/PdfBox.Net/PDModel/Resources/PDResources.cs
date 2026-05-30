@@ -27,8 +27,8 @@
 
 using System.IO;
 using PdfBox.Net.COS;
-using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
+using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Patterns;
@@ -56,18 +56,29 @@ public class PDResources
     private static readonly COSName PropertiesKey = COSName.GetPDFName("Properties");
 
     private readonly COSDictionary _dict;
+    private readonly ResourceCache? _resourceCache;
+    private readonly Dictionary<COSName, WeakReference<PDFont>> _directFontCache = [];
 
     /// <summary>Creates a PDResources wrapper around the given COS resource dictionary.</summary>
     public PDResources(COSDictionary dict)
+        : this(dict, null)
+    {
+    }
+
+    /// <summary>Creates a PDResources wrapper around the given COS resource dictionary and optional cache.</summary>
+    public PDResources(COSDictionary dict, ResourceCache? resourceCache)
     {
         _dict = dict ?? throw new ArgumentNullException(nameof(dict));
+        _resourceCache = resourceCache;
     }
 
     /// <summary>Creates a PDResources wrapping an empty resource dictionary.</summary>
     public PDResources()
-        : this(new COSDictionary())
+        : this(new COSDictionary(), null)
     {
     }
+
+    public ResourceCache? GetResourceCache() => _resourceCache;
 
     /// <summary>Returns the underlying COS resource dictionary.</summary>
     public COSDictionary GetCOSObject() => _dict;
@@ -80,16 +91,38 @@ public class PDResources
     /// <param name="name">The font resource name (as used in the content stream "Tf" operator).</param>
     public PDFont? GetFont(COSName name)
     {
-        COSDictionary? fontSubDict = _dict.GetCOSDictionary(FontKey);
-        if (fontSubDict is null) return null;
-
-        COSBase? entry = fontSubDict.GetDictionaryObject(name);
-        if (entry is COSDictionary fontDict)
+        COSObject? indirect = GetIndirect(FontKey, name);
+        if (_resourceCache is not null && indirect is not null)
         {
-            return PDFontFactory.CreateFont(fontDict);
+            PDFont? cached = _resourceCache.GetFont(indirect);
+            if (cached is not null)
+            {
+                return cached;
+            }
+        }
+        else if (indirect is null &&
+                 _directFontCache.TryGetValue(name, out WeakReference<PDFont>? weakReference) &&
+                 weakReference.TryGetTarget(out PDFont? directCached))
+        {
+            return directCached;
         }
 
-        return null;
+        PDFont? font = null;
+        if (Get(FontKey, name) is COSDictionary fontDict)
+        {
+            font = PDFontFactory.CreateFont(fontDict);
+        }
+
+        if (_resourceCache is not null && indirect is not null && font is not null)
+        {
+            _resourceCache.Put(indirect, font);
+        }
+        else if (indirect is null && font is not null)
+        {
+            _directFontCache[name] = new WeakReference<PDFont>(font);
+        }
+
+        return font;
     }
 
     /// <summary>Returns the names of all font resources in this resource dictionary.</summary>
@@ -113,11 +146,24 @@ public class PDResources
     /// <param name="name">The XObject resource name (as used in the content stream "Do" operator).</param>
     public PDXObject? GetXObject(COSName name)
     {
-        COSDictionary? xObjectSubDict = _dict.GetCOSDictionary(XObjectKey);
-        if (xObjectSubDict is null) return null;
+        COSObject? indirect = GetIndirect(XObjectKey, name);
+        if (_resourceCache is not null && indirect is not null)
+        {
+            PDXObject? cached = _resourceCache.GetXObject(indirect);
+            if (cached is not null)
+            {
+                return cached;
+            }
+        }
 
-        COSBase? entry = xObjectSubDict.GetDictionaryObject(name);
-        return PDXObject.CreateXObject(entry, this);
+        COSBase? rawValue = Get(XObjectKey, name);
+        PDXObject? xObject = PDXObject.CreateXObject(rawValue, this);
+        if (_resourceCache is not null && indirect is not null && xObject is not null)
+        {
+            _resourceCache.Put(indirect, xObject);
+        }
+
+        return xObject;
     }
 
     /// <summary>Returns the names of all XObject resources in this resource dictionary.</summary>
@@ -184,15 +230,25 @@ public class PDResources
 
     public PDExtendedGraphicsState? GetExtGState(COSName name)
     {
-        COSDictionary? extGStateSubDict = _dict.GetCOSDictionary(ExtGStateKey);
-        if (extGStateSubDict is null)
+        COSObject? indirect = GetIndirect(ExtGStateKey, name);
+        if (_resourceCache is not null && indirect is not null)
         {
-            return null;
+            PDExtendedGraphicsState? cached = _resourceCache.GetExtGState(indirect);
+            if (cached is not null)
+            {
+                return cached;
+            }
         }
 
-        return extGStateSubDict.GetDictionaryObject(name) is COSDictionary dict
+        PDExtendedGraphicsState? extGState = Get(ExtGStateKey, name) is COSDictionary dict
             ? new PDExtendedGraphicsState(dict)
             : null;
+        if (_resourceCache is not null && indirect is not null && extGState is not null)
+        {
+            _resourceCache.Put(indirect, extGState);
+        }
+
+        return extGState;
     }
 
     public void Put(COSName name, PDExtendedGraphicsState graphicsState)
@@ -216,19 +272,29 @@ public class PDResources
 
     public PDColorSpace GetColorSpace(COSName name, bool wasDefault)
     {
-        COSDictionary? colorSpaceSubDict = _dict.GetCOSDictionary(ColorSpaceKey);
-        if (colorSpaceSubDict is null)
+        COSObject? indirect = GetIndirect(ColorSpaceKey, name);
+        if (_resourceCache is not null && indirect is not null)
         {
-            throw new IOException($"Missing color space: {name.GetName()}");
+            PDColorSpace? cached = _resourceCache.GetColorSpace(indirect);
+            if (cached is not null)
+            {
+                return cached;
+            }
         }
 
-        COSBase? entry = colorSpaceSubDict.GetDictionaryObject(name);
+        COSBase? entry = Get(ColorSpaceKey, name);
         if (entry is null)
         {
             throw new IOException($"Missing color space: {name.GetName()}");
         }
 
-        return PDColorSpace.Create(entry, this);
+        PDColorSpace colorSpace = PDColorSpace.Create(entry, this);
+        if (_resourceCache is not null && indirect is not null && colorSpace is not PDPattern)
+        {
+            _resourceCache.Put(indirect, colorSpace);
+        }
+
+        return colorSpace;
     }
 
     // ── Shadings ──────────────────────────────────────────────────────────────
@@ -239,16 +305,25 @@ public class PDResources
     /// <param name="name">The shading resource name (as used in the content stream "sh" operator).</param>
     public PDShading? GetShading(COSName name)
     {
-        COSDictionary? shadingSubDict = _dict.GetCOSDictionary(ShadingKey);
-        if (shadingSubDict is null) return null;
-
-        COSBase? entry = shadingSubDict.GetDictionaryObject(name);
-        if (entry is COSDictionary shadingDict)
+        COSObject? indirect = GetIndirect(ShadingKey, name);
+        if (_resourceCache is not null && indirect is not null)
         {
-            return PDShading.Create(shadingDict);
+            PDShading? cached = _resourceCache.GetShading(indirect);
+            if (cached is not null)
+            {
+                return cached;
+            }
         }
 
-        return null;
+        PDShading? shading = Get(ShadingKey, name) is COSDictionary shadingDict
+            ? PDShading.Create(shadingDict)
+            : null;
+        if (_resourceCache is not null && indirect is not null && shading is not null)
+        {
+            _resourceCache.Put(indirect, shading);
+        }
+
+        return shading;
     }
 
     /// <summary>Returns the names of all shading resources in this resource dictionary.</summary>
@@ -261,12 +336,25 @@ public class PDResources
 
     public PDAbstractPattern? GetPattern(COSName name)
     {
-        COSDictionary? patternSubDict = _dict.GetCOSDictionary(PatternKey);
-        if (patternSubDict is null) return null;
+        COSObject? indirect = GetIndirect(PatternKey, name);
+        if (_resourceCache is not null && indirect is not null)
+        {
+            PDAbstractPattern? cached = _resourceCache.GetPattern(indirect);
+            if (cached is not null)
+            {
+                return cached;
+            }
+        }
 
-        return patternSubDict.GetDictionaryObject(name) is COSDictionary patternDict
+        PDAbstractPattern? pattern = Get(PatternKey, name) is COSDictionary patternDict
             ? PDAbstractPattern.Create(patternDict)
             : null;
+        if (_resourceCache is not null && indirect is not null && pattern is not null)
+        {
+            _resourceCache.Put(indirect, pattern);
+        }
+
+        return pattern;
     }
 
     public IEnumerable<COSName> GetPatternNames()
@@ -278,12 +366,25 @@ public class PDResources
 
     public PDPropertyList? GetProperties(COSName name)
     {
-        COSDictionary? propertiesSubDict = _dict.GetCOSDictionary(PropertiesKey);
-        if (propertiesSubDict is null) return null;
+        COSObject? indirect = GetIndirect(PropertiesKey, name);
+        if (_resourceCache is not null && indirect is not null)
+        {
+            PDPropertyList? cached = _resourceCache.GetProperties(indirect);
+            if (cached is not null)
+            {
+                return cached;
+            }
+        }
 
-        return propertiesSubDict.GetDictionaryObject(name) is COSDictionary propertyDict
+        PDPropertyList? properties = Get(PropertiesKey, name) is COSDictionary propertyDict
             ? PDPropertyList.Create(propertyDict)
             : null;
+        if (_resourceCache is not null && indirect is not null && properties is not null)
+        {
+            _resourceCache.Put(indirect, properties);
+        }
+
+        return properties;
     }
 
     public IEnumerable<COSName> GetPropertiesNames()
@@ -293,10 +394,22 @@ public class PDResources
         return propertiesSubDict.KeySet();
     }
 
-    private void PutInto(COSName category, COSName name, COSBase value)
+    private void PutInto(COSName category, COSName name, COSBase? value)
     {
         COSDictionary subDictionary = _dict.GetCOSDictionary(category) ?? new COSDictionary();
         subDictionary.SetItem(name, value);
         _dict.SetItem(category, subDictionary);
+    }
+
+    private COSBase? Get(COSName category, COSName name)
+    {
+        COSDictionary? subDictionary = _dict.GetCOSDictionary(category);
+        return subDictionary?.GetDictionaryObject(name);
+    }
+
+    private COSObject? GetIndirect(COSName category, COSName name)
+    {
+        COSDictionary? subDictionary = _dict.GetCOSDictionary(category);
+        return subDictionary?.GetItem(name) as COSObject;
     }
 }
