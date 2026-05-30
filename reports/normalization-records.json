@@ -1039,11 +1039,12 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "Update-state tracking added while leaving parser-driven lazy dereference outside the current chunk"
+      "Update-state tracking added while leaving parser-driven lazy dereference outside the current chunk",
+      "ICOSParser lazy-dereference added (issue 97)"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Expanded COSObject with dereferenced/update-state behavior while keeping the parser-backed lazy dereference gap explicit for a later parser/document slice."
+    "note": "Added ICOSParser lazy-dereference constructors and GetObject() logic; added SetObject() .NET adapter; aligned constructor parity with upstream COSObject.java."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObjectKey.java",
@@ -1212,11 +1213,12 @@
     "normalization_applied": true,
     "change_categories": [
       "Low-level tokenization/parser subset adapted from upstream BaseParser to C# stream and lookahead semantics",
-      "Literal/hex string and comment handling aligned to PDF lexical rules needed for deterministic roundtrip tests"
+      "Literal/hex string and comment handling aligned to PDF lexical rules needed for deterministic roundtrip tests",
+      "BaseParser utility primitives added (issue 97)"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Implemented a bounded parser subset (names, strings, arrays, dictionaries, booleans, null, numbers) required for chunk-2 object flow without high-level document parsing orchestration."
+    "note": "BaseParser.java utility methods added: SkipLinebreak, SkipWhiteSpaces, IsEndOfName, ReadExpectedChar, ReadExpectedString, IsEOF, IsEOL, IsLF, IsCR, IsSpace, IsDigit, ReadInt, ReadLong, ReadStringNumber."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
@@ -4978,5 +4980,29 @@
     "semantic_risk": "medium",
     "compiles_after_change": true,
     "note": "Adapted serializer entry-point to deterministic XmlWriter-based xpacket and RDF output."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginInlineImage.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/BeginInlineImageData.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Architecture split: BI/ID/EI split into 3 operator processors",
+      "XML doc comments added"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added Apache license header and XML doc comments explaining the .NET split-operator architecture. No semantic logic changed."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginInlineImage.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Graphics/EndInlineImage.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Architecture split: BI/ID/EI split into 3 operator processors",
+      "XML doc comments added"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Added Apache license header and XML doc comments explaining the .NET split-operator architecture. No semantic logic changed."
   }
 ]

@@ -91,4 +91,21 @@ public class COSObjectKeyTest
         Assert.NotEqual(new COSObjectKey(100, 0).GetHashCode(), new COSObjectKey(200, 0).GetHashCode());
         Assert.NotEqual(new COSObjectKey(100, 0).GetHashCode(), new COSObjectKey(99, 1).GetHashCode());
     }
+
+    /// <summary>
+    /// PDFBOX-5742: split a two-page document and verify that page renderings are identical
+    /// to the originals. This exercises indirect-object handling in COSArray, COSDictionary,
+    /// and COSParser.
+    /// </summary>
+    /// <remarks>
+    /// Deferred: requires the PDFBOX-5742.pdf fixture file, the Splitter multi-PDF module,
+    /// PDFRenderer rendering infrastructure, and an image-comparison utility — none of which
+    /// are yet available in this repository stage.
+    /// </remarks>
+    [Fact(Skip = "Requires PDFBOX-5742.pdf fixture, Splitter, PDFRenderer, and image comparison infrastructure")]
+    public void TestPDFBox5742()
+    {
+        // Port note: implement once Splitter, PDFRenderer, and ValidateXImage equivalents
+        // are available. See upstream COSObjectKeyTest.testPDFBox5742() for the test logic.
+    }
 }

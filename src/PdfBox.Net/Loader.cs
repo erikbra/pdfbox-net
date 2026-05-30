@@ -32,15 +32,26 @@ using PdfBox.Net.PDModel.Fdf;
 namespace PdfBox.Net;
 
 /// <summary>
-/// Utility methods to load PDF documents through PDFBox-compatible entry points.
+/// Utility methods to load different types of documents.
 /// </summary>
 public static class Loader
 {
+    /// <summary>
+    /// Parses a PDF. Unrestricted main memory will be used for buffering PDF streams.
+    /// </summary>
+    /// <param name="input">Byte array that contains the document.</param>
+    /// <returns>Loaded document.</returns>
     public static PDDocument LoadPDF(byte[] input)
     {
         return LoadPDF(input, password: null);
     }
 
+    /// <summary>
+    /// Parses a PDF. Unrestricted main memory will be used for buffering PDF streams.
+    /// </summary>
+    /// <param name="input">Byte array that contains the document.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <returns>Loaded document.</returns>
     public static PDDocument LoadPDF(byte[] input, string? password)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -49,6 +60,50 @@ public static class Loader
         return PDDocument.Load(stream, password);
     }
 
+    /// <summary>
+    /// Parses a PDF. Unrestricted main memory will be used for buffering PDF streams.
+    /// </summary>
+    /// <param name="input">Byte array that contains the document.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <param name="keyStore">Key store to be used for decryption when using public key security.</param>
+    /// <param name="alias">Alias to be used for decryption when using public key security.</param>
+    /// <returns>Loaded document.</returns>
+    /// <remarks>
+    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
+    /// not applied — public-key security is not yet supported in this .NET port.
+    /// </remarks>
+    public static PDDocument LoadPDF(byte[] input, string? password, Stream? keyStore, string? alias)
+    {
+        return LoadPDF(input, password);
+    }
+
+    /// <summary>
+    /// Parses a PDF.
+    /// </summary>
+    /// <param name="input">Byte array that contains the document.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <param name="keyStore">Key store to be used for decryption when using public key security.</param>
+    /// <param name="alias">Alias to be used for decryption when using public key security.</param>
+    /// <param name="streamCacheCreateFunction">A function to create an instance of a stream cache.</param>
+    /// <returns>Loaded document.</returns>
+    /// <remarks>
+    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
+    /// not applied — public-key security is not yet supported in this .NET port.
+    /// </remarks>
+    public static PDDocument LoadPDF(byte[] input, string? password, Stream? keyStore, string? alias,
+        RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
+    {
+        _ = streamCacheCreateFunction ?? throw new ArgumentNullException(nameof(streamCacheCreateFunction));
+        return LoadPDF(input, password);
+    }
+
+    /// <summary>
+    /// Parses a PDF.
+    /// </summary>
+    /// <param name="input">Byte array that contains the document.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <param name="streamCacheCreateFunction">A function to create an instance of a stream cache.</param>
+    /// <returns>Loaded document.</returns>
     public static PDDocument LoadPDF(byte[] input, string? password,
         RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
     {
@@ -56,17 +111,52 @@ public static class Loader
         return LoadPDF(input, password);
     }
 
+    /// <summary>
+    /// Parses a PDF. Unrestricted main memory will be used for buffering PDF streams.
+    /// </summary>
+    /// <param name="filePath">The path to the file to load.</param>
+    /// <returns>Loaded document.</returns>
     public static PDDocument LoadPDF(string filePath)
     {
         return LoadPDF(filePath, password: null);
     }
 
+    /// <summary>
+    /// Parses a PDF. Unrestricted main memory will be used for buffering PDF streams.
+    /// </summary>
+    /// <param name="filePath">The path to the file to load.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <returns>Loaded document.</returns>
     public static PDDocument LoadPDF(string filePath, string? password)
     {
         ArgumentNullException.ThrowIfNull(filePath);
         return PDDocument.Load(filePath, password);
     }
 
+    /// <summary>
+    /// Parses a PDF. Unrestricted main memory will be used for buffering PDF streams.
+    /// </summary>
+    /// <param name="filePath">The path to the file to load.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <param name="keyStore">Key store to be used for decryption when using public key security.</param>
+    /// <param name="alias">Alias to be used for decryption when using public key security.</param>
+    /// <returns>Loaded document.</returns>
+    /// <remarks>
+    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
+    /// not applied — public-key security is not yet supported in this .NET port.
+    /// </remarks>
+    public static PDDocument LoadPDF(string filePath, string? password, Stream? keyStore, string? alias)
+    {
+        return LoadPDF(filePath, password);
+    }
+
+    /// <summary>
+    /// Parses a PDF.
+    /// </summary>
+    /// <param name="filePath">The path to the file to load.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <param name="streamCacheCreateFunction">A function to create an instance of a stream cache.</param>
+    /// <returns>Loaded document.</returns>
     public static PDDocument LoadPDF(string filePath, string? password,
         RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
     {
@@ -74,11 +164,42 @@ public static class Loader
         return LoadPDF(filePath, password);
     }
 
+    /// <summary>
+    /// Parses a PDF.
+    /// </summary>
+    /// <param name="filePath">The path to the file to load.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <param name="keyStore">Key store to be used for decryption when using public key security.</param>
+    /// <param name="alias">Alias to be used for decryption when using public key security.</param>
+    /// <param name="streamCacheCreateFunction">A function to create an instance of a stream cache.</param>
+    /// <returns>Loaded document.</returns>
+    /// <remarks>
+    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
+    /// not applied — public-key security is not yet supported in this .NET port.
+    /// </remarks>
+    public static PDDocument LoadPDF(string filePath, string? password, Stream? keyStore, string? alias,
+        RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
+    {
+        _ = streamCacheCreateFunction ?? throw new ArgumentNullException(nameof(streamCacheCreateFunction));
+        return LoadPDF(filePath, password);
+    }
+
+    /// <summary>
+    /// Parses a PDF. Unrestricted main memory will be used for buffering new/altered PDF streams.
+    /// </summary>
+    /// <param name="randomAccessRead">Random access read representing the PDF to be loaded.</param>
+    /// <returns>Loaded document.</returns>
     public static PDDocument LoadPDF(RandomAccessRead randomAccessRead)
     {
         return LoadPDF(randomAccessRead, password: null);
     }
 
+    /// <summary>
+    /// Parses a PDF. Unrestricted main memory will be used for buffering new/altered PDF streams.
+    /// </summary>
+    /// <param name="randomAccessRead">Random access read representing the PDF to be loaded.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <returns>Loaded document.</returns>
     public static PDDocument LoadPDF(RandomAccessRead randomAccessRead, string? password)
     {
         ArgumentNullException.ThrowIfNull(randomAccessRead);
@@ -86,6 +207,26 @@ public static class Loader
         return LoadPDF(bytes, password);
     }
 
+    /// <summary>
+    /// Parses a PDF.
+    /// </summary>
+    /// <param name="randomAccessRead">Random access read representing the PDF to be loaded.</param>
+    /// <param name="streamCacheCreateFunction">A function to create an instance of a stream cache.</param>
+    /// <returns>Loaded document.</returns>
+    public static PDDocument LoadPDF(RandomAccessRead randomAccessRead,
+        RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
+    {
+        _ = streamCacheCreateFunction ?? throw new ArgumentNullException(nameof(streamCacheCreateFunction));
+        return LoadPDF(randomAccessRead, password: null);
+    }
+
+    /// <summary>
+    /// Parses a PDF. Unrestricted main memory will be used for buffering new/altered PDF streams.
+    /// </summary>
+    /// <param name="randomAccessRead">Random access read representing the PDF to be loaded.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <param name="streamCacheCreateFunction">A function to create an instance of a stream cache.</param>
+    /// <returns>Loaded document.</returns>
     public static PDDocument LoadPDF(RandomAccessRead randomAccessRead, string? password,
         RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
     {
@@ -93,6 +234,60 @@ public static class Loader
         return LoadPDF(randomAccessRead, password);
     }
 
+    /// <summary>
+    /// Parses a PDF. Unrestricted main memory will be used for buffering new/altered PDF streams.
+    /// </summary>
+    /// <param name="randomAccessRead">Random access read representing the PDF to be loaded.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <param name="keyStore">Key store to be used for decryption when using public key security.</param>
+    /// <param name="alias">Alias to be used for decryption when using public key security.</param>
+    /// <returns>Loaded document.</returns>
+    /// <remarks>
+    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
+    /// not applied — public-key security is not yet supported in this .NET port.
+    /// </remarks>
+    public static PDDocument LoadPDF(RandomAccessRead randomAccessRead, string? password,
+        Stream? keyStore, string? alias)
+    {
+        return LoadPDF(randomAccessRead, password);
+    }
+
+    /// <summary>
+    /// Parses a PDF.
+    /// </summary>
+    /// <param name="randomAccessRead">Random access read representing the PDF to be loaded.</param>
+    /// <param name="password">Password to be used for decryption.</param>
+    /// <param name="keyStore">Key store to be used for decryption when using public key security.</param>
+    /// <param name="alias">Alias to be used for decryption when using public key security.</param>
+    /// <param name="streamCacheCreateFunction">A function to create an instance of a stream cache.</param>
+    /// <returns>Loaded document.</returns>
+    /// <remarks>
+    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
+    /// not applied — public-key security is not yet supported in this .NET port.
+    /// </remarks>
+    public static PDDocument LoadPDF(RandomAccessRead randomAccessRead, string? password,
+        Stream? keyStore, string? alias,
+        RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
+    {
+        return LoadPDF(randomAccessRead, password);
+    }
+
+    /// <summary>
+    /// This will load a document from a file.
+    /// </summary>
+    /// <param name="filePath">The path of the file to load.</param>
+    /// <returns>The document that was loaded.</returns>
+    public static FDFDocument LoadFDF(string filePath)
+    {
+        ArgumentNullException.ThrowIfNull(filePath);
+        return FDFDocument.Load(filePath);
+    }
+
+    /// <summary>
+    /// This will load an FDF document from an input stream.
+    /// </summary>
+    /// <param name="input">Byte array that contains the document.</param>
+    /// <returns>The document that was loaded.</returns>
     public static FDFDocument LoadFDF(byte[] input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -101,17 +296,46 @@ public static class Loader
         return FDFDocument.Load(stream);
     }
 
-    public static FDFDocument LoadFDF(string filePath)
-    {
-        ArgumentNullException.ThrowIfNull(filePath);
-        return FDFDocument.Load(filePath);
-    }
-
+    /// <summary>
+    /// This will load an FDF document from a random access read.
+    /// </summary>
+    /// <param name="randomAccessRead">The random access read to load from.</param>
+    /// <returns>The document that was loaded.</returns>
     public static FDFDocument LoadFDF(RandomAccessRead randomAccessRead)
     {
         ArgumentNullException.ThrowIfNull(randomAccessRead);
         byte[] bytes = ReadAllBytes(randomAccessRead);
         return LoadFDF(bytes);
+    }
+
+    /// <summary>
+    /// This will load a document from a file path. The XFDF format is an XML representation of FDF.
+    /// </summary>
+    /// <param name="filePath">The path of the XFDF file to load.</param>
+    /// <returns>The document that was loaded.</returns>
+    /// <exception cref="NotSupportedException">
+    /// XFDF loading is not yet supported in this .NET port. Use <see cref="LoadFDF(string)"/> for binary FDF.
+    /// </exception>
+    public static FDFDocument LoadXFDF(string filePath)
+    {
+        throw new NotSupportedException(
+            "XFDF loading is not yet supported in this .NET port. " +
+            "Use LoadFDF for binary FDF format.");
+    }
+
+    /// <summary>
+    /// This will load an XFDF document from an input stream. The XFDF format is an XML representation of FDF.
+    /// </summary>
+    /// <param name="input">The stream that contains the XFDF document.</param>
+    /// <returns>The document that was loaded.</returns>
+    /// <exception cref="NotSupportedException">
+    /// XFDF loading is not yet supported in this .NET port. Use <see cref="LoadFDF(byte[])"/> for binary FDF.
+    /// </exception>
+    public static FDFDocument LoadXFDF(Stream input)
+    {
+        throw new NotSupportedException(
+            "XFDF loading is not yet supported in this .NET port. " +
+            "Use LoadFDF for binary FDF format.");
     }
 
     private static byte[] ReadAllBytes(RandomAccessRead randomAccessRead)

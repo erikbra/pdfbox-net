@@ -25,45 +25,120 @@
  * limitations under the License.
  */
 
+using System.Diagnostics;
+
 namespace PdfBox.Net.COS;
 
+/// <summary>
+/// This class represents a PDF object.
+/// </summary>
+/// <remarks>Author: Ben Litchfield</remarks>
 public class COSObject : COSBase, COSUpdateInfo
 {
     private COSBase? _baseObject;
+    private ICOSParser? _parser;
     private bool _isDereferenced;
     private readonly COSUpdateState _updateState;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="obj">The object that this encapsulates.</param>
     public COSObject(COSBase? obj)
     {
         _updateState = new(this);
         _baseObject = obj;
-        _isDereferenced = obj is not null;
+        _isDereferenced = true;
     }
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="obj">The object that this encapsulates.</param>
+    /// <param name="objectKey">The COSObjectKey of the encapsulated object.</param>
     public COSObject(COSBase? obj, COSObjectKey objectKey)
+        : this(objectKey, null)
+    {
+        _baseObject = obj;
+        _isDereferenced = true;
+    }
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="obj">The object that this encapsulates.</param>
+    /// <param name="parser">The parser to be used to load the object on demand.</param>
+    public COSObject(COSBase? obj, ICOSParser? parser)
     {
         _updateState = new(this);
         _baseObject = obj;
         _isDereferenced = obj is not null;
-        SetKey(objectKey);
+        _parser = parser;
     }
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="key">The object number of the encapsulated object.</param>
     public COSObject(COSObjectKey key)
+        : this(key, null)
+    {
+    }
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="key">The object number of the encapsulated object.</param>
+    /// <param name="parser">The parser to be used to load the object on demand.</param>
+    public COSObject(COSObjectKey key, ICOSParser? parser)
     {
         _updateState = new(this);
+        _parser = parser;
         SetKey(key);
     }
 
+    /// <summary>
+    /// Indicates if the referenced object is present or not.
+    /// </summary>
+    /// <returns><c>true</c> if the indirect object is null.</returns>
     public bool IsObjectNull()
     {
         return _baseObject is null;
     }
 
+    /// <summary>
+    /// This will get the object that this object encapsulates.
+    /// </summary>
+    /// <returns>The encapsulated object.</returns>
     public COSBase? GetObject()
     {
+        if (!_isDereferenced && _parser is not null)
+        {
+            try
+            {
+                // mark as dereferenced to avoid endless recursions
+                _isDereferenced = true;
+                _baseObject = _parser.DereferenceCOSObject(this);
+                _updateState.DereferenceChild(_baseObject);
+            }
+            catch (IOException e)
+            {
+                Debug.WriteLine($"[ERROR] Can't dereference {this}: {e.Message}");
+            }
+            finally
+            {
+                _parser = null;
+            }
+        }
+
         return _baseObject;
     }
 
+    /// <summary>
+    /// Sets the base object directly, updating the dereference state.
+    /// </summary>
+    /// <param name="baseObject">The new base object.</param>
+    /// <remarks>This is a .NET adaptation — used by the parser to populate a pre-created shell.</remarks>
     public void SetObject(COSBase? baseObject)
     {
         if (!ReferenceEquals(_baseObject, baseObject))
@@ -73,8 +148,12 @@ public class COSObject : COSBase, COSUpdateInfo
 
         _baseObject = baseObject;
         _isDereferenced = baseObject is not null;
+        _parser = null;
     }
 
+    /// <summary>
+    /// Sets the referenced object to COSNull and removes the initially assigned parser.
+    /// </summary>
     public void SetToNull()
     {
         if (_baseObject is not null)
@@ -83,24 +162,37 @@ public class COSObject : COSBase, COSUpdateInfo
         }
 
         _baseObject = COSNull.NULL;
-        _isDereferenced = true;
+        _parser = null;
     }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
         return $"COSObject{{{GetKey()}}}";
     }
 
+    /// <summary>
+    /// Visitor pattern double dispatch method.
+    /// </summary>
+    /// <param name="visitor">The object to notify when visiting this object.</param>
     public override void Accept(ICOSVisitor visitor)
     {
         visitor.VisitFromObject(this);
     }
 
+    /// <summary>
+    /// Returns <c>true</c> if the hereby referenced <see cref="COSBase"/> has already been parsed and loaded.
+    /// </summary>
+    /// <returns><c>true</c> if the hereby referenced <see cref="COSBase"/> has already been parsed and loaded.</returns>
     public bool IsDereferenced()
     {
         return _isDereferenced;
     }
 
+    /// <summary>
+    /// Returns the current <see cref="COSUpdateState"/> of this <see cref="COSObject"/>.
+    /// </summary>
+    /// <returns>The current <see cref="COSUpdateState"/> of this <see cref="COSObject"/>.</returns>
     public COSUpdateState GetUpdateState()
     {
         return _updateState;

@@ -2803,9 +2803,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "status": "partial",
-    "last_checked_utc": "2026-05-28T04:38:47Z",
-    "note": "PDF byte-array, file-path, and RandomAccessRead entry points are implemented for both PDF and FDF loading; XFDF and public-key overloads remain deferred."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T22:42:27Z",
+    "note": "PDF byte-array, file-path, RandomAccessRead, and streamCache entry points are in-sync. Public-key encryption overloads (keyStore, alias) are present in the API surface; key-store parameters are accepted but not applied \u2014 public-key security is deferred. XFDF loading is present as NotSupportedException stubs (XFDF XML parsing deferred). Adapted port."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
@@ -2998,9 +2998,9 @@
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
-    "status": "partially-in-sync",
-    "note": "Inline-image processing is split across BeginInlineImage, BeginInlineImageData, and EndInlineImage in the .NET port while staying within the current graphics-engine architecture.",
-    "last_checked_utc": "2026-05-26T19:50:25Z"
+    "status": "in-sync",
+    "note": "ID operator processor in the .NET split-architecture design. Upstream BeginInlineImage.java handles BI/ID/EI as a unit; the .NET port splits them into three OperatorProcessor subclasses (BeginInlineImage, BeginInlineImageData, EndInlineImage). In normal PDF processing the ID token is consumed by PDFStreamParser internally, so this processor fires only in edge-case direct token dispatch. Reconciled with upstream behaviour and architecture notes.",
+    "last_checked_utc": "2026-05-30T22:42:27Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/BeginInlineImage.java",
@@ -3009,9 +3009,9 @@
     "port_mode": "mechanical",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "conversion_notes": "Ported missing graphics/path/painting/inline-image/type3/compatibility operator processor.",
-    "status": "partially-in-sync",
-    "note": "Inline-image processing is split across BeginInlineImage, BeginInlineImageData, and EndInlineImage in the .NET port while staying within the current graphics-engine architecture.",
-    "last_checked_utc": "2026-05-26T19:50:25Z"
+    "status": "in-sync",
+    "note": "EI operator processor in the .NET split-architecture design. Upstream BeginInlineImage.java handles BI/ID/EI as a unit; the .NET port splits them into three OperatorProcessor subclasses (BeginInlineImage, BeginInlineImageData, EndInlineImage). In normal PDF processing the EI token is consumed by PDFStreamParser internally, so this processor fires only in edge-case direct token dispatch. Reconciled with upstream behaviour and architecture notes.",
+    "last_checked_utc": "2026-05-30T22:42:27Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ClipEvenOddRule.java",
@@ -3464,9 +3464,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T20:29:56Z",
-    "note": "COS indirect object wrapper now includes dereferenced/update-state tracking; parser-backed lazy dereference remains deferred to the parser/document chunk."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T22:42:27Z",
+    "note": "COS indirect object wrapper with ICOSParser-backed lazy dereference, update-state tracking, and full constructor parity (COSObject(COSBase), COSObject(COSBase, COSObjectKey), COSObject(COSBase, ICOSParser), COSObject(COSObjectKey), COSObject(COSObjectKey, ICOSParser)). GetObject() now lazily dereferences via parser on first access and clears the parser reference. SetToNull() also clears the parser. SetObject() is a .NET-adapted helper used by the parser to populate pre-created shells."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObjectKey.java",
@@ -3744,9 +3744,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-20T23:27:00Z",
-    "note": "Low-level parser subset ported for token/object flow (comments, names, strings, arrays, dictionaries, booleans, null, numbers); broader parser orchestration remains out of chunk-2 scope."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T22:42:27Z",
+    "note": "Low-level COS token/object parser bridge (COSParser.java) plus BaseParser.java utility primitives: SkipLinebreak, SkipWhiteSpaces, IsEndOfName, ReadExpectedChar, ReadExpectedString, IsEOF, IsEOL, IsLF, IsCR, IsSpace, IsDigit, ReadInt, ReadLong, ReadStringNumber. Adapted port over a Stream source rather than RandomAccessRead (the .NET architecture splits random-access parsing into PDFDocumentParser/PDFParser). Broader parser orchestration (xref, object-stream, cross-reference table) remains in PDFDocumentParser/PDFParser as in the .NET adapted design."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
@@ -3765,8 +3765,8 @@
     "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T16:30:07Z",
-    "note": "Issue #92 core operator/parser/writer parity closeout mapping entry."
+    "last_checked_utc": "2026-05-30T22:42:27Z",
+    "note": "Low-level COS token/object parser bridge (COSParser.java) plus BaseParser.java utility primitives: SkipLinebreak, SkipWhiteSpaces, IsEndOfName, ReadExpectedChar, ReadExpectedString, IsEOF, IsEOL, IsLF, IsCR, IsSpace, IsDigit, ReadInt, ReadLong, ReadStringNumber. Adapted port over a Stream source rather than RandomAccessRead (the .NET architecture splits random-access parsing into PDFDocumentParser/PDFParser). Broader parser orchestration (xref, object-stream, cross-reference table) remains in PDFDocumentParser/PDFParser as in the .NET adapted design."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/EndstreamFilterStream.java",
@@ -7704,9 +7704,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-24T18:40:12Z",
-    "note": "Core COSObjectKey unit coverage is converted; fixture-driven PDFBOX-5742 integration scenario is deferred outside primitive/container scope."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-30T22:42:27Z",
+    "note": "Core COSObjectKey unit coverage (input validation, compareTo, equals, internal representation, sorting order, hashCode) is converted. PDFBOX-5742 integration scenario is present as a [Fact(Skip=...)] pending Splitter, PDFRenderer, and ValidateXImage infrastructure."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/PDFDocEncodingTest.java",

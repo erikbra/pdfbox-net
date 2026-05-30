@@ -30,10 +30,11 @@ Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **853 / 8
 
 ## Traceability status for mapped upstream source rows
 
-Among **795** rows with scoped upstream `source_path`:
-- `in-sync`: **774**
+Among **852** rows with scoped upstream `source_path`:
+- `in-sync`: **831**
 - `partially-in-sync`: **10**
-- `partial`: **11**
+- `partial`: **10**
+- status absent (native-test): **1**
 
 ## 100% parity gate
 
