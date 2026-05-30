@@ -3,7 +3,7 @@
   "upstream_branch": "trunk",
   "upstream_head_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
   "tracked_parity_baseline_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-  "last_scan_utc": "2026-05-30T19:03:39.497Z",
+  "last_scan_utc": "2026-05-30T20:58:25.328Z",
   "upstream_java_files_total": 1067,
   "mapped_java_files_total": 1067,
   "missing_java_files_total": 0,
