@@ -26,13 +26,15 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.ContentStream;
+using PdfBox.Net.IO;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Form;
 
-public class PDFormXObject : PDXObject
+public class PDFormXObject : PDXObject, PDContentStream
 {
     private static readonly COSName FormTypeName = COSName.GetPDFName("FormType");
     private static readonly COSName BboxName = COSName.GetPDFName("BBox");
@@ -67,6 +69,8 @@ public class PDFormXObject : PDXObject
     public PDStream GetContentStream() => new(GetCOSObject()!);
 
     public Stream GetContents() => GetContentStream().CreateInputStream();
+
+    public RandomAccessRead GetContentsForRandomAccess() => new RandomAccessReadBuffer(GetContents());
 
     public PDResources? GetResources()
     {
