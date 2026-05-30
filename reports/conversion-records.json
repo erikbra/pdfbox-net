@@ -34,17 +34,17 @@
   {
     "source_path": null,
     "target_path": "tests/PdfBox.Net.Tests/PDTrueTypeFontAndCIDType2Test.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added 24 deterministic fixture tests for PDTrueTypeFont and PDCIDFontType2 parity (issue #50): UPM scaling, CIDToGIDMap, TTF width fallback, ToUnicode cmap fallback, Type0 descendant integration."
   },
   {
     "source_path": null,
     "target_path": "tests/PdfBox.Net.Tests/PDType0FontCIDType0UnicodeIntegrationTest.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added deterministic issue #51 regression tests for Type0/CIDFontType0 CMap CID resolution, composite ToUnicode fallback integration, Identity-H fallback handling, and descendant factory routing."
   },
   {
@@ -1570,9 +1570,9 @@
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeFont.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeFont.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Fixed GetWidth(string name) to scale advance width by 1000/unitsPerEm for non-1000-UPM fonts, aligning with upstream Java parity."
   },
   {
@@ -1954,9 +1954,9 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColorSpace.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetNonStrokingColorSpace.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Switched non-stroking color-space operator to PDColorSpaceFactory with resource-aware resolution."
   },
   {
@@ -2022,9 +2022,9 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetStrokingColorSpace.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetStrokingColorSpace.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Switched stroking color-space operator to PDColorSpaceFactory with resource-aware resolution."
   },
   {
@@ -2906,9 +2906,9 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDMetadata.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/PDMetadata.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented metadata stream wrapper with XMP import/export helpers."
   },
   {
@@ -2978,9 +2978,9 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDStream.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/PDStream.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented filter-aware PDStream wrappers for encode/decode and metadata access."
   },
   {
@@ -3634,17 +3634,17 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added cross-platform file system font discovery provider with stable ordered enumeration and subset-prefix normalization."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontMapper.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added font mapper interface."
   },
   {
@@ -3658,641 +3658,641 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMappers.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontMappers.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added lazy global font mapper singleton wiring."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "PDCIDFont: Added HasExplicitCidWidth helper and promoted _defaultWidth to protected DefaultWidth for subclass TTF-width fallback."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Issue #51: added CIDSystemInfo accessor for composite Type0 CMap/UCS2 integration paths."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Issue #51: validated CIDFontType0 descendant integration through Type0 encoding CMap-driven CID resolution and width delegation."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented CIDFontType2 wrapper for embedded TrueType fonts with shared CID width default handling."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDSystemInfo.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added CID system info wrapper for Registry/Ordering/Supplement."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Replaced font stubs with concrete PDModel font hierarchy, descendant descriptor fallback, and CID width handling for composite fonts."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontDescriptor.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added PDFontDescriptor metric normalization, flag helpers, panose access, and descriptor dictionary accessors."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added font factory dispatch based on PDF font subtype."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDPanose.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDPanose.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added PANOSE classification wrapper."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDSimpleFont.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented simple-font width, glyph, and encoding-backed unicode fallback behavior, with constructor support for Type1-specific resolved encodings."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented TrueType font loading and cmap-backed unicode fallback behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented composite Type0 font wiring with descendant descriptor and CID width delegation."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Issue #51: wired Type0 /Encoding CMap parsing (stream and predefined identity fallback), CodeToCID via Type0 CMap, and composite ToUnicode fallback chaining to UCS2/preferred descendant mapping."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented Type1 font loading with embedded PFB/segment support, mapped system-font fallback loading, and embedded encoding precedence for unicode/width lookup parity."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/Standard14Fonts.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added canonical mapping for standard 14 PDF fonts, including upstream alias matrix coverage used by Acrobat/PDF.js compatibility names."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/DictionaryEncoding.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented dictionary encoding resolution and Differences overrides, including Standard14 symbolic fallback to Symbol/ZapfDingbats encodings."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Encoding.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Encoding.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added PDModel encoding base class."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/MacRomanEncoding.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/MacRomanEncoding.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added MacRoman encoding wrapper for PDModel fonts."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/SymbolEncoding.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/SymbolEncoding.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added Symbol encoding map for PDModel fonts."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/Type1Encoding.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Type1Encoding.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added Type1 built-in encoding adapter from parsed Type1 fonts."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/WinAnsiEncoding.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/WinAnsiEncoding.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added WinAnsi encoding map for PDModel fonts."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/ZapfDingbatsEncoding.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/ZapfDingbatsEncoding.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added ZapfDingbats encoding map for PDModel fonts."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDLineDashPattern.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDLineDashPattern.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Replaced dash-pattern stub with immutable COS-backed line dash pattern model."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDXObject.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/PDXObject.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added subtype-based XObject factory for form/transparency/image streams."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalGray.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCalGray.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added calibrated gray color space with gamma-aware grayscale conversion."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalRGB.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCalRGB.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added calibrated RGB color space with gamma handling."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColor.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDColor.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Replaced color stub with immutable PDColor value supporting COS-array roundtrip and packed RGB conversion."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColorSpace.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpace.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Ported core PDColorSpace abstraction and factory-based COS parsing for standard and array-defined PDF color spaces."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColorSpace.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpaceFactory.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added PDColorSpaceFactory compatibility wrapper for explicit factory call sites."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceCMYK.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Ported DeviceCMYK singleton using managed CMYK-to-RGB fallback conversion."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceGray.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceGray.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Ported DeviceGray singleton with grayscale-to-RGB conversion."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceN.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceN.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added DeviceN color space with alternate-space mapping fallback."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceRGB.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceRGB.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Ported DeviceRGB singleton with initial color/default decode and direct RGB conversion."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDICCBased.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDICCBased.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added ICCBased color space with alternate color space and component-count fallback behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDIndexed.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDIndexed.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added Indexed color space with lookup table decode from COSString/COSStream."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDLab.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDLab.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added Lab color space with managed Lab-to-sRGB conversion path."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDPattern.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDPattern.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added Pattern color space wrapper with optional underlying color space support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDSeparation.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added Separation color space with alternate-space RGB mapping fallback."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDFormXObject.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Form/PDFormXObject.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented form XObject content stream, resources, BBox, and matrix access."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDTransparencyGroup.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Form/PDTransparencyGroup.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "mechanical",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Added transparency-group subtype over PDFormXObject."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImageXObject.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PDImageXObject.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented basic image XObject decode and metadata access for DeviceRGB/Flate test path."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/AxialShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/AxialShadingPaint.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/CoonsPatch.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/CoonsPatch.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/CoordinateColorPair.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/CoordinateColorPair.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/CubicBezierCurve.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/CubicBezierCurve.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/GouraudShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/GouraudShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Line.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Line.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDMeshBasedShadingType.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDMeshBasedShadingType.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShading.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShading.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType1.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType1.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType2.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType2.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType3.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType3.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType4.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType4.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType5.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType5.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType6.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType6.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType7.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType7.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDTriangleBasedShadingType.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDTriangleBasedShadingType.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Patch.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Patch.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PatchMeshesShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PatchMeshesShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/RadialShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/RadialShadingPaint.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/ShadedTriangle.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/ShadedTriangle.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/ShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/ShadingPaint.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/TensorPatch.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/TensorPatch.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/TriangleBasedShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/TriangleBasedShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type1ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type1ShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type1ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type1ShadingPaint.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type4ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type4ShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type4ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type4ShadingPaint.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type5ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type5ShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type5ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type5ShadingPaint.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type6ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type6ShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type6ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type6ShadingPaint.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type7ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type7ShadingContext.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type7ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type7ShadingPaint.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Vertex.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Vertex.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDExtendedGraphicsState.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDExtendedGraphicsState.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented ExtGState dictionary accessors and copy-into-graphics-state behavior."
   },
   {
@@ -4306,9 +4306,9 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDSoftMask.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDSoftMask.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Implemented soft mask dictionary parsing and initial CTM capture support."
   },
   {
@@ -5770,9 +5770,9 @@
   {
     "source_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
     "target_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
-    "source_commit": "trunk",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "trunk",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "conversion_notes": "Expanded font replacement tests for width arrays, ToUnicode CMap decoding, descriptor metrics, and Standard14 mapping."
   },
   {
@@ -6350,5 +6350,197 @@
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Adapted serializer entry-point to emit deterministic xpacket and RDF output from metadata state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDTristimulus.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDTristimulus.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Mechanical port of three-float XYZ tristimulus wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDGamma.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDGamma.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Mechanical port of three-float RGB gamma wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEBasedColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCIEBasedColorSpace.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Mechanical port of abstract base class; AWT imaging methods omitted."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEDictionaryBasedColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCIEDictionaryBasedColorSpace.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Java java.awt.color.ColorSpace.CS_CIEXYZ replaced with Bradford XYZ->sRGB matrix."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceColorSpace.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Mechanical port of abstract base class."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNAttributes.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceNAttributes.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Mechanical port; COSDictionaryMap<String,PDSeparation> expressed as IDictionary."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNProcess.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceNProcess.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Mechanical port of dictionary wrapper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDJPXColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDJPXColorSpace.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "java.awt.color.ColorSpace replaced with direct component-count/range parameters."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDOutputIntent.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDOutputIntent.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "java.awt.color.ICC_Profile replaced with raw stream byte copy."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSpecialColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDSpecialColorSpace.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Mechanical port of empty abstract base."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PDImage.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Existing adapted abstract class; traceability record added."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CCITTFactory.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Adapted stub; CCITT/TIFF imaging requires platform-specific APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CustomFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CustomFactory.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Adapted stub; custom raster factory requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/JPEGFactory.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Adapted stub; JPEG image factory requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/LosslessFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/LosslessFactory.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Adapted stub; lossless image factory requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PNGConverter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PNGConverter.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Adapted stub; PNG converter requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/SampledImageReader.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/SampledImageReader.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Adapted stub; sampled image reader requires platform-specific imaging APIs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/CIDSystemInfo.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/CIDSystemInfo.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Mechanical port of CIDSystemInfo data class."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Subsetter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/Subsetter.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Mechanical port of Subsetter interface; renamed ISubsetter per C# conventions."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/TrueTypeEmbedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/TrueTypeEmbedder.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Adapted stub; font subsetting deferred pending PDFontDescriptor setters."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFontEmbedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDTrueTypeFontEmbedder.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Adapted stub; PDTrueTypeFont embedding deferred pending PDFontDescriptor setters."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2Embedder.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Adapted stub; PDCIDFontType2 embedding deferred pending PDFontDescriptor setters."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1FontEmbedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType1FontEmbedder.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "adapted",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Adapted stub; PDType1Font embedding deferred pending PfbParser port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDStandardAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStandardAttributeObject.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "mechanical",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Mechanical port; placed in LogicalStructure namespace where subclasses reside."
   }
 ]
