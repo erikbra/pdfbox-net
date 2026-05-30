@@ -1914,12 +1914,12 @@
     "conversion_notes": "Added active resource tracking and form XObject content traversal."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/DrawObject.java",
     "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
-    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
     "port_mode": "adapted",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Implemented Do operator XObject resolution with fallback hook compatibility behavior."
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Aligned Do operator mapping to current upstream graphics package and retained XObject dispatch semantics in the content stream pipeline."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetNonStrokingColor.java",
@@ -6558,5 +6558,117 @@
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Adapted serializer entry-point to emit deterministic xpacket and RDF output from metadata state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetColor.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Color/SetColor.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/markedcontent/DrawObject.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/MarkedContent/DrawObject.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetMatrix.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/SetMatrix.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/BruteForceParser.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/EndstreamFilterStream.java",
+    "target_path": "src/PdfBox.Net/PdfParser/EndstreamFilterStream.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/FDFParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/FDFParser.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXRefStream.java",
+    "target_path": "src/PdfBox.Net/PdfParser/PDFXRefStream.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/PDFXrefStreamParser.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/XrefParser.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSObjectPool.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSObjectPool.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterCompressionPool.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSWriterCompressionPool.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterObjectStream.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/Compress/COSWriterObjectStream.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs",
+    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "port_mode": "adapted",
+    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "conversion_notes": "Legacy DrawObject mapping retained for compatibility while graphics/markedcontent DrawObject variants are ported."
   }
 ]

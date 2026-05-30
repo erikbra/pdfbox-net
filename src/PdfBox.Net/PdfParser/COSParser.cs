@@ -4,6 +4,11 @@
  * Adapted low-level parser bridge for chunk-2 token/object flow.
  * Based on Apache PDFBox parser token semantics with the minimal scope
  * required for COS object roundtrip parsing in this repository stage.
+ *
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java
+ * PDFBOX_SOURCE_COMMIT: a71c5679d69bc3fd3ab15e248b69441ee91dca6c
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: a71c5679d69bc3fd3ab15e248b69441ee91dca6c
  */
 
 /*

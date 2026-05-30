@@ -469,7 +469,7 @@ public class PDFStreamEngine
     private void RegisterOperators()
     {
         // Existing operator families.
-        AddOperator(new DrawObject(this));
+        AddOperator(new PdfBox.Net.ContentStream.Operator.DrawObject(this));
         AddOperator(new BeginMarkedContentSequence(this));
         AddOperator(new BeginMarkedContentSequenceWithProperties(this));
         AddOperator(new EndMarkedContentSequence(this));

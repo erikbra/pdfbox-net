@@ -3,26 +3,29 @@
  * PORT_MODE: adapted
  */
 
-using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics.Color;
 
 namespace PdfBox.Net.ContentStream.Operator.Color;
 
-public sealed class SetStrokingColor : OperatorProcessor
+public class SetStrokingColor : SetColor
 {
-    public SetStrokingColor(PDFStreamEngine context) : base(OperatorName.STROKING_COLOR, context) { }
-
-    public override void Process(Operator op, IList<COSBase> operands)
+    protected SetStrokingColor(string name, PDFStreamEngine context)
+        : base(name, context)
     {
-        float[] components = new float[operands.Count];
-        for (int i = 0; i < operands.Count; i++)
-        {
-            if (operands[i] is not COSNumber number) return;
-            components[i] = number.FloatValue();
-        }
+    }
 
-        if (components.Length == 0) return;
-        PDColorSpace colorSpace = Context.GetGraphicsState().GetStrokingColorSpace();
-        Context.SetStrokingColor(new PDColor(components, colorSpace));
+    public SetStrokingColor(PDFStreamEngine context)
+        : this(OperatorName.STROKING_COLOR, context)
+    {
+    }
+
+    protected override PDColorSpace GetColorSpace()
+    {
+        return Context.GetGraphicsState().GetStrokingColorSpace();
+    }
+
+    protected override void SetColorValue(PDColor color)
+    {
+        Context.SetStrokingColor(color);
     }
 }

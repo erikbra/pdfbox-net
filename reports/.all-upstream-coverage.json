@@ -1,13 +1,13 @@
 {
-  "generated_at_utc": "2026-05-30T15:42:16.471Z",
+  "generated_at_utc": "2026-05-30T16:40:33.967Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "upstream_head": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
   "tracked_parity_baseline_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
-  "mapped": 1035,
-  "missing": 32,
+  "mapped": 1049,
+  "missing": 18,
   "modules": [
     {
       "module": "benchmark",
@@ -47,9 +47,9 @@
     {
       "module": "pdfbox",
       "java_files": 618,
-      "mapped": 586,
-      "missing": 32,
-      "pct": 94.8
+      "mapped": 600,
+      "missing": 18,
+      "pct": 97.1
     },
     {
       "module": "tools",
@@ -168,9 +168,9 @@
     {
       "family": "pdfbox:contentstream",
       "java_files": 79,
-      "mapped": 75,
-      "missing": 4,
-      "pct": 94.9
+      "mapped": 79,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "pdfbox:cos",
@@ -196,16 +196,16 @@
     {
       "family": "pdfbox:pdfparser",
       "java_files": 18,
-      "mapped": 11,
-      "missing": 7,
-      "pct": 61.1
+      "mapped": 18,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "pdfbox:pdfwriter",
       "java_files": 7,
-      "mapped": 4,
-      "missing": 3,
-      "pct": 57.1
+      "mapped": 7,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "pdfbox:pdmodel",
@@ -279,33 +279,31 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 764,
-    "in-sync": 743,
+    "total_rows": 778,
+    "in-sync": 757,
     "partially-in-sync": 10,
     "partial": 11
   },
   "top_missing_modules": {
     "pdfbox": [
-      "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetColor.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/DrawObject.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/markedcontent/DrawObject.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetMatrix.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/EndstreamFilterStream.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/FDFParser.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXRefStream.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSObjectPool.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterCompressionPool.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterObjectStream.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCacheCreateImpl.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/MissingResourceException.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
       "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java"
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDFormContentStream.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDStructureElementNameTreeNode.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheCreateFunction.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheFactory.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDFontSetting.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDPostScriptXObject.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendComposite.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDTransparencyGroupAttributes.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingIntent.java",
+      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingMode.java"
     ]
   }
 }

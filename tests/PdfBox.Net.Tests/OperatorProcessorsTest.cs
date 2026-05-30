@@ -758,7 +758,7 @@ public class OperatorProcessorsTest
     {
         bool xObjectCalled = false;
         var engine = new CallbackEngine(xo => xObjectCalled = true);
-        engine.AddOperator(new DrawObject(engine));
+        engine.AddOperator(new PdfBox.Net.ContentStream.Operator.DrawObject(engine));
 
         engine.RunStream("/Form1 Do");
 
