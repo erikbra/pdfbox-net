@@ -27,6 +27,8 @@ using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.Rendering;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Tests;
 
@@ -82,6 +84,19 @@ public class PDShadingTest
     {
         PDShading shading = CreateShadingDict(shadingType);
         Assert.Equal(shadingType, shading.GetShadingType());
+    }
+
+    [Fact]
+    public void ToPaint_ReturnsExpectedPaintTypes()
+    {
+        Matrix matrix = new();
+        Assert.IsType<Type1ShadingPaint>(new PDShadingType1(new COSDictionary()).ToPaint(matrix));
+        Assert.IsType<AxialShadingPaint>(new PDShadingType2(new COSDictionary()).ToPaint(matrix));
+        Assert.IsType<RadialShadingPaint>(new PDShadingType3(new COSDictionary()).ToPaint(matrix));
+        Assert.IsType<Type4ShadingPaint>(new PDShadingType4(new COSDictionary()).ToPaint(matrix));
+        Assert.IsType<Type5ShadingPaint>(new PDShadingType5(new COSDictionary()).ToPaint(matrix));
+        Assert.IsType<Type6ShadingPaint>(new PDShadingType6(new COSDictionary()).ToPaint(matrix));
+        Assert.IsType<Type7ShadingPaint>(new PDShadingType7(new COSDictionary()).ToPaint(matrix));
     }
 
     // ── SetShadingType / GetCOSObject ─────────────────────────────────────────
@@ -234,6 +249,17 @@ public class PDShadingTest
     }
 
     [Fact]
+    public void Type2_GetBounds_ReturnsRectangle()
+    {
+        PDShadingType2 shading = new(new COSDictionary());
+        shading.SetCoords(COSArray.Of(0f, 0f, 100f, 50f));
+        Rectangle2D? bounds = shading.GetBounds(new AffineTransform(), new Matrix());
+        Assert.NotNull(bounds);
+        Assert.Equal(100d, bounds.Width, 4);
+        Assert.Equal(50d, bounds.Height, 4);
+    }
+
+    [Fact]
     public void Type2_Domain_RoundTrip()
     {
         PDShadingType2 shading = new(new COSDictionary());
@@ -283,6 +309,17 @@ public class PDShadingTest
         COSArray? result = shading.GetCoords();
         Assert.NotNull(result);
         Assert.Equal(6, result.Size());
+    }
+
+    [Fact]
+    public void Type3_GetBounds_ReturnsRectangle()
+    {
+        PDShadingType3 shading = new(new COSDictionary());
+        shading.SetCoords(COSArray.Of(50f, 50f, 10f, 75f, 75f, 5f));
+        Rectangle2D? bounds = shading.GetBounds(new AffineTransform(), new Matrix());
+        Assert.NotNull(bounds);
+        Assert.True(bounds.Width > 0);
+        Assert.True(bounds.Height > 0);
     }
 
     // ── Type 4: Free-form Gouraud ─────────────────────────────────────────────

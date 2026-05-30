@@ -29,6 +29,8 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.Rendering;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
 
@@ -98,6 +100,17 @@ public abstract class PDShading : COSObjectable
     /// <summary>This will return the shading type.</summary>
     /// <returns>the shading type</returns>
     public abstract int GetShadingType();
+
+    /// <summary>
+    /// Calculate a bounding rectangle around this shading in user space.
+    /// </summary>
+    /// <param name="xform">affine transformation</param>
+    /// <param name="matrix">pattern matrix</param>
+    /// <returns>bounding rectangle or null when not available</returns>
+    public virtual Rectangle2D? GetBounds(AffineTransform xform, Matrix matrix)
+    {
+        return null;
+    }
 
     /// <summary>This will set the background.</summary>
     /// <param name="newBackground">the new background</param>
@@ -324,4 +337,11 @@ public abstract class PDShading : COSObjectable
         }
         return _functionArray;
     }
+
+    /// <summary>
+    /// Returns a paint abstraction for this shading.
+    /// </summary>
+    /// <param name="matrix">pattern-to-user matrix</param>
+    /// <returns>paint instance</returns>
+    public abstract IPaint ToPaint(Matrix matrix);
 }

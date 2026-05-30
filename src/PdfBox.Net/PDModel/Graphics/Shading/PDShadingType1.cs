@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Rendering;
 using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
@@ -88,5 +89,11 @@ public class PDShadingType1 : PDShading
     {
         _domain = newDomain;
         GetCOSObject().SetItem(COSName.DOMAIN, newDomain);
+    }
+
+    /// <inheritdoc/>
+    public override IPaint ToPaint(Matrix matrix)
+    {
+        return new Type1ShadingPaint(this, matrix);
     }
 }

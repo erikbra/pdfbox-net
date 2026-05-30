@@ -2,10 +2,10 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType6.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/CubicBezierCurve.java
+ * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: trunk
  */
 
 /*
@@ -25,34 +25,25 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.COS;
 using PdfBox.Net.Rendering;
-using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
 
-/// <summary>
-/// Resources for a shading type 6 (Coons Patch Mesh).
-/// <para>
-/// Note: patch generation (generatePatch, collectPatches) is deferred to a future
-/// rendering-integration issue and is not included in this port.
-/// </para>
-/// </summary>
-public class PDShadingType6 : PDMeshBasedShadingType
+public sealed class CubicBezierCurve
 {
-    /// <summary>Constructor using the given shading dictionary.</summary>
-    /// <param name="shadingDictionary">the dictionary for this shading</param>
-    public PDShadingType6(COSDictionary shadingDictionary)
-        : base(shadingDictionary)
+    public CubicBezierCurve(Point2D p0, Point2D p1, Point2D p2, Point2D p3)
     {
+        P0 = p0;
+        P1 = p1;
+        P2 = p2;
+        P3 = p3;
     }
 
-    /// <inheritdoc/>
-    public override int GetShadingType() => SHADING_TYPE6;
+    public Point2D P0 { get; }
 
-    /// <inheritdoc/>
-    public override IPaint ToPaint(Matrix matrix)
-    {
-        return new Type6ShadingPaint(this, matrix);
-    }
+    public Point2D P1 { get; }
+
+    public Point2D P2 { get; }
+
+    public Point2D P3 { get; }
 }

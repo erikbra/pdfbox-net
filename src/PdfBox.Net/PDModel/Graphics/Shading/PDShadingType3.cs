@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Rendering;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
 
@@ -43,4 +45,33 @@ public class PDShadingType3 : PDShadingType2
 
     /// <inheritdoc/>
     public override int GetShadingType() => SHADING_TYPE3;
+
+    /// <inheritdoc/>
+    public override Rectangle2D? GetBounds(AffineTransform xform, Matrix matrix)
+    {
+        COSArray? coords = GetCoords();
+        if (coords == null || coords.Size() < 6)
+        {
+            return null;
+        }
+
+        float[] c = coords.ToFloatArray();
+        float minX = Math.Min(c[0] - c[2], c[3] - c[5]);
+        float minY = Math.Min(c[1] - c[2], c[4] - c[5]);
+        float maxX = Math.Max(c[0] + c[2], c[3] + c[5]);
+        float maxY = Math.Max(c[1] + c[2], c[4] + c[5]);
+        Vector p0 = matrix.Transform(minX, minY);
+        Vector p1 = matrix.Transform(maxX, maxY);
+        double left = Math.Min(p0.GetX(), p1.GetX());
+        double bottom = Math.Min(p0.GetY(), p1.GetY());
+        double right = Math.Max(p0.GetX(), p1.GetX());
+        double top = Math.Max(p0.GetY(), p1.GetY());
+        return new Rectangle2D(left, bottom, right - left, top - bottom);
+    }
+
+    /// <inheritdoc/>
+    public override IPaint ToPaint(Matrix matrix)
+    {
+        return new RadialShadingPaint(this, matrix);
+    }
 }

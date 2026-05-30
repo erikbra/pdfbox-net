@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Rendering;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
 
@@ -47,4 +49,10 @@ public class PDShadingType7 : PDMeshBasedShadingType
 
     /// <inheritdoc/>
     public override int GetShadingType() => SHADING_TYPE7;
+
+    /// <inheritdoc/>
+    public override IPaint ToPaint(Matrix matrix)
+    {
+        return new Type7ShadingPaint(this, matrix);
+    }
 }

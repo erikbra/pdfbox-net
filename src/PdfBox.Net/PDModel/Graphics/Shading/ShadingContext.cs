@@ -2,10 +2,10 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType6.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/ShadingContext.java
+ * PDFBOX_SOURCE_COMMIT: trunk
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: trunk
  */
 
 /*
@@ -25,34 +25,34 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.COS;
 using PdfBox.Net.Rendering;
 using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
 
-/// <summary>
-/// Resources for a shading type 6 (Coons Patch Mesh).
-/// <para>
-/// Note: patch generation (generatePatch, collectPatches) is deferred to a future
-/// rendering-integration issue and is not included in this port.
-/// </para>
-/// </summary>
-public class PDShadingType6 : PDMeshBasedShadingType
+public class ShadingContext : PaintContext
 {
-    /// <summary>Constructor using the given shading dictionary.</summary>
-    /// <param name="shadingDictionary">the dictionary for this shading</param>
-    public PDShadingType6(COSDictionary shadingDictionary)
-        : base(shadingDictionary)
+    protected ShadingContext(PDShading shading, Matrix matrix)
     {
+        Shading = shading;
+        Matrix = matrix ?? new Matrix();
     }
 
-    /// <inheritdoc/>
-    public override int GetShadingType() => SHADING_TYPE6;
+    protected PDShading Shading { get; }
 
-    /// <inheritdoc/>
-    public override IPaint ToPaint(Matrix matrix)
+    protected Matrix Matrix { get; }
+
+    public virtual ColorModel GetColorModel()
     {
-        return new Type6ShadingPaint(this, matrix);
+        return new ColorModel();
+    }
+
+    public virtual Raster GetRaster(int x, int y, int width, int height)
+    {
+        return new WritableRaster(width, height);
+    }
+
+    public virtual void Dispose()
+    {
     }
 }
