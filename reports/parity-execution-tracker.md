@@ -197,18 +197,18 @@ Issue anchor: `issues/91-final-parity-rescan-and-lock-execution.md`.
 
 Execute these in order and apply the mandatory closeout loop after each issue:
 
-1. `issues/87-core-foundation-mapping-and-quality-closeout.md`
-   - Close remaining `contentstream`/`pdfparser`/`pdfwriter/compress`/`filter` mapping gaps.
-   - Burn down paired `partial` rows for placeholder filters and loader/security paths to `in-sync`.
-2. `issues/88-shading-stabilization-closeout.md`
-   - Complete missing shading files and finish the dedicated shading stabilization wave in one pass.
-   - Resolve shading traceability notes (`partial` + `partially-in-sync`) before advancing.
-3. `issues/89-pdmodel-feature-clusters-closeout.md`
-   - Close remaining pdmodel feature-cluster gaps (color/image/font/documentinterchange as scoped).
-   - Normalize traceability/conversion/normalization rows and keep touched rows `in-sync`.
-4. `issues/90-xmpbox-two-file-closeout.md`
-   - Port final xmpbox files (`DomHelper`, `PdfaExtensionHelper`) with tests.
-   - Regenerate canonical reports and capture updated counters in this tracker.
-5. `issues/91-final-parity-rescan-and-lock-execution.md`
-   - Regenerate canonical reports from latest upstream head.
+1. `issues/92-core-operators-parser-writer-gap-closeout.md`
+   - Close remaining `contentstream/operator` (4), `pdfparser` (7), and `pdfwriter/compress` (3) missing files.
+   - Keep touched parser/contentstream/writer traceability rows `in-sync`.
+2. `issues/93-pdmodel-resource-contentstream-gap-closeout.md`
+   - Close remaining pdmodel foundation gaps around resource cache/content stream/name-tree roots (11 files).
+   - Reconcile touched pdmodel traceability/conversion/normalization rows.
+3. `issues/94-pdmodel-graphics-blend-state-gap-closeout.md`
+   - Close final missing pdmodel graphics/blend/state files (7 files) to reach `missing_java_files_total == 0`.
+   - Validate touched rendering/contentstream integration rows as `in-sync`.
+4. `issues/95-traceability-debt-burndown-final-closeout.md`
+   - Burn down remaining scoped non-`in-sync` traceability rows to zero (current baseline: 21).
+   - Resolve both `partial` and `partially-in-sync` rows across `fontbox` and `pdfbox`.
+5. `issues/96-final-parity-lock-rerun.md`
+   - Regenerate canonical reports from latest upstream head and rerun lock gates.
    - Release parity lock only if `mapped == total`, `missing == 0`, and scoped statuses are all `in-sync`.
