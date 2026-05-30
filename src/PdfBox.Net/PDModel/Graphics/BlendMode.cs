@@ -150,45 +150,61 @@ internal static class BlendModeExtensions
 
     private static bool TryGetBlendMode(string? name, out BlendMode blendMode)
     {
-        blendMode = (name ?? string.Empty).ToLowerInvariant() switch
+        switch ((name ?? string.Empty).ToLowerInvariant())
         {
-            "compatible" => BlendMode.NORMAL,
-            "multiply" => BlendMode.MULTIPLY,
-            "screen" => BlendMode.SCREEN,
-            "overlay" => BlendMode.OVERLAY,
-            "darken" => BlendMode.DARKEN,
-            "lighten" => BlendMode.LIGHTEN,
-            "colordodge" => BlendMode.COLOR_DODGE,
-            "colorburn" => BlendMode.COLOR_BURN,
-            "hardlight" => BlendMode.HARD_LIGHT,
-            "softlight" => BlendMode.SOFT_LIGHT,
-            "difference" => BlendMode.DIFFERENCE,
-            "exclusion" => BlendMode.EXCLUSION,
-            "hue" => BlendMode.HUE,
-            "saturation" => BlendMode.SATURATION,
-            "color" => BlendMode.COLOR,
-            "luminosity" => BlendMode.LUMINOSITY,
-            "normal" => BlendMode.NORMAL,
-            _ => BlendMode.NORMAL,
-        };
-
-        return name is not null && name.Equals("Normal", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Compatible", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Multiply", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Screen", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Overlay", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Darken", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Lighten", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("ColorDodge", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("ColorBurn", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("HardLight", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("SoftLight", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Difference", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Exclusion", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Hue", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Saturation", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Color", StringComparison.OrdinalIgnoreCase)
-            || name is not null && name.Equals("Luminosity", StringComparison.OrdinalIgnoreCase);
+            case "normal":
+            case "compatible":
+                blendMode = BlendMode.NORMAL;
+                return true;
+            case "multiply":
+                blendMode = BlendMode.MULTIPLY;
+                return true;
+            case "screen":
+                blendMode = BlendMode.SCREEN;
+                return true;
+            case "overlay":
+                blendMode = BlendMode.OVERLAY;
+                return true;
+            case "darken":
+                blendMode = BlendMode.DARKEN;
+                return true;
+            case "lighten":
+                blendMode = BlendMode.LIGHTEN;
+                return true;
+            case "colordodge":
+                blendMode = BlendMode.COLOR_DODGE;
+                return true;
+            case "colorburn":
+                blendMode = BlendMode.COLOR_BURN;
+                return true;
+            case "hardlight":
+                blendMode = BlendMode.HARD_LIGHT;
+                return true;
+            case "softlight":
+                blendMode = BlendMode.SOFT_LIGHT;
+                return true;
+            case "difference":
+                blendMode = BlendMode.DIFFERENCE;
+                return true;
+            case "exclusion":
+                blendMode = BlendMode.EXCLUSION;
+                return true;
+            case "hue":
+                blendMode = BlendMode.HUE;
+                return true;
+            case "saturation":
+                blendMode = BlendMode.SATURATION;
+                return true;
+            case "color":
+                blendMode = BlendMode.COLOR;
+                return true;
+            case "luminosity":
+                blendMode = BlendMode.LUMINOSITY;
+                return true;
+            default:
+                blendMode = BlendMode.NORMAL;
+                return false;
+        }
     }
 
     private static float BlendColorDodge(float src, float dest)
