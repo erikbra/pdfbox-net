@@ -2,10 +2,10 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/SetTextRenderingMode.java
- * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDPostScriptXObject.java
+ * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
 /*
@@ -26,22 +26,21 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common;
 
-namespace PdfBox.Net.ContentStream.Operator.Text;
+namespace PdfBox.Net.PDModel.Graphics;
 
-/// <summary>
-/// Processes the PDF "Tr" operator: set the text rendering mode.
-/// </summary>
-public sealed class SetTextRenderingMode : OperatorProcessor
+public sealed class PDPostScriptXObject : PDXObject
 {
-    public SetTextRenderingMode(PDFStreamEngine context)
-        : base(OperatorName.SET_TEXT_RENDERINGMODE, context)
+    public PDPostScriptXObject(PDStream stream)
+        : base(stream)
     {
+        SetXObjectSubtype("PS");
     }
 
-    public override void Process(Operator op, IList<COSBase> operands)
+    public PDPostScriptXObject(COSStream stream)
+        : base(stream)
     {
-        if (operands.Count < 1 || operands[0] is not COSNumber n) return;
-        Context.GetGraphicsState().GetTextState().SetRenderingMode(PdfBox.Net.PDModel.Graphics.State.RenderingModeExtensions.FromInt(n.IntValue()));
+        SetXObjectSubtype("PS");
     }
 }

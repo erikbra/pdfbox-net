@@ -100,7 +100,9 @@ public class PDExtendedGraphicsState : COSObjectable
     }
 
     public string? GetRenderingIntent() => _dictionary.GetNameAsString(RiName);
+    public global::PdfBox.Net.PDModel.Graphics.State.RenderingIntent GetRenderingIntentInstance() => RenderingIntentExtensions.FromString(GetRenderingIntent());
     public void SetRenderingIntent(string? value) => _dictionary.SetName(RiName, value);
+    public void SetRenderingIntent(global::PdfBox.Net.PDModel.Graphics.State.RenderingIntent value) => _dictionary.SetName(RiName, value.StringValue());
     public float? GetStrokingAlphaConstant() => GetFloatItem(CaName);
     public void SetStrokingAlphaConstant(float? value) => SetFloatItem(CaName, value);
     public float? GetNonStrokingAlphaConstant() => GetFloatItem(CaNsName);

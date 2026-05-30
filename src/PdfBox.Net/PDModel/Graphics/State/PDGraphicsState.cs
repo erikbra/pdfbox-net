@@ -157,7 +157,9 @@ public class PDGraphicsState
     public void SetFlatness(float flatness) => _flatness = flatness;
 
     public string GetRenderingIntent() => _renderingIntent;
+    public global::PdfBox.Net.PDModel.Graphics.State.RenderingIntent GetRenderingIntentInstance() => RenderingIntentExtensions.FromString(_renderingIntent);
     public void SetRenderingIntent(string renderingIntent) => _renderingIntent = renderingIntent ?? string.Empty;
+    public void SetRenderingIntent(global::PdfBox.Net.PDModel.Graphics.State.RenderingIntent renderingIntent) => _renderingIntent = renderingIntent.StringValue();
 
     public PDColorSpace GetStrokingColorSpace() => _strokingColorSpace;
     public void SetStrokingColorSpace(PDColorSpace colorSpace) => _strokingColorSpace = colorSpace ?? PDDeviceGray.Instance;
