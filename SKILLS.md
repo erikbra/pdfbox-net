@@ -29,11 +29,6 @@ This index splits the conversion workflow into small, focused skills.
 - [Skill E - Traceability and parity reporting](skills/skill-e-traceability-report.md)
 - [Skill F - Compile-oriented normalization pass](skills/skill-f-compile-oriented-normalization.md)
 - [Skill G - Java → C# API and type mapping reference](skills/skill-g-java-csharp-api-mappings.md)
-- [Skill H - Automatic PR approval checklist](skills/AUTOMATIC-PR-APPROVAL.md)
-- [Skill I - Orchestrating sequential issue delivery](skills/ORCHESTRATING-ISSUES.md)
+- [Skill H - Automatic PR approval checklist](skills/skill-h-automatic-pr-approval.md)
+- [Skill I - Orchestrating sequential issue delivery](skills/skill-i-orchestrating-issues.md)
 - [Worked example - end-to-end flow A->F->E](skills/worked-example-a-to-f-to-e.md)
-
-## Pilot evaluation
-
-- [Delegated pilot run against Apache PDFBox (`pdfbox` module)](skills/pilot-evaluation-apache-pdfbox.md)
-- [Delegated pilot run #2 (24 files, post-adjustment)](skills/pilot-evaluation-apache-pdfbox-round2.md)

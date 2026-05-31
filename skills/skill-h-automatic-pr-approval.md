@@ -1,6 +1,6 @@
 # Skill H - Automatic PR approval checklist
 
-Use this checklist to review issue-driven PRs in strict sequence (issue 66, 67, 68, ...), and only move to the next issue after the current one is completed and approved.
+Use this checklist to review issue-driven PRs in strict sequence, one issue at a time. Only move to the next issue after the current one is completed and approved.
 
 ## Approval criteria
 
