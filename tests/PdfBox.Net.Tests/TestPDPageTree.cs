@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: adapted-minimal
+ * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
 
 namespace PdfBox.Net.Tests;
 
@@ -133,6 +134,51 @@ public class TestPDPageTree
         pages.GetCOSArray(COSName.KIDS)!.Add(page);
 
         Assert.Null(new PDPage(page).GetResources());
+    }
+
+    /// <summary>
+    /// Tests that <see cref="PDPageTree.IndexOf"/> correctly resolves a page destination obtained
+    /// from a document outline item. Covers the <c>indexOfPageFromOutlineDestination</c>
+    /// scenario from upstream TestPDPageTree.java (adapted in-memory, no fixture required).
+    /// </summary>
+    [Fact]
+    public void IndexOfPageFromOutlineDestination()
+    {
+        using PDDocument document = new();
+        PDPage page1 = new();
+        PDPage page2 = new();
+        PDPage page3 = new();
+        document.AddPage(page1);
+        document.AddPage(page2);
+        document.AddPage(page3);
+
+        // Build outline: "First" → page1, "Second" → page3 (index 2), "Third" → page2
+        PDDocumentOutline outline = new();
+        document.GetDocumentCatalog().SetDocumentOutline(outline);
+
+        PDOutlineItem item1 = new();
+        item1.SetTitle("First");
+        item1.SetDestination(page1);
+        outline.AddLast(item1);
+
+        PDOutlineItem item2 = new();
+        item2.SetTitle("Second");
+        item2.SetDestination(page3);   // points to third page → expected index 2
+        outline.AddLast(item2);
+
+        PDOutlineItem item3 = new();
+        item3.SetTitle("Third");
+        item3.SetDestination(page2);
+        outline.AddLast(item3);
+
+        PDDocumentOutline readOutline = document.GetDocumentCatalog().GetDocumentOutline()!;
+        foreach (PDOutlineItem current in readOutline.Children())
+        {
+            if (current.GetTitle()!.Contains("Second"))
+            {
+                Assert.Equal(2, document.GetPages().IndexOf(current.FindDestinationPage(document)!));
+            }
+        }
     }
 
     private static void CreateMultiLevelTree(PDDocument document, out PDPage pageOne, out PDPage pageTwo, out PDPage pageThree)

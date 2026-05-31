@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPage.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: adapted-minimal
+ * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
@@ -25,7 +25,6 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Form;
@@ -190,7 +189,7 @@ public class TestPDPage
         PDAnnotationWidget widget = new();
         textField.SetWidgets([widget]);
         widget.SetRectangle(new PDRectangle(100, 700, 200, 20));
-        ((COSDictionary)widget.GetCOSObject()).SetItem(COSName.P, page);
+        widget.SetPage(page);
         page.GetAnnotations().Add(widget);
         acroForm.GetFields().Add(textField);
 

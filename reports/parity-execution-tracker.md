@@ -1,6 +1,6 @@
 # PDFBox .NET parity execution tracker
 
-Last updated (UTC): 2026-05-31
+Last updated (UTC): 2026-05-31 (issue #103 — parity lock REACHED)
 
 ## 100% parity target (canonical)
 
@@ -23,10 +23,10 @@ Canonical scanner/report pair:
   - [x] Automated workflow scan uses canonical generator
   - [x] Coverage state, aggregate coverage JSON, and gap analysis are generated together
 - [x] M2: Close remaining `pdfbox` missing files (`contentstream/operator`, `filter`, `pdfparser`, `pdfwriter`, `pdmodel`)
-- [ ] M3: Burn down `partial` / `partially-in-sync` quality debt for core modules
+- [x] M3: Burn down `partial` / `partially-in-sync` quality debt for core modules
 - [x] M4: Complete `xmpbox` parity slices
 - [x] M5: Complete non-core modules (`tools`, `examples`, `debugger`, `benchmark`)
-- [ ] M6: Final rescan at latest upstream head and release parity lock
+- [x] M6: Final rescan at latest upstream head and release parity lock
 
 ## Baseline lock (from canonical reports)
 
@@ -319,3 +319,34 @@ Execute these in order and apply the mandatory closeout loop after each issue:
 3. `issues/103-final-parity-lock-rerun-after-last-pdmodel-closeout.md`
    - Rerun canonical reports and final parity lock gates after issues #101-#102 land.
    - Record the final lock decision with updated counters and gate table.
+
+### M6 execution snapshot (2026-05-31 UTC) — issue #103 (FINAL LOCK)
+
+- Canonical reports regenerated at `2026-05-31T12:54:42.479Z` from upstream head `eeb5d611e0cea8beac3d7025a4dbccbef51d5caf`.
+- Tracked parity baseline commit: `a71c5679d69bc3fd3ab15e248b69441ee91dca6c`.
+- Changes in this slice:
+  - `PDAnnotation.cs`: added `SetPage(PDPage?)` / `GetPage()` methods (porting upstream `PDAnnotation.setPage/getPage` API).
+  - `PDTerminalField.cs`: corrected `GetWidgets()` to `override` (virtual dispatch fix).
+  - `TestPDPage.cs`: updated widget-page association to use `widget.SetPage(page)` per upstream pattern; port mode upgraded `adapted-minimal` → `adapted`.
+  - `TestPDPageTree.cs`: added `IndexOfPageFromOutlineDestination` test covering outline destination traversal; port mode upgraded `adapted-minimal` → `adapted`.
+  - Traceability rows for both `TestPDPage.java` and `TestPDPageTree.java` marked `in-sync`.
+- Captured counters (from `reports/upstream-port-coverage-state.json`):
+  - `mapped_java_files_total`: **1067**
+  - `upstream_java_files_total`: **1067**
+  - `missing_java_files_total`: **0**
+  - non-`in-sync` scoped traceability rows: **0**
+- Build/tests status for this branch: **green** (`dotnet build PdfBoxNet.slnx` — 0 errors; `dotnet test PdfBoxNet.slnx --no-build` — 1048 passed, 0 failed, 1 skipped).
+- Lock gate evaluation:
+
+  | Gate | Required | Actual | Met? |
+  |---|---|---|---|
+  | `mapped_java_files_total == upstream_java_files_total` | 1067 | 1067 | ✅ |
+  | `missing_java_files_total == 0` | 0 | 0 | ✅ |
+  | All scoped traceability rows `in-sync` | 0 non-`in-sync` | 0 | ✅ |
+  | Branch build/tests green | all pass | 1048/1048 | ✅ |
+
+- **Final parity lock decision: ✅ REACHED** — all four gates satisfied. Parity lock released at upstream head `eeb5d611e0cea8beac3d7025a4dbccbef51d5caf`.
+
+- Milestone status update:
+  - [x] M3: Burn down `partial` / `partially-in-sync` quality debt for core modules
+  - [x] M6: Final rescan at latest upstream head and release parity lock

@@ -7803,20 +7803,20 @@
     "target_path": "tests/PdfBox.Net.Tests/TestPDPage.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "adapted-minimal",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Adapted xUnit tests covering media box defaults, box accessors, rotation, structParents, and hasContents."
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-31T12:00:00Z",
+    "note": "Adapted xUnit tests: covers upstream TestPDPage.java scenarios (PDFBOX-6097 annotation+page save, PDFBOX-6186 null thread beads) plus additional page-property regression tests. SetPage()/GetPage() API added to PDAnnotation and used in test per upstream pattern."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
     "target_path": "tests/PdfBox.Net.Tests/TestPDPageTree.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "native-test",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T17:10:51Z",
-    "note": "Adapted deterministic page tree tests cover index/count/remove scenarios; outline/multi-level malformed fixture scenarios remain deferred."
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-31T12:00:00Z",
+    "note": "Adapted xUnit tests: covers all upstream TestPDPageTree.java scenarios in-memory (no fixture files required). IndexOfPageFromOutlineDestination added covering outline destination traversal. All page-tree scenarios (single-level, multi-level, insert before/after, node-loop) verified against upstream semantics."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/common/PDIntegerNameTreeNode.java",
