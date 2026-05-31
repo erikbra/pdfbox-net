@@ -72,7 +72,7 @@ public sealed class PDType1CFont : PDSimpleFont
 
     public CFFType1Font GetCFFType1Font() => _cffFont;
 
-    public override FontBoxFont GetFontBoxFont() => _cffFont;
+    public override FontBoxFont? GetFontBoxFont() => _cffFont;
 
     public override bool IsStandard14() => false;
 

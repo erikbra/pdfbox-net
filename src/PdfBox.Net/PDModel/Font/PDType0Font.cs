@@ -25,8 +25,248 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.FontBox.CMap;
+using PdfBox.Net.FontBox.TTF;
+using PdfBox.Net.FontBox.Util;
+using PdfBox.Net.IO;
+using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.Util.Geometry;
+
 namespace PdfBox.Net.PDModel.Font;
 
-public partial class PDType0Font
+public partial class PDType0Font : PDVectorFont
 {
+    private static readonly COSName EncodingKey = COSName.GetPDFName("Encoding");
+    private static readonly COSName CidSystemInfoKey = COSName.GetPDFName("CIDSystemInfo");
+
+    private readonly PDCIDFont? _descendantFont;
+    private readonly CMap? _cMap;
+    private readonly CMap? _cMapUcs2;
+    private readonly bool _isCMapPredefined;
+    private readonly bool _isDescendantCjk;
+
+    public PDType0Font(COSDictionary dictionary, PDCIDFont? descendantFont)
+        : base(dictionary)
+    {
+        _descendantFont = descendantFont;
+        (_cMap, _isCMapPredefined) = ReadEncodingCMap(dictionary);
+        _isDescendantCjk = IsDescendantCjk(descendantFont);
+        _cMapUcs2 = ReadUcs2CMap(dictionary, _cMap, _isCMapPredefined, _isDescendantCjk);
+    }
+
+    internal static PDType0Font Load(COSDictionary dictionary)
+    {
+        PDCIDFont? descendant = null;
+        COSArray? descendants = dictionary.GetCOSArray(COSName.GetPDFName("DescendantFonts"));
+        if (descendants != null && descendants.Size() > 0 && descendants.GetObject(0) is COSDictionary descendantDict)
+        {
+            descendant = PDFontFactory.CreateDescendantFont(descendantDict);
+        }
+
+        return new PDType0Font(dictionary, descendant);
+    }
+
+    public int CodeToCID(int code)
+    {
+        if (_cMap != null)
+        {
+            return _cMap.ToCID(code);
+        }
+
+        return _descendantFont?.CodeToCID(code) ?? code;
+    }
+
+    public PDCIDFont? GetDescendantFont() => _descendantFont;
+    public CMap? GetCMap() => _cMap;
+    public CMap? GetCMapUCS2() => _cMapUcs2;
+
+    public override bool IsVertical() => _descendantFont?.IsVertical() ?? base.IsVertical();
+    public override float GetWidth(int code) => _descendantFont?.GetWidth(CodeToCID(code)) ?? base.GetWidth(code);
+    public override float GetAverageFontWidth() => _descendantFont?.GetAverageFontWidth() ?? base.GetAverageFontWidth();
+    public override float GetSpaceWidth() => _descendantFont?.GetSpaceWidth() ?? base.GetSpaceWidth();
+    public override PDFontDescriptor? GetFontDescriptor() => base.GetFontDescriptor() ?? _descendantFont?.GetFontDescriptor();
+
+    public override string? ToUnicode(int code, GlyphList glyphList)
+    {
+        string? unicode = base.ToUnicode(code, glyphList);
+        if (!string.IsNullOrEmpty(unicode))
+        {
+            return unicode;
+        }
+
+        if ((_isCMapPredefined || _isDescendantCjk) && _cMapUcs2 != null)
+        {
+            int cid = CodeToCID(code);
+            string? mapped = _cMapUcs2.ToUnicode(cid);
+            if (!string.IsNullOrEmpty(mapped))
+            {
+                return mapped;
+            }
+        }
+
+        return _descendantFont?.ToUnicode(CodeToCID(code), glyphList);
+    }
+
+    public override BoundingBox GetBoundingBox()
+    {
+        BoundingBox bbox = base.GetBoundingBox();
+        return bbox.GetWidth() == 0 && bbox.GetHeight() == 0
+            ? _descendantFont?.GetBoundingBox() ?? bbox
+            : bbox;
+    }
+
+    public override bool HasGlyph(int code)
+    {
+        if (_descendantFont is PDCIDFontType2 type2)
+        {
+            int gid = type2.CodeToGID(CodeToCID(code));
+            return type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(gid) != null;
+        }
+
+        return false;
+    }
+
+    public override GeneralPath GetNormalizedPath(int code)
+    {
+        if (_descendantFont is PDCIDFontType2 type2)
+        {
+            int gid = type2.CodeToGID(CodeToCID(code));
+            return type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(gid)?.GetPath() ?? new GeneralPath();
+        }
+
+        return new GeneralPath();
+    }
+
+    private static (CMap? CMap, bool IsPredefined) ReadEncodingCMap(COSDictionary dictionary)
+    {
+        COSBase? encoding = dictionary.GetDictionaryObject(EncodingKey);
+        if (encoding is COSName encodingName)
+        {
+            CMap? predefined = TryParsePredefinedCMap(encodingName.GetName());
+            if (predefined == null &&
+                (string.Equals(encodingName.GetName(), "Identity-H", StringComparison.Ordinal) ||
+                 string.Equals(encodingName.GetName(), "Identity-V", StringComparison.Ordinal)))
+            {
+                predefined = CreateIdentityCMap();
+            }
+
+            return (predefined, predefined != null);
+        }
+
+        if (encoding is not null)
+        {
+            return (ReadCMap(encoding), false);
+        }
+
+        return (null, false);
+    }
+
+    private static CMap? ReadUcs2CMap(COSDictionary dictionary, CMap? cMap, bool isCMapPredefined, bool isDescendantCjk)
+    {
+        string? baseName = null;
+        if (isDescendantCjk && dictionary.GetCOSArray(COSName.GetPDFName("DescendantFonts"))?.GetObject(0) is COSDictionary descendantDict)
+        {
+            if (descendantDict.GetDictionaryObject(CidSystemInfoKey) is COSDictionary cidSystemInfoDict)
+            {
+                PDCIDSystemInfo cidSystemInfo = new(cidSystemInfoDict);
+                baseName = $"{cidSystemInfo.Registry}-{cidSystemInfo.Ordering}-{cidSystemInfo.Supplement}";
+            }
+        }
+        else if (isCMapPredefined && dictionary.GetDictionaryObject(EncodingKey) is COSName encodingName)
+        {
+            baseName = encodingName.GetName();
+        }
+        else if (isDescendantCjk && cMap != null && !string.IsNullOrWhiteSpace(cMap.Name))
+        {
+            baseName = cMap.Name;
+        }
+
+        if (string.IsNullOrWhiteSpace(baseName))
+        {
+            return null;
+        }
+
+        CMap? predefined = TryParsePredefinedCMap(baseName);
+        if (predefined is null || string.IsNullOrWhiteSpace(predefined.Registry) || string.IsNullOrWhiteSpace(predefined.Ordering))
+        {
+            return null;
+        }
+
+        string ucs2Name = $"{predefined.Registry}-{predefined.Ordering}-UCS2";
+        return TryParsePredefinedCMap(ucs2Name);
+    }
+
+    private static bool IsDescendantCjk(PDCIDFont? descendantFont)
+    {
+        PDCIDSystemInfo? ros = descendantFont?.GetCIDSystemInfo();
+        if (ros == null || !string.Equals(ros.Registry, "Adobe", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return string.Equals(ros.Ordering, "GB1", StringComparison.Ordinal) ||
+               string.Equals(ros.Ordering, "CNS1", StringComparison.Ordinal) ||
+               string.Equals(ros.Ordering, "Japan1", StringComparison.Ordinal) ||
+               string.Equals(ros.Ordering, "Korea1", StringComparison.Ordinal);
+    }
+
+    private static CMap? TryParsePredefinedCMap(string name)
+    {
+        try
+        {
+            return new CMapParser().ParsePredefined(name);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static CMap CreateIdentityCMap()
+    {
+        const string identityMap = """
+/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> def
+/CMapName /Identity-H def
+/CMapType 1 def
+1 begincodespacerange
+<0000> <FFFF>
+endcodespacerange
+1 begincidrange
+<0000> <FFFF> 0
+endcidrange
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+end
+""";
+
+        byte[] bytes = System.Text.Encoding.ASCII.GetBytes(identityMap);
+        using RandomAccessRead randomAccess = new RandomAccessReadBuffer(bytes);
+        return new CMapParser().Parse(randomAccess);
+    }
+
+    private static CMap? ReadCMap(COSBase encoding)
+    {
+        if (encoding is not COSStream stream)
+        {
+            return null;
+        }
+
+        try
+        {
+            using Stream input = stream.CreateInputStream();
+            using MemoryStream buffer = new();
+            input.CopyTo(buffer);
+            using RandomAccessRead randomAccess = new RandomAccessReadBuffer(buffer.ToArray());
+            return new CMapParser().Parse(randomAccess);
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

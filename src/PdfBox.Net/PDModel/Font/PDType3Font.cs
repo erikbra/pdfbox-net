@@ -45,7 +45,6 @@ public sealed class PDType3Font : PDSimpleFont
     private static readonly COSName LastCharKey = COSName.GetPDFName("LastChar");
     private static readonly COSName ResourcesKey = COSName.RESOURCES;
     private static readonly COSName FontMatrixKey = COSName.GetPDFName("FontMatrix");
-    private static readonly EmptyType3FontBoxFont PlaceholderFont = new();
 
     private readonly PDResources? _resources;
     private COSDictionary? _charProcs;
@@ -190,7 +189,7 @@ public sealed class PDType3Font : PDSimpleFont
 
     public override GeneralPath GetNormalizedPath(int code) => new();
 
-    public override FontBoxFont GetFontBoxFont() => PlaceholderFont;
+    public override FontBoxFont? GetFontBoxFont() => throw new NotSupportedException("Type 3 fonts do not use FontBox fonts.");
 
     public override bool IsStandard14() => false;
 
@@ -226,15 +225,5 @@ public sealed class PDType3Font : PDSimpleFont
         return dictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is null
             ? new PdfBox.Net.PDModel.Font.Encoding.Encoding()
             : DictionaryEncoding.ResolveEncoding(dictionary);
-    }
-
-    private sealed class EmptyType3FontBoxFont : FontBoxFont
-    {
-        public string GetName() => nameof(PDType3Font);
-        public BoundingBox GetFontBBox() => new();
-        public IList<float> GetFontMatrix() => [0.001f, 0f, 0f, 0.001f, 0f, 0f];
-        public GeneralPath GetPath(string name) => new();
-        public float GetWidth(string name) => 0f;
-        public bool HasGlyph(string name) => false;
     }
 }
