@@ -74,7 +74,7 @@ A daily scheduled workflow (`.github/workflows/upstream-sync-watch.yml`, 07:00 U
 
 1. Creates or updates a single "Upstream PDFBox has new commits to sync" issue.
 2. Runs `tools/parity/generate_parity_inventory.py` to regenerate the parity inventory.
-3. Refreshes `reports/upstream-sync-state.json`, `reports/upstream-port-coverage-state.json`, `reports/.all-upstream-coverage.json`, and `reports/pdfbox-main-gap-analysis.md`.
+3. Refreshes `reports/upstream-sync-state.json`, `reports/upstream-port-coverage-state.json`, `reports/all-upstream-coverage.json`, and `reports/pdfbox-main-gap-analysis.md`.
 
 The workflow can also be triggered manually via `workflow_dispatch`.
 
