@@ -63,6 +63,7 @@ public sealed class PDDocument : IDisposable
         _trailer = _document.GetTrailer() ?? throw new IOException("Document trailer dictionary is missing.");
         _headerVersion = _document.GetVersion();
         _nextObjectNumber = GetNextObjectNumber(_trailer);
+        EnsureIndirectRootObjects();
     }
 
     /// <summary>
@@ -366,6 +367,39 @@ public sealed class PDDocument : IDisposable
         return new COSObjectKey(_nextObjectNumber++, 0);
     }
 
+    private void EnsureIndirectRootObjects()
+    {
+        COSDictionary? root = _trailer.GetCOSDictionary(COSName.ROOT);
+        if (root is not null)
+        {
+            if (root.GetKey() is null)
+            {
+                root.SetKey(AllocateObjectKey());
+            }
+
+            COSDictionary pages = root.GetCOSDictionary(COSName.PAGES) ?? new COSDictionary();
+            if (pages.GetKey() is null)
+            {
+                pages.SetKey(AllocateObjectKey());
+            }
+
+            root.SetItem(COSName.PAGES, pages);
+            _trailer.SetItem(COSName.ROOT, root);
+        }
+
+        COSName infoName = COSName.GetPDFName("Info");
+        COSDictionary? info = _trailer.GetCOSDictionary(infoName);
+        if (info is not null)
+        {
+            if (info.GetKey() is null)
+            {
+                info.SetKey(AllocateObjectKey());
+            }
+
+            _trailer.SetItem(infoName, info);
+        }
+    }
+
     /// <summary>
     /// Save the document to a file.
     /// </summary>
@@ -628,13 +662,8 @@ public sealed class PDDocument : IDisposable
     private static COSDictionary CreateEmptyTrailer()
     {
         COSDictionary trailer = new();
-        COSDictionary root = CreateCatalogDictionary();
-        root.SetKey(new COSObjectKey(1, 0));
-        trailer.SetItem(COSName.ROOT, root);
-
-        COSDictionary info = new();
-        info.SetKey(new COSObjectKey(3, 0));
-        trailer.SetItem(COSName.GetPDFName("Info"), info);
+        trailer.SetItem(COSName.ROOT, CreateCatalogDictionary());
+        trailer.SetItem(COSName.GetPDFName("Info"), new COSDictionary());
         return trailer;
     }
 
@@ -650,11 +679,6 @@ public sealed class PDDocument : IDisposable
     private static void EnsurePagesDictionary(COSDictionary root)
     {
         COSDictionary pages = root.GetCOSDictionary(COSName.PAGES) ?? new COSDictionary();
-        if (pages.GetKey() is null)
-        {
-            pages.SetKey(new COSObjectKey(2, 0));
-        }
-
         pages.SetItem(COSName.TYPE, COSName.PAGES);
         if (!pages.ContainsKey(COSName.KIDS))
         {
