@@ -30,12 +30,13 @@ Canonical scanner/report pair:
 
 ## Baseline lock (from canonical reports)
 
-Use these numbers as the starting baseline for every closeout decision until the next published rescan:
+Use these numbers as the current canonical baseline until the next published rescan:
 
 - `mapped_java_files_total`: **1067**
 - `upstream_java_files_total`: **1067**
 - `missing_java_files_total`: **0**
-- non-`in-sync` traceability rows: **21** (`partial`: 10, `partially-in-sync`: 10, `null` (native-test): 1)
+- non-`in-sync` scoped traceability rows: **0** (`partial`: 0, `partially-in-sync`: 0)
+- Final parity lock: **REACHED**
 - Source of truth:
   - `reports/upstream-port-coverage-state.json`
   - `reports/pdfbox-main-gap-analysis.md`
