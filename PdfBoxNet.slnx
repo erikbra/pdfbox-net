@@ -12,6 +12,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj" />
+    <Project Path="tests/PdfBox.Net.FontBox.Tests/PdfBox.Net.FontBox.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.XmpBox.Tests/PdfBox.Net.XmpBox.Tests.csproj" />
   </Folder>
 </Solution>

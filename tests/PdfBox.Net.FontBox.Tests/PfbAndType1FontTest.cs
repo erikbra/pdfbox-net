@@ -2,7 +2,7 @@ using PdfBox.Net.FontBox.Encoding;
 using PdfBox.Net.FontBox.Pfb;
 using PdfBox.Net.FontBox.Type1;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class PfbAndType1FontTest
 {
@@ -41,5 +41,11 @@ public class PfbAndType1FontTest
             0xD2, 0x40,
         ];
         Assert.Throws<IOException>(() => new PfbParser(crashInput));
+    }
+
+    [Fact]
+    public void TestEmpty()
+    {
+        Assert.Throws<IOException>(() => Type1Font.CreateWithPFB([]));
     }
 }

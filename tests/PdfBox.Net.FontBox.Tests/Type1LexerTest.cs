@@ -1,7 +1,7 @@
 using System.Text;
 using PdfBox.Net.FontBox.Type1;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class Type1LexerTest
 {
@@ -9,7 +9,7 @@ public class Type1LexerTest
     public void TestRealNumbers()
     {
         string s = "/FontMatrix [1e-3 0e-3 0e-3 -1E-03 0 0 1.23 -1.23 ] readonly def";
-        Type1Lexer lexer = new(Encoding.ASCII.GetBytes(s));
+        Type1Lexer lexer = new(System.Text.Encoding.ASCII.GetBytes(s));
         List<Token> tokens = ReadTokens(lexer);
         Assert.Equal(Token.LITERAL, tokens[0].GetKind());
         Assert.Equal("FontMatrix", tokens[0].GetText());
@@ -28,7 +28,7 @@ public class Type1LexerTest
     [Fact]
     public void TestEmptyName()
     {
-        Type1Lexer lexer = new(Encoding.ASCII.GetBytes("dup 127 / put"));
+        Type1Lexer lexer = new(System.Text.Encoding.ASCII.GetBytes("dup 127 / put"));
         DamagedFontException ex = Assert.Throws<DamagedFontException>(() => ReadTokens(lexer));
         Assert.Equal("Could not read token at position 9", ex.Message);
     }
@@ -37,7 +37,7 @@ public class Type1LexerTest
     public void TestProcAndNameAndDictAndString()
     {
         string s = "/ND {noaccess def} executeonly def \n 8#173 +2#110 \n%comment \n<< (string \\n \\r \\t \\b \\f \\\\ \\( \\) \\123) >>";
-        Type1Lexer lexer = new(Encoding.ASCII.GetBytes(s));
+        Type1Lexer lexer = new(System.Text.Encoding.ASCII.GetBytes(s));
         List<Token> tokens = ReadTokens(lexer);
         Assert.Equal("ND", tokens[0].GetText());
         Assert.Equal(Token.START_PROC, tokens[1].GetKind());
@@ -51,7 +51,7 @@ public class Type1LexerTest
     [Fact]
     public void TestData()
     {
-        Type1Lexer lexer = new(Encoding.ASCII.GetBytes("3 RD 123 ND"));
+        Type1Lexer lexer = new(System.Text.Encoding.ASCII.GetBytes("3 RD 123 ND"));
         List<Token> tokens = ReadTokens(lexer);
         Assert.Equal(3, tokens[0].IntValue());
         Assert.Equal(Token.CHARSTRING, tokens[1].GetKind());
@@ -61,7 +61,7 @@ public class Type1LexerTest
     [Fact]
     public void TestOversizedData()
     {
-        Type1Lexer lexer = new(Encoding.ASCII.GetBytes("999 RD"));
+        Type1Lexer lexer = new(System.Text.Encoding.ASCII.GetBytes("999 RD"));
         IOException ex = Assert.Throws<IOException>(() => ReadTokens(lexer));
         Assert.Equal("String length 999 is larger than input", ex.Message);
     }
