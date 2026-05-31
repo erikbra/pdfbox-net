@@ -22,7 +22,7 @@ public class PDAppearanceStream : PDFormXObject
 
     public new PDStream GetStream() => GetContentStream();
 
-    public new void SetMatrix(Matrix matrix)
+    public override void SetMatrix(Matrix matrix)
     {
         COSArray array =
         [
