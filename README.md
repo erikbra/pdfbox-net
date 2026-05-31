@@ -23,7 +23,7 @@ See [`reports/pdfbox-main-gap-analysis.md`](reports/pdfbox-main-gap-analysis.md)
 
 ## Projects
 
-The solution (`PdfBoxNet.slnx`) contains four library projects and two test projects:
+The solution (`PdfBoxNet.slnx`) contains four library projects, two test projects, and one benchmark project:
 
 | Project | Description |
 |---|---|
@@ -33,7 +33,7 @@ The solution (`PdfBoxNet.slnx`) contains four library projects and two test proj
 | `PdfBox.Net` | Core PDF library — COS, filters, parser, writer, pdmodel, text, rendering, tools (ported from `pdfbox` module) |
 | `PdfBox.Net.Tests` | xUnit v3 tests for all non-XmpBox modules |
 | `PdfBox.Net.XmpBox.Tests` | xUnit v3 tests for `PdfBox.Net.XmpBox` |
-| `PdfBox.Net.Benchmarks` | BenchmarkDotNet benchmarks (ported from `benchmark` module) |
+| `PdfBox.Net.Benchmark` | BenchmarkDotNet benchmarks (ported from `benchmark` module, located under `src/PdfBox.Net.Benchmark/`) |
 
 ## Requirements
 
@@ -52,7 +52,7 @@ CI runs on every push and pull request via `.github/workflows/ci.yml`.
 
 ## Running benchmarks
 
-The `PdfBox.Net.Benchmarks` project uses [BenchmarkDotNet](https://benchmarkdotnet.org/) and mirrors the Java [JMH](https://github.com/openjdk/jmh) benchmarks from the upstream `benchmark` module.
+The `PdfBox.Net.Benchmark` project uses [BenchmarkDotNet](https://benchmarkdotnet.org/) and mirrors the Java [JMH](https://github.com/openjdk/jmh) benchmarks from the upstream `benchmark` module.
 
 Benchmarks operate on large real-world PDF files that must be placed under `target/pdfs/` relative to the working directory before running:
 
@@ -67,13 +67,13 @@ Benchmarks operate on large real-world PDF files that must be placed under `targ
 To run all benchmarks in Release mode:
 
 ```sh
-dotnet run --project benchmarks/PdfBox.Net.Benchmarks --configuration Release
+dotnet run --project src/PdfBox.Net.Benchmark --configuration Release
 ```
 
 To run a specific benchmark class:
 
 ```sh
-dotnet run --project benchmarks/PdfBox.Net.Benchmarks --configuration Release -- --filter "*LoadAndSave*"
+dotnet run --project src/PdfBox.Net.Benchmark --configuration Release -- --filter "*LoadAndSave*"
 ```
 
 ## Provenance and traceability

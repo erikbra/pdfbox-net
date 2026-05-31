@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PdfBox.Net\PdfBox.Net.csproj" />
+    <ProjectReference Include="..\..\src\PdfBox.Net.Benchmark\PdfBox.Net.Benchmark.csproj" />
   </ItemGroup>
 
   <ItemGroup>

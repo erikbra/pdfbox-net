@@ -11,10 +11,11 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\PdfBox.Net\PdfBox.Net.csproj" />
+    <ProjectReference Include="..\PdfBox.Net\PdfBox.Net.csproj" />
   </ItemGroup>
 
 </Project>
