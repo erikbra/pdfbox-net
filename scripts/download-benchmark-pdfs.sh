@@ -22,6 +22,10 @@ mkdir -p "$OUTPUT_DIR"
 # Helpers
 # ---------------------------------------------------------------------------
 
+sha512_of() {
+    sha512sum "$1" | awk '{print $1}'
+}
+
 download_with_verify() {
     local url="$1"
     local dest="$2"
@@ -31,8 +35,7 @@ download_with_verify() {
 
     if [[ -f "$dest" ]]; then
         echo "Already present: $filename — verifying checksum..."
-        actual=$(sha512sum "$dest" | awk '{print $1}')
-        if [[ "$actual" == "$expected_sha512" ]]; then
+        if [[ "$(sha512_of "$dest")" == "$expected_sha512" ]]; then
             echo "  Checksum OK, skipping download."
             return 0
         else
@@ -44,7 +47,8 @@ download_with_verify() {
 
     curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$url"
 
-    actual=$(sha512sum "$dest" | awk '{print $1}')
+    local actual
+    actual="$(sha512_of "$dest")"
     if [[ "$actual" != "$expected_sha512" ]]; then
         echo "ERROR: SHA-512 mismatch for $filename" >&2
         echo "  Expected: $expected_sha512" >&2

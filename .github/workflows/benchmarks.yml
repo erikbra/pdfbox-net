@@ -38,18 +38,26 @@ jobs:
 
       - name: Run benchmarks
         run: |
-          FILTER="${{ github.event.inputs.filter }}"
-          if [[ -z "$FILTER" ]]; then
+          CUSTOM_FILTER="${{ github.event.inputs.filter }}"
+          if [[ -n "$CUSTOM_FILTER" ]]; then
+            # Use the caller-supplied pattern as a single filter.
+            FILTER_ARGS=(--filter "$CUSTOM_FILTER")
+          else
             # Default: run everything except the Ghent benchmarks, which require
             # a manual license-gated download not available in CI.
-            FILTER="*LoadAndSave* *TextExtraction* *RenderAltona* *RenderPDFSpec*"
+            FILTER_ARGS=(
+              --filter "*LoadAndSave*"
+              --filter "*TextExtraction*"
+              --filter "*RenderAltona*"
+              --filter "*RenderPDFSpec*"
+            )
           fi
           dotnet run \
             --project src/PdfBox.Net.Benchmark/PdfBox.Net.Benchmark.csproj \
             --configuration Release \
             --no-build \
             -- \
-            --filter $FILTER \
+            "${FILTER_ARGS[@]}" \
             --exporters json \
             --artifacts target/benchmark-results
 
