@@ -19,7 +19,7 @@ REPORTS_DIR = Path("reports")
 SYNC_STATE_PATH = REPORTS_DIR / "upstream-sync-state.json"
 TRACEABILITY_PATH = REPORTS_DIR / "traceability-parity-report.json"
 COVERAGE_STATE_PATH = REPORTS_DIR / "upstream-port-coverage-state.json"
-ALL_COVERAGE_PATH = REPORTS_DIR / ".all-upstream-coverage.json"
+ALL_COVERAGE_PATH = REPORTS_DIR / "all-upstream-coverage.json"
 GAP_ANALYSIS_PATH = REPORTS_DIR / "pdfbox-main-gap-analysis.md"
 SCAN_CHANGED_PATH = Path(".scan-state-changed")
 

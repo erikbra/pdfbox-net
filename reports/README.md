@@ -23,7 +23,7 @@ Key fields: `latest_upstream_commit_seen`, `tracked_commit_updated_utc`, `last_p
 
 ---
 
-### `.all-upstream-coverage.json`
+### `all-upstream-coverage.json`
 **Purpose:** Detailed aggregate coverage breakdown, split by upstream module (e.g. `pdfbox`, `fontbox`, `xmpbox`) and package family (e.g. `fontbox:ttf`, `pdfbox:pdmodel`).  Used when diagnosing *which* area of the codebase still has gaps.
 
 Key fields: per-module and per-family `java_files` / `mapped` / `missing` / `pct` tables, plus traceability-status counts (`in-sync`, `partially-in-sync`, `partial`).
@@ -33,11 +33,11 @@ Key fields: per-module and per-family `java_files` / `mapped` / `missing` / `pct
 ---
 
 ### `pdfbox-main-gap-analysis.md`
-**Purpose:** Human-readable summary of the current coverage state — the narrative counterpart to `upstream-port-coverage-state.json` and `.all-upstream-coverage.json`.  Intended for quick review in GitHub and PR descriptions.
+**Purpose:** Human-readable summary of the current coverage state — the narrative counterpart to `upstream-port-coverage-state.json` and `all-upstream-coverage.json`.  Intended for quick review in GitHub and PR descriptions.
 
 Content: per-module table (Java files / mapped / missing / %), traceability-status summary, and the 100 % parity gate checklist.
 
-> **Overlap note:** The numbers here are a formatted subset of `.all-upstream-coverage.json` and `upstream-port-coverage-state.json`.  The file is redundant in a strict data sense but is kept because Markdown renders well in GitHub and provides at-a-glance status without parsing JSON.
+> **Overlap note:** The numbers here are a formatted subset of `all-upstream-coverage.json` and `upstream-port-coverage-state.json`.  The file is redundant in a strict data sense but is kept because Markdown renders well in GitHub and provides at-a-glance status without parsing JSON.
 
 ---
 
@@ -78,10 +78,10 @@ This file is **append-only** during active work: each implementation slice adds 
 
 | File | Unique content | Overlaps with |
 |---|---|---|
-| `upstream-port-coverage-state.json` | Gate evaluation booleans, `missing_source_paths_sha256` | `upstream-sync-state.json` (totals), `.all-upstream-coverage.json` (totals) |
+| `upstream-port-coverage-state.json` | Gate evaluation booleans, `missing_source_paths_sha256` | `upstream-sync-state.json` (totals), `all-upstream-coverage.json` (totals) |
 | `upstream-sync-state.json` | Drift-detection fields (`latest_upstream_commit_seen`, `tracked_commit_updated_utc`) | `upstream-port-coverage-state.json` (totals) |
-| `.all-upstream-coverage.json` | Per-module / per-family breakdown | `upstream-port-coverage-state.json` (top-level totals), `pdfbox-main-gap-analysis.md` (rendered subset) |
-| `pdfbox-main-gap-analysis.md` | Human-readable Markdown rendering | `.all-upstream-coverage.json`, `upstream-port-coverage-state.json` |
+| `all-upstream-coverage.json` | Per-module / per-family breakdown | `upstream-port-coverage-state.json` (top-level totals), `pdfbox-main-gap-analysis.md` (rendered subset) |
+| `pdfbox-main-gap-analysis.md` | Human-readable Markdown rendering | `all-upstream-coverage.json`, `upstream-port-coverage-state.json` |
 | `traceability-parity-report.json` | Per-file sync status and notes | `conversion-records.json` (key fields) |
 | `conversion-records.json` | Per-file conversion notes | `traceability-parity-report.json` (key fields) |
 | `normalization-records.json` | Normalisation change categories, semantic risk | — |

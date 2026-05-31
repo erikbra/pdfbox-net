@@ -121,6 +121,6 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/upstream-sync-state.json reports/upstream-port-coverage-state.json reports/.all-upstream-coverage.json reports/pdfbox-main-gap-analysis.md
+          git add reports/upstream-sync-state.json reports/upstream-port-coverage-state.json reports/all-upstream-coverage.json reports/pdfbox-main-gap-analysis.md
           git commit -m "chore: refresh upstream port coverage state"
           git push
