@@ -498,4 +498,23 @@ public abstract class PDAnnotation : COSObjectable
         PDAppearanceHandler? handler = PDAppearanceHandlerFactory.Create(this, document);
         handler?.GenerateAppearanceStreams();
     }
+
+    /// <summary>
+    /// Sets the corresponding page for this annotation. Storing this is recommended but not required;
+    /// not doing it can cause trouble when PDFs get signed.
+    /// </summary>
+    /// <param name="page">The corresponding page.</param>
+    public void SetPage(PDPage? page)
+    {
+        _dictionary.SetItem(COSName.P, page);
+    }
+
+    /// <summary>
+    /// Returns the corresponding page of this annotation, or null if not available.
+    /// </summary>
+    public PDPage? GetPage()
+    {
+        COSDictionary? page = _dictionary.GetCOSDictionary(COSName.P);
+        return page != null ? new PDPage(page) : null;
+    }
 }

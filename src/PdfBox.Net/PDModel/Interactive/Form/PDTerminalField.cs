@@ -25,7 +25,7 @@ public abstract class PDTerminalField : PDField
     {
     }
 
-    public List<PDAnnotationWidget> GetWidgets()
+    public override List<PDAnnotationWidget> GetWidgets()
     {
         List<PDAnnotationWidget> widgets = [];
         COSArray? kids = dictionary.GetCOSArray(COSName.KIDS);
