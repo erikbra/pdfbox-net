@@ -104,26 +104,26 @@ public abstract class PDAnnotationMarkup : PDAnnotation
         GetCOSDictionary().SetItem(BorderName, border);
     }
 
-    public PDBorderStyleDictionary? GetBorderStyle()
+    public virtual PDBorderStyleDictionary? GetBorderStyle()
     {
         return GetCOSDictionary().GetCOSDictionary(COSName.BS) is COSDictionary dictionary
             ? new PDBorderStyleDictionary(dictionary)
             : null;
     }
 
-    public void SetBorderStyle(PDBorderStyleDictionary? borderStyle)
+    public virtual void SetBorderStyle(PDBorderStyleDictionary? borderStyle)
     {
         GetCOSDictionary().SetItem(COSName.BS, borderStyle);
     }
 
-    public PDColor? GetInteriorColor()
+    public virtual PDColor? GetInteriorColor()
     {
         return GetCOSDictionary().GetCOSArray(InteriorColorName) is COSArray array
             ? CreateColor(array)
             : null;
     }
 
-    public void SetInteriorColor(PDColor? color)
+    public virtual void SetInteriorColor(PDColor? color)
     {
         GetCOSDictionary().SetItem(InteriorColorName, color?.ToCOSArray());
     }

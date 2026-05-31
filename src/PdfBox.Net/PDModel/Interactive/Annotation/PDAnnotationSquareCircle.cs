@@ -25,13 +25,13 @@ public abstract class PDAnnotationSquareCircle : PDAnnotationMarkup
     {
     }
 
-    public PDBorderStyleDictionary? GetBorderStyle()
+    public override PDBorderStyleDictionary? GetBorderStyle()
     {
         COSDictionary? dictionary = GetCOSDictionary().GetCOSDictionary(COSName.GetPDFName("BS"));
         return dictionary != null ? new PDBorderStyleDictionary(dictionary) : null;
     }
 
-    public void SetBorderStyle(PDBorderStyleDictionary? borderStyle)
+    public override void SetBorderStyle(PDBorderStyleDictionary? borderStyle)
     {
         GetCOSDictionary().SetItem(COSName.GetPDFName("BS"), borderStyle);
     }
@@ -47,7 +47,7 @@ public abstract class PDAnnotationSquareCircle : PDAnnotationMarkup
         GetCOSDictionary().SetItem(COSName.GetPDFName("BE"), borderEffect);
     }
 
-    public PDColor? GetInteriorColor()
+    public override PDColor? GetInteriorColor()
     {
         COSArray? c = GetCOSDictionary().GetCOSArray(COSName.GetPDFName("IC"));
         if (c == null)
@@ -64,7 +64,7 @@ public abstract class PDAnnotationSquareCircle : PDAnnotationMarkup
         };
     }
 
-    public void SetInteriorColor(PDColor? color)
+    public override void SetInteriorColor(PDColor? color)
     {
         GetCOSDictionary().SetItem(COSName.GetPDFName("IC"), color?.ToCOSArray());
     }

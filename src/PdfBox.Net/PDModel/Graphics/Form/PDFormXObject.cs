@@ -110,7 +110,7 @@ public class PDFormXObject : PDXObject, PDContentStream
         return new Matrix(values[0], values[1], values[2], values[3], values[4], values[5]);
     }
 
-    public void SetMatrix(Matrix matrix)
+    public virtual void SetMatrix(Matrix matrix)
     {
         ArgumentNullException.ThrowIfNull(matrix);
         COSArray m = new();

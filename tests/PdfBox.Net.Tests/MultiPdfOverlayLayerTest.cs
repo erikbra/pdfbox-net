@@ -78,10 +78,10 @@ public class MultiPdfOverlayLayerTest
 
         IList<PDDocument> parts = splitter.Split(source);
 
-        Assert.Equal(1, parts.Count);
-        Assert.Equal(3, parts[0].GetNumberOfPages());
+        PDDocument part = Assert.Single(parts);
+        Assert.Equal(3, part.GetNumberOfPages());
 
-        parts[0].Dispose();
+        part.Dispose();
     }
 
     // -------------------------------------------------------------------------
