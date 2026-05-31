@@ -141,6 +141,35 @@ public class FilterTest
         Assert.IsType<CryptFilter>(factory.GetFilter(COSName.CRYPT));
     }
 
+    [Fact]
+    public void PlaceholderFilters_ThrowNotSupported()
+    {
+        COSDictionary parameters = new();
+        byte[] payload = [1, 2, 3];
+
+        Assert.Throws<NotSupportedException>(() => Decode(new CCITTFaxDecodeFilter(), payload, parameters));
+        Assert.Throws<NotSupportedException>(() => Decode(new DCTFilter(), payload, parameters));
+        Assert.Throws<NotSupportedException>(() => Decode(new JPXFilter(), payload, parameters));
+        Assert.Throws<NotSupportedException>(() => Decode(new JBIG2Filter(), payload, parameters));
+    }
+
+    [Fact]
+    public void CryptFilter_IdentityRoundTrips_AndUnknownFilterThrows()
+    {
+        CryptFilter filter = new();
+        byte[] source = Encoding.ASCII.GetBytes("crypt identity fixture");
+
+        COSDictionary identity = new();
+        identity.SetItem(COSName.NAME, COSName.IDENTITY);
+        byte[] encoded = Encode(filter, source);
+        byte[] decoded = Decode(filter, encoded, identity);
+        Assert.Equal(source, decoded);
+
+        COSDictionary unsupported = new();
+        unsupported.SetItem(COSName.NAME, COSName.GetPDFName("AESV2"));
+        Assert.Throws<NotSupportedException>(() => Decode(filter, source, unsupported));
+    }
+
     private static byte[] Encode(FilterBase filter, byte[] source)
     {
         using MemoryStream input = new(source);

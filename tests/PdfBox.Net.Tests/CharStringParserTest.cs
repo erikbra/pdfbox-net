@@ -257,6 +257,30 @@ public class CharStringParserTest
         Assert.Equal("MyFont", cs.FontName);
     }
 
+    [Fact]
+    public void Type1CharString_ExposesMetadata_AndDefaults()
+    {
+        byte[] bytes = [14];
+        Type1CharString cs = new("MyType1Font", "A", bytes);
+        Assert.Equal("MyType1Font", cs.FontName);
+        Assert.Equal("A", cs.GlyphName);
+        Assert.Equal(bytes, cs.Bytes);
+        Assert.Equal(0, cs.GetWidth());
+        Assert.NotNull(cs.GetPath());
+    }
+
+    [Fact]
+    public void Type2CharString_ExposesMetadata_AndDefaults()
+    {
+        byte[] bytes = [14];
+        Type2CharString cs = new("MyType2Font", "B", bytes);
+        Assert.Equal("MyType2Font", cs.FontName);
+        Assert.Equal("B", cs.GlyphName);
+        Assert.Equal(bytes, cs.Bytes);
+        Assert.Equal(0, cs.GetWidth());
+        Assert.NotNull(cs.GetPath());
+    }
+
     // ── EmbeddedCharset ───────────────────────────────────────────────────
 
     [Fact]
