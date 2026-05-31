@@ -3934,9 +3934,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T07:16:21Z",
-    "note": "Open/load/save lifecycle now integrates parser-produced COSDocument for trailer/xref/object graph loading, removes legacy raw-trailer fallback, and ties PDDocument disposal to COSDocument lifetime; broader feature parity remains deferred."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-31T10:25:06Z",
+    "note": "PDDocument now exposes the underlying COSDocument, aligns header-versus-catalog version semantics, supports replacing the /Info dictionary, and preserves upstream file-load/dispose lifecycle behavior covered by targeted regression tests."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -3944,9 +3944,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Expanded with AcroForm, StructTreeRoot, and MarkInfo accessors for documentinterchange logical-structure integration; other high-fanout catalog features remain deferred."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-31T10:25:06Z",
+    "note": "PDDocumentCatalog now matches the upstream document-lifecycle slice, including page layout/mode defaults, metadata and /Dests accessors, and the optional-content version bump behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
@@ -3954,9 +3954,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "String-based metadata, date (CreationDate/ModDate) and trapped fields all ported; full upstream Java Calendar->DateTimeOffset parity tested."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-31T10:25:06Z",
+    "note": "PDDocumentInformation now covers the upstream metadata slice, including string/date/trapped accessors, metadata-key enumeration, low-level property access, custom metadata, and indirect string resolution."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
@@ -7784,9 +7784,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T17:10:51Z",
-    "note": "Adapted stream/file save-load test intent to deterministic fixture-based open->inspect->save checks with page-count and version assertions in this slice."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-31T10:25:06Z",
+    "note": "PDDocument pipeline coverage now includes save/load, header-versus-catalog version semantics, replacing /Info, and file lock release checks after failed and successful loads."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocumentInformation.java",
@@ -7794,9 +7794,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted-minimal",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Adapted xUnit tests covering string fields, date roundtrip, trapped valid/invalid values, and custom metadata."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-31T10:25:06Z",
+    "note": "xUnit coverage now matches the upstream PDDocumentInformation slice with string/date/trapped/custom metadata checks plus property-string and indirect-title resolution coverage."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPage.java",

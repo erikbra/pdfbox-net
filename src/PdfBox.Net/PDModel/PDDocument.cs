@@ -45,7 +45,6 @@ public sealed class PDDocument : IDisposable
 
     private readonly COSDocument _document;
     private readonly COSDictionary _trailer;
-    private readonly float _headerVersion;
     private long _nextObjectNumber;
     private bool _disposed;
     private PDDocumentCatalog? _documentCatalog;
@@ -61,7 +60,6 @@ public sealed class PDDocument : IDisposable
     {
         _document = document ?? throw new ArgumentNullException(nameof(document));
         _trailer = _document.GetTrailer() ?? throw new IOException("Document trailer dictionary is missing.");
-        _headerVersion = _document.GetVersion();
         _nextObjectNumber = GetNextObjectNumber(_trailer);
         EnsureIndirectRootObjects();
     }
@@ -119,10 +117,10 @@ public sealed class PDDocument : IDisposable
     /// Returns the underlying trailer dictionary of this document.
     /// </summary>
     /// <returns>The trailer dictionary.</returns>
-    public COSDictionary GetDocument()
+    public COSDocument GetDocument()
     {
         EnsureNotDisposed();
-        return _trailer;
+        return _document;
     }
 
     /// <summary>
@@ -160,6 +158,18 @@ public sealed class PDDocument : IDisposable
     }
 
     /// <summary>
+    /// Sets the document information dictionary.
+    /// </summary>
+    /// <param name="documentInformation">The document information wrapper.</param>
+    public void SetDocumentInformation(PDDocumentInformation documentInformation)
+    {
+        ArgumentNullException.ThrowIfNull(documentInformation);
+        EnsureNotDisposed();
+        _documentInformation = documentInformation;
+        _trailer.SetItem(COSName.GetPDFName("Info"), documentInformation.GetCOSObject());
+    }
+
+    /// <summary>
     /// Save the document to an output stream.
     /// </summary>
     /// <param name="output">The output stream to write to.</param>
@@ -171,7 +181,7 @@ public sealed class PDDocument : IDisposable
         _trailer.SetItem(COSName.GetPDFName("Info"), GetDocumentInformation().GetCOSObject());
         PromoteSharedContainersToIndirect();
 
-        byte[] headerBytes = Encoding.ASCII.GetBytes($"%PDF-{_headerVersion.ToString("0.0", CultureInfo.InvariantCulture)}\n");
+        byte[] headerBytes = Encoding.ASCII.GetBytes($"%PDF-{_document.GetVersion().ToString("0.0", CultureInfo.InvariantCulture)}\n");
         output.Write(headerBytes);
 
         // Collect all indirect (non-stream) objects referenced from the trailer.
@@ -484,8 +494,14 @@ public sealed class PDDocument : IDisposable
     public float GetVersion()
     {
         EnsureNotDisposed();
-        float catalogVersion = ParseVersion(GetDocumentCatalog().GetVersion(), _headerVersion);
-        return Math.Max(_headerVersion, catalogVersion);
+        float headerVersion = _document.GetVersion();
+        if (headerVersion < 1.4f)
+        {
+            return headerVersion;
+        }
+
+        float catalogVersion = ParseVersion(GetDocumentCatalog().GetVersion(), -1f);
+        return Math.Max(headerVersion, catalogVersion);
     }
 
     /// <summary>
@@ -495,13 +511,25 @@ public sealed class PDDocument : IDisposable
     public void SetVersion(float version)
     {
         EnsureNotDisposed();
-        if (version <= _headerVersion)
+        float currentVersion = GetVersion();
+        if (Math.Abs(version - currentVersion) < 0.0001f)
         {
-            GetDocumentCatalog().SetVersion(_headerVersion.ToString("0.0", CultureInfo.InvariantCulture));
             return;
         }
 
-        GetDocumentCatalog().SetVersion(version.ToString("0.0", CultureInfo.InvariantCulture));
+        if (version < currentVersion)
+        {
+            return;
+        }
+
+        if (_document.GetVersion() >= 1.4f)
+        {
+            GetDocumentCatalog().SetVersion(version.ToString("0.0", CultureInfo.InvariantCulture));
+        }
+        else
+        {
+            _document.SetVersion(version);
+        }
     }
 
     /// <summary>

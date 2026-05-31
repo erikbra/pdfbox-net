@@ -28,7 +28,9 @@
 using System.Text;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Graphics.OptionalContent;
 using PdfBox.Net.PDModel.Interactive.PageNavigation;
 
 namespace PdfBox.Net.Tests;
@@ -41,8 +43,7 @@ public class TestPDDocumentCatalog
         using PDDocument document = new();
         PDDocumentCatalog catalog = document.GetDocumentCatalog();
 
-        // Default: null (not set)
-        Assert.Null(catalog.GetPageLayout());
+        Assert.Equal(PageLayout.SinglePage, catalog.GetPageLayout());
 
         catalog.SetPageLayout(PageLayout.SinglePage);
         Assert.Equal(PageLayout.SinglePage, catalog.GetPageLayout());
@@ -52,7 +53,7 @@ public class TestPDDocumentCatalog
 
         // Clearing
         catalog.SetPageLayout(null);
-        Assert.Null(catalog.GetPageLayout());
+        Assert.Equal(PageLayout.SinglePage, catalog.GetPageLayout());
     }
 
     [Fact]
@@ -61,7 +62,7 @@ public class TestPDDocumentCatalog
         using PDDocument document = new();
         PDDocumentCatalog catalog = document.GetDocumentCatalog();
 
-        Assert.Null(catalog.GetPageMode());
+        Assert.Equal(PageMode.UseNone, catalog.GetPageMode());
 
         catalog.SetPageMode(PageMode.FullScreen);
         Assert.Equal(PageMode.FullScreen, catalog.GetPageMode());
@@ -70,7 +71,7 @@ public class TestPDDocumentCatalog
         Assert.Equal(PageMode.UseOutlines, catalog.GetPageMode());
 
         catalog.SetPageMode(null);
-        Assert.Null(catalog.GetPageMode());
+        Assert.Equal(PageMode.UseNone, catalog.GetPageMode());
     }
 
     [Fact]
@@ -86,6 +87,24 @@ public class TestPDDocumentCatalog
 
         catalog.SetLanguage(null);
         Assert.Null(catalog.GetLanguage());
+    }
+
+    [Fact]
+    public void InvalidPageLayoutFallsBackToSinglePage()
+    {
+        using PDDocument document = new();
+        PDDocumentCatalog catalog = document.GetDocumentCatalog();
+        ((COSDictionary)catalog.GetCOSObject()).SetName(COSName.PAGE_LAYOUT, "NotALayout");
+        Assert.Equal(PageLayout.SinglePage, catalog.GetPageLayout());
+    }
+
+    [Fact]
+    public void InvalidPageModeFallsBackToUseNone()
+    {
+        using PDDocument document = new();
+        PDDocumentCatalog catalog = document.GetDocumentCatalog();
+        ((COSDictionary)catalog.GetCOSObject()).SetName(COSName.PAGE_MODE, "NotAMode");
+        Assert.Equal(PageMode.UseNone, catalog.GetPageMode());
     }
 
     [Fact]
@@ -158,5 +177,46 @@ public class TestPDDocumentCatalog
 
         catalog.SetOutputIntents(outputIntents);
         Assert.Single(catalog.GetOutputIntents());
+    }
+
+    [Fact]
+    public void MetadataRoundtrip()
+    {
+        using PDDocument document = new();
+        PDDocumentCatalog catalog = document.GetDocumentCatalog();
+        Assert.Null(catalog.GetMetadata());
+
+        PDMetadata metadata = new(document);
+        byte[] payload = Encoding.UTF8.GetBytes("<x:xmpmeta>catalog</x:xmpmeta>");
+        metadata.ImportXMPMetadata(payload);
+
+        catalog.SetMetadata(metadata);
+
+        using Stream exported = catalog.GetMetadata()!.ExportXMPMetadata();
+        using MemoryStream copy = new();
+        exported.CopyTo(copy);
+        Assert.Equal(payload, copy.ToArray());
+    }
+
+    [Fact]
+    public void GetDestsWrapsCatalogDestsDictionary()
+    {
+        using PDDocument document = new();
+        PDDocumentCatalog catalog = document.GetDocumentCatalog();
+        COSDictionary dests = new();
+        ((COSDictionary)catalog.GetCOSObject()).SetItem(COSName.DESTS, dests);
+
+        Assert.NotNull(catalog.GetDests());
+        Assert.Same(dests, catalog.GetDests()!.GetCOSObject());
+    }
+
+    [Fact]
+    public void SettingOptionalContentPropertiesBumpsDocumentVersion()
+    {
+        using PDDocument document = new();
+        document.GetDocumentCatalog().SetOCProperties(new PDOptionalContentProperties());
+
+        Assert.Equal(1.5f, document.GetVersion());
+        Assert.Equal("1.5", document.GetDocumentCatalog().GetVersion());
     }
 }

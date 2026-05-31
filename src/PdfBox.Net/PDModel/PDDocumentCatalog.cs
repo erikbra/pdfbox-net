@@ -63,7 +63,9 @@ public sealed class PDDocumentCatalog : COSObjectable
         _document = doc ?? throw new ArgumentNullException(nameof(doc));
         _root = new COSDictionary();
         _root.SetItem(COSName.TYPE, COSName.CATALOG);
-        _document.GetDocument().SetItem(COSName.ROOT, _root);
+        COSDictionary trailer = _document.GetDocument().GetTrailer()
+            ?? throw new InvalidOperationException("Document trailer dictionary is missing.");
+        trailer.SetItem(COSName.ROOT, _root);
     }
 
     /// <summary>
@@ -141,9 +143,9 @@ public sealed class PDDocumentCatalog : COSObjectable
     public PageLayout? GetPageLayout()
     {
         string? value = _root.GetNameAsString(COSName.PAGE_LAYOUT);
-        if (value is null)
+        if (string.IsNullOrEmpty(value))
         {
-            return null;
+            return PageLayout.SinglePage;
         }
 
         try
@@ -152,7 +154,7 @@ public sealed class PDDocumentCatalog : COSObjectable
         }
         catch (ArgumentException)
         {
-            return null;
+            return PageLayout.SinglePage;
         }
     }
 
@@ -174,7 +176,7 @@ public sealed class PDDocumentCatalog : COSObjectable
         string? value = _root.GetNameAsString(COSName.PAGE_MODE);
         if (value is null)
         {
-            return null;
+            return PageMode.UseNone;
         }
 
         try
@@ -183,7 +185,7 @@ public sealed class PDDocumentCatalog : COSObjectable
         }
         catch (ArgumentException)
         {
-            return null;
+            return PageMode.UseNone;
         }
     }
 
@@ -248,6 +250,23 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetThreads(IList<PDThread>? threads)
     {
         _root.SetItem(COSName.THREADS, COSArrayList<object>.ConverterToCOSArray(threads?.Cast<object>().ToList()));
+    }
+
+    /// <summary>
+    /// Gets the metadata stream, if present.
+    /// </summary>
+    public PDMetadata? GetMetadata()
+    {
+        COSStream? metadata = _root.GetCOSStream(COSName.METADATA);
+        return metadata is null ? null : new PDMetadata(metadata);
+    }
+
+    /// <summary>
+    /// Sets the metadata stream.
+    /// </summary>
+    public void SetMetadata(PDMetadata? metadata)
+    {
+        _root.SetItem(COSName.METADATA, metadata);
     }
 
     /// <summary>
@@ -378,6 +397,15 @@ public sealed class PDDocumentCatalog : COSObjectable
     }
 
     /// <summary>
+    /// Gets the named destinations dictionary, if present.
+    /// </summary>
+    public PDDocumentNameDestinationDictionary? GetDests()
+    {
+        COSDictionary? dests = _root.GetCOSDictionary(COSName.DESTS);
+        return dests is null ? null : new PDDocumentNameDestinationDictionary(dests);
+    }
+
+    /// <summary>
     /// Sets the names dictionary.
     /// </summary>
     public void SetNames(PDDocumentNameDictionary? names)
@@ -466,6 +494,10 @@ public sealed class PDDocumentCatalog : COSObjectable
     public void SetOCProperties(PDOptionalContentProperties? ocProperties)
     {
         _root.SetItem(COSName.GetPDFName("OCProperties"), ocProperties);
+        if (ocProperties is not null && _document.GetVersion() < 1.5f)
+        {
+            _document.SetVersion(1.5f);
+        }
     }
 
     /// <summary>
@@ -512,10 +544,10 @@ public sealed class PDDocumentCatalog : COSObjectable
             }
         }
 
-        COSDictionary? destsDict = _root.GetCOSDictionary(COSName.DESTS);
-        if (destsDict is not null)
+        PDDocumentNameDestinationDictionary? dests = GetDests();
+        if (dests is not null)
         {
-            PDDestination? destination = new PDDocumentNameDestinationDictionary(destsDict).GetDestination(name);
+            PDDestination? destination = dests.GetDestination(name);
             return destination as PDPageDestination;
         }
 
