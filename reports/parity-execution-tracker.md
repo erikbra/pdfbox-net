@@ -306,3 +306,16 @@ Execute these in order and apply the mandatory closeout loop after each issue:
   - `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java`
   - `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java`
   - `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java`
+- Next: `issues/101` — PDDocument lifecycle + catalog/info semantic closeout.
+
+### Follow-up last-leg issues after issue #100
+
+1. `issues/101-pddocument-lifecycle-catalog-info-traceability-closeout.md`
+   - Close the remaining document-lifecycle, catalog, and document-information semantic parity debt (`PDDocument`, `PDDocumentCatalog`, `PDDocumentInformation`).
+   - Reconcile traceability notes and targeted PDModel behavior tests for that slice.
+2. `issues/102-pdpage-tree-rectangle-traceability-closeout.md`
+   - Close the remaining page traversal and geometry semantic parity debt (`PDPage`, `PDPageTree`, `PDRectangle`).
+   - Verify targeted page/tree/rectangle behavior stays aligned with upstream semantics.
+3. `issues/103-final-parity-lock-rerun-after-last-pdmodel-closeout.md`
+   - Rerun canonical reports and final parity lock gates after issues #101-#102 land.
+   - Record the final lock decision with updated counters and gate table.
