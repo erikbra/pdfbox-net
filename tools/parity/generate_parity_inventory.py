@@ -21,7 +21,6 @@ TRACEABILITY_PATH = REPORTS_DIR / "traceability-parity-report.json"
 COVERAGE_STATE_PATH = REPORTS_DIR / "upstream-port-coverage-state.json"
 ALL_COVERAGE_PATH = REPORTS_DIR / ".all-upstream-coverage.json"
 GAP_ANALYSIS_PATH = REPORTS_DIR / "pdfbox-main-gap-analysis.md"
-SCAN_CHANGED_PATH = Path(".scan-state-changed")
 
 
 @dataclass(frozen=True)
@@ -406,7 +405,10 @@ def main() -> None:
         or previous_coverage.get("mapped_java_files_total") != coverage_state["mapped_java_files_total"]
         or previous_coverage.get("canonical_mapping_method") != coverage_state["canonical_mapping_method"]
     )
-    SCAN_CHANGED_PATH.write_text("true" if changed else "false", encoding="utf-8")
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a", encoding="utf-8") as f:
+            f.write(f"changed={'true' if changed else 'false'}\n")
 
     print(f"Generated canonical parity inventory at {generated_at}")
     print(f"Mapped: {totals['mapped']} / {totals['total']} | Missing: {totals['missing']}")
