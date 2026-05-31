@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.PDModel;
+using PdfBox.Net.COS;
 
 namespace PdfBox.Net.Tests;
 
@@ -143,5 +144,27 @@ public class TestPDDocumentInformation
         ISet<string> keys = info.GetMetadataKeys();
         Assert.Contains("Title", keys);
         Assert.Contains("Author", keys);
+    }
+
+    [Fact]
+    public void PropertyStringValueReturnsStoredString()
+    {
+        PDDocumentInformation info = new();
+        info.SetCustomMetadataValue("Company", "Basis Technology Corp.");
+
+        Assert.Equal("Basis Technology Corp.", info.GetPropertyStringValue("Company"));
+    }
+
+    [Fact]
+    public void IndirectTitleEntryIsResolved()
+    {
+        COSDictionary dictionary = new();
+        COSString title = new("Title");
+        title.SetKey(new COSObjectKey(12, 0));
+        dictionary.SetItem(COSName.TITLE, new COSObject(title, title.GetKey()!));
+
+        PDDocumentInformation info = new(dictionary);
+
+        Assert.Equal("Title", info.GetTitle());
     }
 }

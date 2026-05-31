@@ -1433,22 +1433,22 @@
     "change_categories": [
       "High-level document orchestration reduced to chunk-3 lifecycle over COS parser/writer",
       "Ownership/disposal behavior adapted to .NET IDisposable model",
-      "Version and page operations added without introducing full xref/object-stream parsing"
+      "Underlying COSDocument exposure and header/catalog version semantics aligned with upstream"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Implements expanded load/inspect/save pipeline with page management and version behavior while staying in this chunk's parser/writer envelope."
+    "note": "Implements the PDDocument lifecycle parity slice over the existing parser/writer envelope, including COSDocument access, /Info replacement, and upstream version behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
     "target_path": "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Mechanical sync extension with targeted integration accessor addition"
+      "Mechanical sync extension with targeted catalog accessor and default-behavior additions"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Added MarkInfo get/set accessors to complete documentinterchange catalog integration path."
+    "note": "Completes the catalog slice with metadata and /Dests accessors, upstream page layout/page mode defaults, and the optional-content version bump."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
@@ -1456,11 +1456,11 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "Date-related metadata methods intentionally omitted in this minimal chunk due missing COS date helpers in current dependency slice"
+      "Java Calendar metadata semantics adapted to DateTimeOffset while preserving COS-backed string/date lookup behavior"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Ported string-based document information metadata accessors required for minimal open/inspect/save pipeline coverage."
+    "note": "PDDocumentInformation metadata accessors are fully aligned for this slice, including string/date/trapped/custom metadata, metadata keys, and indirect string resolution."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
@@ -4580,11 +4580,11 @@
     "normalization_applied": true,
     "change_categories": [
       "JUnit assertions/annotations converted to xUnit v3",
-      "Test scope adapted to deterministic fixture-based pipeline in current chunk"
+      "Test scope adapted to deterministic fixture-based pipeline coverage with lifecycle-specific assertions"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Ports save/load stream and save/load file testing intent to smoke tests validating open->inspect->save, page count, and version behavior."
+    "note": "Ports TestPDDocument intent to deterministic save/load, version, /Info replacement, and file lock release checks in the .NET pipeline."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",

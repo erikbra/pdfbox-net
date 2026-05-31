@@ -2867,7 +2867,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Updated PDDocument.Load(Stream) to consume parser-produced COSDocument directly (trailer/xref/object graph integration), removed legacy raw-trailer fallback, and tied PDDocument disposal to underlying COSDocument lifetime."
+    "conversion_notes": "Extended PDDocument lifecycle parity by exposing the underlying COSDocument, restoring upstream header/catalog version behavior, and allowing /Info replacement while keeping parser-produced COSDocument integration and disposal semantics."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -2875,7 +2875,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Expanded PDDocumentCatalog with AcroForm getters/setters and PDAcroForm integration."
+    "conversion_notes": "Expanded PDDocumentCatalog with metadata and /Dests accessors, upstream page layout/page mode defaults, and optional-content version bump behavior in addition to the earlier AcroForm integration."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
@@ -2883,7 +2883,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Expanded PDDocumentInformation with date (CreationDate/ModDate via PDF date string encoding) and trapped field methods. Calendar->DateTimeOffset adaptation documented."
+    "conversion_notes": "PDDocumentInformation remains mechanically aligned with upstream for string/date/trapped/custom metadata access, with Calendar adapted to DateTimeOffset and indirect string lookup preserved through COS dereferencing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDestinationDictionary.java",
@@ -6035,7 +6035,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Adapted save/load stream and save/load file testing intent from TestPDDocument into deterministic chunk-3 smoke coverage, adding version and page-count assertions for expanded PDDocument behavior."
+    "conversion_notes": "Adapted TestPDDocument into deterministic .NET coverage for save/load, header-versus-catalog version semantics, /Info replacement, and file lock release after failed and successful loads."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDDocumentInformation.java",
@@ -6043,7 +6043,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted-minimal",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Adapted PDDocumentInformation tests covering string fields, date roundtrip, trapped validation, custom metadata."
+    "conversion_notes": "Adapted PDDocumentInformation tests covering string/date/trapped/custom metadata plus low-level property access and indirect-title resolution."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPage.java",
