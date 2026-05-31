@@ -28,6 +28,7 @@
  */
 
 using System.Text;
+using PdfBox.Net.COS;
 using PdfBox.Net.IO;
 using PdfBox.Net;
 using PdfBox.Net.PDModel;
@@ -114,15 +115,98 @@ public class PDDocumentPipelineTest
     {
         using PDDocument document = new();
         Assert.Equal(1.4f, document.GetVersion());
+        Assert.Equal(1.4f, document.GetDocument().GetVersion());
         Assert.Equal("1.4", document.GetDocumentCatalog().GetVersion());
 
         document.SetVersion(1.3f);
         Assert.Equal(1.4f, document.GetVersion());
+        Assert.Equal(1.4f, document.GetDocument().GetVersion());
         Assert.Equal("1.4", document.GetDocumentCatalog().GetVersion());
 
         document.SetVersion(1.5f);
         Assert.Equal(1.5f, document.GetVersion());
+        Assert.Equal(1.4f, document.GetDocument().GetVersion());
         Assert.Equal("1.5", document.GetDocumentCatalog().GetVersion());
+    }
+
+    [Fact]
+    public void VersionsTrackUnderlyingCosDocumentWhenHeaderChanges()
+    {
+        using PDDocument document = new();
+        document.GetDocument().SetVersion(1.3f);
+        document.GetDocumentCatalog().SetVersion(null);
+
+        Assert.Equal(1.3f, document.GetVersion());
+        Assert.Null(document.GetDocumentCatalog().GetVersion());
+
+        document.SetVersion(1.5f);
+
+        Assert.Equal(1.5f, document.GetVersion());
+        Assert.Equal(1.5f, document.GetDocument().GetVersion());
+        Assert.Null(document.GetDocumentCatalog().GetVersion());
+    }
+
+    [Fact]
+    public void SetDocumentInformationReplacesInfoDictionary()
+    {
+        using PDDocument document = new();
+        PDDocumentInformation info = new();
+        info.SetTitle("replacement");
+
+        document.SetDocumentInformation(info);
+
+        Assert.Same(info, document.GetDocumentInformation());
+        COSDictionary trailer = document.GetDocument().GetTrailer()!;
+        Assert.Same(info.GetCOSObject(), trailer.GetCOSDictionary(COSName.GetPDFName("Info")));
+    }
+
+    [Fact]
+    public void FailedLoadDoesNotLeaveFileLocked()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"pdmodel-bad-{Guid.NewGuid():N}.pdf");
+        File.WriteAllText(path, "<script language='JavaScript'>");
+
+        try
+        {
+            Assert.Throws<IOException>(() => PDDocument.Load(path));
+            File.Delete(path);
+            Assert.False(File.Exists(path));
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
+
+    [Fact]
+    public void SuccessfulLoadDisposeDoesNotLeaveFileLocked()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"pdmodel-good-{Guid.NewGuid():N}.pdf");
+        try
+        {
+            using (PDDocument document = new())
+            {
+                document.AddPage(new PDPage());
+                document.Save(path);
+            }
+
+            using (PDDocument.Load(path))
+            {
+            }
+
+            File.Delete(path);
+            Assert.False(File.Exists(path));
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
     }
 
     private static string GetFixturePath()
