@@ -1,6 +1,6 @@
 # Skill I - Orchestrating sequential issue delivery
 
-Use this process to run issues in strict sequence (66, 67, 68, ...), one at a time.
+Use this process to run issues in strict sequence, one at a time.
 
 ## Orchestration process
 
