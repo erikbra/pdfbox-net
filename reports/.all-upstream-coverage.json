@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-05-30T20:58:25.328Z",
+  "generated_at_utc": "2026-05-31T08:01:28.582Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "upstream_head": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
@@ -280,9 +280,9 @@
   ],
   "traceability_status_counts": {
     "total_rows": 795,
-    "in-sync": 774,
-    "partially-in-sync": 10,
-    "partial": 11
+    "in-sync": 789,
+    "partially-in-sync": 6,
+    "partial": 0
   },
   "top_missing_modules": {}
 }

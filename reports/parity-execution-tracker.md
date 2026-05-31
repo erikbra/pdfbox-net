@@ -1,6 +1,6 @@
 # PDFBox .NET parity execution tracker
 
-Last updated (UTC): 2026-05-30
+Last updated (UTC): 2026-05-31
 
 ## 100% parity target (canonical)
 
@@ -279,3 +279,30 @@ Execute these in order and apply the mandatory closeout loop after each issue:
 
 - Final parity lock decision: **NOT REACHED** (21 non-`in-sync` traceability rows remain).
 - Next: `issues/98` — PDModel document-pipeline semantic closeout.
+
+### M6 execution snapshot (2026-05-31 UTC) — issue #100
+
+- Canonical reports regenerated at `2026-05-31T08:01:28.582Z` from upstream head `eeb5d611e0cea8beac3d7025a4dbccbef51d5caf`.
+- Captured counters:
+  - `mapped_java_files_total`: **1067**
+  - `upstream_java_files_total`: **1067**
+  - `missing_java_files_total`: **0**
+  - non-`in-sync` scoped traceability rows: **6** (`partial`: 0, `partially-in-sync`: 6)
+- Build/tests status for this branch: **green** (`dotnet build PdfBoxNet.slnx` — 0 errors; `dotnet test PdfBoxNet.slnx --no-build` — 1075 passed, 0 failed, 1 skipped).
+- Lock gate evaluation:
+
+  | Gate | Required | Actual | Met? |
+  |---|---|---|---|
+  | `mapped_java_files_total == upstream_java_files_total` | 1067 | 1067 | ✅ |
+  | `missing_java_files_total == 0` | 0 | 0 | ✅ |
+  | All scoped traceability rows `in-sync` | 0 non-`in-sync` | 6 | ❌ |
+  | Branch build/tests green | all pass | passing | ✅ |
+
+- Final parity lock decision: **NOT REACHED** (remaining blockers are 6 `partially-in-sync` rows).
+- Remaining blocker source paths:
+  - `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java`
+  - `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java`
+  - `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java`
+  - `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java`
+  - `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java`
+  - `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java`
