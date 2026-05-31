@@ -147,7 +147,7 @@ public class FontMetrics
         {
             if (value < 0 || value > 2)
             {
-                throw new ArgumentException($"Value must be between 0 and 2 (inclusive), was: {value}");
+                throw new ArgumentException($"Value must be 0, 1, or 2, was: {value}");
             }
 
             _metricSets = value;
@@ -156,6 +156,7 @@ public class FontMetrics
 
     /// <summary>
     /// Returns the average character width across all character metrics with a positive Wx.
+    /// This is a convenience wrapper for <see cref="GetAverageFontWidth()"/>.
     /// </summary>
     public float GetAverageCharacterWidth() => GetAverageFontWidth();
 
