@@ -25,8 +25,111 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+
 namespace PdfBox.Net.PDModel.Font;
 
-public abstract partial class PDCIDFont
+public abstract partial class PDCIDFont : PDFont
 {
+    private static readonly COSName WidthsKey = COSName.GetPDFName("Widths");
+    private static readonly COSName WKey = COSName.GetPDFName("W");
+    private static readonly COSName DWKey = COSName.GetPDFName("DW");
+    private static readonly COSName CidSystemInfoKey = COSName.GetPDFName("CIDSystemInfo");
+
+    private readonly Dictionary<int, float> _widthsByCid = [];
+    protected readonly float DefaultWidth;
+
+    protected PDCIDFont(COSDictionary fontDictionary)
+        : base(fontDictionary)
+    {
+        DefaultWidth = fontDictionary.GetFloat(DWKey, 1000f);
+        ReadCIDWidths(fontDictionary.GetCOSArray(WKey), _widthsByCid);
+    }
+
+    public virtual int CodeToCID(int code) => code;
+
+    public virtual PDCIDSystemInfo? GetCIDSystemInfo()
+    {
+        return FontDictionary.GetDictionaryObject(CidSystemInfoKey) is COSDictionary dict
+            ? new PDCIDSystemInfo(dict)
+            : null;
+    }
+
+    /// <summary>Returns true when the CID widths dictionary (W array) contains an explicit entry for the given CID.</summary>
+    protected bool HasExplicitCidWidth(int cid) => _widthsByCid.ContainsKey(cid);
+
+    public override float GetWidth(int code)
+    {
+        if (_widthsByCid.TryGetValue(code, out float width))
+        {
+            return width;
+        }
+
+        if (FontDictionary.GetCOSArray(WidthsKey) != null)
+        {
+            float baseWidth = base.GetWidth(code);
+            if (baseWidth > 0)
+            {
+                return baseWidth;
+            }
+        }
+
+        return DefaultWidth;
+    }
+
+    private static void ReadCIDWidths(COSArray? widths, Dictionary<int, float> widthsByCid)
+    {
+        if (widths == null)
+        {
+            return;
+        }
+
+        int index = 0;
+        while (index < widths.Size())
+        {
+            if (widths.GetObject(index) is not COSNumber startNumber)
+            {
+                index++;
+                continue;
+            }
+
+            int startCid = startNumber.IntValue();
+            index++;
+            if (index >= widths.Size())
+            {
+                break;
+            }
+
+            if (widths.GetObject(index) is COSArray rangeWidths)
+            {
+                for (int offset = 0; offset < rangeWidths.Size(); offset++)
+                {
+                    if (rangeWidths.GetObject(offset) is COSNumber widthNumber)
+                    {
+                        widthsByCid[startCid + offset] = widthNumber.FloatValue();
+                    }
+                }
+
+                index++;
+                continue;
+            }
+
+            if (widths.GetObject(index) is COSNumber endNumber &&
+                index + 1 < widths.Size() &&
+                widths.GetObject(index + 1) is COSNumber widthNumberForRange)
+            {
+                int endCid = endNumber.IntValue();
+                float width = widthNumberForRange.FloatValue();
+                for (int cid = startCid; cid <= endCid; cid++)
+                {
+                    widthsByCid[cid] = width;
+                }
+
+                index += 2;
+                continue;
+            }
+
+            index++;
+        }
+    }
 }

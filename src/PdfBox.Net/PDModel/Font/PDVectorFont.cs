@@ -25,8 +25,18 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.Util.Geometry;
+
 namespace PdfBox.Net.PDModel.Font;
 
-public abstract partial class PDVectorFont
+public abstract partial class PDVectorFont : PDFont
 {
+    protected PDVectorFont(COSDictionary fontDictionary)
+        : base(fontDictionary)
+    {
+    }
+
+    public abstract bool HasGlyph(int code);
+    public abstract GeneralPath GetNormalizedPath(int code);
 }

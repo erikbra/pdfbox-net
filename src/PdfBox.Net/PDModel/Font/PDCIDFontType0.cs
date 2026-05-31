@@ -25,8 +25,14 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+
 namespace PdfBox.Net.PDModel.Font;
 
-public partial class PDCIDFontType0
+public partial class PDCIDFontType0 : PDCIDFont
 {
+    public PDCIDFontType0(COSDictionary dictionary)
+        : base(dictionary)
+    {
+    }
 }

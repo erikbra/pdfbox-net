@@ -62,7 +62,6 @@ internal sealed class GlyphCache
                 }
                 else if (_font is PDSimpleFont simpleFont)
                 {
-                    _ = simpleFont.GetFontBoxFont().GetName();
                     // Logging removed: PDFBox warns here when a glyph is missing.
                     if (code == 10 && simpleFont.IsStandard14())
                     {

@@ -29,4 +29,5 @@ namespace PdfBox.Net.PDModel.Font;
 
 public partial interface PDFontLike
 {
+    string GetName();
 }

@@ -25,8 +25,65 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.FontBox;
+using PdfBox.Net.FontBox.TTF;
+using PdfBox.Net.PDModel.Font.Encoding;
+
 namespace PdfBox.Net.PDModel.Font;
 
-public partial class PDTrueTypeFont
+public partial class PDTrueTypeFont : PDSimpleFont
 {
+    private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
+    private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
+
+    private readonly TrueTypeFont _trueTypeFont;
+    private readonly CmapLookup? _unicodeCmap;
+
+    public PDTrueTypeFont(COSDictionary dictionary, TrueTypeFont trueTypeFont)
+        : base(dictionary)
+    {
+        _trueTypeFont = trueTypeFont ?? throw new ArgumentNullException(nameof(trueTypeFont));
+        _unicodeCmap = _trueTypeFont.GetUnicodeCmapLookup(false);
+    }
+
+    public PDTrueTypeFont(TrueTypeFont trueTypeFont)
+        : this(new COSDictionary(), trueTypeFont)
+    {
+    }
+
+    internal static PDTrueTypeFont? Load(COSDictionary dictionary)
+    {
+        try
+        {
+            if (dictionary.GetDictionaryObject(FontDescriptorKey) is COSDictionary descriptor &&
+                descriptor.GetDictionaryObject(FontFile2Key) is COSStream fontFile)
+            {
+                using Stream stream = fontFile.CreateInputStream();
+                TrueTypeFont ttf = new TTFParser(isEmbedded: true).ParseEmbedded(stream);
+                return new PDTrueTypeFont(dictionary, ttf);
+            }
+        }
+        catch
+        {
+            // Keep non-throwing font factory behavior.
+        }
+
+        return null;
+    }
+
+    public override FontBoxFont? GetFontBoxFont() => _trueTypeFont;
+    public override bool IsStandard14() => false;
+
+    public TrueTypeFont GetTrueTypeFont() => _trueTypeFont;
+
+    protected override string? ToUnicodeFallback(int code, GlyphList glyphList)
+    {
+        if (_unicodeCmap != null && _unicodeCmap.GetGlyphId(code) != 0)
+        {
+            return char.ConvertFromUtf32(code);
+        }
+
+        return base.ToUnicodeFallback(code, glyphList);
+    }
 }
