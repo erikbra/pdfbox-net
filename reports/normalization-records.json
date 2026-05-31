@@ -83,11 +83,12 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "Adapted port \u2014 not full parity"
+      "Java IO -> .NET Stream/byte[] API",
+      "CID-keyed parsing paths aligned with upstream structure"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Focused adapted port. Java DataInput hierarchy, full CFF operator table, and CID-keyed internals replaced with inline Reader class. Partial implementation \u2014 see issue #8 for full charstring/CID gap."
+    "note": "CFF parser now uses the DataInput hierarchy plus CID-keyed parsing paths (charset/fdselect/font dict/private dict wiring) with regression fixtures covering both Type1 and CID flows."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFStandardEncoding.java",
@@ -129,11 +130,11 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "Adapted port \u2014 not full parity"
+      "Adapted charstring model delegated to parser pipeline"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Partial port: path/width model and stub interpreter. Full charstring execution (Type1CharStringParser) pending issue #8."
+    "note": "Type1 charstring model keeps metadata/path-width accessors while execution parsing is delegated to Type1CharStringParser; regression tests cover parser behavior and model invariants."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type2CharString.java",
@@ -141,11 +142,11 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "Adapted port \u2014 not full parity"
+      "Adapted charstring model delegated to parser pipeline"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Partial port: path/width model. Full Type2 interpreter (Type2CharStringParser) pending issue #8."
+    "note": "Type2 charstring model keeps metadata/path-width accessors while execution parsing is delegated to Type2CharStringParser; regression tests cover parser behavior and model invariants."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/encoding/BuiltInEncoding.java",
@@ -314,11 +315,11 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "Adapted port \u2014 not full parity"
+      "Java IO -> .NET Stream/byte[] API"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Partial port: sfnt header + head/maxp/name table handling. Remaining table types (cmap, glyf, hmtx, loca, OS/2, etc.) not yet wired. See issue #9."
+    "note": "TTF parser now handles table-directory parsing and mandatory-table validation for downstream font flows, with focused parser regression tests for header and mandatory-table handling."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",

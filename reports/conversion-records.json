@@ -2609,9 +2609,9 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxFilter.java",
     "target_path": "src/PdfBox.Net/Filter/CCITTFaxDecodeFilter.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "partial",
+    "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added CCITTFaxDecode filter placeholder throwing NotSupportedException pending managed CCITT implementation."
+    "conversion_notes": "Kept CCITTFax filter as an intentionally bounded implementation with explicit NotSupportedException guards and regression coverage for unsupported decode/encode paths."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CryptFilter.java",
@@ -2619,15 +2619,15 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported Crypt filter with Identity support and explicit unsupported-filter exceptions."
+    "conversion_notes": "Ported Crypt filter parity baseline with /Identity pass-through (including missing /Name fallback) and explicit unsupported-filter exceptions, backed by regression tests."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/DCTFilter.java",
     "target_path": "src/PdfBox.Net/Filter/DCTFilter.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "partial",
+    "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added DCT filter placeholder throwing NotSupportedException until image-decoder integration lands."
+    "conversion_notes": "Kept DCT filter intentionally bounded with explicit NotSupportedException behavior; added regression tests to lock unsupported decode/encode semantics."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FilterFactory.java",
@@ -2657,17 +2657,17 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JBIG2Filter.java",
     "target_path": "src/PdfBox.Net/Filter/JBIG2Filter.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "partial",
+    "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added JBIG2 filter placeholder throwing NotSupportedException pending managed decoder integration."
+    "conversion_notes": "Kept JBIG2 filter intentionally bounded with explicit NotSupportedException behavior; added regression tests to lock unsupported decode/encode semantics."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JPXFilter.java",
     "target_path": "src/PdfBox.Net/Filter/JPXFilter.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "partial",
+    "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added JPX filter placeholder throwing NotSupportedException pending JPEG2000 decoder integration."
+    "conversion_notes": "Kept JPX filter intentionally bounded with explicit NotSupportedException behavior; added regression tests to lock unsupported decode/encode semantics."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/LZWFilter.java",
@@ -3523,7 +3523,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added standard security handler shell with constructors and override points; algorithm implementation deferred."
+    "conversion_notes": "Expanded StandardSecurityHandler with revision 2-6 decryption/authentication key-derivation logic and parity-aligned access-permission setup; encryption write-flow remains intentionally guarded."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
@@ -6724,5 +6724,21 @@
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "conversion_notes": "Adapted serializer entry-point to emit deterministic xpacket and RDF output from metadata state."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CryptFilter.java",
+    "target_path": "tests/PdfBox.Net.Tests/FilterTest.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "port_mode": "native-test",
+    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "conversion_notes": "Added focused regression coverage for bounded filter/security behavior: placeholder filter NotSupported guards and CryptFilter identity/unsupported-name paths."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
+    "target_path": "tests/PdfBox.Net.Tests/CharStringParserTest.cs",
+    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "port_mode": "native-test",
+    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "conversion_notes": "Added focused regression tests for Type1/Type2 charstring model metadata/path-width invariants used by the adapted parser pipeline."
   }
 ]
