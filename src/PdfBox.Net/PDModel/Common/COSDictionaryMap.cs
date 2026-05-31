@@ -51,7 +51,7 @@ public class COSDictionaryMap<K, V> : IDictionary<K, V> where K : notnull
         }
     }
 
-    public int Count => _map.Size();
+    public int Count => _map.Count;
 
     public bool IsReadOnly => _actuals.IsReadOnly;
 

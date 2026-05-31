@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: mechanical
+ * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
@@ -303,6 +303,10 @@ public class COSArray : COSBase, IEnumerable<COSBase?>, COSUpdateInfo
     {
         return _objects.Count;
     }
+
+    // PORT-LOCAL-START: internal .NET-style adapter for in-assembly collection consumers.
+    internal int Count => _objects.Count;
+    // PORT-LOCAL-END
 
     public bool IsEmpty()
     {

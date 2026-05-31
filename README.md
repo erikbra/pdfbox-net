@@ -87,6 +87,7 @@ Use a **two-lane file strategy**:
    - Prefer placing .NET-specific behavior in a wrapper/adapter type around the mechanical core.
    - If a change must live in the converted file, isolate it in bounded `PORT-LOCAL` regions so Skill B can preserve it during re-sync.
    - Mark the file `PORT_MODE: adapted` whenever behavior/API intentionally diverges from upstream parity.
+   - For Java collection-style members such as `Size()`, prefer adding narrowly scoped in-assembly adapters (for example, an internal `Count`) instead of renaming the upstream-facing member.
 
 This keeps upstream mergeability while still allowing targeted performance and idiomatic .NET improvements.
 
