@@ -221,10 +221,17 @@ def main() -> None:
     upstream_branch = sync_state["upstream_branch"]
     tracked_commit = sync_state["tracked_commit"]
 
+    print("Checking upstream Java repository state...")
+    print(f"- Upstream repository: {upstream_repo}")
+    print(f"- Upstream branch: {upstream_branch}")
+    print(f"- Tracked parity baseline commit: {tracked_commit}")
+    print("Resolving latest upstream head commit...")
     upstream_head = github_json(
         f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_branch}",
         token,
     )["sha"]
+    print(f"- Latest upstream head commit: {upstream_head}")
+    print("Fetching recursive upstream repository tree...")
     tree = github_json(
         f"https://api.github.com/repos/{upstream_repo}/git/trees/{upstream_branch}?recursive=1",
         token,
@@ -232,6 +239,9 @@ def main() -> None:
 
     upstream_paths = discover_upstream_paths(tree)
     upstream_set = {p.path for p in upstream_paths}
+    print(f"- Upstream tree entries fetched: {len(tree)}")
+    print(f"- Upstream Java files in scope: {len(upstream_paths)}")
+    print(f"- Tracked baseline matches head: {tracked_commit == upstream_head}")
 
     mapped_by_provenance = collect_provenance_paths(Path("src"))
     mapped_by_traceability = collect_traceability_paths(traceability_rows, upstream_set)
@@ -239,6 +249,10 @@ def main() -> None:
     mapped_union_in_scope = mapped_union & upstream_set
     mapped_by_provenance_in_scope = mapped_by_provenance & upstream_set
     mapped_by_traceability_in_scope = mapped_by_traceability & upstream_set
+    print("Computing mapped vs missing upstream Java source paths...")
+    print(f"- Mapped by provenance (in scope): {len(mapped_by_provenance_in_scope)}")
+    print(f"- Mapped by traceability (in scope): {len(mapped_by_traceability_in_scope)}")
+    print(f"- Total mapped (union, in scope): {len(mapped_union_in_scope)}")
 
     missing = sorted(upstream_set - mapped_union_in_scope)
     generated_at = utc_now_iso()
