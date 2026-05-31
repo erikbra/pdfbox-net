@@ -42,4 +42,10 @@ public class PfbAndType1FontTest
         ];
         Assert.Throws<IOException>(() => new PfbParser(crashInput));
     }
+
+    [Fact]
+    public void TestEmpty()
+    {
+        Assert.Throws<IOException>(() => Type1Font.CreateWithPFB([]));
+    }
 }

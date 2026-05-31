@@ -136,6 +136,65 @@ public class FontMetrics
     /// <summary>Gets the list of composite glyphs.</summary>
     public List<Composite> Composites { get; } = [];
 
+    private int _metricSets;
+
+    /// <summary>Gets or sets the number of metric sets (must be 0, 1, or 2).</summary>
+    /// <exception cref="ArgumentException">Thrown when value is less than 0 or greater than 2.</exception>
+    public int MetricSets
+    {
+        get => _metricSets;
+        set
+        {
+            if (value < 0 || value > 2)
+            {
+                throw new ArgumentException($"Value must be between 0 and 2 (inclusive), was: {value}");
+            }
+
+            _metricSets = value;
+        }
+    }
+
+    /// <summary>
+    /// Returns the average character width across all character metrics with a positive Wx.
+    /// </summary>
+    public float GetAverageCharacterWidth() => GetAverageFontWidth();
+
+    /// <summary>
+    /// Looks up the advance width (Wx) for a given glyph name.
+    /// Returns 0 if the glyph is not found.
+    /// </summary>
+    /// <param name="name">The glyph name.</param>
+    public float GetCharacterWidth(string name)
+    {
+        foreach (CharMetric metric in CharMetrics)
+        {
+            if (metric.Name == name)
+            {
+                return metric.Wx;
+            }
+        }
+
+        return 0f;
+    }
+
+    /// <summary>
+    /// Looks up the advance height (Wy) for a given glyph name.
+    /// Returns 0 if the glyph is not found.
+    /// </summary>
+    /// <param name="name">The glyph name.</param>
+    public float GetCharacterHeight(string name)
+    {
+        foreach (CharMetric metric in CharMetrics)
+        {
+            if (metric.Name == name)
+            {
+                return metric.Wy;
+            }
+        }
+
+        return 0f;
+    }
+
     /// <summary>
     /// Looks up the advance width for a given glyph name.
     /// Returns 0 if the glyph is not found.
