@@ -2,3 +2,5 @@
 **/obj/
 **/__pycache__/
 *.py[cod]
+
+*.DotSettings.user
