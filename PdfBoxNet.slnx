@@ -4,6 +4,9 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/PdfBox.Net.Benchmarks/PdfBox.Net.Benchmarks.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/PdfBox.Net.FontBox/PdfBox.Net.FontBox.csproj" />
     <Project Path="src/PdfBox.Net.IO/PdfBox.Net.IO.csproj" />

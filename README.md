@@ -33,6 +33,7 @@ The solution (`PdfBoxNet.slnx`) contains four library projects and two test proj
 | `PdfBox.Net` | Core PDF library — COS, filters, parser, writer, pdmodel, text, rendering, tools (ported from `pdfbox` module) |
 | `PdfBox.Net.Tests` | xUnit v3 tests for all non-XmpBox modules |
 | `PdfBox.Net.XmpBox.Tests` | xUnit v3 tests for `PdfBox.Net.XmpBox` |
+| `PdfBox.Net.Benchmarks` | BenchmarkDotNet benchmarks (ported from `benchmark` module) |
 
 ## Requirements
 
@@ -48,6 +49,32 @@ dotnet test PdfBoxNet.slnx --configuration Release
 ```
 
 CI runs on every push and pull request via `.github/workflows/ci.yml`.
+
+## Running benchmarks
+
+The `PdfBox.Net.Benchmarks` project uses [BenchmarkDotNet](https://benchmarkdotnet.org/) and mirrors the Java [JMH](https://github.com/openjdk/jmh) benchmarks from the upstream `benchmark` module.
+
+Benchmarks operate on large real-world PDF files that must be placed under `target/pdfs/` relative to the working directory before running:
+
+| File | Benchmark class |
+|---|---|
+| `target/pdfs/849-42-94772-1-10-20210818.pdf` | `LoadAndSaveBenchmarks` (medium) |
+| `target/pdfs/506-42-86246-2-10-20190822.pdf` | `LoadAndSaveBenchmarks` (large) |
+| `target/pdfs/eci_altona-test-suite-v2_technical2_x4.pdf` | `RenderingBenchmarks` (Altona) |
+| `target/pdfs/Ghent_PDF_Output_Suite_V50_Full/…/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf` | `RenderingBenchmarks` (Ghent) |
+| `target/pdfs/PDF32000_2008.pdf` | `RenderingBenchmarks` + `TextExtractionBenchmarks` |
+
+To run all benchmarks in Release mode:
+
+```sh
+dotnet run --project benchmarks/PdfBox.Net.Benchmarks --configuration Release
+```
+
+To run a specific benchmark class:
+
+```sh
+dotnet run --project benchmarks/PdfBox.Net.Benchmarks --configuration Release -- --filter "*LoadAndSave*"
+```
 
 ## Provenance and traceability
 
