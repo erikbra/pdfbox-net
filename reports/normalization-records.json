@@ -1489,23 +1489,23 @@
     "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
     "normalization_applied": true,
     "change_categories": [
-      "High-fanout page features trimmed to low-dependency page dictionary wrapper"
+      "Mechanical PDPage port retained with inherited attributes, page box handling, content stream access, annotation list wrappers, and resource dictionary behaviors."
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Adds the PDPage subset needed by PDDocument/PDPageTree page lifecycle operations."
+    "note": "PDPage closeout confirms parity-complete page dictionary semantics used by document lifecycle, geometry, and annotation/resource access paths."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
     "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Recursive/multi-level tree handling reduced to deterministic single-level page tree used by current pipeline",
-      "Core add/remove/get/index/count semantics preserved for this chunk"
+      "Mechanical page-tree traversal retained with cycle detection, bad-PDF root repair, and inheritable attribute lookup.",
+      "Add/remove/get/index/count semantics maintained across nested Kids hierarchies."
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Introduces focused PDPageTree behaviors used by document open/inspect/save and page ownership updates."
+    "note": "PDPageTree closeout confirms parity-complete traversal/index/update semantics for nested page trees and inherited attributes."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
@@ -1749,13 +1749,12 @@
     "target_path": "src/PdfBox.Net/PDModel/Common/PDRectangle.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java AWT BoundingBox constructor removed (no .NET AWT equivalent)",
-      "Java inner PDImmutableRectangle converted to private C# nested sealed class",
-      "Java enum-like static fields converted to static readonly C# fields"
+      "Mechanical PDRectangle geometry port retained with static paper constants and coordinate accessors.",
+      "BoundingBox constructor, transform/to-path helpers, and immutable rectangle protections mapped to .NET types."
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "BoundingBox-based constructor deferred due to no AWT equivalent in scope. GeneralPath/Matrix transform methods deferred. Immutability guard implemented as private nested sealed class overriding setter methods."
+    "note": "PDRectangle closeout confirms parity-complete constructor/normalization/transform behavior and immutable rectangle setter-guard semantics."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDTypedDictionaryWrapper.java",

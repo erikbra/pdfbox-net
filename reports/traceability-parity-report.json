@@ -3984,9 +3984,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-24T21:30:24Z",
-    "note": "Expanded with /Annots list parsing and typed annotation wrappers; broader PDPage parity remains deferred."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-31T12:16:36Z",
+    "note": "PDPage mechanical parity validated for inherited page attributes, page boxes, annotation list handling, content presence, and resource traversal semantics."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
@@ -3994,9 +3994,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Expanded with GetInheritableAttribute static method and bad-PDF repair (Page-instead-of-Pages root); multi-level deep-tree traversal deferred."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-31T12:16:36Z",
+    "note": "PDPageTree mechanical parity validated for cycle-safe inheritable lookup, bad-PDF root repair, deep traversal/indexing, insertion, and removal count updates."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
@@ -4224,9 +4224,9 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "mechanical",
-    "status": "partially-in-sync",
-    "last_checked_utc": "2026-05-22T21:58:00Z",
-    "note": "Core PDRectangle port with standard-size constants, coordinate accessors, contains/clip, retranslation, and immutable-rectangle guard; GeneralPath/Matrix transform methods deferred."
+    "status": "in-sync",
+    "last_checked_utc": "2026-05-31T12:16:36Z",
+    "note": "PDRectangle mechanical parity validated for constants, constructors (including BoundingBox), normalization/clamping, geometry helpers, transform path generation, and immutability behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDStream.java",
