@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.XmpBox.Type;
+using System.Xml;
 
 namespace PdfBox.Net.XmpBox.Schema;
 
@@ -80,4 +81,26 @@ public XMPBasicSchema(XMPMetadata metadata)
         : base(metadata, NamespaceUri, ownPrefix)
     {
     }
+
+    public void AddAdvisory(string xpath) => AddBagValue(ADVISORY, xpath);
+
+    public void SetBaseURL(string url) => SetTextProperty(BASEURL, url);
+
+    public void SetCreateDate(DateTime date) => SetTextProperty(CREATEDATE, XmlConvert.ToString(date, XmlDateTimeSerializationMode.RoundtripKind));
+
+    public void SetCreatorTool(string creatorTool) => SetTextProperty(CREATORTOOL, creatorTool);
+
+    public void AddIdentifier(string text) => AddBagValue(IDENTIFIER, text);
+
+    public void SetLabel(string text) => SetTextProperty(LABEL, text);
+
+    public void SetMetadataDate(DateTime date) => SetTextProperty(METADATADATE, XmlConvert.ToString(date, XmlDateTimeSerializationMode.RoundtripKind));
+
+    public void SetModifyDate(DateTime date) => SetTextProperty(MODIFYDATE, XmlConvert.ToString(date, XmlDateTimeSerializationMode.RoundtripKind));
+
+    public void SetModifierDate(DateTime date) => SetTextProperty(MODIFIER_DATE, XmlConvert.ToString(date, XmlDateTimeSerializationMode.RoundtripKind));
+
+    public void SetNickname(string text) => SetTextProperty(NICKNAME, text);
+
+    public void SetRating(int rate) => SetTextProperty(RATING, rate.ToString(System.Globalization.CultureInfo.InvariantCulture));
 }

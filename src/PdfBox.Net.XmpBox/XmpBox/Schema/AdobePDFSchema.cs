@@ -53,4 +53,10 @@ public AdobePDFSchema(XMPMetadata metadata)
         : base(metadata, NamespaceUri, ownPrefix)
     {
     }
+
+    public void SetKeywords(string value) => SetTextProperty(KEYWORDS, value);
+
+    public void SetPDFVersion(string value) => SetTextProperty(PDF_VERSION, value);
+
+    public void SetProducer(string value) => SetTextProperty(PRODUCER, value);
 }

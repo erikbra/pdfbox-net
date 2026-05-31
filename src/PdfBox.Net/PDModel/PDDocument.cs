@@ -26,7 +26,9 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.ContentStream;
 using PdfBox.Net.PDModel.Encryption;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PdfParser;
 using PdfBox.Net.PdfWriter;
 using System.Globalization;
@@ -475,6 +477,40 @@ public sealed class PDDocument : IDisposable
     {
         EnsureNotDisposed();
         GetPages().Add(page);
+    }
+
+    /// <summary>
+    /// Imports a page from another document and appends it to this document.
+    /// </summary>
+    /// <param name="page">The source page to import.</param>
+    /// <returns>The imported page now owned by this document.</returns>
+    public PDPage ImportPage(PDPage page)
+    {
+        ArgumentNullException.ThrowIfNull(page);
+        EnsureNotDisposed();
+
+        COSDictionary importedDictionary = new((COSDictionary)page.GetCOSObject());
+        importedDictionary.RemoveItem(COSName.PARENT);
+        PDPage importedPage = new(importedDictionary);
+
+        using (Stream? sourceContents = ((PDContentStream)page).GetContents())
+        {
+            if (sourceContents is not null)
+            {
+                PDStream importedContents = new(this, sourceContents, COSName.FLATE_DECODE);
+                importedDictionary.SetItem(COSName.CONTENTS, importedContents);
+            }
+            else
+            {
+                importedDictionary.RemoveItem(COSName.CONTENTS);
+            }
+        }
+
+        AddPage(importedPage);
+        importedPage.SetCropBox(new PDRectangle(page.GetCropBox().GetCOSArray()));
+        importedPage.SetMediaBox(new PDRectangle(page.GetMediaBox().GetCOSArray()));
+        importedPage.SetRotation(page.GetRotation());
+        return importedPage;
     }
 
     /// <summary>
