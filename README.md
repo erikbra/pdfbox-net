@@ -1,227 +1,100 @@
 # pdfbox-net
 
-Porting Apache PDFBox to modern .NET.
+A mechanical port of [Apache PDFBox](https://pdfbox.apache.org/) to modern .NET.
 
-## Feasibility summary
+## Status: 100% parity achieved ✅
 
-Based on Apache PDFBox's current structure (modules like `io`, `fontbox`, `xmpbox`, `pdfbox`, `tools`, `debugger`, and `examples`), this is a **medium-to-large porting effort**.
+All **1,067** upstream Java source files from Apache PDFBox have been ported to C#.
 
-### 1) Least-effort, working port
+| Upstream module | Java files | Ported C# files | Missing | Coverage |
+|---|---:|---:|---:|---:|
+| `benchmark` | 3 | 3 | 0 | 100% |
+| `debugger` | 91 | 91 | 0 | 100% |
+| `examples` | 94 | 94 | 0 | 100% |
+| `fontbox` | 143 | 143 | 0 | 100% |
+| `io` | 18 | 18 | 0 | 100% |
+| `pdfbox` | 618 | 618 | 0 | 100% |
+| `tools` | 26 | 26 | 0 | 100% |
+| `xmpbox` | 74 | 74 | 0 | 100% |
+| **TOTAL** | **1,067** | **1,067** | **0** | **100%** |
 
-Goal: get broad PDFBox feature coverage running on .NET quickly, while staying close to Java architecture/API.
+Parity baseline commit: `eeb5d611e0cea8beac3d7025a4dbccbef51d5caf` (Apache PDFBox `trunk`).
+See [`reports/pdfbox-main-gap-analysis.md`](reports/pdfbox-main-gap-analysis.md) for the full gap analysis report.
 
-- **Approach**
-  - Keep package/module boundaries similar to upstream.
-  - Do mostly mechanical translation of Java patterns to C#.
-  - Minimize API redesign and prioritize compatibility and passing behavior tests.
-- **Expected effort**
-  - Roughly **4-8 engineer-months** (for a usable core) and typically **6-12 months calendar time** depending on team size and scope.
-- **Pros**
-  - Fastest path to "it works".
-  - Easier to sync fixes from upstream PDFBox.
-- **Cons**
-  - API may feel Java-like in C#.
-  - More technical debt and later cleanup cost.
+## Projects
 
-### 2) More ".NET-feeling" port
+The solution (`PdfBoxNet.slnx`) contains four library projects and two test projects:
 
-Goal: provide idiomatic .NET developer experience while preserving PDF correctness.
+| Project | Description |
+|---|---|
+| `PdfBox.Net.IO` | Low-level random-access IO primitives (ported from `io` module) |
+| `PdfBox.Net.FontBox` | Font handling — AFM, CFF, CMap, TTF, Type1 (ported from `fontbox` module) |
+| `PdfBox.Net.XmpBox` | XMP metadata reading/writing (ported from `xmpbox` module) |
+| `PdfBox.Net` | Core PDF library — COS, filters, parser, writer, pdmodel, text, rendering, tools (ported from `pdfbox` module) |
+| `PdfBox.Net.Tests` | xUnit v3 tests for all non-XmpBox modules |
+| `PdfBox.Net.XmpBox.Tests` | xUnit v3 tests for `PdfBox.Net.XmpBox` |
 
-- **Approach**
-  - Redesign public APIs for .NET conventions (`Stream`, async where appropriate, `IDisposable`, nullable annotations, idiomatic naming, package split).
-  - Keep algorithmic parity with PDFBox but refactor internals where .NET offers better primitives.
-  - Build stronger .NET-first test, benchmarking, and compatibility layers.
-- **Expected effort**
-  - Roughly **10-18 engineer-months** and often **9-18 months calendar time**.
-- **Pros**
-  - Better long-term maintainability and adoption in .NET ecosystem.
-  - Cleaner integration with modern tooling and performance tuning.
-- **Cons**
-  - Slower initial delivery.
-  - Harder to keep one-to-one parity with upstream implementation details.
+## Requirements
 
-## Recommended direction
+- .NET 10.0 SDK or later
+- [SkiaSharp](https://github.com/mono/SkiaSharp) (used for rendering, replaces Java AWT/ImageIO)
 
-Use a **hybrid phased strategy**:
-1. Start with least-effort compatibility for core functionality.
-2. Stabilize with tests and sample corpus.
-3. Incrementally introduce .NET-first APIs and internal refactors.
+## Build and test
 
-This reduces initial risk while still converging on an idiomatic .NET library.
+```sh
+dotnet restore PdfBoxNet.slnx
+dotnet build PdfBoxNet.slnx --configuration Release
+dotnet test PdfBoxNet.slnx --configuration Release
+```
 
-## Design notes from review feedback
+CI runs on every push and pull request via `.github/workflows/ci.yml`.
 
-### Source traceability for one-to-one conversion
+## Provenance and traceability
 
-Yes — each converted file should include a small provenance header that references the upstream PDFBox source path (and ideally commit SHA) it came from. For example:
+Every ported file carries a provenance header recording its upstream origin:
 
-- Upstream path: `pdfbox/src/main/java/org/apache/pdfbox/.../Foo.java`
-- Upstream commit: `<sha>`
-- Port status: `mechanical` / `adapted`
+```csharp
+// PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/.../Foo.java
+// PDFBOX_SOURCE_COMMIT: <sha>
+// PORT_MODE: mechanical
+// PORT_LAST_SYNC_COMMIT: <sha>
+```
 
-This makes later upstream sync work much easier and enables tooling to diff .NET files against their Java origin.
+Traceability records are maintained in:
+- `reports/conversion-records.json` — per-file conversion records
+- `reports/normalization-records.json` — compile-normalization records
+- `reports/traceability-parity-report.json` — parity status per upstream source path
+- `reports/upstream-sync-state.json` — latest upstream commit tracked and coverage counters
+- `reports/upstream-port-coverage-state.json` — canonical parity scan snapshot
+- `reports/pdfbox-main-gap-analysis.md` — human-readable gap analysis
 
-### .NET-feeling wrapper on top of mechanical port
+## Upstream sync automation
 
-Yes — that is a practical and recommended architecture.
+A daily scheduled workflow (`.github/workflows/upstream-sync-watch.yml`, 07:00 UTC) watches the `apache/pdfbox` `trunk` branch for new commits. When upstream drift is detected it:
 
-- Keep a lower-level compatibility layer close to PDFBox semantics.
-- Add a higher-level .NET API wrapper that exposes idiomatic types/patterns.
-- Translate exceptions and resource lifetimes at the wrapper boundary.
+1. Creates or updates a single "Upstream PDFBox has new commits to sync" issue.
+2. Runs `tools/parity/generate_parity_inventory.py` to regenerate the parity inventory.
+3. Refreshes `reports/upstream-sync-state.json`, `reports/upstream-port-coverage-state.json`, `reports/.all-upstream-coverage.json`, and `reports/pdfbox-main-gap-analysis.md`.
 
-Main trade-off: some extra indirection/allocation can occur, but this is usually manageable if wrappers are thin and performance-critical paths can still access lower-level primitives directly.
+The workflow can also be triggered manually via `workflow_dispatch`.
 
-### Working model: keep upstream linkage while shipping .NET-native improvements
+## Conversion methodology
 
-Use a **two-lane file strategy**:
+Porting follows a set of defined skills documented in [`SKILLS.md`](SKILLS.md):
 
-1. **Mechanical lane (upstream-linked)**
-   - Keep the converted file close to upstream and retain provenance fields:
-     - `PDFBOX_SOURCE_PATH`
-     - `PDFBOX_SOURCE_COMMIT`
-     - `PORT_MODE`
-     - `PORT_LAST_SYNC_COMMIT`
-   - Re-sync this lane with Skill B whenever upstream changes.
+- **Skill A** — Initial mechanical conversion + provenance stamping
+- **Skill B** — Upstream rewrite/update sync
+- **Skill C** — Upstream deletion handling
+- **Skill D** — Upstream new-file intake
+- **Skill E** — Traceability and parity reporting
+- **Skill F** — Compile-oriented normalization pass
+- **Skill G** — Java → C# API and type mapping reference
+- **Skill H** — Automatic PR approval checklist
+- **Skill I** — Orchestrating sequential issue delivery
 
-2. **Adaptation lane (.NET-specific improvements)**
-   - Prefer placing .NET-specific behavior in a wrapper/adapter type around the mechanical core.
-   - If a change must live in the converted file, isolate it in bounded `PORT-LOCAL` regions so Skill B can preserve it during re-sync.
-   - Mark the file `PORT_MODE: adapted` whenever behavior/API intentionally diverges from upstream parity.
+The approach is a **mechanical-first port** that stays close to upstream structure and API to make future re-syncs straightforward. Each converted file keeps the upstream Apache license header verbatim, adds a conversion note, and retains JavaDoc-derived XML documentation comments.
 
-This keeps upstream mergeability while still allowing targeted performance and idiomatic .NET improvements.
+Two-lane strategy for ongoing .NET improvements:
 
-### Proposed conversion "skills" (automation-ready)
-
-Skill definitions are split into focused files in [`SKILLS.md`](SKILLS.md), including usage order and individual skill details for:
-- initial conversion + provenance stamping
-- upstream rewrite/update sync
-- upstream deletion handling
-- upstream new-file intake
-- traceability/parity reporting
-
-## Proposed project plan
-
-### Phase 0 - Discovery and guardrails (1-2 weeks)
-- Inventory PDFBox module dependencies and prioritize feature slices.
-- Define target frameworks (e.g., `net8.0` / `netstandard2.1` if needed).
-- Set quality gates: parser correctness, rendering checks, text extraction accuracy, memory/perf baselines.
-
-### Phase 1 - Core foundations (4-8 weeks)
-- Port low-level IO/COS primitives and font infrastructure first.
-- Establish golden-file regression tests from real PDFs.
-- Deliver minimal open/load/save pipeline.
-
-### Phase 2 - Functional parity milestones (8-16 weeks)
-- Add text extraction, metadata, forms, outlines, encryption/signing support by priority.
-- Port CLI tooling equivalents for smoke validation.
-- Track parity matrix against upstream PDFBox capabilities.
-
-### Phase 3 - .NET API shaping (6-12 weeks, overlapping)
-- Introduce idiomatic wrapper APIs while keeping compatibility layer.
-- Apply .NET naming, nullability, disposable patterns, and optional async APIs.
-- Add performance-focused refactors for hotspots.
-
-### Phase 4 - Hardening and release (3-6 weeks)
-- Cross-platform validation (Windows/Linux/macOS).
-- Fuzz/robustness checks on malformed PDFs.
-- Publish versioned NuGet packages and migration documentation.
-
-## Immediate next steps
-
-1. Create module-level backlog (`io`, `fontbox`, `xmpbox`, `pdfbox`) with complexity tags.
-   - XmpBox planning issue: [`issues/42-xmpbox-porting-plan.md`](issues/42-xmpbox-porting-plan.md)
-2. Build a representative PDF test corpus (happy path + malformed/security cases).
-3. Implement a minimal vertical slice: open PDF -> read metadata/text -> save PDF.
-4. Decide early whether public API parity or .NET idioms take priority for v1.
-
-## Pilot conversion slice #1 (A -> F -> E)
-
-- Upstream baseline commit: `ccd281cfecedcc0ad39709bece5e67b19a54e8db`
-- Scoped file list (`io`, 5 files):
-  - `io/src/main/java/org/apache/pdfbox/io/RandomAccessRead.java` -> `src/PdfBox.Net/IO/RandomAccessRead.cs`
-  - `io/src/main/java/org/apache/pdfbox/io/RandomAccessWrite.java` -> `src/PdfBox.Net/IO/RandomAccessWrite.cs`
-  - `io/src/main/java/org/apache/pdfbox/io/RandomAccess.java` -> `src/PdfBox.Net/IO/RandomAccess.cs`
-  - `io/src/main/java/org/apache/pdfbox/io/RandomAccessReadView.java` -> `src/PdfBox.Net/IO/RandomAccessReadView.cs`
-  - `io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java` -> `src/PdfBox.Net/IO/RandomAccessReadBuffer.cs`
-- Skill artifacts:
-  - Skill A conversion records: `reports/conversion-records.json`
-  - Skill F normalization records: `reports/normalization-records.json`
-  - Skill E traceability/parity report: `reports/traceability-parity-report.json`
-- Converted upstream tests (`io/src/test/...`):
-  - `io/src/test/java/org/apache/pdfbox/io/RandomAccessReadViewTest.java` -> `tests/PdfBox.Net.Tests/RandomAccessReadViewTest.cs` (xUnit v3)
-
-### Lessons learned (pilot)
-
-- A tiny `io` interface-first slice keeps dependency fan-out low and makes process validation faster.
-- Skill F should explicitly call out Java default interface methods as a common compile-normalization item for C#.
-- Skill E schema was sufficient for this slice; next iteration could add an optional `slice_id` field to group batches.
-- For mechanical test ports, keep data initializations inline when they are inline upstream to preserve near-verbatim parity.
-- Prefer production ports in tests over test-only doubles; if a dependency is missing, port the nearest low-fanout production class.
-- For mechanically ported files, keep the Apache license header verbatim and add a separate AI conversion note and JavaDoc-derived XML docs.
-
-## Expansion slice #2 (io test parity extension)
-
-- Upstream baseline commit: `ccd281cfecedcc0ad39709bece5e67b19a54e8db`
-- Expanded test conversion scope:
-  - `io/src/test/java/org/apache/pdfbox/io/RandomAccessReadBufferTest.java` -> `tests/PdfBox.Net.Tests/RandomAccessReadBufferTest.cs` (xUnit v3)
-- Coverage expansion outcome:
-  - Added position, EOF/seek, empty-buffer, view, and regression scenarios (`PDFBOX-5158`, `PDFBOX-5161`) for `RandomAccessReadBuffer`.
-  - Traceability/compliance artifacts updated in `reports/conversion-records.json`, `reports/normalization-records.json`, and `reports/traceability-parity-report.json`.
-
-### Workflow triage and follow-ups
-
-- Addressed parity gap: added `ArraySegment<byte>` constructor support in `RandomAccessReadBuffer` to preserve ByteBuffer-like limit semantics used by upstream `testPDFBOX5764`.
-- Addressed parity gap: replaced upstream `testPDFBOX5111` remote URL dependency with a deterministic local fixture in .NET tests.
-- Next package candidates for mechanical expansion: continue in `io` with adjacent low fan-out implementations/tests, then move to `cos` primitives once IO parity is stable.
-
-## Full `io` + `pdfbox` conversion roadmap
-
-The full upstream `io` and `pdfbox` folders are too large for a single PR, so the practical approach is to keep mechanical traceability but break the work into dependency-ordered slices.
-
-### Main porting challenges
-
-- `io` is the lowest-level foundation, but several classes are coupled to Java stream/NIO APIs (`InputStream`, `OutputStream`, `FileChannel`, `MappedByteBuffer`) that need careful .NET equivalents.
-- `pdfbox` is much broader: `cos` and `util` are good early targets, while `filter`, `pdfparser`, `pdfwriter`, `pdmodel`, `text`, and `rendering` fan out quickly.
-- Some tests assume Java-specific behavior and need adaptation instead of literal translation:
-  - EOF handling differences between Java streams and .NET `Stream`
-  - temp file lifecycle assumptions in scratch-file tests
-  - AWT/ImageIO dependencies in rendering and image filters
-  - `BigDecimal` formatting semantics in numeric COS tests
-
-### Re-evaluated execution chunks (aligned to issue planning)
-
-The next-stage roadmap is now tracked in [`issues/4-next-stage-conversion-plan.md`](issues/4-next-stage-conversion-plan.md), which keeps the same dependency-first intent from this README while replacing older micro-slices with larger chunked milestones:
-
-1. Complete COS foundation set (`pdfbox/cos` containers + primitives + stream-adjacent types).
-2. Build parser/writer low-level bridge (`filter`, `pdfparser`, `pdfwriter` required subset).
-3. Deliver minimal `pdmodel` open/inspect/save document pipeline.
-4. Expand functional parity by feature package (metadata, outlines/forms, text baseline).
-5. Harden regression/sync workflow maturity and repeatability.
-
-Course decision: stay on the current direction (mechanical parity first, then feature expansion), but execute through these chunk boundaries to improve dependency safety and reviewability.
-
-### Conventions and automation to keep using
-
-- Keep provenance headers (`PDFBOX_SOURCE_PATH`, commit, mode, last sync commit) on every ported file.
-- Record each slice in `reports/conversion-records.json`, `reports/normalization-records.json`, and `reports/traceability-parity-report.json`.
-- Keep `reports/upstream-sync-state.json` updated with the newest upstream commit covered by merged sync work.
-- Prefer mechanical test ports first; only redesign tests when they depend on Java-only APIs or non-deterministic external resources.
-- Break work into folder-level or class-cluster issues so each PR has a clear upstream scope and passing test slice.
-
-### Automated upstream watch
-
-- Scheduled workflow: `.github/workflows/upstream-sync-watch.yml`
-- Cadence: daily at 07:00 UTC (plus manual dispatch)
-- Job `check-upstream`: compares `reports/upstream-sync-state.json` against `apache/pdfbox` `trunk` and creates/updates a single open "Upstream PDFBox has new commits to sync" issue when new upstream commits exist
-- Job `scan-missing-ports`: runs `tools/parity/generate_parity_inventory.py` and generates canonical parity inventory/report output using `PDFBOX_SOURCE_PATH` union traceability mappings
-- State artifacts refreshed when drift is detected:
-  - `reports/upstream-sync-state.json` (commit + summary counters + latest scan timestamp)
-  - `reports/upstream-port-coverage-state.json` (scan snapshot + missing-path sample/hash)
-  - `reports/.all-upstream-coverage.json` (module/family aggregate coverage details)
-  - `reports/pdfbox-main-gap-analysis.md` (human-readable gap analysis)
-
-### Current issue slice delivered here
-
-- Added `io` source/test parity for `RandomAccessReadWriteBuffer`.
-- Added the first `pdfbox` source slice with `pdfbox/util/Vector.java` ported to `src/PdfBox.Net/Util/Vector.cs`.
-- Extended traceability records so the next conversion slices can build on this dependency-ordered plan.
+1. **Mechanical lane** — Keep converted files close to upstream, track provenance fields, and re-sync via Skill B.
+2. **Adaptation lane** — Place .NET-specific improvements in wrapper/adapter types or isolate them in bounded `PORT-LOCAL` regions so re-sync can preserve them.
