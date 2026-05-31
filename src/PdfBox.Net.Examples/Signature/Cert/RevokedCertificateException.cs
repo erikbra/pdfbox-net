@@ -30,17 +30,9 @@ namespace PdfBox.Net.Examples.Signature.Cert;
 /// <summary>
 /// Exception thrown when a certificate has been revoked.
 /// </summary>
-public class RevokedCertificateException
+public class RevokedCertificateException : Exception
 {
-    private RevokedCertificateException()
-    {
-    }
+    public RevokedCertificateException(string message) : base(message) { }
 
-    public static void Main(string[] args)
-    {
-        // NOTE: Certificate validation operations require cryptographic APIs (BouncyCastle, etc.)
-        // which are not yet implemented in this .NET port.
-        throw new NotSupportedException(
-            "Certificate validation operations are not yet implemented in this .NET port.");
-    }
+    public RevokedCertificateException(string message, Exception innerException) : base(message, innerException) { }
 }

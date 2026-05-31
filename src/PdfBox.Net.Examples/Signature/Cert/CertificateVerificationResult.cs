@@ -32,15 +32,6 @@ namespace PdfBox.Net.Examples.Signature.Cert;
 /// </summary>
 public class CertificateVerificationResult
 {
-    private CertificateVerificationResult()
-    {
-    }
-
-    public static void Main(string[] args)
-    {
-        // NOTE: Certificate operations require cryptographic APIs (BouncyCastle, etc.)
-        // which are not yet implemented in this .NET port.
-        throw new NotSupportedException(
-            "Certificate operations are not yet implemented in this .NET port.");
-    }
+    // NOTE: Certificate verification result fields require cryptographic APIs (BouncyCastle, etc.)
+    // which are not yet implemented in this .NET port.
 }

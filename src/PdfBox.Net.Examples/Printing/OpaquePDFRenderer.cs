@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/printing/PrintImageLocations.java
+ * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/printing/OpaquePDFRenderer.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
@@ -31,11 +31,11 @@ using PdfBox.Net.PDModel;
 namespace PdfBox.Net.Examples.Printing;
 
 /// <summary>
-/// Print image locations from a PDF document.
+/// Demonstrates opaque PDF rendering (no transparent background).
 /// </summary>
-public class PrintImageLocations
+public class OpaquePDFRenderer
 {
-    private PrintImageLocations()
+    private OpaquePDFRenderer()
     {
     }
 
@@ -43,7 +43,7 @@ public class PrintImageLocations
     {
         if (args.Length < 1)
         {
-            Console.Error.WriteLine("usage: PrintImageLocations <input-pdf>");
+            Console.Error.WriteLine("usage: OpaquePDFRenderer <input-pdf>");
             return;
         }
 
