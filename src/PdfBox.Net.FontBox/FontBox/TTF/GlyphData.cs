@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.FontBox.Util;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.FontBox.TTF;
 
@@ -42,9 +43,9 @@ public class GlyphData
 
     public GlyphDescription? Description => _glyphDescription;
 
-    public PdfBox.Net.Util.Geometry.GeneralPath GetPath()
+    public GeneralPath GetPath()
     {
-        return _glyphDescription == null ? new PdfBox.Net.Util.Geometry.GeneralPath() : new GlyphRenderer(_glyphDescription).GetPath();
+        return _glyphDescription == null ? new GeneralPath() : new GlyphRenderer(_glyphDescription).GetPath();
     }
 
     internal void InitData(GlyphTable glyphTable, TTFDataStream data, int leftSideBearing, int level)

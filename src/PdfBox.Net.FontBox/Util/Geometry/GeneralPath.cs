@@ -1,5 +1,8 @@
 namespace PdfBox.Net.Util.Geometry;
 
+/// <summary>
+/// "Port" of the Java java.awt.geom.GeneralPath class.
+/// </summary>
 public class GeneralPath
 {
     public enum SegmentType

@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.FontBox.Util;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.FontBox.CFF;
 
@@ -72,7 +73,7 @@ public abstract class CFFFont : FontBoxFont
     internal void SetGlobalSubrIndex(byte[][] value) => globalSubrIndex = value;
     public IList<byte[]> GetGlobalSubrIndex() => globalSubrIndex;
     public abstract Type2CharString GetType2CharString(int cidOrGid);
-    public abstract PdfBox.Net.Util.Geometry.GeneralPath GetPath(string name);
+    public abstract GeneralPath GetPath(string name);
     public abstract float GetWidth(string name);
     public abstract bool HasGlyph(string name);
 }
