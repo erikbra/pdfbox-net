@@ -54,15 +54,34 @@ CI runs on every push and pull request via `.github/workflows/ci.yml`.
 
 The `PdfBox.Net.Benchmark` project uses [BenchmarkDotNet](https://benchmarkdotnet.org/) and mirrors the Java [JMH](https://github.com/openjdk/jmh) benchmarks from the upstream `benchmark` module.
 
-Benchmarks operate on large real-world PDF files that must be placed under `target/pdfs/` relative to the working directory before running:
+### 1 — Download the PDF fixtures
 
-| File | Benchmark class |
-|---|---|
-| `target/pdfs/849-42-94772-1-10-20210818.pdf` | `LoadAndSaveBenchmarks` (medium) |
-| `target/pdfs/506-42-86246-2-10-20190822.pdf` | `LoadAndSaveBenchmarks` (large) |
-| `target/pdfs/eci_altona-test-suite-v2_technical2_x4.pdf` | `RenderingBenchmarks` (Altona) |
-| `target/pdfs/Ghent_PDF_Output_Suite_V50_Full/…/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf` | `RenderingBenchmarks` (Ghent) |
-| `target/pdfs/PDF32000_2008.pdf` | `RenderingBenchmarks` + `TextExtractionBenchmarks` |
+Benchmarks operate on large real-world PDF files that live under `target/pdfs/`.
+Run the provided download script to fetch them automatically:
+
+```sh
+# Linux / macOS
+bash scripts/download-benchmark-pdfs.sh
+
+# Windows (PowerShell)
+.\scripts\download-benchmark-pdfs.ps1
+```
+
+| File | Benchmark class | Auto-download |
+|---|---|:---:|
+| `target/pdfs/849-42-94772-1-10-20210818.pdf` | `LoadAndSaveBenchmarks` (medium) | ✅ |
+| `target/pdfs/506-42-86246-2-10-20190822.pdf` | `LoadAndSaveBenchmarks` (large) | ✅ |
+| `target/pdfs/eci_altona-test-suite-v2_technical2_x4.pdf` | `RenderingBenchmarks` (Altona) | ✅ |
+| `target/pdfs/PDF32000_2008.pdf` | `RenderingBenchmarks` + `TextExtractionBenchmarks` | ✅ |
+| `target/pdfs/Ghent_PDF_Output_Suite_V50_Full/…/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf` | `RenderingBenchmarks` (Ghent) | ⚠️ manual |
+
+The **Ghent PDF Output Suite** requires accepting a license agreement and must be downloaded manually:
+
+1. Visit <https://gwg.org/download/ghentpdfoutputsuitev50/> and download the ZIP.
+2. Unpack it under `target/pdfs/` so that `Ghent_PDF_Output_Suite_V50_Full/` is on top.
+3. Keep only `Ghent_PDF_Output_Suite_V50_Full/Categories/1-CMYK/Test pages/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf`.
+
+### 2 — Run the benchmarks
 
 To run all benchmarks in Release mode:
 
@@ -75,6 +94,10 @@ To run a specific benchmark class:
 ```sh
 dotnet run --project src/PdfBox.Net.Benchmark --configuration Release -- --filter "*LoadAndSave*"
 ```
+
+### CI pipeline
+
+The `benchmarks` workflow (`.github/workflows/benchmarks.yml`) can be triggered manually from the **Actions** tab. It downloads all automatically-available PDFs, builds the project in Release mode, runs benchmarks (excluding the Ghent suite by default), and uploads the BenchmarkDotNet JSON results as a workflow artifact.
 
 ## Provenance and traceability
 
