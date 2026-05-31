@@ -649,6 +649,20 @@ public class COSDictionary : COSBase, COSUpdateInfo
 
     internal static void WriteValuePDF(COSBase? value, Stream output)
     {
+        if (value is not COSObject
+            && value is (COSDictionary or COSArray)
+            && !value.IsDirect()
+            && value.GetKey() is COSObjectKey directKey)
+        {
+            string indirectRef = $"{directKey.GetNumber()} {directKey.GetGeneration()} R";
+            foreach (char c in indirectRef)
+            {
+                output.WriteByte((byte)c);
+            }
+
+            return;
+        }
+
         switch (value)
         {
             case null:
