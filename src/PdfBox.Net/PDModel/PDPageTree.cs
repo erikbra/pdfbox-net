@@ -146,12 +146,8 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
     /// <exception cref="IndexOutOfRangeException">If the index is out of bounds.</exception>
     public PDPage Get(int index)
     {
-        if (index < 0 || index >= GetCount())
-        {
-            throw new IndexOutOfRangeException($"Page index {index} is out of bounds.");
-        }
-
-        COSDictionary page = GetPageDictionary(index);
+        COSDictionary page = Get(index + 1, _root, 0, new HashSet<COSDictionary>());
+        SanitizeType(page);
         return new PDPage(page, _document?.GetResourceCache());
     }
 
@@ -163,17 +159,8 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
     public int IndexOf(PDPage page)
     {
         ArgumentNullException.ThrowIfNull(page);
-        COSDictionary target = (COSDictionary)page.GetCOSObject();
-        COSArray kids = GetKidsArray();
-        for (int i = 0; i < kids.Size(); i++)
-        {
-            if (ReferenceEquals(kids.GetObject(i), target))
-            {
-                return i;
-            }
-        }
-
-        return -1;
+        SearchContext context = new(page);
+        return FindPage(context, _root) ? context.Index : -1;
     }
 
     /// <summary>
@@ -184,8 +171,9 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
     {
         ArgumentNullException.ThrowIfNull(page);
         COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
+        pageDictionary.SetItem(COSName.PARENT, _root);
         GetKidsArray().Add(pageDictionary);
-        _root.SetInt(COSName.COUNT, GetCount() + 1);
+        IncreaseParents(_root);
     }
 
     /// <summary>
@@ -194,9 +182,8 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
     /// <param name="index">Zero-based page index.</param>
     public void Remove(int index)
     {
-        Get(index);
-        GetKidsArray().Remove(index);
-        _root.SetInt(COSName.COUNT, Math.Max(0, GetCount() - 1));
+        COSDictionary node = Get(index + 1, _root, 0, new HashSet<COSDictionary>());
+        Remove(node);
     }
 
     /// <summary>
@@ -206,23 +193,68 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
     public void Remove(PDPage page)
     {
         ArgumentNullException.ThrowIfNull(page);
-        int index = IndexOf(page);
-        if (index >= 0)
+        Remove((COSDictionary)page.GetCOSObject());
+    }
+
+    public void InsertBefore(PDPage newPage, PDPage nextPage)
+    {
+        ArgumentNullException.ThrowIfNull(newPage);
+        ArgumentNullException.ThrowIfNull(nextPage);
+
+        COSDictionary nextPageDict = (COSDictionary)nextPage.GetCOSObject();
+        COSDictionary parentDict = nextPageDict.GetCOSDictionary(COSName.PARENT, COSName.P)
+            ?? throw new ArgumentException("attempted to insert before orphan page", nameof(nextPage));
+        COSArray kids = parentDict.GetCOSArray(COSName.KIDS)
+            ?? throw new ArgumentException("attempted to insert before orphan page", nameof(nextPage));
+
+        for (int i = 0; i < kids.Size(); i++)
         {
-            Remove(index);
+            if (ReferenceEquals(kids.GetObject(i), nextPageDict))
+            {
+                COSDictionary newPageDict = (COSDictionary)newPage.GetCOSObject();
+                kids.Add(i, newPageDict);
+                newPageDict.SetItem(COSName.PARENT, parentDict);
+                IncreaseParents(parentDict);
+                return;
+            }
         }
+
+        throw new ArgumentException("attempted to insert before orphan page", nameof(nextPage));
+    }
+
+    public void InsertAfter(PDPage newPage, PDPage prevPage)
+    {
+        ArgumentNullException.ThrowIfNull(newPage);
+        ArgumentNullException.ThrowIfNull(prevPage);
+
+        COSDictionary prevPageDict = (COSDictionary)prevPage.GetCOSObject();
+        COSDictionary parentDict = prevPageDict.GetCOSDictionary(COSName.PARENT, COSName.P)
+            ?? throw new ArgumentException("attempted to insert after orphan page", nameof(prevPage));
+        COSArray kids = parentDict.GetCOSArray(COSName.KIDS)
+            ?? throw new ArgumentException("attempted to insert after orphan page", nameof(prevPage));
+
+        for (int i = 0; i < kids.Size(); i++)
+        {
+            if (ReferenceEquals(kids.GetObject(i), prevPageDict))
+            {
+                COSDictionary newPageDict = (COSDictionary)newPage.GetCOSObject();
+                kids.Add(i + 1, newPageDict);
+                newPageDict.SetItem(COSName.PARENT, parentDict);
+                IncreaseParents(parentDict);
+                return;
+            }
+        }
+
+        throw new ArgumentException("attempted to insert after orphan page", nameof(prevPage));
     }
 
     /// <inheritdoc/>
     public IEnumerator<PDPage> GetEnumerator()
     {
-        COSArray kids = GetKidsArray();
-        for (int i = 0; i < kids.Size(); i++)
+        foreach (COSDictionary pageDictionary in EnumeratePages(_root, new HashSet<COSDictionary>()))
         {
-            if (kids.GetObject(i) is COSDictionary pageDictionary)
-            {
-                yield return new PDPage(pageDictionary, _document?.GetResourceCache());
-            }
+            SanitizeType(pageDictionary);
+            yield return new PDPage(pageDictionary, _document?.GetResourceCache());
         }
     }
 
@@ -243,14 +275,203 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
         return kids;
     }
 
-    private COSDictionary GetPageDictionary(int index)
+    private static void SanitizeType(COSDictionary dictionary)
     {
-        if (GetKidsArray().GetObject(index) is not COSDictionary page)
+        COSName? type = dictionary.GetCOSName(COSName.TYPE);
+        if (type is null)
         {
-            throw new IOException("Page tree kid is not a page dictionary.");
+            dictionary.SetItem(COSName.TYPE, COSName.PAGE);
+            return;
         }
 
-        return page;
+        if (!COSName.PAGE.Equals(type))
+        {
+            throw new InvalidOperationException($"Expected 'Page' but found {type.GetName()}");
+        }
+    }
+
+    private static bool IsPageTreeNode(COSDictionary? node)
+    {
+        return node is not null &&
+               (COSName.PAGES.Equals(node.GetCOSName(COSName.TYPE)) || node.ContainsKey(COSName.KIDS));
+    }
+
+    private static IEnumerable<COSDictionary> GetKids(COSDictionary node)
+    {
+        COSArray? kids = node.GetCOSArray(COSName.KIDS);
+        if (kids is null)
+        {
+            yield break;
+        }
+
+        for (int i = 0; i < kids.Size(); i++)
+        {
+            COSBase? item = kids.GetObject(i);
+            if (item is COSDictionary dictionary)
+            {
+                yield return dictionary;
+            }
+            else if (item is null)
+            {
+                COSDictionary emptyPage = new();
+                emptyPage.SetItem(COSName.TYPE, COSName.PAGE);
+                kids.Set(i, emptyPage);
+                yield return emptyPage;
+            }
+        }
+    }
+
+    private IEnumerable<COSDictionary> EnumeratePages(COSDictionary node, ISet<COSDictionary> visitedPageTreeNodes)
+    {
+        if (IsPageTreeNode(node))
+        {
+            if (!visitedPageTreeNodes.Add(node))
+            {
+                yield break;
+            }
+
+            foreach (COSDictionary kid in GetKids(node))
+            {
+                foreach (COSDictionary page in EnumeratePages(kid, visitedPageTreeNodes))
+                {
+                    yield return page;
+                }
+            }
+
+            yield break;
+        }
+
+        if (COSName.PAGE.Equals(node.GetCOSName(COSName.TYPE)) || node.GetCOSName(COSName.TYPE) is null)
+        {
+            yield return node;
+        }
+    }
+
+    private static COSDictionary Get(int pageNum, COSDictionary node, int encountered, ISet<COSDictionary> visited)
+    {
+        if (pageNum < 1)
+        {
+            throw new IndexOutOfRangeException($"Index out of bounds: {pageNum}");
+        }
+
+        if (!visited.Add(node))
+        {
+            throw new InvalidOperationException($"Possible recursion found when searching for page {pageNum}");
+        }
+
+        if (IsPageTreeNode(node))
+        {
+            int count = node.GetInt(COSName.COUNT, 0);
+            if (pageNum > encountered + count)
+            {
+                throw new IndexOutOfRangeException($"1-based index out of bounds: {pageNum}");
+            }
+
+            foreach (COSDictionary kid in GetKids(node))
+            {
+                if (IsPageTreeNode(kid))
+                {
+                    int kidCount = kid.GetInt(COSName.COUNT, 0);
+                    if (pageNum <= encountered + kidCount)
+                    {
+                        return Get(pageNum, kid, encountered, visited);
+                    }
+
+                    encountered += kidCount;
+                }
+                else
+                {
+                    encountered++;
+                    if (pageNum == encountered)
+                    {
+                        return Get(pageNum, kid, encountered, visited);
+                    }
+                }
+            }
+
+            throw new InvalidOperationException($"1-based index not found: {pageNum}");
+        }
+
+        if (encountered == pageNum)
+        {
+            return node;
+        }
+
+        throw new InvalidOperationException($"1-based index not found: {pageNum}");
+    }
+
+    private static bool FindPage(SearchContext context, COSDictionary node)
+    {
+        foreach (COSDictionary kid in GetKids(node))
+        {
+            if (context.Found)
+            {
+                break;
+            }
+
+            if (IsPageTreeNode(kid))
+            {
+                FindPage(context, kid);
+            }
+            else
+            {
+                context.VisitPage(kid);
+            }
+        }
+
+        return context.Found;
+    }
+
+    private static void IncreaseParents(COSDictionary parentDict)
+    {
+        COSDictionary? current = parentDict;
+        while (current is not null)
+        {
+            current.SetInt(COSName.COUNT, current.GetInt(COSName.COUNT) + 1);
+            current = current.GetCOSDictionary(COSName.PARENT, COSName.P);
+        }
+    }
+
+    private static void Remove(COSDictionary node)
+    {
+        COSDictionary? parent = node.GetCOSDictionary(COSName.PARENT, COSName.P);
+        if (parent is null)
+        {
+            return;
+        }
+
+        COSArray? kids = parent.GetCOSArray(COSName.KIDS);
+        if (kids is null || !kids.RemoveObject(node))
+        {
+            return;
+        }
+
+        COSDictionary? current = parent;
+        while (current is not null)
+        {
+            current.SetInt(COSName.COUNT, Math.Max(0, current.GetInt(COSName.COUNT) - 1));
+            current = current.GetCOSDictionary(COSName.PARENT, COSName.P);
+        }
+    }
+
+    private sealed class SearchContext
+    {
+        private readonly COSDictionary _searched;
+
+        public SearchContext(PDPage page)
+        {
+            _searched = (COSDictionary)page.GetCOSObject();
+        }
+
+        public int Index { get; private set; } = -1;
+
+        public bool Found { get; private set; }
+
+        public void VisitPage(COSDictionary current)
+        {
+            Index++;
+            Found = ReferenceEquals(_searched, current);
+        }
     }
 
     private static COSDictionary CreatePageTreeRoot()

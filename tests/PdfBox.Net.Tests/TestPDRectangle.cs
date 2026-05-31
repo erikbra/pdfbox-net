@@ -26,7 +26,10 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.FontBox.Util;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.Util;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.Tests;
 
@@ -166,5 +169,51 @@ public class TestPDRectangle
         COSArray arr = rect.GetCOSArray();
         Assert.NotNull(arr);
         Assert.Equal(4, arr.Size());
+    }
+
+    [Fact]
+    public void BoundingBoxConstructorCopiesCoordinates()
+    {
+        BoundingBox box = new(10f, 20f, 30f, 40f);
+
+        PDRectangle rect = new(box);
+
+        Assert.Equal(10f, rect.GetLowerLeftX());
+        Assert.Equal(20f, rect.GetLowerLeftY());
+        Assert.Equal(30f, rect.GetUpperRightX());
+        Assert.Equal(40f, rect.GetUpperRightY());
+    }
+
+    [Fact]
+    public void ToGeneralPathBuildsClosedRectanglePath()
+    {
+        PDRectangle rect = new(10f, 20f, 30f, 40f);
+
+        GeneralPath path = rect.ToGeneralPath();
+
+        Assert.Collection(
+            path.Segments,
+            segment => Assert.Equal(new GeneralPath.Segment(GeneralPath.SegmentType.MoveTo, 10f, 20f, 0f, 0f), segment),
+            segment => Assert.Equal(new GeneralPath.Segment(GeneralPath.SegmentType.LineTo, 40f, 20f, 0f, 0f), segment),
+            segment => Assert.Equal(new GeneralPath.Segment(GeneralPath.SegmentType.LineTo, 40f, 60f, 0f, 0f), segment),
+            segment => Assert.Equal(new GeneralPath.Segment(GeneralPath.SegmentType.LineTo, 10f, 60f, 0f, 0f), segment),
+            segment => Assert.Equal(new GeneralPath.Segment(GeneralPath.SegmentType.Close, 0f, 0f, 0f, 0f), segment));
+    }
+
+    [Fact]
+    public void TransformAppliesMatrixToCorners()
+    {
+        PDRectangle rect = new(10f, 20f, 30f, 40f);
+        Matrix matrix = new(2f, 0f, 0f, 3f, 5f, 7f);
+
+        GeneralPath path = rect.Transform(matrix);
+
+        Assert.Collection(
+            path.Segments,
+            segment => Assert.Equal(new GeneralPath.Segment(GeneralPath.SegmentType.MoveTo, 25f, 67f, 0f, 0f), segment),
+            segment => Assert.Equal(new GeneralPath.Segment(GeneralPath.SegmentType.LineTo, 85f, 67f, 0f, 0f), segment),
+            segment => Assert.Equal(new GeneralPath.Segment(GeneralPath.SegmentType.LineTo, 85f, 187f, 0f, 0f), segment),
+            segment => Assert.Equal(new GeneralPath.Segment(GeneralPath.SegmentType.LineTo, 25f, 187f, 0f, 0f), segment),
+            segment => Assert.Equal(new GeneralPath.Segment(GeneralPath.SegmentType.Close, 0f, 0f, 0f, 0f), segment));
     }
 }

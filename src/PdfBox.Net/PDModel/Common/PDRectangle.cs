@@ -26,6 +26,9 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.FontBox.Util;
+using PdfBox.Net.Util;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.PDModel.Common;
 
@@ -107,6 +110,20 @@ public class PDRectangle : COSObjectable
         _rectArray.Add(new COSFloat(y));
         _rectArray.Add(new COSFloat(x + width));
         _rectArray.Add(new COSFloat(y + height));
+    }
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="box">The bounding box to be used for the rectangle.</param>
+    public PDRectangle(BoundingBox box)
+    {
+        ArgumentNullException.ThrowIfNull(box);
+        _rectArray = new COSArray();
+        _rectArray.Add(new COSFloat(box.GetLowerLeftX()));
+        _rectArray.Add(new COSFloat(box.GetLowerLeftY()));
+        _rectArray.Add(new COSFloat(box.GetUpperRightX()));
+        _rectArray.Add(new COSFloat(box.GetUpperRightY()));
     }
 
     /// <summary>
@@ -268,6 +285,51 @@ public class PDRectangle : COSObjectable
         retval.SetUpperRightX(GetWidth());
         retval.SetUpperRightY(GetHeight());
         return retval;
+    }
+
+    /// <summary>
+    /// Returns a path which represents this rectangle having been transformed by the given matrix.
+    /// </summary>
+    public GeneralPath Transform(Matrix matrix)
+    {
+        ArgumentNullException.ThrowIfNull(matrix);
+
+        float x1 = GetLowerLeftX();
+        float y1 = GetLowerLeftY();
+        float x2 = GetUpperRightX();
+        float y2 = GetUpperRightY();
+
+        Vector p0 = matrix.TransformPoint(x1, y1);
+        Vector p1 = matrix.TransformPoint(x2, y1);
+        Vector p2 = matrix.TransformPoint(x2, y2);
+        Vector p3 = matrix.TransformPoint(x1, y2);
+
+        GeneralPath path = new();
+        path.MoveTo(p0.GetX(), p0.GetY());
+        path.LineTo(p1.GetX(), p1.GetY());
+        path.LineTo(p2.GetX(), p2.GetY());
+        path.LineTo(p3.GetX(), p3.GetY());
+        path.ClosePath();
+        return path;
+    }
+
+    /// <summary>
+    /// Returns a general path equivalent to this rectangle.
+    /// </summary>
+    public GeneralPath ToGeneralPath()
+    {
+        float x1 = GetLowerLeftX();
+        float y1 = GetLowerLeftY();
+        float x2 = GetUpperRightX();
+        float y2 = GetUpperRightY();
+
+        GeneralPath path = new();
+        path.MoveTo(x1, y1);
+        path.LineTo(x2, y1);
+        path.LineTo(x2, y2);
+        path.LineTo(x1, y2);
+        path.ClosePath();
+        return path;
     }
 
     /// <inheritdoc/>

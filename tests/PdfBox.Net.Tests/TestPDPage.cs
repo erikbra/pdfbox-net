@@ -25,8 +25,11 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.Form;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.Tests;
 
@@ -171,5 +174,45 @@ public class TestPDPage
         page.SetMediaBox(null);
         // Should fall back to LETTER default when re-read
         Assert.NotNull(page.GetMediaBox());
+    }
+
+    [Fact]
+    public void AddingPageAfterCreatingAnnotationDoesNotBreakSave()
+    {
+        using PDDocument document = new();
+        PDPage page = new(PDRectangle.A4);
+
+        PDAcroForm acroForm = new(document);
+        document.GetDocumentCatalog().SetAcroForm(acroForm);
+
+        PDTextField textField = new(acroForm);
+        textField.SetPartialName("testField");
+        PDAnnotationWidget widget = new();
+        textField.SetWidgets([widget]);
+        widget.SetRectangle(new PDRectangle(100, 700, 200, 20));
+        ((COSDictionary)widget.GetCOSObject()).SetItem(COSName.P, page);
+        page.GetAnnotations().Add(widget);
+        acroForm.GetFields().Add(textField);
+
+        document.AddPage(page);
+
+        using MemoryStream output = new();
+        document.Save(output);
+
+        Assert.NotEmpty(output.ToArray());
+    }
+
+    [Fact]
+    public void NullThreadBeads()
+    {
+        PDPage page = new();
+
+        Assert.Empty(page.GetThreadBeads());
+
+        page.SetThreadBeads([]);
+        Assert.Empty(page.GetThreadBeads());
+
+        page.SetThreadBeads(null);
+        Assert.Empty(page.GetThreadBeads());
     }
 }

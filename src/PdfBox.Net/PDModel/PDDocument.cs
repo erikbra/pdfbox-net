@@ -46,6 +46,7 @@ public sealed class PDDocument : IDisposable
     private readonly COSDocument _document;
     private readonly COSDictionary _trailer;
     private readonly float _headerVersion;
+    private long _nextObjectNumber;
     private bool _disposed;
     private PDDocumentCatalog? _documentCatalog;
     private PDDocumentInformation? _documentInformation;
@@ -61,6 +62,8 @@ public sealed class PDDocument : IDisposable
         _document = document ?? throw new ArgumentNullException(nameof(document));
         _trailer = _document.GetTrailer() ?? throw new IOException("Document trailer dictionary is missing.");
         _headerVersion = _document.GetVersion();
+        _nextObjectNumber = GetNextObjectNumber(_trailer);
+        EnsureIndirectRootObjects();
     }
 
     /// <summary>
@@ -166,6 +169,7 @@ public sealed class PDDocument : IDisposable
         EnsureNotDisposed();
         _trailer.SetItem(COSName.ROOT, GetDocumentCatalog().GetCOSObject());
         _trailer.SetItem(COSName.GetPDFName("Info"), GetDocumentInformation().GetCOSObject());
+        PromoteSharedContainersToIndirect();
 
         byte[] headerBytes = Encoding.ASCII.GetBytes($"%PDF-{_headerVersion.ToString("0.0", CultureInfo.InvariantCulture)}\n");
         output.Write(headerBytes);
@@ -227,12 +231,19 @@ public sealed class PDDocument : IDisposable
     private static List<(COSObjectKey Key, COSBase Inner)> CollectIndirectObjects(COSDictionary trailer)
     {
         Dictionary<COSObjectKey, COSBase> collected = [];
+        HashSet<COSBase> seen = new(ReferenceEqualityComparer.Instance);
         Queue<COSBase> pending = new();
-        pending.Enqueue(trailer);
+        EnqueueIfUnseen(trailer);
 
         while (pending.Count > 0)
         {
             COSBase current = pending.Dequeue();
+            COSObjectKey? currentKey = current is COSObject ? null : current.GetKey();
+            if (currentKey is not null && current is not COSStream && !collected.ContainsKey(currentKey))
+            {
+                collected[currentKey] = current;
+            }
+
             switch (current)
             {
                 case COSObject cosObj:
@@ -242,7 +253,7 @@ public sealed class PDDocument : IDisposable
                         && !collected.ContainsKey(key))
                     {
                         collected[key] = inner;
-                        pending.Enqueue(inner);
+                        EnqueueIfUnseen(inner);
                     }
 
                     break;
@@ -253,7 +264,7 @@ public sealed class PDDocument : IDisposable
                         COSBase? val = dict.GetItem(name);
                         if (val is not null)
                         {
-                            pending.Enqueue(val);
+                            EnqueueIfUnseen(val);
                         }
                     }
 
@@ -265,7 +276,7 @@ public sealed class PDDocument : IDisposable
                         COSBase? element = array.Get(i);
                         if (element is not null)
                         {
-                            pending.Enqueue(element);
+                            EnqueueIfUnseen(element);
                         }
                     }
 
@@ -273,10 +284,120 @@ public sealed class PDDocument : IDisposable
             }
         }
 
+        void EnqueueIfUnseen(COSBase value)
+        {
+            if (seen.Add(value))
+            {
+                pending.Enqueue(value);
+            }
+        }
+
         return collected
             .OrderBy(kv => kv.Key.GetNumber())
             .Select(kv => (kv.Key, kv.Value))
             .ToList();
+    }
+
+    private void PromoteSharedContainersToIndirect()
+    {
+        Dictionary<COSBase, int> referenceCounts = new(ReferenceEqualityComparer.Instance);
+        HashSet<COSBase> seen = new(ReferenceEqualityComparer.Instance);
+        Queue<COSBase> pending = new();
+        seen.Add(_trailer);
+        pending.Enqueue(_trailer);
+
+        while (pending.Count > 0)
+        {
+            COSBase current = pending.Dequeue();
+            switch (current)
+            {
+                case COSObject cosObject when cosObject.GetObject() is COSBase inner:
+                    RegisterReference(inner);
+                    break;
+                case COSDictionary dictionary:
+                    foreach (COSName name in dictionary.KeySet())
+                    {
+                        COSBase? value = dictionary.GetItem(name);
+                        if (value is not null)
+                        {
+                            RegisterReference(value);
+                        }
+                    }
+
+                    break;
+                case COSArray array:
+                    for (int i = 0; i < array.Size(); i++)
+                    {
+                        COSBase? value = array.Get(i);
+                        if (value is not null)
+                        {
+                            RegisterReference(value);
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+        foreach ((COSBase value, int count) in referenceCounts)
+        {
+            if (count > 1
+                && value is not COSStream
+                && value is (COSDictionary or COSArray)
+                && !value.IsDirect()
+                && value.GetKey() is null)
+            {
+                value.SetKey(AllocateObjectKey());
+            }
+        }
+
+        void RegisterReference(COSBase value)
+        {
+            referenceCounts[value] = referenceCounts.TryGetValue(value, out int count) ? count + 1 : 1;
+            if (seen.Add(value))
+            {
+                pending.Enqueue(value);
+            }
+        }
+    }
+
+    internal COSObjectKey AllocateObjectKey()
+    {
+        EnsureNotDisposed();
+        return new COSObjectKey(_nextObjectNumber++, 0);
+    }
+
+    private void EnsureIndirectRootObjects()
+    {
+        COSDictionary? root = _trailer.GetCOSDictionary(COSName.ROOT);
+        if (root is not null)
+        {
+            if (root.GetKey() is null)
+            {
+                root.SetKey(AllocateObjectKey());
+            }
+
+            COSDictionary pages = root.GetCOSDictionary(COSName.PAGES) ?? new COSDictionary();
+            if (pages.GetKey() is null)
+            {
+                pages.SetKey(AllocateObjectKey());
+            }
+
+            root.SetItem(COSName.PAGES, pages);
+            _trailer.SetItem(COSName.ROOT, root);
+        }
+
+        COSName infoName = COSName.GetPDFName("Info");
+        COSDictionary? info = _trailer.GetCOSDictionary(infoName);
+        if (info is not null)
+        {
+            if (info.GetKey() is null)
+            {
+                info.SetKey(AllocateObjectKey());
+            }
+
+            _trailer.SetItem(infoName, info);
+        }
     }
 
     /// <summary>
@@ -575,6 +696,60 @@ public sealed class PDDocument : IDisposable
     private static float ParseVersion(string value)
     {
         return ParseVersion(value, 1.4f);
+    }
+
+    private static long GetNextObjectNumber(COSDictionary trailer)
+    {
+        long maxObjectNumber = 0;
+        HashSet<COSBase> seen = new(ReferenceEqualityComparer.Instance);
+        Queue<COSBase> pending = new();
+        pending.Enqueue(trailer);
+
+        while (pending.Count > 0)
+        {
+            COSBase current = pending.Dequeue();
+            if (!seen.Add(current))
+            {
+                continue;
+            }
+
+            COSObjectKey? key = current.GetKey();
+            if (key is not null)
+            {
+                maxObjectNumber = Math.Max(maxObjectNumber, key.GetNumber());
+            }
+
+            switch (current)
+            {
+                case COSObject cosObject when cosObject.GetObject() is COSBase inner:
+                    pending.Enqueue(inner);
+                    break;
+                case COSDictionary dictionary:
+                    foreach (COSName name in dictionary.KeySet())
+                    {
+                        COSBase? value = dictionary.GetItem(name);
+                        if (value is not null)
+                        {
+                            pending.Enqueue(value);
+                        }
+                    }
+
+                    break;
+                case COSArray array:
+                    for (int i = 0; i < array.Size(); i++)
+                    {
+                        COSBase? value = array.Get(i);
+                        if (value is not null)
+                        {
+                            pending.Enqueue(value);
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+        return maxObjectNumber + 1;
     }
 
     private static float ParseVersion(string? value, float fallback)
