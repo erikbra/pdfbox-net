@@ -64,734 +64,6 @@
     "conversion_notes": "Added deterministic XmpBox regression coverage for primitive/simple property creation, array property handling, reflection-driven structured type instantiation, and DateConverter ISO8601 round-trips."
   },
   {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/PDFDebugger.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSArrayBased.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSDeviceN.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSIndexed.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSSeparation.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/ColorBarCellRenderer.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/DeviceNColorant.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/DeviceNTableModel.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/IndexedColorant.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/IndexedTableModel.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/AnnotFlag.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/EncryptFlag.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FieldFlag.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/Flag.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPaneView.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FontFlag.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/PanoseFlag.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/SigFlag.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontEncodingPaneController.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontEncodingView.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontPane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/SimpleFont.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type0Font.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type3Font.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/ASCIIPane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/AddressPane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexChangeListener.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexChangedEvent.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexEditor.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexModel.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexModelChangeListener.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexModelChangedEvent.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexPane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexView.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/SelectEvent.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/SelectionChangeListener.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/StatusPane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/UpperPane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/pagepane/DebugTextOverlay.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/pagepane/PagePane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/signaturepane/SignaturePane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/OperatorMarker.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/Stream.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamImageView.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamPane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamPaneView.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamTextView.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/ColorToolTip.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/FontToolTip.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/GToolTip.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/KToolTip.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/RGToolTip.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/SCNToolTip.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/ToolTip.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/ToolTipController.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/stringpane/StringPane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/treestatus/TreeStatus.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/treestatus/TreeStatusPane.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ArrayEntry.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLogAppender.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DocumentEntry.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ErrorDialog.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/FileOpenSaveDialog.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/HighResolutionImageIcon.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ImageTypeMenu.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ImageUtil.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/LogDialog.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/MapEntry.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/MenuBase.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/OSXAdapter.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/PDFTreeCellRenderer.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/PDFTreeModel.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/PageEntry.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/PrintDpiMenu.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ReaderBottomPanel.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/RecentFiles.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/RenderDestinationMenu.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/RotationMenu.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/TextDialog.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/TextStripperMenu.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/Tree.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/TreeViewMenu.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ViewMenu.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/WindowPrefs.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/XrefEntries.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/XrefEntry.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ZoomMenu.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/textsearcher/SearchEngine.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/textsearcher/SearchPanel.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
-    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/textsearcher/Searcher.java",
-    "target_path": "tests/PdfBox.Net.Tests/DebuggerModuleParityCloseoutTest.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "port_mode": "native-test",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Debugger module closeout mapping: core inspection smoke parity validated via COS tree, content stream token parsing, and text extraction flows backed by PdfBox.Net APIs."
-  },
-  {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/ant/PDFToTextTask.java",
     "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
@@ -7433,5 +6705,757 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T16:44:05Z",
     "note": "Added CreateMinimalTrueTypeWithUpm(int) helper; CreateHeadTable now accepts unitsPerEm parameter."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/PDFDebugger.java",
+    "target_path": "src/PdfBox.Net.Debugger/PDFDebugger.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSArrayBased.java",
+    "target_path": "src/PdfBox.Net.Debugger/Colorpane/CSArrayBased.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSDeviceN.java",
+    "target_path": "src/PdfBox.Net.Debugger/Colorpane/CSDeviceN.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSIndexed.java",
+    "target_path": "src/PdfBox.Net.Debugger/Colorpane/CSIndexed.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSSeparation.java",
+    "target_path": "src/PdfBox.Net.Debugger/Colorpane/CSSeparation.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/ColorBarCellRenderer.java",
+    "target_path": "src/PdfBox.Net.Debugger/Colorpane/ColorBarCellRenderer.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/DeviceNColorant.java",
+    "target_path": "src/PdfBox.Net.Debugger/Colorpane/DeviceNColorant.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/DeviceNTableModel.java",
+    "target_path": "src/PdfBox.Net.Debugger/Colorpane/DeviceNTableModel.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/IndexedColorant.java",
+    "target_path": "src/PdfBox.Net.Debugger/Colorpane/IndexedColorant.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/IndexedTableModel.java",
+    "target_path": "src/PdfBox.Net.Debugger/Colorpane/IndexedTableModel.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/AnnotFlag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/AnnotFlag.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/EncryptFlag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/EncryptFlag.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FieldFlag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/FieldFlag.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/Flag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/Flag.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/FlagBitsPane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPaneView.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/FlagBitsPaneView.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FontFlag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/FontFlag.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/PanoseFlag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/PanoseFlag.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/SigFlag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/SigFlag.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontEncodingPaneController.java",
+    "target_path": "src/PdfBox.Net.Debugger/Fontencodingpane/FontEncodingPaneController.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontEncodingView.java",
+    "target_path": "src/PdfBox.Net.Debugger/Fontencodingpane/FontEncodingView.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Fontencodingpane/FontPane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/SimpleFont.java",
+    "target_path": "src/PdfBox.Net.Debugger/Fontencodingpane/SimpleFont.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type0Font.java",
+    "target_path": "src/PdfBox.Net.Debugger/Fontencodingpane/Type0Font.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type3Font.java",
+    "target_path": "src/PdfBox.Net.Debugger/Fontencodingpane/Type3Font.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/ASCIIPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/ASCIIPane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/AddressPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/AddressPane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexChangeListener.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/HexChangeListener.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexChangedEvent.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/HexChangedEvent.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexEditor.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/HexEditor.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexModel.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/HexModel.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexModelChangeListener.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/HexModelChangeListener.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexModelChangedEvent.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/HexModelChangedEvent.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/HexPane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexView.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/HexView.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/SelectEvent.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/SelectEvent.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/SelectionChangeListener.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/SelectionChangeListener.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/StatusPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/StatusPane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/UpperPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/UpperPane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/pagepane/DebugTextOverlay.java",
+    "target_path": "src/PdfBox.Net.Debugger/Pagepane/DebugTextOverlay.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/pagepane/PagePane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Pagepane/PagePane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/signaturepane/SignaturePane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Signaturepane/SignaturePane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/OperatorMarker.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/OperatorMarker.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/Stream.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/Stream.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamImageView.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/StreamImageView.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/StreamPane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamPaneView.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/StreamPaneView.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamTextView.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/StreamTextView.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/ColorToolTip.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/Tooltip/ColorToolTip.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/FontToolTip.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/Tooltip/FontToolTip.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/GToolTip.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/Tooltip/GToolTip.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/KToolTip.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/Tooltip/KToolTip.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/RGToolTip.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/Tooltip/RGToolTip.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/SCNToolTip.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/Tooltip/SCNToolTip.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/ToolTip.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/Tooltip/ToolTip.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/ToolTipController.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/Tooltip/ToolTipController.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/stringpane/StringPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Stringpane/StringPane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/treestatus/TreeStatus.java",
+    "target_path": "src/PdfBox.Net.Debugger/Treestatus/TreeStatus.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/treestatus/TreeStatusPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Treestatus/TreeStatusPane.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ArrayEntry.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/ArrayEntry.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "mechanical",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLogAppender.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/DebugLogAppender.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DocumentEntry.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/DocumentEntry.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "mechanical",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ErrorDialog.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/ErrorDialog.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/FileOpenSaveDialog.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/FileOpenSaveDialog.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/HighResolutionImageIcon.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/HighResolutionImageIcon.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ImageTypeMenu.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/ImageTypeMenu.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ImageUtil.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/ImageUtil.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/LogDialog.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/LogDialog.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/MapEntry.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/MapEntry.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "mechanical",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/MenuBase.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/MenuBase.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/OSXAdapter.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/OSXAdapter.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/PDFTreeCellRenderer.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/PDFTreeCellRenderer.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/PDFTreeModel.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/PDFTreeModel.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/PageEntry.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/PageEntry.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "mechanical",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/PrintDpiMenu.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/PrintDpiMenu.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ReaderBottomPanel.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/ReaderBottomPanel.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/RecentFiles.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/RecentFiles.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/RenderDestinationMenu.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/RenderDestinationMenu.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/RotationMenu.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/RotationMenu.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/TextDialog.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/TextDialog.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/TextStripperMenu.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/TextStripperMenu.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/Tree.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/Tree.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/TreeViewMenu.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/TreeViewMenu.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ViewMenu.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/ViewMenu.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/WindowPrefs.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/WindowPrefs.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/XrefEntries.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/XrefEntries.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "mechanical",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/XrefEntry.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/XrefEntry.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "mechanical",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ZoomMenu.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/ZoomMenu.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/textsearcher/SearchEngine.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/Textsearcher/SearchEngine.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/textsearcher/SearchPanel.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/Textsearcher/SearchPanel.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/textsearcher/Searcher.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/Textsearcher/Searcher.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+  },
+  {
+    "source_path": null,
+    "target_path": "src/PdfBox.Net.Debugger/PdfBox.Net.Debugger.csproj",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Added the PdfBox.Net.Debugger class library project for the debugger module port."
+  },
+  {
+    "source_path": null,
+    "target_path": "apps/PdfBox.Net.Debugger.App/PdfBox.Net.Debugger.App.csproj",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Added the console application project that serves as the debugger-app equivalent."
+  },
+  {
+    "source_path": null,
+    "target_path": "apps/PdfBox.Net.Debugger.App/Program.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "conversion_notes": "Added a console entry point that loads PDFs and invokes the adapted PDFDebugger inspection API."
   }
 ]
