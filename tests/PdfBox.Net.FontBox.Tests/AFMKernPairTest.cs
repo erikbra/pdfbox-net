@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/afm/CompositePartTest.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/afm/KernPairTest.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
@@ -27,21 +27,24 @@
 
 using PdfBox.Net.FontBox.AFM;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
-public class AFMCompositePartTest
+public class AFMKernPairTest
 {
     [Fact]
-    public void TestCompositePart()
+    public void TestKernPair()
     {
-        CompositePart compositePart = new()
+        KernPair kernPair = new()
         {
-            Name = "name",
-            DisplacementX = 10,
-            DisplacementY = 20,
+            FirstGlyph = "firstKernCharacter",
+            SecondGlyph = "secondKernCharacter",
+            DeltaX = 10f,
+            DeltaY = 20f,
         };
-        Assert.Equal("name", compositePart.Name);
-        Assert.Equal(10, compositePart.DisplacementX);
-        Assert.Equal(20, compositePart.DisplacementY);
+
+        Assert.Equal("firstKernCharacter", kernPair.FirstGlyph);
+        Assert.Equal("secondKernCharacter", kernPair.SecondGlyph);
+        Assert.Equal(10f, kernPair.DeltaX);
+        Assert.Equal(20f, kernPair.DeltaY);
     }
 }

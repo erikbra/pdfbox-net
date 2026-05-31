@@ -26,7 +26,7 @@
 
 using PdfBox.Net.FontBox.CMap;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class CMapCIDRangeTest
 {

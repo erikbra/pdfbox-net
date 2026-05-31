@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/ttf/TrueTypeFontCollectionTest.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/afm/CompositeTest.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
@@ -25,17 +25,27 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.FontBox.TTF;
+using PdfBox.Net.FontBox.AFM;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
-public class TTFTrueTypeFontCollectionTest
+public class AFMCompositeTest
 {
     [Fact]
-    public void TestNumberOfFonts()
+    public void TestComposite()
     {
-        // A TTC header with a very large (invalid) numFonts value
-        byte[] payload = [0x74, 0x74, 0x63, 0x66, 0x00, 0x00, 0x00, 0x00, 0x7F, 0xFF, 0xFF, 0xFF];
-        Assert.Throws<IOException>(() => new TrueTypeCollection(new MemoryStream(payload)));
+        Composite composite = new() { Name = "name" };
+        Assert.Equal("name", composite.Name);
+        Assert.Empty(composite.Parts);
+
+        CompositePart compositePart = new() { Name = "name", DisplacementX = 10, DisplacementY = 20 };
+        composite.Parts.Add(compositePart);
+        List<CompositePart> parts = composite.Parts;
+        Assert.Single(parts);
+        Assert.Equal("name", parts[0].Name);
+
+        // C# List<T> is mutable by design; adding further items is allowed
+        parts.Add(compositePart);
+        Assert.Equal(2, parts.Count);
     }
 }

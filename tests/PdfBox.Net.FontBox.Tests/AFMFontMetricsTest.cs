@@ -28,7 +28,7 @@
 using PdfBox.Net.FontBox.AFM;
 using PdfBox.Net.FontBox.Util;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class AFMFontMetricsTest
 {

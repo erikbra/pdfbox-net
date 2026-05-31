@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/afm/LigatureTest.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/ttf/TrueTypeFontCollectionTest.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
@@ -25,18 +25,17 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.FontBox.AFM;
+using PdfBox.Net.FontBox.TTF;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
-public class AFMLigatureTest
+public class TTFTrueTypeFontCollectionTest
 {
     [Fact]
-    public void TestLigature()
+    public void TestNumberOfFonts()
     {
-        Ligature ligature = new() { Successor = "successor", LigatureValue = "ligature" };
-
-        Assert.Equal("successor", ligature.Successor);
-        Assert.Equal("ligature", ligature.LigatureValue);
+        // A TTC header with a very large (invalid) numFonts value
+        byte[] payload = [0x74, 0x74, 0x63, 0x66, 0x00, 0x00, 0x00, 0x00, 0x7F, 0xFF, 0xFF, 0xFF];
+        Assert.Throws<IOException>(() => new TrueTypeCollection(new MemoryStream(payload)));
     }
 }

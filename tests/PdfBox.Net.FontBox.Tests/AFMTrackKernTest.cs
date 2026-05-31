@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/cmap/TestCMap.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/afm/TrackKernTest.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
@@ -25,24 +25,28 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.FontBox.CMap;
+using PdfBox.Net.FontBox.AFM;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
-/// <summary>
-/// This will test the CMap implementation.
-/// </summary>
-public class CMapTestCMap
+public class AFMTrackKernTest
 {
-    /// <summary>
-    /// Check whether the mapping is working correctly.
-    /// </summary>
     [Fact]
-    public void TestLookup()
+    public void TestTrackKern()
     {
-        byte[] bs = [200];
-        CMap cMap = new();
-        cMap.AddCharMapping(bs, "a");
-        Assert.Equal("a", cMap.ToUnicode(bs));
+        TrackKern trackKern = new()
+        {
+            Degree = 0,
+            MinPtSize = 1.0f,
+            MinKern = 1.0f,
+            MaxPtSize = 10.0f,
+            MaxKern = 10.0f,
+        };
+
+        Assert.Equal(0, trackKern.Degree);
+        Assert.Equal(1.0f, trackKern.MinPtSize);
+        Assert.Equal(1.0f, trackKern.MinKern);
+        Assert.Equal(10.0f, trackKern.MaxPtSize);
+        Assert.Equal(10.0f, trackKern.MaxKern);
     }
 }

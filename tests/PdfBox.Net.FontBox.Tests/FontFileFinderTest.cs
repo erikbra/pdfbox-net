@@ -24,7 +24,7 @@
 using System.IO;
 using PdfBox.Net.FontBox.Util.Autodetect;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class FontFileFinderTest
 {

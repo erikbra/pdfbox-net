@@ -28,12 +28,12 @@
 using System.Text;
 using PdfBox.Net.FontBox.CMap;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class CMapStringsTest
 {
-    private static readonly Encoding Latin1 = Encoding.GetEncoding("ISO-8859-1");
-    private static readonly Encoding Utf16Be = Encoding.BigEndianUnicode;
+    private static readonly System.Text.Encoding Latin1 = System.Text.Encoding.GetEncoding("ISO-8859-1");
+    private static readonly System.Text.Encoding Utf16Be = System.Text.Encoding.BigEndianUnicode;
 
     [Fact]
     public void GetNonCachedMappings()

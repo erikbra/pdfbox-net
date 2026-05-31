@@ -1,6 +1,6 @@
 using PdfBox.Net.FontBox.AFM;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class AFMParserTest
 {

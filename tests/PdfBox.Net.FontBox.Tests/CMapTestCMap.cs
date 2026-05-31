@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/afm/CompositeTest.java
+ * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/cmap/TestCMap.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
@@ -25,27 +25,25 @@
  * limitations under the License.
  */
 
-using PdfBox.Net.FontBox.AFM;
+using PdfBox.Net.FontBox.CMap;
+using FontBoxCMap = PdfBox.Net.FontBox.CMap.CMap;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
-public class AFMCompositeTest
+/// <summary>
+/// This will test the CMap implementation.
+/// </summary>
+public class CMapTestCMap
 {
+    /// <summary>
+    /// Check whether the mapping is working correctly.
+    /// </summary>
     [Fact]
-    public void TestComposite()
+    public void TestLookup()
     {
-        Composite composite = new() { Name = "name" };
-        Assert.Equal("name", composite.Name);
-        Assert.Empty(composite.Parts);
-
-        CompositePart compositePart = new() { Name = "name", DisplacementX = 10, DisplacementY = 20 };
-        composite.Parts.Add(compositePart);
-        List<CompositePart> parts = composite.Parts;
-        Assert.Single(parts);
-        Assert.Equal("name", parts[0].Name);
-
-        // C# List<T> is mutable by design; adding further items is allowed
-        parts.Add(compositePart);
-        Assert.Equal(2, parts.Count);
+        byte[] bs = [200];
+        FontBoxCMap cMap = new();
+        cMap.AddCharMapping(bs, "a");
+        Assert.Equal("a", cMap.ToUnicode(bs));
     }
 }

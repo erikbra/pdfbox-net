@@ -27,7 +27,7 @@
 
 using PdfBox.Net.FontBox.CMap;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 /// <summary>
 /// This will test the CodeSpaceRange implementation.

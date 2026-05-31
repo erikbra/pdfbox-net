@@ -26,7 +26,7 @@
 
 using PdfBox.Net.FontBox.CFF;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class CFFCharsetTest
 {
