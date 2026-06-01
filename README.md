@@ -23,7 +23,7 @@ See [`reports/pdfbox-main-gap-analysis.md`](reports/pdfbox-main-gap-analysis.md)
 
 ## Projects
 
-The solution (`PdfBoxNet.slnx`) contains four library projects and two test projects:
+The solution (`PdfBoxNet.slnx`) contains four library projects, two test projects, and one benchmark project:
 
 | Project | Description |
 |---|---|
@@ -33,6 +33,7 @@ The solution (`PdfBoxNet.slnx`) contains four library projects and two test proj
 | `PdfBox.Net` | Core PDF library — COS, filters, parser, writer, pdmodel, text, rendering, tools (ported from `pdfbox` module) |
 | `PdfBox.Net.Tests` | xUnit v3 tests for all non-XmpBox modules |
 | `PdfBox.Net.XmpBox.Tests` | xUnit v3 tests for `PdfBox.Net.XmpBox` |
+| `PdfBox.Net.Benchmark` | BenchmarkDotNet benchmarks (ported from `benchmark` module, located under `src/PdfBox.Net.Benchmark/`) |
 
 ## Requirements
 
@@ -48,6 +49,63 @@ dotnet test PdfBoxNet.slnx --configuration Release
 ```
 
 CI runs on every push and pull request via `.github/workflows/ci.yml`.
+
+## Running benchmarks
+
+The `PdfBox.Net.Benchmark` project uses [BenchmarkDotNet](https://benchmarkdotnet.org/) and mirrors the Java [JMH](https://github.com/openjdk/jmh) benchmarks from the upstream `benchmark` module.
+
+### 1 — Download the PDF fixtures
+
+Benchmarks operate on large real-world PDF files that live under `target/pdfs/`.
+Run the provided download script to fetch them automatically:
+
+```sh
+# Linux / macOS
+bash scripts/download-benchmark-pdfs.sh
+
+# Windows (PowerShell)
+.\scripts\download-benchmark-pdfs.ps1
+```
+
+| File | Benchmark class | Auto-download |
+|---|---|:---:|
+| `target/pdfs/849-42-94772-1-10-20210818.pdf` | `LoadAndSaveBenchmarks` (medium) | ✅ |
+| `target/pdfs/506-42-86246-2-10-20190822.pdf` | `LoadAndSaveBenchmarks` (large) | ✅ |
+| `target/pdfs/eci_altona-test-suite-v2_technical2_x4.pdf` | `RenderingBenchmarks` (Altona) | ✅ |
+| `target/pdfs/PDF32000_2008.pdf` | `RenderingBenchmarks` + `TextExtractionBenchmarks` | ✅ |
+| `target/pdfs/Ghent_PDF_Output_Suite_V50_Full/…/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf` | `RenderingBenchmarks` (Ghent) | ✅ Playwright |
+
+The **Ghent PDF Output Suite** requires accepting a license agreement on the GWG website.
+`scripts/download-ghent-pdf.mjs` automates this with a headless [Playwright](https://playwright.dev/) browser:
+
+```sh
+# Install Playwright once
+npm install playwright
+npx playwright install chromium
+
+# Download and extract the Ghent suite
+node scripts/download-ghent-pdf.mjs
+```
+
+The `download-benchmark-pdfs.sh` / `.ps1` scripts call this automatically when `node` is available.
+
+### 2 — Run the benchmarks
+
+To run all benchmarks in Release mode:
+
+```sh
+dotnet run --project src/PdfBox.Net.Benchmark --configuration Release
+```
+
+To run a specific benchmark class:
+
+```sh
+dotnet run --project src/PdfBox.Net.Benchmark --configuration Release -- --filter "*LoadAndSave*"
+```
+
+### CI pipeline
+
+The `benchmarks` workflow (`.github/workflows/benchmarks.yml`) can be triggered manually from the **Actions** tab. It installs Node.js and Playwright, downloads all PDF fixtures (including the Ghent suite), builds the project in Release mode, runs all benchmarks, and uploads the BenchmarkDotNet JSON results as a 90-day artifact.
 
 ## Provenance and traceability
 
