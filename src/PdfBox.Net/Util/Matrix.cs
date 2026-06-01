@@ -233,6 +233,20 @@ public sealed class Matrix
     }
 
     /// <summary>
+    /// Creates a rotating instance with the given angle and translation.
+    /// </summary>
+    /// <param name="angle">The rotation angle in radians.</param>
+    /// <param name="tx">The x translation.</param>
+    /// <param name="ty">The y translation.</param>
+    /// <returns>A rotation and translation matrix.</returns>
+    public static Matrix GetRotateInstance(double angle, float tx, float ty)
+    {
+        float cos = (float)Math.Cos(angle);
+        float sin = (float)Math.Sin(angle);
+        return new Matrix(cos, sin, -sin, cos, tx, ty);
+    }
+
+    /// <summary>
     /// Creates a translating instance.
     /// </summary>
     /// <param name="tx">The x translation.</param>
