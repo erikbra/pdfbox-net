@@ -119,9 +119,9 @@ public sealed class Type3Font : FontPane
             {
                 // GetCharProc can return the glyph name for display.
                 PDType3CharProc? charProc = font.GetCharProc(code);
-                string glyphName = charProc != null ? $"code {code}" : NoGlyph;
+                string glyphName = $"code {code}";
                 string? unicode = font.ToUnicode(code, glyphList);
-                string glyphToken = isEmpty ? NoGlyph : $"[glyph {code}]";
+                string glyphToken = (charProc != null && !isEmpty) ? $"[glyph {code}]" : NoGlyph;
                 table[code] = [code, glyphName, unicode ?? NoGlyph, glyphToken];
                 TotalAvailableGlyph++;
             }
