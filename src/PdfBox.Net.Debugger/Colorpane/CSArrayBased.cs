@@ -25,9 +25,43 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.Color;
+
 namespace PdfBox.Net.Debugger.Colorpane;
 
+/// <summary>
+/// Data model for array-based color spaces (ICCBased, CalGray, CalRGB, Lab, etc.).
+/// Adapted from Apache PDFBox CSArrayBased (Tilman Hausherr).
+/// </summary>
 public sealed class CSArrayBased
 {
-    public string Name => GetType().Name;
- }
+    private PDColorSpace? _colorSpace;
+
+    public string? ErrorMessage { get; private set; }
+
+    public bool HasError => ErrorMessage != null;
+
+    public string ColorSpaceName => _colorSpace?.GetName() ?? string.Empty;
+
+    public int NumberOfComponents { get; private set; }
+
+    /// <summary>Whether the color space is an ICC-based color space.</summary>
+    public bool IsIccBased => _colorSpace is PDICCBased;
+
+    public CSArrayBased(COSArray array)
+    {
+        try
+        {
+            _colorSpace = PDColorSpace.Create(array);
+            if (_colorSpace is not PDPattern)
+            {
+                NumberOfComponents = _colorSpace.GetNumberOfComponents();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+}

@@ -27,15 +27,21 @@
 
 namespace PdfBox.Net.Debugger.Hexviewer;
 
+/// <summary>
+/// Event fired when a byte value changes in the hex pane.
+/// Adapted from Apache PDFBox HexChangedEvent (Khyrul Bashar).
+/// </summary>
 public sealed class HexChangedEvent : System.EventArgs
 {
-    public HexChangedEvent(int offset, int length)
+    /// <param name="newValue">The new byte value for the index.</param>
+    /// <param name="byteIndex">Index of the changed byte.</param>
+    public HexChangedEvent(byte newValue, int byteIndex)
     {
-        Offset = offset;
-        Length = length;
+        NewValue = newValue;
+        ByteIndex = byteIndex;
     }
 
-    public int Offset { get; }
+    public byte NewValue { get; }
 
-    public int Length { get; }
+    public int ByteIndex { get; }
 }

@@ -27,15 +27,29 @@
 
 namespace PdfBox.Net.Debugger.Hexviewer;
 
+/// <summary>
+/// Describes a selection or navigation event in the hex view.
+/// Adapted from Apache PDFBox SelectEvent (Khyrul Bashar).
+/// </summary>
 public sealed class SelectEvent : System.EventArgs
 {
-    public SelectEvent(int offset, int length)
+    public const string Next = "next";
+    public const string Previous = "previous";
+    public const string Up = "up";
+    public const string Down = "down";
+    public const string None = "none";
+    public const string In = "in";
+    public const string Edit = "edit";
+
+    /// <param name="hexIndex">Index of the current selection.</param>
+    /// <param name="navigation">Type of navigation; one of the string constants on this class.</param>
+    public SelectEvent(int hexIndex, string navigation)
     {
-        Offset = offset;
-        Length = length;
+        HexIndex = hexIndex;
+        Navigation = navigation;
     }
 
-    public int Offset { get; }
+    public int HexIndex { get; }
 
-    public int Length { get; }
+    public string Navigation { get; }
 }

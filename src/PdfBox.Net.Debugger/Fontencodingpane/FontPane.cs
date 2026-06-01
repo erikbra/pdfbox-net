@@ -25,9 +25,70 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.Util.Geometry;
+
 namespace PdfBox.Net.Debugger.Fontencodingpane;
 
-public sealed class FontPane
+/// <summary>
+/// Abstract base for font-encoding data models used by the debugger.
+/// Adapted from Apache PDFBox FontPane (Apache Software Foundation).
+/// </summary>
+public abstract class FontPane
 {
-    public string Name => GetType().Name;
- }
+    /// <summary>
+    /// Computes the vertical bounds shared by all rendered glyphs.
+    /// </summary>
+    /// <param name="tableData">2-D array of glyph table rows.</param>
+    /// <param name="glyphIndex">Column index that holds the <see cref="GeneralPath"/> glyph paths.</param>
+    /// <returns>Array [minY (≤ 0), maxY (≥ 0)].</returns>
+    public double[] GetYBounds(object[][] tableData, int glyphIndex)
+    {
+        double minY = 0;
+        double maxY = 0;
+        foreach (object[] row in tableData)
+        {
+            if (row[glyphIndex] is not GeneralPath path)
+            {
+                continue;
+            }
+
+            if (!ComputeBounds(path, out double pMinY, out double pMaxY))
+            {
+                continue;
+            }
+
+            minY = Math.Min(minY, pMinY);
+            maxY = Math.Max(maxY, pMaxY);
+        }
+
+        return [minY, maxY];
+    }
+
+    private static bool ComputeBounds(GeneralPath path, out double minY, out double maxY)
+    {
+        minY = double.MaxValue;
+        maxY = double.MinValue;
+        bool hasPoints = false;
+
+        foreach (var seg in path.Segments)
+        {
+            if (seg.Type == GeneralPath.SegmentType.Close)
+            {
+                continue;
+            }
+
+            minY = Math.Min(minY, seg.Y1);
+            maxY = Math.Max(maxY, seg.Y1);
+            hasPoints = true;
+        }
+
+        if (!hasPoints)
+        {
+            minY = 0;
+            maxY = 0;
+            return false;
+        }
+
+        return true;
+    }
+}

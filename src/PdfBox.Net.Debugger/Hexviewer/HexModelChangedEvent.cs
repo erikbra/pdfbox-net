@@ -27,15 +27,27 @@
 
 namespace PdfBox.Net.Debugger.Hexviewer;
 
+/// <summary>
+/// Describes a change to the hex model.
+/// Adapted from Apache PDFBox HexModelChangedEvent (Khyrul Bashar).
+/// </summary>
 public sealed class HexModelChangedEvent : System.EventArgs
 {
-    public HexModelChangedEvent(int offset, int length)
+    /// <summary>The entire model was replaced (e.g. paste or delete of many bytes).</summary>
+    public const int BulkChange = 1;
+
+    /// <summary>A single byte was changed.</summary>
+    public const int SingleChange = 2;
+
+    /// <param name="startIndex">Byte index where the change starts.</param>
+    /// <param name="changeType">Either <see cref="BulkChange"/> or <see cref="SingleChange"/>.</param>
+    public HexModelChangedEvent(int startIndex, int changeType)
     {
-        Offset = offset;
-        Length = length;
+        StartIndex = startIndex;
+        ChangeType = changeType;
     }
 
-    public int Offset { get; }
+    public int StartIndex { get; }
 
-    public int Length { get; }
+    public int ChangeType { get; }
 }

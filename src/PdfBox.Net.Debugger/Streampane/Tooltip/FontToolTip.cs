@@ -25,11 +25,59 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Resources;
+
 namespace PdfBox.Net.Debugger.Streampane.Tooltip;
 
-public sealed class FontToolTip : ToolTip
+/// <summary>
+/// Tooltip for Tf (set font) operators; shows the font name.
+/// Adapted from Apache PDFBox FontToolTip (Khyrul Bashar).
+/// </summary>
+public sealed class FontToolTip : IToolTip
 {
-    public FontToolTip(string? content = null) : base("FontToolTip", content)
+    public string? ToolTipText { get; }
+
+    /// <param name="resources">Page/form resource dictionary.</param>
+    /// <param name="rowText">Full row text including the Tf operator.</param>
+    public FontToolTip(PDResources resources, string rowText)
     {
+        string fontRef = ExtractFontReference(rowText);
+        foreach (COSName name in resources.GetFontNames())
+        {
+            if (name.GetName() != fontRef)
+            {
+                continue;
+            }
+
+            try
+            {
+                var font = resources.GetFont(name);
+                if (font != null)
+                {
+                    ToolTipText = $"<html>{font.GetName()}</html>";
+                }
+            }
+            catch
+            {
+                // skip on error
+            }
+
+            break;
+        }
+    }
+
+    private static string ExtractFontReference(string rowText)
+    {
+        string trimmed = rowText.Trim();
+        string[] parts = trimmed.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        string first = parts[0];
+        // The font reference starts with '/' in the stream; strip it.
+        return first.StartsWith('/') ? first[1..] : first;
     }
 }

@@ -27,16 +27,12 @@
 
 namespace PdfBox.Net.Debugger.Streampane.Tooltip;
 
-/// <summary>Base adapted tooltip model for stream inspection.</summary>
-public class ToolTip
+/// <summary>
+/// Interface for debugger tooltips.
+/// Adapted from Apache PDFBox ToolTip (Khyrul Bashar).
+/// </summary>
+public interface IToolTip
 {
-    public ToolTip(string title, string? content = null)
-    {
-        Title = title;
-        Content = content;
-    }
-
-    public string Title { get; }
-
-    public string? Content { get; }
+    /// <summary>The HTML tooltip text, or null if no tooltip is available.</summary>
+    string? ToolTipText { get; }
 }

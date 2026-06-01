@@ -27,7 +27,17 @@
 
 namespace PdfBox.Net.Debugger.Colorpane;
 
+/// <summary>
+/// Represents a single colorant in a DeviceN color space.
+/// Adapted from Apache PDFBox DeviceNColorant (Khyrul Bashar).
+/// </summary>
 public sealed class DeviceNColorant
 {
-    public string Name => GetType().Name;
- }
+    public string? Name { get; set; }
+
+    /// <summary>RGB components (0–1) when this colorant is at full intensity (tint = 1).</summary>
+    public (float R, float G, float B) Maximum { get; set; }
+
+    /// <summary>RGB components (0–1) when this colorant is absent (tint = 0).</summary>
+    public (float R, float G, float B) Minimum { get; set; }
+}

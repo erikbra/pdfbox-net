@@ -25,9 +25,54 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.Color;
+
 namespace PdfBox.Net.Debugger.Colorpane;
 
+/// <summary>
+/// Data model for a Separation color space.  Exposes the colorant name and tint-to-RGB conversion.
+/// Adapted from Apache PDFBox CSSeparation (Khyrul Bashar).
+/// </summary>
 public sealed class CSSeparation
 {
-    public string Name => GetType().Name;
- }
+    private readonly PDSeparation? _separation;
+
+    /// <summary>The colorant name as specified in the PDF array (element at index 1).</summary>
+    public string ColorantName { get; }
+
+    public string? ErrorMessage { get; private set; }
+
+    public bool HasError => ErrorMessage != null;
+
+    public CSSeparation(COSArray array)
+    {
+        // Colorant name lives at array[1] as a COSName.
+        ColorantName = array.Size() > 1 && array.GetObject(1) is COSName cosName
+            ? cosName.GetName()
+            : string.Empty;
+        try
+        {
+            _separation = new PDSeparation(array, null);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+
+    /// <summary>
+    /// Converts the given tint value (0–1) to an RGB tuple (components also 0–1).
+    /// Returns null when the color space could not be loaded.
+    /// </summary>
+    public (float R, float G, float B)? GetColorAtTint(float tint)
+    {
+        if (_separation == null)
+        {
+            return null;
+        }
+
+        float[] rgb = _separation.ToRGB([tint]);
+        return (rgb[0], rgb[1], rgb[2]);
+    }
+}

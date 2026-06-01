@@ -27,9 +27,18 @@
 
 namespace PdfBox.Net.Debugger.Streampane.Tooltip;
 
-public sealed class RGToolTip : ToolTip
+/// <summary>
+/// Tooltip for RG/rg (RGB) operators.
+/// Adapted from Apache PDFBox RGToolTip (Khyrul Bashar).
+/// </summary>
+public sealed class RGToolTip : ColorToolTip
 {
-    public RGToolTip(string? content = null) : base("RGToolTip", content)
+    public RGToolTip(string rowText)
     {
+        float[]? values = ExtractColorValues(rowText);
+        if (values != null && values.Length >= 3)
+        {
+            ToolTipText = GetMarkUp(ColorHexValue(values[0], values[1], values[2]));
+        }
     }
 }

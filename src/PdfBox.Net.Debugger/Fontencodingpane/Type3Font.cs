@@ -25,9 +25,112 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.FontBox.Util;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.Util.Geometry;
+
 namespace PdfBox.Net.Debugger.Fontencodingpane;
 
-public sealed class Type3Font
+/// <summary>
+/// Glyph-encoding data model for Type 3 fonts.
+/// Adapted from Apache PDFBox Type3Font (Khyrul Bashar, Tilman Hausherr).
+/// Note: glyph rendering (BufferedImage) is replaced with a placeholder string token.
+/// </summary>
+public sealed class Type3Font : FontPane
 {
-    public string Name => GetType().Name;
- }
+    public const string NoGlyph = "No glyph";
+
+    /// <summary>
+    /// Table columns: [0] Code (int), [1] Glyph name (string),
+    /// [2] Unicode (string), [3] Glyph token (string).
+    /// </summary>
+    public object[][] TableData { get; }
+
+    public string[] ColumnNames { get; } = ["Code", "Glyph Name", "Unicode Character", "Glyph"];
+
+    public Dictionary<string, string> Attributes { get; }
+
+    public int TotalAvailableGlyph { get; private set; }
+
+    public Type3Font(PDType3Font font, PDResources resources)
+    {
+        var fontBBox = CalcBBox(font);
+        var glyphList = GlyphList.GetAdobeGlyphList();
+        TableData = BuildTable(font, fontBBox, glyphList);
+
+        string? name = font.GetName();
+        if (name == null && font.GetFontDescriptor()?.GetFontName() is string descName)
+        {
+            name = descName;
+        }
+
+        Attributes = new Dictionary<string, string>
+        {
+            ["Font"] = name ?? string.Empty,
+            ["Glyphs"] = TotalAvailableGlyph.ToString(),
+        };
+    }
+
+    private static PDRectangle CalcBBox(PDType3Font font)
+    {
+        double minX = 0, maxX = 0, minY = 0, maxY = 0;
+        for (int code = 0; code <= 255; code++)
+        {
+            PDType3CharProc? charProc = font.GetCharProc(code);
+            if (charProc == null)
+            {
+                continue;
+            }
+
+            PDRectangle? glyphBBox = charProc.GetGlyphBBox();
+            if (glyphBBox == null)
+            {
+                continue;
+            }
+
+            minX = Math.Min(minX, glyphBBox.GetLowerLeftX());
+            maxX = Math.Max(maxX, glyphBBox.GetUpperRightX());
+            minY = Math.Min(minY, glyphBBox.GetLowerLeftY());
+            maxY = Math.Max(maxY, glyphBBox.GetUpperRightY());
+        }
+
+        var bbox = new PDRectangle((float)minX, (float)minY,
+                                   (float)(maxX - minX), (float)(maxY - minY));
+        if (bbox.GetWidth() <= 0 || bbox.GetHeight() <= 0)
+        {
+            BoundingBox fallback = font.GetBoundingBox();
+            bbox = new PDRectangle(fallback.GetLowerLeftX(), fallback.GetLowerLeftY(),
+                                   fallback.GetWidth(), fallback.GetHeight());
+        }
+
+        return bbox;
+    }
+
+    private object[][] BuildTable(PDType3Font font, PDRectangle fontBBox, GlyphList glyphList)
+    {
+        bool isEmpty = fontBBox.GetWidth() <= 0 || fontBBox.GetHeight() <= 0;
+        var table = new object[256][];
+        for (int code = 0; code <= 255; code++)
+        {
+            if (font.HasGlyph(code) || font.ToUnicode(code, glyphList) != null)
+            {
+                // GetCharProc can return the glyph name for display.
+                PDType3CharProc? charProc = font.GetCharProc(code);
+                string glyphName = charProc != null ? $"code {code}" : NoGlyph;
+                string? unicode = font.ToUnicode(code, glyphList);
+                string glyphToken = isEmpty ? NoGlyph : $"[glyph {code}]";
+                table[code] = [code, glyphName, unicode ?? NoGlyph, glyphToken];
+                TotalAvailableGlyph++;
+            }
+            else
+            {
+                table[code] = [code, NoGlyph, NoGlyph, NoGlyph];
+            }
+        }
+
+        return table;
+    }
+}

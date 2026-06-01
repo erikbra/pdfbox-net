@@ -25,9 +25,47 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Resources;
+
 namespace PdfBox.Net.Debugger.Fontencodingpane;
 
+/// <summary>
+/// Controller that creates the appropriate font-encoding data model
+/// for a given font dictionary entry.
+/// Adapted from Apache PDFBox FontEncodingPaneController (Khyrul Bashar).
+/// </summary>
 public sealed class FontEncodingPaneController
 {
-    public string Name => GetType().Name;
- }
+    /// <summary>
+    /// The resolved font data model, or <c>null</c> if the font type is not supported
+    /// or an error occurred during loading.
+    /// </summary>
+    public FontPane? FontPane { get; }
+
+    public string? ErrorMessage { get; }
+
+    /// <param name="fontName">Font resource name in the resource dictionary.</param>
+    /// <param name="dictionary">The resource dictionary that contains the font.</param>
+    public FontEncodingPaneController(COSName fontName, COSDictionary dictionary)
+    {
+        var resources = new PDResources(dictionary);
+        try
+        {
+            PDFont? font = resources.GetFont(fontName);
+            FontPane = font switch
+            {
+                PDType3Font type3 => new Type3Font(type3, resources),
+                PDSimpleFont simple => new SimpleFont(simple),
+                PDType0Font type0 when type0.GetDescendantFont() is PDCIDFont cid
+                    => new Type0Font(cid, type0),
+                _ => null
+            };
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+}

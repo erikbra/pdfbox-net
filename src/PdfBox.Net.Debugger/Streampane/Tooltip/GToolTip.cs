@@ -27,9 +27,19 @@
 
 namespace PdfBox.Net.Debugger.Streampane.Tooltip;
 
-public sealed class GToolTip : ToolTip
+/// <summary>
+/// Tooltip for G/g (grayscale) operators.
+/// Adapted from Apache PDFBox GToolTip (Khyrul Bashar).
+/// </summary>
+public sealed class GToolTip : ColorToolTip
 {
-    public GToolTip(string? content = null) : base("GToolTip", content)
+    public GToolTip(string rowText)
     {
+        float[]? values = ExtractColorValues(rowText);
+        if (values != null && values.Length >= 1)
+        {
+            float g = values[0];
+            ToolTipText = GetMarkUp(ColorHexValue(g, g, g));
+        }
     }
 }

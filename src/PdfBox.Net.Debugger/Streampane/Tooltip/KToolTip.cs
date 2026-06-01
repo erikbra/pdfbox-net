@@ -25,11 +25,31 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.PDModel.Graphics.Color;
+
 namespace PdfBox.Net.Debugger.Streampane.Tooltip;
 
-public sealed class KToolTip : ToolTip
+/// <summary>
+/// Tooltip for K/k (CMYK) operators.
+/// Adapted from Apache PDFBox KToolTip (Khyrul Bashar).
+/// Uses <see cref="PDDeviceCMYK"/> for the CMYK→RGB conversion.
+/// </summary>
+public sealed class KToolTip : ColorToolTip
 {
-    public KToolTip(string? content = null) : base("KToolTip", content)
+    public KToolTip(string rowText)
     {
+        float[]? values = ExtractColorValues(rowText);
+        if (values != null && values.Length >= 4)
+        {
+            try
+            {
+                float[] rgb = PDDeviceCMYK.Instance.ToRGB(values);
+                ToolTipText = GetMarkUp(ColorHexValue(rgb[0], rgb[1], rgb[2]));
+            }
+            catch
+            {
+                // silently ignore conversion failure
+            }
+        }
     }
 }

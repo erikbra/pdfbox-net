@@ -25,11 +25,56 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Resources;
+
 namespace PdfBox.Net.Debugger.Streampane.Tooltip;
 
-public sealed class SCNToolTip : ToolTip
+/// <summary>
+/// Tooltip for SCN/scn (custom/special) operators.
+/// Adapted from Apache PDFBox SCNToolTip (Khyrul Bashar).
+/// </summary>
+public sealed class SCNToolTip : ColorToolTip
 {
-    public SCNToolTip(string? content = null) : base("SCNToolTip", content)
+    /// <param name="resources">Page/form resource dictionary.</param>
+    /// <param name="colorSpaceName">
+    ///   The color-space name token from the most-recent CS/cs operator (may start with '/').</param>
+    /// <param name="rowText">Full row text including the SCN/scn operator.</param>
+    public SCNToolTip(PDResources resources, string colorSpaceName, string rowText)
     {
+        string csName = colorSpaceName.TrimStart('/').Trim();
+        PDColorSpace? colorSpace = null;
+        try
+        {
+            colorSpace = resources.GetColorSpace(COSName.GetPDFName(csName));
+        }
+        catch
+        {
+            // colorSpace stays null
+        }
+
+        if (colorSpace is PDPattern)
+        {
+            ToolTipText = "<html>Pattern</html>";
+            return;
+        }
+
+        if (colorSpace != null)
+        {
+            float[]? values = ExtractColorValues(rowText);
+            if (values != null)
+            {
+                try
+                {
+                    float[] rgb = colorSpace.ToRGB(values);
+                    ToolTipText = GetMarkUp(ColorHexValue(rgb[0], rgb[1], rgb[2]));
+                }
+                catch
+                {
+                    // silently ignore
+                }
+            }
+        }
     }
 }

@@ -27,8 +27,31 @@
 
 namespace PdfBox.Net.Debugger.Colorpane;
 
+/// <summary>
+/// Table data model for a DeviceN color space.
+/// Adapted from Apache PDFBox DeviceNTableModel (Khyrul Bashar).
+/// Columns: Colorant (name), Maximum (RGB tuple), Minimum (RGB tuple).
+/// </summary>
 public sealed class DeviceNTableModel
 {
-    public string Name => GetType().Name;
-    public System.Collections.Generic.List<object> Rows { get; } = new();
- }
+    private static readonly string[] ColumnNames = ["Colorant", "Maximum", "Minimum"];
+
+    private readonly DeviceNColorant[] _data;
+
+    public DeviceNTableModel(DeviceNColorant[] colorants)
+        => _data = colorants;
+
+    public int RowCount => _data.Length;
+
+    public int ColumnCount => ColumnNames.Length;
+
+    public string GetColumnName(int column) => ColumnNames[column];
+
+    public object? GetValueAt(int row, int column) => column switch
+    {
+        0 => _data[row].Name,
+        1 => _data[row].Maximum,
+        2 => _data[row].Minimum,
+        _ => null
+    };
+}

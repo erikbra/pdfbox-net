@@ -25,7 +25,36 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.ContentStream.Operator;
+
 namespace PdfBox.Net.Debugger.Streampane;
 
-/// <summary>Associates a content stream operator with a simple style descriptor.</summary>
-public sealed record OperatorMarker(string Operator, string StyleName, string HexColor);
+/// <summary>
+/// Maps content-stream operator names to visual style descriptors for the stream pane.
+/// Adapted from Apache PDFBox OperatorMarker (Khyrul Bashar).
+/// Java Swing Styles are replaced with a simple record carrying a category name and hex color.
+/// </summary>
+public sealed record OperatorStyle(string Category, string HexColor);
+
+public static class OperatorMarker
+{
+    private static readonly Dictionary<string, OperatorStyle> OperatorStyleMap =
+        new(StringComparer.Ordinal)
+        {
+            [OperatorName.BEGIN_TEXT]              = new("text_object",   "#006400"),  // dark green
+            [OperatorName.END_TEXT]                = new("text_object",   "#006400"),
+            [OperatorName.SAVE]                    = new("graphics",      "#FF4444"),  // red
+            [OperatorName.RESTORE]                 = new("graphics",      "#FF4444"),
+            [OperatorName.CONCAT]                  = new("cm",            "#01A9DB"),  // cyan-blue
+            [OperatorName.BEGIN_INLINE_IMAGE]      = new("inline_image",  "#4775A3"),  // steel blue
+            [OperatorName.BEGIN_INLINE_IMAGE_DATA] = new("ID",            "#FFA500"),  // orange
+            [OperatorName.END_INLINE_IMAGE]        = new("inline_image",  "#4775A3"),
+        };
+
+    /// <summary>
+    /// Returns the <see cref="OperatorStyle"/> for the given operator name,
+    /// or <c>null</c> if the operator has no special styling.
+    /// </summary>
+    public static OperatorStyle? GetStyle(string operatorName)
+        => OperatorStyleMap.TryGetValue(operatorName, out var style) ? style : null;
+}

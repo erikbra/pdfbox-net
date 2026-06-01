@@ -27,7 +27,42 @@
 
 namespace PdfBox.Net.Debugger.Colorpane;
 
+/// <summary>
+/// Represents a single colorant entry in an Indexed color space.
+/// Adapted from Apache PDFBox IndexedColorant (Khyrul Bashar).
+/// </summary>
 public sealed class IndexedColorant
 {
-    public string Name => GetType().Name;
- }
+    public int Index { get; set; }
+
+    public float[]? RgbValues { get; set; }
+
+    /// <summary>Returns the RGB components clamped to [0,1].</summary>
+    public (float R, float G, float B) GetColor()
+    {
+        float[] v = RgbValues ?? [0f, 0f, 0f];
+        return (v.Length > 0 ? v[0] : 0f,
+                v.Length > 1 ? v[1] : 0f,
+                v.Length > 2 ? v[2] : 0f);
+    }
+
+    /// <summary>Returns the RGB values as a comma-separated string of 0–255 integers.</summary>
+    public string GetRGBValuesString()
+    {
+        if (RgbValues == null || RgbValues.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        var sb = new System.Text.StringBuilder();
+        foreach (float v in RgbValues)
+        {
+            sb.Append((int)(v * 255));
+            sb.Append(", ");
+        }
+
+        // remove trailing ", "
+        sb.Length -= 2;
+        return sb.ToString();
+    }
+}

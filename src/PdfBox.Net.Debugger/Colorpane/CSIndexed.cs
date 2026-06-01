@@ -25,9 +25,52 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.Color;
+
 namespace PdfBox.Net.Debugger.Colorpane;
 
+/// <summary>
+/// Data model for an Indexed color space.  Extracts per-index RGB colorant data.
+/// Adapted from Apache PDFBox CSIndexed (Khyrul Bashar).
+/// </summary>
 public sealed class CSIndexed
 {
-    public string Name => GetType().Name;
- }
+    public IndexedColorant[] Colorants { get; }
+
+    public int ColorCount { get; }
+
+    public string? ErrorMessage { get; private set; }
+
+    public bool HasError => ErrorMessage != null;
+
+    public CSIndexed(COSArray array)
+    {
+        try
+        {
+            ColorCount = GetHival(array) + 1;
+            var indexed = new PDIndexed(array, null);
+            Colorants = new IndexedColorant[ColorCount];
+            for (int i = 0; i < ColorCount; i++)
+            {
+                float[] rgbValues = indexed.ToRGB([i]);
+                Colorants[i] = new IndexedColorant { Index = i, RgbValues = rgbValues };
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            Colorants = [];
+        }
+    }
+
+    private static int GetHival(COSArray array)
+    {
+        if (array.Size() > 2 && array.GetObject(2)?.GetCOSObject() is COSNumber num)
+        {
+            return Math.Min(num.IntValue(), 255);
+        }
+
+        return 255;
+    }
+}
