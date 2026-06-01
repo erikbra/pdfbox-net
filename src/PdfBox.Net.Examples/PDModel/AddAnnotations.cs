@@ -47,7 +47,7 @@ public static class AddAnnotations
         if (args.Length != 1)
         {
             Console.Error.WriteLine("Usage: AddAnnotations <output-pdf>");
-            Environment.Exit(1);
+            return;
         }
 
         using (PDDocument document = new PDDocument())

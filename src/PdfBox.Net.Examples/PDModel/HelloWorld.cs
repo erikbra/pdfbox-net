@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/HelloWorld.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -42,7 +42,7 @@ public static class HelloWorld
         if (args.Length != 2)
         {
             Console.Error.WriteLine("usage: HelloWorld <output-file> <Message>");
-            Environment.Exit(1);
+            return;
         }
 
         string filename = args[0];
@@ -53,11 +53,18 @@ public static class HelloWorld
             PDPage page = new PDPage();
             doc.AddPage(page);
 
-            // NOTE: PDType1Font(Standard14Fonts.FontName) constructor is not available in this port.
-            // Use PDFontFactory / Loader-based approach or a full font dictionary to load standard fonts.
-            throw new NotSupportedException(
-                "PDType1Font construction from a FontName enum is not available in this .NET port. " +
-                "Use a font loaded via PDType0Font or a COSDictionary-based approach.");
+            PDFont font = new PDType1Font(PDType1Font.FontName.HELVETICA_BOLD);
+
+            using (PDPageContentStream contents = new PDPageContentStream(doc, page))
+            {
+                contents.BeginText();
+                contents.SetFont(font, 12);
+                contents.NewLineAtOffset(100, 700);
+                contents.ShowText(message);
+                contents.EndText();
+            }
+
+            doc.Save(filename);
         }
     }
 }

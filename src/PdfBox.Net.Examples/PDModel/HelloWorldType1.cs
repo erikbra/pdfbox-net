@@ -40,7 +40,7 @@ public static class HelloWorldType1
         if (args.Length != 3)
         {
             Console.Error.WriteLine("usage: HelloWorldType1 <output-file> <Message> <pfb-file>");
-            Environment.Exit(1);
+            return;
         }
 
         string file = args[0];

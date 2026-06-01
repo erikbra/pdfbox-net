@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddMetadataFromDocInfo.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -30,6 +30,7 @@ using PdfBox.Net;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.XmpBox;
+using PdfBox.Net.XmpBox.Schema;
 using PdfBox.Net.XmpBox.Xml;
 
 namespace PdfBox.Net.Examples.PDModel;
@@ -53,14 +54,34 @@ public static class AddMetadataFromDocInfo
         {
             using (PDDocument document = Loader.LoadPDF(args[0]))
             {
-                PDDocumentCatalog catalog = document.GetDocumentCatalog();
+                if (document.GetDocument().IsEncrypted())
+                {
+                    Console.Error.WriteLine("Error: Cannot add metadata to encrypted document.");
+                    return;
+                }
 
-                // NOTE: The full Java XmpBox API (AdobePDFSchema.SetKeywords/SetProducer,
-                // XMPBasicSchema.SetModifyDate/SetCreateDate/SetCreatorTool/SetMetadataDate,
-                // DublinCoreSchema.SetTitle/AddCreator/SetDescription) is not yet ported to
-                // this .NET XmpBox implementation. The metadata stream is created but not
-                // fully populated from doc info fields.
+                PDDocumentCatalog catalog = document.GetDocumentCatalog();
+                PDDocumentInformation info = document.GetDocumentInformation();
+
                 XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();
+
+                AdobePDFSchema pdfSchema = metadata.CreateAndAddAdobePDFSchema();
+                pdfSchema.SetKeywords(info.GetKeywords() ?? string.Empty);
+                pdfSchema.SetProducer(info.GetProducer() ?? string.Empty);
+
+                XMPBasicSchema basicSchema = metadata.CreateAndAddXMPBasicSchema();
+                if (info.GetModificationDate().HasValue)
+                    basicSchema.SetModifyDate(info.GetModificationDate()!.Value.DateTime);
+                if (info.GetCreationDate().HasValue)
+                    basicSchema.SetCreateDate(info.GetCreationDate()!.Value.DateTime);
+                basicSchema.SetCreatorTool(info.GetCreator() ?? string.Empty);
+                basicSchema.SetMetadataDate(DateTime.Now);
+
+                DublinCoreSchema dcSchema = metadata.CreateAndAddDublinCoreSchema();
+                dcSchema.SetTitle(info.GetTitle() ?? string.Empty);
+                dcSchema.AddCreator("PDFBox");
+                dcSchema.SetDescription(info.GetSubject() ?? string.Empty);
+
                 PDMetadata metadataStream = new PDMetadata(document);
                 catalog.SetMetadata(metadataStream);
 

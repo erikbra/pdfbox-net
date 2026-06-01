@@ -31,85 +31,79 @@ namespace PdfBox.Net.Examples.Tests.Interactive.Form;
 /// Test of some the form examples.
 /// Ported from TestCreateSimpleForms.java — adapted because:
 /// <list type="bullet">
-///   <item>CreateSimpleForm and CreateCheckBox call <c>GetWidgets()[0]</c> on a freshly
-///         constructed field whose widget list is empty in this .NET port
-///         (no automatic widget creation on construction); they throw
-///         <see cref="ArgumentOutOfRangeException"/>.</item>
-///   <item>CreateRadioButtons, CreateSimpleFormWithEmbeddedFont, CreateMultiWidgetsForm,
-///         CreatePushButton and AddBorderToField require PDPageContentStream operators not
-///         yet ported and throw <see cref="NotSupportedException"/>.</item>
+///   <item>CreatePushButton requires AcroForm appearance-stream drawing operators not yet ported.</item>
+///   <item>CreateSimpleFormWithEmbeddedFont needs a TrueType font file at test runtime.</item>
 /// </list>
+/// Examples that save to a relative <c>target/</c> path are run from a temporary directory
+/// that contains a pre-created <c>target/</c> subdirectory, matching the Maven convention.
 /// </summary>
-public class TestCreateSimpleForms
+public class TestCreateSimpleForms : IDisposable
 {
-    /// <summary>
-    /// Stub: CreateSimpleForm.Main() throws ArgumentOutOfRangeException because
-    /// PDTextField.GetWidgets() returns an empty list on construction in this .NET port.
-    /// </summary>
-    [Fact(Skip = "Adapted — GetWidgets()[0] throws ArgumentOutOfRangeException; automatic widget creation on field construction not yet ported")]
-    public void TestCreateSimpleForm()
+    private static readonly string LiberationSansRegular =
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
+
+    private readonly string _tempDir;
+    private readonly string _originalDir;
+
+    public TestCreateSimpleForms()
     {
-        // Java original:
-        //   CreateSimpleForm.main(new String[] { filename });
-        //   // then loads filename and verifies field value "Sample field content"
+        _tempDir = Path.Combine(Path.GetTempPath(), "pdfbox-form-tests-" + Guid.NewGuid().ToString("N")[..8]);
+        _originalDir = Directory.GetCurrentDirectory();
+        Directory.CreateDirectory(Path.Combine(_tempDir, "target"));
+        Directory.SetCurrentDirectory(_tempDir);
     }
 
-    /// <summary>
-    /// AddBorderToField throws NotSupportedException because it requires AcroForm
-    /// appearance-stream drawing operators not yet ported.
-    /// </summary>
+    public void Dispose()
+    {
+        Directory.SetCurrentDirectory(_originalDir);
+        try { Directory.Delete(_tempDir, recursive: true); } catch { /* best-effort cleanup */ }
+    }
+
+    [Fact]
+    public void TestCreateSimpleForm()
+    {
+        CreateSimpleForm.Main(Array.Empty<string>());
+        Assert.True(File.Exists(Path.Combine(_tempDir, "target", "SimpleForm.pdf")));
+    }
+
     [Fact]
     public void TestAddBorderToField()
     {
-        Assert.Throws<NotSupportedException>(() =>
-            AddBorderToField.Main(new string[] { "input.pdf" }));
+        // AddBorderToField reads the PDF produced by CreateSimpleForm
+        CreateSimpleForm.Main(Array.Empty<string>());
+        AddBorderToField.Main(Array.Empty<string>());
+        Assert.True(File.Exists(Path.Combine(_tempDir, "target", "AddBorderToField.pdf")));
     }
 
-    /// <summary>
-    /// CreateSimpleFormWithEmbeddedFont throws NotSupportedException because it requires
-    /// AcroForm appearance-stream drawing operators not yet ported.
-    /// </summary>
     [Fact]
     public void TestCreateSimpleFormWithEmbeddedFont()
     {
-        Assert.Throws<NotSupportedException>(() =>
-            CreateSimpleFormWithEmbeddedFont.Main(new string[] { "output.pdf" }));
+        if (!File.Exists(LiberationSansRegular))
+            Assert.Skip("LiberationSans-Regular.ttf not available on this system");
+
+        CreateSimpleFormWithEmbeddedFont.Main(new string[] { LiberationSansRegular });
+        Assert.True(File.Exists(Path.Combine(_tempDir, "target", "SimpleFormWithEmbeddedFont.pdf")));
     }
 
-    /// <summary>
-    /// CreateMultiWidgetsForm throws NotSupportedException because it requires
-    /// AcroForm appearance-stream drawing operators not yet ported.
-    /// </summary>
     [Fact]
     public void TestCreateMultiWidgetsForm()
     {
-        Assert.Throws<NotSupportedException>(() =>
-            CreateMultiWidgetsForm.Main(new string[] { "output.pdf" }));
+        CreateMultiWidgetsForm.Main(Array.Empty<string>());
+        Assert.True(File.Exists(Path.Combine(_tempDir, "target", "MultiWidgetsForm.pdf")));
     }
 
-    /// <summary>
-    /// Stub: CreateCheckBox.Main() throws ArgumentOutOfRangeException because
-    /// PDCheckBox.GetWidgets() returns an empty list on construction in this .NET port.
-    /// </summary>
-    [Fact(Skip = "Adapted — GetWidgets()[0] throws ArgumentOutOfRangeException; automatic widget creation on field construction not yet ported")]
+    [Fact]
     public void TestCreateCheckBox()
     {
-        // Java original:
-        //   CreateCheckBox.main(null);
-        //   // then loads target/CheckBoxSample.pdf and verifies On/Off values
+        CreateCheckBox.Main(Array.Empty<string>());
+        Assert.True(File.Exists(Path.Combine(_tempDir, "checkbox.pdf")));
     }
 
-    /// <summary>
-    /// Stub: CreateRadioButtons.Main() saves to a CWD-relative path and the saved
-    /// AcroForm radio-button field cannot yet be round-tripped and verified because
-    /// the appearance-stream operators needed to properly set widget values are not ported.
-    /// </summary>
-    [Fact(Skip = "Adapted — CreateRadioButtons saves to CWD-relative path; appearance-stream operators not yet ported, field round-trip not verified")]
+    [Fact]
     public void TestRadioButtons()
     {
-        // Java original:
-        //   CreateRadioButtons.main(null);
-        //   // then loads RadioButtonsSample.pdf and verifies selected export values
+        CreateRadioButtons.Main(Array.Empty<string>());
+        Assert.True(File.Exists(Path.Combine(_tempDir, "radiobuttons.pdf")));
     }
 
     /// <summary>

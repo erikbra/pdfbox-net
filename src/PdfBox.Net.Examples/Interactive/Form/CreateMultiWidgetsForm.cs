@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateMultiWidgetsForm.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -25,15 +25,27 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.Form;
+using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.Examples.Interactive.Form;
 
 /// <summary>
-/// Create a PDF form with multiple widget annotations for a single field.
+/// An example of creating an AcroForm and a form field from scratch, with two widgets for one field:
+/// This means that the same field is visible on two separate pages, but can be on different
+/// positions and different size and colors. Changing the value on one page will also change it on
+/// the other page.
+///
+/// The form field is created with properties similar to creating a form with default settings in
+/// Adobe Acrobat.
 /// </summary>
-public class CreateMultiWidgetsForm
+public sealed class CreateMultiWidgetsForm
 {
     private CreateMultiWidgetsForm()
     {
@@ -41,16 +53,86 @@ public class CreateMultiWidgetsForm
 
     public static void Main(string[] args)
     {
-        if (args.Length < 1)
+        // Create a new document with 2 empty pages.
+        using (PDDocument document = new PDDocument())
         {
-            Console.Error.WriteLine("usage: CreateMultiWidgetsForm <pdf-file>");
-            return;
-        }
+            PDPage page1 = new PDPage(PDRectangle.A4);
+            document.AddPage(page1);
+            PDPage page2 = new PDPage(PDRectangle.A4);
+            document.AddPage(page2);
 
-        // NOTE: This example requires interactive form AcroForm functionality including
-        // field appearance streams and PDPageContentStream drawing operators which may
-        // not be fully implemented in this .NET port.
-        throw new NotSupportedException(
-            "This AcroForm example requires capabilities not yet implemented in this .NET port.");
+            // Adobe Acrobat uses Helvetica as a default font and
+            // stores that under the name '/Helv' in the resources dictionary
+            PDFont font = new PDType1Font(PDType1Font.FontName.HELVETICA);
+            PDResources resources = new PDResources();
+            resources.Put(COSName.GetPDFName("Helv"), font);
+
+            // Add a new AcroForm and add that to the document
+            PDAcroForm acroForm = new PDAcroForm(document);
+            document.GetDocumentCatalog().SetAcroForm(acroForm);
+
+            // Add and set the resources and default appearance at the form level
+            acroForm.SetDefaultResources(resources);
+
+            // Acrobat sets the font size on the form level to be
+            // auto sized as default. This is done by setting the font size to '0'
+            string defaultAppearanceString = "/Helv 0 Tf 0 g";
+            acroForm.SetDefaultAppearance(defaultAppearanceString);
+
+            // Add a form field to the form.
+            PDTextField textBox = new PDTextField(acroForm);
+            textBox.SetPartialName("SampleField");
+
+            // Acrobat sets the font size to 12 as default
+            // The text color is set to blue in this example.
+            defaultAppearanceString = "/Helv 12 Tf 0 0 1 rg";
+            textBox.SetDefaultAppearance(defaultAppearanceString);
+
+            // add the field to the AcroForm
+            acroForm.GetFields().Add(textBox);
+
+            // Specify 1st annotation associated with the field
+            PDAnnotationWidget widget1 = new PDAnnotationWidget();
+            PDRectangle rect = new PDRectangle(50, 750, 250, 50);
+            widget1.SetRectangle(rect);
+            widget1.SetPage(page1);
+            widget1.SetParent(textBox);
+
+            // Specify 2nd annotation associated with the field
+            PDAnnotationWidget widget2 = new PDAnnotationWidget();
+            PDRectangle rect2 = new PDRectangle(200, 650, 100, 50);
+            widget2.SetRectangle(rect2);
+            widget2.SetPage(page2);
+            widget2.SetParent(textBox);
+
+            // set green border and yellow background for 1st widget
+            PDAppearanceCharacteristicsDictionary fieldAppearance1 =
+                new PDAppearanceCharacteristicsDictionary(new COSDictionary());
+            fieldAppearance1.SetBorderColour(new PDColor(new float[] { 0, 1, 0 }, PDDeviceRGB.Instance));
+            fieldAppearance1.SetBackground(new PDColor(new float[] { 1, 1, 0 }, PDDeviceRGB.Instance));
+            widget1.SetAppearanceCharacteristics(fieldAppearance1);
+
+            // set red border and green background for 2nd widget
+            PDAppearanceCharacteristicsDictionary fieldAppearance2 =
+                new PDAppearanceCharacteristicsDictionary(new COSDictionary());
+            fieldAppearance2.SetBorderColour(new PDColor(new float[] { 1, 0, 0 }, PDDeviceRGB.Instance));
+            fieldAppearance2.SetBackground(new PDColor(new float[] { 0, 1, 0 }, PDDeviceRGB.Instance));
+            widget2.SetAppearanceCharacteristics(fieldAppearance2);
+
+            textBox.SetWidgets(new List<PDAnnotationWidget> { widget1, widget2 });
+
+            // make sure the annotations are visible on screen and paper
+            widget1.SetPrinted(true);
+            widget2.SetPrinted(true);
+
+            // Add the annotations to the pages
+            page1.GetAnnotations().Add(widget1);
+            page2.GetAnnotations().Add(widget2);
+
+            // set the field value
+            textBox.SetValue("Sample field");
+
+            document.Save("target/MultiWidgetsForm.pdf");
+        }
     }
 }

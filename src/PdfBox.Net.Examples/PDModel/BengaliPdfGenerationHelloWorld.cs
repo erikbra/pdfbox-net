@@ -50,7 +50,7 @@ public class BengaliPdfGenerationHelloWorld
         if (args.Length != 1)
         {
             Console.Error.WriteLine("usage: BengaliPdfGenerationHelloWorld <output-file>");
-            Environment.Exit(1);
+            return;
         }
 
         string filename = args[0];

@@ -36,11 +36,11 @@ public class MergePDFATest
     /// <summary>
     /// Stub: depends on CreatePDFA (not yet ported) and VeraPDF (Java-only).
     /// </summary>
-    [Fact(Skip = "Adapted — depends on CreatePDFA (NotSupportedException) and VeraPDF Java library not available in .NET")]
+    [Fact(Skip = "Adapted — PDF/A compliance validation via VeraPDF is a Java-only dependency with no .NET equivalent")]
     public void TestMergePDFA()
     {
         // Java original merges two PDF/A-1b files created by CreatePDFA and then
         // validates the merged result using VeraPDF.
-        // Neither CreatePDFA nor VeraPDF is available in this .NET port.
+        // VeraPDF has no .NET equivalent currently integrated in this port.
     }
 }

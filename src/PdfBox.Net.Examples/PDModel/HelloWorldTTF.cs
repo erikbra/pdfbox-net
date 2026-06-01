@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/HelloWorldTTF.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -26,13 +26,12 @@
  */
 
 using PdfBox.Net.PDModel;
-using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
 
 namespace PdfBox.Net.Examples.PDModel;
 
 /// <summary>
-/// This is an example that creates a simple document and writes a "Hello World" type message
-/// using a TTF font.
+/// Creates a simple document with a TrueType font.
 /// </summary>
 public class HelloWorldTTF
 {
@@ -42,22 +41,34 @@ public class HelloWorldTTF
 
     public static void Main(string[] args)
     {
-        if (args.Length != 2)
+        if (args.Length != 3)
         {
-            Console.Error.WriteLine("usage: HelloWorldTTF <output-file> <ttf-file>");
-            Environment.Exit(1);
+            Console.Error.WriteLine("usage: HelloWorldTTF <output-file> <Message> <ttf-file>");
+            return;
         }
 
-        using (PDDocument document = new PDDocument())
+        string pdfPath = args[0];
+        string message = args[1];
+        string ttfPath = args[2];
+
+        using (PDDocument doc = new PDDocument())
         {
             PDPage page = new PDPage();
-            document.AddPage(page);
+            doc.AddPage(page);
 
-            // NOTE: PDType0Font.Load(doc, path) is not yet publicly available and
-            // PDPageContentStream text drawing operators are not yet implemented in this .NET port.
-            throw new NotSupportedException(
-                "PDType0Font.Load(doc, fontFile) and text drawing operators are not yet " +
-                "publicly available in this .NET port.");
+            PDFont font = PDType0Font.Load(doc, ttfPath);
+
+            using (PDPageContentStream contents = new PDPageContentStream(doc, page))
+            {
+                contents.BeginText();
+                contents.SetFont(font, 12);
+                contents.NewLineAtOffset(100, 700);
+                contents.ShowText(message);
+                contents.EndText();
+            }
+
+            doc.Save(pdfPath);
+            Console.WriteLine(pdfPath + " created!");
         }
     }
 }

@@ -26,26 +26,65 @@
  */
 
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
 
 namespace PdfBox.Net.Examples.PDModel;
 
 /// <summary>
-/// This example creates a PDF with embedded fonts.
+/// An example of using an embedded TrueType font with Unicode text.
+/// Adaptation note: uses repeated NewLineAtOffset instead of Java's SetLeading + NewLine
+/// because SetLeading/NewLine are not yet in this .NET port.
 /// </summary>
-public class EmbeddedFonts
+public sealed class EmbeddedFonts
 {
+    private EmbeddedFonts()
+    {
+    }
+
     public static void Main(string[] args)
     {
         if (args.Length != 2)
         {
             Console.Error.WriteLine("usage: EmbeddedFonts <output-file> <font-file>");
-            Environment.Exit(1);
+            return;
         }
 
-        // NOTE: PDType0Font.Load(doc, path) is not yet publicly available in this .NET port.
-        // PDPageContentStream text drawing operators are also not yet implemented.
-        throw new NotSupportedException(
-            "PDType0Font.Load(doc, fontFile) and text drawing operators are not yet " +
-            "publicly available in this .NET port.");
+        string outputFile = args[0];
+        string fontFile = args[1];
+
+        using (PDDocument document = new PDDocument())
+        {
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.AddPage(page);
+
+            PDType0Font font = PDType0Font.Load(document, fontFile);
+            float fontSize = 12;
+            float leading = fontSize * 1.2f;
+
+            using (PDPageContentStream stream = new PDPageContentStream(document, page))
+            {
+                stream.BeginText();
+                stream.SetFont(font, fontSize);
+                stream.SetLeading(leading);
+
+                stream.NewLineAtOffset(50, 600);
+                stream.ShowText("PDFBox's Unicode with Embedded TrueType Font");
+                stream.NewLine();
+
+                stream.ShowText("Supports full Unicode text \u263A");
+                stream.NewLine();
+
+                stream.ShowText("English \u0440\u0443\u0441\u0441\u043A\u0438\u0439 \u044F\u0437\u044B\u043A Ti\u1EBFng Vi\u1EC7t");
+                stream.NewLine();
+
+                // ligature
+                stream.ShowText("Ligatures: \uFB01lm \uFB02ood");
+
+                stream.EndText();
+            }
+
+            document.Save(outputFile);
+        }
     }
 }

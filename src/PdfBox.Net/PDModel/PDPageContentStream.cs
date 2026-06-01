@@ -95,6 +95,10 @@ public sealed class PDPageContentStream : IDisposable
 
     public void NewLineAtOffset(float tx, float ty) => WriteOperator("Td", tx, ty);
 
+    public void SetLeading(float leading) => WriteOperator("TL", leading);
+
+    public void NewLine() => WriteOperator("T*");
+
     public void SetFont(PDFont font, float fontSize)
     {
         ArgumentNullException.ThrowIfNull(font);

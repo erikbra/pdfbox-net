@@ -25,27 +25,96 @@
  * limitations under the License.
  */
 
+using System.IO;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.XmpBox;
+using PdfBox.Net.XmpBox.Schema;
+using PdfBox.Net.XmpBox.Xml;
 
 namespace PdfBox.Net.Examples.PDModel;
 
 /// <summary>
 /// Creates a simple PDF/A document.
+///
+/// Adaptation notes:
+/// - Accepts an optional 4th argument for the sRGB ICC profile path (instead of embedded resource).
+///   If not provided, the output intent section is skipped.
+/// - font.IsEmbedded() is not yet available in this .NET port; the check is omitted since
+///   PDType0Font.Load() always embeds the font.
+/// - PDDocument.Save(file, CompressParameters.NO_COMPRESSION) is not yet available;
+///   uses the default Save() which produces a valid but potentially compressed output.
 /// </summary>
 public static class CreatePDFA
 {
     public static void Main(string[] args)
     {
-        if (args.Length != 3)
+        if (args.Length < 3)
         {
-            Console.Error.WriteLine("usage: CreatePDFA <output-file> <Message> <ttf-file>");
-            Environment.Exit(1);
+            Console.Error.WriteLine("usage: CreatePDFA <output-file> <Message> <ttf-file> [<sRGB-icc-file>]");
+            return;
         }
 
-        // NOTE: PDType0Font.Load(doc, path) is not yet publicly available in this .NET port,
-        // and PDPageContentStream text drawing operators are not yet implemented.
-        throw new NotSupportedException(
-            "PDType0Font.Load(doc, fontFile) and text drawing operators are not yet " +
-            "publicly available in this .NET port.");
+        string file = args[0];
+        string message = args[1];
+        string fontFile = args[2];
+        string? iccFile = args.Length > 3 ? args[3] : null;
+
+        using (PDDocument doc = new PDDocument())
+        {
+            PDPage page = new PDPage();
+            doc.AddPage(page);
+
+            // load the font as this needs to be embedded
+            PDFont font = PDType0Font.Load(doc, fontFile);
+
+            // A PDF/A file needs to have the font embedded if the font is used for text rendering
+            // in rendering modes other than text rendering mode 3.
+            // PDType0Font.Load() always embeds the font, so this check is satisfied.
+
+            // create a page with the message
+            using (PDPageContentStream contents = new PDPageContentStream(doc, page))
+            {
+                contents.BeginText();
+                contents.SetFont(font, 12);
+                contents.NewLineAtOffset(100, 700);
+                contents.ShowText(message);
+                contents.EndText();
+            }
+
+            // add XMP metadata
+            XMPMetadata xmp = XMPMetadata.CreateXMPMetadata();
+
+            DublinCoreSchema dc = xmp.CreateAndAddDublinCoreSchema();
+            dc.SetTitle(file);
+
+            PDFAIdentificationSchema id = xmp.CreateAndAddPDFAIdentificationSchema();
+            id.SetPart(1);
+            id.SetConformance("B");
+
+            XmpSerializer serializer = new XmpSerializer();
+            using MemoryStream baos = new MemoryStream();
+            serializer.Serialize(xmp, baos, true);
+
+            PDMetadata metadata = new PDMetadata(doc);
+            metadata.ImportXMPMetadata(baos.ToArray());
+            doc.GetDocumentCatalog().SetMetadata(metadata);
+
+            // sRGB output intent (required for PDF/A)
+            if (iccFile != null)
+            {
+                using FileStream colorProfileStream = File.OpenRead(iccFile);
+                PDOutputIntent intent = new PDOutputIntent(doc, colorProfileStream);
+                intent.SetInfo("sRGB IEC61966-2.1");
+                intent.SetOutputCondition("sRGB IEC61966-2.1");
+                intent.SetOutputConditionIdentifier("sRGB IEC61966-2.1");
+                intent.SetRegistryName("http://www.color.org");
+                doc.GetDocumentCatalog().AddOutputIntent(intent);
+            }
+
+            doc.Save(file);
+        }
     }
 }

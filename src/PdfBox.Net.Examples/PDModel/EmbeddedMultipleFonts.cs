@@ -39,7 +39,7 @@ public class EmbeddedMultipleFonts
         if (args.Length < 3)
         {
             Console.Error.WriteLine("usage: EmbeddedMultipleFonts <output-file> <font-file1> <font-file2> ...");
-            Environment.Exit(1);
+            return;
         }
 
         // NOTE: PDType0Font.Load(doc, path) is not yet publicly available in this .NET port.

@@ -27,27 +27,29 @@ namespace PdfBox.Net.Examples.Tests.PDFA;
 /// Test of CreatePDFA example.
 /// Ported from CreatePDFATest.java — adapted because:
 /// <list type="bullet">
-///   <item><c>CreatePDFA</c> requires PDType0Font, XMP schema typed setters, and
-///         PDPageContentStream text operators not yet ported, so it throws
-///         <see cref="NotSupportedException"/>.</item>
-///   <item>VeraPDF (used for PDF/A-1b compliance validation) is a Java-only library
-///         with no .NET equivalent currently integrated into this port.</item>
+///   <item>VeraPDF (used for PDF/A-1b compliance validation in the Java original)
+///         is a Java-only library with no .NET equivalent currently integrated.</item>
 ///   <item>The signing step (<c>CreateSignature</c>) requires BouncyCastle cryptographic
 ///         primitives not yet ported.</item>
 /// </list>
 /// </summary>
 public class CreatePDFATest
 {
+    private static readonly string LiberationSansRegular =
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
+
     [Fact]
-    public void TestCreatePDFAThrows()
+    public void TestCreatePDFA()
     {
+        if (!File.Exists(LiberationSansRegular))
+            Assert.Skip("LiberationSans-Regular.ttf not available on this system");
+
         string outDir = Path.Combine(Path.GetTempPath(), "pdfbox-examples-tests-pdfa");
         Directory.CreateDirectory(outDir);
-        string pdfaFilename = Path.Combine(outDir, "PDFA.pdf");
-        string message = "The quick brown fox";
-        string fontfile = "LiberationSans-Regular.ttf"; // not present; throws before use
+        string pdfaFile = Path.Combine(outDir, "PDFA.pdf");
+        File.Delete(pdfaFile);
 
-        Assert.Throws<NotSupportedException>(() =>
-            CreatePDFA.Main(new string[] { pdfaFilename, message, fontfile }));
+        CreatePDFA.Main(new string[] { pdfaFile, "The quick brown fox", LiberationSansRegular });
+        Assert.True(File.Exists(pdfaFile), "CreatePDFA should have created the PDF");
     }
 }

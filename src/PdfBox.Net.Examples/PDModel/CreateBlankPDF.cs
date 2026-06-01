@@ -39,7 +39,7 @@ public static class CreateBlankPDF
         if (args.Length != 1)
         {
             Console.Error.WriteLine("usage: CreateBlankPDF <outputfile.pdf>");
-            Environment.Exit(1);
+            return;
         }
 
         string filename = args[0];

@@ -39,7 +39,7 @@ public class EmbeddedVerticalFonts
         if (args.Length != 2)
         {
             Console.Error.WriteLine("usage: EmbeddedVerticalFonts <output-file> <font-file>");
-            Environment.Exit(1);
+            return;
         }
 
         // NOTE: PDType0Font.Load(doc, path) is not yet publicly available in this .NET port.

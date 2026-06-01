@@ -26,9 +26,7 @@ namespace PdfBox.Net.Examples.Tests.PDModel;
 
 /// <summary>
 /// Test of HelloWorld and HelloWorldTTF examples.
-/// Ported from TestHelloWorld.java — adapted because both examples rely on
-/// PDType1Font(FontName) / PDPageContentStream text operators not yet implemented
-/// in this .NET port.  Each test verifies the expected <see cref="NotSupportedException"/>.
+/// Ported from TestHelloWorld.java.
 /// </summary>
 public class TestHelloWorld
 {
@@ -41,22 +39,28 @@ public class TestHelloWorld
     }
 
     [Fact]
-    public void TestHelloWorldThrows()
+    public void TestHelloWorldCreatesFile()
     {
         string outputFile = Path.Combine(OutputDir, "HelloWorld.pdf");
         File.Delete(outputFile);
         // HelloWorld expects exactly 2 args: <output-file> <message>
-        string[] args = { outputFile, "HelloWorld.pdf" };
-        Assert.Throws<NotSupportedException>(() => HelloWorld.Main(args));
+        string[] args = { outputFile, "Hello World!" };
+        HelloWorld.Main(args);
+        Assert.True(File.Exists(outputFile), "HelloWorld should have created the PDF");
     }
 
     [Fact]
-    public void TestHelloWorldTTFThrows()
+    public void TestHelloWorldTTFCreatesFile()
     {
+        const string ttfFont = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
+        if (!File.Exists(ttfFont))
+            Assert.Skip("LiberationSans-Regular.ttf not available on this system");
+
         string outputFile = Path.Combine(OutputDir, "HelloWorldTTF.pdf");
         File.Delete(outputFile);
-        // HelloWorldTTF expects exactly 2 args: <output-file> <ttf-font-file>
-        string[] args = { outputFile, "nonexistent-font.ttf" };
-        Assert.Throws<NotSupportedException>(() => HelloWorldTTF.Main(args));
+        // HelloWorldTTF expects 3 args: <output-file> <message> <ttf-file>
+        string[] args = { outputFile, "Hello World TTF!", ttfFont };
+        HelloWorldTTF.Main(args);
+        Assert.True(File.Exists(outputFile), "HelloWorldTTF should have created the PDF");
     }
 }
