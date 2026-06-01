@@ -1,15 +1,16 @@
 using System.Text;
 using PdfBox.Net.FontBox.CMap;
+using FontBoxCMap = PdfBox.Net.FontBox.CMap.CMap;
 using PdfBox.Net.IO;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class CMapParserTest
 {
     [Fact]
     public void ParseRepresentativeCMapStreamAndResolveMappings()
     {
-        byte[] cmapBytes = Encoding.ASCII.GetBytes(
+        byte[] cmapBytes = System.Text.Encoding.ASCII.GetBytes(
             "/CIDInit /ProcSet findresource begin\n" +
             "12 dict begin\n" +
             "begincmap\n" +
@@ -39,7 +40,7 @@ public class CMapParserTest
         using RandomAccessReadBuffer randomAccessRead = new(cmapBytes);
         CMapParser parser = new();
 
-        CMap cmap = parser.Parse(randomAccessRead);
+        FontBoxCMap cmap = parser.Parse(randomAccessRead);
 
         Assert.Equal("Test-CMap", cmap.Name);
         Assert.Equal("1", cmap.Version);

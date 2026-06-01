@@ -9,6 +9,7 @@ using PdfBox.Net.ContentStream;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Patterns;
 using Xunit;
@@ -60,6 +61,67 @@ public class PDContentStreamTest
 
         Assert.NotNull(((PDContentStream)pattern).GetContentsForStreamParsing());
         Assert.NotNull(pattern.GetMatrix());
+    }
+
+    [Fact]
+    public void PDPageContentStream_ExposesTextAndPathOperators()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.BeginText();
+            content.SetFont(new PDType1Font(PDType1Font.FontName.HELVETICA), 12);
+            content.NewLineAtOffset(100, 700);
+            content.ShowText("Hello");
+            content.EndText();
+            content.MoveTo(10, 10);
+            content.LineTo(20, 20);
+            content.ClosePath();
+            content.Stroke();
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+
+        Assert.Contains("BT", contentText);
+        Assert.Contains("Tf", contentText);
+        Assert.Contains("Td", contentText);
+        Assert.Contains("Tj", contentText);
+        Assert.Contains("ET", contentText);
+        Assert.Contains("m", contentText);
+        Assert.Contains("l", contentText);
+        Assert.Contains("h", contentText);
+        Assert.Contains("S", contentText);
+    }
+
+    [Fact]
+    public void PDDocumentImportPage_CopiesPageContents()
+    {
+        using PDDocument source = new();
+        PDPage sourcePage = new();
+        source.AddPage(sourcePage);
+        using (PDPageContentStream content = new(source, sourcePage))
+        {
+            content.BeginText();
+            content.SetFont(new PDType1Font(PDType1Font.FontName.HELVETICA), 12);
+            content.ShowText("Imported");
+            content.EndText();
+        }
+
+        using PDDocument target = new();
+        PDPage imported = target.ImportPage(sourcePage);
+
+        Assert.Equal(1, target.GetNumberOfPages());
+        Assert.Equal(imported.GetCOSObject(), target.GetPage(0).GetCOSObject());
+        Assert.NotSame(sourcePage.GetCOSObject(), imported.GetCOSObject());
+
+        using Stream stream = ((PDContentStream)imported).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        Assert.Contains("Imported", reader.ReadToEnd());
     }
 
     private static COSStream CreateStream(string text)

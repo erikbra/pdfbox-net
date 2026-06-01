@@ -21,23 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\PdfBox.Net\PdfBox.Net.csproj" />
+    <ProjectReference Include="..\..\src\PdfBox.Net.FontBox\PdfBox.Net.FontBox.csproj" />
+    <ProjectReference Include="..\..\src\PdfBox.Net.IO\PdfBox.Net.IO.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Fixtures\*.pdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\*.fdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\TaggedPdf\*.pdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\TextExtraction\**\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Fixtures\COS\**\*">
+    <Content Include="Fixtures\AFM\*.afm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

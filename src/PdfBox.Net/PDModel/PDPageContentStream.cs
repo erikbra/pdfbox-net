@@ -29,6 +29,7 @@ using System.Text;
 using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
+using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.PdfWriter;
@@ -84,6 +85,50 @@ public sealed class PDPageContentStream : IDisposable
         _compress = compress;
         _buffer = new MemoryStream();
         _writer = new ContentStreamWriter(_buffer);
+    }
+
+    public void BeginText() => WriteOperator("BT");
+
+    public void EndText() => WriteOperator("ET");
+
+    public void ShowText(string text) => WriteOperator("Tj", new COSString(text ?? string.Empty));
+
+    public void NewLineAtOffset(float tx, float ty) => WriteOperator("Td", tx, ty);
+
+    public void SetFont(PDFont font, float fontSize)
+    {
+        ArgumentNullException.ThrowIfNull(font);
+        PDResources resources = _page.GetResources() ?? new PDResources();
+        _page.SetResources(resources);
+        COSName fontName = AddFontResource(resources, font);
+        WriteOperator("Tf", fontName, fontSize);
+    }
+
+    public void MoveTo(float x, float y) => WriteOperator("m", x, y);
+
+    public void LineTo(float x, float y) => WriteOperator("l", x, y);
+
+    public void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3) =>
+        WriteOperator("c", x1, y1, x2, y2, x3, y3);
+
+    public void AddRect(float x, float y, float width, float height) => WriteOperator("re", x, y, width, height);
+
+    public void ClosePath() => WriteOperator("h");
+
+    public void Stroke() => WriteOperator("S");
+
+    public void Fill() => WriteOperator("f");
+
+    public void FillAndStroke() => WriteOperator("B");
+
+    public void CloseAndStroke() => WriteOperator("s");
+
+    public void CloseAndFillAndStroke() => WriteOperator("b");
+
+    public void Clip()
+    {
+        WriteOperator("W");
+        WriteOperator("n");
     }
 
     /// <summary>
@@ -226,6 +271,30 @@ public sealed class PDPageContentStream : IDisposable
         }
 
         return stream;
+    }
+
+    private static COSName AddFontResource(PDResources resources, PDFont font)
+    {
+        foreach (COSName existingName in resources.GetFontNames())
+        {
+            PDFont? existingFont = resources.GetFont(existingName);
+            if (existingFont is not null && ReferenceEquals(existingFont.GetCOSObject(), font.GetCOSObject()))
+            {
+                return existingName;
+            }
+        }
+
+        HashSet<string> existingNames = resources.GetFontNames().Select(name => name.GetName()).ToHashSet(StringComparer.Ordinal);
+        int counter = 1;
+        string name;
+        do
+        {
+            name = $"F{counter++}";
+        } while (existingNames.Contains(name));
+
+        COSName fontName = COSName.GetPDFName(name);
+        resources.Put(fontName, font);
+        return fontName;
     }
 
     private void WriteOperator(string name, params object[] operands)

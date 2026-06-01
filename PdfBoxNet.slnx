@@ -5,6 +5,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/src/">
+    <Project Path="src/PdfBox.Net.Benchmark/PdfBox.Net.Benchmark.csproj" />
     <Project Path="src/PdfBox.Net.Examples/PdfBox.Net.Examples.csproj" />
     <Project Path="src/PdfBox.Net.FontBox/PdfBox.Net.FontBox.csproj" />
     <Project Path="src/PdfBox.Net.IO/PdfBox.Net.IO.csproj" />
@@ -14,6 +15,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj" />
+    <Project Path="tests/PdfBox.Net.FontBox.Tests/PdfBox.Net.FontBox.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.XmpBox.Tests/PdfBox.Net.XmpBox.Tests.csproj" />
   </Folder>
 </Solution>

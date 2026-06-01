@@ -1,7 +1,7 @@
 using PdfBox.Net.FontBox.CFF;
 using PdfBox.Net.IO;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class CharStringParserTest
 {

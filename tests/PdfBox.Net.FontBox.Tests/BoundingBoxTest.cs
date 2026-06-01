@@ -24,7 +24,7 @@
 using PdfBox.Net.FontBox.Util;
 using Xunit;
 
-namespace PdfBox.Net.Tests;
+namespace PdfBox.Net.FontBox.Tests;
 
 public class BoundingBoxTest
 {
