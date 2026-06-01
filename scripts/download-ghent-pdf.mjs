@@ -32,6 +32,7 @@ const execFileAsync = promisify(execFile);
 
 const PAGE_LOAD_TIMEOUT = 60_000;   // ms — allow for slow CI networks
 const DOWNLOAD_TIMEOUT  = 120_000;  // ms — large ZIP download
+const MAX_REDIRECTS     = 10;       // maximum HTTP redirects when fetching a direct link
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot  = path.resolve(__dirname, '..');
@@ -122,20 +123,19 @@ try {
     const el = page.locator(sel).first();
     if (await el.count() === 0) continue;
 
-    // Only suppress "attribute not present" (null return); re-throw real errors.
+    // getAttribute returns null when the attribute is absent; any other error
+    // is unexpected and should propagate so the caller can diagnose it.
     let href = null;
     try {
       href = await el.getAttribute('href');
-    } catch (err) {
-      if (err?.message?.includes('not found') || err?.message?.includes('detached')) {
-        continue;
-      }
-      throw err;
+    } catch {
+      // Element may have disappeared between count() and getAttribute(); skip it.
+      continue;
     }
 
     if (href && href.includes('.zip')) {
       // Direct link — download without triggering browser download dialog
-      const resolvedUrl = href.startsWith('http') ? href : new URL(href, GWG_DOWNLOAD_URL).toString();
+      const resolvedUrl = new URL(href, GWG_DOWNLOAD_URL).toString();
       console.log(`  Downloading ZIP from direct link: ${resolvedUrl}`);
       zipPath = path.join(outputDir, 'GhentV50.zip');
       await downloadFile(resolvedUrl, zipPath);
@@ -159,17 +159,22 @@ try {
   }
 
   // -------------------------------------------------------------------------
-  // Extract the ZIP using parameterised calls (no shell string interpolation).
+  // Extract the ZIP.
+  // Paths are passed as environment variables (Windows) or explicit argv
+  // (POSIX) to avoid any shell-string injection.
   // -------------------------------------------------------------------------
   console.log(`Extracting ${zipPath} into ${outputDir}...`);
   if (process.platform === 'win32') {
-    await execFileAsync('powershell.exe', [
-      '-NoProfile',
-      '-NonInteractive',
-      '-Command',
-      `Expand-Archive -Force -Path '${zipPath.replace(/'/g, "''")}' -DestinationPath '${outputDir.replace(/'/g, "''")}'`,
-    ]);
+    // Pass paths through environment variables so no path content ever lands
+    // in the PowerShell script text itself.
+    await execFileAsync(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command',
+       'Expand-Archive -Force -LiteralPath $env:GHENT_ZIP -DestinationPath $env:GHENT_OUT'],
+      { env: { ...process.env, GHENT_ZIP: zipPath, GHENT_OUT: outputDir } }
+    );
   } else {
+    // execFile passes argv directly to the kernel — no shell expansion.
     await execFileAsync('unzip', ['-o', zipPath, '-d', outputDir]);
   }
 
@@ -191,19 +196,28 @@ try {
 // ---------------------------------------------------------------------------
 
 /**
- * Downloads a URL to a local file, following redirects.
+ * Downloads a URL to a local file, following redirects up to MAX_REDIRECTS.
  * @param {string} url
  * @param {string} dest
+ * @param {number} [redirects=0]
  * @returns {Promise<void>}
  */
-function downloadFile(url, dest) {
+function downloadFile(url, dest, redirects = 0) {
   return new Promise((resolve, reject) => {
+    if (redirects > MAX_REDIRECTS) {
+      return reject(new Error(`Too many redirects (> ${MAX_REDIRECTS}) for ${url}`));
+    }
     const file   = createWriteStream(dest);
     const getter = url.startsWith('https') ? httpsGet : httpGet;
+
+    file.on('error', reject);
+
     getter(url, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         file.close();
-        downloadFile(res.headers.location, dest).then(resolve).catch(reject);
+        // Resolve relative Location headers against the current URL.
+        const next = new URL(res.headers.location, url).toString();
+        downloadFile(next, dest, redirects + 1).then(resolve).catch(reject);
         return;
       }
       if (res.statusCode !== 200) {
@@ -213,7 +227,6 @@ function downloadFile(url, dest) {
       }
       res.pipe(file);
       file.on('finish', () => file.close(resolve));
-      file.on('error', reject);
     }).on('error', reject);
   });
 }
