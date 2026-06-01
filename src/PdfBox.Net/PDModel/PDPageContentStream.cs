@@ -539,28 +539,20 @@ public sealed class PDPageContentStream : IDisposable
 
     private void UpdateStrokingColorSpaceStack(PDColorSpace colorSpace)
     {
-        if (_strokingColorSpaceStack.Count == 0)
-        {
-            _strokingColorSpaceStack.Push(colorSpace);
-        }
-        else
+        if (_strokingColorSpaceStack.Count > 0)
         {
             _strokingColorSpaceStack.Pop();
-            _strokingColorSpaceStack.Push(colorSpace);
         }
+        _strokingColorSpaceStack.Push(colorSpace);
     }
 
     private void UpdateNonStrokingColorSpaceStack(PDColorSpace colorSpace)
     {
-        if (_nonStrokingColorSpaceStack.Count == 0)
-        {
-            _nonStrokingColorSpaceStack.Push(colorSpace);
-        }
-        else
+        if (_nonStrokingColorSpaceStack.Count > 0)
         {
             _nonStrokingColorSpaceStack.Pop();
-            _nonStrokingColorSpaceStack.Push(colorSpace);
         }
+        _nonStrokingColorSpaceStack.Push(colorSpace);
     }
 
     private static List<object> BuildColorOperands(PDColor color, PDColorSpace colorSpace)
