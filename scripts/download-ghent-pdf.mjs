@@ -19,16 +19,23 @@ import { chromium } from 'playwright';
 import { createWriteStream, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { exec } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { get as httpsGet } from 'node:https';
 import { get as httpGet } from 'node:http';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
+
+// ---------------------------------------------------------------------------
+// Configuration
+// ---------------------------------------------------------------------------
+
+const PAGE_LOAD_TIMEOUT = 60_000;   // ms — allow for slow CI networks
+const DOWNLOAD_TIMEOUT  = 120_000;  // ms — large ZIP download
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, '..');
-const outputDir = process.argv[2] ?? path.join(repoRoot, 'target', 'pdfs');
+const repoRoot  = path.resolve(__dirname, '..');
+const outputDir = path.resolve(process.argv[2] ?? path.join(repoRoot, 'target', 'pdfs'));
 
 const GWG_DOWNLOAD_URL = 'https://gwg.org/download/ghentpdfoutputsuitev50/';
 const EXPECTED_FILE = path.join(
@@ -40,6 +47,10 @@ const EXPECTED_FILE = path.join(
   'Ghent_PDF-Output-Test-V50_CMYK_X4.pdf'
 );
 
+// ---------------------------------------------------------------------------
+// Early-exit if already downloaded
+// ---------------------------------------------------------------------------
+
 mkdirSync(outputDir, { recursive: true });
 
 if (existsSync(EXPECTED_FILE)) {
@@ -48,22 +59,25 @@ if (existsSync(EXPECTED_FILE)) {
   process.exit(0);
 }
 
+// ---------------------------------------------------------------------------
+// Browser automation
+// ---------------------------------------------------------------------------
+
 console.log('Launching browser to download Ghent PDF Output Suite V50...');
 
 const browser = await chromium.launch({ headless: true });
-const context = await browser.newContext({ acceptDownloads: true });
-const page = await context.newPage();
+const context  = await browser.newContext({ acceptDownloads: true });
+const page     = await context.newPage();
 
 try {
-  await page.goto(GWG_DOWNLOAD_URL, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+  await page.goto(GWG_DOWNLOAD_URL, { waitUntil: 'domcontentloaded', timeout: PAGE_LOAD_TIMEOUT });
 
-  // ---------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // Accept the license / terms-of-use form.
   // The GWG download page presents a form with a checkbox and a submit button.
   // Try several common selector patterns in priority order.
-  // ---------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
 
-  // 1. Accept checkbox (various ids / names used by the page over time)
   const checkboxSelectors = [
     'input[type="checkbox"][name*="accept"]',
     'input[type="checkbox"][id*="accept"]',
@@ -87,7 +101,10 @@ try {
     console.warn('  Warning: could not find a license checkbox — the page may have changed.');
   }
 
-  // 2. Click the download / submit button and capture the resulting download
+  // -------------------------------------------------------------------------
+  // Click the download / submit button and capture the resulting download.
+  // -------------------------------------------------------------------------
+
   const downloadButtonSelectors = [
     'input[type="submit"]',
     'button[type="submit"]',
@@ -105,7 +122,16 @@ try {
     const el = page.locator(sel).first();
     if (await el.count() === 0) continue;
 
-    const href = await el.getAttribute('href').catch(() => null);
+    // Only suppress "attribute not present" (null return); re-throw real errors.
+    let href = null;
+    try {
+      href = await el.getAttribute('href');
+    } catch (err) {
+      if (err?.message?.includes('not found') || err?.message?.includes('detached')) {
+        continue;
+      }
+      throw err;
+    }
 
     if (href && href.includes('.zip')) {
       // Direct link — download without triggering browser download dialog
@@ -119,7 +145,7 @@ try {
     // Otherwise submit/click and wait for a browser-initiated download
     console.log(`  Clicking download element: ${sel}`);
     const [download] = await Promise.all([
-      page.waitForEvent('download', { timeout: 60_000 }),
+      page.waitForEvent('download', { timeout: DOWNLOAD_TIMEOUT }),
       el.click(),
     ]);
     zipPath = path.join(outputDir, 'GhentV50.zip');
@@ -132,14 +158,19 @@ try {
     throw new Error('Could not locate or download the Ghent ZIP file. The page structure may have changed.');
   }
 
-  // ---------------------------------------------------------------------------
-  // Extract the ZIP
-  // ---------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Extract the ZIP using parameterised calls (no shell string interpolation).
+  // -------------------------------------------------------------------------
   console.log(`Extracting ${zipPath} into ${outputDir}...`);
   if (process.platform === 'win32') {
-    await execAsync(`powershell -Command "Expand-Archive -Force -Path '${zipPath}' -DestinationPath '${outputDir}'"`);
+    await execFileAsync('powershell.exe', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      `Expand-Archive -Force -Path '${zipPath.replace(/'/g, "''")}' -DestinationPath '${outputDir.replace(/'/g, "''")}'`,
+    ]);
   } else {
-    await execAsync(`unzip -o "${zipPath}" -d "${outputDir}"`);
+    await execFileAsync('unzip', ['-o', zipPath, '-d', outputDir]);
   }
 
   if (!existsSync(EXPECTED_FILE)) {
@@ -160,14 +191,14 @@ try {
 // ---------------------------------------------------------------------------
 
 /**
- * Downloads a file from a URL to a local path, following redirects.
+ * Downloads a URL to a local file, following redirects.
  * @param {string} url
  * @param {string} dest
  * @returns {Promise<void>}
  */
 function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
-    const file = createWriteStream(dest);
+    const file   = createWriteStream(dest);
     const getter = url.startsWith('https') ? httpsGet : httpGet;
     getter(url, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
