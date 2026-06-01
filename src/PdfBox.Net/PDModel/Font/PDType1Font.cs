@@ -35,6 +35,24 @@ namespace PdfBox.Net.PDModel.Font;
 
 public partial class PDType1Font : PDSimpleFont
 {
+    public enum FontName
+    {
+        TIMES_ROMAN,
+        TIMES_BOLD,
+        TIMES_ITALIC,
+        TIMES_BOLD_ITALIC,
+        HELVETICA,
+        HELVETICA_BOLD,
+        HELVETICA_OBLIQUE,
+        HELVETICA_BOLD_OBLIQUE,
+        COURIER,
+        COURIER_BOLD,
+        COURIER_OBLIQUE,
+        COURIER_BOLD_OBLIQUE,
+        SYMBOL,
+        ZAPF_DINGBATS,
+    }
+
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
     private static readonly COSName FontFileKey = COSName.GetPDFName("FontFile");
     private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
@@ -42,6 +60,11 @@ public partial class PDType1Font : PDSimpleFont
     private readonly Type1Font? _type1Font;
     private readonly FontBoxFont? _fontBoxFont;
     private readonly bool _isStandard14;
+
+    public PDType1Font(FontName baseFont)
+        : this(CreateStandard14Dictionary(ToStandard14Name(baseFont)))
+    {
+    }
 
     public PDType1Font(COSDictionary dictionary, Type1Font? type1Font = null, FontBoxFont? fontBoxFont = null)
         : base(dictionary, ResolveType1Encoding(dictionary, type1Font))
@@ -78,6 +101,35 @@ public partial class PDType1Font : PDSimpleFont
 
     public override FontBoxFont? GetFontBoxFont() => _fontBoxFont;
     public override bool IsStandard14() => _isStandard14;
+
+    private static COSDictionary CreateStandard14Dictionary(string baseFontName)
+    {
+        COSDictionary dictionary = new();
+        dictionary.SetItem(COSName.TYPE, COSName.GetPDFName("Font"));
+        dictionary.SetName(COSName.SUBTYPE, "Type1");
+        dictionary.SetName(BaseFontKey, baseFontName);
+        return dictionary;
+    }
+
+    private static string ToStandard14Name(FontName baseFont) =>
+        baseFont switch
+        {
+            FontName.TIMES_ROMAN => "Times-Roman",
+            FontName.TIMES_BOLD => "Times-Bold",
+            FontName.TIMES_ITALIC => "Times-Italic",
+            FontName.TIMES_BOLD_ITALIC => "Times-BoldItalic",
+            FontName.HELVETICA => "Helvetica",
+            FontName.HELVETICA_BOLD => "Helvetica-Bold",
+            FontName.HELVETICA_OBLIQUE => "Helvetica-Oblique",
+            FontName.HELVETICA_BOLD_OBLIQUE => "Helvetica-BoldOblique",
+            FontName.COURIER => "Courier",
+            FontName.COURIER_BOLD => "Courier-Bold",
+            FontName.COURIER_OBLIQUE => "Courier-Oblique",
+            FontName.COURIER_BOLD_OBLIQUE => "Courier-BoldOblique",
+            FontName.SYMBOL => "Symbol",
+            FontName.ZAPF_DINGBATS => "ZapfDingbats",
+            _ => throw new ArgumentOutOfRangeException(nameof(baseFont), baseFont, "Unsupported standard 14 font."),
+        };
 
     private static Encoding.Encoding ResolveType1Encoding(COSDictionary dictionary, Type1Font? type1Font)
     {

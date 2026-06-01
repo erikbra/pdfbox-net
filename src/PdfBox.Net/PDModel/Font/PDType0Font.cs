@@ -67,6 +67,51 @@ public partial class PDType0Font : PDVectorFont
         return new PDType0Font(dictionary, descendant);
     }
 
+    public static PDType0Font Load(PDDocument document, string filePath)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentException.ThrowIfNullOrEmpty(filePath);
+        using FileStream input = File.OpenRead(filePath);
+        return Load(document, input);
+    }
+
+    public static PDType0Font Load(PDDocument document, Stream input)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(input);
+        using MemoryStream buffer = new();
+        input.CopyTo(buffer);
+        return Load(document, buffer.ToArray());
+    }
+
+    private static PDType0Font Load(PDDocument document, byte[] fontBytes)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        TrueTypeFont trueTypeFont = new TTFParser().Parse(fontBytes);
+
+        string baseFontName = trueTypeFont.GetName();
+        if (string.IsNullOrWhiteSpace(baseFontName))
+        {
+            baseFontName = "CIDFont+F0";
+        }
+
+        COSDictionary descendantDictionary = new();
+        descendantDictionary.SetName(COSName.SUBTYPE, "CIDFontType2");
+        descendantDictionary.SetName(COSName.GetPDFName("BaseFont"), baseFontName);
+
+        COSDictionary type0Dictionary = new();
+        type0Dictionary.SetName(COSName.SUBTYPE, "Type0");
+        type0Dictionary.SetName(COSName.GetPDFName("BaseFont"), baseFontName);
+        type0Dictionary.SetItem(EncodingKey, COSName.GetPDFName("Identity-H"));
+
+        COSArray descendants = new();
+        descendants.Add(descendantDictionary);
+        type0Dictionary.SetItem(COSName.GetPDFName("DescendantFonts"), descendants);
+
+        PDCIDFontType2 descendantFont = new(descendantDictionary, trueTypeFont);
+        return new PDType0Font(type0Dictionary, descendantFont);
+    }
+
     public int CodeToCID(int code)
     {
         if (_cMap != null)
