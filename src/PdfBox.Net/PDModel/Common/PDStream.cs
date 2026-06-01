@@ -49,6 +49,7 @@ public class PDStream : COSObjectable
     public PDStream(PDDocument document)
         : this()
     {
+        _stream.SetKey(document.AllocateObjectKey());
     }
 
     public PDStream(PDDocument document, Stream input)
@@ -59,6 +60,7 @@ public class PDStream : COSObjectable
     public PDStream(PDDocument document, Stream input, COSName? filter)
         : this()
     {
+        _stream.SetKey(document.AllocateObjectKey());
         ArgumentNullException.ThrowIfNull(input);
         if (filter is null)
         {

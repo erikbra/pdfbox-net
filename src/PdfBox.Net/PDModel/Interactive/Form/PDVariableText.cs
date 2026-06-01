@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
@@ -39,6 +40,26 @@ public abstract class PDVariableText : PDField
     protected PDVariableText(PDAcroForm acroForm, COSDictionary dictionary)
         : base(acroForm, dictionary)
     {
+    }
+
+    // Terminal field: when there are no Kids the field dict itself is the widget dict.
+    public override List<PDAnnotationWidget> GetWidgets()
+    {
+        List<PDAnnotationWidget> widgets = [];
+        COSArray? kids = dictionary.GetCOSArray(COSName.KIDS);
+        if (kids == null)
+        {
+            widgets.Add(new PDAnnotationWidget(dictionary));
+        }
+        else if (!kids.IsEmpty())
+        {
+            for (int i = 0; i < kids.Size(); i++)
+            {
+                if (kids.GetObject(i) is COSDictionary kid)
+                    widgets.Add(new PDAnnotationWidget(kid));
+            }
+        }
+        return widgets;
     }
 
     public string? GetDefaultAppearance()

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PdfBox.Net\PdfBox.Net.csproj" />
+    <ProjectReference Include="..\PdfBox.Net.XmpBox\PdfBox.Net.XmpBox.csproj" />
+  </ItemGroup>
+
+</Project>
