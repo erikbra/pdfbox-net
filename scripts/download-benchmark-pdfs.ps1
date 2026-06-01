@@ -6,8 +6,8 @@
     Downloads benchmark PDF files to the target/pdfs directory (or a path you
     specify), verifying each file against its expected SHA-512 checksum.
 
-    The Ghent PDF Output Suite cannot be downloaded automatically because it
-    requires accepting a license agreement. Instructions are printed at the end.
+    The Ghent PDF Output Suite is downloaded automatically via the companion
+    Playwright script (scripts/download-ghent-pdf.mjs) when Node.js is available.
 
 .PARAMETER OutputDir
     Destination directory for downloaded PDFs.
@@ -95,24 +95,34 @@ Download-WithVerify `
     "11303a7b9c20f0fb67258715219f8cbdf4d0e52b394a16d21ab0f8517e2cb453337a216d65af35e28fabc56eafc64ed40c1ff4a4d40aef48e66168b9a3d0fc49"
 
 # ---------------------------------------------------------------------------
-# Ghent PDF Output Suite (manual step)
+# Ghent PDF Output Suite — automated via Playwright
 # ---------------------------------------------------------------------------
 
+$ghentFile = Join-Path $OutputDir "Ghent_PDF_Output_Suite_V50_Full\Categories\1-CMYK\Test pages\Ghent_PDF-Output-Test-V50_CMYK_X4.pdf"
+
+if (Test-Path $ghentFile) {
+    Write-Host "Ghent PDF already present, skipping."
+} elseif (Get-Command node -ErrorAction SilentlyContinue) {
+    Write-Host "Downloading Ghent PDF Output Suite V50 via Playwright..."
+    node (Join-Path $PSScriptRoot "download-ghent-pdf.mjs") $OutputDir
+} else {
+    Write-Host ""
+    Write-Host "------------------------------------------------------------------------"
+    Write-Host "MANUAL STEP REQUIRED — Ghent PDF Output Suite V50"
+    Write-Host "------------------------------------------------------------------------"
+    Write-Host "Node.js was not found; the automated Playwright download was skipped."
+    Write-Host ""
+    Write-Host "To download manually:"
+    Write-Host "  1. Visit: https://gwg.org/download/ghentpdfoutputsuitev50/"
+    Write-Host "  2. Accept the license and download the ZIP."
+    Write-Host "  3. Unpack it inside the output directory so that the path below exists:"
+    Write-Host ""
+    Write-Host "       target\pdfs\Ghent_PDF_Output_Suite_V50_Full\Categories\1-CMYK\Test pages\Ghent_PDF-Output-Test-V50_CMYK_X4.pdf"
+    Write-Host ""
+    Write-Host "Or install Node.js and run:"
+    Write-Host "  node scripts\download-ghent-pdf.mjs"
+    Write-Host "------------------------------------------------------------------------"
+}
+
 Write-Host ""
-Write-Host "------------------------------------------------------------------------"
-Write-Host "MANUAL STEP REQUIRED — Ghent PDF Output Suite V50"
-Write-Host "------------------------------------------------------------------------"
-Write-Host "The Ghent PDF Output Suite cannot be downloaded automatically because it"
-Write-Host "requires accepting a license agreement."
-Write-Host ""
-Write-Host "To enable RenderingBenchmarks.RenderGhentCMYK / RenderGhentCMYKNoOutput:"
-Write-Host ""
-Write-Host "  1. Visit: https://gwg.org/download/ghentpdfoutputsuitev50/"
-Write-Host "  2. Accept the license and download the ZIP."
-Write-Host "  3. Unpack it inside the output directory so that the path below exists:"
-Write-Host ""
-Write-Host "       target\pdfs\Ghent_PDF_Output_Suite_V50_Full\Categories\1-CMYK\Test pages\Ghent_PDF-Output-Test-V50_CMYK_X4.pdf"
-Write-Host ""
-Write-Host "------------------------------------------------------------------------"
-Write-Host ""
-Write-Host "All automatically downloadable PDFs are in: $OutputDir"
+Write-Host "PDF fixtures are in: $OutputDir"

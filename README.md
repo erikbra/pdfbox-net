@@ -73,13 +73,21 @@ bash scripts/download-benchmark-pdfs.sh
 | `target/pdfs/506-42-86246-2-10-20190822.pdf` | `LoadAndSaveBenchmarks` (large) | ✅ |
 | `target/pdfs/eci_altona-test-suite-v2_technical2_x4.pdf` | `RenderingBenchmarks` (Altona) | ✅ |
 | `target/pdfs/PDF32000_2008.pdf` | `RenderingBenchmarks` + `TextExtractionBenchmarks` | ✅ |
-| `target/pdfs/Ghent_PDF_Output_Suite_V50_Full/…/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf` | `RenderingBenchmarks` (Ghent) | ⚠️ manual |
+| `target/pdfs/Ghent_PDF_Output_Suite_V50_Full/…/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf` | `RenderingBenchmarks` (Ghent) | ✅ Playwright |
 
-The **Ghent PDF Output Suite** requires accepting a license agreement and must be downloaded manually:
+The **Ghent PDF Output Suite** requires accepting a license agreement on the GWG website.
+`scripts/download-ghent-pdf.mjs` automates this with a headless [Playwright](https://playwright.dev/) browser:
 
-1. Visit <https://gwg.org/download/ghentpdfoutputsuitev50/> and download the ZIP.
-2. Unpack it under `target/pdfs/` so that `Ghent_PDF_Output_Suite_V50_Full/` is on top.
-3. Keep only `Ghent_PDF_Output_Suite_V50_Full/Categories/1-CMYK/Test pages/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf`.
+```sh
+# Install Playwright once
+npm install playwright
+npx playwright install chromium
+
+# Download and extract the Ghent suite
+node scripts/download-ghent-pdf.mjs
+```
+
+The `download-benchmark-pdfs.sh` / `.ps1` scripts call this automatically when `node` is available.
 
 ### 2 — Run the benchmarks
 
@@ -97,7 +105,7 @@ dotnet run --project src/PdfBox.Net.Benchmark --configuration Release -- --filte
 
 ### CI pipeline
 
-The `benchmarks` workflow (`.github/workflows/benchmarks.yml`) can be triggered manually from the **Actions** tab. It downloads all automatically-available PDFs, builds the project in Release mode, runs benchmarks (excluding the Ghent suite by default), and uploads the BenchmarkDotNet JSON results as a workflow artifact.
+The `benchmarks` workflow (`.github/workflows/benchmarks.yml`) can be triggered manually from the **Actions** tab. It installs Node.js and Playwright, downloads all PDF fixtures (including the Ghent suite), builds the project in Release mode, runs all benchmarks, and uploads the BenchmarkDotNet JSON results as a 90-day artifact.
 
 ## Provenance and traceability
 

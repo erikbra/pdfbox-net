@@ -6,9 +6,9 @@
 # Usage:
 #   ./scripts/download-benchmark-pdfs.sh [output-dir]
 #
+# The four files below are downloaded automatically.
 # The Ghent PDF Output Suite (required by RenderingBenchmarks.RenderGhentCMYK*)
-# cannot be downloaded automatically because it requires a license agreement.
-# Follow the manual steps printed at the end of this script.
+# is downloaded via a separate Playwright script — see scripts/download-ghent-pdf.mjs.
 
 set -euo pipefail
 
@@ -84,26 +84,36 @@ download_with_verify \
     "11303a7b9c20f0fb67258715219f8cbdf4d0e52b394a16d21ab0f8517e2cb453337a216d65af35e28fabc56eafc64ed40c1ff4a4d40aef48e66168b9a3d0fc49"
 
 # ---------------------------------------------------------------------------
-# Ghent PDF Output Suite (manual step)
+# Ghent PDF Output Suite — automated via Playwright
 # ---------------------------------------------------------------------------
 
-cat <<'EOF'
+GHENT_FILE="$OUTPUT_DIR/Ghent_PDF_Output_Suite_V50_Full/Categories/1-CMYK/Test pages/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf"
+
+if [[ -f "$GHENT_FILE" ]]; then
+    echo "Ghent PDF already present, skipping."
+elif command -v node &>/dev/null; then
+    echo "Downloading Ghent PDF Output Suite V50 via Playwright..."
+    node "$SCRIPT_DIR/download-ghent-pdf.mjs" "$OUTPUT_DIR"
+else
+    cat <<'EOF'
 
 ------------------------------------------------------------------------
 MANUAL STEP REQUIRED — Ghent PDF Output Suite V50
 ------------------------------------------------------------------------
-The Ghent PDF Output Suite cannot be downloaded automatically because it
-requires accepting a license agreement.
+Node.js was not found; the automated Playwright download was skipped.
 
-To enable RenderingBenchmarks.RenderGhentCMYK / RenderGhentCMYKNoOutput:
-
+To download manually:
   1. Visit: https://gwg.org/download/ghentpdfoutputsuitev50/
   2. Accept the license and download the ZIP.
   3. Unpack it inside the output directory so that the path below exists:
 
        target/pdfs/Ghent_PDF_Output_Suite_V50_Full/Categories/1-CMYK/Test pages/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf
 
+Or install Node.js and run:
+  node scripts/download-ghent-pdf.mjs
+
 ------------------------------------------------------------------------
 EOF
+fi
 
-echo "All automatically downloadable PDFs are in: $OUTPUT_DIR"
+echo "PDF fixtures are in: $OUTPUT_DIR"

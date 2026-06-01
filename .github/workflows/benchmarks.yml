@@ -6,8 +6,7 @@ on:
       filter:
         description: >
           BenchmarkDotNet filter glob (e.g. "*LoadAndSave*").
-          Leave empty to run all benchmarks that do not require the Ghent PDF
-          (which needs a manual license-gated download).
+          Leave empty to run all benchmarks, including the Ghent rendering benchmarks.
         required: false
         default: ""
 
@@ -27,6 +26,16 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Playwright and browser
+        run: |
+          npm install playwright
+          npx playwright install chromium --with-deps
+
       - name: Restore
         run: dotnet restore PdfBoxNet.slnx
 
@@ -43,14 +52,8 @@ jobs:
             # Use the caller-supplied pattern as a single filter.
             FILTER_ARGS=(--filter "$CUSTOM_FILTER")
           else
-            # Default: run everything except the Ghent benchmarks, which require
-            # a manual license-gated download not available in CI.
-            FILTER_ARGS=(
-              --filter "*LoadAndSave*"
-              --filter "*TextExtraction*"
-              --filter "*RenderAltona*"
-              --filter "*RenderPDFSpec*"
-            )
+            # Run all benchmarks (Ghent PDF is now downloaded automatically).
+            FILTER_ARGS=(--filter "*")
           fi
           dotnet run \
             --project src/PdfBox.Net.Benchmark/PdfBox.Net.Benchmark.csproj \
