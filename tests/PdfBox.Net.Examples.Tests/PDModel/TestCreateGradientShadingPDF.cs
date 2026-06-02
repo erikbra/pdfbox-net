@@ -33,8 +33,9 @@ public class TestCreateGradientShadingPDF
     [Fact]
     public void TestCreateGradientShading()
     {
-        string filename = Path.Combine(Path.GetTempPath(), "GradientShading.pdf");
-        File.Delete(filename);
+        string outputDir = Path.Combine(Path.GetTempPath(), "pdfbox-examples-gradient-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(outputDir);
+        string filename = Path.Combine(outputDir, "GradientShading.pdf");
         CreateGradientShadingPDF creator = new CreateGradientShadingPDF();
         creator.Create(filename);
         Assert.True(File.Exists(filename), "CreateGradientShadingPDF should have created the PDF");

@@ -136,12 +136,16 @@ public sealed class PDPageContentStream : IDisposable
 
     public void CloseAndFillAndStroke() => WriteOperator("b");
 
+    /// <summary>
+    /// Registers the shading resource on the page and fills the current clipping region with it.
+    /// </summary>
+    /// <param name="shading">The shading resource to invoke.</param>
     public void ShadingFill(PDShading shading)
     {
         ArgumentNullException.ThrowIfNull(shading);
         PDResources resources = _page.GetResources() ?? new PDResources();
         _page.SetResources(resources);
-        COSName shadingName = resources.Add(shading, "sh");
+        COSName shadingName = resources.Add(shading, "Sh");
         WriteOperator("sh", shadingName);
     }
 

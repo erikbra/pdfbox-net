@@ -347,6 +347,9 @@ public class PDResources
     }
 
     /// <summary>Adds a shading resource using an auto-generated name and returns that name.</summary>
+    /// <param name="shading">The shading resource to add.</param>
+    /// <param name="prefix">The prefix to use when generating the resource name.</param>
+    /// <returns>The generated resource name.</returns>
     public COSName Add(PDShading shading, string prefix)
     {
         ArgumentNullException.ThrowIfNull(shading);
