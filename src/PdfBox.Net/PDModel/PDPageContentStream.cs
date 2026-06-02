@@ -221,8 +221,8 @@ public sealed class PDPageContentStream : IDisposable
     /// <summary>
     /// Writes a show-text-with-individual-glyph-positioning operator (TJ).
     /// Each element of <paramref name="textWithPositioning"/> must be either a
-    /// <see cref="string"/> (shown as-is) or a <see cref="float"/>/<see cref="double"/>
-    /// (kerning adjustment: positive values move glyphs to the left).
+    /// <see cref="string"/> (shown as-is), a <see cref="float"/>/<see cref="double"/>,
+    /// or an <see cref="int"/> (kerning adjustment: positive values move glyphs to the left).
     /// </summary>
     /// <param name="textWithPositioning">
     /// An array alternating between strings and numeric kerning values.
