@@ -15,9 +15,9 @@ for FILE in issues/*.md; do
 ---
 Introduced in commit: $COMMIT" )
 
-  gh issue close "$ISSUE_URL" \
-    --reason "completed" \
-    --comment "Closed as completed. Related commit date: $COMMIT_DATE (commit $COMMIT)."
+  # gh issue close "$ISSUE_URL" \
+  #   --reason "completed" \
+  #   --comment "Closed as completed. Related commit date: $COMMIT_DATE (commit $COMMIT)."
 
   rm $FILE
 done
