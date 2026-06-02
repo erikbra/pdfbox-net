@@ -13,6 +13,7 @@ using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.Patterns;
+using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Resources;
 using Xunit;
 
@@ -171,6 +172,34 @@ public class PDContentStreamTest
         using StreamReader reader = new(stream, Encoding.ASCII);
         string contentText = reader.ReadToEnd();
         Assert.Contains("12 0 0 34 7 9 cm", contentText);
+    }
+
+    [Fact]
+    public void PDPageContentStream_ShadingFill_RegistersShadingAndEmitsOperator()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDShadingType2 shading = new(new COSDictionary());
+        shading.SetShadingType(PDShading.SHADING_TYPE2);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.ShadingFill(shading);
+        }
+
+        PDResources? resources = page.GetResources();
+        Assert.NotNull(resources);
+        COSName shadingName = Assert.Single(resources!.GetShadingNames());
+        PDShading? registeredShading = resources.GetShading(shadingName);
+        Assert.NotNull(registeredShading);
+        Assert.Equal(PDShading.SHADING_TYPE2, registeredShading!.GetShadingType());
+        Assert.Same(shading.GetCOSObject(), registeredShading.GetCOSObject());
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+        Assert.Contains($"/{shadingName.GetName()} sh", contentText);
     }
 
     private static COSStream CreateStream(string text)

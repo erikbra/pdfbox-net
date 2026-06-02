@@ -26,17 +26,18 @@ namespace PdfBox.Net.Examples.Tests.PDModel;
 
 /// <summary>
 /// Test of CreateGradientShadingPDF example.
-/// Ported from TestCreateGradientShadingPDF.java — adapted because
-/// <c>PDPageContentStream.ShadingFill</c> is not yet implemented in this .NET port,
-/// causing <c>CreateGradientShadingPDF.Create()</c> to throw <see cref="NotSupportedException"/>.
+/// Adapted from TestCreateGradientShadingPDF.java to assert file creation.
 /// </summary>
 public class TestCreateGradientShadingPDF
 {
     [Fact]
     public void TestCreateGradientShading()
     {
-        string filename = Path.Combine(Path.GetTempPath(), "GradientShading.pdf");
+        string outputDir = Path.Combine(Path.GetTempPath(), "pdfbox-examples-gradient-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(outputDir);
+        string filename = Path.Combine(outputDir, "GradientShading.pdf");
         CreateGradientShadingPDF creator = new CreateGradientShadingPDF();
-        Assert.Throws<NotSupportedException>(() => creator.Create(filename));
+        creator.Create(filename);
+        Assert.True(File.Exists(filename), "CreateGradientShadingPDF should have created the PDF");
     }
 }

@@ -346,6 +346,21 @@ public class PDResources
         return shadingSubDict.KeySet();
     }
 
+    /// <summary>Adds a shading resource using an auto-generated name and returns that name.</summary>
+    /// <param name="shading">The shading resource to add.</param>
+    /// <param name="prefix">The prefix to use when generating the resource name.</param>
+    /// <returns>The generated resource name.</returns>
+    public COSName Add(PDShading shading, string prefix)
+    {
+        ArgumentNullException.ThrowIfNull(shading);
+        ArgumentException.ThrowIfNullOrEmpty(prefix);
+        COSDictionary subDict = _dict.GetCOSDictionary(ShadingKey) ?? new COSDictionary();
+        _dict.SetItem(ShadingKey, subDict);
+        COSName name = GenerateUniqueName(subDict, prefix);
+        subDict.SetItem(name, shading.GetCOSObject());
+        return name;
+    }
+
     public PDAbstractPattern? GetPattern(COSName name)
     {
         COSObject? indirect = GetIndirect(PatternKey, name);
