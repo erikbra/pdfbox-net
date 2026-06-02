@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/UsingTextMatrix.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -27,33 +27,127 @@
 
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Examples.PDModel;
 
 /// <summary>
-/// This example shows how to use a text matrix (Tm operator) to render text at specific positions
-/// and rotations.
+/// This is an example of how to use a text matrix.
 /// </summary>
 public class UsingTextMatrix
 {
-    public static void Main(string[] args)
+    /// <summary>
+    /// Creates a sample document with some text using a text matrix.
+    /// </summary>
+    /// <param name="message">The message to write in the file.</param>
+    /// <param name="outfile">The resulting PDF.</param>
+    public void DoIt(string message, string outfile)
     {
-        if (args.Length != 1)
-        {
-            Console.Error.WriteLine("usage: UsingTextMatrix <output-pdf>");
-            return;
-        }
-
+        // the document
         using (PDDocument doc = new PDDocument())
         {
-            PDPage page = new PDPage();
+            // Page 1
+            PDFont font = new PDType1Font(PDType1Font.FontName.HELVETICA);
+            PDPage page = new PDPage(PDRectangle.A4);
             doc.AddPage(page);
+            float fontSize = 12.0f;
 
-            // NOTE: PDPageContentStream text drawing operators (BeginText, SetFont,
-            // SetTextMatrix, ShowText, EndText) are not yet implemented in this .NET port.
-            throw new NotSupportedException(
-                "Text matrix (SetTextMatrix) and text drawing operators in PDPageContentStream " +
-                "are not yet implemented in this .NET port.");
+            PDRectangle pageSize = page.GetMediaBox();
+            float centeredXPosition = (pageSize.GetWidth() - fontSize / 1000f) / 2f;
+            float stringWidth = font.GetStringWidth(message);
+            float centeredYPosition = (pageSize.GetHeight() - (stringWidth * fontSize) / 1000f) / 3f;
+
+            using (PDPageContentStream contentStream = new PDPageContentStream(doc, page,
+                PDPageContentStream.AppendMode.OVERWRITE, false))
+            {
+                contentStream.SetFont(font, fontSize);
+                contentStream.BeginText();
+                // counterclockwise rotation
+                for (int i = 0; i < 8; i++)
+                {
+                    contentStream.SetTextMatrix(Matrix.GetRotateInstance(i * Math.PI * 0.25,
+                        centeredXPosition, pageSize.GetHeight() - centeredYPosition));
+                    contentStream.ShowText(message + " " + i);
+                }
+                // clockwise rotation
+                for (int i = 0; i < 8; i++)
+                {
+                    contentStream.SetTextMatrix(Matrix.GetRotateInstance(-i * Math.PI * 0.25,
+                        centeredXPosition, centeredYPosition));
+                    contentStream.ShowText(message + " " + i);
+                }
+
+                contentStream.EndText();
+            }
+
+            // Page 2
+            page = new PDPage(PDRectangle.A4);
+            doc.AddPage(page);
+            fontSize = 1.0f;
+
+            using (PDPageContentStream contentStream = new PDPageContentStream(doc, page,
+                PDPageContentStream.AppendMode.OVERWRITE, false))
+            {
+                contentStream.SetFont(font, fontSize);
+                contentStream.BeginText();
+
+                // text scaling and translation
+                for (int i = 0; i < 10; i++)
+                {
+                    contentStream.SetTextMatrix(new Matrix(12f + (i * 6), 0, 0, 12f + (i * 6),
+                        100, 100f + i * 50));
+                    contentStream.ShowText(message + " " + i);
+                }
+                contentStream.EndText();
+            }
+
+            // Page 3
+            page = new PDPage(PDRectangle.A4);
+            doc.AddPage(page);
+            fontSize = 1.0f;
+
+            using (PDPageContentStream contentStream = new PDPageContentStream(doc, page,
+                PDPageContentStream.AppendMode.OVERWRITE, false))
+            {
+                contentStream.SetFont(font, fontSize);
+                contentStream.BeginText();
+
+                int idx = 0;
+                // text scaling combined with rotation
+                contentStream.SetTextMatrix(new Matrix(12, 0, 0, 12, centeredXPosition, centeredYPosition * 1.5f));
+                contentStream.ShowText(message + " " + idx++);
+
+                contentStream.SetTextMatrix(new Matrix(0, 18, -18, 0, centeredXPosition, centeredYPosition * 1.5f));
+                contentStream.ShowText(message + " " + idx++);
+
+                contentStream.SetTextMatrix(new Matrix(-24, 0, 0, -24, centeredXPosition, centeredYPosition * 1.5f));
+                contentStream.ShowText(message + " " + idx++);
+
+                contentStream.SetTextMatrix(new Matrix(0, -30, 30, 0, centeredXPosition, centeredYPosition * 1.5f));
+                contentStream.ShowText(message + " " + idx++);
+
+                contentStream.EndText();
+            }
+
+            doc.Save(outfile);
+        }
+    }
+
+    /// <summary>
+    /// This will create a PDF document with some examples how to use a text matrix.
+    /// </summary>
+    /// <param name="args">Command line arguments.</param>
+    public static void Main(string[] args)
+    {
+        UsingTextMatrix app = new UsingTextMatrix();
+        if (args.Length != 2)
+        {
+            Console.Error.WriteLine("usage: UsingTextMatrix <Message> <output-file>");
+        }
+        else
+        {
+            app.DoIt(args[0], args[1]);
         }
     }
 }
