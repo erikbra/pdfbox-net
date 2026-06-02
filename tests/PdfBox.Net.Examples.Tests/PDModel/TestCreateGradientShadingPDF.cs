@@ -1,6 +1,6 @@
 // PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/pdmodel/TestCreateGradientShadingPDF.java
 // PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
-// PORT_MODE: adapted
+// PORT_MODE: mechanical
 // PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
 
 /*
@@ -21,14 +21,15 @@
  */
 
 using PdfBox.Net.Examples.PDModel;
+using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Examples.Tests.PDModel;
 
 /// <summary>
 /// Test of CreateGradientShadingPDF example.
-/// Ported from TestCreateGradientShadingPDF.java — adapted because
-/// <c>PDPageContentStream.ShadingFill</c> is not yet implemented in this .NET port,
-/// causing <c>CreateGradientShadingPDF.Create()</c> to throw <see cref="NotSupportedException"/>.
+/// Ported from TestCreateGradientShadingPDF.java.
 /// </summary>
 public class TestCreateGradientShadingPDF
 {
@@ -37,6 +38,26 @@ public class TestCreateGradientShadingPDF
     {
         string filename = Path.Combine(Path.GetTempPath(), "GradientShading.pdf");
         CreateGradientShadingPDF creator = new CreateGradientShadingPDF();
-        Assert.Throws<NotSupportedException>(() => creator.Create(filename));
+        File.Delete(filename);
+
+        creator.Create(filename);
+
+        Assert.True(File.Exists(filename));
+
+        using PDDocument document = PDDocument.Load(filename);
+        PDResources resources = Assert.IsType<PDResources>(document.GetPage(0).GetResources());
+        Assert.Equal(3, resources.GetShadingNames().Count());
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0);
+        HashSet<int> colors = [];
+        for (int x = 0; x < image.Width; ++x)
+        {
+            for (int y = 0; y < image.Height; ++y)
+            {
+                colors.Add(image.GetRgb(x, y));
+            }
+        }
+
+        Assert.True(colors.Count > 1000);
     }
 }

@@ -33,6 +33,7 @@ using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.PdfWriter;
@@ -453,6 +454,20 @@ public sealed class PDPageContentStream : IDisposable
         Transform(matrix);
         WriteOperator("Do", imageName);
         RestoreGraphicsState();
+    }
+
+    /// <summary>
+    /// Fills the current clipping region with the given shading.
+    /// </summary>
+    public void ShadingFill(PDShading shading)
+    {
+        ArgumentNullException.ThrowIfNull(shading);
+
+        PDResources resources = _page.GetResources() ?? new PDResources();
+        _page.SetResources(resources);
+        COSName shadingName = resources.Add(shading, "sh");
+
+        WriteOperator("sh", shadingName);
     }
 
     /// <summary>

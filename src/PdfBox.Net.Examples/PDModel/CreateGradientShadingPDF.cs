@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreateGradientShadingPDF.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -25,6 +25,7 @@
  * limitations under the License.
  */
 
+using System.Buffers.Binary;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common.Function;
@@ -93,9 +94,44 @@ public class CreateGradientShadingPDF
             radialShading.SetCoords(coords2);
             radialShading.SetFunction(func);
 
-            // NOTE: PDPageContentStream.ShadingFill is not yet implemented in this .NET port.
-            throw new NotSupportedException(
-                "PDPageContentStream.ShadingFill is not yet implemented in this .NET port.");
+            PDShadingType4 gouraudShading = new PDShadingType4(new COSStream());
+            gouraudShading.SetShadingType(PDShading.SHADING_TYPE4);
+            gouraudShading.SetBitsPerFlag(8);
+            gouraudShading.SetBitsPerCoordinate(16);
+            gouraudShading.SetBitsPerComponent(8);
+            COSArray decodeArray = new COSArray();
+            decodeArray.Add(COSInteger.ZERO);
+            decodeArray.Add(COSInteger.Get(0xFFFF));
+            decodeArray.Add(COSInteger.ZERO);
+            decodeArray.Add(COSInteger.Get(0xFFFF));
+            decodeArray.Add(COSInteger.ZERO);
+            decodeArray.Add(COSInteger.ONE);
+            decodeArray.Add(COSInteger.ZERO);
+            decodeArray.Add(COSInteger.ONE);
+            decodeArray.Add(COSInteger.ZERO);
+            decodeArray.Add(COSInteger.ONE);
+            gouraudShading.SetDecodeValues(decodeArray);
+            gouraudShading.SetColorSpace(PDDeviceRGB.Instance);
+
+            using (Stream output = ((COSStream)gouraudShading.GetCOSObject()).CreateOutputStream())
+            {
+                WriteVertex(output, 0, 0, 0, 0xFF, 0, 0);
+                WriteVertex(output, 0, 100, 100, 0, 0xFF, 0);
+                WriteVertex(output, 0, 200, 0, 0, 0, 0xFF);
+            }
+
+            using (PDPageContentStream contentStream = new PDPageContentStream(
+                document,
+                page,
+                PDPageContentStream.AppendMode.APPEND,
+                false))
+            {
+                contentStream.ShadingFill(axialShading);
+                contentStream.ShadingFill(radialShading);
+                contentStream.ShadingFill(gouraudShading);
+            }
+
+            document.Save(file);
         }
     }
 
@@ -110,5 +146,22 @@ public class CreateGradientShadingPDF
             CreateGradientShadingPDF creator = new CreateGradientShadingPDF();
             creator.Create(args[0]);
         }
+    }
+
+    private static void WriteVertex(Stream output, byte flag, ushort x, ushort y, byte r, byte g, byte b)
+    {
+        output.WriteByte(flag);
+        WriteUInt16(output, x);
+        WriteUInt16(output, y);
+        output.WriteByte(r);
+        output.WriteByte(g);
+        output.WriteByte(b);
+    }
+
+    private static void WriteUInt16(Stream output, ushort value)
+    {
+        Span<byte> buffer = stackalloc byte[sizeof(ushort)];
+        BinaryPrimitives.WriteUInt16BigEndian(buffer, value);
+        output.Write(buffer);
     }
 }
