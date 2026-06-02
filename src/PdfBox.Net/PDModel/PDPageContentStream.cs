@@ -32,6 +32,7 @@ using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Form;
+using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.PdfWriter;
@@ -416,6 +417,42 @@ public sealed class PDPageContentStream : IDisposable
         COSName formName = resources.Add(form, "Form");
 
         WriteOperator("Do", formName);
+    }
+
+    /// <summary>
+    /// Draws an image at the given coordinates using the image's intrinsic size.
+    /// </summary>
+    public void DrawImage(PDImageXObject image, float x, float y)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        DrawImage(image, x, y, image.GetWidth(), image.GetHeight());
+    }
+
+    /// <summary>
+    /// Draws an image at the given coordinates and size.
+    /// </summary>
+    public void DrawImage(PDImageXObject image, float x, float y, float width, float height)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        DrawImage(image, new Matrix(width, 0, 0, height, x, y));
+    }
+
+    /// <summary>
+    /// Draws an image at the origin using the provided transformation matrix.
+    /// </summary>
+    public void DrawImage(PDImageXObject image, Matrix matrix)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentNullException.ThrowIfNull(matrix);
+
+        PDResources resources = _page.GetResources() ?? new PDResources();
+        _page.SetResources(resources);
+        COSName imageName = resources.Add(image, "Im");
+
+        SaveGraphicsState();
+        Transform(matrix);
+        WriteOperator("Do", imageName);
+        RestoreGraphicsState();
     }
 
     /// <summary>

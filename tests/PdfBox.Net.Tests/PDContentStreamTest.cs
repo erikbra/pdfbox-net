@@ -11,7 +11,9 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Form;
+using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.Patterns;
+using PdfBox.Net.PDModel.Resources;
 using Xunit;
 
 namespace PdfBox.Net.Tests;
@@ -124,6 +126,53 @@ public class PDContentStreamTest
         Assert.Contains("Imported", reader.ReadToEnd());
     }
 
+    [Fact]
+    public void PDPageContentStream_DrawImage_WithSize_EmitsGraphicsStateAndDoOperator()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDImageXObject image = CreateImage(document, width: 32, height: 24);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.DrawImage(image, 20, 30, 40, 50);
+        }
+
+        PDResources? resources = page.GetResources();
+        Assert.NotNull(resources);
+        COSName imageName = Assert.Single(resources!.GetXObjectNames());
+        Assert.True(resources.IsImageXObject(imageName));
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+
+        Assert.Contains("q", contentText);
+        Assert.Contains("40 0 0 50 20 30 cm", contentText);
+        Assert.Contains($"/{imageName.GetName()} Do", contentText);
+        Assert.Contains("Q", contentText);
+    }
+
+    [Fact]
+    public void PDPageContentStream_DrawImage_UsesIntrinsicDimensions()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDImageXObject image = CreateImage(document, width: 12, height: 34);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.DrawImage(image, 7, 9);
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+        Assert.Contains("12 0 0 34 7 9 cm", contentText);
+    }
+
     private static COSStream CreateStream(string text)
     {
         COSStream stream = new();
@@ -131,5 +180,16 @@ public class PDContentStreamTest
         byte[] bytes = Encoding.ASCII.GetBytes(text);
         output.Write(bytes, 0, bytes.Length);
         return stream;
+    }
+
+    private static PDImageXObject CreateImage(PDDocument document, int width, int height)
+    {
+        PDStream stream = new(document);
+        COSStream cos = stream.GetCOSObject();
+        cos.SetInt(COSName.WIDTH, width);
+        cos.SetInt(COSName.HEIGHT, height);
+        cos.SetInt(COSName.BITS_PER_COMPONENT, 8);
+        cos.SetName(COSName.COLORSPACE, "DeviceRGB");
+        return new PDImageXObject(stream, null);
     }
 }
