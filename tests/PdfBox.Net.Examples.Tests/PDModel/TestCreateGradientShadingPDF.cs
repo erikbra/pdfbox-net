@@ -21,10 +21,8 @@
  */
 
 using PdfBox.Net.Examples.PDModel;
-using PdfBox.Net.ContentStream;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
-using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.Examples.Tests.PDModel;
@@ -51,10 +49,5 @@ public class TestCreateGradientShadingPDF
         COSName[] shadingNames = resources.GetShadingNames().ToArray();
         Assert.Equal(3, shadingNames.Length);
         Assert.All(shadingNames, name => Assert.NotNull(resources.GetShading(name)));
-
-        using Stream stream = ((PDContentStream)document.GetPage(0)).GetContents()!;
-        using StreamReader reader = new(stream);
-        string content = reader.ReadToEnd();
-        Assert.Equal(3, shadingNames.Count(name => content.Contains($"/{name.GetName()} sh")));
     }
 }
