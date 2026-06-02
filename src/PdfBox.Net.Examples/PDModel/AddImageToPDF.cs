@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddImageToPDF.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -27,6 +27,7 @@
 
 using PdfBox.Net;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Graphics.Image;
 
 namespace PdfBox.Net.Examples.PDModel;
 
@@ -45,11 +46,18 @@ public class AddImageToPDF
     {
         using (PDDocument doc = Loader.LoadPDF(inputFile))
         {
-            // NOTE: PDImageXObject.CreateFromFile() and PDPageContentStream.DrawImage() are not
-            // yet implemented in this .NET port.
-            throw new NotSupportedException(
-                "Image drawing (PDImageXObject.CreateFromFile, PDPageContentStream.DrawImage) " +
-                "is not yet implemented in this .NET port.");
+            PDPage page = doc.GetPage(0);
+
+            PDImageXObject pdImage = PDImageXObject.CreateFromFile(imagePath, doc);
+
+            using (PDPageContentStream contentStream =
+                   new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true))
+            {
+                float scale = 1f;
+                contentStream.DrawImage(pdImage, 20, 20, pdImage.GetWidth() * scale, pdImage.GetHeight() * scale);
+            }
+
+            doc.Save(outputFile);
         }
     }
 

@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Resources;
@@ -46,6 +47,28 @@ public sealed class PDImageXObject : PDXObject
             cos.SetName(COSName.TYPE, "XObject");
             cos.SetName(COSName.GetPDFName("Subtype"), "Image");
         }
+    }
+
+    public static PDImageXObject CreateFromFile(string imagePath, PDDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(imagePath);
+        ArgumentNullException.ThrowIfNull(document);
+
+        string extension = Path.GetExtension(imagePath);
+        if (string.Equals(extension, ".jpg", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(extension, ".jpeg", StringComparison.OrdinalIgnoreCase))
+        {
+            return JPEGFactory.CreateFromFile(document, imagePath);
+        }
+
+        if (string.Equals(extension, ".tif", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(extension, ".tiff", StringComparison.OrdinalIgnoreCase))
+        {
+            return CCITTFactory.CreateFromFile(document, imagePath);
+        }
+
+        throw new NotImplementedException(
+            "PDImageXObject.CreateFromFile currently supports only JPEG and TIFF image extensions in this port.");
     }
 
     public int GetWidth() => GetCOSObject()?.GetInt(COSName.WIDTH, 0) ?? 0;
