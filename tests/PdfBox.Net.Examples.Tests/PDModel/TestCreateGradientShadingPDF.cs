@@ -21,6 +21,8 @@
  */
 
 using PdfBox.Net.Examples.PDModel;
+using PdfBox.Net.ContentStream;
+using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Resources;
