@@ -6,11 +6,15 @@
   </Configurations>
   <Folder Name="/src/">
     <Project Path="src/PdfBox.Net.Benchmark/PdfBox.Net.Benchmark.csproj" />
+    <Project Path="src/PdfBox.Net.Debugger/PdfBox.Net.Debugger.csproj" />
     <Project Path="src/PdfBox.Net.Examples/PdfBox.Net.Examples.csproj" />
     <Project Path="src/PdfBox.Net.FontBox/PdfBox.Net.FontBox.csproj" />
     <Project Path="src/PdfBox.Net.IO/PdfBox.Net.IO.csproj" />
     <Project Path="src/PdfBox.Net/PdfBox.Net.csproj" />
     <Project Path="src/PdfBox.Net.XmpBox/PdfBox.Net.XmpBox.csproj" />
+  </Folder>
+  <Folder Name="/apps/">
+    <Project Path="apps/PdfBox.Net.Debugger.App/PdfBox.Net.Debugger.App.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj" />
