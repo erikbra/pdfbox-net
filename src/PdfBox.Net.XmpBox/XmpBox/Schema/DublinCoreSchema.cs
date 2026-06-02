@@ -89,4 +89,38 @@ public DublinCoreSchema(XMPMetadata metadata)
         : base(metadata, NamespaceUri, ownPrefix)
     {
     }
+
+    public void AddContributor(string properName) => AddBagValue(CONTRIBUTOR, properName);
+
+    public void SetCoverage(string text) => SetTextProperty(COVERAGE, text);
+
+    public void AddCreator(string properName) => AddSequenceValue(CREATOR, properName);
+
+    public void AddDescription(string lang, string value) => SetLanguageAlternative(DESCRIPTION, lang, value);
+
+    public void SetDescription(string value) => AddDescription(PdfBox.Net.XmpBox.XmpConstants.XDefault, value);
+
+    public void SetFormat(string mimeType) => SetTextProperty(FORMAT, mimeType);
+
+    public void SetIdentifier(string text) => SetTextProperty(IDENTIFIER, text);
+
+    public void AddLanguage(string locale) => AddBagValue(LANGUAGE, locale);
+
+    public void AddPublisher(string properName) => AddBagValue(PUBLISHER, properName);
+
+    public void AddRelation(string text) => AddBagValue(RELATION, text);
+
+    public void AddRights(string lang, string value) => SetLanguageAlternative(RIGHTS, lang, value);
+
+    public void SetSource(string text) => SetTextProperty(SOURCE, text);
+
+    public void AddSubject(string text) => AddBagValue(SUBJECT, text);
+
+    public void SetTitle(string lang, string value) => SetLanguageAlternative(TITLE, lang, value);
+
+    public void SetTitle(string value) => SetTitle(PdfBox.Net.XmpBox.XmpConstants.XDefault, value);
+
+    public void AddTitle(string lang, string value) => SetTitle(lang, value);
+
+    public void AddType(string type) => AddBagValue(TYPE, type);
 }

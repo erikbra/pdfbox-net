@@ -1,0 +1,73 @@
+name: Benchmarks
+
+on:
+  workflow_dispatch:
+    inputs:
+      filter:
+        description: >
+          BenchmarkDotNet filter glob (e.g. "*LoadAndSave*").
+          Leave empty to run all benchmarks, including the Ghent rendering benchmarks.
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Playwright and browser
+        run: |
+          npm install playwright
+          npx playwright install chromium --with-deps
+
+      - name: Restore
+        run: dotnet restore PdfBoxNet.slnx
+
+      - name: Build (Release)
+        run: dotnet build PdfBoxNet.slnx --configuration Release --no-restore
+
+      - name: Download benchmark PDFs
+        run: bash scripts/download-benchmark-pdfs.sh
+
+      - name: Run benchmarks
+        run: |
+          CUSTOM_FILTER="${{ github.event.inputs.filter }}"
+          if [[ -n "$CUSTOM_FILTER" ]]; then
+            # Use the caller-supplied pattern as a single filter.
+            FILTER_ARGS=(--filter "$CUSTOM_FILTER")
+          else
+            # Run all benchmarks (Ghent PDF is now downloaded automatically).
+            FILTER_ARGS=(--filter "*")
+          fi
+          dotnet run \
+            --project src/PdfBox.Net.Benchmark/PdfBox.Net.Benchmark.csproj \
+            --configuration Release \
+            --no-build \
+            -- \
+            "${FILTER_ARGS[@]}" \
+            --exporters json \
+            --artifacts target/benchmark-results
+
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: target/benchmark-results/
+          retention-days: 90

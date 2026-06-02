@@ -28,6 +28,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Interactive.Action;
+using PdfBox.Net.PDModel.Interactive.Form;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
@@ -54,6 +55,11 @@ public sealed class PDAnnotationWidget : PDAnnotation
     public void SetAction(PDAction? action)
     {
         GetCOSDictionary().SetItem(COSName.A, action);
+    }
+
+    public void SetParent(PDField? field)
+    {
+        GetCOSDictionary().SetItem(COSName.PARENT, field?.GetCOSObject());
     }
 
     public PDAnnotationAdditionalActions? GetActions()

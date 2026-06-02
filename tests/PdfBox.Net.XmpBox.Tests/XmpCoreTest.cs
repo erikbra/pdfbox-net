@@ -260,4 +260,38 @@ public class XmpCoreTest
                 ["pdfaid"] = PDFAIdentificationSchema.NamespaceUri
             }));
     }
+
+    [Fact]
+    public void TypedSchemaSettersSerializeExpectedValues()
+    {
+        XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();
+        AdobePDFSchema pdf = metadata.CreateAndAddAdobePDFSchema();
+        DublinCoreSchema dc = metadata.CreateAndAddDublinCoreSchema();
+        XMPBasicSchema xmp = metadata.CreateAndAddXMPBasicSchema();
+
+        pdf.SetKeywords("k1,k2");
+        pdf.SetPDFVersion("1.7");
+        pdf.SetProducer("pdfbox-net");
+        dc.SetTitle("Example title");
+        dc.AddCreator("Copilot");
+        dc.SetFormat("application/pdf");
+        xmp.SetCreatorTool("PdfBox.Net");
+        xmp.SetModifyDate(new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc));
+        xmp.SetRating(5);
+
+        XmpSerializer serializer = new();
+        using MemoryStream output = new();
+        serializer.Serialize(metadata, output, withXpacket: false);
+        string serialized = Encoding.UTF8.GetString(output.ToArray());
+
+        Assert.Contains("<pdf:Keywords>k1,k2</pdf:Keywords>", serialized);
+        Assert.Contains("<pdf:PDFVersion>1.7</pdf:PDFVersion>", serialized);
+        Assert.Contains("<pdf:Producer>pdfbox-net</pdf:Producer>", serialized);
+        Assert.Contains("<dc:title>", serialized);
+        Assert.Contains("Example title", serialized);
+        Assert.Contains("<dc:creator>", serialized);
+        Assert.Contains("Copilot", serialized);
+        Assert.Contains("<xmp:CreatorTool>PdfBox.Net</xmp:CreatorTool>", serialized);
+        Assert.Contains("<xmp:Rating>5</xmp:Rating>", serialized);
+    }
 }

@@ -34,9 +34,6 @@
     <Content Include="Fixtures\TaggedPdf\*.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Fixtures\AFM\*.afm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Fixtures\TextExtraction\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

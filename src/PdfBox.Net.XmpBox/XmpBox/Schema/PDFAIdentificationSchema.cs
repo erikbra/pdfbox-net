@@ -47,7 +47,11 @@ public class PDFAIdentificationSchema : XMPSchema
     [PropertyType(XmpTypeName.Integer)]
     public static readonly string REV = "rev";
 
-public PDFAIdentificationSchema(XMPMetadata metadata)
+    public void SetPart(int part) => SetTextProperty(PART, part.ToString());
+
+    public void SetConformance(string conformance) => SetTextProperty(CONFORMANCE, conformance);
+
+    public PDFAIdentificationSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }

@@ -161,4 +161,127 @@ public class XMPSchema
             element.SetAttribute(xmlnsQualifiedName, namespaceUri);
         }
     }
+
+    protected void SetTextProperty(string propertyName, string? value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(propertyName);
+        XmlElement description = GetOrCreateDescriptionElement();
+        string qualifiedName = $"{prefix}:{propertyName}";
+        XmlElement property = EnsureChildElement(description, namespaceUri, qualifiedName);
+
+        if (value is null)
+        {
+            description.RemoveChild(property);
+            return;
+        }
+
+        property.InnerText = value;
+    }
+
+    protected void AddBagValue(string propertyName, string value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(propertyName);
+        ArgumentNullException.ThrowIfNull(value);
+        XmlElement property = EnsureContainerProperty(propertyName, XmpConstants.DefaultRdfPrefix, "Bag");
+        AppendListValue(property, value);
+    }
+
+    protected void AddSequenceValue(string propertyName, string value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(propertyName);
+        ArgumentNullException.ThrowIfNull(value);
+        XmlElement property = EnsureContainerProperty(propertyName, XmpConstants.DefaultRdfPrefix, "Seq");
+        AppendListValue(property, value);
+    }
+
+    protected void SetLanguageAlternative(string propertyName, string language, string value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(propertyName);
+        ArgumentException.ThrowIfNullOrEmpty(language);
+        ArgumentNullException.ThrowIfNull(value);
+
+        XmlElement property = EnsureContainerProperty(propertyName, XmpConstants.DefaultRdfPrefix, "Alt");
+        XmlElement? list = GetFirstChildElement(property);
+        if (list is null)
+        {
+            return;
+        }
+
+        string normalizedLanguage = language.Trim();
+        foreach (XmlNode child in list.ChildNodes)
+        {
+            if (child is XmlElement li &&
+                li.LocalName == XmpConstants.ListName &&
+                li.NamespaceURI == XmpConstants.RdfNamespace &&
+                string.Equals(li.GetAttribute(XmpConstants.LangName, "http://www.w3.org/XML/1998/namespace"), normalizedLanguage, StringComparison.OrdinalIgnoreCase))
+            {
+                li.InnerText = value;
+                return;
+            }
+        }
+
+        XmlElement item = list.OwnerDocument!.CreateElement(XmpConstants.DefaultRdfPrefix, XmpConstants.ListName, XmpConstants.RdfNamespace);
+        item.SetAttribute(XmpConstants.LangName, "http://www.w3.org/XML/1998/namespace", normalizedLanguage);
+        item.InnerText = value;
+        list.AppendChild(item);
+    }
+
+    private XmlElement EnsureContainerProperty(string propertyName, string containerPrefix, string containerName)
+    {
+        XmlElement description = GetOrCreateDescriptionElement();
+        string qualifiedName = $"{prefix}:{propertyName}";
+        XmlElement property = EnsureChildElement(description, namespaceUri, qualifiedName);
+        XmlElement? container = GetFirstChildElement(property);
+        if (container is null || container.LocalName != containerName || container.NamespaceURI != XmpConstants.RdfNamespace)
+        {
+            property.RemoveAll();
+            container = property.OwnerDocument!.CreateElement(containerPrefix, containerName, XmpConstants.RdfNamespace);
+            property.AppendChild(container);
+        }
+
+        return property;
+    }
+
+    private static void AppendListValue(XmlElement property, string value)
+    {
+        XmlElement? list = GetFirstChildElement(property);
+        if (list is null)
+        {
+            return;
+        }
+
+        XmlElement item = list.OwnerDocument!.CreateElement(XmpConstants.DefaultRdfPrefix, XmpConstants.ListName, XmpConstants.RdfNamespace);
+        item.InnerText = value;
+        list.AppendChild(item);
+    }
+
+    private static XmlElement EnsureChildElement(XmlElement parent, string childNamespace, string qualifiedName)
+    {
+        foreach (XmlNode child in parent.ChildNodes)
+        {
+            if (child is XmlElement existing &&
+                existing.NamespaceURI == childNamespace &&
+                string.Equals(existing.Name, qualifiedName, StringComparison.Ordinal))
+            {
+                return existing;
+            }
+        }
+
+        XmlElement created = parent.OwnerDocument!.CreateElement(qualifiedName, childNamespace);
+        parent.AppendChild(created);
+        return created;
+    }
+
+    private static XmlElement? GetFirstChildElement(XmlElement parent)
+    {
+        foreach (XmlNode child in parent.ChildNodes)
+        {
+            if (child is XmlElement element)
+            {
+                return element;
+            }
+        }
+
+        return null;
+    }
 }

@@ -29,6 +29,8 @@ namespace PdfBox.Net.FontBox.CFF;
 
 public class CFFCharsetType1 : CFFCharset
 {
+    private const string ExceptionMessage = "Not a CID font";
+
     private readonly Dictionary<int, int> _gidToSid = [];
     private readonly Dictionary<int, int> _sidToGid = [];
     private readonly Dictionary<int, string> _gidToName = [];
@@ -44,15 +46,13 @@ public class CFFCharsetType1 : CFFCharset
         _nameToSid[name] = sid;
     }
 
-    public void AddCID(int gid, int cid)
-    {
-        AddSID(gid, cid, CFFStandardString.GetName(cid));
-    }
+    public void AddCID(int gid, int cid) =>
+        throw new InvalidOperationException(ExceptionMessage);
 
     public int GetSIDForGID(int gid) => _gidToSid.TryGetValue(gid, out int sid) ? sid : 0;
     public int GetGIDForSID(int sid) => _sidToGid.TryGetValue(sid, out int gid) ? gid : 0;
-    public int GetGIDForCID(int cid) => GetGIDForSID(cid);
+    public int GetGIDForCID(int cid) => throw new InvalidOperationException(ExceptionMessage);
     public int GetSID(string name) => _nameToSid.TryGetValue(name, out int sid) ? sid : 0;
     public string GetNameForGID(int gid) => _gidToName.TryGetValue(gid, out string? name) ? name : ".notdef";
-    public int GetCIDForGID(int gid) => GetSIDForGID(gid);
+    public int GetCIDForGID(int gid) => throw new InvalidOperationException(ExceptionMessage);
 }

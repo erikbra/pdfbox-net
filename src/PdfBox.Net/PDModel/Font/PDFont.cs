@@ -90,6 +90,21 @@ public abstract class PDFont : PDFontLike
         return GetFontDescriptor()?.GetMissingWidth() ?? 0f;
     }
 
+    /// <summary>
+    /// Returns the total advance width of the given string in 1/1000ths of a text space unit.
+    /// This is a simplified implementation that treats each character as a single-byte code,
+    /// which is correct for WinAnsiEncoded Type1 fonts but may be inaccurate for multi-byte encodings.
+    /// </summary>
+    public virtual float GetStringWidth(string text)
+    {
+        float totalWidth = 0f;
+        foreach (char c in text)
+        {
+            totalWidth += GetWidth((int)c);
+        }
+        return totalWidth;
+    }
+
     public virtual string? ToUnicode(int code, GlyphList glyphList)
     {
         if (_toUnicodeCMap != null)

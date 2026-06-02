@@ -26,7 +26,9 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.ContentStream;
 using PdfBox.Net.PDModel.Encryption;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PdfParser;
 using PdfBox.Net.PdfWriter;
 using System.Globalization;
@@ -195,8 +197,23 @@ public sealed class PDDocument : IDisposable
             byte[] objHeader = Encoding.ASCII.GetBytes(
                 $"{key.GetNumber()} {key.GetGeneration()} obj\n");
             output.Write(objHeader);
-            byte[] body = COSWriter.Serialize(inner);
-            output.Write(body);
+
+            if (inner is COSStream cosStream)
+            {
+                // Write stream dictionary, then stream body (raw encoded bytes).
+                byte[] dictBytes = COSWriter.Serialize(inner);
+                output.Write(dictBytes);
+                output.Write(Encoding.ASCII.GetBytes("\nstream\n"));
+                using (System.IO.Stream inStream = cosStream.CreateRawInputStream())
+                    inStream.CopyTo(output);
+                output.Write(Encoding.ASCII.GetBytes("\nendstream"));
+            }
+            else
+            {
+                byte[] body = COSWriter.Serialize(inner);
+                output.Write(body);
+            }
+
             output.Write(Encoding.ASCII.GetBytes("\nendobj\n"));
         }
 
@@ -234,9 +251,7 @@ public sealed class PDDocument : IDisposable
 
     /// <summary>
     /// Traverses the object graph starting from <paramref name="trailer"/> and returns all
-    /// indirect (non-stream) objects reachable from it, in object-number order.
-    /// COSStream objects are excluded because their binary data cannot be portably
-    /// serialized by this basic writer.
+    /// indirect objects reachable from it, in object-number order.
     /// </summary>
     private static List<(COSObjectKey Key, COSBase Inner)> CollectIndirectObjects(COSDictionary trailer)
     {
@@ -249,7 +264,7 @@ public sealed class PDDocument : IDisposable
         {
             COSBase current = pending.Dequeue();
             COSObjectKey? currentKey = current is COSObject ? null : current.GetKey();
-            if (currentKey is not null && current is not COSStream && !collected.ContainsKey(currentKey))
+            if (currentKey is not null && !collected.ContainsKey(currentKey))
             {
                 collected[currentKey] = current;
             }
@@ -259,8 +274,7 @@ public sealed class PDDocument : IDisposable
                 case COSObject cosObj:
                     COSObjectKey? key = cosObj.GetKey();
                     COSBase? inner = cosObj.GetObject();
-                    if (key is not null && inner is not null && inner is not COSStream
-                        && !collected.ContainsKey(key))
+                    if (key is not null && inner is not null && !collected.ContainsKey(key))
                     {
                         collected[key] = inner;
                         EnqueueIfUnseen(inner);
@@ -475,6 +489,40 @@ public sealed class PDDocument : IDisposable
     {
         EnsureNotDisposed();
         GetPages().Add(page);
+    }
+
+    /// <summary>
+    /// Imports a page from another document and appends it to this document.
+    /// </summary>
+    /// <param name="page">The source page to import.</param>
+    /// <returns>The imported page now owned by this document.</returns>
+    public PDPage ImportPage(PDPage page)
+    {
+        ArgumentNullException.ThrowIfNull(page);
+        EnsureNotDisposed();
+
+        COSDictionary importedDictionary = new((COSDictionary)page.GetCOSObject());
+        importedDictionary.RemoveItem(COSName.PARENT);
+        PDPage importedPage = new(importedDictionary);
+
+        using (Stream? sourceContents = ((PDContentStream)page).GetContents())
+        {
+            if (sourceContents is not null)
+            {
+                PDStream importedContents = new(this, sourceContents, COSName.FLATE_DECODE);
+                importedDictionary.SetItem(COSName.CONTENTS, importedContents);
+            }
+            else
+            {
+                importedDictionary.RemoveItem(COSName.CONTENTS);
+            }
+        }
+
+        AddPage(importedPage);
+        importedPage.SetCropBox(new PDRectangle(page.GetCropBox().GetCOSArray()));
+        importedPage.SetMediaBox(new PDRectangle(page.GetMediaBox().GetCOSArray()));
+        importedPage.SetRotation(page.GetRotation());
+        return importedPage;
     }
 
     /// <summary>

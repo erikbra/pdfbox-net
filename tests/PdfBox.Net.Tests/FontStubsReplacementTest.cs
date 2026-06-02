@@ -24,6 +24,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.FontBox.TTF;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Font.Encoding;
 
@@ -129,6 +130,27 @@ public class FontStubsReplacementTest
         Assert.IsType<PDType1Font>(font);
         Assert.Equal(610f, font.GetWidth(65));
         Assert.Equal(620f, font.GetWidth(66));
+    }
+
+    [Fact]
+    public void PDType1Font_Standard14ConstructorSetsBaseFont()
+    {
+        PDType1Font font = new(PDType1Font.FontName.HELVETICA_BOLD);
+
+        Assert.Equal("Helvetica-Bold", font.GetName());
+        Assert.True(font.IsStandard14());
+    }
+
+    [Fact]
+    public void PDType0Font_LoadFromStream_ReturnsFontWithType2Descendant()
+    {
+        using PDDocument document = new();
+        using MemoryStream input = new(FontBoxTestFixtures.CreateMinimalTrueType());
+
+        PDType0Font font = PDType0Font.Load(document, input);
+
+        Assert.Equal("Type0", ((COSDictionary)font.GetCOSObject()).GetNameAsString(COSName.SUBTYPE));
+        Assert.IsType<PDCIDFontType2>(font.GetDescendantFont());
     }
 
     [Fact]
