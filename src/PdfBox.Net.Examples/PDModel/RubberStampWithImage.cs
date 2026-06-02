@@ -83,7 +83,7 @@ public class RubberStampWithImage
                 form.SetResources(new PDResources());
                 form.SetBBox(rect);
                 form.SetFormType(1);
-                PDResources formResources = form.GetResources() ?? throw new InvalidOperationException("Form resources missing.");
+                PDResources formResources = form.GetResources() ?? throw new InvalidOperationException("Failed to retrieve form resources after initialization.");
                 COSStream formCos = form.GetCOSObject() ?? throw new InvalidOperationException("Form stream missing.");
 
                 using (Stream os = new PDStream(formCos).CreateOutputStream())
@@ -116,18 +116,11 @@ public class RubberStampWithImage
         COSName xObjectId = resources.Add(xobject, "Im");
 
         AppendRawCommands(output, "q\n");
-        AppendRawCommands(output, width.ToString("0.####", CultureInfo.InvariantCulture));
-        AppendRawCommands(output, " ");
-        AppendRawCommands(output, "0");
-        AppendRawCommands(output, " ");
-        AppendRawCommands(output, "0");
-        AppendRawCommands(output, " ");
-        AppendRawCommands(output, height.ToString("0.####", CultureInfo.InvariantCulture));
-        AppendRawCommands(output, " ");
-        AppendRawCommands(output, x.ToString("0.####", CultureInfo.InvariantCulture));
-        AppendRawCommands(output, " ");
-        AppendRawCommands(output, y.ToString("0.####", CultureInfo.InvariantCulture));
-        AppendRawCommands(output, " cm\n");
+        AppendRawCommands(output,
+            $"{width.ToString("0.####", CultureInfo.InvariantCulture)} 0 0 " +
+            $"{height.ToString("0.####", CultureInfo.InvariantCulture)} " +
+            $"{x.ToString("0.####", CultureInfo.InvariantCulture)} " +
+            $"{y.ToString("0.####", CultureInfo.InvariantCulture)} cm\n");
         AppendRawCommands(output, " /");
         AppendRawCommands(output, xObjectId.GetName());
         AppendRawCommands(output, " Do\n");

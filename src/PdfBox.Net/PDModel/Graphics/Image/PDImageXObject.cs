@@ -68,7 +68,8 @@ public sealed class PDImageXObject : PDXObject
         }
 
         throw new NotImplementedException(
-            "PDImageXObject.CreateFromFile currently supports only JPEG and TIFF image extensions in this port.");
+            $"PDImageXObject.CreateFromFile does not support extension '{extension}'. " +
+            "Supported extensions in this port are .jpg, .jpeg, .tif, and .tiff.");
     }
 
     public int GetWidth() => GetCOSObject()?.GetInt(COSName.WIDTH, 0) ?? 0;
