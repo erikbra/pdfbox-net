@@ -56,6 +56,7 @@ public static class LosslessFactory
         SKColor[] pixels = bitmap.Pixels;
 
         // Build a packed RGB byte array (3 bytes per pixel, no alpha).
+        // The alpha channel is intentionally discarded; PDF DeviceRGB images are always opaque.
         byte[] rgbData = new byte[width * height * 3];
         int dst = 0;
         foreach (SKColor pixel in pixels)

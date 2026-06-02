@@ -101,6 +101,7 @@ public static class JPEGFactory
     /// </summary>
     private static (int Width, int Height, int NumComponents) ParseJpegInfo(byte[] data)
     {
+        // Need at least SOI (2 bytes) + one full marker header (4 bytes) to begin iterating.
         if (data.Length < 4 || data[0] != 0xFF || data[1] != 0xD8)
             throw new IOException("Not a valid JPEG: missing SOI marker (FF D8)");
 
@@ -135,7 +136,7 @@ public static class JPEGFactory
             bool isSof = marker >= 0xC0 && marker <= 0xCF
                          && marker != 0xC4 && marker != 0xC8 && marker != 0xCC;
 
-            if (isSof && segLen >= 8)
+            if (isSof && segLen >= 8 && i + 8 <= data.Length)
             {
                 // Segment layout after the length field:
                 //   [0]     sample precision  (1 byte, typically 8)
