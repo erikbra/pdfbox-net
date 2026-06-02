@@ -22,8 +22,8 @@
 
 using PdfBox.Net.Examples.PDModel;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Resources;
-using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Examples.Tests.PDModel;
 
@@ -46,18 +46,13 @@ public class TestCreateGradientShadingPDF
 
         using PDDocument document = PDDocument.Load(filename);
         PDResources resources = Assert.IsType<PDResources>(document.GetPage(0).GetResources());
-        Assert.Equal(3, resources.GetShadingNames().Count());
+        COSName[] shadingNames = resources.GetShadingNames().ToArray();
+        Assert.Equal(3, shadingNames.Length);
+        Assert.All(shadingNames, name => Assert.NotNull(resources.GetShading(name)));
 
-        using BufferedImage image = new PDFRenderer(document).RenderImage(0);
-        HashSet<int> colors = [];
-        for (int x = 0; x < image.Width; ++x)
-        {
-            for (int y = 0; y < image.Height; ++y)
-            {
-                colors.Add(image.GetRgb(x, y));
-            }
-        }
-
-        Assert.True(colors.Count > 1000);
+        using Stream stream = ((PDContentStream)document.GetPage(0)).GetContents()!;
+        using StreamReader reader = new(stream);
+        string content = reader.ReadToEnd();
+        Assert.Equal(3, shadingNames.Count(name => content.Contains($"/{name.GetName()} sh")));
     }
 }
