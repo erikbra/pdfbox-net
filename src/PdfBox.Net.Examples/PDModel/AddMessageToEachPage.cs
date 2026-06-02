@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddMessageToEachPage.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -27,7 +27,9 @@
 
 using PdfBox.Net;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Examples.PDModel;
 
@@ -46,11 +48,46 @@ public class AddMessageToEachPage
     {
         using (PDDocument doc = Loader.LoadPDF(file))
         {
-            // NOTE: PDType1Font construction from FontName enum and PDPageContentStream text drawing
-            // operators (SetFont, SetNonStrokingColor, SetTextMatrix, ShowText) are not yet
-            // implemented in this .NET port.
-            throw new NotSupportedException(
-                "Text drawing operators in PDPageContentStream are not yet implemented in this .NET port.");
+            PDFont font = new PDType1Font(PDType1Font.FontName.HELVETICA_BOLD);
+            float fontSize = 36.0f;
+
+            foreach (PDPage page in doc.GetPages())
+            {
+                PDRectangle pageSize = page.GetMediaBox();
+                float stringWidth = font.GetStringWidth(message) * fontSize / 1000f;
+                // calculate to center of the page
+                int rotation = page.GetRotation();
+                bool rotate = rotation == 90 || rotation == 270;
+                float pageWidth = rotate ? pageSize.GetHeight() : pageSize.GetWidth();
+                float pageHeight = rotate ? pageSize.GetWidth() : pageSize.GetHeight();
+                float centerX = rotate ? pageHeight / 2f : (pageWidth - stringWidth) / 2f;
+                float centerY = rotate ? (pageWidth - stringWidth) / 2f : pageHeight / 2f;
+
+                // append the content to the existing stream
+                using (PDPageContentStream contentStream = new PDPageContentStream(doc, page,
+                    PDPageContentStream.AppendMode.APPEND, true))
+                {
+                    contentStream.BeginText();
+                    // set font and font size
+                    contentStream.SetFont(font, fontSize);
+                    // set text color to red
+                    contentStream.SetNonStrokingColor(1f, 0f, 0f);
+                    if (rotate)
+                    {
+                        // rotate the text according to the page rotation
+                        contentStream.SetTextMatrix(Matrix.GetRotateInstance(Math.PI / 2, centerX, centerY));
+                    }
+                    else
+                    {
+                        contentStream.SetTextMatrix(Matrix.GetTranslateInstance(centerX, centerY));
+                    }
+
+                    contentStream.ShowText(message);
+                    contentStream.EndText();
+                }
+            }
+
+            doc.Save(outfile);
         }
     }
 

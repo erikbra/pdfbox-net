@@ -258,6 +258,18 @@ public class PDResources
 
     // ── Color spaces ──────────────────────────────────────────────────────────
 
+    /// <summary>Adds a color space resource using an auto-generated name and returns that name.</summary>
+    public COSName Add(PDColorSpace colorSpace, string prefix)
+    {
+        ArgumentNullException.ThrowIfNull(colorSpace);
+        ArgumentException.ThrowIfNullOrEmpty(prefix);
+        COSDictionary subDict = _dict.GetCOSDictionary(ColorSpaceKey) ?? new COSDictionary();
+        _dict.SetItem(ColorSpaceKey, subDict);
+        COSName name = GenerateUniqueName(subDict, prefix);
+        subDict.SetItem(name, colorSpace.GetCOSObject());
+        return name;
+    }
+
     public bool HasColorSpace(COSName? name)
     {
         if (name is null) return false;
