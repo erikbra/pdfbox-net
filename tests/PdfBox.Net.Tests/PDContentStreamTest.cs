@@ -13,6 +13,7 @@ using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.Patterns;
+using PdfBox.Net.PDModel.Resources;
 using Xunit;
 
 namespace PdfBox.Net.Tests;

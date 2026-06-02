@@ -57,11 +57,6 @@ public class RubberStampWithImage
 
         using (PDDocument document = Loader.LoadPDF(args[0]))
         {
-            if (document.IsEncrypted())
-            {
-                throw new IOException("Encrypted documents are not supported for this example");
-            }
-
             for (int i = 0; i < document.GetNumberOfPages(); i++)
             {
                 PDPage page = document.GetPage(i);
@@ -88,13 +83,15 @@ public class RubberStampWithImage
                 form.SetResources(new PDResources());
                 form.SetBBox(rect);
                 form.SetFormType(1);
+                PDResources formResources = form.GetResources() ?? throw new InvalidOperationException("Form resources missing.");
+                COSStream formCos = form.GetCOSObject() ?? throw new InvalidOperationException("Form stream missing.");
 
-                using (Stream os = form.GetStream().CreateOutputStream())
+                using (Stream os = new PDStream(formCos).CreateOutputStream())
                 {
-                    DrawXObject(ximage, form.GetResources()!, os, lowerLeftX, lowerLeftY, imgWidth, imgHeight);
+                    DrawXObject(ximage, formResources, os, lowerLeftX, lowerLeftY, imgWidth, imgHeight);
                 }
 
-                PDAppearanceStream myDic = new(form.GetCOSObject()!);
+                PDAppearanceStream myDic = new(formCos);
                 PDAppearanceDictionary appearance = new(new COSDictionary());
                 appearance.SetNormalAppearance(myDic);
                 rubberStamp.SetAppearance(appearance);
