@@ -84,6 +84,21 @@ public partial class PDType0Font : PDVectorFont
         return Load(document, buffer.ToArray());
     }
 
+    /// <summary>
+    /// Loads a TTF to be embedded into a document as a composite (Type 0) font.
+    /// The <paramref name="embedSubset"/> flag is accepted for API parity with the upstream Java
+    /// method but is currently ignored — the full font is always embedded.
+    /// </summary>
+    /// <param name="document">The PDF document that will hold the embedded font.</param>
+    /// <param name="input">A TTF font stream. It will be read to completion before returning.</param>
+    /// <param name="embedSubset">
+    /// When <see langword="true"/> in upstream Java, only the glyphs actually used in the
+    /// document are embedded (subsetting). This parameter is currently ignored in this port.
+    /// </param>
+    /// <returns>A <see cref="PDType0Font"/> instance.</returns>
+    public static PDType0Font Load(PDDocument document, Stream input, bool embedSubset)
+        => Load(document, input);
+
     private static PDType0Font Load(PDDocument document, byte[] fontBytes)
     {
         ArgumentNullException.ThrowIfNull(document);

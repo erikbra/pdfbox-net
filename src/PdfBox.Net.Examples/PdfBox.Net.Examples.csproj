@@ -11,4 +11,10 @@
     <ProjectReference Include="..\PdfBox.Net.XmpBox\PdfBox.Net.XmpBox.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources/ttf/LiberationSans-Regular.ttf" />
+    <EmbeddedResource Include="Resources/ttf/Lohit-Bengali.ttf" />
+    <EmbeddedResource Include="Resources/ttf/bengali-samples.txt" />
+  </ItemGroup>
+
 </Project>

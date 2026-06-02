@@ -202,6 +202,73 @@ public class PDContentStreamTest
         Assert.Contains($"/{shadingName.GetName()} sh", contentText);
     }
 
+    [Fact]
+    public void PDPageContentStream_SetCharacterSpacing_EmitsTcOperator()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.BeginText();
+            content.SetCharacterSpacing(2.5f);
+            content.EndText();
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+
+        Assert.Contains("2.5 Tc", contentText);
+    }
+
+    [Fact]
+    public void PDPageContentStream_SetWordSpacing_EmitsTwOperator()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.BeginText();
+            content.SetWordSpacing(3.0f);
+            content.EndText();
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+
+        Assert.Contains("3 Tw", contentText);
+    }
+
+    [Fact]
+    public void PDPageContentStream_ShowTextWithPositioning_EmitsTJOperator()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.BeginText();
+            content.SetFont(new PDType1Font(PDType1Font.FontName.HELVETICA), 12);
+            content.ShowTextWithPositioning(new object[] { "Hello", -120.0f, " World" });
+            content.EndText();
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+
+        Assert.Contains("TJ", contentText);
+        Assert.Contains("Hello", contentText);
+        Assert.Contains("World", contentText);
+        Assert.Contains("-120", contentText);
+    }
+
     private static COSStream CreateStream(string text)
     {
         COSStream stream = new();

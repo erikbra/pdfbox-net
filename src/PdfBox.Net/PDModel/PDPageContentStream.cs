@@ -207,6 +207,56 @@ public sealed class PDPageContentStream : IDisposable
     }
 
     /// <summary>
+    /// Writes a set-character-spacing operator (Tc).
+    /// </summary>
+    /// <param name="spacing">Character spacing in unscaled text space units.</param>
+    public void SetCharacterSpacing(float spacing) => WriteOperator("Tc", spacing);
+
+    /// <summary>
+    /// Writes a set-word-spacing operator (Tw).
+    /// </summary>
+    /// <param name="spacing">Word spacing in unscaled text space units.</param>
+    public void SetWordSpacing(float spacing) => WriteOperator("Tw", spacing);
+
+    /// <summary>
+    /// Writes a show-text-with-individual-glyph-positioning operator (TJ).
+    /// Each element of <paramref name="textWithPositioning"/> must be either a
+    /// <see cref="string"/> (shown as-is) or a <see cref="float"/>/<see cref="double"/>
+    /// (kerning adjustment: positive values move glyphs to the left).
+    /// </summary>
+    /// <param name="textWithPositioning">
+    /// An array alternating between strings and numeric kerning values.
+    /// </param>
+    public void ShowTextWithPositioning(object[] textWithPositioning)
+    {
+        ArgumentNullException.ThrowIfNull(textWithPositioning);
+        COSArray array = new();
+        foreach (object item in textWithPositioning)
+        {
+            switch (item)
+            {
+                case string s:
+                    array.Add(new COSString(s));
+                    break;
+                case float f:
+                    array.Add(new COSFloat(f));
+                    break;
+                case double d:
+                    array.Add(new COSFloat((float)d));
+                    break;
+                case int i:
+                    array.Add(COSInteger.Get(i));
+                    break;
+                default:
+                    throw new ArgumentException(
+                        $"Unsupported element type in textWithPositioning: {item?.GetType().FullName ?? "null"}",
+                        nameof(textWithPositioning));
+            }
+        }
+        WriteOperator("TJ", array);
+    }
+
+    /// <summary>
     /// Set the non-stroking (fill) color in the DeviceGray color space. Range is 0..1.
     /// </summary>
     /// <param name="gray">The gray value.</param>
