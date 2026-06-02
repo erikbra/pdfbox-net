@@ -361,6 +361,17 @@ public class PDResources
         return name;
     }
 
+    /// <summary>Adds a tiling pattern using an auto-generated name and returns that name.</summary>
+    public COSName Add(PDAbstractPattern pattern)
+    {
+        ArgumentNullException.ThrowIfNull(pattern);
+        COSDictionary subDict = _dict.GetCOSDictionary(PatternKey) ?? new COSDictionary();
+        _dict.SetItem(PatternKey, subDict);
+        COSName name = GenerateUniqueName(subDict, "P");
+        subDict.SetItem(name, pattern.GetCOSObject());
+        return name;
+    }
+
     public PDAbstractPattern? GetPattern(COSName name)
     {
         COSObject? indirect = GetIndirect(PatternKey, name);

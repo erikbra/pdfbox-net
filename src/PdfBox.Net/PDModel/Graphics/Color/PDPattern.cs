@@ -59,6 +59,19 @@ public sealed class PDPattern : PDColorSpace
 
     public override string GetName() => Pattern.GetName();
 
+    public override COSBase GetCOSObject()
+    {
+        if (_underlyingColorSpace is null)
+        {
+            return Pattern;
+        }
+
+        COSArray array = new();
+        array.Add(Pattern);
+        array.Add(_underlyingColorSpace.GetCOSObject());
+        return array;
+    }
+
     public override int GetNumberOfComponents() => _underlyingColorSpace?.GetNumberOfComponents() ?? 0;
 
     public override float[] GetDefaultDecode(int bitsPerComponent)

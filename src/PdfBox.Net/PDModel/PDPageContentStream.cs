@@ -349,6 +349,32 @@ public sealed class PDPageContentStream : IDisposable
     }
 
     /// <summary>
+    /// Sets the non-stroking (fill) color using a pattern, setting the color space if needed.
+    /// Use for colored tiling patterns (no color components required).
+    /// </summary>
+    /// <param name="patternCS">The pattern color space.</param>
+    /// <param name="patternName">The name of the pattern resource.</param>
+    public void SetNonStrokingColorWithPattern(PDColorSpace patternCS, COSName patternName)
+    {
+        ArgumentNullException.ThrowIfNull(patternCS);
+        ArgumentNullException.ThrowIfNull(patternName);
+        SetNonStrokingColor(new PDColor(patternName, patternCS));
+    }
+
+    /// <summary>
+    /// Sets the stroking color using a pattern, setting the color space if needed.
+    /// Use for colored tiling patterns (no color components required).
+    /// </summary>
+    /// <param name="patternCS">The pattern color space.</param>
+    /// <param name="patternName">The name of the pattern resource.</param>
+    public void SetStrokingColorWithPattern(PDColorSpace patternCS, COSName patternName)
+    {
+        ArgumentNullException.ThrowIfNull(patternCS);
+        ArgumentNullException.ThrowIfNull(patternName);
+        SetStrokingColor(new PDColor(patternName, patternCS));
+    }
+
+    /// <summary>
     /// Sets the non-stroking (fill) color space.
     /// </summary>
     /// <param name="colorSpace">The color space.</param>

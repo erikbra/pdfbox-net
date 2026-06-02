@@ -90,6 +90,12 @@ public abstract class PDAbstractContentStream : IDisposable
     public void SaveGraphicsState() => WriteOperator("q");
     public void RestoreGraphicsState() => WriteOperator("Q");
 
+    /// <summary>Sets the stroking color in the DeviceRGB color space. Range is 0..1.</summary>
+    public void SetStrokingColor(float r, float g, float b) => WriteOperator("RG", r, g, b);
+
+    /// <summary>Sets the non-stroking (fill) color in the DeviceRGB color space. Range is 0..1.</summary>
+    public void SetNonStrokingColor(float r, float g, float b) => WriteOperator("rg", r, g, b);
+
     public void Clip()
     {
         WriteOperator("W");
