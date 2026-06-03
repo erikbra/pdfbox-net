@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
+    <PackageReference Include="System.Drawing.Common" />
     <ProjectReference Include="..\PdfBox.Net.IO\PdfBox.Net.IO.csproj" />
     <ProjectReference Include="..\PdfBox.Net.FontBox\PdfBox.Net.FontBox.csproj" />
   </ItemGroup>

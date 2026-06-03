@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/printing/OpaquePDFRenderer.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -27,15 +27,18 @@
 
 using PdfBox.Net;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.Printing;
+using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Examples.Printing;
 
 /// <summary>
 /// Demonstrates opaque PDF rendering (no transparent background).
 /// </summary>
-public class OpaquePDFRenderer
+public class OpaquePDFRenderer : PDFRenderer
 {
-    private OpaquePDFRenderer()
+    public OpaquePDFRenderer(PDDocument document)
+        : base(document)
     {
     }
 
@@ -47,8 +50,34 @@ public class OpaquePDFRenderer
             return;
         }
 
-        // NOTE: Printing via system printers is not yet implemented in this .NET port.
-        throw new NotSupportedException(
-            "PDF printing via system printers is not yet implemented in this .NET port.");
+        using PDDocument document = Loader.LoadPDF(args[0]);
+        PDFRenderer renderer = new OpaquePDFRenderer(document);
+        PDFPrinter printer = new(document, renderer)
+        {
+            Scaling = Scaling.ScaleToFit
+        };
+        printer.Print();
+    }
+
+    protected override PageDrawer CreatePageDrawer(PageDrawerParameters parameters)
+    {
+        return new OpaquePageDrawer(parameters);
+    }
+
+    private sealed class OpaquePageDrawer : PageDrawer
+    {
+        public OpaquePageDrawer(PageDrawerParameters parameters)
+            : base(parameters)
+        {
+        }
+
+        protected override IPaint GetNonStrokingPaint()
+        {
+            if (base.GetNonStrokingPaint() is Color c)
+            {
+                return new Color(c.Red, c.Green, c.Blue, 255);
+            }
+            return base.GetNonStrokingPaint();
+        }
     }
 }
