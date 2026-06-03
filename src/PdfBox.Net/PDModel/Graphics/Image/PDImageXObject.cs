@@ -30,6 +30,7 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Resources;
+using SkiaSharp;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
@@ -67,9 +68,18 @@ public sealed class PDImageXObject : PDXObject
             return CCITTFactory.CreateFromFile(document, imagePath);
         }
 
-        throw new NotImplementedException(
+        if (string.Equals(extension, ".png", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(extension, ".bmp", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(extension, ".gif", StringComparison.OrdinalIgnoreCase))
+        {
+            using SKBitmap bitmap = SKBitmap.Decode(imagePath)
+                ?? throw new IOException($"Failed to decode image: {imagePath}");
+            return LosslessFactory.CreateFromImage(document, bitmap);
+        }
+
+        throw new IOException(
             $"PDImageXObject.CreateFromFile does not support extension '{extension}'. " +
-            "Supported extensions in this port are .jpg, .jpeg, .tif, and .tiff.");
+            "Supported extensions are .jpg/.jpeg, .png, .bmp, .gif, .tif, and .tiff.");
     }
 
     public int GetWidth() => GetCOSObject()?.GetInt(COSName.WIDTH, 0) ?? 0;
