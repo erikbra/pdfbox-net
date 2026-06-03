@@ -71,26 +71,11 @@ public class ExtractTTFFonts
             PDFont? font = resources.GetFont(fontName);
             if (font is PDTrueTypeFont ttf)
             {
-                string fileName = SanitizeFileName(font.GetName()) + ".ttf";
+                string fileName = font.GetName() + ".ttf";
                 string outputPath = Path.Combine(outputDir, fileName);
                 File.WriteAllBytes(outputPath, ttf.ExportFont());
                 Console.WriteLine("Wrote " + outputPath);
             }
         }
-    }
-
-    private static string SanitizeFileName(string fileName)
-    {
-        if (string.IsNullOrWhiteSpace(fileName))
-        {
-            return "font";
-        }
-
-        foreach (char c in Path.GetInvalidFileNameChars())
-        {
-            fileName = fileName.Replace(c, '_');
-        }
-
-        return fileName;
     }
 }
