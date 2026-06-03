@@ -472,6 +472,46 @@ public class RenderingTextTest
     }
 
     [Fact]
+    public void PDFTextStripper_WriteStringHook_ReceivesAssembledRuns()
+    {
+        using var document = CreateSimpleTextFixtureDocument("""
+            BT
+            /F1 12 Tf
+            50 700 Td
+            (ABC DEF) Tj
+            ET
+            """);
+
+        var stripper = new HookTrackingTextStripper();
+        string extracted = stripper.GetText(document);
+
+        Assert.Equal($"ABC DEF{Environment.NewLine}", extracted);
+        Assert.Single(stripper.StringRuns);
+        Assert.Equal("ABC DEF", stripper.StringRuns[0]);
+        Assert.Single(stripper.RunPositionCounts);
+        Assert.Equal("ABC DEF".Length, stripper.RunPositionCounts[0]);
+    }
+
+    [Fact]
+    public void PDFTextStripper_ProcessTextPositionHook_ReceivesEachGlyph()
+    {
+        using var document = CreateSimpleTextFixtureDocument("""
+            BT
+            /F1 12 Tf
+            50 700 Td
+            (ABC) Tj
+            ET
+            """);
+
+        var stripper = new HookTrackingTextStripper();
+        _ = stripper.GetText(document);
+
+        Assert.Equal("ABC", string.Concat(stripper.Glyphs));
+        Assert.Equal(3, stripper.GlyphPositions.Count);
+        Assert.All(stripper.GlyphPositions, p => Assert.True(p.GetFontSize() > 0));
+    }
+
+    [Fact]
     public void PDFMarkedContentExtractor_ProcessPage_CapturesMarkedContentText()
     {
         using var document = CreateSimpleTextFixtureDocument("""
@@ -563,5 +603,30 @@ public class RenderingTextTest
         var resources = new COSDictionary();
         resources.SetItem(COSName.GetPDFName("Font"), fonts);
         return resources;
+    }
+
+    private sealed class HookTrackingTextStripper : PDFTextStripper
+    {
+        public List<string> StringRuns { get; } = new();
+
+        public List<string> Glyphs { get; } = new();
+
+        public List<int> RunPositionCounts { get; } = new();
+
+        public List<TextPosition> GlyphPositions { get; } = new();
+
+        protected override void WriteString(string text, List<TextPosition> textPositions)
+        {
+            StringRuns.Add(text);
+            RunPositionCounts.Add(textPositions.Count);
+            base.WriteString(text, textPositions);
+        }
+
+        protected override void ProcessTextPosition(TextPosition text)
+        {
+            Glyphs.Add(text.GetUnicode());
+            GlyphPositions.Add(text);
+            base.ProcessTextPosition(text);
+        }
     }
 }

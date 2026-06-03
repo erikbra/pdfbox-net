@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/util/DrawPrintTextLocations.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -28,6 +28,7 @@
 using PdfBox.Net;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.Text;
+using System.IO;
 
 namespace PdfBox.Net.Examples.Util;
 
@@ -36,8 +37,73 @@ namespace PdfBox.Net.Examples.Util;
 /// </summary>
 public class DrawPrintTextLocations : PDFTextStripper
 {
+    private PDPageContentStream? _contentStream;
+
     public DrawPrintTextLocations()
     {
+        SetSortByPosition(true);
+    }
+
+    protected override void StartPage(PDPage page)
+    {
+        base.StartPage(page);
+        if (document == null)
+        {
+            throw new InvalidOperationException("Document must be set before processing pages.");
+        }
+
+        _contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true);
+    }
+
+    protected override void EndPage(PDPage page)
+    {
+        _contentStream?.Dispose();
+        _contentStream = null;
+        base.EndPage(page);
+    }
+
+    protected override void WriteString(string text, List<TextPosition> textPositions)
+    {
+        foreach (TextPosition textPosition in textPositions)
+        {
+            Console.WriteLine("String[" + textPosition.GetXDirAdj() + ","
+                + textPosition.GetYDirAdj() + " fs=" + textPosition.GetFontSize()
+                + " xscale=" + textPosition.GetXScale()
+                + " height=" + textPosition.GetHeightDir()
+                + " space=" + textPosition.GetWidthOfSpace()
+                + " width=" + textPosition.GetWidthDirAdj()
+                + "]" + textPosition.GetUnicode());
+            DrawBounds(textPosition, 1f, 0f, 0f);
+        }
+
+        base.WriteString(text, textPositions);
+    }
+
+    protected override void ProcessTextPosition(TextPosition text)
+    {
+        DrawBounds(text, 0f, 0f, 1f);
+        base.ProcessTextPosition(text);
+    }
+
+    private void DrawBounds(TextPosition text, float red, float green, float blue)
+    {
+        if (_contentStream == null)
+        {
+            return;
+        }
+
+        float width = text.GetWidthDirAdj();
+        float height = text.GetHeightDir();
+        if (width <= 0 || height <= 0)
+        {
+            return;
+        }
+
+        float x = text.GetXDirAdj();
+        float y = text.GetYDirAdj() - height;
+        _contentStream.SetStrokingColor(red, green, blue);
+        _contentStream.AddRect(x, y, width, height);
+        _contentStream.Stroke();
     }
 
     public static void Main(string[] args)
@@ -50,12 +116,9 @@ public class DrawPrintTextLocations : PDFTextStripper
 
         using (PDDocument document = Loader.LoadPDF(args[0]))
         {
-            // NOTE: DrawPrintTextLocations requires overriding writeString/processTextPosition and
-            // using PDPageContentStream drawing operators (AddRect, SetStrokingColor, Stroke) which
-            // are not yet fully implemented in this .NET port.
-            throw new NotSupportedException(
-                "PDPageContentStream path drawing operators needed for text location visualization " +
-                "are not yet implemented in this .NET port.");
+            DrawPrintTextLocations stripper = new DrawPrintTextLocations();
+            stripper.WriteText(document, TextWriter.Null);
+            document.Save(args[1]);
         }
     }
 }
