@@ -25,22 +25,82 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Interactive.Form;
+using PdfBox.Net.PDModel.Resources;
+
 namespace PdfBox.Net.Examples.Signature;
 
+// PORT_MODE: mechanical
+
 /// <summary>
-/// Creates an empty signature form field in a PDF document.
+/// Creates an AcroForm with an empty (unsigned) signature field in a new PDF document.
 /// </summary>
-public class CreateEmptySignatureForm
+/// <remarks>
+/// A real signature can be added later — for example by signing with
+/// <see cref="CreateSignature"/> or by clicking the field in Adobe Reader.
+/// </remarks>
+public sealed class CreateEmptySignatureForm
 {
     private CreateEmptySignatureForm()
     {
     }
 
+    /// <summary>
+    /// Creates a new single-page PDF at <paramref name="outputPath"/> that contains one empty
+    /// signature field named "Signature1".
+    /// </summary>
+    public static void CreateForm(string outputPath)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(outputPath);
+
+        using PDDocument document = new();
+        PDPage page = new(PDRectangle.A4);
+        document.AddPage(page);
+
+        // Adobe Acrobat stores the default form font under '/Helv' in the resources dictionary.
+        PDFont font = new PDType1Font(PDType1Font.FontName.HELVETICA);
+        PDResources resources = new();
+        resources.Put(COSName.GetPDFName("Helv"), font);
+
+        // Add a new AcroForm and set resources + default appearance.
+        PDAcroForm acroForm = new(document);
+        document.GetDocumentCatalog().SetAcroForm(acroForm);
+        acroForm.SetDefaultResources(resources);
+        // Font size 0 means auto-size.
+        acroForm.SetDefaultAppearance("/Helv 0 Tf 0 g");
+
+        // Create an empty signature field ("Signature1").
+        PDSignatureField signatureField = new(acroForm);
+        PDAnnotationWidget widget = signatureField.GetWidgets()[0];
+
+        PDRectangle rect = new(50, 650, 200, 50);
+        widget.SetRectangle(rect);
+        widget.SetPage(page);
+        widget.SetPrinted(true);
+
+        page.GetAnnotations().Add(widget);
+        acroForm.GetFields().Add(signatureField);
+
+        document.Save(outputPath);
+    }
+
+    /// <summary>
+    /// CLI entry point: <c>CreateEmptySignatureForm &lt;output.pdf&gt;</c>
+    /// </summary>
     public static void Main(string[] args)
     {
-        // NOTE: PDF digital signature operations require cryptographic APIs (BouncyCastle, etc.)
-        // which are not yet implemented in this .NET port.
-        throw new NotSupportedException(
-            "PDF digital signature operations are not yet implemented in this .NET port.");
+        if (args.Length != 1)
+        {
+            Console.Error.WriteLine($"Usage: {nameof(CreateEmptySignatureForm)} <output.pdf>");
+            Environment.Exit(1);
+        }
+
+        CreateForm(args[0]);
+        Console.WriteLine("Created empty signature form: " + args[0]);
     }
 }

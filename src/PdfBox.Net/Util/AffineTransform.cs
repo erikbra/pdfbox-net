@@ -215,6 +215,31 @@ public class AffineTransform : IEquatable<AffineTransform>
         return new AffineTransform(_m00, _m10, _m01, _m11, _m02, _m12);
     }
 
+    /// <summary>
+    /// Creates a new <see cref="AffineTransform"/> that is a rotation by
+    /// <paramref name="numQuadrants"/> * 90 degrees counter-clockwise.
+    /// Mirrors <c>java.awt.geom.AffineTransform.getQuadrantRotateInstance(int)</c>.
+    /// </summary>
+    /// <param name="numQuadrants">Number of 90-degree CCW quadrants to rotate.</param>
+    /// <returns>A new transform representing the rotation.</returns>
+    public static AffineTransform GetQuadrantRotateInstance(int numQuadrants)
+    {
+        AffineTransform t = new();
+        t.QuadrantRotate(numQuadrants);
+        return t;
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="AffineTransform"/> that is a uniform scale by
+    /// (<paramref name="sx"/>, <paramref name="sy"/>).
+    /// </summary>
+    public static AffineTransform GetScaleInstance(double sx, double sy)
+    {
+        AffineTransform t = new();
+        t.Scale(sx, sy);
+        return t;
+    }
+
     public bool Equals(AffineTransform? other)
     {
         return other is not null &&

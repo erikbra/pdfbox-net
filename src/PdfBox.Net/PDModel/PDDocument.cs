@@ -29,6 +29,9 @@ using PdfBox.Net.COS;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.PDModel.Encryption;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Interactive.DigitalSignature;
+using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PdfParser;
 using PdfBox.Net.PdfWriter;
 using System.Globalization;
@@ -52,6 +55,13 @@ public sealed class PDDocument : IDisposable
     private PDDocumentCatalog? _documentCatalog;
     private PDDocumentInformation? _documentInformation;
     private ResourceCache? _resourceCache = ResourceCacheFactory.CreateResourceCache();
+    private byte[]? _sourceBytes;
+    private HashSet<COSObjectKey>? _originalXrefKeys;
+    private bool _signatureAdded;
+    private SignatureInterface? _signInterface;
+    private PDSignature? _pendingSignature;
+    private int _signatureContentSize;
+    private static readonly int[] ReserveByteRange = [0, 1000000000, 1000000000, 1000000000];
 
     public PDDocument()
         : this(CreateNewDocument())
@@ -85,9 +95,17 @@ public sealed class PDDocument : IDisposable
     public static PDDocument Load(Stream input, string? password)
     {
         ArgumentNullException.ThrowIfNull(input);
-        PDFParser parser = new(input);
+        // Buffer the entire input so we can store source bytes for incremental updates.
+        using var buffer = new MemoryStream();
+        input.CopyTo(buffer);
+        byte[] sourceBytes = buffer.ToArray();
+
+        using var parsedStream = new MemoryStream(sourceBytes);
+        PDFParser parser = new(parsedStream);
         ParsedPDFDocument parsed = parser.Parse();
         PDDocument doc = new(parsed.Document);
+        doc._sourceBytes = sourceBytes;
+        doc._originalXrefKeys = new HashSet<COSObjectKey>(parsed.Document.GetXrefTable().Keys);
         doc.DecryptIfNeeded(password);
         return doc;
     }
@@ -434,6 +452,660 @@ public sealed class PDDocument : IDisposable
         EnsureNotDisposed();
         using FileStream output = File.Create(filePath);
         Save(output);
+    }
+
+
+    /// <summary>
+    /// Adds a signature to the document for incremental save.
+    /// </summary>
+    public void AddSignature(PDSignature sigObject)
+    {
+        AddSignature(sigObject, signatureInterface: null, new SignatureOptions());
+    }
+
+    /// <summary>
+    /// Adds a signature to the document using the given sign interface.
+    /// </summary>
+    public void AddSignature(PDSignature sigObject, SignatureInterface signatureInterface)
+    {
+        AddSignature(sigObject, signatureInterface, new SignatureOptions());
+    }
+
+    /// <summary>
+    /// Adds a signature to the document with options.
+    /// </summary>
+    public void AddSignature(PDSignature sigObject, SignatureOptions options)
+    {
+        AddSignature(sigObject, signatureInterface: null, options);
+    }
+
+    /// <summary>
+    /// Adds a signature to the document using the given sign interface and options.
+    /// </summary>
+    public void AddSignature(PDSignature sigObject, SignatureInterface? signatureInterface, SignatureOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(sigObject);
+        ArgumentNullException.ThrowIfNull(options);
+        EnsureNotDisposed();
+
+        if (_signatureAdded)
+        {
+            throw new IOException("Only one signature can be added per incremental save.");
+        }
+
+        // Get or create the AcroForm.
+        PDDocumentCatalog catalog = GetDocumentCatalog();
+        PDAcroForm? acroForm = catalog.GetAcroForm();
+        if (acroForm == null)
+        {
+            acroForm = new PDAcroForm(this);
+            catalog.SetAcroForm(acroForm);
+        }
+
+        acroForm.SetSignaturesExist(true);
+        acroForm.SetAppendOnly(true);
+
+        // Ensure AcroForm has an indirect key so it can be written in the incremental update.
+        COSDictionary acroFormDict = (COSDictionary)acroForm.GetCOSObject();
+        if (acroFormDict.GetKey() == null)
+        {
+            acroFormDict.SetKey(AllocateObjectKey());
+        }
+
+        // Create the signature field and its merged widget annotation.
+        PDSignatureField signatureField = new(acroForm);
+        PDAnnotationWidget firstWidget = signatureField.GetWidgets()[0];
+
+        if (options.GetVisualSignature() != null)
+        {
+            PrepareVisibleSignature(firstWidget, acroForm, options.GetVisualSignature()!);
+        }
+        else
+        {
+            PrepareNonVisibleSignature(firstWidget);
+        }
+
+        // Assign keys to the new field/widget dict and signature dict.
+        COSDictionary fieldDict = (COSDictionary)signatureField.GetCOSObject();
+        if (fieldDict.GetKey() == null)
+        {
+            fieldDict.SetKey(AllocateObjectKey());
+        }
+
+        // Associate the widget with the target page and add it to the page's annotations.
+        int pageIndex = options.GetPage();
+        PDPage page = GetPage(pageIndex);
+        firstWidget.SetPage(page);
+
+        IList<PDAnnotation> annotations = page.GetAnnotations();
+        bool widgetAlreadyAdded = false;
+        foreach (PDAnnotation ann in annotations)
+        {
+            if (ReferenceEquals(ann.GetCOSObject(), firstWidget.GetCOSObject()))
+            {
+                widgetAlreadyAdded = true;
+                break;
+            }
+        }
+
+        if (!widgetAlreadyAdded)
+        {
+            annotations.Add(firstWidget);
+            // Persist the annotation list back to the page dictionary so the page is marked updated.
+            page.SetAnnotations(annotations);
+        }
+
+        // Assign a key to the page dict if it doesn't have one (needed for incremental write).
+        COSDictionary pageDict = (COSDictionary)page.GetCOSObject();
+        if (pageDict.GetKey() == null)
+        {
+            pageDict.SetKey(AllocateObjectKey());
+        }
+
+        // Add the field to the AcroForm's field list.
+        IList<PDField> fields = acroForm.GetFields();
+        bool fieldAlreadyAdded = false;
+        foreach (PDField f in fields)
+        {
+            if (ReferenceEquals(f.GetCOSObject(), signatureField.GetCOSObject()))
+            {
+                fieldAlreadyAdded = true;
+                break;
+            }
+        }
+
+        if (!fieldAlreadyAdded)
+        {
+            fields.Add(signatureField);
+            acroForm.SetFields(fields);
+        }
+
+        // Set the ByteRange and Contents placeholders on the signature dictionary.
+        sigObject.SetByteRange(ReserveByteRange);
+        sigObject.SetContents(new byte[options.GetPreferredSignatureSize()]);
+
+        // Assign a key to the signature dictionary.
+        COSDictionary sigDict = (COSDictionary)sigObject.GetCOSObject();
+        if (sigDict.GetKey() == null)
+        {
+            sigDict.SetKey(AllocateObjectKey());
+        }
+
+        // Link the signature to the field.
+        signatureField.SetValue(sigObject);
+
+        // Store sign interface and pending signature for SaveIncremental.
+        _signInterface = signatureInterface;
+        _pendingSignature = sigObject;
+        _signatureContentSize = options.GetPreferredSignatureSize();
+        _signatureAdded = true;
+    }
+
+    private static void PrepareNonVisibleSignature(PDAnnotationWidget widget)
+    {
+        // Non-visible: zero-size rectangle, no appearance needed.
+        widget.SetRectangle(new PDRectangle(0, 0, 0, 0));
+    }
+
+    private void PrepareVisibleSignature(
+        PDAnnotationWidget firstWidget,
+        PDAcroForm acroForm,
+        COSDocument visualSignatureCosDoc)
+    {
+        // Minimal visual signature: set a small default rectangle.
+        // Full XObject appearance transfer is beyond scope for now.
+        if (firstWidget.GetRectangle() == null)
+        {
+            firstWidget.SetRectangle(new PDRectangle(0, 0, 200, 50));
+        }
+    }
+
+    /// <summary>
+    /// Returns all signature fields in the document.
+    /// </summary>
+    public List<PDSignatureField> GetSignatureFields()
+    {
+        EnsureNotDisposed();
+        List<PDSignatureField> fields = [];
+        PDAcroForm? acroForm = GetDocumentCatalog().GetAcroForm();
+        if (acroForm == null)
+        {
+            return fields;
+        }
+
+        foreach (PDField field in acroForm.GetFieldTree())
+        {
+            if (field is PDSignatureField sigField)
+            {
+                fields.Add(sigField);
+            }
+        }
+
+        return fields;
+    }
+
+    /// <summary>
+    /// Returns all signature dictionaries in the document.
+    /// </summary>
+    public List<PDSignature> GetSignatureDictionaries()
+    {
+        EnsureNotDisposed();
+        List<PDSignature> signatures = [];
+        foreach (PDSignatureField sigField in GetSignatureFields())
+        {
+            PDSignature? sig = sigField.GetSignature();
+            if (sig != null)
+            {
+                signatures.Add(sig);
+            }
+        }
+
+        return signatures;
+    }
+
+    /// <summary>
+    /// Returns the last (most recent) signature dictionary in the document.
+    /// </summary>
+    public PDSignature? GetLastSignatureDictionary()
+    {
+        EnsureNotDisposed();
+        List<PDSignature> sigs = GetSignatureDictionaries();
+        return sigs.Count > 0 ? sigs[^1] : null;
+    }
+
+    /// <summary>
+    /// Saves the document as an incremental update to the given output stream.
+    /// If a signature was added via AddSignature, the signature is computed and embedded.
+    /// </summary>
+    public void SaveIncremental(Stream output)
+    {
+        ArgumentNullException.ThrowIfNull(output);
+        EnsureNotDisposed();
+
+        if (_sourceBytes == null)
+        {
+            throw new InvalidOperationException(
+                "SaveIncremental requires the document to have been loaded from a stream or file.");
+        }
+
+        using var buffer = new MemoryStream();
+        WriteIncrementalUpdate(buffer,
+            out long sigByteRangeValueOffset,
+            out long sigContentsHexOffset,
+            out int sigContentsHexLen);
+
+        // Sign content if a signature interface was registered.
+        if (_signInterface != null && sigByteRangeValueOffset >= 0 && sigContentsHexOffset >= 0)
+        {
+            long totalLen = buffer.Length;
+            long br1 = sigContentsHexOffset - 1; // offset of '<'
+            long br2 = sigContentsHexOffset + sigContentsHexLen + 1; // offset after '>'
+            long br3 = totalLen - br2;
+
+            WriteByteRangeFixup(buffer, sigByteRangeValueOffset, br1, br2, br3);
+
+            // Build the content stream (two ranges: before '<' and after '>').
+            byte[] allBytes = buffer.ToArray();
+            using var contentStream = new MultiRangeStream(allBytes, br1, br2);
+            byte[] sigBytes = _signInterface.Sign(contentStream);
+
+            WriteSignatureHex(buffer, sigContentsHexOffset, sigContentsHexLen, sigBytes);
+        }
+        else if (sigByteRangeValueOffset >= 0 && sigContentsHexOffset >= 0)
+        {
+            // No interface: still fix up ByteRange so the PDF is structurally valid.
+            long totalLen = buffer.Length;
+            long br1 = sigContentsHexOffset - 1;
+            long br2 = sigContentsHexOffset + sigContentsHexLen + 1;
+            long br3 = totalLen - br2;
+            WriteByteRangeFixup(buffer, sigByteRangeValueOffset, br1, br2, br3);
+        }
+
+        buffer.Position = 0;
+        buffer.CopyTo(output);
+    }
+
+    /// <summary>
+    /// Saves the document as an incremental update for external signing.
+    /// The caller must call <see cref="ExternalSigningSupport.SetSignature"/> on the
+    /// returned object before the output is considered complete.
+    /// </summary>
+    public ExternalSigningSupport SaveIncrementalForExternalSigning(Stream output)
+    {
+        ArgumentNullException.ThrowIfNull(output);
+        EnsureNotDisposed();
+
+        if (_sourceBytes == null)
+        {
+            throw new InvalidOperationException(
+                "SaveIncrementalForExternalSigning requires the document to have been loaded from a stream or file.");
+        }
+
+        var buffer = new MemoryStream();
+        WriteIncrementalUpdate(buffer,
+            out long sigByteRangeValueOffset,
+            out long sigContentsHexOffset,
+            out int sigContentsHexLen);
+
+        // Fix up ByteRange immediately.
+        if (sigByteRangeValueOffset >= 0 && sigContentsHexOffset >= 0)
+        {
+            long totalLen = buffer.Length;
+            long br1 = sigContentsHexOffset - 1;
+            long br2 = sigContentsHexOffset + sigContentsHexLen + 1;
+            long br3 = totalLen - br2;
+            WriteByteRangeFixup(buffer, sigByteRangeValueOffset, br1, br2, br3);
+        }
+
+        // Return a SigningSupport that:
+        //  – GetContent() → combined byte ranges (the data to be signed)
+        //  – SetSignature(sig) → writes sig hex and flushes buffer to output
+        long capturedSigContentsHexOffset = sigContentsHexOffset;
+        int capturedSigContentsHexLen = sigContentsHexLen;
+        long capturedBr2 = sigContentsHexOffset >= 0
+            ? sigContentsHexOffset + sigContentsHexLen + 1
+            : 0;
+
+        return new SigningSupport(
+            contentFactory: () =>
+            {
+                byte[] allBytes = buffer.ToArray();
+                long br1 = capturedSigContentsHexOffset >= 0 ? capturedSigContentsHexOffset - 1 : 0;
+                return new MultiRangeStream(allBytes, br1, capturedBr2);
+            },
+            signatureWriter: sig =>
+            {
+                if (capturedSigContentsHexOffset >= 0)
+                {
+                    WriteSignatureHex(buffer, capturedSigContentsHexOffset,
+                        capturedSigContentsHexLen, sig);
+                }
+
+                buffer.Position = 0;
+                buffer.CopyTo(output);
+                buffer.Dispose();
+            });
+    }
+
+    /// <summary>
+    /// Writes all new and modified objects as an incremental update to <paramref name="buffer"/>.
+    /// Populates the signature placeholder positions if a signature was prepared.
+    /// </summary>
+    private void WriteIncrementalUpdate(
+        MemoryStream buffer,
+        out long sigByteRangeValueOffset,
+        out long sigContentsHexOffset,
+        out int sigContentsHexLen)
+    {
+        sigByteRangeValueOffset = -1;
+        sigContentsHexOffset = -1;
+        sigContentsHexLen = 0;
+
+        // Write the original file bytes as the base.
+        buffer.Write(_sourceBytes!);
+
+        // Promote any shared containers so every object that needs to be written has a key.
+        PromoteSharedContainersToIndirect();
+
+        // Collect all reachable indirect objects.
+        List<(COSObjectKey Key, COSBase Inner)> allObjects = CollectIndirectObjects(_trailer);
+        HashSet<COSObjectKey> originalKeys = _originalXrefKeys ?? [];
+
+        // Select objects to write: new (not in original xref) or marked as needing update.
+        List<(COSObjectKey Key, COSBase Inner)> objectsToWrite = allObjects
+            .Where(o =>
+                !originalKeys.Contains(o.Key) ||
+                (o.Inner is COSUpdateInfo ui && ui.IsNeedToBeUpdated()))
+            .ToList();
+
+        // Identify the signature dictionary (if any) so we can track placeholder positions.
+        COSDictionary? pendingSigCosDict = _pendingSignature != null
+            ? (COSDictionary)_pendingSignature.GetCOSObject()
+            : null;
+
+        Dictionary<COSObjectKey, long> offsets = new(objectsToWrite.Count);
+
+        foreach ((COSObjectKey key, COSBase inner) in objectsToWrite)
+        {
+            long objOffset = buffer.Position;
+            offsets[key] = objOffset;
+
+            byte[] objHeader = Encoding.ASCII.GetBytes(
+                $"{key.GetNumber()} {key.GetGeneration()} obj\n");
+
+            bool isSigDict = pendingSigCosDict != null
+                && ReferenceEquals(inner, pendingSigCosDict);
+
+            if (inner is COSStream cosStream)
+            {
+                buffer.Write(objHeader);
+                byte[] dictBytes = COSWriter.Serialize(inner);
+                buffer.Write(dictBytes);
+                buffer.Write(Encoding.ASCII.GetBytes("\nstream\n"));
+                using (Stream rawStream = cosStream.CreateRawInputStream())
+                {
+                    rawStream.CopyTo(buffer);
+                }
+
+                buffer.Write(Encoding.ASCII.GetBytes("\nendstream"));
+            }
+            else
+            {
+                byte[] bodyBytes = COSWriter.Serialize(inner);
+
+                if (isSigDict)
+                {
+                    // Locate placeholder positions within the serialized signature dict.
+                    FindSignaturePlaceholders(bodyBytes,
+                        out int brOffset,
+                        out int ctOffset,
+                        out int ctLen);
+
+                    if (brOffset >= 0)
+                    {
+                        sigByteRangeValueOffset = objOffset + objHeader.Length + brOffset;
+                    }
+
+                    if (ctOffset >= 0)
+                    {
+                        sigContentsHexOffset = objOffset + objHeader.Length + ctOffset;
+                        sigContentsHexLen = ctLen;
+                    }
+                }
+
+                buffer.Write(objHeader);
+                buffer.Write(bodyBytes);
+            }
+
+            buffer.Write(Encoding.ASCII.GetBytes("\nendobj\n"));
+        }
+
+        // Write the incremental cross-reference table.
+        long xrefOffset = buffer.Position;
+        WriteIncrementalXref(buffer, offsets);
+
+        // Determine the /Size value for the incremental trailer.
+        long origMaxObj = originalKeys.Count > 0
+            ? originalKeys.Max(k => k.GetNumber())
+            : 0;
+        long newMaxObj = objectsToWrite.Count > 0
+            ? objectsToWrite.Max(x => x.Key.GetNumber())
+            : 0;
+        int trailerSize = (int)Math.Max(origMaxObj, newMaxObj) + 1;
+
+        WriteIncrementalTrailer(buffer, xrefOffset, trailerSize);
+    }
+
+    /// <summary>
+    /// Writes a minimal incremental cross-reference table for the given object offsets.
+    /// </summary>
+    private static void WriteIncrementalXref(
+        MemoryStream output,
+        Dictionary<COSObjectKey, long> offsets)
+    {
+        if (offsets.Count == 0)
+        {
+            return;
+        }
+
+        // Sort by object number and group into contiguous subsections.
+        List<COSObjectKey> sortedKeys = [.. offsets.Keys.OrderBy(k => k.GetNumber())];
+
+        var sections = new List<(long StartNum, List<(COSObjectKey Key, long Offset)> Entries)>();
+        long sectionStart = 0;
+        var sectionEntries = new List<(COSObjectKey Key, long Offset)>();
+
+        for (int i = 0; i < sortedKeys.Count; i++)
+        {
+            COSObjectKey key = sortedKeys[i];
+            if (i == 0 || key.GetNumber() != sortedKeys[i - 1].GetNumber() + 1)
+            {
+                if (sectionEntries.Count > 0)
+                {
+                    sections.Add((sectionStart, sectionEntries));
+                }
+
+                sectionStart = key.GetNumber();
+                sectionEntries = [];
+            }
+
+            sectionEntries.Add((key, offsets[key]));
+        }
+
+        if (sectionEntries.Count > 0)
+        {
+            sections.Add((sectionStart, sectionEntries));
+        }
+
+        output.Write(Encoding.ASCII.GetBytes("xref\n"));
+        foreach ((long startNum, List<(COSObjectKey Key, long Offset)> entries) in sections)
+        {
+            output.Write(Encoding.ASCII.GetBytes($"{startNum} {entries.Count}\n"));
+            foreach ((COSObjectKey key, long offset) in entries)
+            {
+                output.Write(Encoding.ASCII.GetBytes(
+                    $"{offset:D10} {key.GetGeneration():D5} n \n"));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Writes a minimal incremental trailer dictionary.
+    /// </summary>
+    private void WriteIncrementalTrailer(MemoryStream output, long xrefOffset, int size)
+    {
+        COSDictionary incrTrailer = new();
+        incrTrailer.SetInt(COSName.SIZE, size);
+        incrTrailer.SetItem(COSName.ROOT, _trailer.GetItem(COSName.ROOT));
+        incrTrailer.SetLong(COSName.PREV, _document.GetStartXref());
+
+        COSBase? info = _trailer.GetItem(COSName.GetPDFName("Info"));
+        if (info != null)
+        {
+            incrTrailer.SetItem(COSName.GetPDFName("Info"), info);
+        }
+
+        output.Write(Encoding.ASCII.GetBytes("\ntrailer\n"));
+        output.Write(COSWriter.Serialize(incrTrailer));
+        output.Write(Encoding.ASCII.GetBytes(
+            $"\nstartxref\n{xrefOffset.ToString(CultureInfo.InvariantCulture)}\n%%EOF\n"));
+    }
+
+    /// <summary>
+    /// Scans the serialized bytes of a signature dictionary for the ByteRange and Contents
+    /// placeholder positions.
+    /// </summary>
+    /// <param name="dictBytes">The serialized dictionary bytes (result of COSWriter.Serialize).</param>
+    /// <param name="byteRangeValueOffset">
+    /// Offset within <paramref name="dictBytes"/> of the first non-zero ByteRange value
+    /// (i.e., the character right after "[0 ").
+    /// </param>
+    /// <param name="contentsHexOffset">
+    /// Offset within <paramref name="dictBytes"/> of the first hex character inside the Contents
+    /// hex string (i.e., right after the opening "&lt;").
+    /// </param>
+    /// <param name="contentsHexLength">Number of hex characters in the Contents hex string.</param>
+    private static void FindSignaturePlaceholders(
+        byte[] dictBytes,
+        out int byteRangeValueOffset,
+        out int contentsHexOffset,
+        out int contentsHexLength)
+    {
+        byteRangeValueOffset = -1;
+        contentsHexOffset = -1;
+        contentsHexLength = 0;
+
+        // Search for " /ByteRange [0 " which precedes the three placeholder integers.
+        byte[] brPattern = " /ByteRange [0 "u8.ToArray();
+        int brIdx = IndexOfPattern(dictBytes, brPattern);
+        if (brIdx >= 0)
+        {
+            byteRangeValueOffset = brIdx + brPattern.Length;
+        }
+
+        // Search for " /Contents <" which precedes the hex-encoded signature bytes.
+        byte[] ctPattern = " /Contents <"u8.ToArray();
+        int ctIdx = IndexOfPattern(dictBytes, ctPattern);
+        if (ctIdx >= 0)
+        {
+            int hexStart = ctIdx + ctPattern.Length;
+            // Find the closing '>' to determine the length.
+            int closeAngle = hexStart;
+            while (closeAngle < dictBytes.Length && dictBytes[closeAngle] != (byte)'>')
+            {
+                closeAngle++;
+            }
+
+            contentsHexOffset = hexStart;
+            contentsHexLength = closeAngle - hexStart;
+        }
+    }
+
+    /// <summary>
+    /// Returns the index of the first occurrence of <paramref name="pattern"/> within
+    /// <paramref name="data"/>, or -1 if not found.
+    /// </summary>
+    private static int IndexOfPattern(byte[] data, byte[] pattern)
+    {
+        if (pattern.Length == 0)
+        {
+            return 0;
+        }
+
+        int limit = data.Length - pattern.Length;
+        for (int i = 0; i <= limit; i++)
+        {
+            bool match = true;
+            for (int j = 0; j < pattern.Length; j++)
+            {
+                if (data[i + j] != pattern[j])
+                {
+                    match = false;
+                    break;
+                }
+            }
+
+            if (match)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /// <summary>
+    /// Overwrites the three ByteRange placeholder values in <paramref name="buffer"/> with the
+    /// actual byte-range coordinates.
+    /// </summary>
+    /// <remarks>
+    /// The caller passes the offset of the FIRST non-zero placeholder value (ByteRange[1]).
+    /// The placeholder layout is "nnnnnnnnnn nnnnnnnnnn nnnnnnnnnn" – three 10-digit fields
+    /// separated by single spaces.
+    /// </remarks>
+    private static void WriteByteRangeFixup(
+        MemoryStream buffer,
+        long byteRangeValueOffset,
+        long br1,
+        long br2,
+        long br3)
+    {
+        long savedPos = buffer.Position;
+        buffer.Position = byteRangeValueOffset;
+
+        // Each value is written padded to 10 characters so the overall layout width is preserved.
+        string br1Str = br1.ToString(CultureInfo.InvariantCulture).PadRight(10);
+        string br2Str = br2.ToString(CultureInfo.InvariantCulture).PadRight(10);
+        string br3Str = br3.ToString(CultureInfo.InvariantCulture).PadRight(10);
+        buffer.Write(Encoding.ASCII.GetBytes($"{br1Str} {br2Str} {br3Str}"));
+
+        buffer.Position = savedPos;
+    }
+
+    /// <summary>
+    /// Writes the DER-encoded signature bytes as a hex string into the Contents placeholder.
+    /// </summary>
+    private static void WriteSignatureHex(
+        MemoryStream buffer,
+        long contentsHexOffset,
+        int contentsHexLen,
+        byte[] signatureBytes)
+    {
+        string hex = Convert.ToHexString(signatureBytes);
+        if (hex.Length > contentsHexLen)
+        {
+            throw new IOException(
+                $"Computed signature ({hex.Length / 2} bytes) exceeds the reserved Contents " +
+                $"space ({contentsHexLen / 2} bytes). Increase SignatureOptions.PreferredSignatureSize.");
+        }
+
+        // Pad the hex string to the reserved length (with '0' characters).
+        string paddedHex = hex.PadRight(contentsHexLen, '0');
+
+        long savedPos = buffer.Position;
+        buffer.Position = contentsHexOffset;
+        buffer.Write(Encoding.ASCII.GetBytes(paddedHex));
+        buffer.Position = savedPos;
     }
 
     /// <summary>
@@ -832,4 +1504,78 @@ public sealed class PDDocument : IDisposable
     {
         return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed) ? parsed : fallback;
     }
+
+
+    /// <summary>
+    /// A read-only stream that concatenates two non-contiguous byte ranges from an in-memory
+    /// buffer: bytes [0..rangeEnd1) and bytes [rangeStart2..end).
+    /// Used to present the two signed ranges of an incremental PDF to a <see cref="SignatureInterface"/>.
+    /// </summary>
+    private sealed class MultiRangeStream : Stream
+    {
+        private readonly byte[] _source;
+        private readonly long _rangeEnd1;      // exclusive end of first range  (= ByteRange[1])
+        private readonly long _rangeStart2;    // inclusive start of second range (= ByteRange[2])
+        private long _position;
+
+        public MultiRangeStream(byte[] source, long rangeEnd1, long rangeStart2)
+        {
+            _source = source ?? throw new ArgumentNullException(nameof(source));
+            _rangeEnd1 = rangeEnd1;
+            _rangeStart2 = rangeStart2;
+            _position = 0;
+        }
+
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+
+        public override long Length =>
+            _rangeEnd1 + (_source.Length - _rangeStart2);
+
+        public override long Position
+        {
+            get => _position;
+            set => throw new NotSupportedException();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            int totalRead = 0;
+            while (count > 0 && _position < Length)
+            {
+                // Determine which physical range the current logical position falls in.
+                long physPos;
+                if (_position < _rangeEnd1)
+                {
+                    physPos = _position;
+                    int available = (int)Math.Min(count, _rangeEnd1 - _position);
+                    Array.Copy(_source, physPos, buffer, offset, available);
+                    _position += available;
+                    offset += available;
+                    count -= available;
+                    totalRead += available;
+                }
+                else
+                {
+                    physPos = _rangeStart2 + (_position - _rangeEnd1);
+                    int available = (int)Math.Min(count, _source.Length - physPos);
+                    if (available <= 0) break;
+                    Array.Copy(_source, physPos, buffer, offset, available);
+                    _position += available;
+                    offset += available;
+                    count -= available;
+                    totalRead += available;
+                }
+            }
+
+            return totalRead;
+        }
+
+        public override void Flush() { }
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+    }
+
 }

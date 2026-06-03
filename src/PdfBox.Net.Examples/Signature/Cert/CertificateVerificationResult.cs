@@ -25,13 +25,45 @@
  * limitations under the License.
  */
 
+using System.Security.Cryptography.X509Certificates;
+
 namespace PdfBox.Net.Examples.Signature.Cert;
+
+// PORT_MODE: mechanical
 
 /// <summary>
 /// Holds the result of a certificate verification operation.
 /// </summary>
+/// <remarks>
+/// .NET equivalent of the Java <c>CertificateVerificationResult</c> which held a
+/// <c>PKIXCertPathBuilderResult</c>; here the validated <see cref="X509Chain"/> is stored instead.
+/// </remarks>
 public class CertificateVerificationResult
 {
-    // NOTE: Certificate verification result fields require cryptographic APIs (BouncyCastle, etc.)
-    // which are not yet implemented in this .NET port.
+    /// <summary>Gets whether the certificate chain was successfully validated.</summary>
+    public bool IsValid { get; }
+
+    /// <summary>
+    /// Gets the validated chain, or <c>null</c> if the verification failed.
+    /// </summary>
+    public X509Chain? Chain { get; }
+
+    /// <summary>
+    /// Gets the exception that caused verification to fail, or <c>null</c> when valid.
+    /// </summary>
+    public Exception? Exception { get; }
+
+    /// <summary>Constructs a result for a valid certificate with the given chain.</summary>
+    public CertificateVerificationResult(X509Chain chain)
+    {
+        IsValid = true;
+        Chain = chain;
+    }
+
+    /// <summary>Constructs a result for an invalid / unverifiable certificate.</summary>
+    public CertificateVerificationResult(Exception exception)
+    {
+        IsValid = false;
+        Exception = exception;
+    }
 }

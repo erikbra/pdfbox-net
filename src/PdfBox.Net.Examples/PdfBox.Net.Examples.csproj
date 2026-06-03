@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Resources/ttf/LiberationSans-Regular.ttf" />
     <EmbeddedResource Include="Resources/ttf/Lohit-Bengali.ttf" />
     <EmbeddedResource Include="Resources/ttf/bengali-samples.txt" />
