@@ -208,16 +208,18 @@ public sealed class PDAcroForm : COSObjectable
                         continue;
                     }
 
-                    if (!IsVisibleAnnotation(annotation))
+                    PDAppearanceStream? appearanceStream = annotation.GetNormalAppearanceStream();
+                    if (appearanceStream == null || !IsVisibleAnnotation(annotation, appearanceStream))
                     {
                         continue;
                     }
 
-                    PDAppearanceStream appearanceStream = annotation.GetNormalAppearanceStream()!;
+                    COSStream appearanceCosStream = appearanceStream.GetCOSObject()
+                        ?? throw new InvalidOperationException("Widget appearance stream is missing a COS stream.");
                     contentStream ??= new PDPageContentStream(_document, page, PDPageContentStream.AppendMode.APPEND, false);
                     contentStream.SaveGraphicsState();
                     contentStream.Transform(ResolveTransformationMatrix(annotation, appearanceStream));
-                    contentStream.DrawForm(new PDFormXObject(appearanceStream.GetCOSObject()!));
+                    contentStream.DrawForm(new PDFormXObject(appearanceCosStream));
                     contentStream.RestoreGraphicsState();
                 }
             }
@@ -254,14 +256,13 @@ public sealed class PDAcroForm : COSObjectable
         return HasXFA() && GetFields().Count == 0;
     }
 
-    private static bool IsVisibleAnnotation(PDAnnotation annotation)
+    private static bool IsVisibleAnnotation(PDAnnotation annotation, PDAppearanceStream? normalAppearanceStream)
     {
         if (annotation.IsInvisible() || annotation.IsHidden())
         {
             return false;
         }
 
-        PDAppearanceStream? normalAppearanceStream = annotation.GetNormalAppearanceStream();
         PDRectangle? bbox = normalAppearanceStream?.GetBBox();
         return bbox != null && bbox.GetWidth() > 0 && bbox.GetHeight() > 0;
     }
