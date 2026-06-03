@@ -154,8 +154,9 @@ public class PageDrawer : PDFGraphicsStreamEngine
         // TODO: Type-3 glyph rendering.
     }
 
-    public void AppendRectangle(Point2D p0, Point2D p1, Point2D p2, Point2D p3)
+    public override void AppendRectangle(Point2D p0, Point2D p1, Point2D p2, Point2D p3)
     {
+        base.AppendRectangle(p0, p1, p2, p3);
         _currentPoint = p3;
     }
 
@@ -224,12 +225,14 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     // ── Path construction and painting (legacy public surface kept for API compat) ──
 
-    public new void StrokePath()
+    public override void StrokePath()
     {
+        base.StrokePath();
     }
 
-    public new void FillPath(int windingRule)
+    public override void FillPath(int windingRule)
     {
+        base.FillPath(windingRule);
     }
 
     private void IntersectShadingBBox(PDColor color, Area area)
@@ -241,40 +244,47 @@ public class PageDrawer : PDFGraphicsStreamEngine
         return false;
     }
 
-    public new void FillAndStrokePath(int windingRule)
+    public override void FillAndStrokePath(int windingRule)
     {
+        base.FillAndStrokePath(windingRule);
     }
 
-    public new void Clip(int windingRule)
+    public override void Clip(int windingRule)
     {
+        base.Clip(windingRule);
     }
 
-    public new void MoveTo(float x, float y)
+    public override void MoveTo(float x, float y)
     {
+        base.MoveTo(x, y);
         _currentPoint = new Point2D(x, y);
     }
 
-    public new void LineTo(float x, float y)
+    public override void LineTo(float x, float y)
     {
+        base.LineTo(x, y);
         _currentPoint = new Point2D(x, y);
     }
 
-    public new void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+    public override void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
     {
+        base.CurveTo(x1, y1, x2, y2, x3, y3);
         _currentPoint = new Point2D(x3, y3);
     }
 
-    public new Point2D? GetCurrentPoint()
+    public override Point2D? GetCurrentPoint()
     {
         return _currentPoint;
     }
 
-    public new void ClosePath()
+    public override void ClosePath()
     {
+        base.ClosePath();
     }
 
-    public new void EndPath()
+    public override void EndPath()
     {
+        base.EndPath();
         _currentPoint = null;
     }
 
@@ -283,7 +293,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
         return linePath;
     }
 
-    public void DrawImage(PDImage pdImage)
+    public override void DrawImage(PDImage pdImage)
     {
         // TODO: image rendering.
     }

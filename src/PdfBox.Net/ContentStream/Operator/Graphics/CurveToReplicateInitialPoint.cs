@@ -18,10 +18,10 @@ public sealed class CurveToReplicateInitialPoint : OperatorProcessor
             operands[2] is not COSNumber x3 || operands[3] is not COSNumber y3) return;
 
         var currentPoint = Context.GetCurrentPoint();
-        if (!currentPoint.HasValue) return;
+        if (currentPoint is null) return;
 
         Context.CurveTo(
-            currentPoint.Value.X, currentPoint.Value.Y,
+            (float)currentPoint.X, (float)currentPoint.Y,
             x2.FloatValue(), y2.FloatValue(),
             x3.FloatValue(), y3.FloatValue());
     }

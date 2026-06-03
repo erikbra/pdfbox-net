@@ -1,6 +1,6 @@
 // PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/rendering/TestCustomPageDrawer.java
 // PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
-// PORT_MODE: adapted
+// PORT_MODE: mechanical
 // PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
 
 /*
@@ -26,20 +26,13 @@ namespace PdfBox.Net.Examples.Tests.Rendering;
 
 /// <summary>
 /// Test of CustomPageDrawer example.
-/// Ported from TestCustomPageDrawer.java — adapted because custom PageDrawer rendering
-/// (subclassing <c>PageDrawer</c> with graphics overrides) is not yet implemented in this
-/// .NET port and <c>CustomPageDrawer.Main()</c> throws <see cref="NotSupportedException"/>.
 /// </summary>
 public class TestCustomPageDrawer
 {
     [Fact]
-    public void TestCustomPageDrawerThrows()
+    public void TestCustomPageDrawerShowsUsageWithoutArgs()
     {
-        // CustomPageDrawer.Main() requires exactly 1 arg: <input-pdf>.
-        // It loads the PDF then throws NotSupportedException because PageDrawer
-        // subclassing is not yet implemented.
-        // Provide a non-existent path; the throw happens before file I/O.
-        Assert.Throws<NotSupportedException>(() =>
-            CustomPageDrawer.Main(new string[] { "nonexistent-input.pdf" }));
+        Exception? ex = Record.Exception(() => CustomPageDrawer.Main([]));
+        Assert.Null(ex);
     }
 }

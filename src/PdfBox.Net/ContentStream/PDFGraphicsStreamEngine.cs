@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.Rendering;
 using PdfBox.Net.Util;
 
 namespace PdfBox.Net.ContentStream;
@@ -42,5 +44,27 @@ public abstract class PDFGraphicsStreamEngine : PDFStreamEngine
     public virtual Matrix GetInitialMatrix()
     {
         return new Matrix();
+    }
+
+    public override void AppendRectangle(float x, float y, float width, float height)
+    {
+        AppendRectangle(
+            new Point2D(x, y),
+            new Point2D(x + width, y),
+            new Point2D(x + width, y + height),
+            new Point2D(x, y + height));
+    }
+
+    public virtual void AppendRectangle(Point2D p0, Point2D p1, Point2D p2, Point2D p3)
+    {
+        MoveTo((float)p0.X, (float)p0.Y);
+        LineTo((float)p1.X, (float)p1.Y);
+        LineTo((float)p2.X, (float)p2.Y);
+        LineTo((float)p3.X, (float)p3.Y);
+        ClosePath();
+    }
+
+    public virtual void DrawImage(PDImage pdImage)
+    {
     }
 }

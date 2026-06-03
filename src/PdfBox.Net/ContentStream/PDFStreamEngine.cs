@@ -40,6 +40,7 @@ using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.PdfParser;
+using PdfBox.Net.Rendering;
 using PdfBox.Net.Util;
 using ContentOperator = PdfBox.Net.ContentStream.Operator.Operator;
 
@@ -218,30 +219,30 @@ public class PDFStreamEngine
 
     // ── Path and clipping state ────────────────────────────────────────────────
 
-    internal void MoveTo(float x, float y)
+    public virtual void MoveTo(float x, float y)
     {
         _currentPath.Add(new PathSegment(PathSegmentType.MoveTo, x, y, 0, 0, 0, 0));
         _currentPoint = (x, y);
     }
 
-    internal void LineTo(float x, float y)
+    public virtual void LineTo(float x, float y)
     {
         _currentPath.Add(new PathSegment(PathSegmentType.LineTo, x, y, 0, 0, 0, 0));
         _currentPoint = (x, y);
     }
 
-    internal void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+    public virtual void CurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
     {
         _currentPath.Add(new PathSegment(PathSegmentType.CurveTo, x1, y1, x2, y2, x3, y3));
         _currentPoint = (x3, y3);
     }
 
-    internal void ClosePath()
+    public virtual void ClosePath()
     {
         _currentPath.Add(new PathSegment(PathSegmentType.Close, 0, 0, 0, 0, 0, 0));
     }
 
-    internal void AppendRectangle(float x, float y, float width, float height)
+    public virtual void AppendRectangle(float x, float y, float width, float height)
     {
         MoveTo(x, y);
         LineTo(x + width, y);
@@ -250,7 +251,10 @@ public class PDFStreamEngine
         ClosePath();
     }
 
-    internal (float X, float Y)? GetCurrentPoint() => _currentPoint;
+    public virtual Point2D? GetCurrentPoint()
+    {
+        return _currentPoint.HasValue ? new Point2D(_currentPoint.Value.X, _currentPoint.Value.Y) : null;
+    }
     protected internal IReadOnlyList<PathSegment> GetCurrentPathSegments() => _currentPath;
 
     private void ApplyPendingClip()
@@ -262,12 +266,12 @@ public class PDFStreamEngine
         }
     }
 
-    internal void Clip(int windingRule)
+    public virtual void Clip(int windingRule)
     {
         _pendingClipWindingRule = windingRule;
     }
 
-    internal void StrokePath()
+    public virtual void StrokePath()
     {
         ApplyPendingClip();
         OnStrokePath(GetCurrentPathSegments(), GetGraphicsState());
@@ -275,7 +279,7 @@ public class PDFStreamEngine
         _currentPoint = null;
     }
 
-    internal void FillPath(int windingRule)
+    public virtual void FillPath(int windingRule)
     {
         ApplyPendingClip();
         OnFillPath(windingRule, GetCurrentPathSegments(), GetGraphicsState());
@@ -283,7 +287,7 @@ public class PDFStreamEngine
         _currentPoint = null;
     }
 
-    internal void FillAndStrokePath(int windingRule)
+    public virtual void FillAndStrokePath(int windingRule)
     {
         ApplyPendingClip();
         OnFillAndStrokePath(windingRule, GetCurrentPathSegments(), GetGraphicsState());
@@ -306,7 +310,7 @@ public class PDFStreamEngine
     {
     }
 
-    internal void EndPath()
+    public virtual void EndPath()
     {
         ApplyPendingClip();
         _currentPath.Clear();
