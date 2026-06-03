@@ -86,7 +86,7 @@ public class CreateSeparationColorBox
             fdict.SetItem(COSName.C1, c1);
             fdict.SetInt(COSName.N, 1);
             PDFunctionType2 func = new PDFunctionType2(fdict);
-            separationArray.Add(func);
+            separationArray.Add(func.GetCOSObject());
 
             PDColorSpace spotColorSpace = new PDSeparation(separationArray, null);
 
