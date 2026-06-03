@@ -36,6 +36,7 @@ public partial class PDTrueTypeFont : PDSimpleFont
 {
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
     private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
+    private static readonly COSName FontFile3Key = COSName.GetPDFName("FontFile3");
 
     private readonly TrueTypeFont _trueTypeFont;
     private readonly CmapLookup? _unicodeCmap;
@@ -76,6 +77,38 @@ public partial class PDTrueTypeFont : PDSimpleFont
     public override bool IsStandard14() => false;
 
     public TrueTypeFont GetTrueTypeFont() => _trueTypeFont;
+
+    public byte[] ExportFont()
+    {
+        if (FontDictionary.GetDictionaryObject(FontDescriptorKey) is COSDictionary descriptor)
+        {
+            if (TryReadEmbeddedFont(descriptor, FontFile2Key, out byte[]? bytes) ||
+                TryReadEmbeddedFont(descriptor, FontFile3Key, out bytes))
+            {
+                return bytes;
+            }
+        }
+
+        using Stream originalData = _trueTypeFont.GetOriginalData();
+        using MemoryStream buffer = new();
+        originalData.CopyTo(buffer);
+        return buffer.ToArray();
+    }
+
+    private static bool TryReadEmbeddedFont(COSDictionary descriptor, COSName key, out byte[] bytes)
+    {
+        if (descriptor.GetDictionaryObject(key) is COSStream fontFile)
+        {
+            using Stream input = fontFile.CreateInputStream();
+            using MemoryStream buffer = new();
+            input.CopyTo(buffer);
+            bytes = buffer.ToArray();
+            return true;
+        }
+
+        bytes = Array.Empty<byte>();
+        return false;
+    }
 
     protected override string? ToUnicodeFallback(int code, GlyphList glyphList)
     {
