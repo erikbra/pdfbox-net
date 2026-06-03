@@ -31,9 +31,8 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 
 public sealed class PDDeviceCMYK : PDColorSpace
 {
-    public static readonly PDDeviceCMYK Instance = new();
-
     private static readonly COSName DeviceCMYK = COSName.GetPDFName("DeviceCMYK");
+    public static readonly PDDeviceCMYK Instance = new();
 
     private readonly PDColor _initialColor;
 

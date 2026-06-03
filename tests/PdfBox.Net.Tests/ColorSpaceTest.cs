@@ -24,6 +24,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Resources;
 
@@ -122,5 +123,67 @@ public class ColorSpaceTest
         Assert.Equal(170f / 255f, rgb[0], 6);
         Assert.Equal(17f / 255f, rgb[1], 6);
         Assert.Equal(102f / 255f, rgb[2], 6);
+    }
+
+    [Fact]
+    public void PDSeparation_ConstructorBuildsColorSpaceAndFactoryDispatches()
+    {
+        PDFunctionType2 tintTransform = CreateType2Function(
+            domain: [0f, 1f],
+            range: [0f, 1f, 0f, 1f, 0f, 1f],
+            c0: [1f, 1f, 1f],
+            c1: [1f, 1f, 0f]);
+        PDSeparation separation = new("Gold", PDDeviceRGB.Instance, tintTransform);
+
+        Assert.Equal("Separation", separation.GetName());
+        Assert.Equal("Gold", separation.GetColorSpaceName());
+
+        COSArray cosArray = (COSArray)separation.GetCOSObject();
+        Assert.Equal("Separation", ((COSName)cosArray.GetObject(0)!).GetName());
+        Assert.Equal("Gold", ((COSName)cosArray.GetObject(1)!).GetName());
+        Assert.Equal("DeviceRGB", ((COSName)cosArray.GetObject(2)!).GetName());
+
+        PDColorSpace created = PDColorSpaceFactory.Create(cosArray);
+        PDSeparation createdSeparation = Assert.IsType<PDSeparation>(created);
+        Assert.Equal("Gold", createdSeparation.GetColorSpaceName());
+        Assert.Equal([1f, 1f, 0.5f], createdSeparation.ToRGB([0.5f]));
+    }
+
+    [Fact]
+    public void PDDeviceN_ConstructorBuildsColorSpaceAndFactoryDispatches()
+    {
+        PDFunctionType2 tintTransform = CreateType2Function(
+            domain: [0f, 1f],
+            range: [0f, 1f, 0f, 1f, 0f, 1f],
+            c0: [1f, 1f, 1f],
+            c1: [1f, 0f, 0f]);
+        PDDeviceN deviceN = new(["SpotRed"], PDDeviceRGB.Instance, tintTransform);
+
+        Assert.Equal("DeviceN", deviceN.GetName());
+        Assert.Equal(1, deviceN.GetNumberOfComponents());
+        Assert.Equal([1f], deviceN.GetInitialColor().GetComponents());
+
+        COSArray cosArray = (COSArray)deviceN.GetCOSObject();
+        Assert.Equal("DeviceN", ((COSName)cosArray.GetObject(0)!).GetName());
+        COSArray names = Assert.IsType<COSArray>(cosArray.GetObject(1));
+        Assert.Equal(["SpotRed"], names.ToCOSNameStringList());
+        Assert.Equal("DeviceRGB", ((COSName)cosArray.GetObject(2)!).GetName());
+
+        PDColorSpace created = PDColorSpaceFactory.Create(cosArray);
+        PDDeviceN createdDeviceN = Assert.IsType<PDDeviceN>(created);
+        Assert.Equal(1, createdDeviceN.GetNumberOfComponents());
+        Assert.Equal([1f, 0.5f, 0.5f], createdDeviceN.ToRGB([0.5f]));
+    }
+
+    private static PDFunctionType2 CreateType2Function(float[] domain, float[] range, float[] c0, float[] c1)
+    {
+        var dictionary = new COSDictionary();
+        dictionary.SetInt(COSName.FUNCTION_TYPE, 2);
+        dictionary.SetItem(COSName.DOMAIN, COSArray.Of(domain));
+        dictionary.SetItem(COSName.RANGE, COSArray.Of(range));
+        dictionary.SetItem(COSName.C0, COSArray.Of(c0));
+        dictionary.SetItem(COSName.C1, COSArray.Of(c1));
+        dictionary.SetInt(COSName.N, 1);
+        return new PDFunctionType2(dictionary);
     }
 }
