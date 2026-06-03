@@ -28,6 +28,7 @@
 using System.Text;
 using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Color;
@@ -613,7 +614,7 @@ public sealed class PDPageContentStream : IDisposable
 
     private COSStream CreateStream(byte[] bytes)
     {
-        COSStream stream = new();
+        COSStream stream = new PDStream(_document).GetCOSObject();
         if (_compress)
         {
             using Stream output = stream.CreateOutputStream(COSName.FLATE_DECODE);

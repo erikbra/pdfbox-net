@@ -1,3 +1,5 @@
+using System.Text;
+using PdfBox.Net.ContentStream;
 using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
@@ -101,6 +103,59 @@ public class PDAppearanceGenerationTest
             IList<object> tokens = ParseAppearance(stream);
             Assert.DoesNotContain(tokens, token => token is COSNull);
         }
+    }
+
+    [Fact]
+    public void FlattenMovesWidgetAppearanceIntoPageContentAndRemovesAcroForm()
+    {
+        byte[] serialized;
+        using (PDDocument document = new())
+        {
+            PDPage page = new();
+            document.AddPage(page);
+
+            PDAcroForm acroForm = CreateAcroFormWithHelvetica(document);
+            document.GetDocumentCatalog().SetAcroForm(acroForm);
+
+            PDTextField field = new(acroForm);
+            field.SetPartialName("text");
+            field.SetDefaultAppearance("/F1 10 Tf 0 g");
+            PDAnnotationWidget widget = CreateWidget(new PDRectangle(10, 10, 120, 24));
+            widget.SetPage(page);
+            field.SetWidgets([widget]);
+            acroForm.GetFields().Add(field);
+            page.SetAnnotations([widget]);
+
+            field.SetValue("Flattened value");
+            acroForm.Flatten();
+
+            Assert.Null(document.GetDocumentCatalog().GetAcroForm(null));
+            Assert.Empty(page.GetAnnotations());
+
+            using Stream contentStream = ((PDContentStream)page).GetContents()!;
+            using StreamReader reader = new(contentStream, Encoding.ASCII);
+            string pageContent = reader.ReadToEnd();
+            Assert.Contains("Do", pageContent, StringComparison.Ordinal);
+            Assert.Contains("cm", pageContent, StringComparison.Ordinal);
+
+            PDResources? resources = page.GetResources();
+            Assert.NotNull(resources);
+            Assert.Single(resources!.GetXObjectNames());
+
+            using MemoryStream output = new();
+            document.Save(output);
+            serialized = output.ToArray();
+        }
+
+        using PDDocument loaded = PDDocument.Load(new MemoryStream(serialized));
+        Assert.Null(loaded.GetDocumentCatalog().GetAcroForm(null));
+
+        PDPage loadedPage = loaded.GetPage(0);
+        Assert.Empty(loadedPage.GetAnnotations());
+
+        using Stream loadedContentStream = ((PDContentStream)loadedPage).GetContents()!;
+        using StreamReader loadedReader = new(loadedContentStream, Encoding.ASCII);
+        Assert.Contains("Do", loadedReader.ReadToEnd(), StringComparison.Ordinal);
     }
 
     private static PDAcroForm CreateAcroFormWithHelvetica(PDDocument document)

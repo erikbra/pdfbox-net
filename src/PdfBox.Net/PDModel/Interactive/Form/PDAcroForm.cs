@@ -28,7 +28,10 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Graphics.Form;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
@@ -167,6 +170,69 @@ public sealed class PDAcroForm : COSObjectable
         return _document;
     }
 
+    public void Flatten()
+    {
+        if (XfaIsDynamic())
+        {
+            return;
+        }
+
+        RefreshAppearances();
+
+        HashSet<COSDictionary> widgetsToFlatten = [];
+        foreach (PDField field in GetFieldTree())
+        {
+            foreach (PDAnnotationWidget widget in field.GetWidgets())
+            {
+                widgetsToFlatten.Add(widget.GetCOSDictionary());
+            }
+        }
+
+        foreach (PDPage page in _document.GetPages())
+        {
+            IList<PDAnnotation> annotations = page.GetAnnotations();
+            if (annotations.Count == 0)
+            {
+                continue;
+            }
+
+            List<PDAnnotation> remainingAnnotations = [];
+            PDPageContentStream? contentStream = null;
+            try
+            {
+                foreach (PDAnnotation annotation in annotations)
+                {
+                    if (!widgetsToFlatten.Contains(annotation.GetCOSDictionary()))
+                    {
+                        remainingAnnotations.Add(annotation);
+                        continue;
+                    }
+
+                    if (!IsVisibleAnnotation(annotation))
+                    {
+                        continue;
+                    }
+
+                    PDAppearanceStream appearanceStream = annotation.GetNormalAppearanceStream()!;
+                    contentStream ??= new PDPageContentStream(_document, page, PDPageContentStream.AppendMode.APPEND, false);
+                    contentStream.SaveGraphicsState();
+                    contentStream.Transform(ResolveTransformationMatrix(annotation, appearanceStream));
+                    contentStream.DrawForm(new PDFormXObject(appearanceStream.GetCOSObject()!));
+                    contentStream.RestoreGraphicsState();
+                }
+            }
+            finally
+            {
+                contentStream?.Dispose();
+            }
+
+            page.SetAnnotations(remainingAnnotations);
+        }
+
+        SetFields([]);
+        _document.GetDocumentCatalog().SetAcroForm(null);
+    }
+
     public void RefreshAppearances()
     {
         foreach (PDField field in GetFieldTree())
@@ -176,5 +242,71 @@ public sealed class PDAcroForm : COSObjectable
                 variableText.ConstructAppearances();
             }
         }
+    }
+
+    private bool HasXFA()
+    {
+        return _dictionary.ContainsKey(COSName.GetPDFName("XFA"));
+    }
+
+    private bool XfaIsDynamic()
+    {
+        return HasXFA() && GetFields().Count == 0;
+    }
+
+    private static bool IsVisibleAnnotation(PDAnnotation annotation)
+    {
+        if (annotation.IsInvisible() || annotation.IsHidden())
+        {
+            return false;
+        }
+
+        PDAppearanceStream? normalAppearanceStream = annotation.GetNormalAppearanceStream();
+        PDRectangle? bbox = normalAppearanceStream?.GetBBox();
+        return bbox != null && bbox.GetWidth() > 0 && bbox.GetHeight() > 0;
+    }
+
+    private static Matrix ResolveTransformationMatrix(PDAnnotation annotation, PDAppearanceStream appearanceStream)
+    {
+        PDRectangle annotationRectangle = annotation.GetRectangle()
+            ?? throw new InvalidOperationException("Widget annotation is missing a rectangle.");
+
+        (float x, float y, float width, float height) = GetTransformedAppearanceBounds(appearanceStream);
+        return new Matrix(
+            annotationRectangle.GetWidth() / width,
+            0,
+            0,
+            annotationRectangle.GetHeight() / height,
+            annotationRectangle.GetLowerLeftX() - x,
+            annotationRectangle.GetLowerLeftY() - y);
+    }
+
+    private static (float x, float y, float width, float height) GetTransformedAppearanceBounds(PDAppearanceStream appearanceStream)
+    {
+        PDRectangle bbox = appearanceStream.GetBBox()
+            ?? throw new InvalidOperationException("Widget appearance stream is missing a bounding box.");
+
+        Matrix matrix = appearanceStream.GetMatrix();
+        Vector[] corners =
+        [
+            matrix.TransformPoint(bbox.GetLowerLeftX(), bbox.GetLowerLeftY()),
+            matrix.TransformPoint(bbox.GetUpperRightX(), bbox.GetLowerLeftY()),
+            matrix.TransformPoint(bbox.GetUpperRightX(), bbox.GetUpperRightY()),
+            matrix.TransformPoint(bbox.GetLowerLeftX(), bbox.GetUpperRightY())
+        ];
+
+        float minX = corners.Min(corner => corner.GetX());
+        float minY = corners.Min(corner => corner.GetY());
+        float maxX = corners.Max(corner => corner.GetX());
+        float maxY = corners.Max(corner => corner.GetY());
+        float width = maxX - minX;
+        float height = maxY - minY;
+
+        if (width <= 0 || height <= 0)
+        {
+            throw new InvalidOperationException("Widget appearance stream has a non-positive transformed bounding box.");
+        }
+
+        return (minX, minY, width, height);
     }
 }
