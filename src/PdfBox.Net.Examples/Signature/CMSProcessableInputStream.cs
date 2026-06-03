@@ -25,22 +25,31 @@
  * limitations under the License.
  */
 
+/*
+ * PORT_MODE: mechanical
+ */
+
 namespace PdfBox.Net.Examples.Signature;
 
 /// <summary>
-/// A CMSProcessable implementation that reads from an InputStream.
+/// A wrapper that reads all bytes from a <see cref="Stream"/> so they can be used as CMS
+/// processed content.  The Java equivalent wraps a Java InputStream as a
+/// <c>CMSTypedData</c> for BouncyCastle; in .NET the content bytes are passed directly to
+/// <see cref="System.Security.Cryptography.Pkcs.SignedCms"/>, so this class is a thin
+/// stream-buffering helper retained for structural parity.
 /// </summary>
-public class CMSProcessableInputStream
+public sealed class CMSProcessableInputStream
 {
-    private CMSProcessableInputStream()
+    private readonly byte[] _data;
+
+    public CMSProcessableInputStream(Stream input)
     {
+        ArgumentNullException.ThrowIfNull(input);
+        using var ms = new MemoryStream();
+        input.CopyTo(ms);
+        _data = ms.ToArray();
     }
 
-    public static void Main(string[] args)
-    {
-        // NOTE: PDF digital signature operations require cryptographic APIs (BouncyCastle, etc.)
-        // which are not yet implemented in this .NET port.
-        throw new NotSupportedException(
-            "PDF digital signature operations are not yet implemented in this .NET port.");
-    }
+    /// <summary>Returns the buffered content bytes.</summary>
+    public byte[] GetBytes() => _data;
 }
