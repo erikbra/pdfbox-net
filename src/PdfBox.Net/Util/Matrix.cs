@@ -258,6 +258,17 @@ public sealed class Matrix
     }
 
     /// <summary>
+    /// Creates a scaling matrix with the given factors.
+    /// </summary>
+    /// <param name="sx">The x-scaling factor.</param>
+    /// <param name="sy">The y-scaling factor.</param>
+    /// <returns>A scaling matrix.</returns>
+    public static Matrix GetScaleInstance(float sx, float sy)
+    {
+        return new Matrix(sx, 0, 0, sy, 0, 0);
+    }
+
+    /// <summary>
     /// Produces a copy of the first matrix, with the second matrix concatenated.
     /// </summary>
     /// <param name="a">The matrix to copy.</param>

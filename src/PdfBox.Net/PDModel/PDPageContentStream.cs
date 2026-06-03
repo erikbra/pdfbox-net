@@ -64,7 +64,8 @@ public sealed class PDPageContentStream : IDisposable
     }
 
     private readonly PDDocument _document;
-    private readonly PDPage _page;
+    private readonly PDPage? _page;
+    private readonly PDFormXObject? _form;
     private readonly MemoryStream _buffer;
     private readonly ContentStreamWriter _writer;
     private readonly AppendMode _appendMode;
@@ -89,8 +90,24 @@ public sealed class PDPageContentStream : IDisposable
     {
         _document = document ?? throw new ArgumentNullException(nameof(document));
         _page = page ?? throw new ArgumentNullException(nameof(page));
+        _form = null;
         _appendMode = appendMode;
         _compress = compress;
+        _buffer = new MemoryStream();
+        _writer = new ContentStreamWriter(_buffer);
+    }
+
+    /// <summary>
+    /// Creates a content stream that writes operators into the given appearance stream (form XObject).
+    /// Used for building signature appearance content.
+    /// </summary>
+    public PDPageContentStream(PDDocument document, PDFormXObject form)
+    {
+        _document = document ?? throw new ArgumentNullException(nameof(document));
+        _page = null;
+        _form = form ?? throw new ArgumentNullException(nameof(form));
+        _appendMode = AppendMode.OVERWRITE;
+        _compress = true;
         _buffer = new MemoryStream();
         _writer = new ContentStreamWriter(_buffer);
     }
@@ -110,8 +127,7 @@ public sealed class PDPageContentStream : IDisposable
     public void SetFont(PDFont font, float fontSize)
     {
         ArgumentNullException.ThrowIfNull(font);
-        PDResources resources = _page.GetResources() ?? new PDResources();
-        _page.SetResources(resources);
+        PDResources resources = GetAndEnsureResources();
         COSName fontName = AddFontResource(resources, font);
         WriteOperator("Tf", fontName, fontSize);
     }
@@ -144,8 +160,7 @@ public sealed class PDPageContentStream : IDisposable
     public void ShadingFill(PDShading shading)
     {
         ArgumentNullException.ThrowIfNull(shading);
-        PDResources resources = _page.GetResources() ?? new PDResources();
-        _page.SetResources(resources);
+        PDResources resources = GetAndEnsureResources();
         COSName shadingName = resources.Add(shading, "Sh");
         WriteOperator("sh", shadingName);
     }
@@ -454,8 +469,7 @@ public sealed class PDPageContentStream : IDisposable
     {
         ArgumentNullException.ThrowIfNull(graphicsState);
 
-        PDResources resources = _page.GetResources() ?? new PDResources();
-        _page.SetResources(resources);
+        PDResources resources = GetAndEnsureResources();
         COSName resourceName = COSName.GetPDFName($"GS{_graphicsStateCounter++}");
         resources.Put(resourceName, graphicsState);
         WriteOperator("gs", resourceName);
@@ -484,8 +498,7 @@ public sealed class PDPageContentStream : IDisposable
         ArgumentNullException.ThrowIfNull(tag);
         ArgumentNullException.ThrowIfNull(properties);
 
-        PDResources resources = _page.GetResources() ?? new PDResources();
-        _page.SetResources(resources);
+        PDResources resources = GetAndEnsureResources();
         COSName propName = resources.Add(properties, "MC");
 
         WriteOperator("BDC", tag, propName);
@@ -503,8 +516,7 @@ public sealed class PDPageContentStream : IDisposable
     {
         ArgumentNullException.ThrowIfNull(form);
 
-        PDResources resources = _page.GetResources() ?? new PDResources();
-        _page.SetResources(resources);
+        PDResources resources = GetAndEnsureResources();
         COSName formName = resources.Add(form, "Form");
 
         WriteOperator("Do", formName);
@@ -536,8 +548,7 @@ public sealed class PDPageContentStream : IDisposable
         ArgumentNullException.ThrowIfNull(image);
         ArgumentNullException.ThrowIfNull(matrix);
 
-        PDResources resources = _page.GetResources() ?? new PDResources();
-        _page.SetResources(resources);
+        PDResources resources = GetAndEnsureResources();
         COSName imageName = resources.Add(image, "Im");
 
         SaveGraphicsState();
@@ -547,7 +558,8 @@ public sealed class PDPageContentStream : IDisposable
     }
 
     /// <summary>
-    /// Flushes and commits the buffered content to the page's content stream(s).
+    /// Flushes and commits the buffered content to the page's content stream(s)
+    /// or directly into the form XObject's stream.
     /// </summary>
     public void Dispose()
     {
@@ -567,8 +579,25 @@ public sealed class PDPageContentStream : IDisposable
             return;
         }
 
+        if (_form != null)
+        {
+            // Write content directly to the form XObject's stream.
+            COSStream cosStream = (COSStream)_form.GetCOSObject();
+            if (_compress)
+            {
+                using Stream output = cosStream.CreateOutputStream(COSName.FLATE_DECODE);
+                output.Write(newBytes);
+            }
+            else
+            {
+                using Stream output = cosStream.CreateOutputStream();
+                output.Write(newBytes);
+            }
+            return;
+        }
+
         COSStream newStream = CreateStream(newBytes);
-        COSBase? existingContents = _page.GetContents();
+        COSBase? existingContents = _page!.GetContents();
 
         switch (_appendMode)
         {
@@ -660,9 +689,26 @@ public sealed class PDPageContentStream : IDisposable
             return COSName.GetPDFName(colorSpace.GetName());
         }
 
-        PDResources resources = _page.GetResources() ?? new PDResources();
-        _page.SetResources(resources);
+        PDResources resources = GetAndEnsureResources();
         return resources.Add(colorSpace, "cs");
+    }
+
+    /// <summary>
+    /// Gets the resources for the active content target (page or form XObject), creating
+    /// them if they do not yet exist and ensuring they are attached to the target.
+    /// </summary>
+    private PDResources GetAndEnsureResources()
+    {
+        if (_form != null)
+        {
+            PDResources resources = _form.GetResources() ?? new PDResources();
+            _form.SetResources(resources);
+            return resources;
+        }
+
+        PDResources pageResources = _page!.GetResources() ?? new PDResources();
+        _page.SetResources(pageResources);
+        return pageResources;
     }
 
     private void UpdateStrokingColorSpaceStack(PDColorSpace colorSpace)
