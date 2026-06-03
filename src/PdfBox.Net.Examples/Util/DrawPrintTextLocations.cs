@@ -49,7 +49,7 @@ public class DrawPrintTextLocations : PDFTextStripper
         base.StartPage(page);
         if (document == null)
         {
-            throw new InvalidOperationException("Document is not initialized.");
+            throw new InvalidOperationException("Document must be set before processing pages.");
         }
 
         _contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true);

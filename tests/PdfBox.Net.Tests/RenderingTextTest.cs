@@ -488,6 +488,8 @@ public class RenderingTextTest
         Assert.Equal($"ABC DEF{Environment.NewLine}", extracted);
         Assert.Single(stripper.StringRuns);
         Assert.Equal("ABC DEF", stripper.StringRuns[0]);
+        Assert.Single(stripper.RunPositionCounts);
+        Assert.Equal("ABC DEF".Length, stripper.RunPositionCounts[0]);
     }
 
     [Fact]
@@ -505,6 +507,8 @@ public class RenderingTextTest
         _ = stripper.GetText(document);
 
         Assert.Equal("ABC", string.Concat(stripper.Glyphs));
+        Assert.Equal(3, stripper.GlyphPositions.Count);
+        Assert.All(stripper.GlyphPositions, p => Assert.True(p.GetFontSize() > 0));
     }
 
     [Fact]
@@ -607,15 +611,21 @@ public class RenderingTextTest
 
         public List<string> Glyphs { get; } = new();
 
+        public List<int> RunPositionCounts { get; } = new();
+
+        public List<TextPosition> GlyphPositions { get; } = new();
+
         protected override void WriteString(string text, List<TextPosition> textPositions)
         {
             StringRuns.Add(text);
+            RunPositionCounts.Add(textPositions.Count);
             base.WriteString(text, textPositions);
         }
 
         protected override void ProcessTextPosition(TextPosition text)
         {
             Glyphs.Add(text.GetUnicode());
+            GlyphPositions.Add(text);
             base.ProcessTextPosition(text);
         }
     }
