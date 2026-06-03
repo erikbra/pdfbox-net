@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FlattenAllFormFields.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -51,8 +51,9 @@ public class FlattenAllFormFields
 
         using (PDDocument document = Loader.LoadPDF(args[0]))
         {
-            // NOTE: PDAcroForm.Flatten() is not yet implemented in this .NET port.
-            throw new NotSupportedException("PDAcroForm.Flatten() is not yet implemented in this .NET port.");
+            PDAcroForm? acroForm = document.GetDocumentCatalog().GetAcroForm();
+            acroForm?.Flatten();
+            document.Save(args[1]);
         }
     }
 }

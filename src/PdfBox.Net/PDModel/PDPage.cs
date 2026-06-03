@@ -551,9 +551,9 @@ public sealed class PDPage : COSObjectable, PDContentStream
     {
         MemoryStream output = new();
         bool first = true;
-        foreach (COSBase? item in array)
+        for (int i = 0; i < array.Size(); i++)
         {
-            if (item is not COSStream stream)
+            if (array.GetObject(i) is not COSStream stream)
             {
                 continue;
             }
