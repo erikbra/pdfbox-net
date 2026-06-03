@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/rendering/CustomPageDrawer.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -31,9 +31,6 @@ using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Examples.Rendering;
 
-/// <summary>
-/// Example showing how to extend PageDrawer to customize PDF rendering.
-/// </summary>
 public class CustomPageDrawer : PDFRenderer
 {
     public CustomPageDrawer(PDDocument document) : base(document)
@@ -48,9 +45,26 @@ public class CustomPageDrawer : PDFRenderer
             return;
         }
 
-        // NOTE: Custom PageDrawer rendering requires subclassing PageDrawer
-        // which may require additional .NET port support.
-        throw new NotSupportedException(
-            "Custom PageDrawer rendering is not yet implemented in this .NET port.");
+        using PDDocument doc = Loader.LoadPDF(args[0]);
+        PDFRenderer renderer = new CustomPageDrawer(doc);
+        _ = renderer.RenderImage(0);
+    }
+
+    protected override PageDrawer CreatePageDrawer(PageDrawerParameters parameters)
+    {
+        return new MyPageDrawer(parameters);
+    }
+
+    private sealed class MyPageDrawer : PageDrawer
+    {
+        public MyPageDrawer(PageDrawerParameters parameters)
+            : base(parameters)
+        {
+        }
+
+        public override void FillPath(int windingRule)
+        {
+            base.FillPath(windingRule);
+        }
     }
 }
