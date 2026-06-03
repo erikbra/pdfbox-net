@@ -151,7 +151,7 @@ public class CreateVisibleSignature2 : CreateSignatureBase
             {
                 if (acroForm.GetFields().Count == 0)
                 {
-                    ((COSDictionary)acroForm.GetCOSObject()).RemoveItem(COSName.NEED_APPEARANCES);
+                    ((COSDictionary)acroForm.GetCOSObject()).RemoveItem(COSName.GetPDFName("NeedAppearances"));
                 }
                 else
                 {
@@ -306,7 +306,7 @@ public class CreateVisibleSignature2 : CreateSignatureBase
         // From PDVisualSigBuilder.createAppearanceDictionary()
         PDAppearanceDictionary appearance = new();
         ((COSDictionary)appearance.GetCOSObject()).SetDirect(true);
-        PDAppearanceStream appearanceStream = new(form.GetCOSObject());
+        PDAppearanceStream appearanceStream = new(form.GetCOSObject()!);
         appearance.SetNormalAppearance(appearanceStream);
         widget.SetAppearance(appearance);
 
