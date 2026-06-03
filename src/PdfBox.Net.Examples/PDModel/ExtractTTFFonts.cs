@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ExtractTTFFonts.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -71,11 +71,26 @@ public class ExtractTTFFonts
             PDFont? font = resources.GetFont(fontName);
             if (font is PDTrueTypeFont ttf)
             {
-                // NOTE: PDTrueTypeFont.ExportFont is not yet implemented in this .NET port.
-                // In the Java implementation, TTF bytes are extracted via
-                // ttf.getTrueTypeFont().getOriginalData().
-                Console.WriteLine("Found TTF font: " + font.GetName() + " (export not yet available)");
+                string fileName = SanitizeFileName(font.GetName()) + ".ttf";
+                string outputPath = Path.Combine(outputDir, fileName);
+                File.WriteAllBytes(outputPath, ttf.ExportFont());
+                Console.WriteLine("Wrote " + outputPath);
             }
         }
+    }
+
+    private static string SanitizeFileName(string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return "font";
+        }
+
+        foreach (char c in Path.GetInvalidFileNameChars())
+        {
+            fileName = fileName.Replace(c, '_');
+        }
+
+        return fileName;
     }
 }

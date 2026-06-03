@@ -113,6 +113,40 @@ public class PDTrueTypeFontAndCIDType2Test
         Assert.Equal(777f, font.GetWidth(65));
     }
 
+    [Fact]
+    public void PDTrueTypeFont_ExportFont_ReturnsEmbeddedFontFile2Bytes()
+    {
+        TrueTypeFont ttf = new TTFParser().Parse(FontBoxTestFixtures.CreateMinimalTrueType());
+        byte[] expected = ReadOriginalData(ttf);
+
+        var descriptorDict = new COSDictionary();
+        descriptorDict.SetItem(COSName.GetPDFName("FontFile2"), CreateStreamWithBytes(expected));
+
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "TrueType");
+        dict.SetItem(COSName.GetPDFName("FontDescriptor"), descriptorDict);
+
+        var font = new PDTrueTypeFont(dict, ttf);
+        Assert.Equal(expected, font.ExportFont());
+    }
+
+    [Fact]
+    public void PDTrueTypeFont_ExportFont_ReturnsEmbeddedFontFile3Bytes_WhenFontFile2Missing()
+    {
+        TrueTypeFont ttf = new TTFParser().Parse(FontBoxTestFixtures.CreateMinimalTrueType());
+        byte[] expected = ReadOriginalData(ttf);
+
+        var descriptorDict = new COSDictionary();
+        descriptorDict.SetItem(COSName.GetPDFName("FontFile3"), CreateStreamWithBytes(expected));
+
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "TrueType");
+        dict.SetItem(COSName.GetPDFName("FontDescriptor"), descriptorDict);
+
+        var font = new PDTrueTypeFont(dict, ttf);
+        Assert.Equal(expected, font.ExportFont());
+    }
+
     // ---------------------------------------------------------------------------
     // PDTrueTypeFont — ToUnicode fallback via cmap
     // ---------------------------------------------------------------------------
@@ -482,5 +516,13 @@ public class PDTrueTypeFontAndCIDType2Test
         output.Write(bytes, 0, bytes.Length);
         output.Close();
         return stream;
+    }
+
+    private static byte[] ReadOriginalData(TrueTypeFont ttf)
+    {
+        using Stream stream = ttf.GetOriginalData();
+        using MemoryStream ms = new();
+        stream.CopyTo(ms);
+        return ms.ToArray();
     }
 }
