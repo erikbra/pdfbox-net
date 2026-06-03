@@ -27,20 +27,76 @@
 
 namespace PdfBox.Net.Examples.Signature;
 
+// PORT_MODE: mechanical
+
 /// <summary>
-/// Creates a PDF with an embedded validation-time document.
+/// Wraps <see cref="TSAClient"/> and provides helpers for adding RFC 3161 timestamps to
+/// CMS-signed data and to signature placeholders.
 /// </summary>
+/// <remarks>
+/// The Java original used BouncyCastle <c>CMSSignedData</c> / <c>SignerInformation</c> to
+/// splice an unsigned timestamp attribute into existing <c>SignerInfo</c> structures.
+/// This .NET port delegates that work to <see cref="TSAClient.AddTimestamp"/>, which performs
+/// the same DER splicing without requiring BouncyCastle.
+/// </remarks>
 public class ValidationTimeStamp
 {
-    private ValidationTimeStamp()
+    private readonly TSAClient? _tsaClient;
+
+    /// <summary>
+    /// Constructs a <see cref="ValidationTimeStamp"/> that will request timestamps from
+    /// <paramref name="tsaUrl"/>.
+    /// </summary>
+    /// <param name="tsaUrl">
+    /// The RFC 3161 TSA endpoint URL, or <c>null</c> to create a no-op instance.
+    /// </param>
+    public ValidationTimeStamp(string? tsaUrl)
     {
+        if (!string.IsNullOrEmpty(tsaUrl))
+        {
+            _tsaClient = new TSAClient(tsaUrl);
+        }
     }
 
-    public static void Main(string[] args)
+    /// <summary>
+    /// Requests a timestamp token over <paramref name="content"/> and returns the raw DER bytes
+    /// of the <c>TimeStampToken</c>.
+    /// </summary>
+    /// <param name="content">The data to be timestamped (typically document bytes).</param>
+    /// <returns>DER-encoded <c>TimeStampToken</c> bytes.</returns>
+    public byte[] GetTimeStampToken(Stream content)
     {
-        // NOTE: PDF digital signature operations require cryptographic APIs (BouncyCastle, etc.)
-        // and low-level PDF signature handler support which is not yet implemented in this .NET port.
-        throw new NotSupportedException(
-            "PDF digital signature operations are not yet implemented in this .NET port.");
+        ArgumentNullException.ThrowIfNull(content);
+        if (_tsaClient == null)
+        {
+            throw new InvalidOperationException("No TSA URL configured.");
+        }
+
+        // Buffer the stream so we can pass a byte array to the TSA client.
+        byte[] data;
+        using (var ms = new MemoryStream())
+        {
+            content.CopyTo(ms);
+            data = ms.ToArray();
+        }
+
+        return _tsaClient.GetTimeStampToken(data);
+    }
+
+    /// <summary>
+    /// Embeds an RFC 3161 unsigned timestamp attribute into each <c>SignerInfo</c> inside the
+    /// supplied DER-encoded <c>SignedData</c> blob and returns the updated encoding.
+    /// </summary>
+    /// <param name="signedData">DER-encoded CMS <c>SignedData</c> bytes.</param>
+    /// <returns>Updated DER-encoded <c>SignedData</c> bytes with the timestamp attribute.</returns>
+    public byte[] AddSignedTimeStamp(byte[] signedData)
+    {
+        ArgumentNullException.ThrowIfNull(signedData);
+        if (_tsaClient == null)
+        {
+            return signedData;
+        }
+
+        return _tsaClient.AddTimestamp(signedData);
     }
 }

@@ -27,12 +27,25 @@
 
 namespace PdfBox.Net.Examples.Signature.Cert;
 
+// PORT_MODE: mechanical
+
 /// <summary>
 /// Exception thrown when a certificate has been revoked.
 /// </summary>
 public class RevokedCertificateException : Exception
 {
-    public RevokedCertificateException(string message) : base(message) { }
+    /// <summary>The time when the certificate was revoked, or <c>null</c> if unknown.</summary>
+    public DateTime? RevocationTime { get; }
 
-    public RevokedCertificateException(string message, Exception innerException) : base(message, innerException) { }
+    public RevokedCertificateException(string message)
+        : base(message)
+    {
+        RevocationTime = null;
+    }
+
+    public RevokedCertificateException(string message, DateTime revocationTime)
+        : base(message)
+    {
+        RevocationTime = revocationTime;
+    }
 }
