@@ -2,9 +2,9 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/printing/PrintPDF.java
+ * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/printing/Printing.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -42,15 +42,19 @@ public class Printing
 
     public static void Main(string[] args)
     {
-        if (args.Length < 1)
+        if (args.Length < 1 || args.Length > 2)
         {
-            Console.Error.WriteLine("usage: PrintPDF <input-pdf> [printer-name]");
+            Console.Error.WriteLine("usage: Printing <input-pdf> [printer-name]");
             return;
         }
 
-        // NOTE: PDF printing support requires platform printing APIs which are not yet
-        // fully implemented in this .NET port.
-        throw new NotSupportedException(
-            "PDF printing via system printers is not yet implemented in this .NET port.");
+        using PDDocument document = Loader.LoadPDF(args[0]);
+        PDFPrinter printer = new(document);
+        if (args.Length == 2)
+        {
+            printer.PrinterName = args[1];
+        }
+
+        printer.Print();
     }
 }

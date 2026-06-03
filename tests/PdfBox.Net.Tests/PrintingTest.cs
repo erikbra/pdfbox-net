@@ -23,6 +23,7 @@
  */
 
 using PdfBox.Net.Printing;
+using PdfBox.Net.PDModel;
 using Xunit;
 
 namespace PdfBox.Net.Tests;
@@ -74,5 +75,21 @@ public class PrintingTest
         Assert.Equal(595f, format.PaperWidth);
         Assert.Equal(842f, format.PaperHeight);
         Assert.Equal(Orientation.Portrait, format.Orientation);
+    }
+
+    [Fact]
+    public void TestPdfPrinterDefaultsAndPlatformStub()
+    {
+        using PDDocument document = new();
+        PDFPrinter printer = new(document);
+
+        Assert.Equal(Scaling.ShrinkToFit, printer.Scaling);
+        Assert.True(printer.Center);
+        Assert.Equal(PDFPrintable.RasterizeOff, printer.Dpi);
+
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.Throws<PlatformNotSupportedException>(() => printer.Print());
+        }
     }
 }
