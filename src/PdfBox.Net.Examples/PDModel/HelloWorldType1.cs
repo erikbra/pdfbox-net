@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/HelloWorldType1.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -52,10 +52,19 @@ public static class HelloWorldType1
             PDPage page = new PDPage();
             doc.AddPage(page);
 
-            // NOTE: PDType1Font(PDDocument, InputStream) constructor is not available in this port.
-            // Standard 14 font construction from FontName enum is also not supported.
-            throw new NotSupportedException(
-                "Loading Type 1 fonts from a .pfb stream is not available in this .NET port.");
+            using FileStream pfbStream = File.OpenRead(pfbPath);
+            PDFont font = new PDType1Font(doc, pfbStream);
+
+            using (PDPageContentStream contents = new PDPageContentStream(doc, page))
+            {
+                contents.BeginText();
+                contents.SetFont(font, 12);
+                contents.NewLineAtOffset(100, 700);
+                contents.ShowText(message);
+                contents.EndText();
+            }
+
+            doc.Save(file);
         }
     }
 }

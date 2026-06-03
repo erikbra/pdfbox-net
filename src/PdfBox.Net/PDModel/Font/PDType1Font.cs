@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.FontBox;
+using PdfBox.Net.FontBox.Pfb;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.FontBox.Type1;
 using PdfBox.Net.PDModel.Font.Encoding;
@@ -56,6 +57,19 @@ public partial class PDType1Font : PDSimpleFont
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
     private static readonly COSName FontFileKey = COSName.GetPDFName("FontFile");
     private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
+    private static readonly COSName FirstCharKey = COSName.GetPDFName("FirstChar");
+    private static readonly COSName LastCharKey = COSName.GetPDFName("LastChar");
+    private static readonly COSName WidthsKey = COSName.GetPDFName("Widths");
+    private static readonly COSName TypeKey = COSName.GetPDFName("Type");
+    private static readonly COSName FontBBoxKey = COSName.GetPDFName("FontBBox");
+    private static readonly COSName FlagsKey = COSName.GetPDFName("Flags");
+    private static readonly COSName AscentKey = COSName.GetPDFName("Ascent");
+    private static readonly COSName DescentKey = COSName.GetPDFName("Descent");
+    private static readonly COSName CapHeightKey = COSName.GetPDFName("CapHeight");
+    private static readonly COSName ItalicAngleKey = COSName.GetPDFName("ItalicAngle");
+    private static readonly COSName StemVKey = COSName.GetPDFName("StemV");
+    private static readonly COSName FontNameKey = COSName.GetPDFName("FontName");
+    private static readonly COSName FontFamilyKey = COSName.GetPDFName("FontFamily");
 
     private readonly Type1Font? _type1Font;
     private readonly FontBoxFont? _fontBoxFont;
@@ -72,6 +86,11 @@ public partial class PDType1Font : PDSimpleFont
         _type1Font = type1Font;
         _isStandard14 = Standard14Fonts.IsStandard14Font(GetName());
         _fontBoxFont = fontBoxFont ?? type1Font as FontBoxFont ?? TryLoadMappedFont(dictionary.GetNameAsString(BaseFontKey));
+    }
+
+    public PDType1Font(PDDocument document, Stream pfbStream)
+        : this(CreateEmbeddedType1FontData(document, pfbStream))
+    {
     }
 
     internal static PDType1Font Load(COSDictionary dictionary)
@@ -102,6 +121,11 @@ public partial class PDType1Font : PDSimpleFont
     public override FontBoxFont? GetFontBoxFont() => _fontBoxFont;
     public override bool IsStandard14() => _isStandard14;
 
+    private PDType1Font(EmbeddedType1FontData embeddedFontData)
+        : this(embeddedFontData.Dictionary, embeddedFontData.Type1Font, embeddedFontData.Type1Font)
+    {
+    }
+
     private static COSDictionary CreateStandard14Dictionary(string baseFontName)
     {
         COSDictionary dictionary = new();
@@ -130,6 +154,106 @@ public partial class PDType1Font : PDSimpleFont
             FontName.ZAPF_DINGBATS => "ZapfDingbats",
             _ => throw new ArgumentOutOfRangeException(nameof(baseFont), baseFont, "Unsupported standard 14 font."),
         };
+
+    private static EmbeddedType1FontData CreateEmbeddedType1FontData(PDDocument document, Stream pfbStream)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(pfbStream);
+
+        using MemoryStream buffer = new();
+        pfbStream.CopyTo(buffer);
+        byte[] pfbBytes = buffer.ToArray();
+        PfbParser pfbParser = new(pfbBytes);
+        Type1Font type1Font = Type1Font.CreateWithPFB(pfbBytes);
+
+        COSDictionary dictionary = new();
+        dictionary.SetItem(TypeKey, COSName.GetPDFName("Font"));
+        dictionary.SetName(COSName.SUBTYPE, "Type1");
+        dictionary.SetName(BaseFontKey, type1Font.GetName());
+
+        COSDictionary fontDescriptor = BuildEmbeddedType1FontDescriptor(type1Font);
+        COSStream fontFile = document.GetDocument().CreateCOSStream();
+        using (Stream output = fontFile.CreateOutputStream(COSName.FLATE_DECODE))
+        {
+            byte[] fontBytes = pfbParser.GetPfbdata();
+            output.Write(fontBytes, 0, fontBytes.Length);
+        }
+
+        int[] lengths = pfbParser.GetLengths();
+        for (int i = 0; i < lengths.Length; i++)
+        {
+            fontFile.SetInt(COSName.GetPDFName($"Length{i + 1}"), lengths[i]);
+        }
+
+        fontDescriptor.SetItem(FontFileKey, fontFile);
+        dictionary.SetItem(FontDescriptorKey, fontDescriptor);
+
+        Type1Encoding fontEncoding = new(type1Font);
+        COSArray widths = new();
+        for (int code = 0; code <= 255; code++)
+        {
+            float width;
+            try
+            {
+                width = type1Font.GetWidth(fontEncoding.GetName(code));
+            }
+            catch (IOException)
+            {
+                width = 0f;
+            }
+
+            widths.Add(COSInteger.Get((long)MathF.Round(width)));
+        }
+
+        dictionary.SetInt(FirstCharKey, 0);
+        dictionary.SetInt(LastCharKey, 255);
+        dictionary.SetItem(WidthsKey, widths);
+
+        return new EmbeddedType1FontData(dictionary, type1Font);
+    }
+
+    private static COSDictionary BuildEmbeddedType1FontDescriptor(Type1Font type1Font)
+    {
+        COSDictionary descriptor = new();
+        descriptor.SetItem(TypeKey, COSName.GetPDFName("FontDescriptor"));
+        descriptor.SetName(FontNameKey, type1Font.GetName());
+        if (!string.IsNullOrWhiteSpace(type1Font.GetFamilyName()))
+        {
+            descriptor.SetString(FontFamilyKey, type1Font.GetFamilyName());
+        }
+
+        int flags = 0;
+        if (type1Font.IsFixedPitch())
+        {
+            flags |= 1;
+        }
+
+        bool isSymbolic = type1Font.GetEncoding() is PdfBox.Net.FontBox.Encoding.BuiltInEncoding;
+        flags |= isSymbolic ? 4 : 32;
+        if (Math.Abs(type1Font.GetItalicAngle()) > float.Epsilon)
+        {
+            flags |= 64;
+        }
+
+        descriptor.SetInt(FlagsKey, flags);
+
+        var bbox = type1Font.GetFontBBox();
+        descriptor.SetItem(FontBBoxKey, COSArray.Of(
+            bbox.GetLowerLeftX(),
+            bbox.GetLowerLeftY(),
+            bbox.GetUpperRightX(),
+            bbox.GetUpperRightY()));
+
+        descriptor.SetFloat(ItalicAngleKey, type1Font.GetItalicAngle());
+        descriptor.SetFloat(AscentKey, bbox.GetUpperRightY());
+        descriptor.SetFloat(DescentKey, bbox.GetLowerLeftY());
+
+        IList<float> blueValues = type1Font.GetBlueValues();
+        float capHeight = blueValues.Count > 2 ? blueValues[2] : bbox.GetUpperRightY();
+        descriptor.SetFloat(CapHeightKey, capHeight);
+        descriptor.SetFloat(StemVKey, 0f);
+        return descriptor;
+    }
 
     private static Encoding.Encoding ResolveType1Encoding(COSDictionary dictionary, Type1Font? type1Font)
     {
@@ -207,4 +331,6 @@ public partial class PDType1Font : PDSimpleFont
 
         return null;
     }
+
+    private sealed record EmbeddedType1FontData(COSDictionary Dictionary, Type1Font Type1Font);
 }

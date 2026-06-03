@@ -208,6 +208,32 @@ public class FontStubsReplacementTest
     }
 
     [Fact]
+    public void PDType1Font_StreamConstructor_EmbedsFontProgramAndMetrics()
+    {
+        using PDDocument document = new();
+        using MemoryStream pfb = new(FontBoxTestFixtures.CreateMinimalType1Pfb());
+        PDType1Font font = new(document, pfb);
+
+        COSDictionary fontDict = (COSDictionary)font.GetCOSObject();
+        Assert.Equal("Type1", fontDict.GetNameAsString(COSName.SUBTYPE));
+        Assert.Equal("TestFont", fontDict.GetNameAsString(COSName.GetPDFName("BaseFont")));
+        Assert.Equal(0, fontDict.GetInt(COSName.GetPDFName("FirstChar"), -1));
+        Assert.Equal(255, fontDict.GetInt(COSName.GetPDFName("LastChar"), -1));
+
+        COSArray widths = Assert.IsType<COSArray>(fontDict.GetDictionaryObject(COSName.GetPDFName("Widths")));
+        Assert.Equal(256, widths.Size());
+        Assert.Equal(font.GetWidth(65), (widths.GetObject(65) as COSNumber)?.FloatValue() ?? -1f);
+
+        COSDictionary descriptor = Assert.IsType<COSDictionary>(fontDict.GetDictionaryObject(COSName.GetPDFName("FontDescriptor")));
+        COSStream fontFile = Assert.IsType<COSStream>(descriptor.GetDictionaryObject(COSName.GetPDFName("FontFile")));
+        Assert.True(fontFile.GetInt(COSName.GetPDFName("Length1"), 0) > 0);
+        Assert.True(fontFile.GetInt(COSName.GetPDFName("Length2"), 0) > 0);
+
+        GlyphList glyphList = GlyphList.GetAdobeGlyphList();
+        Assert.Equal("A", font.ToUnicode(65, glyphList));
+    }
+
+    [Fact]
     public void DictionaryEncoding_UsesZapfDingbatsEncodingForZapfBase14Font()
     {
         var dict = new COSDictionary();
