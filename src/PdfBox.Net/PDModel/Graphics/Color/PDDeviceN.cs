@@ -34,26 +34,39 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 public sealed class PDDeviceN : PDColorSpace
 {
     private static readonly COSName DeviceN = COSName.GetPDFName("DeviceN");
+    private const int ColorantNamesIndex = 1;
+    private const int AlternateColorSpaceIndex = 2;
+    private const int TintTransformIndex = 3;
+    private const int AttributesIndex = 4;
 
     private readonly int _numberOfComponents;
     private readonly PDColorSpace _alternateColorSpace;
     private readonly PDFunction _tintTransform;
+    private readonly PDDeviceNAttributes? _attributes;
     private readonly PDColor _initialColor;
+
+    public PDDeviceN(List<string> names, PDColorSpace alternateCS, PDFunction tintTransform)
+        : this(CreateDeviceNArray(names, alternateCS, tintTransform), null)
+    {
+    }
 
     public PDDeviceN(COSArray array, PDResources? resources) : base(array)
     {
-        COSArray? names = array.Size() > 1 ? array.GetObject(1) as COSArray : null;
+        COSArray? names = array.Size() > ColorantNamesIndex ? array.GetObject(ColorantNamesIndex) as COSArray : null;
         _numberOfComponents = Math.Max(1, names?.Size() ?? 1);
-        _alternateColorSpace = array.Size() > 2
-            ? Create(array.GetObject(2), resources)
-            : PDDeviceCMYK.Instance;
-        _tintTransform = array.Size() > 3
-            ? PDFunction.Create(array.GetObject(3)!)
-            : new PDFunctionTypeIdentity();
-        _initialColor = new PDColor(new float[_numberOfComponents], this);
+        _alternateColorSpace = Create(array.GetObject(AlternateColorSpaceIndex), resources);
+        _tintTransform = PDFunction.Create(array.GetObject(TintTransformIndex)!);
+        _attributes = array.Size() > AttributesIndex && array.GetObject(AttributesIndex) is COSDictionary attributesDictionary
+            ? new PDDeviceNAttributes(attributesDictionary)
+            : null;
+        float[] initial = new float[_numberOfComponents];
+        Array.Fill(initial, 1f);
+        _initialColor = new PDColor(initial, this);
     }
 
     public override string GetName() => DeviceN.GetName();
+
+    public PDDeviceNAttributes? GetAttributes() => _attributes;
 
     public override int GetNumberOfComponents() => _numberOfComponents;
 
@@ -74,5 +87,24 @@ public sealed class PDDeviceN : PDColorSpace
     public override float[] ToRGB(float[] value)
     {
         return _alternateColorSpace.ToRGB(_tintTransform.Eval(value));
+    }
+
+    private static COSArray CreateDeviceNArray(List<string> names, PDColorSpace alternateCS, PDFunction tintTransform)
+    {
+        ArgumentNullException.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(alternateCS);
+        ArgumentNullException.ThrowIfNull(tintTransform);
+
+        if (names.Count == 0)
+        {
+            throw new ArgumentException("names must not be empty", nameof(names));
+        }
+
+        var array = new COSArray();
+        array.Add(DeviceN);
+        array.Add(COSArray.OfCOSNames(names));
+        array.Add(alternateCS.GetCOSObject());
+        array.Add(tintTransform.GetCOSObject());
+        return array;
     }
 }

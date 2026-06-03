@@ -31,9 +31,8 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 
 public sealed class PDDeviceGray : PDColorSpace
 {
-    public static readonly PDDeviceGray Instance = new();
-
     private static readonly COSName DeviceGray = COSName.GetPDFName("DeviceGray");
+    public static readonly PDDeviceGray Instance = new();
 
     private readonly PDColor _initialColor;
 
