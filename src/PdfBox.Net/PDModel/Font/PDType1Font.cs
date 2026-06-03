@@ -197,7 +197,7 @@ public partial class PDType1Font : PDSimpleFont
             {
                 width = type1Font.GetWidth(fontEncoding.GetName(code));
             }
-            catch
+            catch (IOException)
             {
                 width = 0f;
             }
@@ -228,8 +228,8 @@ public partial class PDType1Font : PDSimpleFont
             flags |= 1;
         }
 
-        bool symbolic = type1Font.GetEncoding() is PdfBox.Net.FontBox.Encoding.BuiltInEncoding;
-        flags |= symbolic ? 4 : 32;
+        bool isSymbolic = type1Font.GetEncoding() is PdfBox.Net.FontBox.Encoding.BuiltInEncoding;
+        flags |= isSymbolic ? 4 : 32;
         if (Math.Abs(type1Font.GetItalicAngle()) > float.Epsilon)
         {
             flags |= 64;
