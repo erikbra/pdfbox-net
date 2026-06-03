@@ -68,6 +68,19 @@ public class ContentStreamWriterTest
     }
 
     [Fact]
+    public void WriteTokensToByteArrayWritesTokenSequence()
+    {
+        byte[] bytes = ContentStreamWriter.WriteTokensToByteArray(
+        [
+            COSInteger.ONE,
+            COSName.TYPE,
+            Operator.GetOperator(OperatorName.SAVE)
+        ]);
+
+        Assert.Equal("1 /Type q\n", Encoding.Latin1.GetString(bytes));
+    }
+
+    [Fact]
     public void CosWriterWriteStringUsesHexForEolBytes()
     {
         using MemoryStream output = new();

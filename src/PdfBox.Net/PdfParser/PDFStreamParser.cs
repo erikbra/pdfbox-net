@@ -47,10 +47,15 @@ public sealed class PDFStreamParser
 
     public static IList<object> Parse(Stream input)
     {
+        return ParseTokens(input);
+    }
+
+    public static List<object> ParseTokens(Stream input)
+    {
         return new PDFStreamParser(input).ParseTokens();
     }
 
-    public IList<object> ParseTokens()
+    public List<object> ParseTokens()
     {
         List<object> tokens = new();
         while (true)
