@@ -47,6 +47,18 @@ public class PDFStreamParserTest
     }
 
     [Fact]
+    public void ParseTokensStaticReturnsList()
+    {
+        using MemoryStream input = new(Encoding.Latin1.GetBytes("1 /Type q\n"));
+
+        List<object> tokens = PDFStreamParser.ParseTokens(input);
+
+        Assert.Equal(3, tokens.Count);
+        tokens.RemoveAt(0);
+        Assert.Equal(2, tokens.Count);
+    }
+
+    [Fact]
     public void ParseTokensParsesInlineImageOperator()
     {
         using MemoryStream input = new();

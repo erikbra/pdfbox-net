@@ -442,6 +442,23 @@ public sealed class PDPage : COSObjectable, PDContentStream
         return _page.GetDictionaryObject(COSName.CONTENTS);
     }
 
+    public void SetContents(PDStream? contents)
+    {
+        _page.SetItem(COSName.CONTENTS, contents);
+    }
+
+    public void SetContents(IList<PDStream> contents)
+    {
+        ArgumentNullException.ThrowIfNull(contents);
+        COSArray array = new();
+        foreach (PDStream stream in contents)
+        {
+            array.Add(stream.GetCOSObject());
+        }
+
+        _page.SetItem(COSName.CONTENTS, array);
+    }
+
     Stream? PDContentStream.GetContents()
     {
         COSBase? contents = GetContents();

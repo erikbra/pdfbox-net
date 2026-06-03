@@ -29,6 +29,7 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.COS;
 
 namespace PdfBox.Net.Tests;
 
@@ -164,6 +165,36 @@ public class TestPDPage
     {
         PDPage page = new();
         Assert.False(page.HasContents());
+    }
+
+    [Fact]
+    public void SetContentsWithStreamSetsPageContents()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        using MemoryStream input = new([1, 2, 3]);
+        PDStream stream = new(document, input);
+
+        page.SetContents(stream);
+
+        Assert.Same(stream.GetCOSObject(), page.GetContents());
+    }
+
+    [Fact]
+    public void SetContentsWithStreamListSetsArrayContents()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+
+        using MemoryStream first = new([1]);
+        using MemoryStream second = new([2]);
+        PDStream firstStream = new(document, first);
+        PDStream secondStream = new(document, second);
+
+        page.SetContents([firstStream, secondStream]);
+
+        COSArray array = Assert.IsType<COSArray>(page.GetContents());
+        Assert.Equal(2, array.Size());
     }
 
     [Fact]

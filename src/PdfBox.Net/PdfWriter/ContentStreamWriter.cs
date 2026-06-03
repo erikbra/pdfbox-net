@@ -103,6 +103,16 @@ public sealed class ContentStreamWriter
         }
     }
 
+    public static byte[] WriteTokensToByteArray(IList<object> tokens)
+    {
+        ArgumentNullException.ThrowIfNull(tokens);
+
+        using MemoryStream output = new();
+        ContentStreamWriter writer = new(output);
+        writer.WriteTokens(tokens);
+        return output.ToArray();
+    }
+
     private void WriteObject(object token)
     {
         switch (token)
