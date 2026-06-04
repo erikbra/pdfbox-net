@@ -314,9 +314,12 @@ public class PDContentStreamTest
             content.SetNonStrokingColor(new PDColor(new[] { 0.1f, 0.2f, 0.3f }, PDDeviceRGB.Instance));
             content.SetStrokingColor(new PDColor(new[] { 0.4f, 0.5f, 0.6f, 0.7f }, PDDeviceCMYK.Instance));
 
-            PDPattern pattern = new(page.GetResources());
-            content.SetNonStrokingColorWithPattern(pattern, patternName);
-            content.SetStrokingColorWithPattern(pattern, patternName);
+            PDColoredTilingPattern coloredPattern = new(page.GetResources());
+            content.SetNonStrokingColorWithPattern(coloredPattern, patternName);
+            content.SetStrokingColorWithPattern(coloredPattern, patternName);
+
+            PDUncoloredTilingPattern uncoloredPattern = new(page.GetResources(), PDDeviceRGB.Instance);
+            content.SetNonStrokingColor(new PDColor(new[] { 0.9f, 0.8f, 0.7f }, patternName, uncoloredPattern));
         }
 
         using Stream stream = ((PDContentStream)page).GetContents()!;
@@ -329,6 +332,7 @@ public class PDContentStreamTest
         Assert.Contains("0.4 0.5 0.6 0.7 SC", contentText);
         Assert.Contains("/P1 scn", contentText);
         Assert.Contains("/P1 SCN", contentText);
+        Assert.Contains("0.9 0.8 0.7 /P1 scn", contentText);
     }
 
     private static COSStream CreateStream(string text)

@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
 
-public sealed class PDPattern : PDColorSpace
+public class PDPattern : PDColorSpace
 {
     private static readonly COSName Pattern = COSName.GetPDFName("Pattern");
 
