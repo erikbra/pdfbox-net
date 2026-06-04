@@ -78,15 +78,15 @@ public class TestTextOperators
     private static string ReadAllPageContents(string pdfPath)
     {
         using PDDocument document = PDDocument.Load(pdfPath);
-        StringBuilder builder = new StringBuilder();
+        StringBuilder allPageContents = new StringBuilder();
 
         for (int i = 0; i < document.GetNumberOfPages(); i++)
         {
             using Stream stream = ((PDContentStream)document.GetPage(i)).GetContents()!;
             using StreamReader reader = new StreamReader(stream, Encoding.ASCII);
-            builder.Append(reader.ReadToEnd());
+            allPageContents.Append(reader.ReadToEnd());
         }
 
-        return builder.ToString();
+        return allPageContents.ToString();
     }
 }
