@@ -84,6 +84,8 @@ public class TestImageToPDF
 
         ImageToPDF.Main(new[] { imagePath, outputFile });
 
+        Assert.True(File.Exists(outputFile), "ImageToPDF should have created the PDF");
+
         using PDDocument doc = Loader.LoadPDF(outputFile);
         PDPage page = doc.GetPage(0);
         PDResources? resources = page.GetResources();
