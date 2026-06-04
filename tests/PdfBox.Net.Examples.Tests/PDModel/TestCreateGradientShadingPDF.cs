@@ -21,12 +21,13 @@
  */
 
 using PdfBox.Net.Examples.PDModel;
+using PdfBox.Net.PDModel;
 
 namespace PdfBox.Net.Examples.Tests.PDModel;
 
 /// <summary>
 /// Test of CreateGradientShadingPDF example.
-/// Adapted from TestCreateGradientShadingPDF.java to assert file creation.
+/// Adapted from TestCreateGradientShadingPDF.java to assert file creation and loadability.
 /// </summary>
 public class TestCreateGradientShadingPDF
 {
@@ -39,5 +40,8 @@ public class TestCreateGradientShadingPDF
         CreateGradientShadingPDF creator = new CreateGradientShadingPDF();
         creator.Create(filename);
         Assert.True(File.Exists(filename), "CreateGradientShadingPDF should have created the PDF");
+
+        using PDDocument document = PDDocument.Load(filename);
+        Assert.Equal(1, document.GetNumberOfPages());
     }
 }
