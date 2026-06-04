@@ -16,6 +16,7 @@ using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.Patterns;
 using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.Util;
 using Xunit;
 
 namespace PdfBox.Net.Tests;
@@ -201,6 +202,27 @@ public class PDContentStreamTest
         using StreamReader reader = new(stream, Encoding.ASCII);
         string contentText = reader.ReadToEnd();
         Assert.Contains($"/{shadingName.GetName()} sh", contentText);
+    }
+
+    [Fact]
+    public void PDPageContentStream_SetTextMatrix_EmitsTmOperator()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.BeginText();
+            content.SetTextMatrix(new Matrix(1, 0, 0, 1, 100, 200));
+            content.EndText();
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+
+        Assert.Contains("1 0 0 1 100 200 Tm", contentText);
     }
 
     [Fact]
