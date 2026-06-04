@@ -67,4 +67,9 @@ public abstract class PDFGraphicsStreamEngine : PDFStreamEngine
     public virtual void DrawImage(PDImage pdImage)
     {
     }
+
+    public void Run(PDPage page)
+    {
+        ProcessPage(page);
+    }
 }
