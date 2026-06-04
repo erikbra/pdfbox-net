@@ -10,6 +10,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.Patterns;
@@ -267,6 +268,67 @@ public class PDContentStreamTest
         Assert.Contains("Hello", contentText);
         Assert.Contains("World", contentText);
         Assert.Contains("-120", contentText);
+    }
+
+    [Fact]
+    public void PDPageContentStream_ColorOverloads_EmitDeviceColorOperators()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.SetNonStrokingColor(0.1f);
+            content.SetStrokingColor(0.2f);
+            content.SetNonStrokingColor(0.3f, 0.4f, 0.5f);
+            content.SetStrokingColor(0.6f, 0.7f, 0.8f);
+            content.SetNonStrokingColor(0.1f, 0.2f, 0.3f, 0.4f);
+            content.SetStrokingColor(0.5f, 0.6f, 0.7f, 0.8f);
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+
+        Assert.Contains("0.1 g", contentText);
+        Assert.Contains("0.2 G", contentText);
+        Assert.Contains("0.3 0.4 0.5 rg", contentText);
+        Assert.Contains("0.6 0.7 0.8 RG", contentText);
+        Assert.Contains("0.1 0.2 0.3 0.4 k", contentText);
+        Assert.Contains("0.5 0.6 0.7 0.8 K", contentText);
+    }
+
+    [Fact]
+    public void PDPageContentStream_GenericAndPatternColorApis_EmitExpectedOperators()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        COSName patternName = COSName.GetPDFName("P1");
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.SetNonStrokingColorSpace(PDDeviceRGB.Instance);
+            content.SetStrokingColorSpace(PDDeviceCMYK.Instance);
+            content.SetNonStrokingColor(new PDColor(new[] { 0.1f, 0.2f, 0.3f }, PDDeviceRGB.Instance));
+            content.SetStrokingColor(new PDColor(new[] { 0.4f, 0.5f, 0.6f, 0.7f }, PDDeviceCMYK.Instance));
+
+            PDPattern pattern = new(page.GetResources());
+            content.SetNonStrokingColorWithPattern(pattern, patternName);
+            content.SetStrokingColorWithPattern(pattern, patternName);
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+
+        Assert.Contains("/DeviceRGB cs", contentText);
+        Assert.Contains("/DeviceCMYK CS", contentText);
+        Assert.Contains("0.1 0.2 0.3 sc", contentText);
+        Assert.Contains("0.4 0.5 0.6 0.7 SC", contentText);
+        Assert.Contains("/P1 scn", contentText);
+        Assert.Contains("/P1 SCN", contentText);
     }
 
     private static COSStream CreateStream(string text)
