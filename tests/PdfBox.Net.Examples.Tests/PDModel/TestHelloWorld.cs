@@ -88,7 +88,7 @@ public class TestHelloWorld
             PDResources? resources = page.GetResources();
             Assert.NotNull(resources);
 
-            COSName fontName = Assert.Single(resources!.GetFontNames());
+            COSName fontName = Assert.Single(resources.GetFontNames());
             var font = resources.GetFont(fontName);
             Assert.NotNull(font);
             COSDictionary fontDictionary = Assert.IsType<COSDictionary>(font.GetCOSObject());
