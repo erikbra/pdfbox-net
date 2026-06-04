@@ -1,6 +1,6 @@
 // PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/interactive/form/TestCreateSimpleForms.java
 // PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
-// PORT_MODE: adapted
+// PORT_MODE: mechanical
 // PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
 
 /*
@@ -107,13 +107,13 @@ public class TestCreateSimpleForms : IDisposable
     }
 
     /// <summary>
-    /// CreatePushButton throws NotSupportedException because it requires AcroForm
-    /// appearance-stream drawing operators not yet ported.
+    /// CreatePushButton creates a push button form field in a PDF.
     /// </summary>
     [Fact]
     public void TestCreatePushButton()
     {
-        Assert.Throws<NotSupportedException>(() =>
-            CreatePushButton.Main(new string[] { "output.pdf" }));
+        string outputFile = Path.Combine(_tempDir, "pushbutton.pdf");
+        CreatePushButton.Main(new string[] { outputFile });
+        Assert.True(File.Exists(outputFile));
     }
 }

@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/EmbeddedMultipleFonts.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
 
 namespace PdfBox.Net.Examples.PDModel;
 
@@ -42,8 +44,36 @@ public class EmbeddedMultipleFonts
             return;
         }
 
-        // NOTE: PDType0Font.Load(doc, path) is not yet publicly available in this .NET port.
-        throw new NotSupportedException(
-            "PDType0Font.Load(doc, fontFile) is not yet publicly available in this .NET port.");
+        string outputFile = args[0];
+        string[] fontFiles = args[1..];
+
+        using (PDDocument document = new PDDocument())
+        {
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.AddPage(page);
+
+            float fontSize = 12;
+            float leading = fontSize * 1.5f;
+            float yStart = page.GetMediaBox().GetUpperRightY() - 50;
+
+            using (PDPageContentStream stream = new PDPageContentStream(document, page))
+            {
+                stream.BeginText();
+                stream.SetLeading(leading);
+                stream.NewLineAtOffset(50, yStart);
+
+                foreach (string fontFile in fontFiles)
+                {
+                    PDType0Font font = PDType0Font.Load(document, fontFile);
+                    stream.SetFont(font, fontSize);
+                    stream.ShowText("Hello World from font: " + Path.GetFileNameWithoutExtension(fontFile));
+                    stream.NewLine();
+                }
+
+                stream.EndText();
+            }
+
+            document.Save(outputFile);
+        }
     }
 }
