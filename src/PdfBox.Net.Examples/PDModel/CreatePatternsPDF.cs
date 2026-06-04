@@ -50,7 +50,7 @@ public static class CreatePatternsPDF
             using (PDPageContentStream pcs = new PDPageContentStream(doc, page))
             {
                 // Colored pattern, i.e. the pattern content stream will set its own color(s)
-                PDColorSpace patternCS1 = new PDPattern(null, PDDeviceRGB.Instance);
+                PDColorSpace patternCS1 = new PDColoredTilingPattern(page.GetResources());
 
                 PDTilingPattern tilingPattern1 = new PDTilingPattern();
                 tilingPattern1.SetBBox(new PDRectangle(0, 0, 10, 10));
@@ -73,9 +73,7 @@ public static class CreatePatternsPDF
                     cs1.Stroke();
                 }
 
-                PDColor patternColor1 = new PDColor(patternName1, patternCS1);
-
-                pcs.SetNonStrokingColor(patternColor1);
+                pcs.SetNonStrokingColorWithPattern(patternCS1, patternName1);
                 pcs.AddRect(50, 500, 200, 200);
                 pcs.Fill();
 
@@ -100,7 +98,7 @@ public static class CreatePatternsPDF
 
                 // Uncolored pattern colorspace needs to know the colorspace
                 // for the color values that will be passed when painting the fill
-                PDColorSpace patternCS2 = new PDPattern(null, PDDeviceRGB.Instance);
+                PDColorSpace patternCS2 = new PDUncoloredTilingPattern(page.GetResources(), PDDeviceRGB.Instance);
                 PDColor patternColor2green = new PDColor(
                     new float[] { 0, 1, 0 },
                     patternName2,

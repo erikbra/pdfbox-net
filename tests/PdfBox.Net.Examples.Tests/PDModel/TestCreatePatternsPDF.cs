@@ -21,6 +21,7 @@
  */
 
 using PdfBox.Net.Examples.PDModel;
+using PdfBox.Net.PDModel;
 
 namespace PdfBox.Net.Examples.Tests.PDModel;
 
@@ -37,5 +38,8 @@ public class TestCreatePatternsPDF
         string filename = Path.Combine(outputDir, "patterns.pdf");
         CreatePatternsPDF.Main([filename]);
         Assert.True(File.Exists(filename), "CreatePatternsPDF should have created the PDF");
+
+        using PDDocument document = PDDocument.Load(filename);
+        Assert.Equal(1, document.GetNumberOfPages());
     }
 }
