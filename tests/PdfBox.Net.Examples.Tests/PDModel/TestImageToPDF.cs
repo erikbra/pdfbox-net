@@ -75,6 +75,25 @@ public class TestImageToPDF
             "The embedded XObject should be an image XObject");
     }
 
+    [Fact]
+    public void TestImageToPDFEmbeddedImageXObjectFromPng()
+    {
+        string imagePath = CreateTempPng("imagetopdf-xobj.png");
+        string outputFile = Path.Combine(OutputDir, "ImageToPDF-xobj-png.pdf");
+        File.Delete(outputFile);
+
+        ImageToPDF.Main(new[] { imagePath, outputFile });
+
+        using PDDocument doc = Loader.LoadPDF(outputFile);
+        PDPage page = doc.GetPage(0);
+        PDResources? resources = page.GetResources();
+        Assert.NotNull(resources);
+        Assert.NotEmpty(resources!.GetXObjectNames());
+        COSName imageName = Assert.Single(resources.GetXObjectNames());
+        Assert.True(resources.IsImageXObject(imageName),
+            "The embedded XObject should be an image XObject");
+    }
+
     /// <summary>Writes a small synthetic JPEG to a temp file and returns its path.</summary>
     private static string CreateTempJpeg(string filename)
     {
@@ -83,6 +102,18 @@ public class TestImageToPDF
         bitmap.SetPixel(0, 0, new SKColor(255, 0, 0));
         using SKImage skImage = SKImage.FromBitmap(bitmap);
         using SKData encoded = skImage.Encode(SKEncodedImageFormat.Jpeg, 90);
+        File.WriteAllBytes(path, encoded.ToArray());
+        return path;
+    }
+
+    /// <summary>Writes a small synthetic PNG to a temp file and returns its path.</summary>
+    private static string CreateTempPng(string filename)
+    {
+        string path = Path.Combine(Path.GetTempPath(), filename);
+        using SKBitmap bitmap = new(4, 4);
+        bitmap.SetPixel(0, 0, new SKColor(255, 0, 0));
+        using SKImage skImage = SKImage.FromBitmap(bitmap);
+        using SKData encoded = skImage.Encode(SKEncodedImageFormat.Png, 100);
         File.WriteAllBytes(path, encoded.ToArray());
         return path;
     }
