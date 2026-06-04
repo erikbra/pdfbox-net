@@ -58,7 +58,7 @@ public class CustomGraphicsStreamEngine : PDFGraphicsStreamEngine
 
     public void Run()
     {
-        ProcessPage(Page);
+        Run(Page);
     }
 
     public override void AppendRectangle(Point2D p0, Point2D p1, Point2D p2, Point2D p3)
