@@ -175,6 +175,39 @@ public class ColorSpaceTest
         Assert.Equal([1f, 0.5f, 0.5f], createdDeviceN.ToRGB([0.5f]));
     }
 
+    [Fact]
+    public void PDSeparationAndPDDeviceN_CanBeRegisteredInResources()
+    {
+        PDFunctionType2 separationTint = CreateType2Function(
+            domain: [0f, 1f],
+            range: [0f, 1f, 0f, 1f, 0f, 1f],
+            c0: [1f, 1f, 1f],
+            c1: [1f, 1f, 0f]);
+        PDSeparation separation = new("Gold", PDDeviceRGB.Instance, separationTint);
+
+        PDFunctionType2 deviceNTint = CreateType2Function(
+            domain: [0f, 1f],
+            range: [0f, 1f, 0f, 1f, 0f, 1f],
+            c0: [1f, 1f, 1f],
+            c1: [1f, 0f, 0f]);
+        PDDeviceN deviceN = new(["SpotRed"], PDDeviceRGB.Instance, deviceNTint);
+
+        PDResources resources = new();
+        COSName separationName = resources.Add(separation, "CS");
+        COSName deviceNName = resources.Add(deviceN, "CS");
+
+        Assert.True(resources.HasColorSpace(separationName));
+        Assert.True(resources.HasColorSpace(deviceNName));
+
+        PDColorSpace separationFromResources = resources.GetColorSpace(separationName);
+        PDColorSpace deviceNFromResources = resources.GetColorSpace(deviceNName);
+
+        Assert.IsType<PDSeparation>(separationFromResources);
+        Assert.IsType<PDDeviceN>(deviceNFromResources);
+        Assert.Equal([1f, 1f, 0.5f], separationFromResources.ToRGB([0.5f]));
+        Assert.Equal([1f, 0.5f, 0.5f], deviceNFromResources.ToRGB([0.5f]));
+    }
+
     private static PDFunctionType2 CreateType2Function(float[] domain, float[] range, float[] c0, float[] c1)
     {
         var dictionary = new COSDictionary();

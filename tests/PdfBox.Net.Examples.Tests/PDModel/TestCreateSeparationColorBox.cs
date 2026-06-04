@@ -1,6 +1,7 @@
 // PORT_MODE: mechanical
 
 using PdfBox.Net.Examples.PDModel;
+using PdfBox.Net.PDModel;
 
 namespace PdfBox.Net.Examples.Tests.PDModel;
 
@@ -16,5 +17,8 @@ public class TestCreateSeparationColorBox
         CreateSeparationColorBox.Main([filename]);
 
         Assert.True(File.Exists(filename), "CreateSeparationColorBox should have created the PDF");
+
+        using PDDocument document = PDDocument.Load(filename);
+        Assert.Equal(1, document.GetNumberOfPages());
     }
 }
