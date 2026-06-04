@@ -62,7 +62,7 @@ public class DrawPrintTextLocations : PDFTextStripper
         base.EndPage(page);
     }
 
-    protected override void WriteString(string text, List<TextPosition> textPositions)
+    protected override void WriteString(string text, IList<TextPosition> textPositions)
     {
         foreach (TextPosition textPosition in textPositions)
         {
