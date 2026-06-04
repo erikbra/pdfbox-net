@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreatePushButton.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.Form;
 
 namespace PdfBox.Net.Examples.Interactive.Form;
@@ -47,10 +49,26 @@ public class CreatePushButton
             return;
         }
 
-        // NOTE: This example requires interactive form AcroForm functionality including
-        // field appearance streams and PDPageContentStream drawing operators which may
-        // not be fully implemented in this .NET port.
-        throw new NotSupportedException(
-            "This AcroForm example requires capabilities not yet implemented in this .NET port.");
+        using (PDDocument document = new PDDocument())
+        {
+            PDPage page = new PDPage();
+            document.AddPage(page);
+
+            PDAcroForm acroForm = new PDAcroForm(document);
+            document.GetDocumentCatalog().SetAcroForm(acroForm);
+
+            PDPushButton pushButton = new PDPushButton(acroForm);
+            pushButton.SetPartialName("MyButton");
+
+            PDRectangle fieldArea = new PDRectangle(50, 650, 100, 30);
+            PDAnnotationWidget widget = pushButton.GetWidgets()[0];
+            widget.SetRectangle(fieldArea);
+            widget.SetPage(page);
+
+            page.GetAnnotations().Add(widget);
+            acroForm.GetFields().Add(pushButton);
+
+            document.Save(args[0]);
+        }
     }
 }

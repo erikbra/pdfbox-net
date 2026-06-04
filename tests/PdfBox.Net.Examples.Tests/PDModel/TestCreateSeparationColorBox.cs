@@ -1,4 +1,4 @@
-// PORT_MODE: adapted
+// PORT_MODE: mechanical
 
 using PdfBox.Net.Examples.PDModel;
 

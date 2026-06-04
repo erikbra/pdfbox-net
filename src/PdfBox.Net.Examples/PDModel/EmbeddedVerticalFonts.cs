@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/EmbeddedVerticalFonts.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
 
 namespace PdfBox.Net.Examples.PDModel;
 
@@ -42,8 +44,29 @@ public class EmbeddedVerticalFonts
             return;
         }
 
-        // NOTE: PDType0Font.Load(doc, path) is not yet publicly available in this .NET port.
-        throw new NotSupportedException(
-            "PDType0Font.Load(doc, fontFile) is not yet publicly available in this .NET port.");
+        string outputFile = args[0];
+        string fontFile = args[1];
+
+        using (PDDocument document = new PDDocument())
+        {
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.AddPage(page);
+
+            PDType0Font font = PDType0Font.Load(document, fontFile);
+            float fontSize = 20;
+
+            using (PDPageContentStream stream = new PDPageContentStream(document, page))
+            {
+                stream.BeginText();
+                stream.SetFont(font, fontSize);
+                stream.NewLineAtOffset(
+                    page.GetMediaBox().GetUpperRightX() - 50,
+                    page.GetMediaBox().GetUpperRightY() - 50);
+                stream.ShowText("Hello World");
+                stream.EndText();
+            }
+
+            document.Save(outputFile);
+        }
     }
 }

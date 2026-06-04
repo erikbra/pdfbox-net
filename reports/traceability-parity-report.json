@@ -104,7 +104,7 @@
     "target_path": "src/PdfBox.Net.Examples/Ant/PDFToTextTask.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Ant/PDFToTextTask.cs"
@@ -114,7 +114,7 @@
     "target_path": "src/PdfBox.Net.Examples/Interactive/Form/AddBorderToField.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Interactive/Form/AddBorderToField.cs"
@@ -124,7 +124,7 @@
     "target_path": "src/PdfBox.Net.Examples/Interactive/Form/CreateCheckBox.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Interactive/Form/CreateCheckBox.cs"
@@ -134,7 +134,7 @@
     "target_path": "src/PdfBox.Net.Examples/Interactive/Form/CreateMultiWidgetsForm.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Interactive/Form/CreateMultiWidgetsForm.cs"
@@ -144,7 +144,7 @@
     "target_path": "src/PdfBox.Net.Examples/Interactive/Form/CreatePushButton.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Interactive/Form/CreatePushButton.cs"
@@ -154,7 +154,7 @@
     "target_path": "src/PdfBox.Net.Examples/Interactive/Form/CreateRadioButtons.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Interactive/Form/CreateRadioButtons.cs"
@@ -164,7 +164,7 @@
     "target_path": "src/PdfBox.Net.Examples/Interactive/Form/CreateSimpleForm.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Interactive/Form/CreateSimpleForm.cs"
@@ -174,7 +174,7 @@
     "target_path": "src/PdfBox.Net.Examples/Interactive/Form/CreateSimpleFormWithEmbeddedFont.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Interactive/Form/CreateSimpleFormWithEmbeddedFont.cs"
@@ -184,7 +184,7 @@
     "target_path": "src/PdfBox.Net.Examples/Interactive/Form/DetermineTextFitsField.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Interactive/Form/DetermineTextFitsField.cs"
@@ -264,7 +264,7 @@
     "target_path": "src/PdfBox.Net.Examples/Lucene/IndexPDFFiles.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Lucene/IndexPDFFiles.cs"
@@ -274,7 +274,7 @@
     "target_path": "src/PdfBox.Net.Examples/Lucene/LucenePDFDocument.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Lucene/LucenePDFDocument.cs"
@@ -284,7 +284,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/AddAnnotations.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/AddAnnotations.cs"
@@ -294,7 +294,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/AddImageToPDF.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/AddImageToPDF.cs"
@@ -314,7 +314,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/AddMessageToEachPage.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/AddMessageToEachPage.cs"
@@ -334,7 +334,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/BengaliPdfGenerationHelloWorld.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/BengaliPdfGenerationHelloWorld.cs"
@@ -364,7 +364,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/CreateGradientShadingPDF.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/CreateGradientShadingPDF.cs"
@@ -374,7 +374,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/CreateLandscapePDF.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/CreateLandscapePDF.cs"
@@ -384,7 +384,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/CreatePDFA.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/CreatePDFA.cs"
@@ -404,7 +404,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/CreatePatternsPDF.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/CreatePatternsPDF.cs"
@@ -414,7 +414,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/CreatePortableCollection.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/CreatePortableCollection.cs"
@@ -424,7 +424,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/CreateSeparationColorBox.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/CreateSeparationColorBox.cs"
@@ -434,7 +434,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/EmbeddedFiles.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/EmbeddedFiles.cs"
@@ -444,7 +444,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/EmbeddedFonts.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/EmbeddedFonts.cs"
@@ -454,7 +454,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/EmbeddedMultipleFonts.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/EmbeddedMultipleFonts.cs"
@@ -464,7 +464,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/EmbeddedVerticalFonts.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/EmbeddedVerticalFonts.cs"
@@ -514,7 +514,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/HelloWorld.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/HelloWorld.cs"
@@ -524,7 +524,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/HelloWorldTTF.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/HelloWorldTTF.cs"
@@ -534,7 +534,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/HelloWorldType1.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/HelloWorldType1.cs"
@@ -544,7 +544,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/ImageToPDF.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/ImageToPDF.cs"
@@ -614,7 +614,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/RubberStampWithImage.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/RubberStampWithImage.cs"
@@ -624,7 +624,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/ShowColorBoxes.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/ShowColorBoxes.cs"
@@ -634,7 +634,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/ShowTextWithPositioning.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/ShowTextWithPositioning.cs"
@@ -644,7 +644,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/SuperimposePage.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/SuperimposePage.cs"
@@ -654,7 +654,7 @@
     "target_path": "src/PdfBox.Net.Examples/PDModel/UsingTextMatrix.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/PDModel/UsingTextMatrix.cs"
@@ -664,7 +664,7 @@
     "target_path": "src/PdfBox.Net.Examples/Printing/OpaquePDFRenderer.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Printing/OpaquePDFRenderer.cs"
@@ -674,7 +674,7 @@
     "target_path": "src/PdfBox.Net.Examples/Printing/Printing.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Printing/Printing.cs"
@@ -684,7 +684,7 @@
     "target_path": "src/PdfBox.Net.Examples/Rendering/CustomGraphicsStreamEngine.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Rendering/CustomGraphicsStreamEngine.cs"
@@ -694,7 +694,7 @@
     "target_path": "src/PdfBox.Net.Examples/Rendering/CustomPageDrawer.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Rendering/CustomPageDrawer.cs"
@@ -704,7 +704,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/CMSProcessableInputStream.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/CMSProcessableInputStream.cs"
@@ -714,7 +714,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs"
@@ -724,7 +724,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/CreateEmptySignatureForm.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/CreateEmptySignatureForm.cs"
@@ -734,7 +734,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/CreateSignature.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/CreateSignature.cs"
@@ -744,7 +744,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/CreateSignatureBase.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/CreateSignatureBase.cs"
@@ -754,7 +754,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/CreateSignedTimeStamp.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/CreateSignedTimeStamp.cs"
@@ -764,7 +764,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/CreateVisibleSignature.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/CreateVisibleSignature.cs"
@@ -774,7 +774,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/CreateVisibleSignature2.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/CreateVisibleSignature2.cs"
@@ -784,7 +784,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/ShowSignature.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/ShowSignature.cs"
@@ -794,7 +794,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/SigUtils.cs"
@@ -804,7 +804,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/TSAClient.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/TSAClient.cs"
@@ -814,7 +814,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/ValidationTimeStamp.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/ValidationTimeStamp.cs"
@@ -824,7 +824,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/Cert/CRLVerifier.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Cert/CRLVerifier.cs"
@@ -834,7 +834,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/Cert/CertificateVerificationException.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Cert/CertificateVerificationException.cs"
@@ -844,7 +844,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/Cert/CertificateVerificationResult.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Cert/CertificateVerificationResult.cs"
@@ -854,7 +854,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/Cert/CertificateVerifier.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Cert/CertificateVerifier.cs"
@@ -864,7 +864,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/Cert/OcspHelper.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Cert/OcspHelper.cs"
@@ -874,7 +874,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/Cert/RevokedCertificateException.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Cert/RevokedCertificateException.cs"
@@ -884,7 +884,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/Validation/AddValidationInformation.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Validation/AddValidationInformation.cs"
@@ -894,7 +894,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/Validation/CertInformationCollector.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Validation/CertInformationCollector.cs"
@@ -904,7 +904,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/Validation/CertInformationHelper.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Validation/CertInformationHelper.cs"
@@ -914,7 +914,7 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/Validation/CertificateProccessingException.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Validation/CertificateProccessingException.cs"
@@ -924,7 +924,7 @@
     "target_path": "src/PdfBox.Net.Examples/Util/AddWatermarkText.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Util/AddWatermarkText.cs"
@@ -944,7 +944,7 @@
     "target_path": "src/PdfBox.Net.Examples/Util/DrawPrintTextLocations.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Util/DrawPrintTextLocations.cs"
@@ -974,7 +974,7 @@
     "target_path": "src/PdfBox.Net.Examples/Util/PDFHighlighter.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Util/PDFHighlighter.cs"
@@ -1004,7 +1004,7 @@
     "target_path": "src/PdfBox.Net.Examples/Util/PrintTextColors.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Util/PrintTextColors.cs"
@@ -1024,7 +1024,7 @@
     "target_path": "src/PdfBox.Net.Examples/Util/RemoveAllText.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Util/RemoveAllText.cs"
@@ -1034,7 +1034,7 @@
     "target_path": "src/PdfBox.Net.Examples/Util/SplitBooklet.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "adapted",
+    "port_mode": "mechanical",
     "status": "in-sync",
     "last_checked_utc": "2026-05-29T16:09:20Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Util/SplitBooklet.cs"
