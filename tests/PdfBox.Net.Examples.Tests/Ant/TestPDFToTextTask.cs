@@ -1,6 +1,6 @@
 // PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/ant/PDFToTextTask.java
 // PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
-// PORT_MODE: adapted
+// PORT_MODE: test
 // PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
 
 /*
