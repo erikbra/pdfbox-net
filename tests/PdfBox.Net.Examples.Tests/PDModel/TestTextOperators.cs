@@ -19,6 +19,9 @@
  */
 
 using PdfBox.Net.Examples.PDModel;
+using PdfBox.Net.ContentStream;
+using PdfBox.Net.PDModel;
+using System.Text;
 
 namespace PdfBox.Net.Examples.Tests.PDModel;
 
@@ -43,6 +46,7 @@ public class TestTextOperators
         UsingTextMatrix.Main(new[] { "Hello World!", outputFile });
         Assert.True(File.Exists(outputFile), "UsingTextMatrix should have created the PDF");
         Assert.True(new FileInfo(outputFile).Length > 0, "Output PDF should not be empty");
+        Assert.Contains("Tm", ReadAllPageContents(outputFile));
     }
 
     [Fact]
@@ -53,6 +57,10 @@ public class TestTextOperators
         ShowTextWithPositioning.DoIt("Hello World, this is a test!", outputFile);
         Assert.True(File.Exists(outputFile), "ShowTextWithPositioning should have created the PDF");
         Assert.True(new FileInfo(outputFile).Length > 0, "Output PDF should not be empty");
+        string content = ReadAllPageContents(outputFile);
+        Assert.Contains("Tm", content);
+        Assert.Contains("Tw", content);
+        Assert.Contains("TJ", content);
     }
 
     [Fact]
@@ -64,5 +72,21 @@ public class TestTextOperators
         Assert.True(File.Exists(outputFile),
             "BengaliPdfGenerationHelloWorld should have created the PDF");
         Assert.True(new FileInfo(outputFile).Length > 0, "Output PDF should not be empty");
+        Assert.Contains("Td", ReadAllPageContents(outputFile));
+    }
+
+    private static string ReadAllPageContents(string pdfPath)
+    {
+        using PDDocument document = PDDocument.Load(pdfPath);
+        StringBuilder allPageContents = new StringBuilder();
+
+        for (int i = 0; i < document.GetNumberOfPages(); i++)
+        {
+            using Stream stream = ((PDContentStream)document.GetPage(i)).GetContents()!;
+            using StreamReader reader = new StreamReader(stream, Encoding.ASCII);
+            allPageContents.Append(reader.ReadToEnd());
+        }
+
+        return allPageContents.ToString();
     }
 }
