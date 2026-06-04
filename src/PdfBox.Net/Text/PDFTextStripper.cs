@@ -354,7 +354,7 @@ public class PDFTextStripper : LegacyPDFStreamEngine
         WriteString(text.GetUnicode(), [text]);
     }
 
-    protected virtual void WriteString(string text, List<TextPosition> textPositions)
+    protected virtual void WriteString(string text, IList<TextPosition> textPositions)
     {
         WriteString(text);
     }

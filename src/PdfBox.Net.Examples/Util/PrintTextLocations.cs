@@ -40,7 +40,7 @@ public class PrintTextLocations : PDFTextStripper
     {
     }
 
-    protected override void WriteString(string text, List<TextPosition> textPositions)
+    protected override void WriteString(string text, IList<TextPosition> textPositions)
     {
         foreach (TextPosition textPosition in textPositions)
         {
