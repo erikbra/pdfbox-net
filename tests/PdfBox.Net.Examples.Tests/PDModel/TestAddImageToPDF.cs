@@ -1,4 +1,4 @@
-// PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/pdmodel/TestRubberStampWithImage.java
+// PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/pdmodel/TestAddImageToPDF.java
 // PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
 // PORT_MODE: adapted
 // PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
@@ -21,56 +21,62 @@
  */
 
 using PdfBox.Net;
+using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
-using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Examples.PDModel;
 using SkiaSharp;
 
 namespace PdfBox.Net.Examples.Tests.PDModel;
 
 /// <summary>
-/// Test for RubberStampWithImage example.
-/// Ported from TestRubberStampWithImage.java — adapted to use programmatically created
-/// fixture files instead of pre-existing test resources.
+/// Test of the AddImageToPDF example.
+/// Adapted from the Java equivalent — fixture PDFs and images are synthesised programmatically.
 /// </summary>
-public class TestRubberStampWithImage
+public class TestAddImageToPDF
 {
     private static readonly string OutputDir =
-        Path.Combine(Path.GetTempPath(), "pdfbox-examples-tests-rubberstampwithimage");
+        Path.Combine(Path.GetTempPath(), "pdfbox-examples-tests-addimagetopdf");
 
-    public TestRubberStampWithImage()
+    public TestAddImageToPDF()
     {
         Directory.CreateDirectory(OutputDir);
     }
 
     [Fact]
-    public void TestRubberStampWithImageCreatesFile()
+    public void TestAddImageCreatesOutputFile()
     {
-        string inputPdf = CreateTempPdf("rubberstamp-input.pdf");
-        string imagePath = CreateTempJpeg("rubberstamp-stamp.jpg");
-        string outputFile = Path.Combine(OutputDir, "RubberStampWithImage.pdf");
+        string inputPdf = CreateTempPdf("addimagetopdf-input.pdf");
+        string imagePath = CreateTempJpeg("addimagetopdf-input.jpg");
+        string outputFile = Path.Combine(OutputDir, "AddImageToPDF.pdf");
         File.Delete(outputFile);
 
-        RubberStampWithImage.Main(new[] { inputPdf, outputFile, imagePath });
+        AddImageToPDF app = new AddImageToPDF();
+        app.CreatePDFFromImage(inputPdf, imagePath, outputFile);
 
-        Assert.True(File.Exists(outputFile),
-            "RubberStampWithImage should have created the output PDF");
+        Assert.True(File.Exists(outputFile), "AddImageToPDF should have created the output PDF");
     }
 
     [Fact]
-    public void TestRubberStampWithImageHasAnnotation()
+    public void TestAddImageEmbeddedImageXObject()
     {
-        string inputPdf = CreateTempPdf("rubberstamp-annot-input.pdf");
-        string imagePath = CreateTempJpeg("rubberstamp-annot-stamp.jpg");
-        string outputFile = Path.Combine(OutputDir, "RubberStampWithImage-annot.pdf");
+        string inputPdf = CreateTempPdf("addimagetopdf-xobj-input.pdf");
+        string imagePath = CreateTempJpeg("addimagetopdf-xobj.jpg");
+        string outputFile = Path.Combine(OutputDir, "AddImageToPDF-xobj.pdf");
         File.Delete(outputFile);
 
-        RubberStampWithImage.Main(new[] { inputPdf, outputFile, imagePath });
+        AddImageToPDF app = new AddImageToPDF();
+        app.CreatePDFFromImage(inputPdf, imagePath, outputFile);
 
+        // Reload and verify that at least one image XObject was appended.
         using PDDocument doc = Loader.LoadPDF(outputFile);
         PDPage page = doc.GetPage(0);
-        IList<PDAnnotation> annotations = page.GetAnnotations();
-        Assert.NotEmpty(annotations);
+        PDResources? resources = page.GetResources();
+        Assert.NotNull(resources);
+        Assert.NotEmpty(resources!.GetXObjectNames());
+        COSName imageName = Assert.Single(resources.GetXObjectNames());
+        Assert.True(resources.IsImageXObject(imageName),
+            "The appended XObject should be an image XObject");
     }
 
     /// <summary>Creates a minimal single-page PDF in a temp file and returns its path.</summary>

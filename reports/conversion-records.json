@@ -217,11 +217,14 @@
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddImageToPDF.java",
-    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "target_path": "tests/PdfBox.Net.Examples.Tests/PDModel/TestAddImageToPDF.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "native-test",
     "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs.",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-04T17:16:57Z",
+    "note": "Integration test for AddImageToPDF: synthesises a base PDF and JPEG via SkiaSharp, calls CreatePDFFromImage, and verifies the output PDF contains an image XObject via PDPageContentStream.DrawImage."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddJavascript.java",
@@ -417,11 +420,14 @@
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ImageToPDF.java",
-    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "target_path": "tests/PdfBox.Net.Examples.Tests/PDModel/TestImageToPDF.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "native-test",
     "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs.",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-04T17:16:57Z",
+    "note": "Integration test for ImageToPDF: synthesises a JPEG via SkiaSharp, calls ImageToPDF.Main, and verifies the output PDF contains an image XObject via PDPageContentStream.DrawImage."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/PrintBookmarks.java",
@@ -473,11 +479,14 @@
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/RubberStampWithImage.java",
-    "target_path": "tests/PdfBox.Net.Tests/ExamplesModuleParityCloseoutTest.cs",
+    "target_path": "tests/PdfBox.Net.Examples.Tests/PDModel/TestRubberStampWithImage.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "native-test",
     "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs."
+    "conversion_notes": "Examples module closeout mapping: representative smoke parity validated via deterministic create/merge/extract flows backed by PdfBox.Net APIs.",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-04T17:16:57Z",
+    "note": "Integration test for RubberStampWithImage: synthesises fixture PDF and JPEG via SkiaSharp, calls DoIt, and verifies the output PDF contains a stamp annotation."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ShowColorBoxes.java",
