@@ -615,7 +615,7 @@ public class RenderingTextTest
 
         public List<TextPosition> GlyphPositions { get; } = new();
 
-        protected override void WriteString(string text, List<TextPosition> textPositions)
+        protected override void WriteString(string text, IList<TextPosition> textPositions)
         {
             StringRuns.Add(text);
             RunPositionCounts.Add(textPositions.Count);
