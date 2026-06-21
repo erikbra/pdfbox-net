@@ -86,10 +86,65 @@ public class PrintingTest
         Assert.Equal(Scaling.ShrinkToFit, printer.Scaling);
         Assert.True(printer.Center);
         Assert.Equal(PDFPrintable.RasterizeOff, printer.Dpi);
+        Assert.False(printer.PrintToFile);
+        Assert.Null(printer.PrintFileName);
 
         if (!OperatingSystem.IsWindows())
         {
             Assert.Throws<PlatformNotSupportedException>(() => printer.Print());
+        }
+    }
+
+    [Fact]
+    public void TestPdfPrinterAcceptsPrintToFileConfiguration()
+    {
+        using PDDocument document = new();
+        PDFPrinter printer = new(document)
+        {
+            PrinterName = "Microsoft Print to PDF",
+            PrintToFile = true,
+            PrintFileName = Path.Combine(Path.GetTempPath(), "pdfbox-net-print-test.pdf")
+        };
+
+        Assert.Equal("Microsoft Print to PDF", printer.PrinterName);
+        Assert.True(printer.PrintToFile);
+        Assert.EndsWith("pdfbox-net-print-test.pdf", printer.PrintFileName, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TestPdfPrinterPrintsToFileWithConfiguredWindowsBackend()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.Skip("Print-to-file requires a Windows PDF or XPS printer backend.");
+        }
+
+        string? printerName = Environment.GetEnvironmentVariable("PDFBOX_NET_TEST_PRINTER");
+        if (string.IsNullOrWhiteSpace(printerName))
+        {
+            Assert.Skip("Set PDFBOX_NET_TEST_PRINTER to a configured Windows PDF or XPS printer to run this integration test.");
+        }
+
+        string outputPath = Path.Combine(Path.GetTempPath(), $"pdfbox-net-{Guid.NewGuid():N}.pdf");
+        try
+        {
+            using PDDocument document = new();
+            document.AddPage(new PDPage());
+            PDFPrinter printer = new(document)
+            {
+                PrinterName = printerName,
+                PrintToFile = true,
+                PrintFileName = outputPath
+            };
+
+            printer.Print();
+
+            Assert.True(File.Exists(outputPath));
+            Assert.NotEqual(0, new FileInfo(outputPath).Length);
+        }
+        finally
+        {
+            File.Delete(outputPath);
         }
     }
 }

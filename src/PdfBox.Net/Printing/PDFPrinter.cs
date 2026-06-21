@@ -59,6 +59,17 @@ public sealed class PDFPrinter
 
     public string? PrinterName { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the selected Windows printer should write its output to a file.
+    /// The configured printer must support print-to-file (for example, a PDF or XPS driver).
+    /// </summary>
+    public bool PrintToFile { get; set; }
+
+    /// <summary>
+    /// Gets or sets the output file used when <see cref="PrintToFile"/> is enabled.
+    /// </summary>
+    public string? PrintFileName { get; set; }
+
     public Scaling Scaling { get; set; } = Scaling.ShrinkToFit;
 
     public bool ShowPageBorder { get; set; }
@@ -74,10 +85,21 @@ public sealed class PDFPrinter
             throw new PlatformNotSupportedException("PDFPrinter.Print() is currently supported on Windows only.");
         }
 
+        if (PrintToFile && string.IsNullOrWhiteSpace(PrintFileName))
+        {
+            throw new InvalidOperationException("PrintFileName must be set when PrintToFile is enabled.");
+        }
+
         using PrintDocument printDocument = new();
         if (!string.IsNullOrWhiteSpace(PrinterName))
         {
             printDocument.PrinterSettings.PrinterName = PrinterName;
+        }
+
+        if (PrintToFile)
+        {
+            printDocument.PrinterSettings.PrintToFile = true;
+            printDocument.PrinterSettings.PrintFileName = PrintFileName!;
         }
 
         if (!printDocument.PrinterSettings.IsValid)
