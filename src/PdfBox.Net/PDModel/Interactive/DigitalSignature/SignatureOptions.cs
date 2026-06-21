@@ -19,7 +19,7 @@ public sealed class SignatureOptions : IDisposable
     public const int DEFAULT_SIGNATURE_SIZE = 0x2500;
 
     private COSDocument? _visualSignature;
-    private int _preferredSignatureSize;
+    private int _preferredSignatureSize = DEFAULT_SIGNATURE_SIZE;
     private int _pageNo;
 
     public void SetPage(int pageNo) => _pageNo = pageNo;
