@@ -55,15 +55,23 @@ public sealed class COSFilterInputStream : Stream
         }
 
         _rangeIndex++;
-        while (_position < _ranges[_rangeIndex].Begin)
+        long rangeStart = _ranges[_rangeIndex].Begin;
+        while (_position < rangeStart)
         {
-            long skipped = _inner.Seek(_ranges[_rangeIndex].Begin - _position, SeekOrigin.Current);
-            if (skipped == 0)
+            if (_inner.CanSeek)
+            {
+                _inner.Seek(rangeStart, SeekOrigin.Begin);
+                _position = rangeStart;
+                break;
+            }
+
+            int next = _inner.ReadByte();
+            if (next < 0)
             {
                 throw new IOException("Unable to advance to byte range start.");
             }
 
-            _position += skipped;
+            _position++;
         }
 
         return true;

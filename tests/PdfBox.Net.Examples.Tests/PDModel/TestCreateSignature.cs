@@ -1,6 +1,6 @@
 // PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/pdmodel/TestCreateSignature.java
 // PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
-// PORT_MODE: adapted
+// PORT_MODE: mechanical
 // PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
 
 /*
@@ -20,54 +20,120 @@
  * limitations under the License.
  */
 
+using System.Security.Cryptography;
+using System.Security.Cryptography.Pkcs;
+using System.Security.Cryptography.X509Certificates;
+using PdfBox.Net.Examples.Signature;
+using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Interactive.DigitalSignature;
+using PdfBox.Net.PDModel.Interactive.Form;
+
 namespace PdfBox.Net.Examples.Tests.PDModel;
 
 /// <summary>
 /// Test for signature creation and validation examples.
-/// Ported from TestCreateSignature.java — adapted because the full test requires BouncyCastle
-/// cryptographic primitives (signing, OCSP, timestamping, CRL, certificate chain), a PKCS#12
-/// keystore fixture, NTP synchronisation, and several signing APIs not yet ported to .NET.
-/// Individual sub-tests are retained as traceability stubs.
+/// A self-signed, in-memory PKCS#12 keystore keeps the detached-signature test deterministic
+/// and suitable for CI. Tests which contact a TSA or revocation service remain skipped.
 /// </summary>
 public class TestCreateSignature
 {
-    [Fact(Skip = "Adapted — requires BouncyCastle signing APIs and keystore fixture not yet ported")]
+    [Fact]
     public void TestDetachedSha256()
     {
+        byte[] inputPdf = CreateInputPdf();
+        byte[] keyStore = CreateKeyStore("password");
+
+        CreateSignature signer = new(keyStore, "password");
+        using MemoryStream signedPdf = new();
+        signer.SignDetached(new MemoryStream(inputPdf), signedPdf);
+
+        byte[] signedPdfBytes = signedPdf.ToArray();
+        Assert.NotEmpty(signedPdfBytes);
+
+        using PDDocument document = PDDocument.Load(new MemoryStream(signedPdfBytes));
+        PDSignature signature = Assert.Single(document.GetSignatureDictionaries());
+        Assert.Equal("Adobe.PPKLite", signature.GetFilter());
+        Assert.Equal("adbe.pkcs7.detached", signature.GetSubFilter());
+        Assert.Equal(4, signature.GetByteRange().Length);
+
+        SignedCms cms = new(new ContentInfo(signature.GetSignedContent(signedPdfBytes)), detached: true);
+        cms.Decode(signature.GetContents(signedPdfBytes));
+        cms.CheckSignature(verifySignatureOnly: true);
     }
 
-    [Fact(Skip = "Adapted — requires BouncyCastle signing APIs and keystore fixture not yet ported")]
+    [Fact(Skip = "Requires an external TSA endpoint.")]
     public void TestDetachedSha256WithTSA()
     {
     }
 
-    [Fact(Skip = "Adapted — requires BouncyCastle signing APIs and keystore fixture not yet ported")]
+    [Fact(Skip = "Visible-signature appearance parity is not covered by this deterministic suite.")]
     public void TestCreateVisibleSignature()
     {
     }
 
-    [Fact(Skip = "Adapted — requires BouncyCastle signing APIs and keystore fixture not yet ported")]
+    [Fact(Skip = "Visible-signature appearance parity is not covered by this deterministic suite.")]
     public void TestCreateVisibleSignature2()
     {
     }
 
-    [Fact(Skip = "Adapted — requires BouncyCastle signing APIs and keystore fixture not yet ported")]
+    [Fact(Skip = "Requires online OCSP and CRL responders.")]
     public void TestAddValidationInformation()
     {
     }
 
-    [Fact(Skip = "Adapted — requires BouncyCastle signing APIs and keystore fixture not yet ported")]
+    [Fact(Skip = "Requires an external TSA endpoint.")]
     public void TestCreateEmbeddedTimeStamp()
     {
     }
 
-    [Fact(Skip = "Adapted — requires BouncyCastle signing APIs and keystore fixture not yet ported")]
+    [Fact(Skip = "Requires an external TSA endpoint.")]
     public void TestCreateSignedTimeStamp()
     {
     }
 
-    [Fact(Skip = "Adapted — requires BouncyCastle signing APIs and keystore fixture not yet ported")]
+    [Fact]
     public void TestEmptySignatureForm()
     {
+        string outputPath = Path.Combine(Path.GetTempPath(), $"pdfbox-net-{Guid.NewGuid():N}.pdf");
+        try
+        {
+            CreateEmptySignatureForm.CreateForm(outputPath);
+
+            using PDDocument document = PDDocument.Load(outputPath);
+            PDSignatureField signatureField = Assert.Single(document.GetSignatureFields());
+            Assert.Null(signatureField.GetSignature());
+            Assert.Equal(1, document.GetNumberOfPages());
+        }
+        finally
+        {
+            File.Delete(outputPath);
+        }
+    }
+
+    private static byte[] CreateInputPdf()
+    {
+        using PDDocument document = new();
+        document.AddPage(new PDPage());
+        using MemoryStream output = new();
+        document.Save(output);
+        return output.ToArray();
+    }
+
+    private static byte[] CreateKeyStore(string password)
+    {
+        using RSA rsa = RSA.Create(2048);
+        CertificateRequest request = new(
+            "CN=pdfbox-net signing test",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+        request.CertificateExtensions.Add(new X509KeyUsageExtension(
+            X509KeyUsageFlags.DigitalSignature,
+            critical: true));
+
+        using X509Certificate2 certificate = request.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1),
+            DateTimeOffset.UtcNow.AddDays(1));
+        return certificate.Export(X509ContentType.Pkcs12, password);
     }
 }
