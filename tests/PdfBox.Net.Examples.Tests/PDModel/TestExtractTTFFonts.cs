@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  *
- * PORT_MODE: adapted
+ * PORT_MODE: mechanical
  */
 
 using PdfBox.Net.COS;

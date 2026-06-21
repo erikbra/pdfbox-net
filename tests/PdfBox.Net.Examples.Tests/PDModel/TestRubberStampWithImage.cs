@@ -1,6 +1,6 @@
 // PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/pdmodel/TestRubberStampWithImage.java
 // PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
-// PORT_MODE: adapted
+// PORT_MODE: mechanical
 // PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
 
 /*
@@ -30,8 +30,7 @@ namespace PdfBox.Net.Examples.Tests.PDModel;
 
 /// <summary>
 /// Test for RubberStampWithImage example.
-/// Ported from TestRubberStampWithImage.java — adapted to use programmatically created
-/// fixture files instead of pre-existing test resources.
+/// Ported from TestRubberStampWithImage.java with programmatically created fixture files.
 /// </summary>
 public class TestRubberStampWithImage
 {

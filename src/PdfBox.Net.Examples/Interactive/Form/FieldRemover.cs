@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net;
+using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Interactive.Form;
 
@@ -36,8 +37,46 @@ namespace PdfBox.Net.Examples.Interactive.Form;
 /// </summary>
 public class FieldRemover
 {
-    private FieldRemover()
+    public FieldRemover()
     {
+    }
+
+    /// <summary>
+    /// Removes the named form field from a PDF document.
+    /// </summary>
+    /// <param name="inputPath">Path to the input PDF.</param>
+    /// <param name="outputPath">Path to write the updated PDF.</param>
+    /// <param name="fullyQualifiedFieldName">Fully qualified name of the field to remove.</param>
+    public void Remove(string inputPath, string outputPath, string fullyQualifiedFieldName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedFieldName);
+
+        using PDDocument document = Loader.LoadPDF(inputPath);
+        PDAcroForm? acroForm = document.GetDocumentCatalog().GetAcroForm();
+        List<PDField>? topLevelFields = acroForm?.GetFields().ToList();
+        PDField? field = acroForm?.GetFieldTree()
+            .FirstOrDefault(candidate => string.Equals(
+                candidate.GetFullyQualifiedName(),
+                fullyQualifiedFieldName,
+                StringComparison.Ordinal));
+
+        if (field is not null)
+        {
+            COSDictionary fieldDictionary = (COSDictionary)field.GetCOSObject();
+            COSDictionary? parent = fieldDictionary.GetCOSDictionary(COSName.PARENT);
+            if (parent is null)
+            {
+                topLevelFields!.RemoveAll(candidate =>
+                    ReferenceEquals(candidate.GetCOSObject(), field.GetCOSObject()));
+                acroForm!.SetFields(topLevelFields);
+            }
+            else
+            {
+                parent.GetCOSArray(COSName.KIDS)?.Remove(fieldDictionary);
+            }
+        }
+
+        document.Save(outputPath);
     }
 
     public static void Main(string[] args)
