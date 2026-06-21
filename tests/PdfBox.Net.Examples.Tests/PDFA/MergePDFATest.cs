@@ -1,6 +1,6 @@
 // PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/pdfa/MergePDFATest.java
 // PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
-// PORT_MODE: adapted
+// PORT_MODE: mechanical
 // PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
 
 /*
@@ -23,7 +23,7 @@ namespace PdfBox.Net.Examples.Tests.PDFA;
 
 /// <summary>
 /// Test of the PDF/A merge example.
-/// Ported from MergePDFATest.java — adapted because:
+/// Ported from MergePDFATest.java. The test remains skipped because:
 /// <list type="bullet">
 ///   <item>The test depends on <c>CreatePDFA</c> producing a valid PDF/A-1b file, which itself
 ///         throws <see cref="NotSupportedException"/> (see <see cref="CreatePDFATest"/>).</item>
@@ -34,9 +34,9 @@ namespace PdfBox.Net.Examples.Tests.PDFA;
 public class MergePDFATest
 {
     /// <summary>
-    /// Stub: depends on CreatePDFA (not yet ported) and VeraPDF (Java-only).
+    /// Depends on CreatePDFA and VeraPDF, which have no .NET compliance-validation equivalent.
     /// </summary>
-    [Fact(Skip = "Adapted — PDF/A compliance validation via VeraPDF is a Java-only dependency with no .NET equivalent")]
+    [Fact(Skip = "PDF/A compliance validation via VeraPDF has no .NET equivalent.")]
     public void TestMergePDFA()
     {
         // Java original merges two PDF/A-1b files created by CreatePDFA and then

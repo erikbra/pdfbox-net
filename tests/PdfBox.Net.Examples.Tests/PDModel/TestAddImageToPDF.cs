@@ -1,6 +1,6 @@
 // PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/pdmodel/TestAddImageToPDF.java
 // PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
-// PORT_MODE: adapted
+// PORT_MODE: mechanical
 // PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
 
 /*
@@ -31,7 +31,7 @@ namespace PdfBox.Net.Examples.Tests.PDModel;
 
 /// <summary>
 /// Test of the AddImageToPDF example.
-/// Adapted from the Java equivalent — fixture PDFs and images are synthesised programmatically.
+/// Fixture PDFs and images are synthesised programmatically.
 /// </summary>
 public class TestAddImageToPDF
 {
