@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Mechanically converted from Apache PDFBox Java source with AI assistance.
+ * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/lucene/LucenePDFDocument.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: mechanical
+ * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -198,10 +198,9 @@ public class LucenePDFDocument
         _stripper.WriteText(pdfDocument, writer);
 
         string contents = writer.ToString();
-        StringReader reader = new StringReader(contents);
 
         // Add the text content as a tokenized, indexed field.
-        AddTextField(document, "contents", reader);
+        document.Add(new TextField("contents", contents, Field.Store.NO));
 
         PDDocumentInformation? info = pdfDocument.GetDocumentInformation();
         if (info != null)
