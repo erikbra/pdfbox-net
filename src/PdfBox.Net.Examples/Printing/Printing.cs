@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/printing/Printing.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: mechanical
+ * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  */
 
@@ -42,9 +42,9 @@ public class Printing
 
     public static void Main(string[] args)
     {
-        if (args.Length < 1 || args.Length > 2)
+        if (args.Length < 1 || args.Length > 3)
         {
-            Console.Error.WriteLine("usage: Printing <input-pdf> [printer-name]");
+            Console.Error.WriteLine("usage: Printing <input-pdf> [printer-name] [output-file]");
             return;
         }
 
@@ -53,6 +53,12 @@ public class Printing
         if (args.Length == 2)
         {
             printer.PrinterName = args[1];
+        }
+        else if (args.Length == 3)
+        {
+            printer.PrinterName = args[1];
+            printer.PrintToFile = true;
+            printer.PrintFileName = args[2];
         }
 
         printer.Print();
