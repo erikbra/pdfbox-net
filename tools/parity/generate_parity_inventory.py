@@ -22,6 +22,7 @@ TRACEABILITY_PATH = REPORTS_DIR / "traceability-parity-report.json"
 COVERAGE_STATE_PATH = REPORTS_DIR / "upstream-port-coverage-state.json"
 ALL_COVERAGE_PATH = REPORTS_DIR / "all-upstream-coverage.json"
 GAP_ANALYSIS_PATH = REPORTS_DIR / "pdfbox-main-gap-analysis.md"
+FILE_COMPARISON_PATH = REPORTS_DIR / "upstream-file-comparison.json"
 
 
 @dataclass(frozen=True)
@@ -129,8 +130,8 @@ def local_git_head(upstream_root: Path) -> str:
     return result.stdout.strip()
 
 
-def collect_provenance_paths(src_root: Path) -> set[str]:
-    result: set[str] = set()
+def collect_provenance_paths(src_root: Path) -> dict[str, list[str]]:
+    result: dict[str, list[str]] = defaultdict(list)
     for cs_file in src_root.rglob("*.cs"):
         try:
             text = cs_file.read_text(encoding="utf-8")
@@ -149,7 +150,7 @@ def collect_provenance_paths(src_root: Path) -> set[str]:
             source_path_value = source_path
             break
         if source_path_value:
-            result.add(source_path_value)
+            result[source_path_value].append(cs_file.as_posix())
     return result
 
 
@@ -159,6 +160,21 @@ def collect_traceability_paths(rows: list[dict], upstream_set: set[str]) -> set[
         source_path = row.get("source_path")
         if isinstance(source_path, str) and source_path in upstream_set:
             result.add(source_path)
+    return result
+
+
+def collect_traceability_targets(rows: list[dict], upstream_set: set[str]) -> dict[str, list[str]]:
+    result: dict[str, list[str]] = defaultdict(list)
+    for row in rows:
+        source_path = row.get("source_path")
+        target_path = row.get("target_path")
+        if (
+            isinstance(source_path, str)
+            and source_path in upstream_set
+            and isinstance(target_path, str)
+            and target_path
+        ):
+            result[source_path].append(target_path)
     return result
 
 
@@ -172,6 +188,8 @@ def build_gap_analysis_markdown(
     core_total: int,
     core_mapped: int,
     status_counts: dict,
+    file_gap_counts: dict,
+    file_gap_module_rows: list[dict],
 ) -> str:
     lines: list[str] = []
     lines.append("# PDFBox Upstream Java Gap Analysis (All Modules)")
@@ -221,6 +239,22 @@ def build_gap_analysis_markdown(
         "- No `partial` or `partially-in-sync` rows remain for scoped upstream `source_path` entries."
     )
     lines.append("- Build and tests are green on the parity branch.")
+    lines.append("")
+    lines.append("## File-by-file report")
+    lines.append("")
+    lines.append(
+        "The generated `reports/upstream-file-comparison.json` contains one row for each scoped upstream Java file, including mapping evidence and metadata-gap classification."
+    )
+    lines.append("")
+    lines.append("| Gap category | Files |")
+    lines.append("|---|---:|")
+    for key in ("missing-port", "missing-provenance-marker", "missing-traceability-row", "none"):
+        lines.append(f"| `{key}` | {file_gap_counts.get(key, 0)} |")
+    lines.append("")
+    lines.append("| Gap category | Module | Files |")
+    lines.append("|---|---|---:|")
+    for row in file_gap_module_rows:
+        lines.append(f"| `{row['gap_category']}` | `{row['module']}` | {row['files']} |")
     lines.append("")
     return "\n".join(lines) + "\n"
 
@@ -293,8 +327,10 @@ def main() -> None:
 
     print(f"- Tracked baseline matches head: {tracked_commit == upstream_head}")
 
-    mapped_by_provenance = collect_provenance_paths(Path("src"))
+    provenance_targets = collect_provenance_paths(Path("src"))
+    mapped_by_provenance = set(provenance_targets)
     mapped_by_traceability = collect_traceability_paths(traceability_rows, upstream_set)
+    traceability_targets = collect_traceability_targets(traceability_rows, upstream_set)
     mapped_union = mapped_by_provenance | mapped_by_traceability
     mapped_union_in_scope = mapped_union & upstream_set
     mapped_by_provenance_in_scope = mapped_by_provenance & upstream_set
@@ -392,6 +428,66 @@ def main() -> None:
         },
     }
 
+    file_comparison_rows = []
+    for item in upstream_paths:
+        provenance_target_paths = sorted(provenance_targets.get(item.path, []))
+        traceability_target_paths = sorted(traceability_targets.get(item.path, []))
+        has_provenance = bool(provenance_target_paths)
+        has_traceability = bool(traceability_target_paths)
+        mapped = item.path in mapped_union_in_scope
+        if not mapped:
+            gap_category = "missing-port"
+        elif not has_provenance:
+            gap_category = "missing-provenance-marker"
+        elif not has_traceability:
+            gap_category = "missing-traceability-row"
+        else:
+            gap_category = "none"
+        file_comparison_rows.append(
+            {
+                "source_path": item.path,
+                "module": item.module,
+                "family": item.family,
+                "mapped": mapped,
+                "mapping_sources": [
+                    source
+                    for source, present in (
+                        ("provenance", has_provenance),
+                        ("traceability", has_traceability),
+                    )
+                    if present
+                ],
+                "provenance_target_paths": provenance_target_paths,
+                "traceability_target_paths": traceability_target_paths,
+                "target_paths": sorted(set(provenance_target_paths) | set(traceability_target_paths)),
+                "gap_category": gap_category,
+            }
+        )
+
+    file_gap_counts = Counter(row["gap_category"] for row in file_comparison_rows)
+    file_gap_module_counts = Counter(
+        (row["gap_category"], row["module"])
+        for row in file_comparison_rows
+        if row["gap_category"] != "none"
+    )
+    file_gap_module_rows = [
+        {"gap_category": gap_category, "module": module, "files": files}
+        for (gap_category, module), files in sorted(file_gap_module_counts.items())
+    ]
+    file_comparison = {
+        "generated_at_utc": generated_at,
+        "upstream_repository": upstream_repo,
+        "upstream_branch": upstream_branch,
+        "upstream_head": upstream_head,
+        "tracked_parity_baseline_commit": tracked_commit,
+        "canonical_mapping_method": all_coverage["canonical_mapping_method"],
+        "total": totals["total"],
+        "mapped": totals["mapped"],
+        "missing": totals["missing"],
+        "gap_category_counts": dict(sorted(file_gap_counts.items())),
+        "rows": file_comparison_rows,
+    }
+
     previous_coverage = read_json(COVERAGE_STATE_PATH) if COVERAGE_STATE_PATH.exists() else {}
 
     coverage_state = {
@@ -420,6 +516,7 @@ def main() -> None:
 
     write_json(COVERAGE_STATE_PATH, coverage_state)
     write_json(ALL_COVERAGE_PATH, all_coverage)
+    write_json(FILE_COMPARISON_PATH, file_comparison)
 
     GAP_ANALYSIS_PATH.write_text(
         build_gap_analysis_markdown(
@@ -431,6 +528,8 @@ def main() -> None:
             core_total=core_total,
             core_mapped=core_mapped,
             status_counts=all_coverage["traceability_status_counts"],
+            file_gap_counts=file_comparison["gap_category_counts"],
+            file_gap_module_rows=file_gap_module_rows,
         ),
         encoding="utf-8",
     )

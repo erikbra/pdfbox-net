@@ -32,6 +32,15 @@ Key fields: per-module and per-family `java_files` / `mapped` / `missing` / `pct
 
 ---
 
+### `upstream-file-comparison.json`
+**Purpose:** Full file-by-file comparison between the current Apache PDFBox upstream Java inventory and this repository's mapped C# ports.
+
+Key fields: one `rows` entry per scoped upstream Java file, including `source_path`, `module`, `family`, mapping evidence (`provenance` and/or `traceability`), target paths, and `gap_category`.
+
+> **Overlap note:** This file expands the aggregate totals in `all-upstream-coverage.json` into an auditable per-file ledger.  It is the fastest way to identify metadata gaps such as missing provenance markers or missing traceability rows even when global mapping coverage is 100 %.
+
+---
+
 ### `pdfbox-main-gap-analysis.md`
 **Purpose:** Human-readable summary of the current coverage state — the narrative counterpart to `upstream-port-coverage-state.json` and `all-upstream-coverage.json`.  Intended for quick review in GitHub and PR descriptions.
 
@@ -81,6 +90,7 @@ This file is **append-only** during active work: each implementation slice adds 
 | `upstream-port-coverage-state.json` | Gate evaluation booleans, `missing_source_paths_sha256` | `upstream-sync-state.json` (totals), `all-upstream-coverage.json` (totals) |
 | `upstream-sync-state.json` | Drift-detection fields (`latest_upstream_commit_seen`, `tracked_commit_updated_utc`) | `upstream-port-coverage-state.json` (totals) |
 | `all-upstream-coverage.json` | Per-module / per-family breakdown | `upstream-port-coverage-state.json` (top-level totals), `pdfbox-main-gap-analysis.md` (rendered subset) |
+| `upstream-file-comparison.json` | One row per upstream Java file with mapping evidence and gap category | `all-upstream-coverage.json` (totals), `traceability-parity-report.json` (traceability-backed target paths) |
 | `pdfbox-main-gap-analysis.md` | Human-readable Markdown rendering | `all-upstream-coverage.json`, `upstream-port-coverage-state.json` |
 | `traceability-parity-report.json` | Per-file sync status and notes | `conversion-records.json` (key fields) |
 | `conversion-records.json` | Per-file conversion notes | `traceability-parity-report.json` (key fields) |

@@ -1,6 +1,6 @@
 # PDFBox Upstream Java Gap Analysis (All Modules)
 
-Datetime (UTC): 2026-06-22T04:43:08.172Z
+Datetime (UTC): 2026-06-22T18:25:04.001Z
 Reference upstream Java repository: Apache PDFBox trunk
 Tracked parity baseline commit: `2589dc979982b11e3ba92e107aed9f309362d517`
 Latest upstream head scanned: `2589dc979982b11e3ba92e107aed9f309362d517`
@@ -40,4 +40,24 @@ Among **795** rows with scoped upstream `source_path`:
 - `mapped == total` and `missing == 0` for the scoped upstream Java inventory.
 - No `partial` or `partially-in-sync` rows remain for scoped upstream `source_path` entries.
 - Build and tests are green on the parity branch.
+
+## File-by-file report
+
+The generated `reports/upstream-file-comparison.json` contains one row for each scoped upstream Java file, including mapping evidence and metadata-gap classification.
+
+| Gap category | Files |
+|---|---:|
+| `missing-port` | 0 |
+| `missing-provenance-marker` | 55 |
+| `missing-traceability-row` | 278 |
+| `none` | 734 |
+
+| Gap category | Module | Files |
+|---|---|---:|
+| `missing-provenance-marker` | `pdfbox` | 55 |
+| `missing-traceability-row` | `benchmark` | 3 |
+| `missing-traceability-row` | `fontbox` | 100 |
+| `missing-traceability-row` | `io` | 8 |
+| `missing-traceability-row` | `pdfbox` | 141 |
+| `missing-traceability-row` | `tools` | 26 |
 

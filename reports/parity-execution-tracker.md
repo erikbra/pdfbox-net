@@ -1,6 +1,6 @@
 # PDFBox .NET parity execution tracker
 
-Last updated (UTC): 2026-05-31 (issue #103 — parity lock REACHED)
+Last updated (UTC): 2026-06-22 (main-branch local upstream rescan)
 
 ## 100% parity target (canonical)
 
@@ -351,3 +351,44 @@ Execute these in order and apply the mandatory closeout loop after each issue:
 - Milestone status update:
   - [x] M3: Burn down `partial` / `partially-in-sync` quality debt for core modules
   - [x] M6: Final rescan at latest upstream head and release parity lock
+
+### Main-branch local upstream rescan (2026-06-22 UTC)
+
+- Canonical reports regenerated at `2026-06-22T18:25:04.001Z` from local Apache PDFBox checkout `../../apache/pdfbox`.
+- Local upstream head: `2589dc979982b11e3ba92e107aed9f309362d517`.
+- Tracked parity baseline commit: `2589dc979982b11e3ba92e107aed9f309362d517`.
+- Captured counters:
+  - `mapped_java_files_total`: **1067**
+  - `upstream_java_files_total`: **1067**
+  - `missing_java_files_total`: **0**
+  - non-`in-sync` scoped traceability rows: **0**
+  - mapped by provenance marker: **1012**
+  - mapped by traceability row: **789**
+- File-by-file comparison artifact added:
+  - `reports/upstream-file-comparison.json`
+  - `missing-port`: **0**
+  - `missing-provenance-marker`: **55**
+  - `missing-traceability-row`: **278**
+  - fully backed by both evidence sources (`none` gap category): **734**
+- Metadata gap split:
+
+  | Gap category | Module | Files |
+  |---|---|---:|
+  | `missing-provenance-marker` | `pdfbox` | 55 |
+  | `missing-traceability-row` | `benchmark` | 3 |
+  | `missing-traceability-row` | `fontbox` | 100 |
+  | `missing-traceability-row` | `io` | 8 |
+  | `missing-traceability-row` | `pdfbox` | 141 |
+  | `missing-traceability-row` | `tools` | 26 |
+
+- Build/tests status for this rescan: **not run** (report-only comparison).
+- Lock gate evaluation:
+
+  | Gate | Required | Actual | Met? |
+  |---|---|---|---|
+  | `mapped_java_files_total == upstream_java_files_total` | 1067 | 1067 | yes |
+  | `missing_java_files_total == 0` | 0 | 0 | yes |
+  | All scoped traceability rows `in-sync` | 0 non-`in-sync` | 0 | yes |
+  | Branch build/tests green | all pass | not run | not evaluated |
+
+- Gap decision: no port-coverage gaps were found. Remaining gaps are report-metadata completeness gaps, not missing upstream Java ports.
