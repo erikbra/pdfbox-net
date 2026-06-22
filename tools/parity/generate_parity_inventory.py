@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import urllib.request
 from collections import Counter, defaultdict
 from dataclasses import dataclass
@@ -95,6 +96,37 @@ def discover_upstream_paths(tree: Iterable[dict]) -> list[UpstreamPath]:
         scoped.append(UpstreamPath(module=module, path=path, family=extract_family(path)))
     scoped.sort(key=lambda p: p.path)
     return scoped
+
+
+def discover_local_upstream_paths(upstream_root: Path) -> list[UpstreamPath]:
+    scoped: list[UpstreamPath] = []
+    for java_file in upstream_root.rglob("*.java"):
+        try:
+            relative_path = java_file.relative_to(upstream_root).as_posix()
+        except ValueError:
+            continue
+        if "/src/main/java/" not in relative_path:
+            continue
+        module = relative_path.split("/", 1)[0]
+        scoped.append(
+            UpstreamPath(
+                module=module,
+                path=relative_path,
+                family=extract_family(relative_path),
+            )
+        )
+    scoped.sort(key=lambda p: p.path)
+    return scoped
+
+
+def local_git_head(upstream_root: Path) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(upstream_root), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        encoding="utf-8",
+    )
+    return result.stdout.strip()
 
 
 def collect_provenance_paths(src_root: Path) -> set[str]:
@@ -207,6 +239,15 @@ def main() -> None:
         action="store_true",
         help="Update reports/upstream-sync-state.json with canonical scan counters.",
     )
+    parser.add_argument(
+        "--upstream-root",
+        help="Use a local Apache PDFBox checkout instead of the GitHub API.",
+    )
+    parser.add_argument(
+        "--update-tracked-commit",
+        action="store_true",
+        help="When writing sync state, advance tracked_commit to the scanned upstream head.",
+    )
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root).resolve()
@@ -224,22 +265,32 @@ def main() -> None:
     print(f"- Upstream repository: {upstream_repo}")
     print(f"- Upstream branch: {upstream_branch}")
     print(f"- Tracked parity baseline commit: {tracked_commit}")
-    print("Resolving latest upstream head commit...")
-    upstream_head = github_json(
-        f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_branch}",
-        token,
-    )["sha"]
-    print(f"- Latest upstream head commit: {upstream_head}")
-    print("Fetching recursive upstream repository tree...")
-    tree = github_json(
-        f"https://api.github.com/repos/{upstream_repo}/git/trees/{upstream_branch}?recursive=1",
-        token,
-    )["tree"]
-
-    upstream_paths = discover_upstream_paths(tree)
+    if args.upstream_root:
+        upstream_root = Path(args.upstream_root).resolve()
+        print(f"Scanning local upstream checkout: {upstream_root}")
+        upstream_head = local_git_head(upstream_root)
+        upstream_paths = discover_local_upstream_paths(upstream_root)
+        print(f"- Latest upstream head commit: {upstream_head}")
+        print(f"- Upstream Java files in scope: {len(upstream_paths)}")
+    else:
+        print("Resolving latest upstream head commit...")
+        upstream_head = github_json(
+            f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_branch}",
+            token,
+        )["sha"]
+        print(f"- Latest upstream head commit: {upstream_head}")
+        print("Fetching recursive upstream repository tree...")
+        tree = github_json(
+            f"https://api.github.com/repos/{upstream_repo}/git/trees/{upstream_branch}?recursive=1",
+            token,
+        )["tree"]
+        upstream_paths = discover_upstream_paths(tree)
+        print(f"- Upstream tree entries fetched: {len(tree)}")
     upstream_set = {p.path for p in upstream_paths}
-    print(f"- Upstream tree entries fetched: {len(tree)}")
-    print(f"- Upstream Java files in scope: {len(upstream_paths)}")
+
+    if args.update_tracked_commit:
+        tracked_commit = upstream_head
+
     print(f"- Tracked baseline matches head: {tracked_commit == upstream_head}")
 
     mapped_by_provenance = collect_provenance_paths(Path("src"))
@@ -385,6 +436,9 @@ def main() -> None:
     )
 
     if args.write_sync_state:
+        if args.update_tracked_commit:
+            sync_state["tracked_commit"] = upstream_head
+            sync_state["tracked_commit_updated_utc"] = generated_at
         sync_state["latest_upstream_commit_seen"] = upstream_head
         sync_state["last_port_coverage_scan_utc"] = generated_at
         sync_state["upstream_java_files_total"] = totals["total"]
