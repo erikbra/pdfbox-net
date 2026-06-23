@@ -43,6 +43,7 @@ The probes emit JSONL records containing:
 - `detail`
 
 For successful text extraction, `detail` is `<utf8-byte-count>:<sha256-prefix>`.
+Successful text extraction also writes `<stem>-java-text.txt` and `<stem>-dotnet-text.txt` under each runtime output directory so semantic mismatches can be grouped by text-level heuristics.
 For successful save/copy and merge operations, `detail` is `<pdf-byte-count>:<sha256-prefix>`.
 For successful rendering, `detail` is `<width>x<height>:<png-byte-count>:<sha256-prefix>:<image-metrics>`.
 Render image metrics include `nonBg`, `unique`, `dominant`, `transparent`, and `nearBlank`.
@@ -70,7 +71,11 @@ The harness writes these files under `--out-dir`:
 - `render-placeholder`
 - `missing-result`
 
+Successful text hash mismatches are refined into `text-*` categories such as line ending, trailing whitespace, whitespace collapse, spacing, content loss, encoding/CMap-like, and remaining semantic mismatches.
+On the current `/tmp/pdfbox-gap-scan` corpus, this groups successful text mismatches into 29 `text-encoding-cmap-mismatch` cases and 27 `text-content-loss` cases.
+
 Known divergences are tracked in `tools/parity/runtime/known-failures.json` with owner and reason fields.
+Entries can match by operation plus exact `category`, globbed `categoryGlob`, exact `files`, or `fileGlob`.
 Current blank or near-uniform .NET render regressions are listed in `tools/parity/runtime/render-placeholder-fixtures.txt`.
 When `--fail-on-unexpected` is set, the harness exits non-zero only for divergences that are not covered by that ledger.
 

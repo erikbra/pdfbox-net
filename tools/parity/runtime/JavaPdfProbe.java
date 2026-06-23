@@ -44,6 +44,7 @@ public final class JavaPdfProbe {
             started = System.nanoTime();
             try {
                 String text = new PDFTextStripper().getText(document);
+                java.nio.file.Files.writeString(new File(outDir, stripExt(name) + "-java-text.txt").toPath(), text, StandardCharsets.UTF_8);
                 emit(name, "text", true, pages, hash(text), elapsed(started));
             } catch (Throwable t) {
                 emit(name, "text", false, pages, message(t), elapsed(started));

@@ -54,6 +54,7 @@ internal static class DotnetPdfProbe
             try
             {
                 string text = new PDFTextStripper().GetText(document);
+                File.WriteAllText(Path.Combine(outDir, StripExt(name) + "-dotnet-text.txt"), text, Encoding.UTF8);
                 Emit(name, "text", true, pages, Hash(text), Elapsed(started));
             }
             catch (Exception ex)

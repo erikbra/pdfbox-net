@@ -5,6 +5,7 @@ import argparse
 import fnmatch
 import json
 import os
+import re
 import subprocess
 import sys
 from collections import Counter, defaultdict
@@ -157,6 +158,9 @@ def known_failure_id(file: str, op: str, category: str, entries: list[dict]) -> 
         entry_category = entry.get("category")
         if entry_category is not None and entry_category != category:
             continue
+        category_glob = entry.get("categoryGlob")
+        if isinstance(category_glob, str) and not fnmatch.fnmatch(category, category_glob):
+            continue
         files = entry.get("files")
         if isinstance(files, list) and file not in files:
             continue
@@ -181,7 +185,62 @@ def is_near_blank_render(result: Result | None) -> bool:
     return render_metric(result, "nearBlank") == "true"
 
 
-def classify(op: str, java: Result | None, dotnet: Result | None) -> str:
+def normalize_line_endings(text: str) -> str:
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def collapse_whitespace(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def remove_whitespace(text: str) -> str:
+    return re.sub(r"\s+", "", text)
+
+
+def contains_non_ascii(text: str) -> bool:
+    return any(ord(ch) > 127 for ch in text)
+
+
+def text_artifact_name(file: str, runtime: str) -> str:
+    return f"{Path(file).stem}-{runtime}-text.txt"
+
+
+def read_text_artifact(out_dir: Path, file: str, runtime: str) -> str | None:
+    path = out_dir / text_artifact_name(file, runtime)
+    if not path.exists():
+        return None
+    return path.read_text(encoding="utf-8")
+
+
+def classify_text_mismatch(file: str, java_out: Path, dotnet_out: Path) -> str:
+    java_text = read_text_artifact(java_out, file, "java")
+    dotnet_text = read_text_artifact(dotnet_out, file, "dotnet")
+    if java_text is None or dotnet_text is None:
+        return "detail-mismatch"
+
+    java_normal = normalize_line_endings(java_text)
+    dotnet_normal = normalize_line_endings(dotnet_text)
+    if java_normal == dotnet_normal:
+        return "text-line-ending-mismatch"
+    if java_normal.rstrip() == dotnet_normal.rstrip():
+        return "text-trailing-whitespace-mismatch"
+    if collapse_whitespace(java_normal) == collapse_whitespace(dotnet_normal):
+        return "text-whitespace-mismatch"
+    if remove_whitespace(java_normal) == remove_whitespace(dotnet_normal):
+        return "text-spacing-mismatch"
+
+    java_len = len(java_normal)
+    dotnet_len = len(dotnet_normal)
+    if dotnet_len <= 1 and java_len > 1:
+        return "text-missing-output"
+    if java_len and dotnet_len / java_len < 0.5:
+        return "text-content-loss"
+    if contains_non_ascii(java_normal) or contains_non_ascii(dotnet_normal):
+        return "text-encoding-cmap-mismatch"
+    return "text-semantic-mismatch"
+
+
+def classify(op: str, java: Result | None, dotnet: Result | None, java_out: Path, dotnet_out: Path) -> str:
     if java is None or dotnet is None:
         return "missing-result"
     if java.ok != dotnet.ok:
@@ -193,11 +252,15 @@ def classify(op: str, java: Result | None, dotnet: Result | None) -> str:
     if op == "render" and is_near_blank_render(dotnet) and not is_near_blank_render(java):
         return "render-placeholder"
     if java.detail != dotnet.detail:
+        if op == "text":
+            return classify_text_mismatch(java.file, java_out, dotnet_out)
         return "detail-mismatch"
     return "match"
 
 
-def compare(java_rows: list[Result], dotnet_rows: list[Result], known_entries: list[dict]) -> tuple[list[dict], Counter]:
+def compare(
+    java_rows: list[Result], dotnet_rows: list[Result], known_entries: list[dict], java_out: Path, dotnet_out: Path
+) -> tuple[list[dict], Counter]:
     java_by_key = {(row.file, row.op): row for row in java_rows}
     dotnet_by_key = {(row.file, row.op): row for row in dotnet_rows}
     keys = sorted(set(java_by_key) | set(dotnet_by_key))
@@ -206,7 +269,7 @@ def compare(java_rows: list[Result], dotnet_rows: list[Result], known_entries: l
     for file, op in keys:
         java = java_by_key.get((file, op))
         dotnet = dotnet_by_key.get((file, op))
-        category = classify(op, java, dotnet)
+        category = classify(op, java, dotnet, java_out, dotnet_out)
         known_id = None if category == "match" else known_failure_id(file, op, category, known_entries)
         status = "match" if category == "match" else ("known" if known_id else "unexpected")
         counts[status] += 1
@@ -280,8 +343,28 @@ def markdown_summary(summary: dict, rows: list[dict]) -> str:
             lines.append(
                 f"| `{row['file']}` | `{row['status']}` | `{short(java.get('detail', 'missing'))}` | `{short(dotnet.get('detail', 'missing'))}` |"
             )
-        if len(placeholders) > 100:
-            lines.append(f"\nTruncated to 100 of {len(placeholders)} render placeholders.")
+    if len(placeholders) > 100:
+        lines.append(f"\nTruncated to 100 of {len(placeholders)} render placeholders.")
+    lines.append("")
+    lines.extend(["## Text Mismatches", ""])
+    text_mismatches = [row for row in rows if row["op"] == "text" and row["category"] != "match"]
+    if not text_mismatches:
+        lines.append("No text mismatches detected.")
+    else:
+        text_counts = Counter(row["category"] for row in text_mismatches)
+        lines.append("| Category | Count |")
+        lines.append("|---|---:|")
+        for key, value in sorted(text_counts.items()):
+            lines.append(f"| `{key}` | {value} |")
+        lines.extend(["", "| File | Status | Category | Java | .NET |", "|---|---|---|---|---|"])
+        for row in text_mismatches[:100]:
+            java = row["java"] or {}
+            dotnet = row["dotnet"] or {}
+            lines.append(
+                f"| `{row['file']}` | `{row['status']}` | `{row['category']}` | `{short(java.get('detail', 'missing'))}` | `{short(dotnet.get('detail', 'missing'))}` |"
+            )
+        if len(text_mismatches) > 100:
+            lines.append(f"\nTruncated to 100 of {len(text_mismatches)} text mismatches.")
     lines.append("")
     return "\n".join(lines)
 
@@ -339,7 +422,7 @@ def main() -> int:
     write_jsonl(out_dir / "java-results.jsonl", java_rows)
     write_jsonl(out_dir / "dotnet-results.jsonl", dotnet_rows)
 
-    comparison_rows, counts = compare(java_rows, dotnet_rows, load_known_failures(args.known_failures))
+    comparison_rows, counts = compare(java_rows, dotnet_rows, load_known_failures(args.known_failures), java_out, dotnet_out)
     category_counts = {key: value for key, value in counts.items() if key not in {"match", "known", "unexpected"}}
     operation_counts: dict[str, dict[str, int]] = defaultdict(lambda: {"javaOk": 0, "javaFail": 0, "dotnetOk": 0, "dotnetFail": 0})
     for row in java_rows:

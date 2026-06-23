@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "description": "Known Java-vs-.NET runtime parity divergences. Entries are matched by operation and either file, fileGlob, or category.",
+  "description": "Known Java-vs-.NET runtime parity divergences. Entries are matched by operation and optional file, fileGlob, category, or categoryGlob.",
   "entries": [
     {
       "id": "orimi-encryption-filter-path",
@@ -14,7 +14,7 @@
     {
       "id": "text-semantic-mismatch-ratchet",
       "op": "text",
-      "category": "detail-mismatch",
+      "categoryGlob": "text-*",
       "owner": "issue-413",
       "reason": "Default PDFTextStripper semantic output still differs from Java for many successful text extraction cases."
     },
