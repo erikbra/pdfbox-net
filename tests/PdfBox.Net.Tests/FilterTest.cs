@@ -152,6 +152,34 @@ public class FilterTest
     }
 
     [Fact]
+    public void DctFilterDecodesRgbJpegFixture()
+    {
+        byte[] encoded = File.ReadAllBytes(Path.Combine("Fixtures", "Images", "test-2x1-rgb.jpg"));
+
+        byte[] decoded = Decode(new DCTFilter(), encoded, new COSDictionary());
+
+        Assert.Equal([121, 121, 121, 130, 130, 130], decoded);
+    }
+
+    [Fact]
+    public void DctFilterDecodesGrayscaleJpegFixture()
+    {
+        byte[] encoded = File.ReadAllBytes(Path.Combine("Fixtures", "Images", "test-2x1-gray.jpg"));
+
+        byte[] decoded = Decode(new DCTFilter(), encoded, new COSDictionary());
+
+        Assert.Equal([121, 130], decoded);
+    }
+
+    [Fact]
+    public void DctFilterEncodeReportsUseJpegFactory()
+    {
+        NotSupportedException ex = Assert.Throws<NotSupportedException>(() => Encode(new DCTFilter(), [0, 1, 2]));
+
+        Assert.Contains("JPEGFactory", ex.Message);
+    }
+
+    [Fact]
     public void LzwRoundTrip()
     {
         LZWFilter filter = new();
@@ -201,7 +229,6 @@ public class FilterTest
         COSDictionary parameters = new();
         byte[] payload = [1, 2, 3];
 
-        Assert.Throws<NotSupportedException>(() => Decode(new DCTFilter(), payload, parameters));
         Assert.Throws<NotSupportedException>(() => Decode(new JPXFilter(), payload, parameters));
         Assert.Throws<NotSupportedException>(() => Decode(new JBIG2Filter(), payload, parameters));
     }
