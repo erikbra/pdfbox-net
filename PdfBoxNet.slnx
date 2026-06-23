@@ -22,4 +22,7 @@
     <Project Path="tests/PdfBox.Net.FontBox.Tests/PdfBox.Net.FontBox.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.XmpBox.Tests/PdfBox.Net.XmpBox.Tests.csproj" />
   </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/parity/runtime/DotnetPdfProbe/DotnetPdfProbe.csproj" />
+  </Folder>
 </Solution>

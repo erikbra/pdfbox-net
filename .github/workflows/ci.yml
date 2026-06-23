@@ -28,3 +28,26 @@ jobs:
 
       - name: Test
         run: dotnet test PdfBoxNet.slnx --configuration Release --no-build --nologo
+
+      - name: Runtime parity harness smoke
+        run: |
+          python3 -m py_compile tools/parity/runtime/run_runtime_parity.py
+          python3 tools/parity/runtime/run_runtime_parity.py --help
+
+      - name: Runtime parity suite
+        if: ${{ env.PDFBOX_PARITY_MANIFEST != '' && env.PDFBOX_PARITY_CLASSPATH != '' }}
+        run: >
+          python3 tools/parity/runtime/run_runtime_parity.py
+          --manifest "$PDFBOX_PARITY_MANIFEST"
+          --java-classpath "$PDFBOX_PARITY_CLASSPATH"
+          --out-dir artifacts/runtime-parity
+          --fail-on-unexpected
+
+      - name: Runtime parity summary
+        if: ${{ env.PDFBOX_PARITY_MANIFEST != '' && env.PDFBOX_PARITY_CLASSPATH != '' && always() }}
+        run: |
+          if [ -f artifacts/runtime-parity/summary.md ]; then
+            cat artifacts/runtime-parity/summary.md
+          else
+            echo "Runtime parity summary was not generated."
+          fi

@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "description": "Known Java-vs-.NET runtime parity divergences. Entries are matched by operation and either file, fileGlob, or category.",
+  "entries": [
+    {
+      "id": "text-nullreference-fixtures",
+      "op": "text",
+      "files": [
+        "arxiv-sample.pdf",
+        "4PP-Highlighting.pdf",
+        "Acroform-PDFBOX-2333.pdf",
+        "Liste732004001452_001_0.pdf_0_.pdf",
+        "PDFBOX-3498-Y5TLCWTIAE3FYDVJTV2TXRZGXLEDUNSW.pdf",
+        "PDFBOX-4322-Empty-ToUnicode-reduced.pdf"
+      ],
+      "owner": "issue-412",
+      "reason": "PdfBox.Net currently throws NullReferenceException in PDFTextStripper where Java succeeds."
+    },
+    {
+      "id": "orimi-encryption-filter-path",
+      "op": "*",
+      "files": [
+        "orimi-test.pdf"
+      ],
+      "owner": "issue-420",
+      "reason": "Encrypted/compressed path reports lower-level unsupported compression diagnostics before Java-compatible decryption semantics."
+    },
+    {
+      "id": "text-semantic-mismatch-ratchet",
+      "op": "text",
+      "category": "detail-mismatch",
+      "owner": "issue-413",
+      "reason": "Default PDFTextStripper semantic output still differs from Java for many successful text extraction cases."
+    },
+    {
+      "id": "render-placeholder-and-quality-gaps",
+      "op": "render",
+      "category": "detail-mismatch",
+      "owner": "issue-411",
+      "reason": "Successful render output may be blank or near-blank until rendering validity checks and PageDrawer work land."
+    },
+    {
+      "id": "save-output-hash-ratchet",
+      "op": "save",
+      "category": "detail-mismatch",
+      "owner": "issue-422",
+      "reason": "Saved PDF bytes are not yet Java-equivalent across the corpus; faithful save output depends on remaining create/edit, font, and writer parity work."
+    },
+    {
+      "id": "merge-output-hash-ratchet",
+      "op": "merge",
+      "category": "detail-mismatch",
+      "owner": "issue-424",
+      "reason": "Merged PDF bytes are tracked as a parity ratchet while the corpus expands and merge/save output normalization is defined."
+    },
+    {
+      "id": "survey-pattern-color-space",
+      "op": "render",
+      "files": [
+        "survey.pdf"
+      ],
+      "owner": "issue-419",
+      "reason": "Pattern color space rendering fails until advanced rendering work is implemented."
+    },
+    {
+      "id": "encrypted-diagnostics",
+      "op": "load",
+      "category": "diagnostic-mismatch",
+      "owner": "issue-420",
+      "reason": "Encrypted/public-key failures need Java-compatible exception classification and diagnostics."
+    },
+    {
+      "id": "merge-encrypted-diagnostics",
+      "op": "merge",
+      "category": "diagnostic-mismatch",
+      "owner": "issue-420",
+      "reason": "Encrypted merge failures need Java-compatible exception classification and diagnostics."
+    }
+  ]
+}
