@@ -1,8 +1,11 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Adapted from Apache PDFBox Java source with AI assistance.
  *
- * Adapted low-level writer bridge for chunk-2 token/object flow.
- * COS object serialization routed through ICOSVisitor visitor dispatch (issue #28).
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java
+ * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
 /*
