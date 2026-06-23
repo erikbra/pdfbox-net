@@ -1,6 +1,6 @@
 # PDFBox Upstream Java Gap Analysis (All Modules)
 
-Datetime (UTC): 2026-06-22T18:25:04.001Z
+Datetime (UTC): 2026-06-23T20:00:03.796Z
 Reference upstream Java repository: Apache PDFBox trunk
 Tracked parity baseline commit: `2589dc979982b11e3ba92e107aed9f309362d517`
 Latest upstream head scanned: `2589dc979982b11e3ba92e107aed9f309362d517`
@@ -48,13 +48,13 @@ The generated `reports/upstream-file-comparison.json` contains one row for each 
 | Gap category | Files |
 |---|---:|
 | `missing-port` | 0 |
-| `missing-provenance-marker` | 55 |
+| `missing-provenance-marker` | 2 |
 | `missing-traceability-row` | 278 |
-| `none` | 734 |
+| `none` | 787 |
 
 | Gap category | Module | Files |
 |---|---|---:|
-| `missing-provenance-marker` | `pdfbox` | 55 |
+| `missing-provenance-marker` | `pdfbox` | 2 |
 | `missing-traceability-row` | `benchmark` | 3 |
 | `missing-traceability-row` | `fontbox` | 100 |
 | `missing-traceability-row` | `io` | 8 |

@@ -100,6 +100,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName EMBEDDED_FILE = GetPDFName("EmbeddedFile");
     public static readonly COSName ENCODE = GetPDFName("Encode");
     public static readonly COSName ENCODED_BYTE_ALIGN = GetPDFName("EncodedByteAlign");
+    public static readonly COSName END_OF_LINE = GetPDFName("EndOfLine");
     public static readonly COSName EXTEND = GetPDFName("Extend");
     // E
     public static readonly COSName EMPTY = GetPDFName(string.Empty);

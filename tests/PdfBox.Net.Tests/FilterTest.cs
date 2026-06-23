@@ -98,6 +98,60 @@ public class FilterTest
     }
 
     [Fact]
+    public void CCITTFaxGroup4RoundTripWithBlackIsOne()
+    {
+        CCITTFaxDecodeFilter filter = new();
+        byte[] source =
+        [
+            0b1111_0000,
+            0b0011_1100,
+            0b0000_1111,
+            0b1010_1010
+        ];
+
+        COSDictionary encodeParameters = new();
+        encodeParameters.SetInt(COSName.COLUMNS, 8);
+        encodeParameters.SetInt(COSName.ROWS, 4);
+
+        byte[] encoded = Encode(filter, source, encodeParameters);
+        Assert.Equal(
+            [0x26, 0xAE, 0x18, 0x70, 0xC3, 0x26, 0xA8, 0x22, 0x87, 0x04, 0x12, 0x80, 0x08, 0x00, 0x80],
+            encoded);
+
+        byte[] decoded = Decode(filter, encoded, CreateCcittDecodeParameters(8, 4, blackIsOne: true));
+
+        Assert.Equal(source, decoded);
+    }
+
+    [Fact]
+    public void CCITTFaxDecodeInvertsWhenBlackIsZero()
+    {
+        CCITTFaxDecodeFilter filter = new();
+        byte[] source = [0b1111_0000];
+        byte[] expectedInverted = [0b0000_1111];
+
+        COSDictionary encodeParameters = new();
+        encodeParameters.SetInt(COSName.COLUMNS, 8);
+        encodeParameters.SetInt(COSName.ROWS, 1);
+
+        byte[] encoded = Encode(filter, source, encodeParameters);
+        byte[] decoded = Decode(filter, encoded, CreateCcittDecodeParameters(8, 1, blackIsOne: false));
+
+        Assert.Equal(expectedInverted, decoded);
+    }
+
+    [Fact]
+    public void CCITTFaxDecodeRejectsInvalidDimensions()
+    {
+        CCITTFaxDecodeFilter filter = new();
+        COSDictionary parameters = CreateCcittDecodeParameters(0, 1, blackIsOne: true);
+
+        IOException ex = Assert.Throws<IOException>(() => Decode(filter, [0], parameters));
+
+        Assert.Contains("Invalid CCITT image dimensions", ex.Message);
+    }
+
+    [Fact]
     public void LzwRoundTrip()
     {
         LZWFilter filter = new();
@@ -147,7 +201,6 @@ public class FilterTest
         COSDictionary parameters = new();
         byte[] payload = [1, 2, 3];
 
-        Assert.Throws<NotSupportedException>(() => Decode(new CCITTFaxDecodeFilter(), payload, parameters));
         Assert.Throws<NotSupportedException>(() => Decode(new DCTFilter(), payload, parameters));
         Assert.Throws<NotSupportedException>(() => Decode(new JPXFilter(), payload, parameters));
         Assert.Throws<NotSupportedException>(() => Decode(new JBIG2Filter(), payload, parameters));
@@ -172,9 +225,14 @@ public class FilterTest
 
     private static byte[] Encode(FilterBase filter, byte[] source)
     {
+        return Encode(filter, source, new COSDictionary());
+    }
+
+    private static byte[] Encode(FilterBase filter, byte[] source, COSDictionary parameters)
+    {
         using MemoryStream input = new(source);
         using MemoryStream output = new();
-        filter.Encode(input, output, new COSDictionary(), 0);
+        filter.Encode(input, output, parameters, 0);
         return output.ToArray();
     }
 
@@ -184,6 +242,21 @@ public class FilterTest
         using MemoryStream output = new();
         filter.Decode(input, output, parameters, 0, DecodeOptions.DEFAULT);
         return output.ToArray();
+    }
+
+    private static COSDictionary CreateCcittDecodeParameters(int columns, int rows, bool blackIsOne)
+    {
+        COSDictionary decodeParms = new();
+        decodeParms.SetInt(COSName.COLUMNS, columns);
+        decodeParms.SetInt(COSName.ROWS, rows);
+        decodeParms.SetInt(COSName.K, -1);
+        decodeParms.SetBoolean(COSName.BLACK_IS_1, blackIsOne);
+
+        COSDictionary parameters = new();
+        parameters.SetItem(COSName.FILTER, COSName.CCITTFAX_DECODE);
+        parameters.SetItem(COSName.DECODE_PARMS, decodeParms);
+        parameters.SetInt(COSName.HEIGHT, rows);
+        return parameters;
     }
 
     private static byte[] CompressWithZlib(byte[] source)

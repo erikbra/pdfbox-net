@@ -33,6 +33,7 @@ namespace PdfBox.Net.Filter;
 public abstract class Filter
 {
     public const string SyspropDeflateLevel = "org.apache.pdfbox.filter.deflatelevel";
+    public const string SyspropCcittFaxMaxBytes = "org.apache.pdfbox.filter.ccittmaxbytes";
 
     public abstract DecodeResult Decode(Stream input, Stream output, COSDictionary parameters, int index, DecodeOptions options);
 
