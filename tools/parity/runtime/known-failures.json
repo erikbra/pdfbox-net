@@ -3,20 +3,6 @@
   "description": "Known Java-vs-.NET runtime parity divergences. Entries are matched by operation and either file, fileGlob, or category.",
   "entries": [
     {
-      "id": "text-nullreference-fixtures",
-      "op": "text",
-      "files": [
-        "arxiv-sample.pdf",
-        "4PP-Highlighting.pdf",
-        "Acroform-PDFBOX-2333.pdf",
-        "Liste732004001452_001_0.pdf_0_.pdf",
-        "PDFBOX-3498-Y5TLCWTIAE3FYDVJTV2TXRZGXLEDUNSW.pdf",
-        "PDFBOX-4322-Empty-ToUnicode-reduced.pdf"
-      ],
-      "owner": "issue-412",
-      "reason": "PdfBox.Net currently throws NullReferenceException in PDFTextStripper where Java succeeds."
-    },
-    {
       "id": "orimi-encryption-filter-path",
       "op": "*",
       "files": [

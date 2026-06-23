@@ -32,7 +32,7 @@ namespace PdfBox.Net.ContentStream.Operator.Text;
 
 /// <summary>
 /// Processes the PDF "Tf" operator: set the text font and font size.
-/// When a page resource dictionary is available the font is resolved from
+/// When an active resource dictionary is available the font is resolved from
 /// the /Font sub-dictionary; otherwise the font entry in the text state is
 /// cleared so that callers receive <see langword="null"/> rather than a stale value.
 /// </summary>
@@ -56,7 +56,7 @@ public sealed class SetFontAndSize : OperatorProcessor
         PDFont? font = null;
         if (operands[0] is COSName fontName)
         {
-            font = Context.GetCurrentPage()?.GetResources()?.GetFont(fontName);
+            font = Context.GetResources()?.GetFont(fontName);
         }
 
         // Always write back (even null) so callers see a consistent state.

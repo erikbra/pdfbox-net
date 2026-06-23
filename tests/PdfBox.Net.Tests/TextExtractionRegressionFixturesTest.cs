@@ -1,3 +1,4 @@
+using PdfBox.Net;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.Text;
@@ -67,6 +68,21 @@ public class TextExtractionRegressionFixturesTest
         Assert.Equal(ReadFixtureText("multi-page-expected.txt"), NormalizeLineEndings(extracted));
     }
 
+    [Theory]
+    [InlineData("arxiv-sample.pdf")]
+    [InlineData("4PP-Highlighting.pdf")]
+    [InlineData("Acroform-PDFBOX-2333.pdf")]
+    [InlineData("Liste732004001452_001_0.pdf_0_.pdf")]
+    [InlineData("PDFBOX-3498-Y5TLCWTIAE3FYDVJTV2TXRZGXLEDUNSW.pdf")]
+    [InlineData("PDFBOX-4322-Empty-ToUnicode-reduced.pdf")]
+    public void PDFTextStripper_GetText_Issue412JavaSuccessFixtures_DoesNotThrowAndReturnsText(string fixtureName)
+    {
+        using PDDocument document = Loader.LoadPDF(ReadIssue412FixturePath(fixtureName));
+        string extracted = new PDFTextStripper().GetText(document);
+
+        Assert.NotEmpty(extracted);
+    }
+
     [Fact]
     public void Chunk4ParityMatrix_ListsSelectedFeatureSupportAndKnownGap()
     {
@@ -127,6 +143,11 @@ public class TextExtractionRegressionFixturesTest
     {
         string path = Path.Combine(AppContext.BaseDirectory, "Fixtures", "TextExtraction", fixtureName);
         return NormalizeLineEndings(File.ReadAllText(path));
+    }
+
+    private static string ReadIssue412FixturePath(string fixtureName)
+    {
+        return Path.Combine(AppContext.BaseDirectory, "Fixtures", "TextExtraction", "Issue412", fixtureName);
     }
 
     private static string NormalizeLineEndings(string text)
