@@ -50,6 +50,15 @@ Content: per-module table (Java files / mapped / missing / %), traceability-stat
 
 ---
 
+### `pdfbox-runtime-gap-analysis.md`
+**Purpose:** Human-readable summary of the behavioral/runtime gap scan comparing Apache PDFBox Java and PdfBox.Net on a 104-PDF corpus.
+
+Content: operation pass/fail counts, per-operation timings, paired Java/.NET failure differences, runtime mismatch notes, source-file coverage by filename stem, and explicit stubbed/missing .NET implementation areas.
+
+> **Overlap note:** This complements `pdfbox-main-gap-analysis.md`: that file tracks source mapping and traceability coverage, while this file tracks observed runtime behavior and implementation stubs.
+
+---
+
 ### `traceability-parity-report.json`
 **Purpose:** Per-file traceability ledger — one record for every C# file in the port.  Links each C# file back to its upstream Java source, records the port mode (`native-test`, `adapted`, `adapted-minimal`, …), the sync status (`in-sync`, `partially-in-sync`, `partial`), and a human-readable note explaining any divergence.
 
@@ -92,6 +101,7 @@ This file is **append-only** during active work: each implementation slice adds 
 | `all-upstream-coverage.json` | Per-module / per-family breakdown | `upstream-port-coverage-state.json` (top-level totals), `pdfbox-main-gap-analysis.md` (rendered subset) |
 | `upstream-file-comparison.json` | One row per upstream Java file with mapping evidence and gap category | `all-upstream-coverage.json` (totals), `traceability-parity-report.json` (traceability-backed target paths) |
 | `pdfbox-main-gap-analysis.md` | Human-readable Markdown rendering | `all-upstream-coverage.json`, `upstream-port-coverage-state.json` |
+| `pdfbox-runtime-gap-analysis.md` | Runtime behavior/timing gaps and implementation-stub findings | JSONL artifacts in `/tmp/pdfbox-gap-scan` |
 | `traceability-parity-report.json` | Per-file sync status and notes | `conversion-records.json` (key fields) |
 | `conversion-records.json` | Per-file conversion notes | `traceability-parity-report.json` (key fields) |
 | `normalization-records.json` | Normalisation change categories, semantic risk | — |
