@@ -44,7 +44,8 @@ The probes emit JSONL records containing:
 
 For successful text extraction, `detail` is `<utf8-byte-count>:<sha256-prefix>`.
 For successful save/copy and merge operations, `detail` is `<pdf-byte-count>:<sha256-prefix>`.
-For successful rendering, `detail` is `<width>x<height>:<png-byte-count>:<sha256-prefix>`.
+For successful rendering, `detail` is `<width>x<height>:<png-byte-count>:<sha256-prefix>:<image-metrics>`.
+Render image metrics include `nonBg`, `unique`, `dominant`, `transparent`, and `nearBlank`.
 For failures, `detail` is `<exception-type>:<message>`.
 Failed operations compare by exception-type category; the message remains in `detail` for triage.
 Non-JSON diagnostic lines emitted by either runtime are ignored with a warning so library logging cannot corrupt the structured comparison.
@@ -66,9 +67,11 @@ The harness writes these files under `--out-dir`:
 - `metadata-mismatch`
 - `diagnostic-mismatch`
 - `detail-mismatch`
+- `render-placeholder`
 - `missing-result`
 
 Known divergences are tracked in `tools/parity/runtime/known-failures.json` with owner and reason fields.
+Current blank or near-uniform .NET render regressions are listed in `tools/parity/runtime/render-placeholder-fixtures.txt`.
 When `--fail-on-unexpected` is set, the harness exits non-zero only for divergences that are not covered by that ledger.
 
 ## CI

@@ -6,6 +6,7 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.Rendering;
 using PdfBox.Net.Text;
 using PdfBox.Net.Tools.ImageIO;
+using SkiaSharp;
 
 internal static class DotnetPdfProbe
 {
@@ -80,7 +81,7 @@ internal static class DotnetPdfProbe
                     using BufferedImage image = new PDFRenderer(document).RenderImageWithDPI(0, 36);
                     string png = Path.Combine(outDir, StripExt(name) + "-dotnet-p1.png");
                     ImageIOUtil.WriteImage(image, png, 36);
-                    Emit(name, "render", true, pages, $"{image.Width}x{image.Height}:{FileSignature(png)}", Elapsed(started));
+                    Emit(name, "render", true, pages, $"{image.Width}x{image.Height}:{FileSignature(png)}:{ImageMetrics(image)}", Elapsed(started));
                 }
                 else
                 {
@@ -134,6 +135,50 @@ internal static class DotnetPdfProbe
         using FileStream stream = File.OpenRead(path);
         byte[] digest = SHA256.HashData(stream);
         return $"{new FileInfo(path).Length}:{Convert.ToHexString(digest)[..16].ToLowerInvariant()}";
+    }
+
+    private static string ImageMetrics(BufferedImage image)
+    {
+        SKBitmap bitmap = image.Bitmap;
+        int total = bitmap.Width * bitmap.Height;
+        SKColor background = bitmap.GetPixel(0, 0);
+        Dictionary<uint, int> histogram = [];
+        int nonBackground = 0;
+        int transparent = 0;
+        int dominant = 0;
+        for (int y = 0; y < bitmap.Height; y++)
+        {
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                SKColor color = bitmap.GetPixel(x, y);
+                if (color.Alpha < 8)
+                {
+                    transparent++;
+                }
+
+                if (ColorDistance(color, background) > 8)
+                {
+                    nonBackground++;
+                }
+
+                uint argb = ((uint)color.Alpha << 24) | ((uint)color.Red << 16) | ((uint)color.Green << 8) | color.Blue;
+                histogram.TryGetValue(argb, out int count);
+                count++;
+                histogram[argb] = count;
+                if (count > dominant)
+                {
+                    dominant = count;
+                }
+            }
+        }
+
+        bool nearBlank = transparent == total || nonBackground <= Math.Max(10, total / 1000) || dominant >= (int)Math.Ceiling(total * 0.995);
+        return $"nonBg={nonBackground}:unique={histogram.Count}:dominant={dominant}:transparent={transparent}:nearBlank={nearBlank.ToString().ToLowerInvariant()}";
+    }
+
+    private static int ColorDistance(SKColor a, SKColor b)
+    {
+        return Math.Abs(a.Alpha - b.Alpha) + Math.Abs(a.Red - b.Red) + Math.Abs(a.Green - b.Green) + Math.Abs(a.Blue - b.Blue);
     }
 
     private static string Message(Exception ex)

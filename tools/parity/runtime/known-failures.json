@@ -33,6 +33,34 @@
       "reason": "Default PDFTextStripper semantic output still differs from Java for many successful text extraction cases."
     },
     {
+      "id": "render-placeholder-regression-fixtures",
+      "op": "render",
+      "category": "render-placeholder",
+      "files": [
+        "acroform.pdf",
+        "AcroFormForMerge-DifferentExportValues.pdf",
+        "AcroFormForMerge-DifferentFieldType.pdf",
+        "AcroFormForMerge-DifferentOptions.pdf",
+        "AcroFormForMerge-SameNameNode.pdf",
+        "AcroFormForMerge-TextFieldsOnly.pdf",
+        "AcroFormForMerge.pdf",
+        "AcrobatMerge-DifferentExportValues-WasMaster.pdf",
+        "AcrobatMerge-DifferentExportValues.pdf",
+        "AcrobatMerge-DifferentFieldType-WasMaster.pdf",
+        "AcrobatMerge-DifferentFieldType.pdf",
+        "AcrobatMerge-DifferentOptions-WasMaster.pdf"
+      ],
+      "owner": "issue-411",
+      "reason": "Current .NET first-page renders are blank or near-uniform while Java renders non-background content; tracked as regression fixtures for render validity."
+    },
+    {
+      "id": "render-placeholder-ratchet",
+      "op": "render",
+      "category": "render-placeholder",
+      "owner": "issue-411",
+      "reason": "Placeholder renders are reported separately until PageDrawer and related rendering gaps are fixed."
+    },
+    {
       "id": "render-placeholder-and-quality-gaps",
       "op": "render",
       "category": "detail-mismatch",

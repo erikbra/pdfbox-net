@@ -167,7 +167,21 @@ def known_failure_id(file: str, op: str, category: str, entries: list[dict]) -> 
     return None
 
 
-def classify(java: Result | None, dotnet: Result | None) -> str:
+def render_metric(result: Result | None, name: str) -> str | None:
+    if result is None or result.op != "render" or not result.ok:
+        return None
+    prefix = f"{name}="
+    for part in result.detail.split(":"):
+        if part.startswith(prefix):
+            return part[len(prefix) :]
+    return None
+
+
+def is_near_blank_render(result: Result | None) -> bool:
+    return render_metric(result, "nearBlank") == "true"
+
+
+def classify(op: str, java: Result | None, dotnet: Result | None) -> str:
     if java is None or dotnet is None:
         return "missing-result"
     if java.ok != dotnet.ok:
@@ -176,6 +190,8 @@ def classify(java: Result | None, dotnet: Result | None) -> str:
         return "metadata-mismatch"
     if not java.ok:
         return "match" if java.diagnostic == dotnet.diagnostic else "diagnostic-mismatch"
+    if op == "render" and is_near_blank_render(dotnet) and not is_near_blank_render(java):
+        return "render-placeholder"
     if java.detail != dotnet.detail:
         return "detail-mismatch"
     return "match"
@@ -190,7 +206,7 @@ def compare(java_rows: list[Result], dotnet_rows: list[Result], known_entries: l
     for file, op in keys:
         java = java_by_key.get((file, op))
         dotnet = dotnet_by_key.get((file, op))
-        category = classify(java, dotnet)
+        category = classify(op, java, dotnet)
         known_id = None if category == "match" else known_failure_id(file, op, category, known_entries)
         status = "match" if category == "match" else ("known" if known_id else "unexpected")
         counts[status] += 1
@@ -250,6 +266,22 @@ def markdown_summary(summary: dict, rows: list[dict]) -> str:
             )
         if len(unexpected) > 100:
             lines.append(f"\nTruncated to 100 of {len(unexpected)} unexpected divergences.")
+    lines.append("")
+    lines.extend(["## Render Placeholders", ""])
+    placeholders = [row for row in rows if row["category"] == "render-placeholder"]
+    if not placeholders:
+        lines.append("No render placeholders detected.")
+    else:
+        lines.append("| File | Status | Java | .NET |")
+        lines.append("|---|---|---|---|")
+        for row in placeholders[:100]:
+            java = row["java"] or {}
+            dotnet = row["dotnet"] or {}
+            lines.append(
+                f"| `{row['file']}` | `{row['status']}` | `{short(java.get('detail', 'missing'))}` | `{short(dotnet.get('detail', 'missing'))}` |"
+            )
+        if len(placeholders) > 100:
+            lines.append(f"\nTruncated to 100 of {len(placeholders)} render placeholders.")
     lines.append("")
     return "\n".join(lines)
 

@@ -1,0 +1,15 @@
+# Current first-page render placeholder fixtures for issue 411.
+# These are corpus basenames from /tmp/pdfbox-gap-scan/manifest.txt whose .NET
+# output was blank or near-uniform while Java rendered non-background content.
+acroform.pdf
+AcroFormForMerge-DifferentExportValues.pdf
+AcroFormForMerge-DifferentFieldType.pdf
+AcroFormForMerge-DifferentOptions.pdf
+AcroFormForMerge-SameNameNode.pdf
+AcroFormForMerge-TextFieldsOnly.pdf
+AcroFormForMerge.pdf
+AcrobatMerge-DifferentExportValues-WasMaster.pdf
+AcrobatMerge-DifferentExportValues.pdf
+AcrobatMerge-DifferentFieldType-WasMaster.pdf
+AcrobatMerge-DifferentFieldType.pdf
+AcrobatMerge-DifferentOptions-WasMaster.pdf

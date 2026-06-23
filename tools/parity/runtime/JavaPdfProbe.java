@@ -64,7 +64,7 @@ public final class JavaPdfProbe {
                     BufferedImage image = new PDFRenderer(document).renderImageWithDPI(0, 36);
                     File png = new File(outDir, stripExt(name) + "-java-p1.png");
                     ImageIO.write(image, "png", png);
-                    emit(name, "render", true, pages, image.getWidth() + "x" + image.getHeight() + ":" + fileSignature(png), elapsed(started));
+                    emit(name, "render", true, pages, image.getWidth() + "x" + image.getHeight() + ":" + fileSignature(png) + ":" + imageMetrics(image), elapsed(started));
                 } else {
                     emit(name, "render", true, pages, "no-pages", elapsed(started));
                 }
@@ -116,6 +116,47 @@ public final class JavaPdfProbe {
             }
         }
         return file.length() + ":" + HexFormat.of().formatHex(digest.digest()).substring(0, 16);
+    }
+
+    private static String imageMetrics(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int total = width * height;
+        int background = image.getRGB(0, 0);
+        java.util.HashMap<Integer, Integer> histogram = new java.util.HashMap<>();
+        int nonBackground = 0;
+        int transparent = 0;
+        int dominant = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int argb = image.getRGB(x, y);
+                if (((argb >>> 24) & 0xff) < 8) {
+                    transparent++;
+                }
+                if (colorDistance(argb, background) > 8) {
+                    nonBackground++;
+                }
+                int count = histogram.getOrDefault(argb, 0) + 1;
+                histogram.put(argb, count);
+                if (count > dominant) {
+                    dominant = count;
+                }
+            }
+        }
+        boolean nearBlank = transparent == total || nonBackground <= Math.max(10, total / 1000) || dominant >= (int) Math.ceil(total * 0.995);
+        return "nonBg=" + nonBackground + ":unique=" + histogram.size() + ":dominant=" + dominant + ":transparent=" + transparent + ":nearBlank=" + nearBlank;
+    }
+
+    private static int colorDistance(int a, int b) {
+        int aa = (a >>> 24) & 0xff;
+        int ar = (a >>> 16) & 0xff;
+        int ag = (a >>> 8) & 0xff;
+        int ab = a & 0xff;
+        int ba = (b >>> 24) & 0xff;
+        int br = (b >>> 16) & 0xff;
+        int bg = (b >>> 8) & 0xff;
+        int bb = b & 0xff;
+        return Math.abs(aa - ba) + Math.abs(ar - br) + Math.abs(ag - bg) + Math.abs(ab - bb);
     }
 
     private static String message(Throwable t) {
