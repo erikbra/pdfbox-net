@@ -199,7 +199,8 @@ public sealed class PDDocument : IDisposable
         EnsureNotDisposed();
         if (_document.IsEncrypted())
         {
-            throw new IOException("Cannot save encrypted document because the encryption dictionary is still present.");
+            throw new InvalidOperationException(
+                "PDF contains an encryption dictionary, please remove it with setAllSecurityToBeRemoved() or set a protection policy with protect()");
         }
 
         _trailer.SetItem(COSName.ROOT, GetDocumentCatalog().GetCOSObject());

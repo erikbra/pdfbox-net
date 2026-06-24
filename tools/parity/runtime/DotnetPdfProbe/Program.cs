@@ -192,7 +192,8 @@ internal static class DotnetPdfProbe
             root = root.InnerException;
         }
 
-        return $"{root.GetType().Name}:{root.Message}".Replace('\n', ' ').Replace('\r', ' ');
+        string typeName = root is InvalidOperationException ? "IllegalStateException" : root.GetType().Name;
+        return $"{typeName}:{root.Message}".Replace('\n', ' ').Replace('\r', ' ');
     }
 
     private static void Emit(string file, string op, bool ok, int pages, string detail, long ms)

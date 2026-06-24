@@ -2,18 +2,20 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "/tmp/pdfbox-runtime-parity-issue-435/comparison.json",
-    "generatedAtUtc": "2026-06-24T09:35:01Z",
+    "generatedFrom": "/tmp/pdfbox-runtime-parity-issue-436/comparison.json",
+    "generatedAtUtc": "2026-06-24T09:58:57Z",
     "manifest": "/tmp/pdfbox-runtime-parity-current/manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
   "maxStatus": {
-    "known": 373,
+    "known": 230,
     "unexpected": 0
   },
   "maxCategories": {
-    "detail-mismatch": 367,
-    "diagnostic-mismatch": 2,
+    "detail-mismatch": 220,
+    "save-structural-match": 141,
+    "save-structural-missing": 3,
+    "save-structural-mismatch": 3,
     "metadata-mismatch": 4,
     "text-semantic-math-linewrap-match": 1,
     "text-semantic-punctuation-spacing-match": 1

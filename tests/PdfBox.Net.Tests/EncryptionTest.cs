@@ -176,14 +176,16 @@ public class EncryptionTest
     }
 
     [Fact]
-    public void Save_DecryptedDocumentWithEncryptionDictionary_ThrowsIOException()
+    public void Save_DecryptedDocumentWithEncryptionDictionary_ThrowsInvalidOperationException()
     {
         string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "encrypted-rc4-test.pdf");
         using PDDocument document = PDDocument.Load(fixturePath, "test");
         using MemoryStream output = new();
 
-        IOException exception = Assert.Throws<IOException>(() => document.Save(output));
-        Assert.Contains("encryption dictionary", exception.Message, StringComparison.OrdinalIgnoreCase);
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() => document.Save(output));
+        Assert.Equal(
+            "PDF contains an encryption dictionary, please remove it with setAllSecurityToBeRemoved() or set a protection policy with protect()",
+            exception.Message);
     }
 
     [Fact]
