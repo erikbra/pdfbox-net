@@ -25,25 +25,42 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.FontBox.TTF;
+
 namespace PdfBox.Net.PDModel.Font;
 
 /// <summary>
 /// Embedded PDCIDFontType2 builder. Helper class to populate a PDCIDFontType2 and its parent
 /// PDType0Font from a TTF.
 /// </summary>
-/// <remarks>
-/// Authors: Keiji Suzuki, John Hewson
-/// <para>
-/// NOTE: This class is an adapted stub. Full implementation requires font-descriptor
-/// setters and ToUnicode/CIDToGID map building, deferred to a future port cycle.
-/// </para>
-/// </remarks>
+/// <remarks>Authors: Keiji Suzuki, John Hewson.</remarks>
 internal sealed class PDCIDFontType2Embedder : TrueTypeEmbedder
 {
+    private byte[]? _subsetBytes;
+    private string? _subsetTag;
+    private Dictionary<int, int>? _gidToCid;
+
+    public PDCIDFontType2Embedder()
+    {
+    }
+
+    public PDCIDFontType2Embedder(TrueTypeFont trueTypeFont, bool embedSubset = true)
+        : base(trueTypeFont, embedSubset)
+    {
+    }
+
     /// <inheritdoc/>
     protected override void BuildSubset(Stream ttfSubset, string tag,
         IDictionary<int, int> gidToCid)
     {
-        throw new NotImplementedException("PDCIDFontType2 subsetting is not yet implemented.");
+        _subsetBytes = ReadAllBytes(ttfSubset);
+        _subsetTag = tag;
+        _gidToCid = new Dictionary<int, int>(gidToCid);
     }
+
+    public byte[]? GetSubsetBytes() => _subsetBytes is null ? null : (byte[])_subsetBytes.Clone();
+
+    public string? GetSubsetTag() => _subsetTag;
+
+    public IReadOnlyDictionary<int, int>? GetGidToCidMap() => _gidToCid;
 }

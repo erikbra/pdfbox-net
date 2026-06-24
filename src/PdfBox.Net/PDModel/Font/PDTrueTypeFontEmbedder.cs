@@ -26,28 +26,34 @@
  */
 
 using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.FontBox.TTF;
 
 namespace PdfBox.Net.PDModel.Font;
 
 /// <summary>
 /// Embedded PDTrueTypeFont builder. Helper class to populate a PDTrueTypeFont from a TTF.
 /// </summary>
-/// <remarks>
-/// Authors: John Hewson, Ben Litchfield
-/// <para>
-/// NOTE: This class is an adapted stub. Full implementation requires additional
-/// PDFontDescriptor setters and document-writing layer integration, deferred to a
-/// future port cycle.
-/// </para>
-/// </remarks>
+/// <remarks>Authors: John Hewson, Ben Litchfield.</remarks>
 internal sealed class PDTrueTypeFontEmbedder : TrueTypeEmbedder
 {
     private readonly PdfBox.Net.PDModel.Font.Encoding.Encoding _fontEncoding;
+    private byte[]? _subsetBytes;
+    private string? _subsetTag;
+    private Dictionary<int, int>? _gidToCid;
 
     /// <summary>
     /// Creates a new TrueType font embedder.
     /// </summary>
     public PDTrueTypeFontEmbedder(PdfBox.Net.PDModel.Font.Encoding.Encoding encoding)
+    {
+        _fontEncoding = encoding;
+    }
+
+    public PDTrueTypeFontEmbedder(
+        PdfBox.Net.PDModel.Font.Encoding.Encoding encoding,
+        TrueTypeFont trueTypeFont,
+        bool embedSubset = true)
+        : base(trueTypeFont, embedSubset)
     {
         _fontEncoding = encoding;
     }
@@ -61,6 +67,14 @@ internal sealed class PDTrueTypeFontEmbedder : TrueTypeEmbedder
     protected override void BuildSubset(Stream ttfSubset, string tag,
         IDictionary<int, int> gidToCid)
     {
-        throw new NotImplementedException("PDTrueTypeFont subsetting is not yet implemented.");
+        _subsetBytes = ReadAllBytes(ttfSubset);
+        _subsetTag = tag;
+        _gidToCid = new Dictionary<int, int>(gidToCid);
     }
+
+    public byte[]? GetSubsetBytes() => _subsetBytes is null ? null : (byte[])_subsetBytes.Clone();
+
+    public string? GetSubsetTag() => _subsetTag;
+
+    public IReadOnlyDictionary<int, int>? GetGidToCidMap() => _gidToCid;
 }
