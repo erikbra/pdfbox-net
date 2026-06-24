@@ -72,7 +72,7 @@ The harness writes these files under `--out-dir`:
 - `missing-result`
 
 Successful text hash mismatches are refined into `text-*` categories such as line ending, trailing whitespace, whitespace collapse, spacing, content loss, encoding/CMap-like, and remaining semantic mismatches.
-On the current `/tmp/pdfbox-gap-scan` corpus, this groups successful text mismatches into 29 `text-encoding-cmap-mismatch` cases and 27 `text-content-loss` cases.
+On the 2026-06-24 expanded runtime corpus, this groups successful text mismatches into 48 `text-encoding-cmap-mismatch` cases and 31 `text-content-loss` cases.
 
 Known divergences are tracked in `tools/parity/runtime/known-failures.json` with owner and reason fields.
 Entries can match by operation plus exact `category`, globbed `categoryGlob`, exact `files`, or `fileGlob`.
