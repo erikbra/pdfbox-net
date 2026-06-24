@@ -25,13 +25,12 @@
  * limitations under the License.
  */
 
-
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationStrikeOut : PDAnnotationTextMarkup
+public class PDAnnotationStrikeOut : PDAnnotationTextMarkup
 {
     private PDAppearanceHandler? customAppearanceHandler;
 
@@ -65,5 +64,17 @@ public sealed class PDAnnotationStrikeOut : PDAnnotationTextMarkup
         }
 
         customAppearanceHandler.GenerateAppearanceStreams();
+    }
+}
+
+public sealed class PDAnnotationStrikeout : PDAnnotationStrikeOut
+{
+    public PDAnnotationStrikeout()
+    {
+    }
+
+    public PDAnnotationStrikeout(COSDictionary dict)
+        : base(dict)
+    {
     }
 }

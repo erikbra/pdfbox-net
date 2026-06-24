@@ -30,8 +30,23 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationStamp : PDAnnotationMarkup
+public class PDAnnotationStamp : PDAnnotationMarkup
 {
+    public const string NAME_APPROVED = "Approved";
+    public const string NAME_EXPERIMENTAL = "Experimental";
+    public const string NAME_NOT_APPROVED = "NotApproved";
+    public const string NAME_AS_IS = "AsIs";
+    public const string NAME_EXPIRED = "Expired";
+    public const string NAME_NOT_FOR_PUBLIC_RELEASE = "NotForPublicRelease";
+    public const string NAME_FOR_PUBLIC_RELEASE = "ForPublicRelease";
+    public const string NAME_DRAFT = "Draft";
+    public const string NAME_FOR_COMMENT = "ForComment";
+    public const string NAME_TOP_SECRET = "TopSecret";
+    public const string NAME_DEPARTMENTAL = "Departmental";
+    public const string NAME_CONFIDENTIAL = "Confidential";
+    public const string NAME_FINAL = "Final";
+    public const string NAME_SOLD = "Sold";
+
     public const string SUB_TYPE = "Stamp";
 
     public PDAnnotationStamp()
@@ -42,5 +57,15 @@ public sealed class PDAnnotationStamp : PDAnnotationMarkup
     public PDAnnotationStamp(COSDictionary dict)
         : base(dict)
     {
+    }
+
+    public void SetName(string name)
+    {
+        GetCOSDictionary().SetName(COSName.NAME, name);
+    }
+
+    public string GetName()
+    {
+        return GetCOSDictionary().GetNameAsString(COSName.NAME, NAME_DRAFT);
     }
 }

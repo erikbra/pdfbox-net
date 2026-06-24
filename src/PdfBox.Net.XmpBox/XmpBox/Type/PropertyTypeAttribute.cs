@@ -73,7 +73,7 @@ public enum XmpTypeName
 }
 
 [AttributeUsage(AttributeTargets.Field)]
-public sealed class PropertyTypeAttribute : Attribute
+public class PropertyTypeAttribute : global::System.Attribute
 {
     public PropertyTypeAttribute(XmpTypeName type, Cardinality card = Cardinality.Simple)
     {
