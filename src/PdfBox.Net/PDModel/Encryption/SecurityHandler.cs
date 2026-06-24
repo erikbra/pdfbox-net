@@ -125,6 +125,11 @@ public abstract class SecurityHandler<TPolicy>
         return _encryptionKey is null ? null : (byte[])_encryptionKey.Clone();
     }
 
+    public bool HasProtectionPolicy()
+    {
+        return _protectionPolicy is not null;
+    }
+
     protected void SetAES(bool useAes)
     {
         _useAes = useAes;
@@ -202,6 +207,20 @@ public abstract class SecurityHandler<TPolicy>
         }
     }
 
+    public void EncryptData(long objNumber, long genNumber, Stream input, Stream output)
+    {
+        byte[] objKey = ComputeObjectKey(objNumber, genNumber);
+
+        if (_useAes)
+        {
+            EncryptAes(objKey, input, output);
+        }
+        else
+        {
+            DecryptRC4(objKey, input, output);
+        }
+    }
+
     /// <summary>
     /// Decrypts the raw bytes of <paramref name="cosString"/> in-place using the per-object key
     /// derived from <paramref name="objNumber"/> / <paramref name="genNumber"/>.
@@ -216,6 +235,35 @@ public abstract class SecurityHandler<TPolicy>
         using MemoryStream output = new();
         DecryptData(objNumber, genNumber, input, output);
         cosString.ResetWith(output.ToArray());
+    }
+
+    public COSString EncryptString(long objNumber, long genNumber, COSString cosString)
+    {
+        byte[] plainBytes = cosString.GetBytes();
+        using MemoryStream input = new(plainBytes);
+        using MemoryStream output = new();
+        EncryptData(objNumber, genNumber, input, output);
+        return new COSString(output.ToArray());
+    }
+
+    protected int ComputeVersionNumber()
+    {
+        if (_keyLength == 40)
+        {
+            return 1;
+        }
+
+        if (_keyLength == 128 && _protectionPolicy?.IsPreferAes() == true)
+        {
+            return 4;
+        }
+
+        if (_keyLength == 256)
+        {
+            return 5;
+        }
+
+        return 2;
     }
 
     private static void DecryptRC4(byte[] key, Stream input, Stream output)
@@ -255,5 +303,23 @@ public abstract class SecurityHandler<TPolicy>
         using ICryptoTransform decryptor = aes.CreateDecryptor();
         using CryptoStream cs = new(input, decryptor, CryptoStreamMode.Read, leaveOpen: true);
         cs.CopyTo(output);
+    }
+
+    private static void EncryptAes(byte[] key, Stream input, Stream output)
+    {
+        byte[] iv = new byte[16];
+        RandomNumberGenerator.Fill(iv);
+        output.Write(iv);
+
+        using Aes aes = Aes.Create();
+        aes.Key = key;
+        aes.IV = iv;
+        aes.Mode = CipherMode.CBC;
+        aes.Padding = PaddingMode.PKCS7;
+
+        using ICryptoTransform encryptor = aes.CreateEncryptor();
+        using CryptoStream cs = new(output, encryptor, CryptoStreamMode.Write, leaveOpen: true);
+        input.CopyTo(cs);
+        cs.FlushFinalBlock();
     }
 }

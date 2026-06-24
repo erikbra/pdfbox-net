@@ -1,9 +1,11 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Encryption;
 using PdfBox.Net.Rendering;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace PdfBox.Net.Tests;
 
@@ -186,6 +188,58 @@ public class EncryptionTest
         Assert.Equal(
             "PDF contains an encryption dictionary, please remove it with setAllSecurityToBeRemoved() or set a protection policy with protect()",
             exception.Message);
+    }
+
+    [Theory]
+    [InlineData(128, false, 3)]
+    [InlineData(128, true, 4)]
+    [InlineData(256, true, 6)]
+    public void Protect_StandardEncryptedSave_RoundTripsWithUserPassword(int keyLength, bool preferAes, int expectedRevision)
+    {
+        const string title = "issue452 encrypted dictionary string";
+        const string content = "issue452 encrypted stream bytes";
+
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        document.GetDocumentInformation().SetTitle(title);
+
+        using MemoryStream contentBytes = new(Encoding.ASCII.GetBytes(content));
+        page.SetContents(new PDStream(document, contentBytes));
+
+        StandardProtectionPolicy policy = new("owner-secret", "user-secret", AccessPermission.GetOwnerAccessPermission());
+        policy.SetEncryptionKeyLength(keyLength);
+        policy.SetPreferAes(preferAes);
+        document.Protect(policy);
+
+        using MemoryStream output = new();
+        document.Save(output);
+        byte[] saved = output.ToArray();
+        string rawPdf = Encoding.Latin1.GetString(saved);
+
+        Assert.Contains("/Encrypt", rawPdf, StringComparison.Ordinal);
+        Assert.Contains($"/R {expectedRevision}", rawPdf, StringComparison.Ordinal);
+        Assert.DoesNotContain(title, rawPdf, StringComparison.Ordinal);
+        Assert.DoesNotContain(content, rawPdf, StringComparison.Ordinal);
+        Assert.Throws<InvalidPasswordException>(() => PDDocument.Load(new MemoryStream(saved), "wrong-secret"));
+
+        using PDDocument loaded = PDDocument.Load(new MemoryStream(saved), "user-secret");
+        Assert.Equal(1, loaded.GetNumberOfPages());
+        Assert.Equal(title, loaded.GetDocumentInformation().GetTitle());
+        Assert.Contains(content, Encoding.ASCII.GetString(ReadPageContent(loaded)), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Protect_PublicKeyPolicy_ReportsCmsBoundaryOnSave()
+    {
+        using PDDocument document = new();
+        document.AddPage(new PDPage());
+        document.Protect(new PublicKeyProtectionPolicy());
+
+        using MemoryStream output = new();
+        NotSupportedException exception = Assert.Throws<NotSupportedException>(() => document.Save(output));
+
+        Assert.Contains("CMS recipient support", exception.Message, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -52,8 +52,10 @@ public sealed class PDDocument : IDisposable
     private readonly COSDictionary _trailer;
     private long _nextObjectNumber;
     private bool _disposed;
+    private bool _allSecurityToBeRemoved;
     private PDDocumentCatalog? _documentCatalog;
     private PDDocumentInformation? _documentInformation;
+    private PDEncryption? _encryption;
     private ResourceCache? _resourceCache = ResourceCacheFactory.CreateResourceCache();
     private byte[]? _sourceBytes;
     private HashSet<COSObjectKey>? _originalXrefKeys;
@@ -144,6 +146,47 @@ public sealed class PDDocument : IDisposable
     }
 
     /// <summary>
+    /// This will tell if this document is encrypted or not.
+    /// </summary>
+    /// <returns><c>true</c> if this document is encrypted.</returns>
+    public bool IsEncrypted()
+    {
+        EnsureNotDisposed();
+        return _document.IsEncrypted();
+    }
+
+    /// <summary>
+    /// This will get the encryption dictionary for this document.
+    /// </summary>
+    /// <returns>The encryption dictionary, or <see langword="null"/> if none is present.</returns>
+    public PDEncryption? GetEncryption()
+    {
+        EnsureNotDisposed();
+        if (_encryption is null && IsEncrypted())
+        {
+            COSDictionary? encryptionDictionary = _document.GetEncryptionDictionary();
+            if (encryptionDictionary is not null)
+            {
+                _encryption = new PDEncryption(encryptionDictionary);
+            }
+        }
+
+        return _encryption;
+    }
+
+    /// <summary>
+    /// This will set the encryption dictionary for this document.
+    /// </summary>
+    /// <param name="encryption">The encryption dictionary.</param>
+    public void SetEncryptionDictionary(PDEncryption encryption)
+    {
+        ArgumentNullException.ThrowIfNull(encryption);
+        EnsureNotDisposed();
+        _encryption = encryption;
+        _document.SetEncryptionDictionary(encryption.GetCOSObject());
+    }
+
+    /// <summary>
     /// Returns the document catalog.
     /// </summary>
     /// <returns>The document catalog.</returns>
@@ -197,10 +240,27 @@ public sealed class PDDocument : IDisposable
     {
         ArgumentNullException.ThrowIfNull(output);
         EnsureNotDisposed();
-        if (_document.IsEncrypted())
+        PDEncryption? encryption = GetEncryption();
+        SecurityHandler<ProtectionPolicy>? securityHandler = null;
+        bool willEncrypt = false;
+
+        if (_allSecurityToBeRemoved)
         {
-            throw new InvalidOperationException(
-                "PDF contains an encryption dictionary, please remove it with setAllSecurityToBeRemoved() or set a protection policy with protect()");
+            _trailer.RemoveItem(COSName.GetPDFName("Encrypt"));
+            _document.SetEncryptionDictionary(null);
+            _encryption = null;
+        }
+        else if (encryption is not null)
+        {
+            if (!encryption.HasSecurityHandler() || !encryption.GetSecurityHandler().HasProtectionPolicy())
+            {
+                throw new InvalidOperationException(
+                    "PDF contains an encryption dictionary, please remove it with setAllSecurityToBeRemoved() or set a protection policy with protect()");
+            }
+
+            securityHandler = encryption.GetSecurityHandler();
+            securityHandler.PrepareDocumentForEncryption(this);
+            willEncrypt = true;
         }
 
         _trailer.SetItem(COSName.ROOT, GetDocumentCatalog().GetCOSObject());
@@ -224,18 +284,15 @@ public sealed class PDDocument : IDisposable
 
             if (inner is COSStream cosStream)
             {
-                // Write stream dictionary, then stream body (raw encoded bytes).
-                byte[] dictBytes = COSWriter.Serialize(inner);
-                output.Write(dictBytes);
+                byte[] streamBytes = GetWritableStreamBytes(cosStream, securityHandler, key, willEncrypt);
+                WritePDFValue(output, inner, securityHandler, key, willEncrypt, allowIndirectReference: false, streamLengthOverride: streamBytes.Length);
                 output.Write(Encoding.ASCII.GetBytes("\nstream\n"));
-                using (System.IO.Stream inStream = cosStream.CreateRawInputStream())
-                    inStream.CopyTo(output);
+                output.Write(streamBytes);
                 output.Write(Encoding.ASCII.GetBytes("\nendstream"));
             }
             else
             {
-                byte[] body = COSWriter.Serialize(inner);
-                output.Write(body);
+                WritePDFValue(output, inner, securityHandler, key, willEncrypt, allowIndirectReference: false);
             }
 
             output.Write(Encoding.ASCII.GetBytes("\nendobj\n"));
@@ -271,6 +328,239 @@ public sealed class PDDocument : IDisposable
         output.Write(COSWriter.Serialize(_trailer));
         output.Write(Encoding.ASCII.GetBytes(
             $"\nstartxref\n{xrefOffset.ToString(CultureInfo.InvariantCulture)}\n%%EOF\n"));
+    }
+
+    /// <summary>
+    /// Protects the document with a protection policy. The document content will be encrypted when
+    /// it is saved.
+    /// </summary>
+    /// <param name="policy">The protection policy.</param>
+    public void Protect(ProtectionPolicy policy)
+    {
+        ArgumentNullException.ThrowIfNull(policy);
+        EnsureNotDisposed();
+
+        if (_allSecurityToBeRemoved)
+        {
+            _allSecurityToBeRemoved = false;
+        }
+
+        if (!IsEncrypted() && _encryption is null)
+        {
+            _encryption = new PDEncryption();
+        }
+
+        PDEncryption encryption = GetEncryption() ?? _encryption ?? new PDEncryption();
+        SecurityHandler<ProtectionPolicy>? securityHandler = SecurityHandlerFactory.INSTANCE.NewSecurityHandlerForPolicy(policy);
+        if (securityHandler is null)
+        {
+            throw new IOException($"No security handler for policy {policy.GetType().FullName}");
+        }
+
+        encryption.SetSecurityHandler(securityHandler);
+        _encryption = encryption;
+    }
+
+    /// <summary>
+    /// Indicates if all security is removed when writing the PDF.
+    /// </summary>
+    /// <returns><c>true</c> if all security shall be removed; otherwise <c>false</c>.</returns>
+    public bool IsAllSecurityToBeRemoved()
+    {
+        EnsureNotDisposed();
+        return _allSecurityToBeRemoved;
+    }
+
+    /// <summary>
+    /// Activates or deactivates removal of all security when writing the PDF.
+    /// </summary>
+    /// <param name="removeAllSecurity">Remove all security if set to <c>true</c>.</param>
+    public void SetAllSecurityToBeRemoved(bool removeAllSecurity)
+    {
+        EnsureNotDisposed();
+        _allSecurityToBeRemoved = removeAllSecurity;
+    }
+
+    private static byte[] GetWritableStreamBytes(
+        COSStream stream,
+        SecurityHandler<ProtectionPolicy>? securityHandler,
+        COSObjectKey key,
+        bool willEncrypt)
+    {
+        byte[] rawBytes = ReadRawStreamBytes(stream);
+        if (!willEncrypt || securityHandler is null || !ShouldEncryptStream(stream, securityHandler))
+        {
+            return rawBytes;
+        }
+
+        using MemoryStream input = new(rawBytes);
+        using MemoryStream encrypted = new();
+        securityHandler.EncryptData(key.GetNumber(), key.GetGeneration(), input, encrypted);
+        return encrypted.ToArray();
+    }
+
+    private static byte[] ReadRawStreamBytes(COSStream stream)
+    {
+        if (!stream.HasData())
+        {
+            return Array.Empty<byte>();
+        }
+
+        using Stream input = stream.CreateRawInputStream();
+        using MemoryStream output = new();
+        input.CopyTo(output);
+        return output.ToArray();
+    }
+
+    private static bool ShouldEncryptStream(COSStream stream, SecurityHandler<ProtectionPolicy> securityHandler)
+    {
+        if (COSName.IDENTITY.Equals(securityHandler.GetStreamFilterName()))
+        {
+            return false;
+        }
+
+        COSName? type = stream.GetCOSName(COSName.TYPE);
+        if (COSName.GetPDFName("XRef").Equals(type))
+        {
+            return false;
+        }
+
+        return !COSName.METADATA.Equals(type) || securityHandler.IsDecryptMetadata();
+    }
+
+    private static bool ShouldEncryptString(SecurityHandler<ProtectionPolicy>? securityHandler, bool willEncrypt)
+    {
+        return willEncrypt
+               && securityHandler is not null
+               && !COSName.IDENTITY.Equals(securityHandler.GetStringFilterName());
+    }
+
+    private static void WritePDFValue(
+        Stream output,
+        COSBase? value,
+        SecurityHandler<ProtectionPolicy>? securityHandler,
+        COSObjectKey contextKey,
+        bool willEncrypt,
+        bool allowIndirectReference,
+        long? streamLengthOverride = null)
+    {
+        if (allowIndirectReference
+            && value is not COSObject
+            && value is (COSDictionary or COSArray)
+            && !value.IsDirect()
+            && value.GetKey() is COSObjectKey directKey)
+        {
+            WriteIndirectReference(output, directKey);
+            return;
+        }
+
+        switch (value)
+        {
+            case null:
+                COSNull.NULL.WritePDF(output);
+                break;
+            case COSBoolean cosBoolean:
+                cosBoolean.WritePDF(output);
+                break;
+            case COSInteger cosInteger:
+                cosInteger.WritePDF(output);
+                break;
+            case COSFloat cosFloat:
+                cosFloat.WritePDF(output);
+                break;
+            case COSNull cosNull:
+                cosNull.WritePDF(output);
+                break;
+            case COSName cosName:
+                cosName.WritePDF(output);
+                break;
+            case COSString cosString:
+                COSString stringToWrite = ShouldEncryptString(securityHandler, willEncrypt)
+                    ? securityHandler!.EncryptString(contextKey.GetNumber(), contextKey.GetGeneration(), cosString)
+                    : cosString;
+                COSWriter.WriteString(stringToWrite, output);
+                break;
+            case COSArray cosArray:
+                WritePDFArray(output, cosArray, securityHandler, contextKey, willEncrypt);
+                break;
+            case COSDictionary cosDictionary:
+                WritePDFDictionary(output, cosDictionary, securityHandler, contextKey, willEncrypt, streamLengthOverride);
+                break;
+            case COSObject cosObject:
+                COSObjectKey? cosObjectKey = cosObject.GetKey();
+                if (cosObjectKey is not null)
+                {
+                    WriteIndirectReference(output, cosObjectKey);
+                }
+                else if (cosObject.GetObject() is null)
+                {
+                    COSNull.NULL.WritePDF(output);
+                }
+                else
+                {
+                    WritePDFValue(output, cosObject.GetObject(), securityHandler, contextKey, willEncrypt, allowIndirectReference: false);
+                }
+
+                break;
+            default:
+                throw new IOException($"Unsupported COS type for serialization: {value.GetType().Name}");
+        }
+    }
+
+    private static void WritePDFDictionary(
+        Stream output,
+        COSDictionary dictionary,
+        SecurityHandler<ProtectionPolicy>? securityHandler,
+        COSObjectKey contextKey,
+        bool willEncrypt,
+        long? streamLengthOverride)
+    {
+        output.WriteByte((byte)'<');
+        output.WriteByte((byte)'<');
+        foreach (KeyValuePair<COSName, COSBase> entry in dictionary.EntrySet())
+        {
+            output.WriteByte((byte)' ');
+            entry.Key.WritePDF(output);
+            output.WriteByte((byte)' ');
+            if (streamLengthOverride.HasValue && COSName.LENGTH.Equals(entry.Key))
+            {
+                output.Write(Encoding.ASCII.GetBytes(streamLengthOverride.Value.ToString(CultureInfo.InvariantCulture)));
+            }
+            else
+            {
+                WritePDFValue(output, entry.Value, securityHandler, contextKey, willEncrypt, allowIndirectReference: true);
+            }
+        }
+
+        output.WriteByte((byte)' ');
+        output.WriteByte((byte)'>');
+        output.WriteByte((byte)'>');
+    }
+
+    private static void WritePDFArray(
+        Stream output,
+        COSArray array,
+        SecurityHandler<ProtectionPolicy>? securityHandler,
+        COSObjectKey contextKey,
+        bool willEncrypt)
+    {
+        output.WriteByte((byte)'[');
+        for (int i = 0; i < array.Size(); i++)
+        {
+            if (i > 0)
+            {
+                output.WriteByte((byte)' ');
+            }
+
+            WritePDFValue(output, array.Get(i), securityHandler, contextKey, willEncrypt, allowIndirectReference: true);
+        }
+
+        output.WriteByte((byte)']');
+    }
+
+    private static void WriteIndirectReference(Stream output, COSObjectKey key)
+    {
+        output.Write(Encoding.ASCII.GetBytes($"{key.GetNumber()} {key.GetGeneration()} R"));
     }
 
     /// <summary>

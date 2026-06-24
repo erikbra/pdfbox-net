@@ -94,14 +94,6 @@
       "rationale": "Public-key encryption needs CMS recipient support and a dependency boundary decision before it can match Apache PDFBox."
     },
     {
-      "id": "standard-security-handler-writing",
-      "file": "src/PdfBox.Net/PDModel/Encryption/StandardSecurityHandler.cs",
-      "statementContains": "document-protection API gap",
-      "classification": "implementation-gap",
-      "issue": 452,
-      "rationale": "Standard decryption is implemented; encryption writing requires the document protection API and encrypted save flow."
-    },
-    {
       "id": "type3-fontbox-font",
       "file": "src/PdfBox.Net/PDModel/Font/PDType3Font.cs",
       "statementContains": "Type 3 fonts do not use FontBox fonts",
