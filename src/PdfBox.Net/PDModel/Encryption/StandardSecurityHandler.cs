@@ -36,6 +36,12 @@ namespace PdfBox.Net.PDModel.Encryption;
 /// </summary>
 public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
 {
+    private const int Revision2 = 2;
+    private const int Revision3 = 3;
+    private const int Revision4 = 4;
+    private const int Revision5 = 5;
+    private const int Revision6 = 6;
+
     /// <summary>Type of filter name as a string.</summary>
     public const string FILTER = "Standard";
 
@@ -165,7 +171,205 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
     /// <inheritdoc/>
     public override void PrepareDocumentForEncryption(PDDocument doc)
     {
-        throw new NotSupportedException("Standard security handler writing is tracked as a document-protection API gap; decryption parity is implemented.");
+        ArgumentNullException.ThrowIfNull(doc);
+
+        PDEncryption encryptionDictionary = doc.GetEncryption() ?? new PDEncryption();
+        int version = ComputeVersionNumber();
+        int revision = ComputeRevisionNumber(version);
+        encryptionDictionary.SetFilter(FILTER);
+        encryptionDictionary.SetVersion(version);
+        if (version != Revision4 && version != Revision5)
+        {
+            encryptionDictionary.RemoveV45Filters();
+        }
+
+        encryptionDictionary.SetRevision(revision);
+        encryptionDictionary.SetLength(GetKeyLength());
+
+        if (GetProtectionPolicy() is not StandardProtectionPolicy protectionPolicy)
+        {
+            throw new IOException("StandardSecurityHandler requires a StandardProtectionPolicy.");
+        }
+
+        string ownerPassword = protectionPolicy.GetOwnerPassword() ?? string.Empty;
+        string userPassword = protectionPolicy.GetUserPassword() ?? string.Empty;
+        if (ownerPassword.Length == 0)
+        {
+            ownerPassword = userPassword;
+        }
+
+        int permissionInt = protectionPolicy.GetPermissions().GetPermissionBytes();
+        encryptionDictionary.SetPermissions(permissionInt);
+
+        int length = GetKeyLength() / 8;
+        if (revision == Revision6)
+        {
+            ownerPassword = SaslPrep.SaslPrepStored(ownerPassword);
+            userPassword = SaslPrep.SaslPrepStored(userPassword);
+            PrepareEncryptionDictRev6(ownerPassword, userPassword, encryptionDictionary, permissionInt);
+        }
+        else
+        {
+            PrepareEncryptionDictRev234(ownerPassword, userPassword, encryptionDictionary, permissionInt, doc, revision, length);
+        }
+
+        doc.SetEncryptionDictionary(encryptionDictionary);
+    }
+
+    private int ComputeRevisionNumber(int version)
+    {
+        if (GetProtectionPolicy() is not StandardProtectionPolicy protectionPolicy)
+        {
+            throw new IOException("StandardSecurityHandler requires a StandardProtectionPolicy.");
+        }
+
+        AccessPermission permissions = protectionPolicy.GetPermissions();
+        if (version < Revision2 && !permissions.HasAnyRevision3PermissionSet())
+        {
+            return Revision2;
+        }
+
+        if (version == Revision5)
+        {
+            return Revision6;
+        }
+
+        if (version == Revision4)
+        {
+            return Revision4;
+        }
+
+        if (version == Revision2 || version == Revision3 || permissions.HasAnyRevision3PermissionSet())
+        {
+            return Revision3;
+        }
+
+        return Revision4;
+    }
+
+    private void PrepareEncryptionDictRev234(
+        string ownerPassword,
+        string userPassword,
+        PDEncryption encryptionDictionary,
+        int permissionInt,
+        PDDocument document,
+        int revision,
+        int length)
+    {
+        COSArray? idArray = document.GetDocument().GetDocumentID();
+        byte[] userPasswordBytes = Encoding.Latin1.GetBytes(userPassword);
+        byte[] ownerPasswordBytes = Encoding.Latin1.GetBytes(ownerPassword);
+
+        if (idArray is null || idArray.Size() < 2)
+        {
+            using HashAlgorithm md5 = MessageDigests.GetMD5();
+            IncrementalMd5Update(md5, BitConverter.GetBytes(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+            IncrementalMd5Update(md5, ownerPasswordBytes);
+            IncrementalMd5Update(md5, userPasswordBytes);
+            IncrementalMd5Update(md5, Encoding.Latin1.GetBytes(document.GetDocument().ToString() ?? string.Empty));
+            IncrementalMd5Update(md5, Encoding.Latin1.GetBytes(ToString() ?? string.Empty));
+            byte[] id = FinalizeHash(md5);
+
+            COSString idString = new(id);
+            idArray = new COSArray();
+            idArray.Add(idString);
+            idArray.Add(idString);
+            document.GetDocument().SetDocumentID(idArray);
+        }
+
+        if (idArray.Get(0) is not COSString idStringValue)
+        {
+            throw new IOException("Document ID must be a COSString.");
+        }
+
+        byte[] ownerBytes = ComputeOwnerPassword(ownerPasswordBytes, userPasswordBytes, revision, length);
+        byte[] idBytes = idStringValue.GetBytes();
+        byte[] userBytes = ComputeUserKeyForPassword(userPasswordBytes, ownerBytes, permissionInt, idBytes, revision, length, true);
+
+        SetEncryptionKey(ComputeEncryptionKey(userPasswordBytes, ownerBytes, permissionInt, idBytes, revision, length, true));
+        SetKeyLength(length * 8);
+        SetDecryptMetadata(true);
+        SetAES(false);
+
+        encryptionDictionary.SetOwnerKey(ownerBytes);
+        encryptionDictionary.SetUserKey(userBytes);
+
+        if (revision == Revision4)
+        {
+            PrepareEncryptionDictAES(encryptionDictionary, COSName.GetPDFName("AESV2"));
+        }
+    }
+
+    private void PrepareEncryptionDictRev6(
+        string ownerPassword,
+        string userPassword,
+        PDEncryption encryptionDictionary,
+        int permissionInt)
+    {
+        byte[] fileKey = new byte[32];
+        RandomNumberGenerator.Fill(fileKey);
+        SetEncryptionKey(fileKey);
+        SetKeyLength(256);
+        SetDecryptMetadata(true);
+
+        byte[] userPasswordBytes = Truncate127(Encoding.UTF8.GetBytes(userPassword));
+        byte[] userValidationSalt = new byte[8];
+        byte[] userKeySalt = new byte[8];
+        RandomNumberGenerator.Fill(userValidationSalt);
+        RandomNumberGenerator.Fill(userKeySalt);
+        byte[] hashU = ComputeHash2B(Concat(userPasswordBytes, userValidationSalt), userPasswordBytes, Array.Empty<byte>());
+        byte[] u = Concat(hashU, userValidationSalt, userKeySalt);
+
+        byte[] hashUE = ComputeHash2B(Concat(userPasswordBytes, userKeySalt), userPasswordBytes, Array.Empty<byte>());
+        byte[] ue = AesEncrypt256NoPadding(hashUE, fileKey);
+
+        byte[] ownerPasswordBytes = Truncate127(Encoding.UTF8.GetBytes(ownerPassword));
+        byte[] ownerValidationSalt = new byte[8];
+        byte[] ownerKeySalt = new byte[8];
+        RandomNumberGenerator.Fill(ownerValidationSalt);
+        RandomNumberGenerator.Fill(ownerKeySalt);
+        byte[] hashO = ComputeHash2B(Concat(ownerPasswordBytes, ownerValidationSalt, u), ownerPasswordBytes, u);
+        byte[] o = Concat(hashO, ownerValidationSalt, ownerKeySalt);
+
+        byte[] hashOE = ComputeHash2B(Concat(ownerPasswordBytes, ownerKeySalt, u), ownerPasswordBytes, u);
+        byte[] oe = AesEncrypt256NoPadding(hashOE, fileKey);
+
+        encryptionDictionary.SetUserKey(u);
+        encryptionDictionary.SetUserEncryptionKey(ue);
+        encryptionDictionary.SetOwnerKey(o);
+        encryptionDictionary.SetOwnerEncryptionKey(oe);
+
+        PrepareEncryptionDictAES(encryptionDictionary, COSName.GetPDFName("AESV3"));
+
+        byte[] perms = new byte[16];
+        perms[0] = (byte)permissionInt;
+        perms[1] = (byte)(permissionInt >> 8);
+        perms[2] = (byte)(permissionInt >> 16);
+        perms[3] = (byte)(permissionInt >> 24);
+        perms[4] = 0xFF;
+        perms[5] = 0xFF;
+        perms[6] = 0xFF;
+        perms[7] = 0xFF;
+        perms[8] = (byte)'T';
+        perms[9] = (byte)'a';
+        perms[10] = (byte)'d';
+        perms[11] = (byte)'b';
+        RandomNumberGenerator.Fill(perms.AsSpan(12, 4));
+
+        encryptionDictionary.SetPerms(AesEncrypt256NoPadding(fileKey, perms));
+    }
+
+    private void PrepareEncryptionDictAES(PDEncryption encryptionDictionary, COSName aesVName)
+    {
+        PDCryptFilterDictionary cryptFilterDictionary = new();
+        cryptFilterDictionary.SetCryptFilterMethod(aesVName);
+        cryptFilterDictionary.SetLength(GetKeyLength());
+        encryptionDictionary.SetStdCryptFilterDictionary(cryptFilterDictionary);
+        encryptionDictionary.SetStreamFilterName(COSName.GetPDFName("StdCF"));
+        encryptionDictionary.SetStringFilterName(COSName.GetPDFName("StdCF"));
+        SetStreamFilterName(COSName.GetPDFName("StdCF"));
+        SetStringFilterName(COSName.GetPDFName("StdCF"));
+        SetAES(true);
     }
 
     // -----------------------------------------------------------------------
@@ -382,6 +586,67 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
         return finalResult;
     }
 
+    private static byte[] ComputeUserKeyForPassword(
+        byte[] password,
+        byte[] owner,
+        int permissions,
+        byte[] id,
+        int revision,
+        int keyLengthBytes,
+        bool encryptMetadata)
+    {
+        byte[] encKey = ComputeEncryptionKey(password, owner, permissions, id, revision, keyLengthBytes, encryptMetadata);
+        return ComputeUserKey(encKey, id, revision);
+    }
+
+    private static byte[] ComputeOwnerPassword(
+        byte[] ownerPassword,
+        byte[] userPassword,
+        int revision,
+        int keyLengthBytes)
+    {
+        if (revision == Revision2 && keyLengthBytes != 5)
+        {
+            throw new IOException($"Expected length=5 actual={keyLengthBytes}");
+        }
+
+        byte[] rc4Key = ComputeRC4Key(ownerPassword, revision, keyLengthBytes);
+        byte[] encrypted = RC4Apply(rc4Key, PadOrTruncatePassword(userPassword));
+
+        if (revision is Revision3 or Revision4)
+        {
+            byte[] iterationKey = new byte[rc4Key.Length];
+            for (int i = 1; i < 20; i++)
+            {
+                Array.Copy(rc4Key, iterationKey, rc4Key.Length);
+                for (int j = 0; j < iterationKey.Length; j++)
+                {
+                    iterationKey[j] = (byte)(iterationKey[j] ^ i);
+                }
+
+                encrypted = RC4Apply(iterationKey, encrypted);
+            }
+        }
+
+        return encrypted;
+    }
+
+    private static byte[] ComputeRC4Key(byte[] ownerPassword, int revision, int keyLengthBytes)
+    {
+        byte[] digest = MD5.HashData(PadOrTruncatePassword(ownerPassword));
+        if (revision is Revision3 or Revision4)
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                digest = MD5.HashData(digest.AsSpan(0, keyLengthBytes));
+            }
+        }
+
+        byte[] rc4Key = new byte[keyLengthBytes];
+        Array.Copy(digest, rc4Key, keyLengthBytes);
+        return rc4Key;
+    }
+
     // -----------------------------------------------------------------------
     // Utility helpers
     // -----------------------------------------------------------------------
@@ -455,13 +720,12 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
 
     private static byte[] ComputeRev56Hash(byte[] password, byte[] salt, byte[] userKey, int revision)
     {
-        // Rev 5 uses SHA-256; rev 6 uses the SH-A series (Algorithm 2.B from PDF 2.0).
-        // For compatibility, use SHA-256 for both rev 5 and 6 here (simplification).
-        byte[] input = new byte[password.Length + salt.Length + userKey.Length];
-        Array.Copy(password, 0, input, 0, password.Length);
-        Array.Copy(salt, 0, input, password.Length, salt.Length);
-        Array.Copy(userKey, 0, input, password.Length + salt.Length, userKey.Length);
-        return SHA256.HashData(input);
+        byte[] truncatedPassword = Truncate127(password);
+        byte[] adjustedUserKey = AdjustUserKey(userKey);
+        byte[] input = Concat(truncatedPassword, salt, adjustedUserKey);
+        return revision == Revision5
+            ? SHA256.HashData(input)
+            : ComputeHash2B(input, truncatedPassword, adjustedUserKey);
     }
 
     private static byte[] AesDecrypt256(byte[] key, byte[] data)
@@ -474,6 +738,131 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
         aes.Padding = PaddingMode.None;
         using ICryptoTransform decryptor = aes.CreateDecryptor();
         return decryptor.TransformFinalBlock(data, 0, data.Length);
+    }
+
+    private static byte[] AesEncrypt256NoPadding(byte[] key, byte[] data)
+    {
+        using Aes aes = Aes.Create();
+        aes.Key = key;
+        aes.IV = new byte[16];
+        aes.Mode = CipherMode.CBC;
+        aes.Padding = PaddingMode.None;
+        using ICryptoTransform encryptor = aes.CreateEncryptor();
+        return encryptor.TransformFinalBlock(data, 0, data.Length);
+    }
+
+    private static byte[] ComputeHash2B(byte[] input, byte[] password, byte[] userKey)
+    {
+        byte[] k = SHA256.HashData(input);
+        byte[] e = Array.Empty<byte>();
+
+        for (int round = 0; round < 64 || (e[^1] & 0xFF) > round - 32; round++)
+        {
+            bool includeUserKey = userKey.Length >= 48;
+            byte[] k1 = new byte[64 * (password.Length + k.Length + (includeUserKey ? 48 : 0))];
+            int pos = 0;
+            for (int i = 0; i < 64; i++)
+            {
+                Array.Copy(password, 0, k1, pos, password.Length);
+                pos += password.Length;
+                Array.Copy(k, 0, k1, pos, k.Length);
+                pos += k.Length;
+                if (includeUserKey)
+                {
+                    Array.Copy(userKey, 0, k1, pos, 48);
+                    pos += 48;
+                }
+            }
+
+            byte[] key = k[..16];
+            byte[] iv = k[16..32];
+            using Aes aes = Aes.Create();
+            aes.Key = key;
+            aes.IV = iv;
+            aes.Mode = CipherMode.CBC;
+            aes.Padding = PaddingMode.None;
+            using ICryptoTransform encryptor = aes.CreateEncryptor();
+            e = encryptor.TransformFinalBlock(k1, 0, k1.Length);
+
+            int remainder = Mod3(e.AsSpan(0, 16));
+            k = remainder switch
+            {
+                0 => SHA256.HashData(e),
+                1 => SHA384.HashData(e),
+                _ => SHA512.HashData(e)
+            };
+        }
+
+        if (k.Length <= 32)
+        {
+            return k;
+        }
+
+        byte[] truncated = new byte[32];
+        Array.Copy(k, truncated, 32);
+        return truncated;
+    }
+
+    private static int Mod3(ReadOnlySpan<byte> bigEndianBytes)
+    {
+        int remainder = 0;
+        foreach (byte b in bigEndianBytes)
+        {
+            remainder = ((remainder << 8) + b) % 3;
+        }
+
+        return remainder;
+    }
+
+    private static byte[] AdjustUserKey(byte[] userKey)
+    {
+        if (userKey.Length == 0)
+        {
+            return Array.Empty<byte>();
+        }
+
+        if (userKey.Length < 48)
+        {
+            throw new IOException("Bad U length");
+        }
+
+        if (userKey.Length == 48)
+        {
+            return userKey;
+        }
+
+        byte[] adjusted = new byte[48];
+        Array.Copy(userKey, adjusted, 48);
+        return adjusted;
+    }
+
+    private static byte[] Concat(byte[] a, byte[] b)
+    {
+        byte[] result = new byte[a.Length + b.Length];
+        Array.Copy(a, 0, result, 0, a.Length);
+        Array.Copy(b, 0, result, a.Length, b.Length);
+        return result;
+    }
+
+    private static byte[] Concat(byte[] a, byte[] b, byte[] c)
+    {
+        byte[] result = new byte[a.Length + b.Length + c.Length];
+        Array.Copy(a, 0, result, 0, a.Length);
+        Array.Copy(b, 0, result, a.Length, b.Length);
+        Array.Copy(c, 0, result, a.Length + b.Length, c.Length);
+        return result;
+    }
+
+    private static byte[] Truncate127(byte[] input)
+    {
+        if (input.Length <= 127)
+        {
+            return input;
+        }
+
+        byte[] truncated = new byte[127];
+        Array.Copy(input, truncated, 127);
+        return truncated;
     }
 
     // -----------------------------------------------------------------------
