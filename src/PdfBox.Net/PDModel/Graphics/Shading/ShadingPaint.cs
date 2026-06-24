@@ -30,7 +30,7 @@ using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
 
-public abstract class ShadingPaint : IPaint
+public abstract class ShadingPaint : IContextPaint
 {
     protected ShadingPaint(PDShading shading, Matrix matrix)
     {
@@ -43,4 +43,9 @@ public abstract class ShadingPaint : IPaint
     protected Matrix Matrix { get; }
 
     public abstract PaintContext CreateContext();
+
+    public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
+    {
+        return CreateContext();
+    }
 }

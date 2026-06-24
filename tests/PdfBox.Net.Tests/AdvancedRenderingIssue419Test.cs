@@ -33,6 +33,7 @@ using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Tests;
 
@@ -76,6 +77,113 @@ public class AdvancedRenderingIssue419Test
     }
 
     [Fact]
+    public void RenderImage_AnnotationAppearance_DoesNotInheritPageContentCtm()
+    {
+        using PDDocument document = CreateDocument("0.24 0 0 -0.24 7.2 654.72 cm\n0 0 1 1 re\nf\n");
+        PDPage page = document.GetPage(0);
+
+        PDAppearanceStream appearance = new(new COSStream());
+        appearance.SetBBox(new PDRectangle(0, 0, 20, 20));
+        WriteStream(appearance.GetCOSObject()!, "1 0 0 rg\n0 0 20 20 re\nf\n");
+
+        PDAppearanceDictionary appearanceDictionary = new();
+        appearanceDictionary.SetNormalAppearance(appearance);
+
+        PDAnnotationSquare annotation = new();
+        annotation.SetRectangle(new PDRectangle(150, 450, 20, 20));
+        annotation.SetAppearance(appearanceDictionary);
+        page.SetAnnotations([annotation]);
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        Assert.True(CountNonWhitePixels(image, 150, 322, 20, 20) > 20);
+    }
+
+    [Fact]
+    public void RenderImage_AnnotationAppearance_UsesTransformedAppearanceBBox()
+    {
+        using PDDocument document = CreateDocument(string.Empty);
+        PDPage page = document.GetPage(0);
+
+        PDAppearanceStream appearance = new(new COSStream());
+        appearance.SetBBox(new PDRectangle(0, 0, 10, 10));
+        appearance.SetMatrix(new Matrix(0.25f, 0, 0, 0.25f, 0, 0));
+        WriteStream(appearance.GetCOSObject()!, "1 0 0 rg\n0 0 10 10 re\nf\n");
+
+        PDAppearanceDictionary appearanceDictionary = new();
+        appearanceDictionary.SetNormalAppearance(appearance);
+
+        PDAnnotationSquare annotation = new();
+        annotation.SetRectangle(new PDRectangle(120, 420, 40, 40));
+        annotation.SetAppearance(appearanceDictionary);
+        page.SetAnnotations([annotation]);
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        Assert.True(CountNonWhitePixels(image, 120, 332, 40, 40) > 600);
+    }
+
+    [Fact]
+    public void SoftMask_CreateContext_AppliesMaskAlpha()
+    {
+        BufferedImage mask = new(2, 1, BufferedImage.TYPE_INT_ARGB);
+        WritableRaster maskRaster = mask.GetRaster();
+        maskRaster.SetPixel(0, 0, [0, 0, 0, 255]);
+        maskRaster.SetPixel(1, 0, [255, 255, 255, 255]);
+
+        SoftMask softMask = new(Color.Black, mask, new Rectangle2D(0, 0, 2, 1), null, null);
+        using PaintContext context = softMask.CreateContext(
+            new ColorModel(),
+            new Rectangle(0, 0, 2, 1),
+            new Rectangle2D(0, 0, 2, 1),
+            new AffineTransform(),
+            new RenderingHints());
+
+        Raster raster = context.GetRaster(0, 0, 2, 1);
+        int[] pixel = new int[4];
+
+        raster.GetPixel(0, 0, pixel);
+        Assert.Equal(0, pixel[3]);
+
+        raster.GetPixel(1, 0, pixel);
+        Assert.Equal(255, pixel[3]);
+    }
+
+    [Fact]
+    public void TilingPaint_CreateContext_RendersPatternCell()
+    {
+        using PDDocument document = CreateDocument(string.Empty);
+        PDFRenderer renderer = new(document);
+        PageDrawer drawer = new(new PageDrawerParameters(
+            renderer,
+            document.GetPage(0),
+            false,
+            RenderDestination.VIEW,
+            new RenderingHints(),
+            0.5f));
+
+        PDTilingPattern pattern = new();
+        pattern.SetPaintType(PDTilingPattern.PAINT_COLORED);
+        pattern.SetTilingType(PDTilingPattern.TILING_CONSTANT_SPACING);
+        pattern.SetBBox(new PDRectangle(0, 0, 8, 8));
+        pattern.SetXStep(8);
+        pattern.SetYStep(8);
+        WriteStream((COSStream)pattern.GetCOSObject(), "1 0 0 rg\n0 0 8 8 re\nf\n");
+
+        TilingPaint tilingPaint = new(drawer, pattern, new AffineTransform());
+        using PaintContext context = tilingPaint.CreateContext(
+            new ColorModel(),
+            new Rectangle(0, 0, 8, 8),
+            new Rectangle2D(0, 0, 8, 8),
+            new AffineTransform(),
+            new RenderingHints());
+
+        Raster raster = context.GetRaster(0, 0, 8, 8);
+
+        Assert.True(CountVisiblePixels(raster, 8, 8) > 20);
+    }
+
+    [Fact]
     public void RenderImage_ShadingFill_RendersWithoutThrowing()
     {
         PDResources resources = new();
@@ -103,7 +211,7 @@ public class AdvancedRenderingIssue419Test
         pattern.SetBBox(new PDRectangle(0, 0, 8, 8));
         pattern.SetXStep(8);
         pattern.SetYStep(8);
-        WriteStream(pattern.GetCOSObject(), "0 0 0 rg\n0 0 8 8 re\nf\n");
+        WriteStream((COSStream)pattern.GetCOSObject(), "0 0 0 rg\n0 0 8 8 re\nf\n");
         COSName patternName = resources.Add(pattern);
 
         using PDDocument document = CreateDocument($"/Pattern cs\n/{patternName.GetName()} scn\n100 300 50 50 re\nf\n", resources);
@@ -179,6 +287,25 @@ public class AdvancedRenderingIssue419Test
                 int g = (argb >> 8) & 0xFF;
                 int b = argb & 0xFF;
                 if (r != 255 || g != 255 || b != 255)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    private static int CountVisiblePixels(Raster raster, int width, int height)
+    {
+        int count = 0;
+        int[] pixel = new int[4];
+        for (int py = 0; py < height; py++)
+        {
+            for (int px = 0; px < width; px++)
+            {
+                raster.GetPixel(px, py, pixel);
+                if (pixel[3] > 0)
                 {
                     count++;
                 }

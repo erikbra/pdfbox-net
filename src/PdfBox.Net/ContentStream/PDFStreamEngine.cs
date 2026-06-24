@@ -37,6 +37,7 @@ using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Form;
+using PdfBox.Net.PDModel.Graphics.Patterns;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.PdfParser;
@@ -167,6 +168,48 @@ public class PDFStreamEngine
             {
                 operands.Add(cosBase);
             }
+        }
+    }
+
+    protected void ProcessTilingPattern(PDTilingPattern tilingPattern, PDColor? color, PDColorSpace? colorSpace, Matrix patternMatrix)
+    {
+        ArgumentNullException.ThrowIfNull(tilingPattern);
+        ArgumentNullException.ThrowIfNull(patternMatrix);
+
+        PDResources? previousResources = _resources;
+        _resources = tilingPattern.GetResources() ?? previousResources;
+
+        GraphicsStackSnapshot savedStack = SaveGraphicsStack();
+        List<PathSegment> savedPath = [.. _currentPath];
+        (float X, float Y)? savedCurrentPoint = _currentPoint;
+        int? savedPendingClipWindingRule = _pendingClipWindingRule;
+        _currentPath.Clear();
+        _currentPoint = null;
+        _pendingClipWindingRule = null;
+
+        try
+        {
+            if (colorSpace is not null && color is not null)
+            {
+                PDColor patternColor = new(color.GetComponents(), colorSpace);
+                _currentGraphicsState.SetNonStrokingColorSpace(colorSpace);
+                _currentGraphicsState.SetNonStrokingColor(patternColor);
+                _currentGraphicsState.SetStrokingColorSpace(colorSpace);
+                _currentGraphicsState.SetStrokingColor(patternColor);
+            }
+
+            ConcatenateMatrix(patternMatrix);
+            using Stream content = tilingPattern.GetContents();
+            ProcessStream(content);
+        }
+        finally
+        {
+            _resources = previousResources;
+            RestoreGraphicsStack(savedStack);
+            _currentPath.Clear();
+            _currentPath.AddRange(savedPath);
+            _currentPoint = savedCurrentPoint;
+            _pendingClipWindingRule = savedPendingClipWindingRule;
         }
     }
 

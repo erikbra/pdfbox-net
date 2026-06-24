@@ -108,7 +108,24 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     internal void DrawTilingPattern(Graphics2D graphics, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, Matrix patternMatrix)
     {
-        // TODO: requires full tiling paint support (issue #22 scope).
+        Graphics2D? savedGraphics = _graphics;
+        float savedPageHeight = _pageHeightPt;
+        _graphics = graphics;
+        if (graphics.BitmapHeight is int bitmapHeight && bitmapHeight > 0)
+        {
+            _pageHeightPt = bitmapHeight;
+        }
+
+        try
+        {
+            SetRenderingHints();
+            ProcessTilingPattern(pattern, color, colorSpace, patternMatrix);
+        }
+        finally
+        {
+            _graphics = savedGraphics;
+            _pageHeightPt = savedPageHeight;
+        }
     }
 
     private static float ClampColor(float color)
@@ -427,12 +444,16 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
         PDRectangle? rectangle = annotation.GetRectangle();
         PDRectangle? bbox = appearance.GetBBox();
-        Matrix placement = CreateAnnotationPlacementMatrix(rectangle, bbox);
+        Matrix? placement = CreateAnnotationPlacementMatrix(rectangle, bbox, appearance.GetMatrix());
+        if (placement is null)
+        {
+            return;
+        }
 
         SaveGraphicsState();
         try
         {
-            ConcatenateMatrix(placement);
+            GetGraphicsState().SetCurrentTransformationMatrix(placement);
             base.XObject(appearance);
         }
         finally
@@ -441,21 +462,44 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
     }
 
-    private static Matrix CreateAnnotationPlacementMatrix(PDRectangle? rectangle, PDRectangle? bbox)
+    private static Matrix? CreateAnnotationPlacementMatrix(PDRectangle? rectangle, PDRectangle? bbox, Matrix appearanceMatrix)
     {
-        if (rectangle is null)
+        if (rectangle is null || bbox is null ||
+            rectangle.GetWidth() <= 0 || rectangle.GetHeight() <= 0 ||
+            bbox.GetWidth() <= 0 || bbox.GetHeight() <= 0)
         {
-            return new Matrix();
+            return null;
         }
 
-        float bboxWidth = bbox?.GetWidth() ?? rectangle.GetWidth();
-        float bboxHeight = bbox?.GetHeight() ?? rectangle.GetHeight();
-        float scaleX = bboxWidth == 0 ? 1f : rectangle.GetWidth() / bboxWidth;
-        float scaleY = bboxHeight == 0 ? 1f : rectangle.GetHeight() / bboxHeight;
-        float translateX = rectangle.GetLowerLeftX() - (bbox?.GetLowerLeftX() ?? 0f) * scaleX;
-        float translateY = rectangle.GetLowerLeftY() - (bbox?.GetLowerLeftY() ?? 0f) * scaleY;
+        (float x, float y, float width, float height) = GetTransformedBounds(bbox, appearanceMatrix);
+        if (width <= 0 || height <= 0)
+        {
+            return null;
+        }
 
-        return new Matrix(scaleX, 0, 0, scaleY, translateX, translateY);
+        Matrix placement = new(
+            rectangle.GetWidth() / width,
+            0,
+            0,
+            rectangle.GetHeight() / height,
+            rectangle.GetLowerLeftX(),
+            rectangle.GetLowerLeftY());
+
+        return placement.Translate(-x, -y);
+    }
+
+    private static (float X, float Y, float Width, float Height) GetTransformedBounds(PDRectangle bbox, Matrix matrix)
+    {
+        Vector p0 = matrix.TransformPoint(bbox.GetLowerLeftX(), bbox.GetLowerLeftY());
+        Vector p1 = matrix.TransformPoint(bbox.GetUpperRightX(), bbox.GetLowerLeftY());
+        Vector p2 = matrix.TransformPoint(bbox.GetUpperRightX(), bbox.GetUpperRightY());
+        Vector p3 = matrix.TransformPoint(bbox.GetLowerLeftX(), bbox.GetUpperRightY());
+
+        float minX = Math.Min(Math.Min(p0.GetX(), p1.GetX()), Math.Min(p2.GetX(), p3.GetX()));
+        float maxX = Math.Max(Math.Max(p0.GetX(), p1.GetX()), Math.Max(p2.GetX(), p3.GetX()));
+        float minY = Math.Min(Math.Min(p0.GetY(), p1.GetY()), Math.Min(p2.GetY(), p3.GetY()));
+        float maxY = Math.Max(Math.Max(p0.GetY(), p1.GetY()), Math.Max(p2.GetY(), p3.GetY()));
+        return (minX, minY, maxX - minX, maxY - minY);
     }
 
     public void ShowTransparencyGroup(PDTransparencyGroup form)

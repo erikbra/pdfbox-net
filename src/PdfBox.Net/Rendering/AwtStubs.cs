@@ -24,6 +24,7 @@
  */
 
 using SkiaSharp;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Rendering;
 
@@ -74,7 +75,7 @@ public class BufferedImage : Image, IDisposable
 
     public WritableRaster GetRaster()
     {
-        return new WritableRaster(Width, Height);
+        return new BitmapWritableRaster(_bitmap);
     }
 
     /// <summary>Returns the ARGB value of the pixel at (<paramref name="x"/>, <paramref name="y"/>).</summary>
@@ -138,6 +139,8 @@ public class Graphics2D : Graphics, IDisposable
 
     /// <summary>Returns the underlying SkiaSharp canvas (may be null for a default-constructed instance).</summary>
     public SKCanvas? Canvas => _canvas;
+
+    internal int? BitmapHeight => _bitmap?.Height;
 
     public override Graphics Create()
     {
@@ -227,7 +230,7 @@ public class Graphics2D : Graphics, IDisposable
     }
 }
 
-public class Color : IPaint
+public class Color : IContextPaint
 {
     public static readonly Color White = new(255, 255, 255, 255);
     public static readonly Color Black = new(0, 0, 0, 255);
@@ -253,10 +256,20 @@ public class Color : IPaint
     public int Green { get; }
 
     public int Red { get; }
+
+    public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
+    {
+        return new SolidColorPaintContext(this);
+    }
 }
 
 public interface IPaint
 {
+}
+
+public interface IContextPaint : IPaint
+{
+    PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints);
 }
 
 public interface PaintContext : IDisposable
@@ -273,30 +286,95 @@ public class ColorModel
         return new WritableRaster(width, height);
     }
 
-    public virtual int GetAlpha(object? pixel) => 255;
+    public virtual int GetAlpha(object? pixel) => GetComponent(pixel, 3, 255);
 
-    public virtual int GetBlue(object? pixel) => 0;
+    public virtual int GetBlue(object? pixel) => GetComponent(pixel, 2, 0);
 
-    public virtual int GetGreen(object? pixel) => 0;
+    public virtual int GetGreen(object? pixel) => GetComponent(pixel, 1, 0);
 
-    public virtual int GetRed(object? pixel) => 0;
+    public virtual int GetRed(object? pixel) => GetComponent(pixel, 0, 0);
+
+    private static int GetComponent(object? pixel, int component, int fallback)
+    {
+        if (pixel is int[] values)
+        {
+            return component < values.Length ? values[component] : fallback;
+        }
+
+        if (pixel is int argb)
+        {
+            return component switch
+            {
+                0 => (argb >> 16) & 0xFF,
+                1 => (argb >> 8) & 0xFF,
+                2 => argb & 0xFF,
+                3 => (argb >> 24) & 0xFF,
+                _ => fallback
+            };
+        }
+
+        return fallback;
+    }
 }
 
 public class Raster
 {
     public Raster(int width, int height)
+        : this(width, height, allocatePixels: true)
+    {
+    }
+
+    protected Raster(int width, int height, bool allocatePixels)
     {
         Width = width;
         Height = height;
+        Pixels = allocatePixels ? new int[Math.Max(0, width) * Math.Max(0, height) * 4] : null;
     }
 
     public int Height { get; }
 
     public int Width { get; }
 
-    public virtual object? GetDataElements(int x, int y, object? element) => null;
+    protected int[]? Pixels { get; }
 
-    public virtual int[] GetPixel(int x, int y, int[] pixel) => pixel;
+    public virtual object? GetDataElements(int x, int y, object? element)
+    {
+        int[] pixel = element as int[] ?? new int[4];
+        if (pixel.Length < 4)
+        {
+            pixel = new int[4];
+        }
+
+        GetPixel(x, y, pixel);
+        return pixel;
+    }
+
+    public virtual int[] GetPixel(int x, int y, int[] pixel)
+    {
+        ArgumentNullException.ThrowIfNull(pixel);
+        if (pixel.Length < 4)
+        {
+            throw new ArgumentException("Pixel buffer must have at least four components.", nameof(pixel));
+        }
+
+        ReadPixel(x, y, pixel);
+        return pixel;
+    }
+
+    protected virtual void ReadPixel(int x, int y, int[] pixel)
+    {
+        Array.Clear(pixel, 0, Math.Min(4, pixel.Length));
+        if (Pixels is null || x < 0 || y < 0 || x >= Width || y >= Height)
+        {
+            return;
+        }
+
+        int offset = ((y * Width) + x) * 4;
+        pixel[0] = Pixels[offset];
+        pixel[1] = Pixels[offset + 1];
+        pixel[2] = Pixels[offset + 2];
+        pixel[3] = Pixels[offset + 3];
+    }
 }
 
 public class WritableRaster : Raster
@@ -306,8 +384,24 @@ public class WritableRaster : Raster
     {
     }
 
+    protected WritableRaster(int width, int height, bool allocatePixels)
+        : base(width, height, allocatePixels)
+    {
+    }
+
     public virtual void SetPixel(int x, int y, int[] pixel)
     {
+        ArgumentNullException.ThrowIfNull(pixel);
+        if (Pixels is null || x < 0 || y < 0 || x >= Width || y >= Height)
+        {
+            return;
+        }
+
+        int offset = ((y * Width) + x) * 4;
+        Pixels[offset] = pixel.Length > 0 ? pixel[0] : 0;
+        Pixels[offset + 1] = pixel.Length > 1 ? pixel[1] : 0;
+        Pixels[offset + 2] = pixel.Length > 2 ? pixel[2] : 0;
+        Pixels[offset + 3] = pixel.Length > 3 ? pixel[3] : 255;
     }
 }
 
@@ -442,7 +536,7 @@ public class GlyphVector
 {
 }
 
-public class TexturePaint : IPaint
+public class TexturePaint : IContextPaint
 {
     public TexturePaint(BufferedImage image, Rectangle2D anchorRect)
     {
@@ -453,6 +547,148 @@ public class TexturePaint : IPaint
     public Rectangle2D AnchorRect { get; }
 
     public BufferedImage Image { get; }
+
+    public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
+    {
+        return new TexturePaintContext(Image, AnchorRect);
+    }
+}
+
+internal sealed class SolidColorPaintContext : PaintContext
+{
+    private readonly Color _color;
+
+    internal SolidColorPaintContext(Color color)
+    {
+        _color = color;
+    }
+
+    public ColorModel GetColorModel()
+    {
+        return new ColorModel();
+    }
+
+    public Raster GetRaster(int x, int y, int width, int height)
+    {
+        WritableRaster raster = new(width, height);
+        int[] pixel = [_color.Red, _color.Green, _color.Blue, _color.Alpha];
+        for (int py = 0; py < height; py++)
+        {
+            for (int px = 0; px < width; px++)
+            {
+                raster.SetPixel(px, py, pixel);
+            }
+        }
+
+        return raster;
+    }
+
+    public void Dispose()
+    {
+    }
+}
+
+internal sealed class TexturePaintContext : PaintContext
+{
+    private readonly BufferedImage _image;
+    private readonly Rectangle2D _anchor;
+
+    internal TexturePaintContext(BufferedImage image, Rectangle2D anchor)
+    {
+        _image = image;
+        _anchor = anchor;
+    }
+
+    public ColorModel GetColorModel()
+    {
+        return new ColorModel();
+    }
+
+    public Raster GetRaster(int x, int y, int width, int height)
+    {
+        WritableRaster raster = new(width, height);
+        int[] pixel = new int[4];
+        double anchorWidth = Math.Abs(_anchor.Width) > double.Epsilon ? Math.Abs(_anchor.Width) : _image.Width;
+        double anchorHeight = Math.Abs(_anchor.Height) > double.Epsilon ? Math.Abs(_anchor.Height) : _image.Height;
+
+        for (int py = 0; py < height; py++)
+        {
+            for (int px = 0; px < width; px++)
+            {
+                int sourceX = ScaleWrappedCoordinate(x + px - _anchor.X, anchorWidth, _image.Width);
+                int sourceY = ScaleWrappedCoordinate(y + py - _anchor.Y, anchorHeight, _image.Height);
+                int argb = _image.GetRgb(sourceX, sourceY);
+                pixel[0] = (argb >> 16) & 0xFF;
+                pixel[1] = (argb >> 8) & 0xFF;
+                pixel[2] = argb & 0xFF;
+                pixel[3] = (argb >> 24) & 0xFF;
+                raster.SetPixel(px, py, pixel);
+            }
+        }
+
+        return raster;
+    }
+
+    public void Dispose()
+    {
+    }
+
+    private static int ScaleWrappedCoordinate(double value, double period, int limit)
+    {
+        if (limit <= 1)
+        {
+            return 0;
+        }
+
+        double wrapped = value % period;
+        if (wrapped < 0)
+        {
+            wrapped += period;
+        }
+
+        return Math.Clamp((int)Math.Floor(wrapped / period * limit), 0, limit - 1);
+    }
+}
+
+internal sealed class BitmapWritableRaster : WritableRaster
+{
+    private readonly SKBitmap _bitmap;
+
+    internal BitmapWritableRaster(SKBitmap bitmap)
+        : base(bitmap.Width, bitmap.Height, allocatePixels: false)
+    {
+        _bitmap = bitmap;
+    }
+
+    protected override void ReadPixel(int x, int y, int[] pixel)
+    {
+        Array.Clear(pixel, 0, Math.Min(4, pixel.Length));
+        if (x < 0 || y < 0 || x >= Width || y >= Height)
+        {
+            return;
+        }
+
+        SKColor color = _bitmap.GetPixel(x, y);
+        pixel[0] = color.Red;
+        pixel[1] = color.Green;
+        pixel[2] = color.Blue;
+        pixel[3] = color.Alpha;
+    }
+
+    public override void SetPixel(int x, int y, int[] pixel)
+    {
+        ArgumentNullException.ThrowIfNull(pixel);
+        if (x < 0 || y < 0 || x >= Width || y >= Height)
+        {
+            return;
+        }
+
+        byte r = (byte)Math.Clamp(pixel.Length > 0 ? pixel[0] : 0, 0, 255);
+        byte g = (byte)Math.Clamp(pixel.Length > 1 ? pixel[1] : 0, 0, 255);
+        byte b = (byte)Math.Clamp(pixel.Length > 2 ? pixel[2] : 0, 0, 255);
+        byte a = (byte)Math.Clamp(pixel.Length > 3 ? pixel[3] : 255, 0, 255);
+        _bitmap.SetPixel(x, y, new SKColor(r, g, b, a));
+    }
 }
 
 public class GraphicsConfiguration
