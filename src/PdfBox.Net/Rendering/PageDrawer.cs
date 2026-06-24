@@ -38,6 +38,7 @@ using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.OptionalContent;
 using PdfBox.Net.PDModel.Graphics.Patterns;
+using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.Util;
@@ -66,6 +67,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     // Page height in PDF points, used to flip the Y axis when converting
     // from PDF space (Y-up, origin bottom-left) to canvas space (Y-down).
+    private float _pageWidthPt;
     private float _pageHeightPt;
 
     public PageDrawer(PageDrawerParameters parameters)
@@ -97,14 +99,19 @@ public class PageDrawer : PDFGraphicsStreamEngine
     {
         _graphics = graphics ?? throw new ArgumentNullException(nameof(graphics));
         ArgumentNullException.ThrowIfNull(pageSize);
+        _pageWidthPt = pageSize.GetWidth();
         _pageHeightPt = pageSize.GetHeight();
         SetRenderingHints();
         ProcessPage(Page);
+        foreach (PDAnnotation annotation in Page.GetAnnotations())
+        {
+            ShowAnnotation(annotation);
+        }
     }
 
     internal void DrawTilingPattern(Graphics2D graphics, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, Matrix patternMatrix)
     {
-        // TODO: requires full tiling paint support (issue #22 scope).
+        // Full tiling paint cell rasterization remains a documented fallback.
     }
 
     private static float ClampColor(float color)
@@ -351,7 +358,20 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     public override void ShadingFill(COSName shadingName)
     {
-        // TODO: shading fills (issue #22 scope).
+        PDShading? shading = GetResources()?.GetShading(shadingName);
+        if (_graphics?.Canvas is null || shading is null || !IsContentRendered())
+        {
+            return;
+        }
+
+        SKRect bounds = GetShadingBounds(shading);
+        if (bounds.Width <= 0 || bounds.Height <= 0)
+        {
+            return;
+        }
+
+        using SKPaint paint = CreateShadingPaint(shading, bounds);
+        _graphics.Canvas.DrawRect(bounds, paint);
     }
 
     public void ShowAnnotation(PDAnnotation annotation)
@@ -361,7 +381,15 @@ public class PageDrawer : PDFGraphicsStreamEngine
             return;
         }
 
-        // TODO: annotation rendering.
+        PDAppearanceStream? appearance = annotation.GetNormalAppearanceStream();
+        PDRectangle? rectangle = annotation.GetRectangle();
+        if (appearance is null || rectangle is null)
+        {
+            return;
+        }
+
+        Matrix placementMatrix = CreateAnnotationPlacementMatrix(rectangle, appearance.GetBBox());
+        ProcessChildStream(appearance, placementMatrix);
     }
 
     private bool ShouldSkipAnnotation(PDAnnotation annotation)
@@ -376,12 +404,19 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     public void ShowForm(PDFormXObject form)
     {
-        // TODO: form XObject rendering.
+        if (!IsContentRendered())
+        {
+            return;
+        }
+
+        ProcessChildStream(form);
     }
 
     public void ShowTransparencyGroup(PDTransparencyGroup form)
     {
-        // TODO: transparency group rendering.
+        // Full isolated group compositing remains unsupported; render the group
+        // content directly so visible page content is not dropped.
+        ShowForm(form);
     }
 
     public override void XObject(PDXObject xobject)
@@ -389,6 +424,18 @@ public class PageDrawer : PDFGraphicsStreamEngine
         if (xobject is PDImageXObject image)
         {
             DrawImageXObject(image);
+            return;
+        }
+
+        if (xobject is PDTransparencyGroup transparencyGroup)
+        {
+            ShowTransparencyGroup(transparencyGroup);
+            return;
+        }
+
+        if (xobject is PDFormXObject form)
+        {
+            ShowForm(form);
             return;
         }
 
@@ -779,6 +826,91 @@ public class PageDrawer : PDFGraphicsStreamEngine
         _graphics!.Canvas!.DrawImage(image, dest, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear), paint);
     }
 
+    private SKRect GetShadingBounds(PDShading shading)
+    {
+        PDRectangle? bbox = shading.GetBBox();
+        if (bbox is not null)
+        {
+            (float x0, float y0) = PdfToCanvas(bbox.GetLowerLeftX(), bbox.GetLowerLeftY(), GetGraphicsState().GetCurrentTransformationMatrix(), _pageHeightPt);
+            (float x1, float y1) = PdfToCanvas(bbox.GetUpperRightX(), bbox.GetUpperRightY(), GetGraphicsState().GetCurrentTransformationMatrix(), _pageHeightPt);
+            return new SKRect(MathF.Min(x0, x1), MathF.Min(y0, y1), MathF.Max(x0, x1), MathF.Max(y0, y1));
+        }
+
+        return new SKRect(0, 0, _pageWidthPt, _pageHeightPt);
+    }
+
+    private static SKPaint CreateShadingPaint(PDShading shading, SKRect bounds)
+    {
+        SKColor start = ToSkColor(EvaluateShadingColor(shading, 0f));
+        SKColor end = ToSkColor(EvaluateShadingColor(shading, 1f));
+        SKShader? shader = null;
+
+        if (shading is PDShadingType2)
+        {
+            shader = SKShader.CreateLinearGradient(
+                new SKPoint(bounds.Left, bounds.Top),
+                new SKPoint(bounds.Right, bounds.Bottom),
+                [start, end],
+                SKShaderTileMode.Clamp);
+        }
+        else if (shading is PDShadingType3)
+        {
+            float radius = MathF.Max(bounds.Width, bounds.Height) / 2f;
+            shader = SKShader.CreateRadialGradient(
+                new SKPoint(bounds.MidX, bounds.MidY),
+                radius,
+                [start, end],
+                SKShaderTileMode.Clamp);
+        }
+
+        return new SKPaint
+        {
+            IsAntialias = true,
+            Color = shader is null ? ToSkColor(EvaluateShadingColor(shading, 0.5f)) : SKColors.Black,
+            Shader = shader,
+            Style = SKPaintStyle.Fill,
+        };
+    }
+
+    private static float[] EvaluateShadingColor(PDShading shading, float input)
+    {
+        try
+        {
+            return shading.EvalFunction(input);
+        }
+        catch
+        {
+            return shading.GetColorSpace().GetInitialColor().GetComponents();
+        }
+    }
+
+    private static SKColor ToSkColor(float[] components)
+    {
+        byte r = ToByte(components, 0);
+        byte g = ToByte(components, 1);
+        byte b = ToByte(components, 2);
+        return new SKColor(r, g, b);
+    }
+
+    private static byte ToByte(float[] components, int index)
+    {
+        float value = index < components.Length ? components[index] : 0f;
+        return (byte)Math.Clamp((int)MathF.Round(value * 255f), 0, 255);
+    }
+
+    private static Matrix CreateAnnotationPlacementMatrix(PDRectangle rectangle, PDRectangle? appearanceBBox)
+    {
+        float bboxWidth = appearanceBBox?.GetWidth() is > 0f ? appearanceBBox.GetWidth() : rectangle.GetWidth();
+        float bboxHeight = appearanceBBox?.GetHeight() is > 0f ? appearanceBBox.GetHeight() : rectangle.GetHeight();
+        float bboxX = appearanceBBox?.GetLowerLeftX() ?? 0f;
+        float bboxY = appearanceBBox?.GetLowerLeftY() ?? 0f;
+        float scaleX = bboxWidth == 0f ? 1f : rectangle.GetWidth() / bboxWidth;
+        float scaleY = bboxHeight == 0f ? 1f : rectangle.GetHeight() / bboxHeight;
+        float translateX = rectangle.GetLowerLeftX() - (bboxX * scaleX);
+        float translateY = rectangle.GetLowerLeftY() - (bboxY * scaleY);
+        return new Matrix(scaleX, 0, 0, scaleY, translateX, translateY);
+    }
+
     /// <summary>Creates a SkiaSharp paint from the current graphics state.</summary>
     private static SKPaint CreateSkiaPaint(PDGraphicsState graphicsState, bool stroke)
     {
@@ -786,7 +918,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
             ? graphicsState.GetStrokingColor()
             : graphicsState.GetNonStrokingColor();
 
-        int rgb = pdColor.ToRGB();
+        int rgb = GetFallbackRgb(pdColor);
         byte r = (byte)((rgb >> 16) & 0xFF);
         byte g = (byte)((rgb >> 8) & 0xFF);
         byte b = (byte)(rgb & 0xFF);
@@ -822,6 +954,16 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
 
         return paint;
+    }
+
+    private static int GetFallbackRgb(PDColor color)
+    {
+        if (color.GetColorSpace() is PDPattern pattern && pattern.GetUnderlyingColorSpace() is null)
+        {
+            return 0;
+        }
+
+        return color.ToRGB();
     }
 
     private sealed class TransparencyGroup

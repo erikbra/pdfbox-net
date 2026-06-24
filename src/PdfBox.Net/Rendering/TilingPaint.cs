@@ -50,7 +50,7 @@ internal class TilingPaint : IPaint
 
     public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        return new TexturePaintContext(_paint is TexturePaint texture ? texture.Image : new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB));
     }
 
     public int GetTransparency()
@@ -70,6 +70,36 @@ internal class TilingPaint : IPaint
 
     private static BufferedImage GetImage(PageDrawer drawer, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, AffineTransform xform, Rectangle2D anchorRect)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        // Full tiling-paint rasterization requires dedicated pattern cell
+        // composition. Return a transparent cell rather than throwing so
+        // pattern-colored documents can continue rendering other content.
+        return new BufferedImage(
+            Math.Max(1, Ceiling(anchorRect.Width)),
+            Math.Max(1, Ceiling(anchorRect.Height)),
+            BufferedImage.TYPE_INT_ARGB);
+    }
+
+    private sealed class TexturePaintContext : PaintContext
+    {
+        private readonly BufferedImage _image;
+
+        public TexturePaintContext(BufferedImage image)
+        {
+            _image = image;
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public ColorModel GetColorModel()
+        {
+            return _image.GetColorModel();
+        }
+
+        public Raster GetRaster(int x, int y, int width, int height)
+        {
+            return new WritableRaster(width, height);
+        }
     }
 }

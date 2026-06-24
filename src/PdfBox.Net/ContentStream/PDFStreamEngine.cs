@@ -162,6 +162,46 @@ public class PDFStreamEngine
     }
 
     /// <summary>
+    /// Processes a nested content stream using its resources and matrix under an
+    /// isolated graphics-state save/restore scope.
+    /// </summary>
+    protected void ProcessChildStream(PDContentStream contentStream)
+    {
+        ProcessChildStream(contentStream, null);
+    }
+
+    /// <summary>
+    /// Processes a nested content stream with an additional placement matrix.
+    /// </summary>
+    protected void ProcessChildStream(PDContentStream contentStream, Matrix? placementMatrix)
+    {
+        ArgumentNullException.ThrowIfNull(contentStream);
+
+        PDResources? previousResources = _resources;
+        SaveGraphicsState();
+        if (placementMatrix is not null)
+        {
+            ConcatenateMatrix(placementMatrix);
+        }
+
+        ConcatenateMatrix(contentStream.GetMatrix());
+        _resources = contentStream.GetResources() ?? previousResources;
+        try
+        {
+            using Stream? content = contentStream.GetContents();
+            if (content is not null)
+            {
+                ProcessStream(content);
+            }
+        }
+        finally
+        {
+            _resources = previousResources;
+            RestoreGraphicsState();
+        }
+    }
+
+    /// <summary>
     /// Dispatches a single operator to the registered processor (if any).
     /// </summary>
     protected virtual void ProcessOperator(ContentOperator op, IList<COSBase> operands)
@@ -415,17 +455,7 @@ public class PDFStreamEngine
     {
         if (xobject is PDFormXObject form)
         {
-            PDResources? previousResources = _resources;
-            _resources = form.GetResources() ?? previousResources;
-            try
-            {
-                using Stream content = form.GetContents();
-                ProcessStream(content);
-            }
-            finally
-            {
-                _resources = previousResources;
-            }
+            ProcessChildStream(form);
         }
     }
 
