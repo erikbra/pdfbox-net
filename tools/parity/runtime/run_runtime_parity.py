@@ -29,6 +29,9 @@ PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 RENDER_VISUAL_MAX_MODERATE_DIFF_RATIO = 0.01
 RENDER_VISUAL_MAX_LARGE_DIFF_RATIO = 0.002
 RENDER_VISUAL_MAX_RMS = 5.0
+RENDER_JPEG_MAX_LARGE_DIFF_RATIO = 0.015
+RENDER_JPEG_MAX_RMS = 12.0
+RENDER_JPEG_MAX_MEAN = 2.0
 
 
 @dataclass(frozen=True)
@@ -53,6 +56,15 @@ class RenderImage:
     width: int
     height: int
     pixels: bytes
+
+
+@dataclass(frozen=True)
+class RenderDiffStats:
+    total_pixels: int
+    moderate_diff_ratio: float
+    large_diff_ratio: float
+    rms: float
+    mean: float
 
 
 def utc_now() -> str:
@@ -399,41 +411,62 @@ def render_artifact_path(out_dir: Path, file: str, runtime: str) -> Path:
 
 
 def render_images_equivalent(java_png: Path, dotnet_png: Path) -> bool:
+    stats = render_image_diff_stats(java_png, dotnet_png)
+    return stats is not None and (
+        stats.moderate_diff_ratio <= RENDER_VISUAL_MAX_MODERATE_DIFF_RATIO
+        and stats.large_diff_ratio <= RENDER_VISUAL_MAX_LARGE_DIFF_RATIO
+        and stats.rms <= RENDER_VISUAL_MAX_RMS
+    )
+
+
+def render_jpeg_images_equivalent(java_png: Path, dotnet_png: Path) -> bool:
+    stats = render_image_diff_stats(java_png, dotnet_png)
+    return stats is not None and (
+        stats.large_diff_ratio <= RENDER_JPEG_MAX_LARGE_DIFF_RATIO
+        and stats.rms <= RENDER_JPEG_MAX_RMS
+        and stats.mean <= RENDER_JPEG_MAX_MEAN
+    )
+
+
+def render_image_diff_stats(java_png: Path, dotnet_png: Path) -> RenderDiffStats | None:
     try:
         java = read_png_rgba(java_png)
         dotnet = read_png_rgba(dotnet_png)
     except (OSError, ValueError, zlib.error):
-        return False
+        return None
 
     if java.width != dotnet.width or java.height != dotnet.height:
-        return False
+        return None
     if java.pixels == dotnet.pixels:
-        return True
+        return RenderDiffStats(java.width * java.height, 0.0, 0.0, 0.0, 0.0)
 
     total_pixels = java.width * java.height
     if total_pixels == 0:
-        return False
+        return None
 
     moderate_diff_pixels = 0
     large_diff_pixels = 0
     square_sum = 0
+    distance_sum = 0
     for i in range(0, len(java.pixels), 4):
         alpha = abs(java.pixels[i] - dotnet.pixels[i])
         red = abs(java.pixels[i + 1] - dotnet.pixels[i + 1])
         green = abs(java.pixels[i + 2] - dotnet.pixels[i + 2])
         blue = abs(java.pixels[i + 3] - dotnet.pixels[i + 3])
         distance = alpha + red + green + blue
+        distance_sum += distance
         if distance > 24:
             moderate_diff_pixels += 1
         if distance > 128:
             large_diff_pixels += 1
         square_sum += alpha * alpha + red * red + green * green + blue * blue
 
-    rms = math.sqrt(square_sum / (total_pixels * 4))
-    return (
-        moderate_diff_pixels / total_pixels <= RENDER_VISUAL_MAX_MODERATE_DIFF_RATIO
-        and large_diff_pixels / total_pixels <= RENDER_VISUAL_MAX_LARGE_DIFF_RATIO
-        and rms <= RENDER_VISUAL_MAX_RMS
+    return RenderDiffStats(
+        total_pixels,
+        moderate_diff_pixels / total_pixels,
+        large_diff_pixels / total_pixels,
+        math.sqrt(square_sum / (total_pixels * 4)),
+        distance_sum / (total_pixels * 4),
     )
 
 
@@ -687,7 +720,16 @@ def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: 
     dotnet_png = render_artifact_path(dotnet_out, file, "dotnet")
     if render_images_equivalent(java_png, dotnet_png):
         return "render-visual-equivalence-match"
+    if is_lossy_jpeg_decoder_drift(file, java_png, dotnet_png):
+        return "render-lossy-jpeg-decoder-equivalence-match"
     return "detail-mismatch"
+
+
+def is_lossy_jpeg_decoder_drift(file: str, java_png: Path, dotnet_png: Path) -> bool:
+    normalized_name = Path(file).name.lower()
+    if "jpeg" not in normalized_name and "jpg" not in normalized_name:
+        return False
+    return render_jpeg_images_equivalent(java_png, dotnet_png)
 
 
 def is_java_optional_jpx_reader_gap(file: str, java: Result, dotnet: Result) -> bool:

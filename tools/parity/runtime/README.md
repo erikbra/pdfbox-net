@@ -31,6 +31,8 @@ hashes differ.
 JPX/JPEG 2000 rows where the Java probe renders a blank page because its
 optional image reader is unavailable, while .NET renders visible pixels, are
 classified separately so they do not count as .NET render-quality gaps.
+JPEG-named rows also have a narrow lossy-decoder equivalence classifier for
+small Java/.NET decoder and color-management drift.
 
 ## Local ratchet run
 
