@@ -178,8 +178,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
             {
                 Matrix glyphMatrix = Matrix.Concatenate(textRenderingMatrix, font.GetFontMatrix());
                 using SKPath skPath = BuildSkPath(path, glyphMatrix);
-                using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
-                DrawWithCurrentClip(canvas => canvas.DrawPath(skPath, paint));
+                DrawTextPath(skPath);
                 return;
             }
         }
@@ -196,13 +195,38 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
         Matrix matrix = new(at);
         using SKPath skPath = BuildSkPath(path, matrix);
-        using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
-        DrawWithCurrentClip(canvas => canvas.DrawPath(skPath, paint));
+        DrawTextPath(skPath);
     }
 
     protected virtual void ShowType3Glyph(Matrix textRenderingMatrix, PDType3Font font, int code, Vector displacement)
     {
+        if (GetGraphicsState().GetTextState().GetRenderingModeInstance() == RenderingMode.NEITHER)
+        {
+            return;
+        }
+
         DrawUnicodeGlyphFallback(textRenderingMatrix, font, code);
+    }
+
+    private void DrawTextPath(SKPath path)
+    {
+        RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
+        if (!renderingMode.IsFill() && !renderingMode.IsStroke())
+        {
+            return;
+        }
+
+        if (renderingMode.IsFill())
+        {
+            using SKPaint fillPaint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
+            DrawWithCurrentClip(canvas => canvas.DrawPath(path, fillPaint));
+        }
+
+        if (renderingMode.IsStroke())
+        {
+            using SKPaint strokePaint = CreateSkiaPaint(GetGraphicsState(), stroke: true);
+            DrawWithCurrentClip(canvas => canvas.DrawPath(path, strokePaint));
+        }
     }
 
     public override void AppendRectangle(Point2D p0, Point2D p1, Point2D p2, Point2D p3)
@@ -964,6 +988,12 @@ public class PageDrawer : PDFGraphicsStreamEngine
             return;
         }
 
+        RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
+        if (!renderingMode.IsFill() && !renderingMode.IsStroke())
+        {
+            return;
+        }
+
         string? unicode = font.ToUnicode(code, PdfBox.Net.PDModel.Font.Encoding.GlyphList.GetAdobeGlyphList());
         unicode ??= code is >= 0 and <= 255 ? ((char)code).ToString() : null;
         if (string.IsNullOrEmpty(unicode))
@@ -972,14 +1002,23 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
 
         SKMatrix matrix = ToCanvasMatrix(textRenderingMatrix, _pageHeightPt);
-        using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
         using SKTypeface? typeface = CreateFallbackTypeface(font);
         using SKFont skFont = new(typeface ?? SKTypeface.Default, GetFallbackFontSize(font));
 
         DrawWithCurrentClip(canvas =>
         {
             canvas.Concat(in matrix);
-            canvas.DrawText(unicode, 0, 0, skFont, paint);
+            if (renderingMode.IsFill())
+            {
+                using SKPaint fillPaint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
+                canvas.DrawText(unicode, 0, 0, skFont, fillPaint);
+            }
+
+            if (renderingMode.IsStroke())
+            {
+                using SKPaint strokePaint = CreateSkiaPaint(GetGraphicsState(), stroke: true);
+                canvas.DrawText(unicode, 0, 0, skFont, strokePaint);
+            }
         });
     }
 

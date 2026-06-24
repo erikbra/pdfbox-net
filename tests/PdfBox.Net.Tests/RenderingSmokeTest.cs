@@ -280,6 +280,20 @@ public class RenderingSmokeTest
     }
 
     [Fact]
+    public void RenderImage_InvisibleTextRenderingMode_DoesNotDrawGlyphPixels()
+    {
+        var resources = new PDModel.Resources.PDResources();
+        resources.Put(COSName.GetPDFName("F1"), new PDType1Font(PDType1Font.FontName.HELVETICA_BOLD));
+        using var document = CreateDocument("BT\n0 0 0 rg\n/F1 48 Tf\n3 Tr\n100 500 Td\n(Hi) Tj\nET\n", resources);
+
+        var renderer = new PDFRenderer(document);
+        using BufferedImage image = renderer.RenderImage(0, 1f, ImageType.RGB);
+
+        int pagePixels = CountNonWhitePixels(image, 0, 0, image.Width, image.Height);
+        Assert.Equal(0, pagePixels);
+    }
+
+    [Fact]
     public void RenderImage_PdfBox5002Standard14Fallback_DrawsVisibleText()
     {
         byte[] pdf = Convert.FromBase64String(PdfBox5002FixtureBase64);
