@@ -257,6 +257,24 @@ public class AdvancedRenderingIssue419Test
         Assert.True(image.Height > 0);
     }
 
+    [Theory]
+    [InlineData("JPXTestCMYK.pdf")]
+    [InlineData("JPXTestGrey.pdf")]
+    [InlineData("JPXTestRGB.pdf")]
+    public void RenderImage_JpxImageFilterFixtures_DrawVisiblePixelsWhenFixtureIsAvailable(string fixtureName)
+    {
+        string? fixturePath = FindApacheImageIoFixture(fixtureName);
+        if (fixturePath is null)
+        {
+            return;
+        }
+
+        using PDDocument document = Loader.LoadPDF(fixturePath);
+        using BufferedImage image = new PDFRenderer(document).RenderImageWithDPI(0, 36, ImageType.RGB);
+
+        Assert.True(CountNonWhitePixels(image, 0, 0, image.Width, image.Height) > 100);
+    }
+
     private static PDDocument CreateDocument(string contentStream, PDResources? resources = null)
     {
         PDDocument document = new();

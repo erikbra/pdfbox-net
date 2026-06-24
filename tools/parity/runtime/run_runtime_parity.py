@@ -679,12 +679,28 @@ def classify_text_mismatch(file: str, java_out: Path, dotnet_out: Path) -> str:
     return "text-semantic-mismatch"
 
 
-def classify_render_mismatch(file: str, java_out: Path, dotnet_out: Path) -> str:
+def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: Path, dotnet_out: Path) -> str:
+    if is_java_optional_jpx_reader_gap(file, java, dotnet):
+        return "render-java-optional-jpx-reader-missing-match"
+
     java_png = render_artifact_path(java_out, file, "java")
     dotnet_png = render_artifact_path(dotnet_out, file, "dotnet")
     if render_images_equivalent(java_png, dotnet_png):
         return "render-visual-equivalence-match"
     return "detail-mismatch"
+
+
+def is_java_optional_jpx_reader_gap(file: str, java: Result, dotnet: Result) -> bool:
+    if "JPX" not in Path(file).name:
+        return False
+    if not is_near_blank_render(java) or is_near_blank_render(dotnet):
+        return False
+
+    non_background = render_metric(dotnet, "nonBg")
+    try:
+        return non_background is not None and int(non_background) > 0
+    except ValueError:
+        return False
 
 
 def classify_save_mismatch(file: str, save_structures: dict[tuple[str, str], Result]) -> str:
@@ -788,7 +804,7 @@ def classify(
         if op == "text":
             return classify_text_mismatch(java.file, java_out, dotnet_out)
         if op == "render":
-            return classify_render_mismatch(java.file, java_out, dotnet_out)
+            return classify_render_mismatch(java.file, java, dotnet, java_out, dotnet_out)
         return "detail-mismatch"
     return "match"
 

@@ -28,6 +28,10 @@ ratio, very low large-difference pixel ratio, and low RMS channel error. Save
 and merge rows compare Java-observable document structure signatures when byte
 hashes differ.
 
+JPX/JPEG 2000 rows where the Java probe renders a blank page because its
+optional image reader is unavailable, while .NET renders visible pixels, are
+classified separately so they do not count as .NET render-quality gaps.
+
 ## Local ratchet run
 
 ```bash
