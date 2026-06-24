@@ -70,11 +70,11 @@ public sealed class PublicKeySecurityHandler : SecurityHandler<ProtectionPolicy>
             SetStringFilterName(encryption.GetStringFilterName());
         }
 
-        throw new NotSupportedException("Public-key encrypted PDF decryption is not implemented yet.");
+        throw new NotSupportedException("Public-key encrypted PDF decryption requires CMS recipient support and is intentionally unsupported in this .NET port.");
     }
 
     public override void PrepareDocumentForEncryption(PDDocument doc)
     {
-        throw new NotSupportedException("Public-key encrypted PDF writing is not implemented yet.");
+        throw new NotSupportedException("Public-key encrypted PDF writing requires CMS recipient support and is intentionally unsupported in this .NET port.");
     }
 }

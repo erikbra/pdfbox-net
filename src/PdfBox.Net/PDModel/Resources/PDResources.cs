@@ -251,6 +251,13 @@ public class PDResources
         return extGState;
     }
 
+    public IEnumerable<COSName> GetExtGStateNames()
+    {
+        COSDictionary? extGStateSubDict = _dict.GetCOSDictionary(ExtGStateKey);
+        if (extGStateSubDict is null) return Enumerable.Empty<COSName>();
+        return extGStateSubDict.KeySet();
+    }
+
     public void Put(COSName name, PDExtendedGraphicsState graphicsState)
     {
         PutInto(ExtGStateKey, name, graphicsState.GetCOSObject());

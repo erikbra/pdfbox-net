@@ -34,8 +34,8 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 /// Converts a PNG image to a PDImageXObject, preserving the PNG colour space and metadata.
 /// </summary>
 /// <remarks>
-/// NOTE: This class is an adapted stub. Full PNG conversion is not yet implemented
-/// for the .NET port (requires platform-specific imaging APIs).
+/// The .NET port decodes PNG input with SkiaSharp and writes a lossless image XObject through
+/// <see cref="LosslessFactory"/> when direct PNG embedding is not available.
 /// </remarks>
 public static class PNGConverter
 {
@@ -43,7 +43,6 @@ public static class PNGConverter
     /// Converts the given PNG stream to a PDImageXObject.
     /// Returns null if the stream cannot be directly converted (fallback to LosslessFactory).
     /// </summary>
-    /// <exception cref="NotImplementedException">Always thrown – not yet implemented.</exception>
     public static PDImageXObject? Convert(PDDocument document, Stream pngStream)
     {
         ArgumentNullException.ThrowIfNull(document);
