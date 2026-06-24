@@ -84,6 +84,7 @@ public sealed class PDFParser
         DecryptLoadedIndirectObjects();
         LoadCompressedObjects();
         BindTrailerReferences(trailer);
+        RecoverPageTreeCounts(trailer);
         _document.SetTrailer(trailer);
         if (_securityHandler is not null)
         {
@@ -439,19 +440,30 @@ public sealed class PDFParser
                 continue;
             }
 
-            ParsedIndirectObject parsed;
-            try
+            long effectiveOffset = offset;
+            if (!TryParseIndirectObjectAt(offset, out ParsedIndirectObject? parsed) || parsed is null || !parsed.Key.Equals(key))
             {
-                parsed = ParseIndirectObjectAt(offset);
-            }
-            catch (IOException)
-            {
-                continue;
+                if (!TryFindIndirectObjectOffset(key, out long recoveredOffset)
+                    || !TryParseIndirectObjectAt(recoveredOffset, out parsed)
+                    || parsed is null
+                    || !parsed.Key.Equals(key))
+                {
+                    continue;
+                }
+
+                effectiveOffset = recoveredOffset;
             }
 
-            COSObject objectShell = GetOrCreateIndirectObject(parsed.Key);
-            parsed.Value.SetKey(parsed.Key);
-            objectShell.SetObject(parsed.Value);
+            if (effectiveOffset != _resolvedXrefTable[key])
+            {
+                _resolvedXrefTable[key] = effectiveOffset;
+                _document.AddXRefTable(new Dictionary<COSObjectKey, long> { [key] = effectiveOffset });
+            }
+
+            ParsedIndirectObject parsedObject = parsed ?? throw new InvalidOperationException("Object parsing unexpectedly produced no result.");
+            COSObject objectShell = GetOrCreateIndirectObject(parsedObject.Key);
+            parsedObject.Value.SetKey(parsedObject.Key);
+            objectShell.SetObject(parsedObject.Value);
         }
     }
 
@@ -516,6 +528,96 @@ public sealed class PDFParser
         }
     }
 
+    private static void RecoverPageTreeCounts(COSDictionary trailer)
+    {
+        COSDictionary? root = trailer.GetCOSDictionary(COSName.ROOT);
+        COSDictionary? pages = root?.GetCOSDictionary(COSName.PAGES);
+        if (pages is null || !NeedsPageTreeCountRecovery(pages))
+        {
+            return;
+        }
+
+        CheckPagesDictionary(pages, []);
+    }
+
+    private static bool NeedsPageTreeCountRecovery(COSDictionary pages)
+    {
+        COSArray? kids = pages.GetCOSArray(COSName.KIDS);
+        COSBase? count = pages.GetDictionaryObject(COSName.COUNT);
+        if (count is not COSNumber)
+        {
+            return true;
+        }
+
+        if (kids is not null && kids.Size() > 0 && pages.GetInt(COSName.COUNT, 0) <= 0)
+        {
+            return true;
+        }
+
+        if (kids is null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < kids.Size(); i++)
+        {
+            if (kids.Get(i) is COSObject kidObject && (kidObject.GetObject() is null or COSNull))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static int CheckPagesDictionary(COSDictionary pagesDict, HashSet<COSObject> visited)
+    {
+        COSArray? kidsArray = pagesDict.GetCOSArray(COSName.KIDS);
+        int numberOfPages = 0;
+        if (kidsArray is not null)
+        {
+            for (int i = 0; i < kidsArray.Size();)
+            {
+                COSBase? kid = kidsArray.Get(i);
+                if (kid is not COSObject kidObject || visited.Contains(kidObject))
+                {
+                    kidsArray.Remove(i);
+                    continue;
+                }
+
+                COSBase? kidBaseObject = kidObject.GetObject();
+                if (kidBaseObject is null or COSNull)
+                {
+                    kidsArray.Remove(i);
+                    continue;
+                }
+
+                if (kidBaseObject is COSDictionary kidDictionary)
+                {
+                    COSName? type = kidDictionary.GetCOSName(COSName.TYPE);
+                    if (COSName.PAGES.Equals(type))
+                    {
+                        visited.Add(kidObject);
+                        numberOfPages += CheckPagesDictionary(kidDictionary, visited);
+                    }
+                    else if (COSName.PAGE.Equals(type))
+                    {
+                        numberOfPages++;
+                    }
+                }
+
+                i++;
+            }
+        }
+
+        if (pagesDict.GetInt(COSName.COUNT, -1) != numberOfPages)
+        {
+            pagesDict.SetInt(COSName.COUNT, numberOfPages);
+        }
+
+        return numberOfPages;
+    }
+
     private ParsedIndirectObject ParseIndirectObjectAt(long offset)
     {
         if (offset < 0 || offset >= _data.Length)
@@ -550,6 +652,118 @@ public sealed class PDFParser
 
         reader.TryReadKeyword("endobj");
         return new ParsedIndirectObject(key, parsedValue);
+    }
+
+    private bool TryParseIndirectObjectAt(long offset, out ParsedIndirectObject? parsed)
+    {
+        try
+        {
+            parsed = ParseIndirectObjectAt(offset);
+            return true;
+        }
+        catch (IOException)
+        {
+            parsed = null;
+            return false;
+        }
+    }
+
+    private bool TryFindIndirectObjectOffset(COSObjectKey key, out long offset)
+    {
+        byte[] objectNumber = Encoding.ASCII.GetBytes(key.GetNumber().ToString(CultureInfo.InvariantCulture));
+        byte[] generation = Encoding.ASCII.GetBytes(key.GetGeneration().ToString(CultureInfo.InvariantCulture));
+
+        for (int i = 0; i < _data.Length; i++)
+        {
+            if (!IsTokenBoundaryBefore(i) || !MatchesBytes(i, objectNumber))
+            {
+                continue;
+            }
+
+            int position = i + objectNumber.Length;
+            if (position >= _data.Length || !IsWhiteSpace(_data[position]))
+            {
+                continue;
+            }
+
+            position = SkipWhiteSpace(position);
+            if (!MatchesBytes(position, generation))
+            {
+                continue;
+            }
+
+            position += generation.Length;
+            if (position >= _data.Length || !IsWhiteSpace(_data[position]))
+            {
+                continue;
+            }
+
+            position = SkipWhiteSpace(position);
+            if (MatchesKeyword(position, "obj") && IsTokenBoundaryAfter(position + 3))
+            {
+                offset = i;
+                return true;
+            }
+        }
+
+        offset = -1;
+        return false;
+    }
+
+    private bool MatchesBytes(int offset, byte[] pattern)
+    {
+        if (offset < 0 || offset + pattern.Length > _data.Length)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < pattern.Length; i++)
+        {
+            if (_data[offset + i] != pattern[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool MatchesKeyword(int offset, string keyword)
+    {
+        if (offset < 0 || offset + keyword.Length > _data.Length)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < keyword.Length; i++)
+        {
+            if (_data[offset + i] != keyword[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private int SkipWhiteSpace(int position)
+    {
+        while (position < _data.Length && IsWhiteSpace(_data[position]))
+        {
+            position++;
+        }
+
+        return position;
+    }
+
+    private bool IsTokenBoundaryBefore(int position)
+    {
+        return position == 0 || IsWhiteSpace(_data[position - 1]) || IsDelimiter(_data[position - 1]);
+    }
+
+    private bool IsTokenBoundaryAfter(int position)
+    {
+        return position >= _data.Length || IsWhiteSpace(_data[position]) || IsDelimiter(_data[position]);
     }
 
     private COSStream ReadStreamObject(SyntaxReader reader, COSDictionary dictionary)
