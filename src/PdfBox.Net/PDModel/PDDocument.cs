@@ -197,6 +197,11 @@ public sealed class PDDocument : IDisposable
     {
         ArgumentNullException.ThrowIfNull(output);
         EnsureNotDisposed();
+        if (_document.IsEncrypted())
+        {
+            throw new IOException("Cannot save encrypted document because the encryption dictionary is still present.");
+        }
+
         _trailer.SetItem(COSName.ROOT, GetDocumentCatalog().GetCOSObject());
         _trailer.SetItem(COSName.GetPDFName("Info"), GetDocumentInformation().GetCOSObject());
         PromoteSharedContainersToIndirect();
@@ -1307,6 +1312,7 @@ public sealed class PDDocument : IDisposable
         // be decrypted per PDF spec section 7.6.5.
         HashSet<COSBase> visited = new(ReferenceEqualityComparer.Instance);
         DecryptObjectGraph(_trailer, handler, 0, 0, inIndirectObject: false, visited, encryptDict);
+        _document.SetDecrypted();
     }
 
     private static void DecryptObjectGraph(
@@ -1351,6 +1357,23 @@ public sealed class PDDocument : IDisposable
 
                 break;
 
+            case COSStream cosStream:
+                if (inIndirectObject && ShouldDecryptStream(cosStream, handler))
+                {
+                    DecryptStream(cosStream, handler, objNum, genNum);
+                }
+
+                foreach (COSName streamKey in cosStream.KeySet())
+                {
+                    COSBase? value = cosStream.GetItem(streamKey);
+                    if (value is not null)
+                    {
+                        DecryptObjectGraph(value, handler, objNum, genNum, inIndirectObject, visited, encryptDict);
+                    }
+                }
+
+                break;
+
             case COSDictionary cosDictionary:
                 // Skip the encryption dictionary entirely — it must never be decrypted.
                 if (ReferenceEquals(cosDictionary, encryptDict))
@@ -1381,6 +1404,25 @@ public sealed class PDDocument : IDisposable
 
                 break;
         }
+    }
+
+    private static bool ShouldDecryptStream(COSStream stream, SecurityHandler<ProtectionPolicy> handler)
+    {
+        return handler.IsDecryptMetadata()
+            || !COSName.METADATA.Equals(stream.GetCOSName(COSName.TYPE));
+    }
+
+    private static void DecryptStream(COSStream stream, SecurityHandler<ProtectionPolicy> handler, long objNum, long genNum)
+    {
+        using MemoryStream decrypted = new();
+        using (Stream encrypted = stream.CreateRawInputStream())
+        {
+            handler.DecryptData(objNum, genNum, encrypted, decrypted);
+        }
+
+        using Stream output = stream.CreateRawOutputStream();
+        byte[] data = decrypted.ToArray();
+        output.Write(data, 0, data.Length);
     }
 
     private static DecryptionMaterial CreateDecryptionMaterialForLoad(SecurityHandler<ProtectionPolicy> handler, string? password)

@@ -1,6 +1,7 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Encryption;
+using PdfBox.Net.Rendering;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -152,10 +153,54 @@ public class EncryptionTest
     }
 
     [Fact]
+    public void Load_RC4EncryptedPdf_WithEncryptedFlateStream_DecodesContentStream()
+    {
+        using MemoryStream input = new(CreateRc4EncryptedFlateStreamPdf());
+        using PDDocument document = PDDocument.Load(input, "test");
+
+        byte[] decoded = ReadPageContent(document);
+
+        Assert.Contains("Issue420", System.Text.Encoding.ASCII.GetString(decoded), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Render_RC4EncryptedPdf_WithUserPassword_DoesNotReportCompressionFailure()
+    {
+        string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "encrypted-rc4-test.pdf");
+        using PDDocument document = PDDocument.Load(fixturePath, "test");
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        Assert.True(image.Width > 0);
+        Assert.True(image.Height > 0);
+    }
+
+    [Fact]
+    public void Save_DecryptedDocumentWithEncryptionDictionary_ThrowsIOException()
+    {
+        string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "encrypted-rc4-test.pdf");
+        using PDDocument document = PDDocument.Load(fixturePath, "test");
+        using MemoryStream output = new();
+
+        IOException exception = Assert.Throws<IOException>(() => document.Save(output));
+        Assert.Contains("encryption dictionary", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void Load_RC4EncryptedPdf_WithWrongPassword_ThrowsIOException()
     {
         string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "encrypted-rc4-test.pdf");
         Assert.Throws<InvalidPasswordException>(() => PDDocument.Load(fixturePath, "wrongpassword"));
+    }
+
+    [Fact]
+    public void Load_PublicKeyEncryptedPdf_ThrowsSemanticIOException()
+    {
+        using MemoryStream input = new(CreatePublicKeyEncryptedPdf());
+
+        IOException exception = Assert.Throws<IOException>(() => PDDocument.Load(input));
+
+        Assert.Contains("Public-key encrypted", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -211,5 +256,128 @@ public class EncryptionTest
 
     private sealed class TestProtectionPolicy : ProtectionPolicy
     {
+    }
+
+    private static byte[] ReadPageContent(PDDocument document)
+    {
+        COSBase? contents = document.GetPage(0).GetContents();
+        Assert.IsType<COSStream>(contents);
+        using Stream input = ((COSStream)contents).CreateInputStream();
+        using MemoryStream output = new();
+        input.CopyTo(output);
+        return output.ToArray();
+    }
+
+    private static byte[] CreateRc4EncryptedFlateStreamPdf()
+    {
+        byte[] docId = System.Text.Encoding.ASCII.GetBytes("a055ccc1a362f04dd64098f5d07cbe15");
+        COSDictionary encryptionDictionary = CreateStandardEncryptionDictionary();
+        PDEncryption encryption = new(encryptionDictionary);
+        COSArray idArray = new();
+        idArray.Add(new COSString(docId));
+        idArray.Add(new COSString(docId));
+
+        StandardSecurityHandler handler = new();
+        handler.PrepareForDecryption(encryption, idArray, new StandardDecryptionMaterial("test"));
+
+        byte[] contentBytes = System.Text.Encoding.ASCII.GetBytes("BT\n/Issue420 12 Tf\nET\n");
+        using MemoryStream compressed = new();
+        using (System.IO.Compression.ZLibStream zlib = new(compressed, System.IO.Compression.CompressionLevel.SmallestSize, leaveOpen: true))
+        {
+            zlib.Write(contentBytes, 0, contentBytes.Length);
+        }
+
+        using MemoryStream encrypted = new();
+        using (MemoryStream plain = new(compressed.ToArray()))
+        {
+            handler.DecryptData(6, 0, plain, encrypted);
+        }
+
+        return CreateEncryptedPdf(encryptionDictionary, encrypted.ToArray());
+    }
+
+    private static COSDictionary CreateStandardEncryptionDictionary()
+    {
+        COSDictionary dictionary = new();
+        dictionary.SetInt(COSName.GetPDFName("V"), 2);
+        dictionary.SetInt(COSName.GetPDFName("R"), 3);
+        dictionary.SetInt(COSName.LENGTH, 128);
+        dictionary.SetLong(COSName.GetPDFName("P"), 4294967292);
+        dictionary.SetItem(COSName.FILTER, COSName.GetPDFName("Standard"));
+        dictionary.SetItem(COSName.GetPDFName("O"), new COSString(Convert.FromHexString("69f3664c9fa798ddab43b45b2c2dbe4569a1b9427c116bb173f0faedff36c433")));
+        dictionary.SetItem(COSName.GetPDFName("U"), new COSString(Convert.FromHexString("b7d41d067509c17b2a4a748a956c75d428bf4e5e4e758a4164004e56fffa0108")));
+        return dictionary;
+    }
+
+    private static byte[] CreatePublicKeyEncryptedPdf()
+    {
+        COSDictionary encryptionDictionary = new();
+        encryptionDictionary.SetInt(COSName.GetPDFName("V"), 1);
+        encryptionDictionary.SetInt(COSName.GetPDFName("R"), 2);
+        encryptionDictionary.SetInt(COSName.LENGTH, 40);
+        encryptionDictionary.SetItem(COSName.FILTER, COSName.GetPDFName("Adobe.PubSec"));
+        encryptionDictionary.SetName(COSName.GetPDFName("SubFilter"), "adbe.pkcs7.s5");
+        COSArray recipients = new();
+        recipients.Add(new COSString([0]));
+        encryptionDictionary.SetItem(COSName.GetPDFName("Recipients"), recipients);
+
+        return CreateEncryptedPdf(encryptionDictionary, encryptedStream: null);
+    }
+
+    private static byte[] CreateEncryptedPdf(COSDictionary encryptionDictionary, byte[]? encryptedStream)
+    {
+        using MemoryStream output = new();
+        List<long> offsets = [0];
+
+        void WriteAscii(string value)
+        {
+            byte[] bytes = System.Text.Encoding.ASCII.GetBytes(value);
+            output.Write(bytes, 0, bytes.Length);
+        }
+
+        void WriteObject(string value)
+        {
+            offsets.Add(output.Position);
+            WriteAscii($"{offsets.Count - 1} 0 obj\n{value}\nendobj\n");
+        }
+
+        void WriteObjectBytes(byte[] value)
+        {
+            offsets.Add(output.Position);
+            WriteAscii($"{offsets.Count - 1} 0 obj\n");
+            output.Write(value, 0, value.Length);
+            WriteAscii("\nendobj\n");
+        }
+
+        WriteAscii("%PDF-1.3\n");
+        WriteObject("<< /Producer (pdfbox-net issue 420 test) >>");
+        WriteObject("<< /Type /Pages /Count 1 /Kids [ 4 0 R ] >>");
+        WriteObject("<< /Type /Catalog /Pages 2 0 R >>");
+        WriteObject(encryptedStream is null
+            ? "<< /Type /Page /Resources << >> /MediaBox [ 0 0 612 792 ] /Parent 2 0 R >>"
+            : "<< /Type /Page /Resources << >> /MediaBox [ 0 0 612 792 ] /Parent 2 0 R /Contents 6 0 R >>");
+        WriteObjectBytes(PdfBox.Net.PdfWriter.COSWriter.Serialize(encryptionDictionary));
+
+        if (encryptedStream is not null)
+        {
+            offsets.Add(output.Position);
+            WriteAscii($"6 0 obj\n<< /Length {encryptedStream.Length} /Filter /FlateDecode >>\nstream\n");
+            output.Write(encryptedStream, 0, encryptedStream.Length);
+            WriteAscii("\nendstream\nendobj\n");
+        }
+
+        long xrefOffset = output.Position;
+        WriteAscii($"xref\n0 {offsets.Count}\n");
+        WriteAscii("0000000000 65535 f \n");
+        for (int i = 1; i < offsets.Count; i++)
+        {
+            WriteAscii($"{offsets[i]:D10} 00000 n \n");
+        }
+
+        WriteAscii("trailer\n");
+        WriteAscii($"<< /Size {offsets.Count} /Root 3 0 R /Info 1 0 R /ID [ <6130353563636331613336326630346464363430393866356430376362653135> <6130353563636331613336326630346464363430393866356430376362653135> ] /Encrypt 5 0 R >>\n");
+        WriteAscii($"startxref\n{xrefOffset}\n%%EOF\n");
+
+        return output.ToArray();
     }
 }
