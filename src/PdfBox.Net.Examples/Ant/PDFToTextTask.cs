@@ -25,45 +25,58 @@
  * limitations under the License.
  */
 
-// Chosen approach: keep this example as a standalone CLI-style wrapper because invoking a tool
-// from build scripts is more portable in .NET pipelines than taking an MSBuild task dependency.
-
-using PdfBox.Net.Tools;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
+using PdfBox.Net.PDModel;
+using PdfBox.Net.Text;
+using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace PdfBox.Net.Examples.Ant;
 
 /// <summary>
-/// The upstream Java example is an Apache Ant <c>Task</c>, but this .NET port keeps the
-/// same class name as a standalone command-style example because that is the most portable
-/// build-pipeline integration and avoids taking an MSBuild dependency in the examples project.
+/// MSBuild task equivalent of the upstream Apache Ant task that extracts text from a PDF file.
 /// </summary>
-public class PDFToTextTask
+public class PDFToTextTask : MSBuildTask
 {
-    private string? _pdfFile;
-    private string? _outputFile;
+    /// <summary>
+    /// Gets or sets the source PDF file.
+    /// </summary>
+    [Required]
+    public ITaskItem? InputFile { get; set; }
 
-    public PDFToTextTask()
-    {
-    }
-
-    public string? PdfFile
-    {
-        get => _pdfFile;
-        set => _pdfFile = value;
-    }
-
-    public string? OutputFile
-    {
-        get => _outputFile;
-        set => _outputFile = value;
-    }
+    /// <summary>
+    /// Gets or sets the extracted text output file.
+    /// </summary>
+    [Required]
+    public ITaskItem? OutputFile { get; set; }
 
     /// <summary>
     /// Execute the configured extraction.
     /// </summary>
-    public void Execute()
+    public override bool Execute()
     {
-        Run(_pdfFile, _outputFile);
+        if (InputFile == null)
+        {
+            Log.LogError("InputFile is required.");
+            return false;
+        }
+
+        if (OutputFile == null)
+        {
+            Log.LogError("OutputFile is required.");
+            return false;
+        }
+
+        try
+        {
+            ExtractText(InputFile.ItemSpec, OutputFile.ItemSpec);
+            return !Log.HasLoggedErrors;
+        }
+        catch (Exception ex)
+        {
+            Log.LogErrorFromException(ex, showStackTrace: true);
+            return false;
+        }
     }
 
     public static void Main(string[] args)
@@ -74,14 +87,16 @@ public class PDFToTextTask
             return;
         }
 
-        Run(args[0], args[1]);
+        ExtractText(args[0], args[1]);
     }
 
-    private static void Run(string? pdfFile, string? outputFile)
+    private static void ExtractText(string? pdfFile, string? outputFile)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(pdfFile);
         ArgumentException.ThrowIfNullOrWhiteSpace(outputFile);
 
-        ExtractText.WriteText(pdfFile, outputFile);
+        using PDDocument document = Loader.LoadPDF(pdfFile);
+        string text = new PDFTextStripper().GetText(document);
+        File.WriteAllText(outputFile, text);
     }
 }
