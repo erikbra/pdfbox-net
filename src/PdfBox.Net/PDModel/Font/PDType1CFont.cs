@@ -75,6 +75,7 @@ public sealed class PDType1CFont : PDSimpleFont
     public override FontBoxFont? GetFontBoxFont() => _cffFont;
 
     public override bool IsStandard14() => false;
+    public override bool IsEmbedded() => true;
 
     private static PdfBox.Net.PDModel.Font.Encoding.Encoding ResolveEncoding(COSDictionary dictionary, CFFType1Font cffFont)
     {

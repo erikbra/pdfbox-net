@@ -77,8 +77,16 @@ public partial class PDTrueTypeFont : PDSimpleFont
 
     public override FontBoxFont? GetFontBoxFont() => _trueTypeFont;
     public override bool IsStandard14() => false;
+    public override bool IsEmbedded() => true;
 
     public TrueTypeFont GetTrueTypeFont() => _trueTypeFont;
+
+    public override float GetWidthFromFont(int code)
+    {
+        int gid = CodeToGID(code);
+        int unitsPerEm = _trueTypeFont.GetUnitsPerEm();
+        return _trueTypeFont.GetAdvanceWidth(gid) * 1000f / Math.Max(1, unitsPerEm);
+    }
 
     public override bool HasGlyph(int code)
     {

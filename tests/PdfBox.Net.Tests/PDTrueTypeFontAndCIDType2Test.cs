@@ -274,6 +274,9 @@ public class PDTrueTypeFontAndCIDType2Test
 
         var cidFont = new PDCIDFontType2(dict, ttf);
         Assert.Equal(700f, cidFont.GetWidth(1));
+        Assert.True(cidFont.HasExplicitWidth(1));
+        Assert.Equal(500f, cidFont.GetWidthFromFont(1));
+        Assert.True(cidFont.IsEmbedded());
     }
 
     [Fact]
@@ -289,6 +292,7 @@ public class PDTrueTypeFontAndCIDType2Test
         var cidFont = new PDCIDFontType2(dict, ttf);
         // CID 1 → GID 1 (identity) → advance 500 → 500 * 1000/1000 = 500
         Assert.Equal(500f, cidFont.GetWidth(1));
+        Assert.False(cidFont.HasExplicitWidth(1));
     }
 
     [Fact]

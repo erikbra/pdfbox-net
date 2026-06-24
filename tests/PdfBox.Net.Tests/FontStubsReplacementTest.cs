@@ -131,6 +131,10 @@ public class FontStubsReplacementTest
         Assert.IsType<PDType1Font>(font);
         Assert.Equal(610f, font.GetWidth(65));
         Assert.Equal(620f, font.GetWidth(66));
+        Assert.True(font.HasExplicitWidth(65));
+        Assert.False(font.HasExplicitWidth(67));
+        Assert.False(font.IsEmbedded());
+        Assert.True(font.IsStandard14());
     }
 
     [Fact]
@@ -239,6 +243,8 @@ public class FontStubsReplacementTest
 
         Assert.Equal("Type0", ((COSDictionary)font.GetCOSObject()).GetNameAsString(COSName.SUBTYPE));
         Assert.IsType<PDCIDFontType2>(font.GetDescendantFont());
+        Assert.True(font.IsEmbedded());
+        Assert.True(font.GetDescendantFont()?.IsEmbedded());
     }
 
     [Fact]
@@ -259,6 +265,9 @@ public class FontStubsReplacementTest
         PDFont font = new PDTrueTypeFont(dict, ttf);
 
         Assert.Equal(700f, font.GetWidth(65));
+        Assert.True(font.HasExplicitWidth(65));
+        Assert.True(font.IsEmbedded());
+        Assert.Equal(500f, font.GetWidthFromFont(65));
         Assert.Equal("MiniTTF", font.GetName());
     }
 
@@ -373,6 +382,9 @@ public class FontStubsReplacementTest
         COSArray widths = Assert.IsType<COSArray>(fontDict.GetDictionaryObject(COSName.GetPDFName("Widths")));
         Assert.Equal(256, widths.Size());
         Assert.Equal(font.GetWidth(65), (widths.GetObject(65) as COSNumber)?.FloatValue() ?? -1f);
+        Assert.True(font.IsEmbedded());
+        Assert.True(font.HasExplicitWidth(65));
+        Assert.True(float.IsFinite(font.GetWidthFromFont(65)));
 
         COSDictionary descriptor = Assert.IsType<COSDictionary>(fontDict.GetDictionaryObject(COSName.GetPDFName("FontDescriptor")));
         COSStream fontFile = Assert.IsType<COSStream>(descriptor.GetDictionaryObject(COSName.GetPDFName("FontFile")));

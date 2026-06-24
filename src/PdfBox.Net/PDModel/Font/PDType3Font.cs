@@ -197,6 +197,12 @@ public sealed class PDType3Font : PDSimpleFont
     public override FontBoxFont? GetFontBoxFont() => throw new NotSupportedException("Type 3 fonts do not use FontBox fonts.");
 
     public override bool IsStandard14() => false;
+    public override bool IsEmbedded() => true;
+
+    public override float GetWidthFromFont(int code)
+    {
+        return GetWidth(code);
+    }
 
     public PDResources? GetResources() => _resources;
 
