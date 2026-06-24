@@ -280,6 +280,19 @@ public class RenderingSmokeTest
     }
 
     [Fact]
+    public void RenderImage_PdfBox5002Standard14Fallback_DrawsVisibleText()
+    {
+        byte[] pdf = Convert.FromBase64String(PdfBox5002FixtureBase64);
+        using PDDocument document = Loader.LoadPDF(pdf);
+
+        using BufferedImage image = new PDFRenderer(document).RenderImageWithDPI(0, 36f, ImageType.RGB);
+
+        (bool nearBlank, int nonBackground, int dominant) = MeasureNearBlank(image);
+        Assert.False(nearBlank,
+            $"Expected visible text glyph pixels but render was near blank; nonBackground={nonBackground}, dominant={dominant}.");
+    }
+
+    [Fact]
     public void RenderImage_ImageXObject_DrawsDecodedImagePixels()
     {
         using var document = new PDDocument();
@@ -332,4 +345,71 @@ public class RenderingSmokeTest
 
         return count;
     }
+
+    private static (bool NearBlank, int NonBackground, int Dominant) MeasureNearBlank(BufferedImage image)
+    {
+        int total = image.Width * image.Height;
+        int background = image.GetRgb(0, 0);
+        var histogram = new Dictionary<int, int>();
+        int nonBackground = 0;
+        int transparent = 0;
+        int dominant = 0;
+
+        for (int y = 0; y < image.Height; y++)
+        {
+            for (int x = 0; x < image.Width; x++)
+            {
+                int argb = image.GetRgb(x, y);
+                int alpha = (argb >> 24) & 0xFF;
+                if (alpha < 8)
+                {
+                    transparent++;
+                }
+
+                if (ColorDistance(argb, background) > 8)
+                {
+                    nonBackground++;
+                }
+
+                histogram.TryGetValue(argb, out int count);
+                count++;
+                histogram[argb] = count;
+                dominant = Math.Max(dominant, count);
+            }
+        }
+
+        bool nearBlank = transparent == total ||
+                         nonBackground <= Math.Max(10, total / 1000) ||
+                         dominant >= (int)Math.Ceiling(total * 0.995);
+        return (nearBlank, nonBackground, dominant);
+    }
+
+    private static int ColorDistance(int left, int right)
+    {
+        int lr = (left >> 16) & 0xFF;
+        int lg = (left >> 8) & 0xFF;
+        int lb = left & 0xFF;
+        int rr = (right >> 16) & 0xFF;
+        int rg = (right >> 8) & 0xFF;
+        int rb = right & 0xFF;
+        return Math.Abs(lr - rr) + Math.Abs(lg - rg) + Math.Abs(lb - rb);
+    }
+
+    // Apache PDFBox test resource input/PDFBOX-5002.pdf, kept inline to avoid a binary test fixture.
+    private const string PdfBox5002FixtureBase64 =
+        "JVBERi0xLjQKJfbk/N8KMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovVmVyc2lvbiAvMS40Ci9QYWdlcyAyIDAg" +
+        "Ugo+PgplbmRvYmoKMiAwIG9iago8PAovVHlwZSAvUGFnZXMKL0tpZHMgWzMgMCBSXQovQ291bnQgMQo+PgplbmRv" +
+        "YmoKMyAwIG9iago8PAovVHlwZSAvUGFnZQovTWVkaWFCb3ggWzAuMCAwLjAgNTk1LjI3NTYzIDg0MS44ODk4XQov" +
+        "UGFyZW50IDIgMCBSCi9Db250ZW50cyA0IDAgUgovUmVzb3VyY2VzIDUgMCBSCj4+CmVuZG9iago0IDAgb2JqCjw8" +
+        "Ci9MZW5ndGggMTQ4Ci9GaWx0ZXIgL0ZsYXRlRGVjb2RlCj4+CnN0cmVhbQ0KeJxVzssOgjAQheH9PMVZ6kZaIoJb" +
+        "4mVv+gKIgw4pxdh6eXyRpEnNbL/5Z7KDRq5gOsp2/JKWT8carSeF3/iWakOFQpXrVVVtyxLmQgsjwTLEocFZruhG" +
+        "F5YwPe0NZVNPz720sJ4TRZLw48AI/Al4S7jF7Uj1JqEN/NBYy4+/Q5GqMqGjw/C0Qe7Te1Yc+6i/Uq07yg0KZW5k" +
+        "c3RyZWFtCmVuZG9iago1IDAgb2JqCjw8Ci9Gb250IDYgMCBSCj4+CmVuZG9iago2IDAgb2JqCjw8Ci9GMSA3IDAg" +
+        "Ugo+PgplbmRvYmoKNyAwIG9iago8PAovVHlwZSAvRm9udAovU3VidHlwZSAvVHlwZTEKL0Jhc2VGb250IC9IZWx2" +
+        "ZXRpY2EtQm9sZAovRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZwo+PgplbmRvYmoKeHJlZgowIDgKMDAwMDAwMDAw" +
+        "MCA2NTUzNSBmDQowMDAwMDAwMDE1IDAwMDAwIG4NCjAwMDAwMDAwNzggMDAwMDAgbg0KMDAwMDAwMDEzNSAwMDAw" +
+        "MCBuDQowMDAwMDAwMjU0IDAwMDAwIG4NCjAwMDAwMDA0NzYgMDAwMDAgbg0KMDAwMDAwMDUwOSAwMDAwMCBuDQow" +
+        "MDAwMDAwNTQwIDAwMDAwIG4NCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKL0lEIFs8RURFM0U3NThBNDkxMzJBNDVD" +
+        "OTRFRkZFNkVBQTY3RjQ+IDxFREUzRTc1OEE0OTEzMkE0NUM5NEVGRkU2RUFBNjdGND5dCi9TaXplIDgKPj4Kc3Rh" +
+        "cnR4cmVmCjY0MgolJUVPRgo=";
 }

@@ -174,7 +174,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
             GeneralPath path = GetGlyphCache(vectorFont).GetPathForCharacterCode(code);
             if (path.Segments.Count > 0)
             {
-                Matrix glyphMatrix = font.GetFontMatrix().Multiply(textRenderingMatrix);
+                Matrix glyphMatrix = Matrix.Concatenate(textRenderingMatrix, font.GetFontMatrix());
                 using SKPath skPath = BuildSkPath(path, glyphMatrix);
                 using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
                 _graphics.Canvas.DrawPath(skPath, paint);
@@ -845,13 +845,103 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
         SKMatrix matrix = ToCanvasMatrix(textRenderingMatrix, _pageHeightPt);
         using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
-        using SKTypeface? typeface = SKTypeface.FromFamilyName(font.GetName());
+        using SKTypeface? typeface = CreateFallbackTypeface(font);
         using SKFont skFont = new(typeface ?? SKTypeface.Default, 1f);
 
         _graphics.Canvas.Save();
         _graphics.Canvas.Concat(in matrix);
         _graphics.Canvas.DrawText(unicode, 0, 0, skFont, paint);
         _graphics.Canvas.Restore();
+    }
+
+    private static SKTypeface? CreateFallbackTypeface(PDFont font)
+    {
+        if (font is not PDSimpleFont simpleFont || !simpleFont.IsStandard14())
+        {
+            return SKTypeface.FromFamilyName(font.GetName());
+        }
+
+        string fontName = StripSubsetPrefix(font.GetName());
+        PDFontDescriptor? descriptor = font.GetFontDescriptor();
+        string family = StripSubsetPrefix(descriptor?.GetFontFamily());
+        bool bold = IsBold(fontName, descriptor);
+        bool italic = IsItalic(fontName, descriptor);
+        SKFontStyleWeight weight = bold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal;
+        SKFontStyleSlant slant = italic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright;
+
+        foreach (string candidate in GetFallbackFamilies(fontName, family))
+        {
+            SKTypeface? typeface = SKTypeface.FromFamilyName(candidate, weight, SKFontStyleWidth.Normal, slant);
+            if (typeface is not null)
+            {
+                return typeface;
+            }
+        }
+
+        return SKTypeface.FromFamilyName(fontName, weight, SKFontStyleWidth.Normal, slant);
+    }
+
+    private static IEnumerable<string> GetFallbackFamilies(string fontName, string family)
+    {
+        if (!string.IsNullOrWhiteSpace(family))
+        {
+            yield return family;
+        }
+
+        string normalized = fontName.Replace(" ", string.Empty, StringComparison.Ordinal);
+        if (normalized.Contains("Helvetica", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Arial", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("LiberationSans", StringComparison.OrdinalIgnoreCase))
+        {
+            yield return "Arial";
+            yield return "Helvetica";
+            yield return "Liberation Sans";
+        }
+        else if (normalized.Contains("Times", StringComparison.OrdinalIgnoreCase) ||
+                 normalized.Contains("LiberationSerif", StringComparison.OrdinalIgnoreCase))
+        {
+            yield return "Times New Roman";
+            yield return "Times";
+            yield return "Liberation Serif";
+        }
+        else if (normalized.Contains("Courier", StringComparison.OrdinalIgnoreCase) ||
+                 normalized.Contains("LiberationMono", StringComparison.OrdinalIgnoreCase))
+        {
+            yield return "Courier New";
+            yield return "Courier";
+            yield return "Liberation Mono";
+        }
+
+        if (!string.IsNullOrWhiteSpace(fontName))
+        {
+            yield return fontName;
+        }
+    }
+
+    private static bool IsBold(string fontName, PDFontDescriptor? descriptor)
+    {
+        return fontName.Contains("Bold", StringComparison.OrdinalIgnoreCase) ||
+               descriptor?.IsForceBold() == true ||
+               descriptor?.GetFontWeight() >= 600;
+    }
+
+    private static bool IsItalic(string fontName, PDFontDescriptor? descriptor)
+    {
+        return fontName.Contains("Italic", StringComparison.OrdinalIgnoreCase) ||
+               fontName.Contains("Oblique", StringComparison.OrdinalIgnoreCase) ||
+               descriptor?.IsItalic() == true ||
+               descriptor?.GetItalicAngle() != 0;
+    }
+
+    private static string StripSubsetPrefix(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return string.Empty;
+        }
+
+        int plus = name.IndexOf('+', StringComparison.Ordinal);
+        return plus >= 0 && plus + 1 < name.Length ? name[(plus + 1)..] : name;
     }
 
     private static SKMatrix ToCanvasMatrix(Matrix matrix, float pageHeightPt)
