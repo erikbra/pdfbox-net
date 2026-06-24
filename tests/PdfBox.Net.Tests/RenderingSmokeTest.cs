@@ -280,6 +280,22 @@ public class RenderingSmokeTest
     }
 
     [Fact]
+    public void RenderImage_Standard14FallbackText_IsUpright()
+    {
+        var resources = new PDModel.Resources.PDResources();
+        resources.Put(COSName.GetPDFName("F1"), new PDType1Font(PDType1Font.FontName.HELVETICA_BOLD));
+        using var document = CreateDocument("BT\n0 0 0 rg\n/F1 120 Tf\n100 500 Td\n(F) Tj\nET\n", resources);
+
+        var renderer = new PDFRenderer(document);
+        using BufferedImage image = renderer.RenderImage(0, 1f, ImageType.RGB);
+
+        int pixelsAboveBaseline = CountNonWhitePixels(image, 90, 175, 120, 110);
+        int pixelsBelowBaseline = CountNonWhitePixels(image, 90, 300, 120, 110);
+        Assert.True(pixelsAboveBaseline > pixelsBelowBaseline * 4,
+            $"Expected upright fallback text above the baseline, got above={pixelsAboveBaseline}, below={pixelsBelowBaseline}.");
+    }
+
+    [Fact]
     public void RenderImage_InvisibleTextRenderingMode_DoesNotDrawGlyphPixels()
     {
         var resources = new PDModel.Resources.PDResources();
