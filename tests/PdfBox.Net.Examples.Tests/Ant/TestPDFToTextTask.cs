@@ -21,6 +21,7 @@
  */
 
 using PdfBox.Net.Examples.Ant;
+using Microsoft.Build.Utilities;
 
 namespace PdfBox.Net.Examples.Tests.Ant;
 
@@ -47,11 +48,11 @@ public class TestPDFToTextTask : IDisposable
 
         PDFToTextTask task = new()
         {
-            PdfFile = pdfPath,
-            OutputFile = textPath
+            InputFile = new TaskItem(pdfPath),
+            OutputFile = new TaskItem(textPath)
         };
 
-        task.Execute();
+        Assert.True(task.Execute());
 
         Assert.True(File.Exists(textPath));
         Assert.Equal(string.Empty, File.ReadAllText(textPath));
