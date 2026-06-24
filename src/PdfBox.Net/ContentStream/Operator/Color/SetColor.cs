@@ -50,8 +50,16 @@ public abstract class SetColor : OperatorProcessor
             throw new MissingOperandException(op, operands);
         }
 
-        float[] components = new float[operands.Count];
-        for (int i = 0; i < operands.Count; i++)
+        COSName? patternName = null;
+        int componentCount = operands.Count;
+        if (colorSpace is PDPattern && operands.Count > 0 && operands[^1] is COSName name)
+        {
+            patternName = name;
+            componentCount--;
+        }
+
+        float[] components = new float[componentCount];
+        for (int i = 0; i < componentCount; i++)
         {
             if (operands[i] is not COSNumber number)
             {
@@ -62,7 +70,9 @@ public abstract class SetColor : OperatorProcessor
             components[i] = number.FloatValue();
         }
 
-        SetColorValue(new PDColor(components, colorSpace));
+        SetColorValue(patternName is null
+            ? new PDColor(components, colorSpace)
+            : new PDColor(components, patternName, colorSpace));
     }
 
     protected abstract PDColorSpace GetColorSpace();
