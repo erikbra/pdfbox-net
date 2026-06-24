@@ -206,6 +206,18 @@ public class EncryptionTest
     }
 
     [Fact]
+    public void Load_PublicKeyEncryptedPdf_WithKeyStoreOverload_ThrowsSemanticIOException()
+    {
+        byte[] pdf = CreatePublicKeyEncryptedPdf();
+        using MemoryStream keyStore = new();
+
+        IOException exception = Assert.Throws<IOException>(() => PdfBox.Net.Loader.LoadPDF(pdf, null, keyStore, "alias"));
+
+        Assert.Contains("Public-key encrypted", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("compression", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void Load_OwnerRestrictedPdf_WithNoUserPassword_ReturnsRestrictedPermissions()
     {
         string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "encrypted-owner-restricted.pdf");
