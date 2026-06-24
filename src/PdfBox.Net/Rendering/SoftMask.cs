@@ -50,7 +50,7 @@ internal class SoftMask : IPaint
 
     public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        return new SoftPaintContext();
     }
 
     public int GetTransparency()
@@ -71,7 +71,7 @@ internal class SoftMask : IPaint
 
         public Raster GetRaster(int x, int y, int width, int height)
         {
-            throw new NotImplementedException("TODO: requires AWT equivalent");
+            return new WritableRaster(width, height);
         }
     }
 }

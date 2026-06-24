@@ -45,6 +45,24 @@ public abstract class SetColor : OperatorProcessor
             return;
         }
 
+        if (colorSpace is PDPattern && operands.Count > 0 && operands[^1] is COSName patternName)
+        {
+            float[] patternComponents = new float[operands.Count - 1];
+            for (int i = 0; i < patternComponents.Length; i++)
+            {
+                if (operands[i] is not COSNumber number)
+                {
+                    SetColorValue(new PDColor(patternName, colorSpace));
+                    return;
+                }
+
+                patternComponents[i] = number.FloatValue();
+            }
+
+            SetColorValue(new PDColor(patternComponents, patternName, colorSpace));
+            return;
+        }
+
         if (colorSpace is not PDPattern && operands.Count < colorSpace.GetNumberOfComponents())
         {
             throw new MissingOperandException(op, operands);

@@ -22,8 +22,15 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.PDModel.Graphics.Patterns;
+using PdfBox.Net.PDModel.Graphics.Shading;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.Rendering;
 using SkiaSharp;
 using System.Text;
@@ -288,6 +295,117 @@ public class RenderingSmokeTest
         int blueG = (blueArgb >> 8) & 0xFF;
         int blueB = blueArgb & 0xFF;
         Assert.True(blueB > blueR && blueB > blueG, $"Expected blue-dominant image pixel but got RGB({blueR},{blueG},{blueB})");
+    }
+
+    [Fact]
+    public void RenderImage_FormXObject_DrawsNestedContentWithFormMatrix()
+    {
+        using var backingStream = new COSStream();
+        using (Stream output = backingStream.CreateOutputStream())
+        {
+            byte[] bytes = Encoding.Latin1.GetBytes("0 0 1 rg\n0 0 1 1 re\nf\n");
+            output.Write(bytes, 0, bytes.Length);
+        }
+
+        var form = new PDFormXObject(backingStream);
+        form.SetBBox(new PDRectangle(0, 0, 1, 1));
+        form.SetResources(new PDModel.Resources.PDResources());
+        form.SetMatrix(new PdfBox.Net.Util.Matrix(50, 0, 0, 50, 20, 20));
+
+        var resources = new PDModel.Resources.PDResources();
+        resources.Put(COSName.GetPDFName("Fm1"), form);
+        using PDDocument document = CreateDocument("q\n1 0 0 1 100 300 cm\n/Fm1 Do\nQ\n", resources);
+
+        var renderer = new PDFRenderer(document);
+        using BufferedImage image = renderer.RenderImage(0, 1f, ImageType.RGB);
+
+        int argb = image.GetRgb(130, 442);
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+        Assert.True(b > r && b > g, $"Expected blue-dominant form pixel but got RGB({r},{g},{b})");
+    }
+
+    [Fact]
+    public void RenderImage_ColoredPatternFill_DoesNotThrow()
+    {
+        var resources = new PDModel.Resources.PDResources();
+        PDTilingPattern pattern = new();
+        pattern.SetPaintType(PDTilingPattern.PAINT_COLORED);
+        pattern.SetTilingType(PDTilingPattern.TILING_CONSTANT_SPACING);
+        pattern.SetBBox(new PDRectangle(0, 0, 4, 4));
+        pattern.SetXStep(4);
+        pattern.SetYStep(4);
+        resources.Add(pattern);
+
+        using PDDocument document = CreateDocument("/Pattern cs\n/P1 scn\n100 500 40 40 re\nf\n", resources);
+
+        var renderer = new PDFRenderer(document);
+        using BufferedImage image = renderer.RenderImage(0, 1f, ImageType.RGB);
+
+        Assert.Equal(612, image.Width);
+    }
+
+    [Fact]
+    public void RenderImage_AnnotationAppearance_DrawsNormalAppearance()
+    {
+        using PDDocument document = CreateDocument(string.Empty);
+        PDPage page = document.GetPage(0);
+
+        using var appearanceStream = new COSStream();
+        using (Stream output = appearanceStream.CreateOutputStream())
+        {
+            byte[] bytes = Encoding.Latin1.GetBytes("0 1 0 rg\n0 0 1 1 re\nf\n");
+            output.Write(bytes, 0, bytes.Length);
+        }
+
+        var appearance = new PDAppearanceStream(appearanceStream);
+        appearance.SetBBox(new PDRectangle(0, 0, 1, 1));
+        appearance.SetResources(new PDModel.Resources.PDResources());
+
+        var appearanceDictionary = new PDAppearanceDictionary();
+        appearanceDictionary.SetNormalAppearance(appearance);
+
+        var annotation = new PDAnnotationSquare();
+        annotation.SetRectangle(new PDRectangle(100, 300, 50, 50));
+        annotation.SetAppearance(appearanceDictionary);
+        page.SetAnnotations([annotation]);
+
+        var renderer = new PDFRenderer(document);
+        using BufferedImage image = renderer.RenderImage(0, 1f, ImageType.RGB);
+
+        int argb = image.GetRgb(125, 467);
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+        Assert.True(g > r && g > b, $"Expected green-dominant annotation pixel but got RGB({r},{g},{b})");
+    }
+
+    [Fact]
+    public void RenderImage_AxialShadingFill_DrawsVisiblePixels()
+    {
+        COSDictionary functionDict = new();
+        functionDict.SetInt(COSName.FUNCTION_TYPE, 2);
+        functionDict.SetItem(COSName.C0, COSArray.Of(1f, 0f, 0f));
+        functionDict.SetItem(COSName.C1, COSArray.Of(0f, 0f, 1f));
+        functionDict.SetFloat(COSName.N, 1f);
+
+        PDShadingType2 shading = new(new COSDictionary());
+        shading.SetShadingType(PDShading.SHADING_TYPE2);
+        shading.SetColorSpace(PDDeviceRGB.Instance);
+        shading.SetBBox(new PDRectangle(100, 300, 80, 80));
+        shading.SetCoords(COSArray.Of(100f, 300f, 180f, 380f));
+        shading.SetFunction(new PDFunctionType2(functionDict));
+
+        var resources = new PDModel.Resources.PDResources();
+        COSName shadingName = resources.Add(shading, "Sh");
+        using PDDocument document = CreateDocument($"/{shadingName.GetName()} sh\n", resources);
+
+        var renderer = new PDFRenderer(document);
+        using BufferedImage image = renderer.RenderImage(0, 1f, ImageType.RGB);
+
+        int nonWhite = CountNonWhitePixels(image, 100, 412, 80, 80);
+        Assert.True(nonWhite > 100, $"Expected visible shading pixels but saw {nonWhite}");
     }
 
     private static int CountNonWhitePixels(BufferedImage image, int x, int y, int width, int height)
