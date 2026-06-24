@@ -26,6 +26,8 @@ using PdfBox.Net.COS;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.Util;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.Tests;
 
@@ -128,6 +130,27 @@ public class PDTrueTypeFontAndCIDType2Test
 
         var font = new PDTrueTypeFont(dict, ttf);
         Assert.Equal(expected, font.ExportFont());
+    }
+
+    [Fact]
+    public void PDTrueTypeFont_GetNormalizedPath_ScalesTrueTypeUnitsToPdfGlyphSpace()
+    {
+        TrueTypeFont ttf = new TTFParser().Parse(FontBoxTestFixtures.CreateMinimalTrueTypeWithUpm(2000));
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "TrueType");
+        dict.SetName(COSName.GetPDFName("BaseFont"), "MiniTTF");
+        var font = new PDTrueTypeFont(dict, ttf);
+
+        GeneralPath path = font.GetNormalizedPath(65);
+        (float minX, float minY, float maxX, float maxY) = GetBounds(path);
+        Matrix fontMatrix = font.GetFontMatrix();
+
+        Assert.Equal(0f, minX);
+        Assert.Equal(0f, minY);
+        Assert.Equal(250f, maxX);
+        Assert.Equal(350f, maxY);
+        Assert.Equal(0.001f, fontMatrix.GetValue(0, 0), precision: 6);
+        Assert.Equal(0.001f, fontMatrix.GetValue(1, 1), precision: 6);
     }
 
     [Fact]
@@ -438,6 +461,27 @@ public class PDTrueTypeFontAndCIDType2Test
     }
 
     [Fact]
+    public void PDType0Font_WithCIDFontType2_GetNormalizedPath_ScalesTrueTypeUnitsToPdfGlyphSpace()
+    {
+        TrueTypeFont ttf = new TTFParser().Parse(FontBoxTestFixtures.CreateMinimalTrueTypeWithUpm(2000));
+        var descendantDict = new COSDictionary();
+        descendantDict.SetName(COSName.GetPDFName("Subtype"), "CIDFontType2");
+        PDCIDFont descendant = new PDCIDFontType2(descendantDict, ttf);
+
+        var parentDict = new COSDictionary();
+        parentDict.SetName(COSName.GetPDFName("Subtype"), "Type0");
+        var type0Font = new PDType0Font(parentDict, descendant);
+
+        GeneralPath path = type0Font.GetNormalizedPath(1);
+        (float minX, float minY, float maxX, float maxY) = GetBounds(path);
+
+        Assert.Equal(0f, minX);
+        Assert.Equal(0f, minY);
+        Assert.Equal(250f, maxX);
+        Assert.Equal(350f, maxY);
+    }
+
+    [Fact]
     public void PDType0Font_WithCIDFontType2_ExplicitWArrayWidth_TakesPrecedenceOverTTF()
     {
         // W array defines width 900 for CID 1; TTF advance is 500.
@@ -528,5 +572,47 @@ public class PDTrueTypeFontAndCIDType2Test
         using MemoryStream ms = new();
         stream.CopyTo(ms);
         return ms.ToArray();
+    }
+
+    private static (float MinX, float MinY, float MaxX, float MaxY) GetBounds(GeneralPath path)
+    {
+        bool hasPoint = false;
+        float minX = 0;
+        float minY = 0;
+        float maxX = 0;
+        float maxY = 0;
+
+        foreach (GeneralPath.Segment segment in path.Segments)
+        {
+            switch (segment.Type)
+            {
+                case GeneralPath.SegmentType.MoveTo:
+                case GeneralPath.SegmentType.LineTo:
+                    Include(segment.X1, segment.Y1);
+                    break;
+                case GeneralPath.SegmentType.QuadTo:
+                    Include(segment.X1, segment.Y1);
+                    Include(segment.X2, segment.Y2);
+                    break;
+            }
+        }
+
+        return (minX, minY, maxX, maxY);
+
+        void Include(float x, float y)
+        {
+            if (!hasPoint)
+            {
+                minX = maxX = x;
+                minY = maxY = y;
+                hasPoint = true;
+                return;
+            }
+
+            minX = Math.Min(minX, x);
+            minY = Math.Min(minY, y);
+            maxX = Math.Max(maxX, x);
+            maxY = Math.Max(maxY, y);
+        }
     }
 }
