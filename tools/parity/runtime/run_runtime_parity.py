@@ -4,11 +4,13 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import math
 import os
 import re
 import subprocess
 import sys
 import unicodedata
+import zlib
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -23,6 +25,10 @@ JAVA_PROBE = ROOT / "tools/parity/runtime/JavaPdfProbe.java"
 KNOWN_FAILURES = ROOT / "tools/parity/runtime/known-failures.json"
 CORPUS_CATEGORIES = ROOT / "tools/parity/runtime/corpus-categories.json"
 DEFAULT_PDFBOX_ROOT = os.environ.get("PDFBOX_SOURCE_ROOT")
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+RENDER_VISUAL_MAX_MODERATE_DIFF_RATIO = 0.01
+RENDER_VISUAL_MAX_LARGE_DIFF_RATIO = 0.002
+RENDER_VISUAL_MAX_RMS = 5.0
 
 
 @dataclass(frozen=True)
@@ -40,6 +46,13 @@ class Result:
         if self.ok or ":" not in self.detail:
             return ""
         return self.detail.split(":", 1)[0]
+
+
+@dataclass(frozen=True)
+class RenderImage:
+    width: int
+    height: int
+    pixels: bytes
 
 
 def utc_now() -> str:
@@ -340,6 +353,8 @@ def has_only_punctuation_spacing_drift(java_text: str, dotnet_text: str) -> bool
 def is_match_category(category: str) -> bool:
     return category in {"match", "save-structural-match", "merge-structural-match"} or (
         category.startswith("text-semantic-") and category.endswith("-match")
+    ) or (
+        category.startswith("render-") and category.endswith("-match")
     )
 
 
@@ -373,6 +388,176 @@ def merge_artifact_name(file: str, runtime: str) -> str:
 
 def merge_artifact_path(out_dir: Path, file: str, runtime: str) -> Path:
     return out_dir / merge_artifact_name(file, runtime)
+
+
+def render_artifact_name(file: str, runtime: str) -> str:
+    return f"{Path(file).stem}-{runtime}-p1.png"
+
+
+def render_artifact_path(out_dir: Path, file: str, runtime: str) -> Path:
+    return out_dir / render_artifact_name(file, runtime)
+
+
+def render_images_equivalent(java_png: Path, dotnet_png: Path) -> bool:
+    try:
+        java = read_png_rgba(java_png)
+        dotnet = read_png_rgba(dotnet_png)
+    except (OSError, ValueError, zlib.error):
+        return False
+
+    if java.width != dotnet.width or java.height != dotnet.height:
+        return False
+    if java.pixels == dotnet.pixels:
+        return True
+
+    total_pixels = java.width * java.height
+    if total_pixels == 0:
+        return False
+
+    moderate_diff_pixels = 0
+    large_diff_pixels = 0
+    square_sum = 0
+    for i in range(0, len(java.pixels), 4):
+        alpha = abs(java.pixels[i] - dotnet.pixels[i])
+        red = abs(java.pixels[i + 1] - dotnet.pixels[i + 1])
+        green = abs(java.pixels[i + 2] - dotnet.pixels[i + 2])
+        blue = abs(java.pixels[i + 3] - dotnet.pixels[i + 3])
+        distance = alpha + red + green + blue
+        if distance > 24:
+            moderate_diff_pixels += 1
+        if distance > 128:
+            large_diff_pixels += 1
+        square_sum += alpha * alpha + red * red + green * green + blue * blue
+
+    rms = math.sqrt(square_sum / (total_pixels * 4))
+    return (
+        moderate_diff_pixels / total_pixels <= RENDER_VISUAL_MAX_MODERATE_DIFF_RATIO
+        and large_diff_pixels / total_pixels <= RENDER_VISUAL_MAX_LARGE_DIFF_RATIO
+        and rms <= RENDER_VISUAL_MAX_RMS
+    )
+
+
+def read_png_rgba(path: Path) -> RenderImage:
+    data = path.read_bytes()
+    if not data.startswith(PNG_SIGNATURE):
+        raise ValueError(f"not a PNG file: {path}")
+
+    width = height = bit_depth = color_type = compression = filter_method = interlace = None
+    idat = bytearray()
+    offset = len(PNG_SIGNATURE)
+    while offset + 12 <= len(data):
+        length = int.from_bytes(data[offset : offset + 4], "big")
+        chunk_type = data[offset + 4 : offset + 8]
+        chunk_data_start = offset + 8
+        chunk_data_end = chunk_data_start + length
+        if chunk_data_end + 4 > len(data):
+            raise ValueError(f"truncated PNG chunk: {path}")
+        chunk_data = data[chunk_data_start:chunk_data_end]
+        offset = chunk_data_end + 4
+
+        if chunk_type == b"IHDR":
+            width = int.from_bytes(chunk_data[0:4], "big")
+            height = int.from_bytes(chunk_data[4:8], "big")
+            bit_depth = chunk_data[8]
+            color_type = chunk_data[9]
+            compression = chunk_data[10]
+            filter_method = chunk_data[11]
+            interlace = chunk_data[12]
+        elif chunk_type == b"IDAT":
+            idat.extend(chunk_data)
+        elif chunk_type == b"IEND":
+            break
+
+    if width is None or height is None or bit_depth is None or color_type is None:
+        raise ValueError(f"missing PNG IHDR: {path}")
+    if bit_depth != 8 or color_type not in {0, 2, 4, 6} or compression != 0 or filter_method != 0 or interlace != 0:
+        raise ValueError(f"unsupported PNG format: {path}")
+
+    channels = {0: 1, 2: 3, 4: 2, 6: 4}[color_type]
+    stride = width * channels
+    raw = zlib.decompress(bytes(idat))
+    expected = (stride + 1) * height
+    if len(raw) != expected:
+        raise ValueError(f"unexpected PNG scanline length: {path}")
+
+    prior = bytearray(stride)
+    rgba = bytearray(width * height * 4)
+    raw_offset = 0
+    rgba_offset = 0
+    for _ in range(height):
+        filter_type = raw[raw_offset]
+        raw_offset += 1
+        scanline = bytearray(raw[raw_offset : raw_offset + stride])
+        raw_offset += stride
+        unfilter_png_scanline(scanline, prior, channels, filter_type)
+        rgba_offset = append_scanline_rgba(rgba, rgba_offset, scanline, color_type)
+        prior = scanline
+
+    return RenderImage(width, height, bytes(rgba))
+
+
+def unfilter_png_scanline(scanline: bytearray, prior: bytearray, bytes_per_pixel: int, filter_type: int) -> None:
+    if filter_type == 0:
+        return
+    if filter_type == 1:
+        for i in range(len(scanline)):
+            left = scanline[i - bytes_per_pixel] if i >= bytes_per_pixel else 0
+            scanline[i] = (scanline[i] + left) & 0xFF
+        return
+    if filter_type == 2:
+        for i in range(len(scanline)):
+            scanline[i] = (scanline[i] + prior[i]) & 0xFF
+        return
+    if filter_type == 3:
+        for i in range(len(scanline)):
+            left = scanline[i - bytes_per_pixel] if i >= bytes_per_pixel else 0
+            up = prior[i]
+            scanline[i] = (scanline[i] + ((left + up) // 2)) & 0xFF
+        return
+    if filter_type == 4:
+        for i in range(len(scanline)):
+            left = scanline[i - bytes_per_pixel] if i >= bytes_per_pixel else 0
+            up = prior[i]
+            up_left = prior[i - bytes_per_pixel] if i >= bytes_per_pixel else 0
+            scanline[i] = (scanline[i] + paeth_predictor(left, up, up_left)) & 0xFF
+        return
+    raise ValueError(f"unsupported PNG filter type: {filter_type}")
+
+
+def paeth_predictor(left: int, up: int, up_left: int) -> int:
+    estimate = left + up - up_left
+    distance_left = abs(estimate - left)
+    distance_up = abs(estimate - up)
+    distance_up_left = abs(estimate - up_left)
+    if distance_left <= distance_up and distance_left <= distance_up_left:
+        return left
+    if distance_up <= distance_up_left:
+        return up
+    return up_left
+
+
+def append_scanline_rgba(rgba: bytearray, rgba_offset: int, scanline: bytearray, color_type: int) -> int:
+    if color_type == 0:
+        for gray in scanline:
+            rgba[rgba_offset : rgba_offset + 4] = bytes((255, gray, gray, gray))
+            rgba_offset += 4
+        return rgba_offset
+    if color_type == 2:
+        for i in range(0, len(scanline), 3):
+            rgba[rgba_offset : rgba_offset + 4] = bytes((255, scanline[i], scanline[i + 1], scanline[i + 2]))
+            rgba_offset += 4
+        return rgba_offset
+    if color_type == 4:
+        for i in range(0, len(scanline), 2):
+            gray = scanline[i]
+            alpha = scanline[i + 1]
+            rgba[rgba_offset : rgba_offset + 4] = bytes((alpha, gray, gray, gray))
+            rgba_offset += 4
+        return rgba_offset
+    for i in range(0, len(scanline), 4):
+        rgba[rgba_offset : rgba_offset + 4] = bytes((scanline[i + 3], scanline[i], scanline[i + 1], scanline[i + 2]))
+        rgba_offset += 4
+    return rgba_offset
 
 
 def collect_document_structures(
@@ -494,6 +679,14 @@ def classify_text_mismatch(file: str, java_out: Path, dotnet_out: Path) -> str:
     return "text-semantic-mismatch"
 
 
+def classify_render_mismatch(file: str, java_out: Path, dotnet_out: Path) -> str:
+    java_png = render_artifact_path(java_out, file, "java")
+    dotnet_png = render_artifact_path(dotnet_out, file, "dotnet")
+    if render_images_equivalent(java_png, dotnet_png):
+        return "render-visual-equivalence-match"
+    return "detail-mismatch"
+
+
 def classify_save_mismatch(file: str, save_structures: dict[tuple[str, str], Result]) -> str:
     return classify_document_mismatch(file, save_structures, "save")
 
@@ -594,6 +787,8 @@ def classify(
     if java.detail != dotnet.detail:
         if op == "text":
             return classify_text_mismatch(java.file, java_out, dotnet_out)
+        if op == "render":
+            return classify_render_mismatch(java.file, java_out, dotnet_out)
         return "detail-mismatch"
     return "match"
 
@@ -721,6 +916,26 @@ def markdown_summary(summary: dict, rows: list[dict]) -> str:
             )
     if len(placeholders) > 100:
         lines.append(f"\nTruncated to 100 of {len(placeholders)} render placeholders.")
+    lines.append("")
+    lines.extend(["## Render Visual Equivalence", ""])
+    render_rows = [row for row in rows if row["op"] == "render"]
+    visual_matches = [row for row in render_rows if row["category"] == "render-visual-equivalence-match"]
+    detail_mismatches = [row for row in render_rows if row["category"] == "detail-mismatch"]
+    if not render_rows:
+        lines.append("No render rows detected.")
+    else:
+        lines.append("| Category | Count |")
+        lines.append("|---|---:|")
+        for key, value in sorted(Counter(row["category"] for row in render_rows).items()):
+            lines.append(f"| `{key}` | {value} |")
+        if visual_matches:
+            lines.append("")
+            lines.append(
+                f"{len(visual_matches)} render rows differ only within the conservative visual-equivalence threshold."
+            )
+        if detail_mismatches:
+            lines.append("")
+            lines.append(f"{len(detail_mismatches)} render rows still require renderer parity work.")
     lines.append("")
     lines.extend(["## Save Structural Parity", ""])
     save_rows = [row for row in rows if row["op"] == "save"]
