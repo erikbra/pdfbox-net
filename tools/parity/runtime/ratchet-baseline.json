@@ -2,24 +2,25 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "GitHub Actions run 28122371253 runtime-parity summary plus near-blank-threshold render classifier",
-    "generatedAtUtc": "2026-06-24T19:13:34Z",
+    "generatedFrom": "GitHub Actions run 28123457555 runtime-parity summary plus low-mean raster drift classifier",
+    "generatedAtUtc": "2026-06-24T19:33:14Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
   "maxStatus": {
-    "known": 66,
+    "known": 62,
     "unexpected": 0
   },
   "maxCategories": {
-    "detail-mismatch": 66,
+    "detail-mismatch": 62,
     "save-structural-match": 148,
     "merge-structural-match": 72,
     "render-java-optional-jpx-reader-missing-match": 3,
     "render-low-ink-equivalence-match": 9,
+    "render-low-mean-raster-drift-equivalence-match": 3,
     "render-lossy-jpeg-decoder-equivalence-match": 2,
     "render-near-blank-threshold-equivalence-match": 3,
-    "render-sparse-equivalence-match": 12,
+    "render-sparse-equivalence-match": 10,
     "render-visual-equivalence-match": 41,
     "render-placeholder": 0,
     "text-semantic-math-linewrap-match": 1,
