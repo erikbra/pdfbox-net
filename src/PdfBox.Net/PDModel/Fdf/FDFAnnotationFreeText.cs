@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using System.Globalization;
+using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
@@ -49,6 +51,41 @@ public class FDFAnnotationFreeText : FDFAnnotation
     public FDFAnnotationFreeText(COSDictionary annotation)
         : base(annotation)
     {
+    }
+
+    public FDFAnnotationFreeText(XmlElement element)
+        : base(element)
+    {
+        Annot.SetName(COSName.SUBTYPE, Subtype);
+
+        SetJustification(element.GetAttribute("justification"));
+        SetDefaultAppearance(ElementText(element, "defaultappearance"));
+        SetDefaultStyle(ElementText(element, "defaultstyle"));
+
+        string callout = element.GetAttribute("callout");
+        if (!string.IsNullOrEmpty(callout))
+        {
+            SetCallout(ParseFloats(SplitLikeJava(callout, ',')));
+        }
+
+        string rotation = element.GetAttribute("rotation");
+        if (!string.IsNullOrEmpty(rotation))
+        {
+            SetRotation(int.Parse(rotation, CultureInfo.InvariantCulture));
+        }
+
+        string fringe = element.GetAttribute("fringe");
+        if (!string.IsNullOrEmpty(fringe))
+        {
+            SetFringe(new PDRectangle(COSArray.Of(ParseRectangleAttributes(
+                fringe, "Error: wrong amount of numbers in attribute 'fringe'"))));
+        }
+
+        string lineEndingStyle = element.GetAttribute("head");
+        if (!string.IsNullOrEmpty(lineEndingStyle))
+        {
+            SetLineEndingStyle(lineEndingStyle);
+        }
     }
 
     public void SetCallout(float[]? callout) => Annot.SetItem(ClName, callout is null ? null : COSArray.Of(callout));

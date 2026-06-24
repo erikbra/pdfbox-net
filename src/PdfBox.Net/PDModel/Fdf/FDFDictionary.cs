@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common.FileSpecification;
+using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
@@ -50,6 +51,90 @@ public class FDFDictionary : COSObjectable
     public FDFDictionary(COSDictionary fdfDictionary)
     {
         _fdf = fdfDictionary ?? throw new ArgumentNullException(nameof(fdfDictionary));
+    }
+
+    public FDFDictionary(XmlElement fdfXml)
+        : this()
+    {
+        ArgumentNullException.ThrowIfNull(fdfXml);
+
+        foreach (XmlElement child in ChildElements(fdfXml))
+        {
+            switch (child.LocalName)
+            {
+                case "f":
+                    PDSimpleFileSpecification fs = new();
+                    fs.SetFile(child.GetAttribute("href"));
+                    SetFile(fs);
+                    break;
+                case "ids":
+                    COSArray ids = new();
+                    AddHexId(ids, child.GetAttribute("original"));
+                    AddHexId(ids, child.GetAttribute("modified"));
+                    SetID(ids);
+                    break;
+                case "fields":
+                    List<FDFField> fieldList = [];
+                    foreach (XmlElement field in ChildElements(child, "field"))
+                    {
+                        fieldList.Add(new FDFField(field));
+                    }
+
+                    SetFields(fieldList);
+                    break;
+                case "annots":
+                    List<FDFAnnotation> annotationList = [];
+                    foreach (XmlElement annotationElement in ChildElements(child))
+                    {
+                        FDFAnnotation? annotation = FDFAnnotation.CreateFromXFDF(annotationElement);
+                        if (annotation is not null)
+                        {
+                            annotationList.Add(annotation);
+                        }
+                    }
+
+                    SetAnnotations(annotationList);
+                    break;
+            }
+        }
+    }
+
+    public void WriteXml(TextWriter output)
+    {
+        ArgumentNullException.ThrowIfNull(output);
+
+        PDFileSpecification? fs = GetFile();
+        if (fs is not null)
+        {
+            output.Write("<f href=\"");
+            output.Write(fs.GetFile());
+            output.Write("\" />\n");
+        }
+
+        COSArray? ids = GetID();
+        if (ids is not null && ids.Size() >= 2
+            && ids.GetObject(0) is COSString original
+            && ids.GetObject(1) is COSString modified)
+        {
+            output.Write("<ids original=\"");
+            output.Write(original.ToHexString());
+            output.Write("\" ");
+            output.Write("modified=\"");
+            output.Write(modified.ToHexString());
+            output.Write("\" />\n");
+        }
+
+        List<FDFField>? fields = GetFields();
+        if (fields is { Count: > 0 })
+        {
+            output.Write("<fields>\n");
+            foreach (FDFField field in fields)
+            {
+                field.WriteXml(output);
+            }
+
+            output.Write("</fields>\n");
+        }
     }
 
     public COSBase GetCOSObject()
@@ -185,5 +270,29 @@ public class FDFDictionary : COSObjectable
     public void SetJavaScript(FDFJavaScript? javaScript)
     {
         _fdf.SetItem(JavaScriptName, javaScript);
+    }
+
+    private static void AddHexId(COSArray ids, string hex)
+    {
+        try
+        {
+            ids.Add(COSString.ParseHex(hex));
+        }
+        catch (IOException)
+        {
+            // Match upstream behavior: malformed XFDF ID entries are ignored.
+        }
+    }
+
+    private static IEnumerable<XmlElement> ChildElements(XmlElement element, string? localName = null)
+    {
+        foreach (XmlNode node in element.ChildNodes)
+        {
+            if (node is XmlElement child
+                && (localName is null || string.Equals(child.LocalName, localName, StringComparison.Ordinal)))
+            {
+                yield return child;
+            }
+        }
     }
 }

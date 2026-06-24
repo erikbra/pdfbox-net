@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
@@ -41,5 +42,11 @@ public class FDFAnnotationSquiggly : FDFAnnotationTextMarkup
     public FDFAnnotationSquiggly(COSDictionary annotation)
         : base(annotation)
     {
+    }
+
+    public FDFAnnotationSquiggly(XmlElement element)
+        : base(element)
+    {
+        Annot.SetName(COSName.SUBTYPE, Subtype);
     }
 }

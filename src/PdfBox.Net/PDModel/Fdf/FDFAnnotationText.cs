@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.COS;
+using System.Xml;
+
 namespace PdfBox.Net.PDModel.Fdf;
 
 public class FDFAnnotationText : FDFAnnotation
@@ -43,6 +45,29 @@ public class FDFAnnotationText : FDFAnnotation
     public FDFAnnotationText(COSDictionary annotation)
         : base(annotation)
     {
+    }
+
+    public FDFAnnotationText(XmlElement element)
+        : base(element)
+    {
+        Annot.SetName(COSName.SUBTYPE, Subtype);
+
+        string icon = element.GetAttribute("icon");
+        if (!string.IsNullOrEmpty(icon))
+        {
+            SetIcon(icon);
+        }
+
+        string state = element.GetAttribute("state");
+        if (!string.IsNullOrEmpty(state))
+        {
+            string stateModel = element.GetAttribute("statemodel");
+            if (!string.IsNullOrEmpty(stateModel))
+            {
+                SetState(state);
+                SetStateModel(stateModel);
+            }
+        }
     }
 
     public void SetIcon(string? icon) => Annot.SetName(COSName.NAME, icon);

@@ -25,10 +25,13 @@
  * limitations under the License.
  */
 
+using System.Text;
+using System.Xml;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
@@ -53,6 +56,87 @@ public class FDFField : COSObjectable
     public FDFField(COSDictionary field)
     {
         _field = field ?? throw new ArgumentNullException(nameof(field));
+    }
+
+    public FDFField(XmlElement fieldXml)
+        : this()
+    {
+        ArgumentNullException.ThrowIfNull(fieldXml);
+        SetPartialFieldName(fieldXml.GetAttribute("name"));
+
+        List<FDFField> kids = [];
+        foreach (XmlNode node in fieldXml.ChildNodes)
+        {
+            if (node is not XmlElement child)
+            {
+                continue;
+            }
+
+            switch (child.LocalName)
+            {
+                case "value":
+                    SetValue(XMLUtil.GetNodeValue(child));
+                    break;
+                case "value-richtext":
+                    SetRichText(new COSString(XMLUtil.GetNodeValue(child)));
+                    break;
+                case "field":
+                    kids.Add(new FDFField(child));
+                    break;
+            }
+        }
+
+        if (kids.Count > 0)
+        {
+            SetKids(kids);
+        }
+    }
+
+    public void WriteXml(TextWriter output)
+    {
+        ArgumentNullException.ThrowIfNull(output);
+
+        output.Write("<field name=\"");
+        output.Write(GetPartialFieldName());
+        output.Write("\">\n");
+
+        object? value = GetValue();
+        switch (value)
+        {
+            case string text:
+                output.Write("<value>");
+                output.Write(EscapeXml(text));
+                output.Write("</value>\n");
+                break;
+            case IList<string> items:
+                foreach (string item in items)
+                {
+                    output.Write("<value>");
+                    output.Write(EscapeXml(item));
+                    output.Write("</value>\n");
+                }
+
+                break;
+        }
+
+        string? richText = GetRichText();
+        if (richText is not null)
+        {
+            output.Write("<value-richtext>");
+            output.Write(EscapeXml(richText));
+            output.Write("</value-richtext>\n");
+        }
+
+        List<FDFField>? kids = GetKids();
+        if (kids is not null)
+        {
+            foreach (FDFField kid in kids)
+            {
+                kid.WriteXml(output);
+            }
+        }
+
+        output.Write("</field>\n");
     }
 
     public COSBase GetCOSObject()
@@ -274,5 +358,44 @@ public class FDFField : COSObjectable
     private void SetNullableInt(COSName name, int? value)
     {
         _field.SetItem(name, value.HasValue ? COSInteger.Get(value.Value) : null);
+    }
+
+    private static string EscapeXml(string input)
+    {
+        StringBuilder escapedXml = new();
+        foreach (char c in input)
+        {
+            switch (c)
+            {
+                case '<':
+                    escapedXml.Append("&lt;");
+                    break;
+                case '>':
+                    escapedXml.Append("&gt;");
+                    break;
+                case '"':
+                    escapedXml.Append("&quot;");
+                    break;
+                case '&':
+                    escapedXml.Append("&amp;");
+                    break;
+                case '\'':
+                    escapedXml.Append("&apos;");
+                    break;
+                default:
+                    if (c > 0x7e)
+                    {
+                        escapedXml.Append("&#").Append((int)c).Append(';');
+                    }
+                    else
+                    {
+                        escapedXml.Append(c);
+                    }
+
+                    break;
+            }
+        }
+
+        return escapedXml.ToString();
     }
 }

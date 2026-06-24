@@ -22,14 +22,6 @@
   ],
   "semanticUnsupported": [
     {
-      "id": "xfdf-loader-gap",
-      "file": "src/PdfBox.Net/Loader.cs",
-      "statementContains": "XFDF loading",
-      "classification": "implementation-gap",
-      "issue": 451,
-      "rationale": "Apache PDFBox supports Loader.loadXFDF; the .NET port tracks this as a dedicated model/tool parity gap."
-    },
-    {
       "id": "tools-module-gap",
       "file": "src/PdfBox.Net/Tools/ToolSupport.cs",
       "statementContains": "not yet supported in this PdfBox.Net tools port",

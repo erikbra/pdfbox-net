@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
@@ -39,6 +40,24 @@ public abstract class FDFAnnotationTextMarkup : FDFAnnotation
     protected FDFAnnotationTextMarkup(COSDictionary annotation)
         : base(annotation)
     {
+    }
+
+    protected FDFAnnotationTextMarkup(XmlElement element)
+        : base(element)
+    {
+        string coords = element.GetAttribute("coords");
+        if (string.IsNullOrEmpty(coords))
+        {
+            throw new IOException("Error: missing attribute 'coords'");
+        }
+
+        string[] coordsValues = SplitLikeJava(coords, ',');
+        if (coordsValues.Length < 8)
+        {
+            throw new IOException("Error: too little numbers in attribute 'coords'");
+        }
+
+        SetCoords(ParseFloats(coordsValues));
     }
 
     public void SetCoords(float[]? coords)
