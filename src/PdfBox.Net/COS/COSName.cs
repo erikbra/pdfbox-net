@@ -120,6 +120,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     // I
     public static readonly COSName IDENTITY = GetPDFName("Identity");
     public static readonly COSName IMAGE_MASK = GetPDFName("ImageMask");
+    public static readonly COSName INTERPOLATE = GetPDFName("Interpolate");
     // J
     public static readonly COSName JBIG2_DECODE = GetPDFName("JBIG2Decode");
     public static readonly COSName JBIG2_GLOBALS = GetPDFName("JBIG2Globals");

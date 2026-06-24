@@ -86,6 +86,12 @@ public sealed class PDImageXObject : PDXObject
     public int GetWidth() => GetCOSObject()?.GetInt(COSName.WIDTH, 0) ?? 0;
     public int GetHeight() => GetCOSObject()?.GetInt(COSName.HEIGHT, 0) ?? 0;
     public int GetBitsPerComponent() => GetCOSObject()?.GetInt(COSName.BITS_PER_COMPONENT, 8) ?? 8;
+    public bool GetInterpolate() => GetCOSObject()?.GetBoolean(COSName.INTERPOLATE, false) ?? false;
+
+    public void SetInterpolate(bool value)
+    {
+        GetCOSObject()?.SetBoolean(COSName.INTERPOLATE, value);
+    }
 
     public PDColorSpace GetColorSpace()
     {
