@@ -42,6 +42,8 @@ RENDER_SPARSE_MAX_MODERATE_DIFF_RATIO = 0.025
 RENDER_SPARSE_MAX_LARGE_DIFF_RATIO = 0.015
 RENDER_SPARSE_MAX_RMS = 17.0
 RENDER_SPARSE_MAX_MEAN = 1.5
+RENDER_NEAR_BLANK_THRESHOLD_MAX_FOREGROUND_RATIO = 0.01
+IGNORED_PROBE_OUTPUT_SAMPLE_LIMIT = 8
 
 
 @dataclass(frozen=True)
@@ -160,14 +162,31 @@ def read_merge_pairs(path: Path | None, pdfs: list[Path], pdfbox_root: Path | No
     return pairs
 
 
+def warn_ignored_probe_output(runtime: str, lines: list[str]) -> None:
+    if not lines:
+        return
+
+    counts = Counter(lines)
+    unique_count = len(counts)
+    sample_count = min(unique_count, IGNORED_PROBE_OUTPUT_SAMPLE_LIMIT)
+    print(
+        f"warning: ignored {len(lines)} non-JSON {runtime} probe output lines "
+        f"(showing {sample_count} of {unique_count} unique):",
+        file=sys.stderr,
+    )
+    for line, count in counts.most_common(IGNORED_PROBE_OUTPUT_SAMPLE_LIMIT):
+        print(f"warning:   {count}x {line}", file=sys.stderr)
+
+
 def parse_jsonl(text: str, runtime: str) -> list[Result]:
     results: list[Result] = []
+    ignored_lines: list[str] = []
     for raw in text.splitlines():
         line = raw.strip()
         if not line:
             continue
         if not line.startswith("{"):
-            print(f"warning: ignored non-JSON {runtime} probe output: {line}", file=sys.stderr)
+            ignored_lines.append(line)
             continue
         row = json.loads(line)
         results.append(
@@ -181,6 +200,7 @@ def parse_jsonl(text: str, runtime: str) -> list[Result]:
                 detail=str(row["detail"]),
             )
         )
+    warn_ignored_probe_output(runtime, ignored_lines)
     return results
 
 
@@ -746,6 +766,10 @@ def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: 
         return "render-low-ink-equivalence-match"
     if is_sparse_render_drift(java, dotnet, java_png, dotnet_png):
         return "render-sparse-equivalence-match"
+    if is_near_blank_threshold_render_drift(java, dotnet, java_png, dotnet_png):
+        return "render-near-blank-threshold-equivalence-match"
+    if is_render_placeholder(java, dotnet):
+        return "render-placeholder"
     return "detail-mismatch"
 
 
@@ -804,6 +828,31 @@ def is_sparse_render_drift(java: Result, dotnet: Result, java_png: Path, dotnet_
     )
 
 
+def is_near_blank_threshold_render_drift(java: Result, dotnet: Result, java_png: Path, dotnet_png: Path) -> bool:
+    if is_near_blank_render(java) == is_near_blank_render(dotnet):
+        return False
+
+    stats = render_image_diff_stats(java_png, dotnet_png)
+    if stats is None or stats.total_pixels <= 0:
+        return False
+
+    java_non_background = render_metric_int(java, "nonBg")
+    dotnet_non_background = render_metric_int(dotnet, "nonBg")
+    if java_non_background is None or dotnet_non_background is None:
+        return False
+
+    foreground_ratio = max(java_non_background, dotnet_non_background) / stats.total_pixels
+    if foreground_ratio > RENDER_NEAR_BLANK_THRESHOLD_MAX_FOREGROUND_RATIO:
+        return False
+
+    return (
+        stats.moderate_diff_ratio <= RENDER_SPARSE_MAX_MODERATE_DIFF_RATIO
+        and stats.large_diff_ratio <= RENDER_SPARSE_MAX_LARGE_DIFF_RATIO
+        and stats.rms <= RENDER_SPARSE_MAX_RMS
+        and stats.mean <= RENDER_SPARSE_MAX_MEAN
+    )
+
+
 def is_java_optional_jpx_reader_gap(file: str, java: Result, dotnet: Result) -> bool:
     if "JPX" not in Path(file).name:
         return False
@@ -812,6 +861,10 @@ def is_java_optional_jpx_reader_gap(file: str, java: Result, dotnet: Result) -> 
 
     non_background = render_metric_int(dotnet, "nonBg")
     return non_background is not None and non_background > 0
+
+
+def is_render_placeholder(java: Result, dotnet: Result) -> bool:
+    return is_near_blank_render(dotnet) and not is_near_blank_render(java)
 
 
 def classify_save_mismatch(file: str, save_structures: dict[tuple[str, str], Result]) -> str:
@@ -909,8 +962,6 @@ def classify(
         return classify_save_mismatch(java.file, save_structures)
     if op == "merge" and java.detail != dotnet.detail:
         return classify_merge_mismatch(java.file, merge_structures)
-    if op == "render" and is_near_blank_render(dotnet) and not is_near_blank_render(java):
-        return "render-placeholder"
     if java.detail != dotnet.detail:
         if op == "text":
             return classify_text_mismatch(java.file, java_out, dotnet_out)

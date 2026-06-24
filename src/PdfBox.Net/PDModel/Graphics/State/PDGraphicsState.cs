@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.ContentStream;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.Util;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics;
@@ -38,6 +40,20 @@ namespace PdfBox.Net.PDModel.Graphics.State;
 /// </summary>
 public class PDGraphicsState
 {
+    public sealed class ClippingPath
+    {
+        internal ClippingPath(IReadOnlyList<PDFStreamEngine.PathSegment> segments, Matrix ctm, int windingRule)
+        {
+            Segments = segments;
+            CurrentTransformationMatrix = ctm;
+            WindingRule = windingRule;
+        }
+
+        internal IReadOnlyList<PDFStreamEngine.PathSegment> Segments { get; }
+        public Matrix CurrentTransformationMatrix { get; }
+        public int WindingRule { get; }
+    }
+
     private Matrix _currentTransformationMatrix;
     private PDTextState _textState;
     private float _lineWidth;
@@ -52,6 +68,7 @@ public class PDGraphicsState
     private PDColor _strokingColor;
     private PDColor _nonStrokingColor;
     private int _clippingWindingRule;
+    private List<ClippingPath> _clippingPaths;
     private float _alphaConstant;
     private float _nonStrokeAlphaConstant;
     private bool _alphaSource;
@@ -76,12 +93,20 @@ public class PDGraphicsState
         _strokingColor = _strokingColorSpace.GetInitialColor();
         _nonStrokingColor = _nonStrokingColorSpace.GetInitialColor();
         _clippingWindingRule = 1;
+        _clippingPaths = [];
         _alphaConstant = 1f;
         _nonStrokeAlphaConstant = 1f;
         _alphaSource = false;
         _strokeAdjustment = false;
         _blendMode = BlendMode.NORMAL;
         _softMask = null;
+    }
+
+    public PDGraphicsState(PDRectangle page)
+        : this()
+    {
+        ArgumentNullException.ThrowIfNull(page);
+        _clippingPaths.Add(CreatePageClippingPath(page));
     }
 
     private PDGraphicsState(
@@ -99,6 +124,7 @@ public class PDGraphicsState
         PDColor strokingColor,
         PDColor nonStrokingColor,
         int clippingWindingRule,
+        List<ClippingPath> clippingPaths,
         float alphaConstant,
         float nonStrokeAlphaConstant,
         bool alphaSource,
@@ -120,6 +146,7 @@ public class PDGraphicsState
         _strokingColor = strokingColor;
         _nonStrokingColor = nonStrokingColor;
         _clippingWindingRule = clippingWindingRule;
+        _clippingPaths = clippingPaths;
         _alphaConstant = alphaConstant;
         _nonStrokeAlphaConstant = nonStrokeAlphaConstant;
         _alphaSource = alphaSource;
@@ -175,6 +202,20 @@ public class PDGraphicsState
 
     public int GetClippingWindingRule() => _clippingWindingRule;
     public void SetClippingWindingRule(int clippingWindingRule) => _clippingWindingRule = clippingWindingRule;
+    public IReadOnlyList<ClippingPath> GetCurrentClippingPaths() => _clippingPaths;
+
+    internal void IntersectClippingPath(IReadOnlyList<PDFStreamEngine.PathSegment> path, Matrix ctm, int windingRule)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        ArgumentNullException.ThrowIfNull(ctm);
+
+        if (path.Count == 0)
+        {
+            return;
+        }
+
+        _clippingPaths = [.. _clippingPaths, new ClippingPath(path.ToArray(), ctm, windingRule)];
+    }
 
     public float GetAlphaConstant() => _alphaConstant;
     public void SetAlphaConstant(float value) => _alphaConstant = value;
@@ -208,10 +249,30 @@ public class PDGraphicsState
             new PDColor((float[])_strokingColor.GetComponents().Clone(), _strokingColor.GetColorSpace()),
             new PDColor((float[])_nonStrokingColor.GetComponents().Clone(), _nonStrokingColor.GetColorSpace()),
             _clippingWindingRule,
+            [.. _clippingPaths],
             _alphaConstant,
             _nonStrokeAlphaConstant,
             _alphaSource,
             _strokeAdjustment,
             _blendMode,
             _softMask);
+
+    private static ClippingPath CreatePageClippingPath(PDRectangle page)
+    {
+        float x1 = page.GetLowerLeftX();
+        float y1 = page.GetLowerLeftY();
+        float x2 = page.GetUpperRightX();
+        float y2 = page.GetUpperRightY();
+
+        PDFStreamEngine.PathSegment[] segments =
+        [
+            new(PDFStreamEngine.PathSegmentType.MoveTo, x1, y1, 0, 0, 0, 0),
+            new(PDFStreamEngine.PathSegmentType.LineTo, x2, y1, 0, 0, 0, 0),
+            new(PDFStreamEngine.PathSegmentType.LineTo, x2, y2, 0, 0, 0, 0),
+            new(PDFStreamEngine.PathSegmentType.LineTo, x1, y2, 0, 0, 0, 0),
+            new(PDFStreamEngine.PathSegmentType.Close, 0, 0, 0, 0, 0, 0),
+        ];
+
+        return new ClippingPath(segments, new Matrix(), 1);
+    }
 }
