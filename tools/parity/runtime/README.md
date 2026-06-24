@@ -43,6 +43,10 @@ Rows where only one runtime crosses the near-blank metric boundary use a
 separate near-blank-threshold visual classifier, capped at 1% foreground
 coverage and the same sparse diff limits, before they are treated as render
 placeholders.
+Non-near-blank rows with less than 10% foreground coverage may also be accepted
+as low-mean raster drift when the mean channel error stays below 0.8, RMS stays
+below 6, large-difference pixels stay below 0.5%, and moderate-difference
+pixels stay below 4%.
 
 ## Local ratchet run
 
