@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Filter;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
@@ -99,15 +100,20 @@ public sealed class PDImageXObject : PDXObject
 
     public byte[] GetImageData()
     {
+        return DecodeImageData().Data;
+    }
+
+    internal (byte[] Data, DecodeResult DecodeResult) DecodeImageData()
+    {
         PDStream? stream = GetStream();
         if (stream is null)
         {
-            return Array.Empty<byte>();
+            return (Array.Empty<byte>(), DecodeResult.CreateDefault());
         }
 
-        using Stream input = stream.CreateInputStream();
+        using COSInputStream input = stream.CreateInputStream();
         using MemoryStream output = new();
         input.CopyTo(output);
-        return output.ToArray();
+        return (output.ToArray(), input.GetDecodeResult());
     }
 }

@@ -28,6 +28,7 @@
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Filter;
 using PdfBox.Net.PDModel.Graphics.Color;
 
 /// <summary>
@@ -45,13 +46,17 @@ internal static class SampledImageReader
     public static byte[] GetRGBImage(PDImageXObject image)
     {
         ArgumentNullException.ThrowIfNull(image);
+        (byte[] data, DecodeResult decodeResult) = image.DecodeImageData();
+        COSDictionary decodeParameters = decodeResult.GetParameters();
+        PDColorSpace colorSpace = decodeResult.GetJPXColorSpace() as PDColorSpace ?? image.GetColorSpace();
+
         return GetRGBImage(
-            image.GetWidth(),
-            image.GetHeight(),
-            image.GetBitsPerComponent(),
-            image.GetColorSpace(),
-            image.GetImageData(),
-            image.GetCOSObject()?.GetCOSArray(COSName.DECODE));
+            decodeParameters.GetInt(COSName.WIDTH, image.GetWidth()),
+            decodeParameters.GetInt(COSName.HEIGHT, image.GetHeight()),
+            decodeParameters.GetInt(COSName.BITS_PER_COMPONENT, image.GetBitsPerComponent()),
+            colorSpace,
+            data,
+            decodeParameters.GetCOSArray(COSName.DECODE) ?? image.GetCOSObject()?.GetCOSArray(COSName.DECODE));
     }
 
     /// <summary>
