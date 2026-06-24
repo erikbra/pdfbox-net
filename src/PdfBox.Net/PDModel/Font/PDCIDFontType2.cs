@@ -34,7 +34,9 @@ namespace PdfBox.Net.PDModel.Font;
 public partial class PDCIDFontType2 : PDCIDFont
 {
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
+    private static readonly COSName FontFileKey = COSName.GetPDFName("FontFile");
     private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
+    private static readonly COSName FontFile3Key = COSName.GetPDFName("FontFile3");
     private static readonly COSName CIDToGIDMapKey = COSName.GetPDFName("CIDToGIDMap");
 
     private readonly TrueTypeFont _trueTypeFont;
@@ -54,11 +56,11 @@ public partial class PDCIDFontType2 : PDCIDFont
         TrueTypeFont? ttf = null;
         try
         {
-            if (dictionary.GetDictionaryObject(FontDescriptorKey) is COSDictionary descriptor &&
-                descriptor.GetDictionaryObject(FontFile2Key) is COSStream fontFile)
+            if (dictionary.GetDictionaryObject(FontDescriptorKey) is COSDictionary descriptor)
             {
-                using Stream stream = fontFile.CreateInputStream();
-                ttf = new TTFParser(isEmbedded: true).ParseEmbedded(stream);
+                ttf = TryParseEmbeddedFont(descriptor, FontFile2Key, preferOpenType: false)
+                    ?? TryParseEmbeddedFont(descriptor, FontFile3Key, preferOpenType: true)
+                    ?? TryParseEmbeddedFont(descriptor, FontFileKey, preferOpenType: false);
             }
         }
         catch
@@ -67,6 +69,55 @@ public partial class PDCIDFontType2 : PDCIDFont
         }
 
         return new PDCIDFontType2(dictionary, ttf);
+    }
+
+    private static TrueTypeFont? TryParseEmbeddedFont(COSDictionary descriptor, COSName key, bool preferOpenType)
+    {
+        if (descriptor.GetDictionaryObject(key) is not COSStream fontFile)
+        {
+            return null;
+        }
+
+        byte[] bytes;
+        using (Stream stream = fontFile.CreateInputStream())
+        using (MemoryStream buffer = new())
+        {
+            stream.CopyTo(buffer);
+            bytes = buffer.ToArray();
+        }
+
+        if (bytes.Length == 0)
+        {
+            return null;
+        }
+
+        return preferOpenType
+            ? TryParseOpenType(bytes) ?? TryParseTrueType(bytes)
+            : TryParseTrueType(bytes) ?? TryParseOpenType(bytes);
+    }
+
+    private static TrueTypeFont? TryParseTrueType(byte[] bytes)
+    {
+        try
+        {
+            return new TTFParser(isEmbedded: true).ParseEmbedded(new MemoryStream(bytes, writable: false));
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static TrueTypeFont? TryParseOpenType(byte[] bytes)
+    {
+        try
+        {
+            return new OTFParser(isEmbedded: true).ParseEmbedded(new MemoryStream(bytes, writable: false));
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public override bool IsVertical()

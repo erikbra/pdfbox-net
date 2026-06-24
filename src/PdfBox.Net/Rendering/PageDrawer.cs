@@ -415,16 +415,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
             return;
         }
 
-        SaveGraphicsState();
-        try
-        {
-            ConcatenateMatrix(form.GetMatrix());
-            base.XObject(form);
-        }
-        finally
-        {
-            RestoreGraphicsState();
-        }
+        base.XObject(form);
     }
 
     private void ShowAnnotationAppearance(PDAnnotation annotation, PDAppearanceStream appearance)
@@ -442,7 +433,6 @@ public class PageDrawer : PDFGraphicsStreamEngine
         try
         {
             ConcatenateMatrix(placement);
-            ConcatenateMatrix(appearance.GetMatrix());
             base.XObject(appearance);
         }
         finally

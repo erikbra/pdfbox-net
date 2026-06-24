@@ -62,6 +62,11 @@ public sealed class PDType3Font : PDSimpleFont
 
     public override string GetName() => FontDictionary.GetNameAsString(NameKey) ?? base.GetName();
 
+    public override Vector GetDisplacement(int code)
+    {
+        return GetFontMatrix().Transform(GetWidth(code), 0);
+    }
+
     public override float GetWidth(int code)
     {
         float[]? widths = GetExplicitWidths();

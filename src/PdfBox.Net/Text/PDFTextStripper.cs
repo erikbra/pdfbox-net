@@ -251,66 +251,171 @@ public class PDFTextStripper : LegacyPDFStreamEngine
 
     protected virtual void StartPage(PDPage page)
     {
-        WritePageStart();
     }
 
     protected virtual void EndPage(PDPage page)
     {
-        WritePageEnd();
     }
 
     protected virtual void WritePage()
     {
+        float maxYForLine = MAX_Y_FOR_LINE_RESET_VALUE;
+        float minYTopForLine = MIN_Y_TOP_FOR_LINE_RESET_VALUE;
+        float endOfLastTextX = END_OF_LAST_TEXT_X_RESET_VALUE;
+        float lastWordSpacing = LAST_WORD_SPACING_RESET_VALUE;
+        float maxHeightForLine = MAX_HEIGHT_FOR_LINE_RESET_VALUE;
+        float previousAveCharWidth = -1;
+        PositionWrapper? lastPosition = null;
+        PositionWrapper? lastLineStartPosition = null;
         bool startOfPage = true;
+        bool startOfArticle;
+        if (charactersByArticle.Count > 0)
+        {
+            WritePageStart();
+        }
+
         foreach (List<TextPosition> textList in charactersByArticle)
         {
-            if (textList.Count == 0)
-            {
-                continue;
-            }
-
-            if (!startOfPage)
-            {
-                WriteLineSeparator();
-            }
-
-            startOfPage = false;
             if (_sortByPosition)
             {
                 textList.Sort(new TextPositionComparator());
+                RemoveContainedSpaces(textList);
             }
 
             StartArticle();
+            startOfArticle = true;
             List<LineItem> line = new();
-            float lastY = float.NaN;
-            float lastX = END_OF_LAST_TEXT_X_RESET_VALUE;
             foreach (TextPosition position in textList)
             {
-                float currentY = position.GetYDirAdj();
-                if (!float.IsNaN(lastY) && MathF.Abs(currentY - lastY) > Math.Max(position.GetHeightDir(), 1f) * 0.5f)
+                PositionWrapper current = new(position);
+                string characterValue = position.GetUnicode();
+                if (characterValue == " " && GetIgnoreContentStreamSpaceGlyphs())
                 {
-                    WriteLine(Normalize(line));
-                    line.Clear();
-                    WriteLineSeparator();
-                    lastX = EXPECTED_START_OF_NEXT_WORD_X_RESET_VALUE;
+                    continue;
                 }
-                else if (lastX != EXPECTED_START_OF_NEXT_WORD_X_RESET_VALUE && lastX != END_OF_LAST_TEXT_X_RESET_VALUE && position.GetXDirAdj() > lastX + Math.Max(position.GetWidthOfSpace(), 0f) * _spacingTolerance)
+
+                if (lastPosition != null && HasFontOrSizeChanged(position, lastPosition.GetTextPosition()))
                 {
-                    line.Add(LineItem.GetWordSeparator());
+                    previousAveCharWidth = -1;
+                }
+
+                float positionX;
+                float positionY;
+                float positionWidth;
+                float positionHeight;
+                if (_sortByPosition)
+                {
+                    positionX = position.GetXDirAdj();
+                    positionY = position.GetYDirAdj();
+                    positionWidth = position.GetWidthDirAdj();
+                    positionHeight = position.GetHeightDir();
+                }
+                else
+                {
+                    positionX = position.GetX();
+                    positionY = position.GetY();
+                    positionWidth = position.GetWidth();
+                    positionHeight = position.GetHeight();
+                }
+
+                int wordCharCount = Math.Max(1, position.GetIndividualWidths().Length);
+                float wordSpacing = position.GetWidthOfSpace();
+                float deltaSpace;
+                if (wordSpacing.CompareTo(0f) == 0 || float.IsNaN(wordSpacing))
+                {
+                    deltaSpace = float.MaxValue;
+                }
+                else if (lastWordSpacing < 0)
+                {
+                    deltaSpace = wordSpacing * _spacingTolerance;
+                }
+                else
+                {
+                    deltaSpace = (wordSpacing + lastWordSpacing) / 2f * _spacingTolerance;
+                }
+
+                float averageCharWidth = previousAveCharWidth < 0
+                    ? positionWidth / wordCharCount
+                    : (previousAveCharWidth + positionWidth / wordCharCount) / 2f;
+                float deltaCharWidth = averageCharWidth * _averageCharTolerance;
+
+                float expectedStartOfNextWordX = EXPECTED_START_OF_NEXT_WORD_X_RESET_VALUE;
+                if (endOfLastTextX.CompareTo(END_OF_LAST_TEXT_X_RESET_VALUE) != 0)
+                {
+                    expectedStartOfNextWordX = endOfLastTextX + Math.Min(deltaSpace, deltaCharWidth);
+                }
+
+                if (lastPosition != null)
+                {
+                    if (startOfArticle)
+                    {
+                        lastPosition.SetArticleStart();
+                        startOfArticle = false;
+                    }
+
+                    if (!Overlap(positionY, positionHeight, maxYForLine, maxHeightForLine))
+                    {
+                        WriteLine(Normalize(line));
+                        line.Clear();
+                        lastLineStartPosition = HandleLineSeparation(current, lastPosition, lastLineStartPosition, maxHeightForLine);
+                        expectedStartOfNextWordX = EXPECTED_START_OF_NEXT_WORD_X_RESET_VALUE;
+                        maxYForLine = MAX_Y_FOR_LINE_RESET_VALUE;
+                        maxHeightForLine = MAX_HEIGHT_FOR_LINE_RESET_VALUE;
+                        minYTopForLine = MIN_Y_TOP_FOR_LINE_RESET_VALUE;
+                    }
+
+                    if (expectedStartOfNextWordX.CompareTo(EXPECTED_START_OF_NEXT_WORD_X_RESET_VALUE) != 0
+                        && expectedStartOfNextWordX < positionX
+                        && (_wordSeparator.Length == 0 || !lastPosition.GetTextPosition().GetUnicode().EndsWith(_wordSeparator, StringComparison.Ordinal)))
+                    {
+                        line.Add(LineItem.GetWordSeparator());
+                    }
+
+                    if (MathF.Abs(position.GetX() - lastPosition.GetTextPosition().GetX()) > wordSpacing + deltaSpace)
+                    {
+                        maxYForLine = MAX_Y_FOR_LINE_RESET_VALUE;
+                        maxHeightForLine = MAX_HEIGHT_FOR_LINE_RESET_VALUE;
+                        minYTopForLine = MIN_Y_TOP_FOR_LINE_RESET_VALUE;
+                    }
+                }
+
+                if (positionY >= maxYForLine)
+                {
+                    maxYForLine = positionY;
+                }
+
+                endOfLastTextX = positionX + positionWidth;
+                if (startOfPage && lastPosition == null)
+                {
+                    WriteParagraphStart();
                 }
 
                 line.Add(new LineItem(position));
-                lastY = currentY;
-                lastX = position.GetXDirAdj() + position.GetWidthDirAdj();
+                maxHeightForLine = Math.Max(maxHeightForLine, positionHeight);
+                minYTopForLine = Math.Min(minYTopForLine, positionY - positionHeight);
+                lastPosition = current;
+                if (startOfPage)
+                {
+                    lastPosition.SetParagraphStart();
+                    lastPosition.SetLineStart();
+                    lastLineStartPosition = lastPosition;
+                    startOfPage = false;
+                }
+
+                lastWordSpacing = wordSpacing;
+                previousAveCharWidth = averageCharWidth;
             }
 
             if (line.Count > 0)
             {
                 WriteLine(Normalize(line));
+                WriteParagraphEnd();
             }
 
             EndArticle();
         }
+
+        WritePageEnd();
     }
 
     private bool HasFontOrSizeChanged(TextPosition current, TextPosition last)
@@ -466,25 +571,70 @@ public class PDFTextStripper : LegacyPDFStreamEngine
             return;
         }
 
-        int articleDivisionIndex = 0;
-        if (_shouldSeparateByBeads && _beadRectangles is { Count: > 0 })
+        int foundArticleDivisionIndex = -1;
+        int notFoundButFirstLeftAndAboveArticleDivisionIndex = -1;
+        int notFoundButFirstLeftArticleDivisionIndex = -1;
+        int notFoundButFirstAboveArticleDivisionIndex = -1;
+        float articleX = text.GetX();
+        float articleY = text.GetY();
+        if (_shouldSeparateByBeads && _beadRectangles != null)
         {
-            articleDivisionIndex = charactersByArticle.Count - 1;
-            for (int i = 0; i < _beadRectangles.Count; i++)
+            for (int i = 0; i < _beadRectangles.Count && foundArticleDivisionIndex == -1; i++)
             {
                 PDRectangle? rect = _beadRectangles[i];
-                if (rect == null)
+                if (rect != null)
                 {
-                    articleDivisionIndex = 0;
-                    break;
+                    if (rect.Contains(articleX, articleY))
+                    {
+                        foundArticleDivisionIndex = i * 2 + 1;
+                    }
+                    else if ((articleX < rect.GetLowerLeftX() || articleY < rect.GetUpperRightY())
+                        && notFoundButFirstLeftAndAboveArticleDivisionIndex == -1)
+                    {
+                        notFoundButFirstLeftAndAboveArticleDivisionIndex = i * 2;
+                    }
+                    else if (articleX < rect.GetLowerLeftX()
+                        && notFoundButFirstLeftArticleDivisionIndex == -1)
+                    {
+                        notFoundButFirstLeftArticleDivisionIndex = i * 2;
+                    }
+                    else if (articleY < rect.GetUpperRightY()
+                        && notFoundButFirstAboveArticleDivisionIndex == -1)
+                    {
+                        notFoundButFirstAboveArticleDivisionIndex = i * 2;
+                    }
                 }
-
-                if (rect.Contains(text.GetX(), text.GetY()))
+                else
                 {
-                    articleDivisionIndex = i * 2 + 1;
-                    break;
+                    foundArticleDivisionIndex = 0;
                 }
             }
+        }
+        else
+        {
+            foundArticleDivisionIndex = 0;
+        }
+
+        int articleDivisionIndex;
+        if (foundArticleDivisionIndex != -1)
+        {
+            articleDivisionIndex = foundArticleDivisionIndex;
+        }
+        else if (notFoundButFirstLeftAndAboveArticleDivisionIndex != -1)
+        {
+            articleDivisionIndex = notFoundButFirstLeftAndAboveArticleDivisionIndex;
+        }
+        else if (notFoundButFirstLeftArticleDivisionIndex != -1)
+        {
+            articleDivisionIndex = notFoundButFirstLeftArticleDivisionIndex;
+        }
+        else if (notFoundButFirstAboveArticleDivisionIndex != -1)
+        {
+            articleDivisionIndex = notFoundButFirstAboveArticleDivisionIndex;
+        }
+        else
+        {
+            articleDivisionIndex = charactersByArticle.Count - 1;
         }
 
         while (charactersByArticle.Count <= articleDivisionIndex)
@@ -771,25 +921,93 @@ public class PDFTextStripper : LegacyPDFStreamEngine
     {
         current.SetLineStart();
         IsParagraphSeparation(current, lastPosition, lastLineStartPosition, maxHeightForLine);
-        return current;
+        lastLineStartPosition = current;
+        if (current.IsParagraphStart())
+        {
+            if (lastPosition.IsArticleStart())
+            {
+                if (lastPosition.IsLineStart())
+                {
+                    WriteLineSeparator();
+                }
+
+                WriteParagraphStart();
+            }
+            else
+            {
+                WriteLineSeparator();
+                WriteParagraphSeparator();
+            }
+        }
+        else
+        {
+            WriteLineSeparator();
+        }
+
+        return lastLineStartPosition;
     }
 
     private void IsParagraphSeparation(PositionWrapper position, PositionWrapper lastPosition, PositionWrapper? lastLineStartPosition, float maxHeightForLine)
     {
-        float yGap = MathF.Abs(position.GetTextPosition().GetYDirAdj() - lastPosition.GetTextPosition().GetYDirAdj());
-        if (yGap > MultiplyFloat(GetDropThreshold(), Math.Max(maxHeightForLine, position.GetTextPosition().GetHeightDir())))
+        bool result = false;
+        if (lastLineStartPosition == null)
         {
-            position.SetParagraphStart();
-            return;
+            result = true;
+        }
+        else
+        {
+            float yGap = MathF.Abs(position.GetTextPosition().GetYDirAdj() - lastPosition.GetTextPosition().GetYDirAdj());
+            float newYVal = MultiplyFloat(GetDropThreshold(), maxHeightForLine);
+            float xGap = position.GetTextPosition().GetXDirAdj() - lastLineStartPosition.GetTextPosition().GetXDirAdj();
+            float newXVal = MultiplyFloat(GetIndentThreshold(), position.GetTextPosition().GetWidthOfSpace());
+            float positionWidth = MultiplyFloat(0.25f, position.GetTextPosition().GetWidth());
+
+            if (yGap > newYVal)
+            {
+                result = true;
+            }
+            else if (xGap > newXVal)
+            {
+                if (!lastLineStartPosition.IsParagraphStart())
+                {
+                    result = true;
+                }
+                else
+                {
+                    position.SetHangingIndent();
+                }
+            }
+            else if (xGap < -position.GetTextPosition().GetWidthOfSpace())
+            {
+                if (!lastLineStartPosition.IsParagraphStart())
+                {
+                    result = true;
+                }
+            }
+            else if (MathF.Abs(xGap) < positionWidth)
+            {
+                if (lastLineStartPosition.IsHangingIndent())
+                {
+                    position.SetHangingIndent();
+                }
+                else if (lastLineStartPosition.IsParagraphStart())
+                {
+                    Regex? liPattern = MatchListItemPattern(lastLineStartPosition);
+                    if (liPattern != null)
+                    {
+                        Regex? currentPattern = MatchListItemPattern(position);
+                        if (liPattern == currentPattern)
+                        {
+                            result = true;
+                        }
+                    }
+                }
+            }
         }
 
-        if (lastLineStartPosition != null)
+        if (result)
         {
-            float xGap = position.GetTextPosition().GetXDirAdj() - lastLineStartPosition.GetTextPosition().GetXDirAdj();
-            if (xGap > MultiplyFloat(GetIndentThreshold(), Math.Max(position.GetTextPosition().GetWidthOfSpace(), 1f)))
-            {
-                position.SetHangingIndent();
-            }
+            position.SetParagraphStart();
         }
     }
 
@@ -797,10 +1015,10 @@ public class PDFTextStripper : LegacyPDFStreamEngine
     {
         if (float.IsNaN(value1) || float.IsNaN(value2))
         {
-            return float.NaN;
+            return 0f;
         }
 
-        return value1 * value2;
+        return MathF.Floor(value1 * value2 * 1000f + 0.5f) / 1000f;
     }
 
     protected virtual void WriteParagraphSeparator()
@@ -811,20 +1029,25 @@ public class PDFTextStripper : LegacyPDFStreamEngine
 
     protected virtual void WriteParagraphStart()
     {
-        if (!_inParagraph)
+        if (_inParagraph)
         {
-            output.Write(_paragraphStart);
-            _inParagraph = true;
+            WriteParagraphEnd();
+            _inParagraph = false;
         }
+
+        output.Write(_paragraphStart);
+        _inParagraph = true;
     }
 
     protected virtual void WriteParagraphEnd()
     {
-        if (_inParagraph)
+        if (!_inParagraph)
         {
-            output.Write(_paragraphEnd);
-            _inParagraph = false;
+            WriteParagraphStart();
         }
+
+        output.Write(_paragraphEnd);
+        _inParagraph = false;
     }
 
     protected virtual void WritePageStart()
@@ -834,7 +1057,6 @@ public class PDFTextStripper : LegacyPDFStreamEngine
 
     protected virtual void WritePageEnd()
     {
-        WriteParagraphEnd();
         output.Write(_pageEnd);
     }
 
@@ -889,7 +1111,7 @@ public class PDFTextStripper : LegacyPDFStreamEngine
 
         if (lineBuilder.Length > 0)
         {
-            normalized.Add(CreateWord(HandleDirection(lineBuilder.ToString()), [.. wordPositions]));
+            normalized.Add(CreateWord(lineBuilder.ToString(), [.. wordPositions]));
         }
 
         return normalized;
@@ -902,7 +1124,50 @@ public class PDFTextStripper : LegacyPDFStreamEngine
             return word;
         }
 
-        return NormalizeWord(word);
+        bool hasRtl = false;
+        bool hasLtr = false;
+        foreach (char c in word)
+        {
+            hasRtl |= IsRightToLeft(c);
+            hasLtr |= IsLeftToRight(c);
+        }
+
+        if (!hasRtl)
+        {
+            return word;
+        }
+
+        if (!hasLtr)
+        {
+            return ReverseRtlSegment(word);
+        }
+
+        StringBuilder result = new(word.Length);
+        for (int i = 0; i < word.Length;)
+        {
+            if (StartsRtlSegment(word, i))
+            {
+                int start = i++;
+                while (i < word.Length && !IsLeftToRight(word[i]))
+                {
+                    if (char.IsWhiteSpace(word[i]) && NextStrongIsLeftToRight(word, i + 1))
+                    {
+                        break;
+                    }
+
+                    i++;
+                }
+
+                result.Append(ReverseRtlSegment(word[start..i]));
+            }
+            else
+            {
+                result.Append(word[i]);
+                i++;
+            }
+        }
+
+        return result.ToString();
     }
 
     private static void ParseBidiFile(Stream inputStream)
@@ -911,12 +1176,50 @@ public class PDFTextStripper : LegacyPDFStreamEngine
 
     private WordWithTextPositions CreateWord(string word, List<TextPosition> wordPositions)
     {
-        return new WordWithTextPositions(word, wordPositions);
+        return new WordWithTextPositions(NormalizeWord(word), wordPositions);
     }
 
     private string NormalizeWord(string word)
     {
-        return word.Normalize(NormalizationForm.FormKC);
+        StringBuilder? builder = null;
+        int p = 0;
+        int q = 0;
+        int strLength = word.Length;
+        for (; q < strLength; q++)
+        {
+            char c = word[q];
+            if ((0xFB00 <= c && c <= 0xFDFF) || (0xFE70 <= c && c <= 0xFEFF))
+            {
+                builder ??= new StringBuilder(strLength * 2);
+                builder.Append(word, p, q - p);
+                if (c == 0xFDF2 && q > 0 && (word[q - 1] == 0x0627 || word[q - 1] == 0xFE8D))
+                {
+                    builder.Append("\u0644\u0644\u0647");
+                }
+                else
+                {
+                    string normalized = word.Substring(q, 1).Normalize(NormalizationForm.FormKC).Trim();
+                    if (0xFB1D <= c && normalized.Length > 1)
+                    {
+                        char[] chars = normalized.ToCharArray();
+                        Array.Reverse(chars);
+                        normalized = new string(chars);
+                    }
+
+                    builder.Append(normalized);
+                }
+
+                p = q + 1;
+            }
+        }
+
+        if (builder == null)
+        {
+            return HandleDirection(word);
+        }
+
+        builder.Append(word, p, q - p);
+        return HandleDirection(builder.ToString());
     }
 
     private StringBuilder NormalizeAdd(List<WordWithTextPositions> normalized, StringBuilder lineBuilder, List<TextPosition> wordPositions, LineItem item)
@@ -925,7 +1228,7 @@ public class PDFTextStripper : LegacyPDFStreamEngine
         {
             if (lineBuilder.Length > 0)
             {
-                normalized.Add(CreateWord(HandleDirection(lineBuilder.ToString()), [.. wordPositions]));
+                normalized.Add(CreateWord(lineBuilder.ToString(), [.. wordPositions]));
                 lineBuilder = new StringBuilder();
                 wordPositions.Clear();
             }
@@ -934,9 +1237,148 @@ public class PDFTextStripper : LegacyPDFStreamEngine
         }
 
         TextPosition textPosition = item.GetTextPosition()!;
-        lineBuilder.Append(textPosition.GetUnicode());
+        lineBuilder.Append(textPosition.GetVisuallyOrderedUnicode());
         wordPositions.Add(textPosition);
         return lineBuilder;
+    }
+
+    private static bool StartsRtlSegment(string value, int index)
+    {
+        char c = value[index];
+        if (IsRightToLeft(c) || IsArabicIndicDigit(c))
+        {
+            return true;
+        }
+
+        return !char.IsWhiteSpace(c) && !IsLeftToRight(c) && NextStrongIsRightToLeft(value, index + 1);
+    }
+
+    private static bool NextStrongIsLeftToRight(string value, int index)
+    {
+        for (int i = index; i < value.Length; i++)
+        {
+            if (IsLeftToRight(value[i]))
+            {
+                return true;
+            }
+
+            if (IsRightToLeft(value[i]) || IsArabicIndicDigit(value[i]))
+            {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool NextStrongIsRightToLeft(string value, int index)
+    {
+        for (int i = index; i < value.Length; i++)
+        {
+            if (IsRightToLeft(value[i]) || IsArabicIndicDigit(value[i]))
+            {
+                return true;
+            }
+
+            if (IsLeftToRight(value[i]))
+            {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    private static string ReverseRtlSegment(string value)
+    {
+        List<string> clusters = new();
+        for (int i = 0; i < value.Length;)
+        {
+            int start = i;
+            if (IsArabicIndicDigit(value[i]))
+            {
+                i++;
+                while (i < value.Length && IsArabicIndicDigit(value[i]))
+                {
+                    i++;
+                }
+
+                clusters.Add(value[start..i]);
+                continue;
+            }
+
+            clusters.Add(value.Substring(i, 1));
+            i++;
+        }
+
+        clusters.Reverse();
+        StringBuilder result = new(value.Length);
+        foreach (string cluster in clusters)
+        {
+            result.Append(MirrorCluster(cluster));
+        }
+
+        return result.ToString();
+    }
+
+    private static string MirrorCluster(string cluster)
+    {
+        return cluster.Length == 1 ? Mirror(cluster[0]).ToString() : cluster;
+    }
+
+    private static char Mirror(char c)
+    {
+        if (MIRRORING_CHAR_MAP.TryGetValue(c, out char mirrored))
+        {
+            return mirrored;
+        }
+
+        return c switch
+        {
+            '(' => ')',
+            ')' => '(',
+            '[' => ']',
+            ']' => '[',
+            '{' => '}',
+            '}' => '{',
+            '<' => '>',
+            '>' => '<',
+            '\u00AB' => '\u00BB',
+            '\u00BB' => '\u00AB',
+            _ => c,
+        };
+    }
+
+    private static bool IsRightToLeft(char c)
+    {
+        if (char.GetUnicodeCategory(c) == UnicodeCategory.DecimalDigitNumber)
+        {
+            return false;
+        }
+
+        return (c >= 0x0590 && c <= 0x08FF)
+            || (c >= 0xFB1D && c <= 0xFDFF)
+            || (c >= 0xFE70 && c <= 0xFEFF);
+    }
+
+    private static bool IsArabicIndicDigit(char c)
+    {
+        return (c >= 0x0660 && c <= 0x0669) || (c >= 0x06F0 && c <= 0x06F9);
+    }
+
+    private static bool IsLeftToRight(char c)
+    {
+        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
+            || (c >= 0x00C0 && c <= 0x02AF)
+            || (c >= 0x0370 && c <= 0x052F);
+    }
+
+    private static bool IsCombiningMark(char c)
+    {
+        UnicodeCategory category = char.GetUnicodeCategory(c);
+        return category is UnicodeCategory.NonSpacingMark
+            or UnicodeCategory.SpacingCombiningMark
+            or UnicodeCategory.EnclosingMark;
     }
 
     private int ResolveBookmarkPage(PDOutlineItem? bookmark, PDDocument doc)

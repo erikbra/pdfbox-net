@@ -50,6 +50,7 @@ public sealed class ShowTextAdjusted : OperatorProcessor
         PDTextState textState = Context.GetGraphicsState().GetTextState();
         float fontSize = textState.GetFontSize();
         float horizontalScaling = textState.GetHorizontalScaling() / 100f;
+        bool isVertical = textState.GetFont()?.IsVertical() ?? false;
 
         for (int i = 0; i < array.Size(); i++)
         {
@@ -61,9 +62,20 @@ public sealed class ShowTextAdjusted : OperatorProcessor
             else if (obj is COSNumber number)
             {
                 float adjustment = number.FloatValue() / 1000f;
-                float tx = -adjustment * fontSize * horizontalScaling;
-                Matrix advance = Matrix.GetTranslateInstance(tx, 0);
-                Context.SetTextMatrix(advance.Multiply(Context.GetTextMatrix()));
+                float tx;
+                float ty;
+                if (isVertical)
+                {
+                    tx = 0;
+                    ty = -adjustment * fontSize;
+                }
+                else
+                {
+                    tx = -adjustment * fontSize * horizontalScaling;
+                    ty = 0;
+                }
+
+                Context.SetTextMatrix(Context.GetTextMatrix().Translate(tx, ty));
             }
         }
     }

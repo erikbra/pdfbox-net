@@ -92,6 +92,12 @@ public class GlyphList
             return unicode;
         }
 
+        int suffixIndex = glyphName.IndexOf('.');
+        if (suffixIndex > 0)
+        {
+            return ToUnicode(glyphName[..suffixIndex]);
+        }
+
         // Attempt the "uni" + hex codepoint convention: uniXXXX or uXXXXX
         return TryDecodeUniName(glyphName, out string? decoded) ? decoded : null;
     }

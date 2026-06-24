@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import sys
+import unicodedata
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -217,6 +218,84 @@ def remove_whitespace(text: str) -> str:
     return re.sub(r"\s+", "", text)
 
 
+def normalize_semantic_text(text: str) -> str:
+    return collapse_whitespace(unicodedata.normalize("NFC", normalize_line_endings(text)))
+
+
+def stripped_text_and_whitespace_gaps(text: str) -> tuple[str, list[str]]:
+    chars: list[str] = []
+    gaps: list[str] = []
+    pending_whitespace = ""
+    for ch in text:
+        if ch.isspace():
+            if chars:
+                pending_whitespace += ch
+            continue
+
+        if chars:
+            gaps.append(pending_whitespace)
+        chars.append(ch)
+        pending_whitespace = ""
+
+    return "".join(chars), gaps
+
+
+def is_wordish(ch: str) -> bool:
+    return ch == "_" or unicodedata.category(ch)[0] in {"L", "N"}
+
+
+def is_math_linewrap_boundary(stripped_text: str, gap_index: int) -> bool:
+    if gap_index + 1 >= len(stripped_text):
+        return False
+    if not stripped_text[gap_index].isdigit():
+        return False
+    if unicodedata.category(stripped_text[gap_index + 1])[0] != "L":
+        return False
+
+    left_context = stripped_text[max(0, gap_index - 16) : gap_index + 1]
+    return re.search(r"[A-Za-z][\-\u2212]\d+(?:\.\d+)?$", left_context) is not None
+
+
+def has_only_math_linewrap_drift(java_text: str, dotnet_text: str) -> bool:
+    java_stripped, java_gaps = stripped_text_and_whitespace_gaps(java_text)
+    dotnet_stripped, dotnet_gaps = stripped_text_and_whitespace_gaps(dotnet_text)
+    if java_stripped != dotnet_stripped:
+        return False
+
+    saw_math_linewrap = False
+    for i, (java_gap, dotnet_gap) in enumerate(zip(java_gaps, dotnet_gaps)):
+        if bool(java_gap) == bool(dotnet_gap):
+            continue
+        if "\n" not in normalize_line_endings(java_gap or dotnet_gap):
+            return False
+        if not is_wordish(java_stripped[i]) or not is_wordish(java_stripped[i + 1]):
+            return False
+        if not is_math_linewrap_boundary(java_stripped, i):
+            return False
+        saw_math_linewrap = True
+
+    return saw_math_linewrap
+
+
+def has_only_punctuation_spacing_drift(java_text: str, dotnet_text: str) -> bool:
+    java_stripped, java_gaps = stripped_text_and_whitespace_gaps(java_text)
+    dotnet_stripped, dotnet_gaps = stripped_text_and_whitespace_gaps(dotnet_text)
+    if java_stripped != dotnet_stripped:
+        return False
+
+    for i, (java_gap, dotnet_gap) in enumerate(zip(java_gaps, dotnet_gaps)):
+        if bool(java_gap) == bool(dotnet_gap):
+            continue
+        if is_wordish(java_stripped[i]) and is_wordish(java_stripped[i + 1]):
+            return False
+
+    return True
+
+
+def is_match_category(category: str) -> bool:
+    return category == "match" or (category.startswith("text-semantic-") and category.endswith("-match"))
+
+
 def contains_non_ascii(text: str) -> bool:
     return any(ord(ch) > 127 for ch in text)
 
@@ -241,11 +320,15 @@ def classify_text_mismatch(file: str, java_out: Path, dotnet_out: Path) -> str:
     java_normal = normalize_line_endings(java_text)
     dotnet_normal = normalize_line_endings(dotnet_text)
     if java_normal == dotnet_normal:
-        return "text-line-ending-mismatch"
+        return "text-semantic-line-ending-match"
     if java_normal.rstrip() == dotnet_normal.rstrip():
-        return "text-trailing-whitespace-mismatch"
-    if collapse_whitespace(java_normal) == collapse_whitespace(dotnet_normal):
-        return "text-whitespace-mismatch"
+        return "text-semantic-trailing-whitespace-match"
+    if normalize_semantic_text(java_normal) == normalize_semantic_text(dotnet_normal):
+        return "text-semantic-whitespace-match"
+    if has_only_math_linewrap_drift(java_normal, dotnet_normal):
+        return "text-semantic-math-linewrap-match"
+    if has_only_punctuation_spacing_drift(java_normal, dotnet_normal):
+        return "text-semantic-punctuation-spacing-match"
     if remove_whitespace(java_normal) == remove_whitespace(dotnet_normal):
         return "text-spacing-mismatch"
 
@@ -295,8 +378,8 @@ def compare(
         java = java_by_key.get((file, op))
         dotnet = dotnet_by_key.get((file, op))
         category = classify(op, java, dotnet, java_out, dotnet_out)
-        known_id = None if category == "match" else known_failure_id(file, op, category, known_entries)
-        status = "match" if category == "match" else ("known" if known_id else "unexpected")
+        known_id = None if is_match_category(category) else known_failure_id(file, op, category, known_entries)
+        status = "match" if is_match_category(category) else ("known" if known_id else "unexpected")
         counts[status] += 1
         counts[category] += 1
         rows.append(
@@ -378,7 +461,7 @@ def markdown_summary(summary: dict, rows: list[dict]) -> str:
         lines.append(f"\nTruncated to 100 of {len(placeholders)} render placeholders.")
     lines.append("")
     lines.extend(["## Text Mismatches", ""])
-    text_mismatches = [row for row in rows if row["op"] == "text" and row["category"] != "match"]
+    text_mismatches = [row for row in rows if row["op"] == "text" and row["status"] != "match"]
     if not text_mismatches:
         lines.append("No text mismatches detected.")
     else:

@@ -31,6 +31,7 @@ using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.FontBox.Util;
 using PdfBox.Net.IO;
 using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.Util;
 using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.PDModel.Font;
@@ -141,11 +142,28 @@ public partial class PDType0Font : PDVectorFont
     public CMap? GetCMap() => _cMap;
     public CMap? GetCMapUCS2() => _cMapUcs2;
 
-    public override bool IsVertical() => _descendantFont?.IsVertical() ?? base.IsVertical();
+    public override bool IsVertical() => _cMap?.WMode == 1;
     public override float GetWidth(int code) => _descendantFont?.GetWidth(CodeToCID(code)) ?? base.GetWidth(code);
     public override float GetAverageFontWidth() => _descendantFont?.GetAverageFontWidth() ?? base.GetAverageFontWidth();
     public override float GetSpaceWidth() => _descendantFont?.GetSpaceWidth() ?? base.GetSpaceWidth();
     public override PDFontDescriptor? GetFontDescriptor() => base.GetFontDescriptor() ?? _descendantFont?.GetFontDescriptor();
+
+    public override int ReadCode(Stream input)
+    {
+        return _cMap?.ReadCode(input) ?? base.ReadCode(input);
+    }
+
+    public override Vector GetDisplacement(int code)
+    {
+        return IsVertical()
+            ? new Vector(0, _descendantFont?.GetVerticalDisplacementVectorY(CodeToCID(code)) / 1000f ?? 0f)
+            : new Vector(GetWidth(code) / 1000f, 0);
+    }
+
+    public override Vector GetPositionVector(int code)
+    {
+        return _descendantFont?.GetPositionVector(CodeToCID(code)).Scale(-1 / 1000f) ?? base.GetPositionVector(code);
+    }
 
     public override string? ToUnicode(int code, GlyphList glyphList)
     {
@@ -208,7 +226,7 @@ public partial class PDType0Font : PDVectorFont
                 (string.Equals(encodingName.GetName(), "Identity-H", StringComparison.Ordinal) ||
                  string.Equals(encodingName.GetName(), "Identity-V", StringComparison.Ordinal)))
             {
-                predefined = CreateIdentityCMap();
+                predefined = CreateIdentityCMap(encodingName.GetName());
             }
 
             return (predefined, predefined != null);
@@ -283,16 +301,17 @@ public partial class PDType0Font : PDVectorFont
         }
     }
 
-    private static CMap CreateIdentityCMap()
+    private static CMap CreateIdentityCMap(string name)
     {
-        const string identityMap = """
+        string wMode = string.Equals(name, "Identity-V", StringComparison.Ordinal) ? "/WMode 1 def\n" : string.Empty;
+        string identityMap = $$"""
 /CIDInit /ProcSet findresource begin
 12 dict begin
 begincmap
 /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> def
-/CMapName /Identity-H def
+/CMapName /{{name}} def
 /CMapType 1 def
-1 begincodespacerange
+{{wMode}}1 begincodespacerange
 <0000> <FFFF>
 endcodespacerange
 1 begincidrange

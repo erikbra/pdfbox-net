@@ -26,11 +26,24 @@
  */
 
 using PdfBox.Net.FontBox.Type1;
+using PdfBox.Net.FontBox.AFM;
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
 public sealed class Type1Encoding : Encoding
 {
+    public Type1Encoding(FontMetrics fontMetrics)
+    {
+        ArgumentNullException.ThrowIfNull(fontMetrics);
+        foreach (CharMetric metric in fontMetrics.CharMetrics)
+        {
+            if (metric.CharacterCode >= 0 && !string.IsNullOrEmpty(metric.Name))
+            {
+                AddCharacterEncoding(metric.CharacterCode, metric.Name);
+            }
+        }
+    }
+
     public Type1Encoding(Type1Font type1Font)
     {
         ArgumentNullException.ThrowIfNull(type1Font);

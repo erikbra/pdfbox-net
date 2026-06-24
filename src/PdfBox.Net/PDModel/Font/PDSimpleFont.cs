@@ -36,6 +36,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public abstract partial class PDSimpleFont : PDVectorFont
 {
+    private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
+
     private readonly Encoding.Encoding _encoding;
 
     protected Encoding.Encoding FontEncoding => _encoding;
@@ -78,7 +80,16 @@ public abstract partial class PDSimpleFont : PDVectorFont
         if (fbFont != null)
         {
             BoundingBox bbox = fbFont.GetFontBBox();
-            return bbox.GetWidth() == 0 && bbox.GetHeight() == 0 ? base.GetBoundingBox() : bbox;
+            if (bbox.GetWidth() != 0 || bbox.GetHeight() != 0)
+            {
+                return bbox;
+            }
+        }
+
+        if (IsStandard14() && Standard14Fonts.GetAFM(GetName())?.FontBBox is { } afmBBox
+            && (afmBBox.GetWidth() != 0 || afmBBox.GetHeight() != 0))
+        {
+            return afmBBox;
         }
 
         return base.GetBoundingBox();
@@ -86,13 +97,17 @@ public abstract partial class PDSimpleFont : PDVectorFont
 
     public override float GetWidth(int code)
     {
-        float explicitWidth = base.GetWidth(code);
-        if (explicitWidth > 0)
+        if (TryGetExplicitWidth(code, out float explicitWidth))
         {
             return explicitWidth;
         }
 
         string glyphName = _encoding.GetName(code);
+        if (IsStandard14())
+        {
+            return GetStandard14Width(glyphName);
+        }
+
         if (glyphName == ".notdef")
         {
             return 0;
@@ -106,6 +121,33 @@ public abstract partial class PDSimpleFont : PDVectorFont
         {
             return 0;
         }
+    }
+
+    public override float GetStringWidth(string text)
+    {
+        if (text == " " && _encoding.GetCode("space") is { } spaceCode)
+        {
+            return GetWidth(spaceCode);
+        }
+
+        return base.GetStringWidth(text);
+    }
+
+    private float GetStandard14Width(string glyphName)
+    {
+        if (glyphName == ".notdef")
+        {
+            return 250f;
+        }
+
+        string afmName = glyphName switch
+        {
+            "nbspace" => "space",
+            "sfthyphen" => "hyphen",
+            _ => glyphName,
+        };
+
+        return Standard14Fonts.GetAFM(GetName())?.GetCharacterWidth(afmName) ?? 0f;
     }
 
     protected override string? ToUnicodeFallback(int code, GlyphList glyphList)
@@ -138,4 +180,11 @@ public abstract partial class PDSimpleFont : PDVectorFont
 
     public abstract FontBoxFont? GetFontBoxFont();
     public abstract bool IsStandard14();
+
+    protected static bool? GetSymbolicFlag(COSDictionary fontDictionary)
+    {
+        return fontDictionary.GetCOSDictionary(FontDescriptorKey) is COSDictionary descriptorDictionary
+            ? new PDFontDescriptor(descriptorDictionary).IsSymbolic()
+            : null;
+    }
 }

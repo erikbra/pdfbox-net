@@ -46,7 +46,7 @@ public class DebuggerModuleParityCloseoutTest
 
         Assert.False(string.IsNullOrWhiteSpace(extracted));
         Assert.Contains("debug", extracted, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("tx", extracted, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("text", extracted, StringComparison.OrdinalIgnoreCase);
     }
 
     private static PDDocument CreateFixtureDocument(string textOperand)

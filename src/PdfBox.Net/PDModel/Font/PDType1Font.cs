@@ -257,6 +257,13 @@ public partial class PDType1Font : PDSimpleFont
 
     private static Encoding.Encoding ResolveType1Encoding(COSDictionary dictionary, Type1Font? type1Font)
     {
+        if (dictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is COSDictionary encodingDictionary)
+        {
+            Encoding.Encoding? builtIn = type1Font != null ? new Type1Encoding(type1Font) : null;
+            bool symbolic = GetSymbolicFlag(dictionary) ?? false;
+            return new DictionaryEncoding(encodingDictionary, !symbolic, builtIn);
+        }
+
         if (dictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is not null)
         {
             return DictionaryEncoding.ResolveEncoding(dictionary);
@@ -265,6 +272,11 @@ public partial class PDType1Font : PDSimpleFont
         if (type1Font != null)
         {
             return new Type1Encoding(type1Font);
+        }
+
+        if (Standard14Fonts.GetAFM(dictionary.GetNameAsString(BaseFontKey)) is { } afm)
+        {
+            return new Type1Encoding(afm);
         }
 
         return DictionaryEncoding.ResolveStandard14FallbackEncoding(dictionary.GetNameAsString(BaseFontKey));

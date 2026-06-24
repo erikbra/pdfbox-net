@@ -53,6 +53,7 @@ public abstract class PDFont : PDFontLike
 
     private Matrix? _fontMatrix;
     private PDFontDescriptor? _fontDescriptor;
+    private float _fontWidthOfSpace = -1f;
 
     protected PDFont(COSDictionary fontDictionary)
     {
@@ -78,16 +79,60 @@ public abstract class PDFont : PDFontLike
 
     public virtual float GetWidth(int code)
     {
+        if (TryGetExplicitWidth(code, out float width))
+        {
+            return width;
+        }
+
+        return GetFontDescriptor()?.GetMissingWidth() ?? 0f;
+    }
+
+    protected bool TryGetExplicitWidth(int code, out float width)
+    {
         if (_widths != null && _firstChar >= 0 && code >= _firstChar && code <= _lastChar)
         {
             int index = code - _firstChar;
             if ((uint)index < (uint)_widths.Length)
             {
-                return _widths[index];
+                width = _widths[index];
+                return true;
             }
         }
 
-        return GetFontDescriptor()?.GetMissingWidth() ?? 0f;
+        width = 0f;
+        return false;
+    }
+
+    /// <summary>
+    /// Reads a character code from a content stream string. Simple fonts use one byte; composite
+    /// fonts override this to consume variable-length CMap codes.
+    /// </summary>
+    /// <param name="input">The encoded content stream string.</param>
+    /// <returns>The next character code, or -1 at end of stream.</returns>
+    public virtual int ReadCode(Stream input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        return input.ReadByte();
+    }
+
+    /// <summary>
+    /// Returns the glyph displacement in text space units.
+    /// </summary>
+    /// <param name="code">The character code.</param>
+    /// <returns>The displacement vector.</returns>
+    public virtual Vector GetDisplacement(int code)
+    {
+        return new Vector(GetWidth(code) / 1000f, 0);
+    }
+
+    /// <summary>
+    /// Returns the vertical writing position vector in text space units.
+    /// </summary>
+    /// <param name="code">The character code.</param>
+    /// <returns>The position vector.</returns>
+    public virtual Vector GetPositionVector(int code)
+    {
+        return new Vector(0, 0);
     }
 
     /// <summary>
@@ -107,8 +152,20 @@ public abstract class PDFont : PDFontLike
 
     public virtual string? ToUnicode(int code, GlyphList glyphList)
     {
+        if (FontDictionary.GetDictionaryObject(ToUnicodeKey) is COSName toUnicodeName
+            && IsIdentityCMapName(toUnicodeName.GetName()))
+        {
+            return ((char)code).ToString();
+        }
+
         if (_toUnicodeCMap != null)
         {
+            if (IsIdentityCMap(_toUnicodeCMap)
+                && (FontDictionary.GetDictionaryObject(ToUnicodeKey) is COSName || !_toUnicodeCMap.HasUnicodeMappings()))
+            {
+                return ((char)code).ToString();
+            }
+
             string? mapped = _toUnicodeCMap.ToUnicode(code);
             if (!string.IsNullOrEmpty(mapped))
             {
@@ -121,14 +178,49 @@ public abstract class PDFont : PDFontLike
 
     public virtual float GetSpaceWidth()
     {
-        float width = GetWidth(32);
-        if (width > 0)
+        if (_fontWidthOfSpace.CompareTo(-1f) != 0)
         {
-            return width;
+            return _fontWidthOfSpace;
         }
 
-        width = GetAverageFontWidth();
-        return width > 0 ? width * 0.5f : 250f;
+        try
+        {
+            if (_toUnicodeCMap != null && FontDictionary.ContainsKey(ToUnicodeKey))
+            {
+                int spaceMapping = _toUnicodeCMap.SpaceMapping;
+                if (spaceMapping > -1)
+                {
+                    _fontWidthOfSpace = GetWidth(spaceMapping);
+                }
+            }
+            else
+            {
+                try
+                {
+                    _fontWidthOfSpace = GetStringWidth(" ");
+                }
+                catch (Exception)
+                {
+                    // Keep Java PDFBox's fallback path when a font cannot encode a space.
+                }
+
+                if (_fontWidthOfSpace <= 0)
+                {
+                    _fontWidthOfSpace = GetWidth(32);
+                }
+            }
+
+            if (_fontWidthOfSpace <= 0)
+            {
+                _fontWidthOfSpace = GetAverageFontWidth();
+            }
+        }
+        catch
+        {
+            _fontWidthOfSpace = 250f;
+        }
+
+        return _fontWidthOfSpace;
     }
 
     public virtual float GetAverageFontWidth()
@@ -232,13 +324,20 @@ public abstract class PDFont : PDFontLike
     {
         try
         {
+            if (toUnicode is COSName name)
+            {
+                CMap cmap = new CMapParser().ParsePredefined(name.GetName());
+                return cmap.HasUnicodeMappings() || IsIdentityCMap(cmap) ? cmap : null;
+            }
+
             if (toUnicode is COSStream stream)
             {
                 using Stream input = stream.CreateInputStream();
                 using MemoryStream buffer = new();
                 input.CopyTo(buffer);
                 RandomAccessRead randomAccess = new RandomAccessReadBuffer(buffer.ToArray());
-                return new CMapParser().Parse(randomAccess);
+                CMap cmap = new CMapParser().Parse(randomAccess);
+                return cmap.HasUnicodeMappings() || IsIdentityCMap(cmap) ? cmap : null;
             }
         }
         catch
@@ -247,5 +346,16 @@ public abstract class PDFont : PDFontLike
         }
 
         return null;
+    }
+
+    private static bool IsIdentityCMap(CMap cmap)
+    {
+        return cmap.Name?.StartsWith("Identity-", StringComparison.Ordinal) == true
+            || cmap.Ordering?.Contains("Identity", StringComparison.Ordinal) == true;
+    }
+
+    private static bool IsIdentityCMapName(string name)
+    {
+        return name.StartsWith("Identity-", StringComparison.Ordinal);
     }
 }

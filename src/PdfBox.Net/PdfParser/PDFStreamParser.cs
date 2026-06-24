@@ -66,43 +66,68 @@ public sealed class PDFStreamParser
                 break;
             }
 
-            tokens.Add(ReadTokenObject());
+            object? token = ReadTokenObject();
+            if (token is null)
+            {
+                break;
+            }
+
+            tokens.Add(token);
         }
 
         return tokens;
     }
 
-    private object ReadTokenObject()
+    private object? ReadTokenObject()
     {
         int first = PeekByte();
         return first switch
         {
             '<' => ReadDictionaryOrHexString(),
-            '[' => ReadArray(),
+            '[' => ReadArrayLenient(),
             '/' => ReadName(),
             '(' => ReadLiteralString(),
             _ => ReadAtomicOrOperatorToken()
         };
     }
 
-    private COSBase ReadDictionaryOrHexString()
+    private COSBase? ReadArrayLenient()
+    {
+        try
+        {
+            return ReadArray();
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+    }
+
+    private COSBase? ReadDictionaryOrHexString()
     {
         _ = ReadByte();
         if (PeekByte() == '<')
         {
             _ = ReadByte();
-            return ReadDictionary();
+            try
+            {
+                return ReadDictionary();
+            }
+            catch (IOException)
+            {
+                return null;
+            }
         }
 
         return ReadHexString();
     }
 
-    private object ReadAtomicOrOperatorToken()
+    private object? ReadAtomicOrOperatorToken()
     {
         string token = ReadToken();
         if (token.Length == 0)
         {
-            throw new IOException("Unexpected empty token.");
+            return null;
         }
 
         if (token.Equals(OperatorName.BEGIN_INLINE_IMAGE, StringComparison.Ordinal))
@@ -142,7 +167,12 @@ public sealed class PDFStreamParser
                 throw new IOException("Unexpected EOF while parsing inline image dictionary.");
             }
 
-            object keyOrDataMarker = ReadTokenObject();
+            object? keyOrDataMarker = ReadTokenObject();
+            if (keyOrDataMarker is null)
+            {
+                throw new IOException("Unexpected EOF while parsing inline image dictionary.");
+            }
+
             if (keyOrDataMarker is Operator marker &&
                 marker.GetName().Equals(OperatorName.BEGIN_INLINE_IMAGE_DATA, StringComparison.Ordinal))
             {
@@ -271,7 +301,7 @@ public sealed class PDFStreamParser
         return dict;
     }
 
-    private COSBase ReadArray()
+    private COSBase? ReadArray()
     {
         _ = ReadByte();
         COSArray array = new();
@@ -290,7 +320,13 @@ public sealed class PDFStreamParser
             }
 
             UnreadByte(b);
-            array.Add(ReadTokenObject() as COSBase ?? throw new IOException("Array item must be COSBase."));
+            object? item = ReadTokenObject();
+            if (item is null)
+            {
+                return null;
+            }
+
+            array.Add(item as COSBase ?? throw new IOException("Array item must be COSBase."));
         }
 
         return array;

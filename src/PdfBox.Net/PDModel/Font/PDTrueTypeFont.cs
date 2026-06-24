@@ -112,11 +112,17 @@ public partial class PDTrueTypeFont : PDSimpleFont
 
     protected override string? ToUnicodeFallback(int code, GlyphList glyphList)
     {
+        string? mapped = base.ToUnicodeFallback(code, glyphList);
+        if (mapped != null)
+        {
+            return mapped;
+        }
+
         if (_unicodeCmap != null && _unicodeCmap.GetGlyphId(code) != 0)
         {
             return char.ConvertFromUtf32(code);
         }
 
-        return base.ToUnicodeFallback(code, glyphList);
+        return null;
     }
 }

@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 
 namespace PdfBox.Net.ContentStream.Operator.MarkedContent;
 
@@ -42,10 +43,27 @@ public sealed class MarkedContentPointWithProperties : OperatorProcessor
 
     public override void Process(Operator op, IList<COSBase> operands)
     {
-        COSName tag = operands.Count > 0 && operands[0] is COSName n
-            ? n
-            : COSName.GetPDFName("Unknown");
-        COSDictionary? props = operands.Count > 1 ? operands[1] as COSDictionary : null;
+        if (operands.Count < 2 || operands[0] is not COSName tag)
+        {
+            return;
+        }
+
+        COSDictionary? props = null;
+        if (operands[1] is COSName propertyName)
+        {
+            PDPropertyList? propertyList = Context.GetResources()?.GetProperties(propertyName);
+            props = propertyList?.GetCOSObject();
+        }
+        else if (operands[1] is COSDictionary dictionary)
+        {
+            props = dictionary;
+        }
+
+        if (props == null)
+        {
+            return;
+        }
+
         Context.MarkedContentPoint(tag, props);
     }
 }

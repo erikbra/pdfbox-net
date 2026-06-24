@@ -39,6 +39,9 @@ public sealed class WinAnsiEncoding : Encoding
             AddCharacterEncoding(code, PdfBox.Net.FontBox.Encoding.StandardEncoding.INSTANCE.GetName(code));
         }
 
+        AddCharacterEncoding(39, "quotesingle");
+        AddCharacterEncoding(96, "grave");
+
         // Common WinAnsi high-byte mappings required by PDF standard fonts.
         AddCharacterEncoding(128, "Euro");
         AddCharacterEncoding(130, "quotesinglbase");
