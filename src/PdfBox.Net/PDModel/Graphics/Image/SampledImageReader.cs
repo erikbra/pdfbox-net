@@ -27,8 +27,10 @@
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
+using PdfBox.Net.PDModel.Graphics.Color;
+
 /// <summary>
-/// Reads a sampled image (raster) from a PDImageXObject.
+/// Reads a sampled image (raster) from a PDImage.
 /// </summary>
 /// <remarks>
 /// NOTE: This class is an adapted stub. Full sampled-image reading is not yet implemented
@@ -37,22 +39,35 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 internal static class SampledImageReader
 {
     /// <summary>
-    /// Returns a raster representation of the given image.
+    /// Returns a raster representation of the given image XObject.
     /// </summary>
-    /// <exception cref="NotImplementedException">Always thrown – not yet implemented.</exception>
     public static byte[] GetRGBImage(PDImageXObject image)
     {
         ArgumentNullException.ThrowIfNull(image);
+        return GetRGBImage(image.GetWidth(), image.GetHeight(), image.GetBitsPerComponent(), image.GetColorSpace(), image.GetImageData());
+    }
 
-        int width = image.GetWidth();
-        int height = image.GetHeight();
-        int bitsPerComponent = image.GetBitsPerComponent();
+    /// <summary>
+    /// Returns a raster representation of the given image.
+    /// </summary>
+    public static byte[] GetRGBImage(PDImage image)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        return GetRGBImage(image.GetWidth(), image.GetHeight(), image.GetBitsPerComponent(), image.GetColorSpace(), image.GetData());
+    }
+
+    private static byte[] GetRGBImage(
+        int width,
+        int height,
+        int bitsPerComponent,
+        PDColorSpace colorSpace,
+        byte[] imageData)
+    {
         if (width <= 0 || height <= 0)
         {
             throw new IOException("image width and height must be positive");
         }
 
-        byte[] imageData = image.GetImageData();
         if (imageData.Length == 0)
         {
             throw new IOException("Image stream is empty");
@@ -60,16 +75,20 @@ internal static class SampledImageReader
 
         return bitsPerComponent switch
         {
-            1 => FromOneBit(image, imageData, width, height),
-            8 => FromEightBit(image, imageData, width, height),
+            1 => FromOneBit(colorSpace, imageData, width, height),
+            8 => FromEightBit(colorSpace, imageData, width, height),
             _ => throw new NotSupportedException(
                 $"SampledImageReader.GetRGBImage supports 1-bit and 8-bit images, not {bitsPerComponent}-bit images.")
         };
     }
 
-    private static byte[] FromOneBit(PDImageXObject image, byte[] imageData, int width, int height)
+    private static byte[] FromOneBit(
+        PDColorSpace colorSpace,
+        byte[] imageData,
+        int width,
+        int height)
     {
-        int components = image.GetColorSpace().GetNumberOfComponents();
+        int components = colorSpace.GetNumberOfComponents();
         if (components != 1)
         {
             throw new NotSupportedException("1-bit sampled image reading is only supported for single-component images.");
@@ -99,9 +118,12 @@ internal static class SampledImageReader
         return rgb;
     }
 
-    private static byte[] FromEightBit(PDImageXObject image, byte[] imageData, int width, int height)
+    private static byte[] FromEightBit(
+        PDColorSpace colorSpace,
+        byte[] imageData,
+        int width,
+        int height)
     {
-        PdfBox.Net.PDModel.Graphics.Color.PDColorSpace colorSpace = image.GetColorSpace();
         int components = colorSpace.GetNumberOfComponents();
         int pixels = checked(width * height);
         int expectedLength = checked(pixels * components);

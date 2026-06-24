@@ -22,7 +22,10 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.Rendering;
+using SkiaSharp;
 using System.Text;
 
 namespace PdfBox.Net.Tests;
@@ -39,14 +42,21 @@ public class RenderingSmokeTest
     /// Creates a minimal PDF document with a single page whose content stream
     /// is the supplied PDF operator text. The page is Letter-size (612×792 pt).
     /// </summary>
-    private static PDDocument CreateDocument(string contentStream)
+    private static PDDocument CreateDocument(string contentStream, PDModel.Resources.PDResources? resources = null)
     {
         var document = new PDDocument();
         var page = new PDPage(); // Letter: 612×792
         document.AddPage(page);
 
         var pageDict = (COSDictionary)page.GetCOSObject();
-        pageDict.SetItem(COSName.RESOURCES, new COSDictionary());
+        if (resources is null)
+        {
+            pageDict.SetItem(COSName.RESOURCES, new COSDictionary());
+        }
+        else
+        {
+            page.SetResources(resources);
+        }
 
         var stream = new COSStream();
         using (Stream output = stream.CreateOutputStream())
@@ -229,5 +239,75 @@ public class RenderingSmokeTest
         int gg = (greenArgb >> 8) & 0xFF;
         int gb = greenArgb & 0xFF;
         Assert.True(gg > gr, $"Expected green channel > red in green rectangle, got G={gg} R={gr}");
+    }
+
+    [Fact]
+    public void RenderImage_TextContent_DrawsVisibleGlyphPixels()
+    {
+        var resources = new PDModel.Resources.PDResources();
+        resources.Put(COSName.GetPDFName("F1"), new PDType1Font(PDType1Font.FontName.HELVETICA_BOLD));
+        using var document = CreateDocument("BT\n0 0 0 rg\n/F1 48 Tf\n100 500 Td\n(Hi) Tj\nET\n", resources);
+
+        var renderer = new PDFRenderer(document);
+        using BufferedImage image = renderer.RenderImage(0, 1f, ImageType.RGB);
+
+        int textRegionPixels = CountNonWhitePixels(image, 80, 230, 180, 120);
+        int pagePixels = CountNonWhitePixels(image, 0, 0, image.Width, image.Height);
+        Assert.True(textRegionPixels > 40,
+            $"Expected visible text pixels in region but saw {textRegionPixels}; full page non-white pixels: {pagePixels}");
+    }
+
+    [Fact]
+    public void RenderImage_ImageXObject_DrawsDecodedImagePixels()
+    {
+        using var document = new PDDocument();
+        using var source = new SKBitmap(2, 2);
+        source.SetPixel(0, 0, SKColors.Red);
+        source.SetPixel(1, 0, SKColors.Green);
+        source.SetPixel(0, 1, SKColors.Blue);
+        source.SetPixel(1, 1, SKColors.White);
+        PDImageXObject imageXObject = LosslessFactory.CreateFromImage(document, source);
+
+        var resources = new PDModel.Resources.PDResources();
+        resources.Put(COSName.GetPDFName("Im1"), imageXObject);
+        using PDDocument pageDocument = CreateDocument("q\n80 0 0 80 100 300 cm\n/Im1 Do\nQ\n", resources);
+
+        var renderer = new PDFRenderer(pageDocument);
+        using BufferedImage image = renderer.RenderImage(0, 1f, ImageType.RGB);
+
+        int redArgb = image.GetRgb(120, 422);
+        int redR = (redArgb >> 16) & 0xFF;
+        int redG = (redArgb >> 8) & 0xFF;
+        int redB = redArgb & 0xFF;
+        int pagePixels = CountNonWhitePixels(image, 0, 0, image.Width, image.Height);
+        Assert.True(redR > redG && redR > redB,
+            $"Expected red-dominant image pixel but got RGB({redR},{redG},{redB}); full page non-white pixels: {pagePixels}");
+
+        int blueArgb = image.GetRgb(120, 462);
+        int blueR = (blueArgb >> 16) & 0xFF;
+        int blueG = (blueArgb >> 8) & 0xFF;
+        int blueB = blueArgb & 0xFF;
+        Assert.True(blueB > blueR && blueB > blueG, $"Expected blue-dominant image pixel but got RGB({blueR},{blueG},{blueB})");
+    }
+
+    private static int CountNonWhitePixels(BufferedImage image, int x, int y, int width, int height)
+    {
+        int count = 0;
+        for (int yy = y; yy < y + height; yy++)
+        {
+            for (int xx = x; xx < x + width; xx++)
+            {
+                int argb = image.GetRgb(xx, yy);
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >> 8) & 0xFF;
+                int b = argb & 0xFF;
+                if (r != 255 || g != 255 || b != 255)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 }

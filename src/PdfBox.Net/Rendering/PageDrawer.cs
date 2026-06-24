@@ -32,6 +32,7 @@ using PdfBox.Net.PDModel.Annotations;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
@@ -54,6 +55,7 @@ namespace PdfBox.Net.Rendering;
 public class PageDrawer : PDFGraphicsStreamEngine
 {
     private readonly PageDrawerParameters _parameters;
+    private readonly Dictionary<PDVectorFont, GlyphCache> _glyphCaches = new();
     private AnnotationFilter _annotationFilter = _ => true;
     private Graphics2D? _graphics;
     private readonly GeneralPath _linePath = new();
@@ -141,17 +143,43 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     protected virtual void ShowFontGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
     {
-        // TODO: glyph rendering (issue scope).
+        if (_graphics?.Canvas is null || !IsContentRendered())
+        {
+            return;
+        }
+
+        if (font is PDVectorFont vectorFont)
+        {
+            GeneralPath path = GetGlyphCache(vectorFont).GetPathForCharacterCode(code);
+            if (path.Segments.Count > 0)
+            {
+                Matrix glyphMatrix = font.GetFontMatrix().Multiply(textRenderingMatrix);
+                using SKPath skPath = BuildSkPath(path, glyphMatrix);
+                using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
+                _graphics.Canvas.DrawPath(skPath, paint);
+                return;
+            }
+        }
+
+        DrawUnicodeGlyphFallback(textRenderingMatrix, font, code);
     }
 
     private void DrawGlyph(GeneralPath path, PDFont font, int code, Vector displacement, AffineTransform at)
     {
-        // TODO: glyph outline rendering.
+        if (_graphics?.Canvas is null || path.Segments.Count == 0)
+        {
+            return;
+        }
+
+        Matrix matrix = new(at);
+        using SKPath skPath = BuildSkPath(path, matrix);
+        using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
+        _graphics.Canvas.DrawPath(skPath, paint);
     }
 
     protected virtual void ShowType3Glyph(Matrix textRenderingMatrix, PDType3Font font, int code, Vector displacement)
     {
-        // TODO: Type-3 glyph rendering.
+        DrawUnicodeGlyphFallback(textRenderingMatrix, font, code);
     }
 
     public override void AppendRectangle(Point2D p0, Point2D p1, Point2D p2, Point2D p3)
@@ -295,7 +323,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     public override void DrawImage(PDImage pdImage)
     {
-        // TODO: image rendering.
+        DrawImage(pdImage, GetGraphicsState().GetCurrentTransformationMatrix());
     }
 
     protected virtual int GetSubsampling(PDImage pdImage, AffineTransform at)
@@ -305,7 +333,15 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     private void DrawBufferedImage(PDImage pdImage, BufferedImage image, AffineTransform at)
     {
-        // TODO: buffered image compositing.
+        if (_graphics?.Canvas is null)
+        {
+            return;
+        }
+
+        Matrix matrix = new(at);
+        SKRect dest = GetImageDestination(matrix);
+        using SKPaint paint = CreateImagePaint(GetGraphicsState());
+        DrawBitmap(image.Bitmap, dest, paint);
     }
 
     private static BufferedImage ApplyTransferFunction(BufferedImage image, COSBase transfer)
@@ -346,6 +382,17 @@ public class PageDrawer : PDFGraphicsStreamEngine
     public void ShowTransparencyGroup(PDTransparencyGroup form)
     {
         // TODO: transparency group rendering.
+    }
+
+    public override void XObject(PDXObject xobject)
+    {
+        if (xobject is PDImageXObject image)
+        {
+            DrawImageXObject(image);
+            return;
+        }
+
+        base.XObject(xobject);
     }
 
     protected virtual void ShowTransparencyGroupOnGraphics(PDTransparencyGroup form, Graphics2D graphics)
@@ -399,6 +446,18 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private bool IsContentRendered()
     {
         return _nestedHiddenOptionalContentCount == 0;
+    }
+
+    protected override void ShowGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
+    {
+        if (font is PDType3Font type3Font)
+        {
+            ShowType3Glyph(textRenderingMatrix, type3Font, code, displacement);
+        }
+        else
+        {
+            ShowFontGlyph(textRenderingMatrix, font, code, displacement);
+        }
     }
 
     private bool IsHiddenOCG(PDPropertyList? propertyList)
@@ -550,6 +609,174 @@ public class PageDrawer : PDFGraphicsStreamEngine
     {
         Vector v = ctm.Transform(x, y);
         return (v.GetX(), pageHeightPt - v.GetY());
+    }
+
+    private void DrawImage(PDImage image, Matrix matrix)
+    {
+        DrawDecodedImage(SampledImageReader.GetRGBImage(image), image.GetWidth(), image.GetHeight(), matrix);
+    }
+
+    private void DrawImageXObject(PDImageXObject image)
+    {
+        DrawDecodedImage(
+            SampledImageReader.GetRGBImage(image),
+            image.GetWidth(),
+            image.GetHeight(),
+            GetGraphicsState().GetCurrentTransformationMatrix());
+    }
+
+    private void DrawDecodedImage(byte[] rgb, int width, int height, Matrix matrix)
+    {
+        if (_graphics?.Canvas is null || !IsContentRendered())
+        {
+            return;
+        }
+
+        if (width <= 0 || height <= 0 || rgb.Length < width * height * 3)
+        {
+            return;
+        }
+
+        using SKBitmap bitmap = CreateBitmapFromRgb(rgb, width, height);
+        SKRect dest = GetImageDestination(matrix);
+        if (dest.Width <= 0 || dest.Height <= 0)
+        {
+            return;
+        }
+
+        using SKPaint paint = CreateImagePaint(GetGraphicsState());
+        DrawBitmap(bitmap, dest, paint);
+    }
+
+    private GlyphCache GetGlyphCache(PDVectorFont font)
+    {
+        if (!_glyphCaches.TryGetValue(font, out GlyphCache? cache))
+        {
+            cache = new GlyphCache(font);
+            _glyphCaches.Add(font, cache);
+        }
+
+        return cache;
+    }
+
+    private SKPath BuildSkPath(GeneralPath path, Matrix matrix)
+    {
+        var skPath = new SKPath();
+        foreach (GeneralPath.Segment segment in path.Segments)
+        {
+            switch (segment.Type)
+            {
+                case GeneralPath.SegmentType.MoveTo:
+                {
+                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, matrix, _pageHeightPt);
+                    skPath.MoveTo(x, y);
+                    break;
+                }
+                case GeneralPath.SegmentType.LineTo:
+                {
+                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, matrix, _pageHeightPt);
+                    skPath.LineTo(x, y);
+                    break;
+                }
+                case GeneralPath.SegmentType.QuadTo:
+                {
+                    (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, matrix, _pageHeightPt);
+                    (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, matrix, _pageHeightPt);
+                    skPath.QuadTo(x1, y1, x2, y2);
+                    break;
+                }
+                case GeneralPath.SegmentType.Close:
+                    skPath.Close();
+                    break;
+            }
+        }
+
+        return skPath;
+    }
+
+    private void DrawUnicodeGlyphFallback(Matrix textRenderingMatrix, PDFont font, int code)
+    {
+        if (_graphics?.Canvas is null)
+        {
+            return;
+        }
+
+        string? unicode = font.ToUnicode(code, PdfBox.Net.PDModel.Font.Encoding.GlyphList.GetAdobeGlyphList());
+        unicode ??= code is >= 0 and <= 255 ? ((char)code).ToString() : null;
+        if (string.IsNullOrEmpty(unicode))
+        {
+            return;
+        }
+
+        SKMatrix matrix = ToCanvasMatrix(textRenderingMatrix, _pageHeightPt);
+        using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
+        using SKTypeface? typeface = SKTypeface.FromFamilyName(font.GetName());
+        using SKFont skFont = new(typeface ?? SKTypeface.Default, 1f);
+
+        _graphics.Canvas.Save();
+        _graphics.Canvas.Concat(in matrix);
+        _graphics.Canvas.DrawText(unicode, 0, 0, skFont, paint);
+        _graphics.Canvas.Restore();
+    }
+
+    private static SKMatrix ToCanvasMatrix(Matrix matrix, float pageHeightPt)
+    {
+        return new SKMatrix
+        {
+            ScaleX = matrix.GetScaleX(),
+            SkewX = matrix.GetShearX(),
+            TransX = matrix.GetTranslateX(),
+            SkewY = -matrix.GetShearY(),
+            ScaleY = -matrix.GetScaleY(),
+            TransY = pageHeightPt - matrix.GetTranslateY(),
+            Persp2 = 1f,
+        };
+    }
+
+    private SKRect GetImageDestination(Matrix matrix)
+    {
+        (float x0, float y0) = PdfToCanvas(0, 0, matrix, _pageHeightPt);
+        (float x1, float y1) = PdfToCanvas(1, 0, matrix, _pageHeightPt);
+        (float x2, float y2) = PdfToCanvas(1, 1, matrix, _pageHeightPt);
+        (float x3, float y3) = PdfToCanvas(0, 1, matrix, _pageHeightPt);
+
+        float left = MathF.Min(MathF.Min(x0, x1), MathF.Min(x2, x3));
+        float right = MathF.Max(MathF.Max(x0, x1), MathF.Max(x2, x3));
+        float top = MathF.Min(MathF.Min(y0, y1), MathF.Min(y2, y3));
+        float bottom = MathF.Max(MathF.Max(y0, y1), MathF.Max(y2, y3));
+        return new SKRect(left, top, right, bottom);
+    }
+
+    private static SKBitmap CreateBitmapFromRgb(byte[] rgb, int width, int height)
+    {
+        var bitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Opaque);
+        int src = 0;
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                bitmap.SetPixel(x, y, new SKColor(rgb[src], rgb[src + 1], rgb[src + 2]));
+                src += 3;
+            }
+        }
+
+        return bitmap;
+    }
+
+    private static SKPaint CreateImagePaint(PDGraphicsState graphicsState)
+    {
+        float alpha = Math.Clamp(graphicsState.GetNonStrokeAlphaConstant(), 0f, 1f);
+        return new SKPaint
+        {
+            IsAntialias = true,
+            Color = SKColors.White.WithAlpha((byte)Math.Round(alpha * 255f)),
+        };
+    }
+
+    private void DrawBitmap(SKBitmap bitmap, SKRect dest, SKPaint paint)
+    {
+        using SKImage image = SKImage.FromBitmap(bitmap);
+        _graphics!.Canvas!.DrawImage(image, dest, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear), paint);
     }
 
     /// <summary>Creates a SkiaSharp paint from the current graphics state.</summary>

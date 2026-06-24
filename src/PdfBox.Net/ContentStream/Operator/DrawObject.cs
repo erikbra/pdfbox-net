@@ -56,11 +56,6 @@ public sealed class DrawObject : OperatorProcessor
             return;
         }
 
-        if (resources.IsImageXObject(name))
-        {
-            return;
-        }
-
         PDXObject? xobject = resources.GetXObject(name);
         if (xobject is null)
         {
