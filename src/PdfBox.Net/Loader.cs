@@ -313,14 +313,10 @@ public static class Loader
     /// </summary>
     /// <param name="filePath">The path of the XFDF file to load.</param>
     /// <returns>The document that was loaded.</returns>
-    /// <exception cref="NotSupportedException">
-    /// XFDF loading is not yet supported in this .NET port. Use <see cref="LoadFDF(string)"/> for binary FDF.
-    /// </exception>
     public static FDFDocument LoadXFDF(string filePath)
     {
-        throw new NotSupportedException(
-            "XFDF loading is not yet supported in this .NET port. " +
-            "Use LoadFDF for binary FDF format.");
+        ArgumentNullException.ThrowIfNull(filePath);
+        return FDFDocument.LoadXFDF(filePath);
     }
 
     /// <summary>
@@ -328,14 +324,10 @@ public static class Loader
     /// </summary>
     /// <param name="input">The stream that contains the XFDF document.</param>
     /// <returns>The document that was loaded.</returns>
-    /// <exception cref="NotSupportedException">
-    /// XFDF loading is not yet supported in this .NET port. Use <see cref="LoadFDF(byte[])"/> for binary FDF.
-    /// </exception>
     public static FDFDocument LoadXFDF(Stream input)
     {
-        throw new NotSupportedException(
-            "XFDF loading is not yet supported in this .NET port. " +
-            "Use LoadFDF for binary FDF format.");
+        ArgumentNullException.ThrowIfNull(input);
+        return FDFDocument.LoadXFDF(input);
     }
 
     private static byte[] ReadAllBytes(RandomAccessRead randomAccessRead)

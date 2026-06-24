@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Interactive.DigitalSignature;
+using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
@@ -45,6 +46,19 @@ public class FDFCatalog : COSObjectable
     public FDFCatalog(COSDictionary catalog)
     {
         _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
+    }
+
+    public FDFCatalog(XmlElement element)
+        : this()
+    {
+        ArgumentNullException.ThrowIfNull(element);
+        SetFDF(new FDFDictionary(element));
+    }
+
+    public void WriteXml(TextWriter output)
+    {
+        ArgumentNullException.ThrowIfNull(output);
+        GetFDF().WriteXml(output);
     }
 
     public COSBase GetCOSObject()

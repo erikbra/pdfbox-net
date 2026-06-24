@@ -27,9 +27,11 @@
 
 using System.Globalization;
 using System.Text;
+using System.Xml;
 using PdfBox.Net.COS;
 using PdfBox.Net.PdfParser;
 using PdfBox.Net.PdfWriter;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
@@ -49,6 +51,21 @@ public sealed class FDFDocument : IDisposable
     public FDFDocument()
         : this(CreateNewDocument())
     {
+    }
+
+    public FDFDocument(XmlDocument document)
+        : this()
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        XmlElement xfdf = document.DocumentElement
+            ?? throw new IOException("Error while importing xfdf document, root should be 'xfdf' and not ''");
+        if (!string.Equals(xfdf.LocalName, "xfdf", StringComparison.Ordinal))
+        {
+            throw new IOException("Error while importing xfdf document, "
+                + "root should be 'xfdf' and not '" + xfdf.LocalName + "'");
+        }
+
+        SetCatalog(new FDFCatalog(xfdf));
     }
 
     private FDFDocument(COSDocument document)
@@ -82,6 +99,19 @@ public sealed class FDFDocument : IDisposable
         byte[] normalized = NormalizeToPdfHeader(copy.ToArray());
         ParsedPDFDocument parsed = new PDFParser(new MemoryStream(normalized, writable: false)).Parse();
         return new FDFDocument(parsed.Document);
+    }
+
+    public static FDFDocument LoadXFDF(string filePath)
+    {
+        ArgumentNullException.ThrowIfNull(filePath);
+        using FileStream input = File.OpenRead(filePath);
+        return LoadXFDF(input);
+    }
+
+    public static FDFDocument LoadXFDF(Stream input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        return new FDFDocument(XMLUtil.Parse(input));
     }
 
     public COSDocument GetDocument()
@@ -166,6 +196,44 @@ public sealed class FDFDocument : IDisposable
         output.Write(Encoding.ASCII.GetBytes("trailer\n"));
         output.Write(COSWriter.Serialize(_trailer));
         output.Write(Encoding.ASCII.GetBytes($"\nstartxref\n{xrefOffset.ToString(CultureInfo.InvariantCulture)}\n%%EOF\n"));
+    }
+
+    public void SaveXFDF(string filePath)
+    {
+        ArgumentNullException.ThrowIfNull(filePath);
+        EnsureNotDisposed();
+
+        using FileStream output = File.Create(filePath);
+        SaveXFDF(output);
+    }
+
+    public void SaveXFDF(Stream output)
+    {
+        ArgumentNullException.ThrowIfNull(output);
+        EnsureNotDisposed();
+
+        using StreamWriter writer = new(output, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), leaveOpen: true);
+        WriteXml(writer);
+        writer.Flush();
+    }
+
+    public void SaveXFDF(TextWriter output)
+    {
+        ArgumentNullException.ThrowIfNull(output);
+        EnsureNotDisposed();
+
+        WriteXml(output);
+    }
+
+    public void WriteXml(TextWriter output)
+    {
+        ArgumentNullException.ThrowIfNull(output);
+        EnsureNotDisposed();
+
+        output.Write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        output.Write("<xfdf xmlns=\"http://ns.adobe.com/xfdf/\" xml:space=\"preserve\">\n");
+        GetCatalog().WriteXml(output);
+        output.Write("</xfdf>\n");
     }
 
     public void Dispose()

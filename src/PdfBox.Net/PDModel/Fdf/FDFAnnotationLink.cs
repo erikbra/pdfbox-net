@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Interactive.Action;
+using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
@@ -42,6 +43,26 @@ public class FDFAnnotationLink : FDFAnnotation
     public FDFAnnotationLink(COSDictionary annotation)
         : base(annotation)
     {
+    }
+
+    public FDFAnnotationLink(XmlElement element)
+        : base(element)
+    {
+        Annot.SetName(COSName.SUBTYPE, Subtype);
+
+        foreach (XmlElement onActivation in ChildElements(element, "OnActivation"))
+        {
+            XmlElement? action = FirstChildElement(onActivation, "Action");
+            XmlElement? uri = action is null ? null : FirstChildElement(action, "URI");
+            string? name = uri?.GetAttribute("Name");
+            if (!string.IsNullOrEmpty(name))
+            {
+                PDActionURI actionUri = new();
+                actionUri.SetURI(name);
+                SetAction(actionUri);
+                break;
+            }
+        }
     }
 
     public PDAction? GetAction() => PDActionFactory.CreateAction(Annot.GetCOSDictionary(COSName.A));

@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.COS;
+using System.Globalization;
+using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
@@ -52,6 +54,85 @@ public class FDFAnnotationLine : FDFAnnotation
     public FDFAnnotationLine(COSDictionary annotation)
         : base(annotation)
     {
+    }
+
+    public FDFAnnotationLine(XmlElement element)
+        : base(element)
+    {
+        Annot.SetName(COSName.SUBTYPE, Subtype);
+
+        string startCoords = element.GetAttribute("start");
+        if (string.IsNullOrEmpty(startCoords))
+        {
+            throw new IOException("Error: missing attribute 'start'");
+        }
+
+        string endCoords = element.GetAttribute("end");
+        if (string.IsNullOrEmpty(endCoords))
+        {
+            throw new IOException("Error: missing attribute 'end'");
+        }
+
+        SetLine(ParseRectangleAttributes(startCoords + "," + endCoords, "Error: wrong amount of line coordinates"));
+
+        string leaderLine = element.GetAttribute("leaderLength");
+        if (!string.IsNullOrEmpty(leaderLine))
+        {
+            SetLeaderLength(float.Parse(leaderLine, CultureInfo.InvariantCulture));
+        }
+
+        string leaderLineExtension = element.GetAttribute("leaderExtend");
+        if (!string.IsNullOrEmpty(leaderLineExtension))
+        {
+            SetLeaderExtend(float.Parse(leaderLineExtension, CultureInfo.InvariantCulture));
+        }
+
+        string leaderLineOffset = element.GetAttribute("leaderOffset");
+        if (!string.IsNullOrEmpty(leaderLineOffset))
+        {
+            SetLeaderOffset(float.Parse(leaderLineOffset, CultureInfo.InvariantCulture));
+        }
+
+        string startStyle = element.GetAttribute("head");
+        if (!string.IsNullOrEmpty(startStyle))
+        {
+            SetStartPointEndingStyle(startStyle);
+        }
+
+        string endStyle = element.GetAttribute("tail");
+        if (!string.IsNullOrEmpty(endStyle))
+        {
+            SetEndPointEndingStyle(endStyle);
+        }
+
+        float[]? color = ParseColor(element.GetAttribute("interior-color"));
+        if (color is not null)
+        {
+            SetInteriorColor(color);
+        }
+
+        if (element.GetAttribute("caption") == "yes")
+        {
+            SetCaption(true);
+
+            string captionH = element.GetAttribute("caption-offset-h");
+            if (!string.IsNullOrEmpty(captionH))
+            {
+                SetCaptionHorizontalOffset(float.Parse(captionH, CultureInfo.InvariantCulture));
+            }
+
+            string captionV = element.GetAttribute("caption-offset-v");
+            if (!string.IsNullOrEmpty(captionV))
+            {
+                SetCaptionVerticalOffset(float.Parse(captionV, CultureInfo.InvariantCulture));
+            }
+
+            string captionStyle = element.GetAttribute("caption-style");
+            if (!string.IsNullOrEmpty(captionStyle))
+            {
+                SetCaptionStyle(captionStyle);
+            }
+        }
     }
 
     public void SetLine(float[]? line) => Annot.SetItem(LName, line is null ? null : COSArray.Of(line));

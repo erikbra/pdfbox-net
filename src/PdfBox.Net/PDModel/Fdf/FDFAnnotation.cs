@@ -25,6 +25,9 @@
  * limitations under the License.
  */
 
+using System.Globalization;
+using System.Text;
+using System.Xml;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Annotation;
@@ -59,6 +62,82 @@ public abstract class FDFAnnotation : COSObjectable
         Annot = annotation ?? throw new ArgumentNullException(nameof(annotation));
     }
 
+    protected FDFAnnotation(XmlElement element)
+        : this()
+    {
+        ArgumentNullException.ThrowIfNull(element);
+
+        string page = element.GetAttribute("page");
+        if (string.IsNullOrEmpty(page))
+        {
+            throw new IOException("Error: missing required attribute 'page'");
+        }
+
+        SetPage(int.Parse(page, CultureInfo.InvariantCulture));
+
+        float[]? color = ParseColor(element.GetAttribute("color"));
+        if (color is not null)
+        {
+            SetColor(color);
+        }
+
+        SetDate(element.GetAttribute("date"));
+        ApplyFlags(element.GetAttribute("flags"));
+        SetName(element.GetAttribute("name"));
+
+        string rect = element.GetAttribute("rect");
+        if (string.IsNullOrEmpty(rect))
+        {
+            throw new IOException("Error: missing attribute 'rect'");
+        }
+
+        SetRectangle(new PDRectangle(COSArray.Of(ParseRectangleAttributes(
+            rect, "Error: wrong amount of numbers in attribute 'rect'"))));
+
+        SetTitle(element.GetAttribute("title"));
+
+        string creationDate = element.GetAttribute("creationdate");
+        Annot.SetString(COSName.CREATION_DATE, string.IsNullOrEmpty(creationDate) ? null : creationDate);
+
+        string opacity = element.GetAttribute("opacity");
+        if (!string.IsNullOrEmpty(opacity))
+        {
+            SetOpacity(float.Parse(opacity, CultureInfo.InvariantCulture));
+        }
+
+        SetSubject(element.GetAttribute("subject"));
+
+        string intent = element.GetAttribute("intent");
+        if (string.IsNullOrEmpty(intent))
+        {
+            intent = element.GetAttribute("IT");
+        }
+
+        if (!string.IsNullOrEmpty(intent))
+        {
+            SetIntent(intent);
+        }
+
+        XmlElement? contents = FirstChildElement(element, "contents");
+        if (contents is not null)
+        {
+            SetContents(contents.InnerText);
+        }
+
+        XmlElement? richContents = FirstChildElement(element, "contents-richtext");
+        if (richContents is not null)
+        {
+            SetRichContents(RichContentsToString(richContents, root: true));
+            SetContents(richContents.InnerText.Trim());
+        }
+
+        SetBorderStyle(CreateBorderStyle(element, out PDBorderEffectDictionary? borderEffect));
+        if (borderEffect is not null)
+        {
+            SetBorderEffect(borderEffect);
+        }
+    }
+
     public static FDFAnnotation? Create(COSDictionary? dictionary)
     {
         return dictionary?.GetNameAsString(COSName.SUBTYPE) switch
@@ -80,6 +159,23 @@ public abstract class FDFAnnotation : COSObjectable
             FDFAnnotationStamp.Subtype => new FDFAnnotationStamp(dictionary),
             FDFAnnotationStrikeOut.Subtype => new FDFAnnotationStrikeOut(dictionary),
             FDFAnnotationUnderline.Subtype => new FDFAnnotationUnderline(dictionary),
+            _ => null
+        };
+    }
+
+    public static FDFAnnotation? CreateFromXFDF(XmlElement element)
+    {
+        return element.LocalName switch
+        {
+            "text" => new FDFAnnotationText(element),
+            "freetext" => new FDFAnnotationFreeText(element),
+            "highlight" => new FDFAnnotationHighlight(element),
+            "ink" => new FDFAnnotationInk(element),
+            "line" => new FDFAnnotationLine(element),
+            "link" => new FDFAnnotationLink(element),
+            "squiggly" => new FDFAnnotationSquiggly(element),
+            "strikeout" => new FDFAnnotationStrikeOut(element),
+            "underline" => new FDFAnnotationUnderline(element),
             _ => null
         };
     }
@@ -194,5 +290,260 @@ public abstract class FDFAnnotation : COSObjectable
             COSStream stream => stream.ToTextString(),
             _ => null
         };
+    }
+
+    protected static string ElementText(XmlElement element, string localName)
+    {
+        return FirstChildElement(element, localName)?.InnerText ?? string.Empty;
+    }
+
+    protected static XmlElement? FirstChildElement(XmlElement element, string localName)
+    {
+        foreach (XmlNode node in element.ChildNodes)
+        {
+            if (node is XmlElement child
+                && string.Equals(child.LocalName, localName, StringComparison.Ordinal))
+            {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    protected static IEnumerable<XmlElement> ChildElements(XmlElement element, string localName)
+    {
+        foreach (XmlNode node in element.ChildNodes)
+        {
+            if (node is XmlElement child
+                && string.Equals(child.LocalName, localName, StringComparison.Ordinal))
+            {
+                yield return child;
+            }
+        }
+    }
+
+    protected static float[] ParseRectangleAttributes(string rect, string errorMessage)
+    {
+        string[] rectValues = SplitLikeJava(rect, ',');
+        if (rectValues.Length != 4)
+        {
+            throw new IOException(errorMessage);
+        }
+
+        return ParseFloats(rectValues);
+    }
+
+    protected static float[] ParseFloats(string[] sourceValues)
+    {
+        float[] values = new float[sourceValues.Length];
+        for (int i = 0; i < sourceValues.Length; i++)
+        {
+            values[i] = float.Parse(sourceValues[i], CultureInfo.InvariantCulture);
+        }
+
+        return values;
+    }
+
+    protected static string[] SplitLikeJava(string value, params char[] separators)
+    {
+        string[] parts = value.Split(separators);
+        int length = parts.Length;
+        while (length > 0 && parts[length - 1].Length == 0)
+        {
+            length--;
+        }
+
+        if (length == parts.Length)
+        {
+            return parts;
+        }
+
+        string[] trimmed = new string[length];
+        Array.Copy(parts, trimmed, length);
+        return trimmed;
+    }
+
+    protected static float[]? ParseColor(string color)
+    {
+        if (color.Length != 7 || color[0] != '#')
+        {
+            return null;
+        }
+
+        int colorValue = int.Parse(color[1..], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        return
+        [
+            ((colorValue >> 16) & 0xff) / 255f,
+            ((colorValue >> 8) & 0xff) / 255f,
+            (colorValue & 0xff) / 255f
+        ];
+    }
+
+    private void ApplyFlags(string flags)
+    {
+        if (flags.Length == 0)
+        {
+            return;
+        }
+
+        foreach (string flagToken in flags.Split(','))
+        {
+            switch (flagToken)
+            {
+                case "invisible":
+                    SetInvisible(true);
+                    break;
+                case "hidden":
+                    SetHidden(true);
+                    break;
+                case "print":
+                    SetPrinted(true);
+                    break;
+                case "nozoom":
+                    SetNoZoom(true);
+                    break;
+                case "norotate":
+                    SetNoRotate(true);
+                    break;
+                case "noview":
+                    SetNoView(true);
+                    break;
+                case "readonly":
+                    SetReadOnly(true);
+                    break;
+                case "locked":
+                    SetLocked(true);
+                    break;
+                case "togglenoview":
+                    SetToggleNoView(true);
+                    break;
+            }
+        }
+    }
+
+    private static PDBorderStyleDictionary CreateBorderStyle(
+        XmlElement element,
+        out PDBorderEffectDictionary? borderEffect)
+    {
+        borderEffect = null;
+        PDBorderStyleDictionary borderStyle = new();
+        string width = element.GetAttribute("width");
+        if (!string.IsNullOrEmpty(width))
+        {
+            borderStyle.SetWidth(float.Parse(width, CultureInfo.InvariantCulture));
+        }
+
+        if (borderStyle.GetWidth() > 0)
+        {
+            string style = element.GetAttribute("style");
+            if (!string.IsNullOrEmpty(style))
+            {
+                switch (style)
+                {
+                    case "dash":
+                        borderStyle.SetStyle(PDBorderStyleDictionary.STYLE_DASHED);
+                        break;
+                    case "bevelled":
+                        borderStyle.SetStyle(PDBorderStyleDictionary.STYLE_BEVELED);
+                        break;
+                    case "inset":
+                        borderStyle.SetStyle(PDBorderStyleDictionary.STYLE_INSET);
+                        break;
+                    case "underline":
+                        borderStyle.SetStyle(PDBorderStyleDictionary.STYLE_SOLID);
+                        break;
+                    case "cloudy":
+                        borderStyle.SetStyle(PDBorderStyleDictionary.STYLE_SOLID);
+                        borderEffect = new PDBorderEffectDictionary();
+                        borderEffect.SetStyle(PDBorderEffectDictionary.STYLE_CLOUDY);
+                        string intensity = element.GetAttribute("intensity");
+                        if (!string.IsNullOrEmpty(intensity))
+                        {
+                            borderEffect.SetIntensity(float.Parse(intensity, CultureInfo.InvariantCulture));
+                        }
+
+                        break;
+                    default:
+                        borderStyle.SetStyle(PDBorderStyleDictionary.STYLE_SOLID);
+                        break;
+                }
+            }
+
+            string dashes = element.GetAttribute("dashes");
+            if (!string.IsNullOrEmpty(dashes))
+            {
+                COSArray dashPattern = new();
+                foreach (string dashesValue in SplitLikeJava(dashes, ','))
+                {
+                    dashPattern.Add(COSNumber.Get(dashesValue));
+                }
+
+                borderStyle.SetDashStyle(dashPattern);
+            }
+        }
+
+        return borderStyle;
+    }
+
+    private static string RichContentsToString(XmlNode node, bool root)
+    {
+        StringBuilder sb = new();
+        foreach (XmlNode child in node.ChildNodes)
+        {
+            switch (child)
+            {
+                case XmlElement element:
+                    sb.Append(RichContentsToString(element, root: false));
+                    break;
+                case XmlCDataSection cdata:
+                    sb.Append("<![CDATA[").Append(cdata.Data).Append("]]>");
+                    break;
+                case XmlText text:
+                    sb.Append(text.Data.Replace("&", "&amp;", StringComparison.Ordinal)
+                        .Replace("<", "&lt;", StringComparison.Ordinal));
+                    break;
+            }
+        }
+
+        if (root)
+        {
+            return sb.ToString();
+        }
+
+        StringBuilder attributes = new();
+        if (node.Attributes is not null)
+        {
+            foreach (XmlAttribute attribute in OrderedAttributes(node.Attributes))
+            {
+                string value = attribute.Value.Replace("\"", "&quot;", StringComparison.Ordinal);
+                attributes.Append(' ')
+                    .Append(attribute.Name)
+                    .Append("=\"")
+                    .Append(value)
+                    .Append('"');
+            }
+        }
+
+        return "<" + node.Name + attributes + ">" + sb + "</" + node.Name + ">";
+    }
+
+    private static IEnumerable<XmlAttribute> OrderedAttributes(XmlAttributeCollection attributes)
+    {
+        foreach (XmlAttribute attribute in attributes)
+        {
+            if (!attribute.Name.StartsWith("xmlns", StringComparison.Ordinal))
+            {
+                yield return attribute;
+            }
+        }
+
+        foreach (XmlAttribute attribute in attributes)
+        {
+            if (attribute.Name.StartsWith("xmlns", StringComparison.Ordinal))
+            {
+                yield return attribute;
+            }
+        }
     }
 }

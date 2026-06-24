@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
@@ -43,6 +44,33 @@ public class FDFAnnotationInk : FDFAnnotation
     public FDFAnnotationInk(COSDictionary annotation)
         : base(annotation)
     {
+    }
+
+    public FDFAnnotationInk(XmlElement element)
+        : base(element)
+    {
+        Annot.SetName(COSName.SUBTYPE, Subtype);
+
+        XmlElement? inkListElement = FirstChildElement(element, "inklist");
+        if (inkListElement is null)
+        {
+            throw new IOException("Error: missing element 'gesture'");
+        }
+
+        List<float[]> inkList = [];
+        foreach (XmlElement gestureElement in ChildElements(inkListElement, "gesture"))
+        {
+            string gesture = gestureElement.InnerText;
+            string[] gestureValues = SplitLikeJava(gesture, ',', ';');
+            inkList.Add(ParseFloats(gestureValues));
+        }
+
+        if (inkList.Count == 0)
+        {
+            throw new IOException("Error: missing element 'gesture'");
+        }
+
+        SetInkList(inkList);
     }
 
     public void SetInkList(IList<float[]> inkList)
