@@ -237,6 +237,26 @@ public class AdvancedRenderingIssue419Test
         Assert.True(image.Height > 0);
     }
 
+    [Theory]
+    [InlineData("JBIG2Image.pdf")]
+    [InlineData("JPXTestCMYK.pdf")]
+    [InlineData("png_demo.pdf")]
+    [InlineData("ccitt4-cib-test.pdf")]
+    public void RenderImage_ImageFilterFixtures_DoesNotThrowWhenFixtureIsAvailable(string fixtureName)
+    {
+        string? fixturePath = FindApacheImageIoFixture(fixtureName);
+        if (fixturePath is null)
+        {
+            return;
+        }
+
+        using PDDocument document = Loader.LoadPDF(fixturePath);
+        using BufferedImage image = new PDFRenderer(document).RenderImageWithDPI(0, 36, ImageType.RGB);
+
+        Assert.True(image.Width > 0);
+        Assert.True(image.Height > 0);
+    }
+
     private static PDDocument CreateDocument(string contentStream, PDResources? resources = null)
     {
         PDDocument document = new();
@@ -341,6 +361,36 @@ public class AdvancedRenderingIssue419Test
             "input",
             "rendering",
             "survey.pdf"));
+
+        return File.Exists(candidate) ? candidate : null;
+    }
+
+    private static string? FindApacheImageIoFixture(string fixtureName)
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        while (directory is not null && !Directory.Exists(Path.Combine(directory.FullName, ".git")))
+        {
+            directory = directory.Parent;
+        }
+
+        if (directory is null)
+        {
+            return null;
+        }
+
+        string candidate = Path.GetFullPath(Path.Combine(
+            directory.FullName,
+            "..",
+            "..",
+            "apache",
+            "pdfbox",
+            "tools",
+            "src",
+            "test",
+            "resources",
+            "input",
+            "ImageIOUtil",
+            fixtureName));
 
         return File.Exists(candidate) ? candidate : null;
     }

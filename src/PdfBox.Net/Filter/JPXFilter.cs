@@ -63,7 +63,7 @@ public sealed class JPXFilter : Filter
 
         int width = checked((int)image.Width);
         int height = checked((int)image.Height);
-        string map = GetPixelMap(image);
+        string map = GetPixelMap(image, parameters);
 
         Rectangle region = options.GetSourceRegion() ?? new Rectangle(0, 0, width, height);
         region.Intersect(new Rectangle(0, 0, width, height));
@@ -117,19 +117,58 @@ public sealed class JPXFilter : Filter
         return memory.ToArray();
     }
 
-    private static string GetPixelMap(MagickImage image)
+    private static string GetPixelMap(MagickImage image, COSDictionary parameters)
     {
+        string? requestedMap = GetPdfColorSpacePixelMap(parameters, image.HasAlpha);
+        if (requestedMap is not null)
+        {
+            if (requestedMap.StartsWith("CMYK", StringComparison.Ordinal))
+            {
+                image.ColorSpace = ImageMagick.ColorSpace.CMYK;
+            }
+
+            return requestedMap;
+        }
+
         if (image.HasAlpha)
         {
-            return image.ColorSpace == ColorSpace.Gray ? "IA" : "RGBA";
+            return image.ColorSpace == ImageMagick.ColorSpace.Gray ? "IA" : "RGBA";
         }
 
         return image.ColorSpace switch
         {
-            ColorSpace.Gray => "I",
-            ColorSpace.CMYK => "CMYK",
+            ImageMagick.ColorSpace.Gray => "I",
+            ImageMagick.ColorSpace.CMYK => "CMYK",
             _ => "RGB"
         };
+    }
+
+    private static string? GetPdfColorSpacePixelMap(COSDictionary parameters, bool hasAlpha)
+    {
+        COSBase? colorSpace = parameters.GetDictionaryObject(COSName.COLORSPACE, COSName.CS);
+        if (colorSpace is COSName name)
+        {
+            return name.GetName() switch
+            {
+                "DeviceGray" or "G" => hasAlpha ? "IA" : "I",
+                "DeviceRGB" or "RGB" => hasAlpha ? "RGBA" : "RGB",
+                "DeviceCMYK" or "CMYK" => hasAlpha ? "CMYKA" : "CMYK",
+                _ => null
+            };
+        }
+
+        if (colorSpace is COSArray array && array.Size() > 0 && array.GetObject(0) is COSName kind)
+        {
+            return kind.GetName() switch
+            {
+                "DeviceGray" => hasAlpha ? "IA" : "I",
+                "DeviceRGB" => hasAlpha ? "RGBA" : "RGB",
+                "DeviceCMYK" => hasAlpha ? "CMYKA" : "CMYK",
+                _ => null
+            };
+        }
+
+        return null;
     }
 
     private static byte[] ExtractAlphaSamples(MagickImage image, int width, int height)

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Magick.NET-Q8-AnyCPU" />
+    <PackageReference Include="JBig2Decoder.NETStandard" />
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
     <PackageReference Include="System.Drawing.Common" />

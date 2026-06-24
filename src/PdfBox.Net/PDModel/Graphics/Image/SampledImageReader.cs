@@ -27,6 +27,7 @@
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
+using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics.Color;
 
 /// <summary>
@@ -44,7 +45,13 @@ internal static class SampledImageReader
     public static byte[] GetRGBImage(PDImageXObject image)
     {
         ArgumentNullException.ThrowIfNull(image);
-        return GetRGBImage(image.GetWidth(), image.GetHeight(), image.GetBitsPerComponent(), image.GetColorSpace(), image.GetImageData());
+        return GetRGBImage(
+            image.GetWidth(),
+            image.GetHeight(),
+            image.GetBitsPerComponent(),
+            image.GetColorSpace(),
+            image.GetImageData(),
+            image.GetCOSObject()?.GetCOSArray(COSName.DECODE));
     }
 
     /// <summary>
@@ -53,7 +60,13 @@ internal static class SampledImageReader
     public static byte[] GetRGBImage(PDImage image)
     {
         ArgumentNullException.ThrowIfNull(image);
-        return GetRGBImage(image.GetWidth(), image.GetHeight(), image.GetBitsPerComponent(), image.GetColorSpace(), image.GetData());
+        return GetRGBImage(
+            image.GetWidth(),
+            image.GetHeight(),
+            image.GetBitsPerComponent(),
+            image.GetColorSpace(),
+            image.GetData(),
+            image.GetDecode());
     }
 
     private static byte[] GetRGBImage(
@@ -61,7 +74,8 @@ internal static class SampledImageReader
         int height,
         int bitsPerComponent,
         PDColorSpace colorSpace,
-        byte[] imageData)
+        byte[] imageData,
+        COSArray? decodeArray)
     {
         if (width <= 0 || height <= 0)
         {
@@ -73,83 +87,97 @@ internal static class SampledImageReader
             throw new IOException("Image stream is empty");
         }
 
-        return bitsPerComponent switch
+        if (bitsPerComponent is < 1 or > 8)
         {
-            1 => FromOneBit(colorSpace, imageData, width, height),
-            8 => FromEightBit(colorSpace, imageData, width, height),
-            _ => throw new NotSupportedException(
-                $"SampledImageReader.GetRGBImage supports 1-bit and 8-bit images, not {bitsPerComponent}-bit images.")
-        };
+            throw new NotSupportedException(
+                $"SampledImageReader.GetRGBImage supports 1- to 8-bit images, not {bitsPerComponent}-bit images.");
+        }
+
+        return FromPackedSamples(colorSpace, imageData, width, height, bitsPerComponent, decodeArray);
     }
 
-    private static byte[] FromOneBit(
+    private static byte[] FromPackedSamples(
         PDColorSpace colorSpace,
         byte[] imageData,
         int width,
-        int height)
+        int height,
+        int bitsPerComponent,
+        COSArray? decodeArray)
     {
         int components = colorSpace.GetNumberOfComponents();
-        if (components != 1)
+        int rowBits = checked(width * components * bitsPerComponent);
+        int rowBytes = (rowBits + 7) / 8;
+        int expectedLength = checked(rowBytes * height);
+        if (imageData.Length < expectedLength)
         {
-            throw new NotSupportedException("1-bit sampled image reading is only supported for single-component images.");
+            throw new IOException($"Image stream ended before all {bitsPerComponent}-bit samples were available.");
         }
 
+        bool isIndexed = colorSpace is PDIndexed;
+        float sampleMax = (1 << bitsPerComponent) - 1f;
+        float[] decode = GetDecodeArray(colorSpace, bitsPerComponent, components, decodeArray);
         byte[] rgb = new byte[checked(width * height * 3)];
-        int rowBytes = (width + 7) / 8;
-        if (imageData.Length < rowBytes * height)
-        {
-            throw new IOException("Image stream ended before all 1-bit samples were available.");
-        }
-
+        float[] componentValues = new float[components];
         int dst = 0;
         for (int y = 0; y < height; y++)
         {
-            int rowOffset = y * rowBytes;
+            int bitOffset = y * rowBytes * 8;
             for (int x = 0; x < width; x++)
             {
-                int bit = (imageData[rowOffset + (x / 8)] >> (7 - (x % 8))) & 1;
-                byte value = bit == 0 ? (byte)0 : (byte)255;
-                rgb[dst++] = value;
-                rgb[dst++] = value;
-                rgb[dst++] = value;
+                for (int component = 0; component < components; component++)
+                {
+                    int sample = ReadBits(imageData, bitOffset, bitsPerComponent);
+                    bitOffset += bitsPerComponent;
+                    float dMin = decode[component * 2];
+                    float dMax = decode[(component * 2) + 1];
+                    float decoded = dMin + (sample * ((dMax - dMin) / sampleMax));
+                    componentValues[component] = isIndexed
+                        ? MathF.Round(decoded)
+                        : decoded;
+                }
+
+                float[] converted = colorSpace.ToRGB(componentValues);
+                rgb[dst++] = ToByte(converted, 0);
+                rgb[dst++] = ToByte(converted, 1);
+                rgb[dst++] = ToByte(converted, 2);
             }
         }
 
         return rgb;
     }
 
-    private static byte[] FromEightBit(
-        PDColorSpace colorSpace,
-        byte[] imageData,
-        int width,
-        int height)
+    private static int ReadBits(byte[] data, int bitOffset, int count)
     {
-        int components = colorSpace.GetNumberOfComponents();
-        int pixels = checked(width * height);
-        int expectedLength = checked(pixels * components);
-        if (imageData.Length < expectedLength)
+        int value = 0;
+        for (int i = 0; i < count; i++)
         {
-            throw new IOException("Image stream ended before all 8-bit samples were available.");
+            int absoluteBit = bitOffset + i;
+            int bit = (data[absoluteBit / 8] >> (7 - (absoluteBit % 8))) & 1;
+            value = (value << 1) | bit;
         }
 
-        byte[] rgb = new byte[checked(pixels * 3)];
-        float[] componentValues = new float[components];
-        int src = 0;
-        int dst = 0;
-        for (int i = 0; i < pixels; i++)
+        return value;
+    }
+
+    private static float[] GetDecodeArray(PDColorSpace colorSpace, int bitsPerComponent, int components, COSArray? decodeArray)
+    {
+        if (decodeArray is not null && decodeArray.Size() >= components * 2)
         {
-            for (int component = 0; component < components; component++)
+            float[] decode = new float[components * 2];
+            for (int i = 0; i < decode.Length; i++)
             {
-                componentValues[component] = imageData[src++] / 255f;
+                if (decodeArray.GetObject(i) is not COSNumber number)
+                {
+                    return colorSpace.GetDefaultDecode(bitsPerComponent);
+                }
+
+                decode[i] = number.FloatValue();
             }
 
-            float[] converted = colorSpace.ToRGB(componentValues);
-            rgb[dst++] = ToByte(converted, 0);
-            rgb[dst++] = ToByte(converted, 1);
-            rgb[dst++] = ToByte(converted, 2);
+            return decode;
         }
 
-        return rgb;
+        return colorSpace.GetDefaultDecode(bitsPerComponent);
     }
 
     private static byte ToByte(float[] values, int index)

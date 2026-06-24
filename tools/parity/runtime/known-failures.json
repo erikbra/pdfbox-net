@@ -12,18 +12,6 @@
       "reason": "Encrypted/compressed path reports lower-level unsupported compression diagnostics before Java-compatible decryption semantics."
     },
     {
-      "id": "image-filter-render-status-mismatches",
-      "op": "render",
-      "category": "status-mismatch",
-      "files": [
-        "JBIG2Image.pdf",
-        "JPXTestCMYK.pdf",
-        "png_demo.pdf"
-      ],
-      "owner": "issue-435",
-      "reason": "Image/filter decoder parity gaps: JBIG2 integration, JPX/CMYK sample handling, and sampled image bit-depth support."
-    },
-    {
       "id": "pdfbox-2725-encrypted-load-path",
       "op": "*",
       "fileGlob": "PDFBOX-2725-878725.pdf",

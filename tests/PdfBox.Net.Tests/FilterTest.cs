@@ -260,9 +260,17 @@ public class FilterTest
     }
 
     [Fact]
-    public void Jbig2FilterReportsMissingDecoderClearly()
+    public void Jbig2FilterReportsInvalidPayloadClearly()
     {
         IOException ex = Assert.Throws<IOException>(() => Decode(new JBIG2Filter(), [1, 2, 3], new COSDictionary()));
+
+        Assert.Contains("Could not read JBIG2 image", ex.Message);
+    }
+
+    [Fact]
+    public void Jbig2FilterMissingDecoderAdapterReportsClearly()
+    {
+        IOException ex = Assert.Throws<IOException>(() => Decode(new JBIG2Filter(MissingJbig2RasterDecoder.Instance), [1, 2, 3], new COSDictionary()));
 
         Assert.Contains("JBIG2 decoder is not installed", ex.Message);
     }
