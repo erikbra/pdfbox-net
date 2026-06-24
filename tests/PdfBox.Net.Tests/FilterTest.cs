@@ -6,8 +6,10 @@
 
 using System.IO.Compression;
 using System.Text;
+using ImageMagick;
 using PdfBox.Net.COS;
 using PdfBox.Net.Filter;
+using PdfBox.Net.PDModel.Graphics.Color;
 using FilterBase = PdfBox.Net.Filter.Filter;
 
 namespace PdfBox.Net.Tests;
@@ -191,6 +193,73 @@ public class FilterTest
     }
 
     [Fact]
+    public void JpxFilterDecodesRgbJp2Fixture()
+    {
+        byte[] encoded = EncodeJp2(CreatePpm(2, 1, [255, 0, 0, 0, 255, 0]), MagickFormat.Ppm);
+        JPXFilter filter = new();
+        COSDictionary parameters = new();
+        parameters.SetItem(COSName.COLORSPACE, COSName.GetPDFName("DeviceRGB"));
+        parameters.SetInt(COSName.BITS_PER_COMPONENT, 1);
+        parameters.SetInt(COSName.WIDTH, 99);
+        parameters.SetInt(COSName.HEIGHT, 99);
+        parameters.SetItem(COSName.DECODE, new COSArray());
+
+        DecodeResult result = DecodeWithResult(filter, encoded, parameters, out byte[] decoded);
+
+        Assert.Equal(6, decoded.Length);
+        AssertColorNear([255, 0, 0], decoded[..3], tolerance: 8);
+        AssertColorNear([0, 255, 0], decoded[3..6], tolerance: 8);
+        Assert.Equal(8, result.GetParameters().GetInt(COSName.BITS_PER_COMPONENT));
+        Assert.Equal(2, result.GetParameters().GetInt(COSName.WIDTH));
+        Assert.Equal(1, result.GetParameters().GetInt(COSName.HEIGHT));
+        Assert.Null(result.GetParameters().GetDictionaryObject(COSName.DECODE));
+        Assert.Null(result.GetJPXColorSpace());
+    }
+
+    [Fact]
+    public void JpxFilterDecodesGrayscaleJp2AndEmbeddedColorSpace()
+    {
+        byte[] encoded = EncodeJp2(CreatePgm(2, 1, [32, 224]), MagickFormat.Pgm);
+
+        DecodeResult result = DecodeWithResult(new JPXFilter(), encoded, new COSDictionary(), out byte[] decoded);
+
+        Assert.Equal(2, decoded.Length);
+        Assert.InRange(decoded[0], 24, 40);
+        Assert.InRange(decoded[1], 216, 232);
+        PDJPXColorSpace colorSpace = Assert.IsType<PDJPXColorSpace>(result.GetJPXColorSpace());
+        Assert.Equal(1, colorSpace.GetNumberOfComponents());
+        Assert.Equal([0f, 1f], colorSpace.GetDefaultDecode(8));
+    }
+
+    [Fact]
+    public void JpxFilterHonorsSourceRegionAndSubsampling()
+    {
+        byte[] encoded = EncodeJp2(CreatePpm(3, 2,
+        [
+            10, 20, 30, 40, 50, 60, 70, 80, 90,
+            100, 110, 120, 130, 140, 150, 160, 170, 180
+        ]), MagickFormat.Ppm);
+        DecodeOptions options = new(0, 0, 3, 2);
+        options.SetSubsamplingX(2);
+        options.SetSubsamplingY(1);
+
+        DecodeResult result = DecodeWithResult(new JPXFilter(), encoded, new COSDictionary(), options, out byte[] decoded);
+
+        Assert.Equal(12, decoded.Length);
+        Assert.True(options.IsFilterSubsampled());
+        Assert.Equal(3, result.GetParameters().GetInt(COSName.WIDTH));
+        Assert.Equal(2, result.GetParameters().GetInt(COSName.HEIGHT));
+    }
+
+    [Fact]
+    public void JpxFilterReportsUnsupportedPayloadClearly()
+    {
+        IOException ex = Assert.Throws<IOException>(() => Decode(new JPXFilter(), [1, 2, 3], new COSDictionary()));
+
+        Assert.Contains("JPEG 2000 (JPX)", ex.Message);
+    }
+
+    [Fact]
     public void LzwRoundTrip()
     {
         LZWFilter filter = new();
@@ -240,7 +309,6 @@ public class FilterTest
         COSDictionary parameters = new();
         byte[] payload = [1, 2, 3];
 
-        Assert.Throws<NotSupportedException>(() => Decode(new JPXFilter(), payload, parameters));
         Assert.Throws<NotSupportedException>(() => Decode(new JBIG2Filter(), payload, parameters));
     }
 
@@ -282,6 +350,20 @@ public class FilterTest
         return output.ToArray();
     }
 
+    private static DecodeResult DecodeWithResult(FilterBase filter, byte[] source, COSDictionary parameters, out byte[] decoded)
+    {
+        return DecodeWithResult(filter, source, parameters, DecodeOptions.DEFAULT, out decoded);
+    }
+
+    private static DecodeResult DecodeWithResult(FilterBase filter, byte[] source, COSDictionary parameters, DecodeOptions options, out byte[] decoded)
+    {
+        using MemoryStream input = new(source);
+        using MemoryStream output = new();
+        DecodeResult result = filter.Decode(input, output, parameters, 0, options);
+        decoded = output.ToArray();
+        return result;
+    }
+
     private static COSDictionary CreateCcittDecodeParameters(int columns, int rows, bool blackIsOne)
     {
         COSDictionary decodeParms = new();
@@ -306,5 +388,35 @@ public class FilterTest
         }
 
         return encoded.ToArray();
+    }
+
+    private static byte[] EncodeJp2(byte[] imageBytes, MagickFormat sourceFormat)
+    {
+        using MagickImage image = new(imageBytes, sourceFormat);
+        image.Quality = 100;
+        using MemoryStream encoded = new();
+        image.Write(encoded, MagickFormat.Jp2);
+        return encoded.ToArray();
+    }
+
+    private static byte[] CreatePpm(int width, int height, byte[] rgb)
+    {
+        byte[] header = Encoding.ASCII.GetBytes($"P6\n{width} {height}\n255\n");
+        return [.. header, .. rgb];
+    }
+
+    private static byte[] CreatePgm(int width, int height, byte[] gray)
+    {
+        byte[] header = Encoding.ASCII.GetBytes($"P5\n{width} {height}\n255\n");
+        return [.. header, .. gray];
+    }
+
+    private static void AssertColorNear(byte[] expected, byte[] actual, int tolerance)
+    {
+        Assert.Equal(expected.Length, actual.Length);
+        for (int i = 0; i < expected.Length; i++)
+        {
+            Assert.InRange(actual[i], Math.Max(0, expected[i] - tolerance), Math.Min(255, expected[i] + tolerance));
+        }
     }
 }
