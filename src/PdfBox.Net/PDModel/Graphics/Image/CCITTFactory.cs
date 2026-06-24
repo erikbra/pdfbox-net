@@ -37,15 +37,13 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 /// Factory for creating a PDImageXObject containing a CCITT compressed TIFF image.
 /// </summary>
 /// <remarks>
-/// NOTE: This class is an adapted stub. Full CCITT/TIFF image creation is not yet implemented
-/// for the .NET port (requires platform-specific imaging APIs).
+/// TIFF input is decoded with ImageMagick and re-encoded as CCITT Group 4 image data.
 /// </remarks>
 public static class CCITTFactory
 {
     /// <summary>
     /// Creates a new image XObject from a single-channel (single-page) TIFF file.
     /// </summary>
-    /// <exception cref="NotImplementedException">Always thrown – not yet implemented.</exception>
     public static PDImageXObject CreateFromFile(PDDocument document, string path)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -58,7 +56,6 @@ public static class CCITTFactory
     /// <summary>
     /// Creates a new image XObject from a TIFF stream.
     /// </summary>
-    /// <exception cref="NotImplementedException">Always thrown – not yet implemented.</exception>
     public static PDImageXObject CreateFromStream(PDDocument document, Stream stream)
     {
         ArgumentNullException.ThrowIfNull(document);

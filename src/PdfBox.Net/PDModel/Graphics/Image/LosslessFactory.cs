@@ -85,7 +85,6 @@ public static class LosslessFactory
     /// <summary>
     /// Creates a new image XObject from a raw byte array using lossless (FLATE) compression.
     /// </summary>
-    /// <exception cref="NotImplementedException">Not yet implemented.</exception>
     public static PDImageXObject CreateFromRawData(PDDocument document, byte[] data,
         int width, int height, int bitsPerComponent, int numberOfComponents)
     {

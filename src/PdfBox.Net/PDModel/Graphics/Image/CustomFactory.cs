@@ -33,15 +33,14 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 /// Factory for creating a PDImageXObject from a custom (user-supplied) raster.
 /// </summary>
 /// <remarks>
-/// NOTE: This class is an adapted stub. Full custom image creation is not yet implemented
-/// for the .NET port (requires platform-specific imaging APIs).
+/// Custom raster input is currently represented as a lossless image XObject via
+/// <see cref="LosslessFactory.CreateFromRawData"/>.
 /// </remarks>
 public static class CustomFactory
 {
     /// <summary>
     /// Creates a new image XObject from raw pixel data.
     /// </summary>
-    /// <exception cref="NotImplementedException">Always thrown – not yet implemented.</exception>
     public static PDImageXObject CreateFromRaw(PDDocument document, byte[] data,
         int width, int height, int bitsPerComponent, int numberOfComponents)
     {

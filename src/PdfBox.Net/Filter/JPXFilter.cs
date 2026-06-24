@@ -51,7 +51,7 @@ public sealed class JPXFilter : Filter
 
     public override void Encode(Stream input, Stream output, COSDictionary parameters, int index)
     {
-        throw new NotSupportedException("JPX encoding is not implemented.");
+        throw new NotSupportedException("JPX encoding is intentionally unsupported; PDFBox.Net currently provides JPX decoding only.");
     }
 
     private static DecodeResult DecodeImage(MagickImage image, Stream output, COSDictionary parameters, DecodeOptions options)

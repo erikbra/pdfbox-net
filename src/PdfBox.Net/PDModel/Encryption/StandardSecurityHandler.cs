@@ -165,7 +165,7 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
     /// <inheritdoc/>
     public override void PrepareDocumentForEncryption(PDDocument doc)
     {
-        throw new NotSupportedException("Standard security handler encryption flow is not yet implemented.");
+        throw new NotSupportedException("Standard security handler writing is tracked as a document-protection API gap; decryption parity is implemented.");
     }
 
     // -----------------------------------------------------------------------

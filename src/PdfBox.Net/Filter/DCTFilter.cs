@@ -81,7 +81,7 @@ public sealed class DCTFilter : Filter
 
     public override void Encode(Stream input, Stream output, COSDictionary parameters, int index)
     {
-        throw new NotSupportedException("DCTFilter encoding not implemented, use the JPEGFactory methods instead.");
+        throw new NotSupportedException("DCTFilter encoding is intentionally routed through JPEGFactory; use the JPEGFactory methods instead.");
     }
 
     private static byte[] ReadJpegBytes(Stream input)

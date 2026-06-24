@@ -70,7 +70,7 @@ public sealed class JBIG2Filter : Filter
 
     public override void Encode(Stream input, Stream output, COSDictionary parameters, int index)
     {
-        throw new NotSupportedException("JBIG2 encoding is not implemented.");
+        throw new NotSupportedException("JBIG2 encoding is intentionally unsupported; PDFBox.Net currently provides JBIG2 decoding only.");
     }
 
     private static byte[]? ReadGlobals(COSDictionary decodeParameters)

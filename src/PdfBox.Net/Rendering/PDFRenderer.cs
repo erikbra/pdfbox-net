@@ -26,9 +26,13 @@
  */
 
 using PdfBox.Net.PDModel;
+using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Annotations;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.OptionalContent;
+using PdfBox.Net.PDModel.Graphics.State;
+using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.Rendering;
 
@@ -262,7 +266,21 @@ public class PDFRenderer
 
     private static bool HasBlendMode(PDPage page)
     {
-        // TODO: Port blend mode resource scanning when PDResources and PDExtendedGraphicsState are available.
+        PDResources? resources = page.GetResources();
+        if (resources is null)
+        {
+            return false;
+        }
+
+        foreach (COSName name in resources.GetExtGStateNames())
+        {
+            PDExtendedGraphicsState? extGState = resources.GetExtGState(name);
+            if (extGState is not null && extGState.GetBlendMode() != BlendMode.NORMAL)
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 }

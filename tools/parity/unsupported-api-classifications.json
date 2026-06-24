@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "description": "Classifications for product-code NotSupportedException paths that are not pure .NET stream mechanics.",
+  "mechanicalUnsupported": [
+    {
+      "fileGlob": "src/PdfBox.Net/**/*Stream.cs",
+      "classification": "dotnet-stream-mechanics",
+      "rationale": "System.IO.Stream requires members such as Length, Position, Seek, SetLength, Read, or Write even for one-way filter streams."
+    },
+    {
+      "file": "src/PdfBox.Net/PDModel/PDDocument.cs",
+      "statementContains": "throw new NotSupportedException()",
+      "classification": "dotnet-stream-mechanics",
+      "rationale": "Private stream adapter exposes only the operations required by the PDF writer."
+    },
+    {
+      "file": "src/PdfBox.Net/Filter/CCITTFaxDecodeFilter.cs",
+      "statementContains": "throw new NotSupportedException()",
+      "classification": "dotnet-stream-mechanics",
+      "rationale": "Nested decoder stream exposes only read operations required by CCITT decoding."
+    }
+  ],
+  "semanticUnsupported": [
+    {
+      "id": "xfdf-loader-gap",
+      "file": "src/PdfBox.Net/Loader.cs",
+      "statementContains": "XFDF loading",
+      "classification": "implementation-gap",
+      "issue": 451,
+      "rationale": "Apache PDFBox supports Loader.loadXFDF; the .NET port tracks this as a dedicated model/tool parity gap."
+    },
+    {
+      "id": "tools-module-gap",
+      "file": "src/PdfBox.Net/Tools/ToolSupport.cs",
+      "statementContains": "not yet supported in this PdfBox.Net tools port",
+      "classification": "implementation-gap",
+      "issue": 441,
+      "rationale": "Tool entry points are intentionally guarded until the corresponding model/runtime features reach parity."
+    },
+    {
+      "id": "crypt-filter-non-identity",
+      "file": "src/PdfBox.Net/Filter/CryptFilter.cs",
+      "statementContains": "Unsupported crypt filter",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox CryptFilter supports Identity and throws for other named crypt filters through the same semantic path."
+    },
+    {
+      "id": "dct-encode-filter",
+      "file": "src/PdfBox.Net/Filter/DCTFilter.cs",
+      "statementContains": "DCTFilter encoding",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox DCTFilter.encode throws UnsupportedOperationException and directs callers to JPEGFactory."
+    },
+    {
+      "id": "jbig2-encode-filter",
+      "file": "src/PdfBox.Net/Filter/JBIG2Filter.cs",
+      "statementContains": "JBIG2 encoding",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox JBIG2Filter.encode throws UnsupportedOperationException."
+    },
+    {
+      "id": "jpx-encode-filter",
+      "file": "src/PdfBox.Net/Filter/JPXFilter.cs",
+      "statementContains": "JPX encoding",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox JPXFilter.encode throws UnsupportedOperationException."
+    },
+    {
+      "id": "filtered-cos-array-list-mutation",
+      "file": "src/PdfBox.Net/PDModel/Common/COSArrayList.cs",
+      "statementContains": "throw new NotSupportedException(message)",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox COSArrayList rejects mutations on filtered list views."
+    },
+    {
+      "id": "identity-function-type",
+      "file": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionTypeIdentity.cs",
+      "statementContains": "GetFunctionType",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox PDFunctionTypeIdentity.getFunctionType throws because the identity function has no COS function type."
+    },
+    {
+      "id": "type4-unknown-operator",
+      "file": "src/PdfBox.Net/PDModel/Common/Function/Type4/InstructionSequence.cs",
+      "statementContains": "Unknown operator or name",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox Type 4 execution throws UnsupportedOperationException for unknown operators or names."
+    },
+    {
+      "id": "immutable-rectangle-mutators",
+      "file": "src/PdfBox.Net/PDModel/Common/PDImmutableRectangle.cs",
+      "statementContains": "This rectangle is immutable",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox PDImmutableRectangle mutators throw UnsupportedOperationException."
+    },
+    {
+      "id": "public-key-security-handler-cms",
+      "file": "src/PdfBox.Net/PDModel/Encryption/PublicKeySecurityHandler.cs",
+      "statementContains": "CMS recipient support",
+      "classification": "documented-optional-feature",
+      "issue": 452,
+      "rationale": "Public-key encryption needs CMS recipient support and a dependency boundary decision before it can match Apache PDFBox."
+    },
+    {
+      "id": "standard-security-handler-writing",
+      "file": "src/PdfBox.Net/PDModel/Encryption/StandardSecurityHandler.cs",
+      "statementContains": "document-protection API gap",
+      "classification": "implementation-gap",
+      "issue": 452,
+      "rationale": "Standard decryption is implemented; encryption writing requires the document protection API and encrypted save flow."
+    },
+    {
+      "id": "type3-fontbox-font",
+      "file": "src/PdfBox.Net/PDModel/Font/PDType3Font.cs",
+      "statementContains": "Type 3 fonts do not use FontBox fonts",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox PDType3Font.getFontBoxFont throws UnsupportedOperationException."
+    },
+    {
+      "id": "jpx-color-space-drawing",
+      "file": "src/PdfBox.Net/PDModel/Graphics/Color/PDJPXColorSpace.cs",
+      "statementContains": "JPX colour spaces",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox PDJPXColorSpace throws for drawing/COS object paths."
+    },
+    {
+      "id": "pattern-color-space-rgb-without-base",
+      "file": "src/PdfBox.Net/PDModel/Graphics/Color/PDPattern.cs",
+      "statementContains": "Pattern color space cannot be converted",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Pattern color spaces without an underlying color space cannot be converted directly to RGB."
+    },
+    {
+      "id": "sampled-image-reader-high-bpc",
+      "file": "src/PdfBox.Net/PDModel/Graphics/Image/SampledImageReader.cs",
+      "statementContains": "1- to 8-bit images",
+      "classification": "implementation-gap",
+      "issue": 441,
+      "rationale": "High-bit-depth sampled image rendering remains part of the runtime parity roadmap."
+    },
+    {
+      "id": "signature-field-string-value",
+      "file": "src/PdfBox.Net/PDModel/Interactive/Form/PDSignatureField.cs",
+      "statementContains": "Signature fields don't support setting the value as String",
+      "classification": "java-compatible-unsupported",
+      "rationale": "Apache PDFBox PDSignatureField.setValue(String) always throws; callers must set a PDSignature value."
+    }
+  ]
+}

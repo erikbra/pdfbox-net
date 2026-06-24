@@ -23,7 +23,10 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.PDModel.Graphics.State;
+using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
 using SkiaSharp;
 using System.Text;
@@ -127,6 +130,25 @@ public class RenderingSmokeTest
         Assert.Equal(255, r);
         Assert.Equal(255, g);
         Assert.Equal(255, b);
+    }
+
+    [Fact]
+    public void RenderImage_BlendModeResource_RendersThroughArgbBackingImage()
+    {
+        var resources = new PDResources();
+        PDExtendedGraphicsState graphicsState = new();
+        graphicsState.SetBlendMode(BlendMode.MULTIPLY);
+        resources.Put(COSName.GetPDFName("GS1"), graphicsState);
+        using var document = CreateDocument(string.Empty, resources);
+        var renderer = new PDFRenderer(document);
+
+        using BufferedImage image = renderer.RenderImage(0, 1f, ImageType.RGB);
+        BufferedImage? backingImage = renderer.GetPageImage();
+
+        Assert.Equal(BufferedImage.TYPE_INT_RGB, image.Type);
+        Assert.NotNull(backingImage);
+        Assert.Equal(BufferedImage.TYPE_INT_ARGB, backingImage!.Type);
+        backingImage.Dispose();
     }
 
     // ── Filled rectangle produces non-white pixels ────────────────────────────
