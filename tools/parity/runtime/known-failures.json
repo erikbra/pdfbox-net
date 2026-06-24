@@ -46,39 +46,6 @@
       "reason": "Default PDFTextStripper semantic output still differs from Java for many successful text extraction cases."
     },
     {
-      "id": "save-structural-object-stream-page-tree-gaps",
-      "op": "save",
-      "category": "save-structural-missing",
-      "files": [
-        "PDFBOX-5797-SO79271803.pdf",
-        "PDFBOX-6049-ExpectedResult.pdf",
-        "PDFBOX-6049-Source.pdf"
-      ],
-      "issue": 441,
-      "owner": "issue-441",
-      "rootCause": "save-structure-page-tree",
-      "expiresWhen": "Issue #441 reaches zero-known runtime parity for save structural rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove fixture names as saved structure matches Java.",
-      "reason": "Saved .NET output reloads in Java but exposes object-stream/page-tree traversal gaps; Java cannot visit the expected page index after save."
-    },
-    {
-      "id": "save-structural-text-render-content-gaps",
-      "op": "save",
-      "category": "save-structural-mismatch",
-      "files": [
-        "PDFBOX-3061-092465-reduced.pdf",
-        "PDFBOX-5811-362972.pdf",
-        "unencrypted.pdf",
-        "with_outline.pdf"
-      ],
-      "issue": 441,
-      "owner": "issue-441",
-      "rootCause": "save-structure-content-semantics",
-      "expiresWhen": "Issue #441 reaches zero-known runtime parity for save structural rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove fixture names as saved text/render structure matches Java.",
-      "reason": "Saved .NET output reloads in Java but loses Java-observable text or first-page render semantics; tracked as remaining semantic parity work."
-    },
-    {
       "id": "render-placeholder-regression-fixtures",
       "op": "render",
       "category": "render-placeholder",

@@ -7,6 +7,8 @@
  */
 
 using PdfBox.Net.PDModel;
+using PdfBox.Net.COS;
+using System.Text;
 
 namespace PdfBox.Net.Tests;
 
@@ -43,5 +45,69 @@ public class PDDocumentLoadSaveRoundtripTest
         Assert.Equal(expectedPages, reloaded.GetNumberOfPages());
         Assert.Equal(expectedTitle, reloaded.GetDocumentInformation().GetTitle());
         Assert.Equal(expectedAuthor, reloaded.GetDocumentInformation().GetAuthor());
+    }
+
+    [Theory]
+    [InlineData("xref-stream-fixture.pdf")]
+    [InlineData("xref-stream-object-stream-fixture.pdf")]
+    public void SaveFromXrefStreamFixtureWritesClassicTrailerOnly(string fixtureName)
+    {
+        string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureName);
+
+        byte[] saved;
+        using (PDDocument document = PDDocument.Load(fixturePath))
+        {
+            using MemoryStream output = new();
+            document.Save(output);
+            saved = output.ToArray();
+        }
+
+        string trailer = ExtractClassicTrailer(saved);
+        Assert.Contains("/Root ", trailer, StringComparison.Ordinal);
+        Assert.Contains("/Size ", trailer, StringComparison.Ordinal);
+        Assert.DoesNotContain("/Type /XRef", trailer, StringComparison.Ordinal);
+        Assert.DoesNotContain("/Length ", trailer, StringComparison.Ordinal);
+        Assert.DoesNotContain("/Filter ", trailer, StringComparison.Ordinal);
+        Assert.DoesNotContain("/DecodeParms ", trailer, StringComparison.Ordinal);
+        Assert.DoesNotContain("/Index ", trailer, StringComparison.Ordinal);
+        Assert.DoesNotContain("/W ", trailer, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SaveIgnoresStaleKeysOnSharedPrimitiveObjects()
+    {
+        COSInteger pollutedInteger = COSInteger.Get(44);
+        pollutedInteger.SetKey(new COSObjectKey(23, 0));
+        try
+        {
+            string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "xref-stream-fixture.pdf");
+
+            byte[] saved;
+            using (PDDocument document = PDDocument.Load(fixturePath))
+            {
+                using MemoryStream output = new();
+                document.Save(output);
+                saved = output.ToArray();
+            }
+
+            string serialized = Encoding.Latin1.GetString(saved);
+            Assert.DoesNotContain("23 0 obj\n44\nendobj", serialized, StringComparison.Ordinal);
+            using PDDocument reloaded = PDDocument.Load(new MemoryStream(saved));
+            Assert.Equal(1, reloaded.GetNumberOfPages());
+        }
+        finally
+        {
+            pollutedInteger.SetKey(null);
+        }
+    }
+
+    private static string ExtractClassicTrailer(byte[] pdf)
+    {
+        string text = Encoding.Latin1.GetString(pdf);
+        int trailerIndex = text.LastIndexOf("trailer", StringComparison.Ordinal);
+        Assert.True(trailerIndex >= 0, "Saved PDF should contain a classic trailer.");
+        int startxrefIndex = text.IndexOf("startxref", trailerIndex, StringComparison.Ordinal);
+        Assert.True(startxrefIndex > trailerIndex, "Saved PDF should contain startxref after the trailer.");
+        return text[trailerIndex..startxrefIndex];
     }
 }

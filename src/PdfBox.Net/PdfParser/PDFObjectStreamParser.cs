@@ -79,7 +79,7 @@ public sealed class PDFObjectStreamParser
             SyntaxReader objectReader = new(decoded, absoluteObjectOffset);
             COSBase value = ParseObject(objectReader);
             COSObjectKey key = new(objectNumber, 0);
-            value.SetKey(key);
+            SetObjectKeyIfStable(value, key);
             parsedObjects.Add((key, value));
         }
 
@@ -393,6 +393,14 @@ public sealed class PDFObjectStreamParser
             >= 'a' and <= 'f' => value - 'a' + 10,
             _ => -1
         };
+    }
+
+    private static void SetObjectKeyIfStable(COSBase value, COSObjectKey key)
+    {
+        if (value is COSDictionary or COSArray or COSStream or COSString or COSFloat)
+        {
+            value.SetKey(key);
+        }
     }
 
     private sealed class SyntaxReader(byte[] data, int position)

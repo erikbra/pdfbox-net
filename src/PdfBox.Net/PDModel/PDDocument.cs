@@ -321,8 +321,8 @@ public sealed class PDDocument : IDisposable
             }
         }
 
-        // Update /Size in the trailer before serializing it.
-        _trailer.SetInt(COSName.GetPDFName("Size"), checked((int)(maxObjectNumber + 1)));
+        // Update /Size and strip entries that only make sense for incremental or xref-stream trailers.
+        PrepareClassicTrailer(maxObjectNumber + 1);
 
         output.Write(Encoding.ASCII.GetBytes("trailer\n"));
         output.Write(COSWriter.Serialize(_trailer));
@@ -558,6 +558,24 @@ public sealed class PDDocument : IDisposable
         output.WriteByte((byte)']');
     }
 
+    private void PrepareClassicTrailer(long size)
+    {
+        _trailer.SetInt(COSName.SIZE, checked((int)size));
+        _trailer.RemoveItem(COSName.PREV);
+        _trailer.RemoveItem(COSName.GetPDFName("XRefStm"));
+        _trailer.RemoveItem(COSName.GetPDFName("DocChecksum"));
+
+        if (COSName.GetPDFName("XRef").Equals(_trailer.GetCOSName(COSName.TYPE)))
+        {
+            _trailer.RemoveItem(COSName.TYPE);
+            _trailer.RemoveItem(COSName.LENGTH);
+            _trailer.RemoveItem(COSName.FILTER);
+            _trailer.RemoveItem(COSName.DECODE_PARMS);
+            _trailer.RemoveItem(COSName.GetPDFName("Index"));
+            _trailer.RemoveItem(COSName.GetPDFName("W"));
+        }
+    }
+
     private static void WriteIndirectReference(Stream output, COSObjectKey key)
     {
         output.Write(Encoding.ASCII.GetBytes($"{key.GetNumber()} {key.GetGeneration()} R"));
@@ -577,7 +595,7 @@ public sealed class PDDocument : IDisposable
         while (pending.Count > 0)
         {
             COSBase current = pending.Dequeue();
-            COSObjectKey? currentKey = current is COSObject ? null : current.GetKey();
+            COSObjectKey? currentKey = current is COSObject ? null : GetStableObjectKey(current);
             if (currentKey is not null && !collected.ContainsKey(currentKey))
             {
                 collected[currentKey] = current;
@@ -634,6 +652,11 @@ public sealed class PDDocument : IDisposable
             .OrderBy(kv => kv.Key.GetNumber())
             .Select(kv => (kv.Key, kv.Value))
             .ToList();
+    }
+
+    private static COSObjectKey? GetStableObjectKey(COSBase value)
+    {
+        return value is COSDictionary or COSArray or COSStream or COSString or COSFloat ? value.GetKey() : null;
     }
 
     private void PromoteSharedContainersToIndirect()
