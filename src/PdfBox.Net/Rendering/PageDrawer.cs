@@ -846,7 +846,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
         SKMatrix matrix = ToCanvasMatrix(textRenderingMatrix, _pageHeightPt);
         using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
         using SKTypeface? typeface = CreateFallbackTypeface(font);
-        using SKFont skFont = new(typeface ?? SKTypeface.Default, 1f);
+        using SKFont skFont = new(typeface ?? SKTypeface.Default, GetFallbackFontSize(font));
 
         _graphics.Canvas.Save();
         _graphics.Canvas.Concat(in matrix);
@@ -854,13 +854,13 @@ public class PageDrawer : PDFGraphicsStreamEngine
         _graphics.Canvas.Restore();
     }
 
+    private static float GetFallbackFontSize(PDFont font)
+    {
+        return font is PDDictionaryFont ? 1.12f : 1f;
+    }
+
     private static SKTypeface? CreateFallbackTypeface(PDFont font)
     {
-        if (font is not PDSimpleFont simpleFont || !simpleFont.IsStandard14())
-        {
-            return SKTypeface.FromFamilyName(font.GetName());
-        }
-
         string fontName = StripSubsetPrefix(font.GetName());
         PDFontDescriptor? descriptor = font.GetFontDescriptor();
         string family = StripSubsetPrefix(descriptor?.GetFontFamily());
@@ -868,48 +868,72 @@ public class PageDrawer : PDFGraphicsStreamEngine
         bool italic = IsItalic(fontName, descriptor);
         SKFontStyleWeight weight = bold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal;
         SKFontStyleSlant slant = italic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright;
+        SKTypeface? firstAvailable = null;
 
         foreach (string candidate in GetFallbackFamilies(fontName, family))
         {
             SKTypeface? typeface = SKTypeface.FromFamilyName(candidate, weight, SKFontStyleWidth.Normal, slant);
-            if (typeface is not null)
+            if (typeface is null)
             {
+                continue;
+            }
+
+            if (TypefaceFamilyMatches(typeface, candidate))
+            {
+                firstAvailable?.Dispose();
                 return typeface;
+            }
+
+            if (firstAvailable is null)
+            {
+                firstAvailable = typeface;
+            }
+            else
+            {
+                typeface.Dispose();
             }
         }
 
-        return SKTypeface.FromFamilyName(fontName, weight, SKFontStyleWidth.Normal, slant);
+        return firstAvailable;
+    }
+
+    private static bool TypefaceFamilyMatches(SKTypeface typeface, string requestedFamily)
+    {
+        return string.Equals(
+            typeface.FamilyName?.Replace(" ", string.Empty, StringComparison.Ordinal),
+            requestedFamily.Replace(" ", string.Empty, StringComparison.Ordinal),
+            StringComparison.OrdinalIgnoreCase);
     }
 
     private static IEnumerable<string> GetFallbackFamilies(string fontName, string family)
     {
-        if (!string.IsNullOrWhiteSpace(family))
-        {
-            yield return family;
-        }
-
         string normalized = fontName.Replace(" ", string.Empty, StringComparison.Ordinal);
         if (normalized.Contains("Helvetica", StringComparison.OrdinalIgnoreCase) ||
             normalized.Contains("Arial", StringComparison.OrdinalIgnoreCase) ||
             normalized.Contains("LiberationSans", StringComparison.OrdinalIgnoreCase))
         {
+            yield return "Liberation Sans";
             yield return "Arial";
             yield return "Helvetica";
-            yield return "Liberation Sans";
         }
         else if (normalized.Contains("Times", StringComparison.OrdinalIgnoreCase) ||
                  normalized.Contains("LiberationSerif", StringComparison.OrdinalIgnoreCase))
         {
+            yield return "Liberation Serif";
             yield return "Times New Roman";
             yield return "Times";
-            yield return "Liberation Serif";
         }
         else if (normalized.Contains("Courier", StringComparison.OrdinalIgnoreCase) ||
                  normalized.Contains("LiberationMono", StringComparison.OrdinalIgnoreCase))
         {
+            yield return "Liberation Mono";
             yield return "Courier New";
             yield return "Courier";
-            yield return "Liberation Mono";
+        }
+
+        if (!string.IsNullOrWhiteSpace(family))
+        {
+            yield return family;
         }
 
         if (!string.IsNullOrWhiteSpace(fontName))
