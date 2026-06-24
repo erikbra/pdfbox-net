@@ -3,33 +3,6 @@
   "description": "Known Java-vs-.NET runtime parity divergences. Entries are matched by operation and optional file, fileGlob, category, or categoryGlob.",
   "entries": [
     {
-      "id": "orimi-encryption-filter-path",
-      "op": "*",
-      "files": [
-        "orimi-test.pdf"
-      ],
-      "owner": "issue-438",
-      "reason": "Encrypted/compressed path reports lower-level unsupported compression diagnostics before Java-compatible decryption semantics."
-    },
-    {
-      "id": "pdfbox-2725-encrypted-load-path",
-      "op": "*",
-      "fileGlob": "PDFBOX-2725-878725.pdf",
-      "categoryGlob": "*",
-      "owner": "issue-438",
-      "reason": "Java can load the encrypted fixture while .NET fails in the encrypted/compressed load path, suppressing downstream operation results."
-    },
-    {
-      "id": "pdfbox-2725-merge-encrypted-load-path",
-      "op": "merge",
-      "category": "status-mismatch",
-      "files": [
-        "PDFBOX-2725-878725.pdf+PDFBOX-2984-rotations.pdf"
-      ],
-      "owner": "issue-438",
-      "reason": "Merge fails because the first encrypted input follows the same lower-level load failure tracked for the encryption parity issue."
-    },
-    {
       "id": "pdfbox-6040-malformed-header-recovery",
       "op": "*",
       "fileGlob": "PDFBOX-6040-nodeloop.pdf",
@@ -135,20 +108,6 @@
       ],
       "owner": "issue-434",
       "reason": "Pattern color space rendering fails until advanced rendering work is implemented."
-    },
-    {
-      "id": "encrypted-diagnostics",
-      "op": "load",
-      "category": "diagnostic-mismatch",
-      "owner": "issue-438",
-      "reason": "Encrypted/public-key failures need Java-compatible exception classification and diagnostics."
-    },
-    {
-      "id": "merge-encrypted-diagnostics",
-      "op": "merge",
-      "category": "diagnostic-mismatch",
-      "owner": "issue-438",
-      "reason": "Encrypted merge failures need Java-compatible exception classification and diagnostics."
     }
   ]
 }
