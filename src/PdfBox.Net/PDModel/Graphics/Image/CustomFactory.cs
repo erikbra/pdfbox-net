@@ -45,6 +45,6 @@ public static class CustomFactory
     public static PDImageXObject CreateFromRaw(PDDocument document, byte[] data,
         int width, int height, int bitsPerComponent, int numberOfComponents)
     {
-        throw new NotImplementedException("CustomFactory.CreateFromRaw is not yet implemented.");
+        return LosslessFactory.CreateFromRawData(document, data, width, height, bitsPerComponent, numberOfComponents);
     }
 }

@@ -20,13 +20,26 @@ namespace PdfBox.Net.Filter;
 /// </summary>
 public sealed class DCTFilter : Filter
 {
+    private readonly IJpegRasterDecoder _jpegRasterDecoder;
+
+    public DCTFilter()
+        : this(MagickJpegRasterDecoder.Instance)
+    {
+    }
+
+    internal DCTFilter(IJpegRasterDecoder jpegRasterDecoder)
+    {
+        _jpegRasterDecoder = jpegRasterDecoder;
+    }
+
     public override DecodeResult Decode(Stream input, Stream output, COSDictionary parameters, int index, DecodeOptions options)
     {
         byte[] jpegBytes = ReadJpegBytes(input);
         JpegInfo jpegInfo = ParseJpegInfo(jpegBytes);
         if (jpegInfo.Components == 4)
         {
-            throw new NotSupportedException("DCTDecode 4-component CMYK/YCCK JPEGs are not yet implemented in PdfBox.Net.");
+            DecodeRaster(_jpegRasterDecoder.Decode(jpegBytes), output, options);
+            return new DecodeResult(parameters);
         }
 
         if (jpegInfo.Components is not 1 and not 3)
@@ -84,6 +97,29 @@ public sealed class DCTFilter : Filter
         }
 
         return data;
+    }
+
+    private static void DecodeRaster(DecodedJpegRaster raster, Stream output, DecodeOptions options)
+    {
+        Rectangle region = options.GetSourceRegion() ?? new Rectangle(0, 0, raster.Width, raster.Height);
+        region.Intersect(new Rectangle(0, 0, raster.Width, raster.Height));
+        int subsamplingX = Math.Max(1, options.GetSubsamplingX());
+        int subsamplingY = Math.Max(1, options.GetSubsamplingY());
+        int offsetX = Math.Clamp(options.GetSubsamplingOffsetX(), 0, subsamplingX - 1);
+        int offsetY = Math.Clamp(options.GetSubsamplingOffsetY(), 0, subsamplingY - 1);
+        byte[] samples = raster.Samples;
+        int components = raster.Components;
+
+        for (int y = region.Top + offsetY; y < region.Bottom; y += subsamplingY)
+        {
+            for (int x = region.Left + offsetX; x < region.Right; x += subsamplingX)
+            {
+                int sampleOffset = ((y * raster.Width) + x) * components;
+                output.Write(samples, sampleOffset, components);
+            }
+        }
+
+        options.SetFilterSubsampled(true);
     }
 
     private static JpegInfo ParseJpegInfo(byte[] data)

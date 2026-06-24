@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.PDModel;
+using SkiaSharp;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
@@ -45,6 +46,25 @@ public static class PNGConverter
     /// <exception cref="NotImplementedException">Always thrown – not yet implemented.</exception>
     public static PDImageXObject? Convert(PDDocument document, Stream pngStream)
     {
-        throw new NotImplementedException("PNGConverter.Convert is not yet implemented.");
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(pngStream);
+
+        using MemoryStream memory = new();
+        pngStream.CopyTo(memory);
+        byte[] pngBytes = memory.ToArray();
+        if (pngBytes.Length == 0)
+        {
+            return null;
+        }
+
+        try
+        {
+            using SKBitmap? bitmap = SKBitmap.Decode(pngBytes);
+            return bitmap is null ? null : LosslessFactory.CreateFromImage(document, bitmap);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
     }
 }

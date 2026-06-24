@@ -21,6 +21,9 @@ This index splits the conversion workflow into small, focused skills.
    required for C# correctness or unavoidable platform differences.
 10. When committing issue work, include a GitHub closing reference in the commit message
     body, e.g. `Closes #413`, so pushing the commit closes the tracked issue.
+11. Keep external NuGet library dependencies isolated behind narrow internal interfaces
+    or adapters. Do not let third-party API types leak through core PDFBox abstractions;
+    this keeps dependency-specific functionality movable into separate packages later.
 
 ## Skill files
 

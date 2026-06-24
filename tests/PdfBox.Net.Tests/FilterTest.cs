@@ -172,6 +172,17 @@ public class FilterTest
     }
 
     [Fact]
+    public void DctFilterDecodesCmykJpegFixture()
+    {
+        byte[] encoded = File.ReadAllBytes(Path.Combine("Fixtures", "Images", "jpegcmyk.jpg"));
+
+        byte[] decoded = Decode(new DCTFilter(), encoded, new COSDictionary());
+
+        Assert.Equal(343 * 287 * 4, decoded.Length);
+        Assert.NotEqual(new byte[16], decoded[..16]);
+    }
+
+    [Fact]
     public void DctFilterEncodeReportsUseJpegFactory()
     {
         NotSupportedException ex = Assert.Throws<NotSupportedException>(() => Encode(new DCTFilter(), [0, 1, 2]));

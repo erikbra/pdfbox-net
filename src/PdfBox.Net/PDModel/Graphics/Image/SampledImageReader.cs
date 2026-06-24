@@ -42,6 +42,97 @@ internal static class SampledImageReader
     /// <exception cref="NotImplementedException">Always thrown – not yet implemented.</exception>
     public static byte[] GetRGBImage(PDImageXObject image)
     {
-        throw new NotImplementedException("SampledImageReader.GetRGBImage is not yet implemented.");
+        ArgumentNullException.ThrowIfNull(image);
+
+        int width = image.GetWidth();
+        int height = image.GetHeight();
+        int bitsPerComponent = image.GetBitsPerComponent();
+        if (width <= 0 || height <= 0)
+        {
+            throw new IOException("image width and height must be positive");
+        }
+
+        byte[] imageData = image.GetImageData();
+        if (imageData.Length == 0)
+        {
+            throw new IOException("Image stream is empty");
+        }
+
+        return bitsPerComponent switch
+        {
+            1 => FromOneBit(image, imageData, width, height),
+            8 => FromEightBit(image, imageData, width, height),
+            _ => throw new NotSupportedException(
+                $"SampledImageReader.GetRGBImage supports 1-bit and 8-bit images, not {bitsPerComponent}-bit images.")
+        };
+    }
+
+    private static byte[] FromOneBit(PDImageXObject image, byte[] imageData, int width, int height)
+    {
+        int components = image.GetColorSpace().GetNumberOfComponents();
+        if (components != 1)
+        {
+            throw new NotSupportedException("1-bit sampled image reading is only supported for single-component images.");
+        }
+
+        byte[] rgb = new byte[checked(width * height * 3)];
+        int rowBytes = (width + 7) / 8;
+        if (imageData.Length < rowBytes * height)
+        {
+            throw new IOException("Image stream ended before all 1-bit samples were available.");
+        }
+
+        int dst = 0;
+        for (int y = 0; y < height; y++)
+        {
+            int rowOffset = y * rowBytes;
+            for (int x = 0; x < width; x++)
+            {
+                int bit = (imageData[rowOffset + (x / 8)] >> (7 - (x % 8))) & 1;
+                byte value = bit == 0 ? (byte)0 : (byte)255;
+                rgb[dst++] = value;
+                rgb[dst++] = value;
+                rgb[dst++] = value;
+            }
+        }
+
+        return rgb;
+    }
+
+    private static byte[] FromEightBit(PDImageXObject image, byte[] imageData, int width, int height)
+    {
+        PdfBox.Net.PDModel.Graphics.Color.PDColorSpace colorSpace = image.GetColorSpace();
+        int components = colorSpace.GetNumberOfComponents();
+        int pixels = checked(width * height);
+        int expectedLength = checked(pixels * components);
+        if (imageData.Length < expectedLength)
+        {
+            throw new IOException("Image stream ended before all 8-bit samples were available.");
+        }
+
+        byte[] rgb = new byte[checked(pixels * 3)];
+        float[] componentValues = new float[components];
+        int src = 0;
+        int dst = 0;
+        for (int i = 0; i < pixels; i++)
+        {
+            for (int component = 0; component < components; component++)
+            {
+                componentValues[component] = imageData[src++] / 255f;
+            }
+
+            float[] converted = colorSpace.ToRGB(componentValues);
+            rgb[dst++] = ToByte(converted, 0);
+            rgb[dst++] = ToByte(converted, 1);
+            rgb[dst++] = ToByte(converted, 2);
+        }
+
+        return rgb;
+    }
+
+    private static byte ToByte(float[] values, int index)
+    {
+        float value = index < values.Length ? values[index] : 0f;
+        return (byte)Math.Clamp((int)MathF.Round(value * 255f), 0, 255);
     }
 }

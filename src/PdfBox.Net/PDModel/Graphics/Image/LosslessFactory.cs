@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Graphics.Color;
 using SkiaSharp;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
@@ -88,6 +89,47 @@ public static class LosslessFactory
     public static PDImageXObject CreateFromRawData(PDDocument document, byte[] data,
         int width, int height, int bitsPerComponent, int numberOfComponents)
     {
-        throw new NotImplementedException("LosslessFactory.CreateFromRawData is not yet implemented.");
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(data);
+        if (width <= 0 || height <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(width), "Image width and height must be positive.");
+        }
+
+        if (bitsPerComponent is not 1 and not 2 and not 4 and not 8 and not 16)
+        {
+            throw new ArgumentOutOfRangeException(nameof(bitsPerComponent), "Bits per component must be 1, 2, 4, 8, or 16.");
+        }
+
+        PDColorSpace colorSpace = numberOfComponents switch
+        {
+            1 => PDDeviceGray.Instance,
+            3 => PDDeviceRGB.Instance,
+            4 => PDDeviceCMYK.Instance,
+            _ => throw new ArgumentOutOfRangeException(nameof(numberOfComponents), "Only 1, 3, and 4 component images are supported.")
+        };
+
+        long bitsPerRow = (long)width * numberOfComponents * bitsPerComponent;
+        long expectedLength = ((bitsPerRow + 7) / 8) * height;
+        if (data.LongLength != expectedLength)
+        {
+            throw new IOException(
+                $"Raw image data length {data.LongLength} does not match expected length {expectedLength} " +
+                $"for {width}x{height}x{numberOfComponents} at {bitsPerComponent} bpc.");
+        }
+
+        PDStream pdStream = new(document);
+        using (Stream output = pdStream.CreateOutputStream(COSName.FLATE_DECODE))
+        {
+            output.Write(data, 0, data.Length);
+        }
+
+        COSStream cosStream = pdStream.GetCOSObject();
+        cosStream.SetInt(COSName.WIDTH, width);
+        cosStream.SetInt(COSName.HEIGHT, height);
+        cosStream.SetInt(COSName.BITS_PER_COMPONENT, bitsPerComponent);
+        cosStream.SetItem(COSName.COLORSPACE, colorSpace.GetCOSObject());
+
+        return new PDImageXObject(pdStream, null);
     }
 }

@@ -140,6 +140,84 @@ public class ImageFactoryTest
         Assert.Equal(new byte[] { 255, 0, 0, 0, 255, 0 }, decoded);
     }
 
+    [Fact]
+    public void LosslessFactory_CreateFromRawData_RgbDataRoundtrips()
+    {
+        using PDDocument doc = new();
+        byte[] rgb = [255, 0, 0, 0, 255, 0];
+
+        PDImageXObject img = LosslessFactory.CreateFromRawData(doc, rgb, 2, 1, 8, 3);
+
+        Assert.Equal(2, img.GetWidth());
+        Assert.Equal(1, img.GetHeight());
+        Assert.Equal("DeviceRGB", img.GetColorSpace().GetName());
+        Assert.Equal(rgb, img.GetImageData());
+    }
+
+    [Fact]
+    public void CustomFactory_CreateFromRaw_DelegatesToLosslessRawData()
+    {
+        using PDDocument doc = new();
+        byte[] gray = [0, 255];
+
+        PDImageXObject img = CustomFactory.CreateFromRaw(doc, gray, 2, 1, 8, 1);
+
+        Assert.Equal("DeviceGray", img.GetColorSpace().GetName());
+        Assert.Equal(gray, img.GetImageData());
+    }
+
+    [Fact]
+    public void PNGConverter_Convert_ReturnsLosslessImage()
+    {
+        using PDDocument doc = new();
+        using FileStream png = File.OpenRead(ImageFixture("test-2x1.png"));
+
+        PDImageXObject? img = PNGConverter.Convert(doc, png);
+
+        Assert.NotNull(img);
+        Assert.Equal(2, img.GetWidth());
+        Assert.Equal(1, img.GetHeight());
+        Assert.Equal(COSName.FLATE_DECODE, img.GetStream()?.GetCOSObject().GetItem(COSName.FILTER));
+    }
+
+    [Fact]
+    public void PNGConverter_Convert_ReturnsNullForInvalidPng()
+    {
+        using PDDocument doc = new();
+        using MemoryStream invalid = new([1, 2, 3, 4]);
+
+        Assert.Null(PNGConverter.Convert(doc, invalid));
+    }
+
+    [Fact]
+    public void SampledImageReader_GetRGBImage_ConvertsCmykSamples()
+    {
+        using PDDocument doc = new();
+        byte[] cmyk = [0, 255, 255, 0];
+        PDImageXObject img = LosslessFactory.CreateFromRawData(doc, cmyk, 1, 1, 8, 4);
+
+        byte[] rgb = SampledImageReader.GetRGBImage(img);
+
+        Assert.Equal([255, 0, 0], rgb);
+    }
+
+    // ─── CCITTFactory ─────────────────────────────────────────────────────────
+
+    [Fact]
+    public void CCITTFactory_CreateFromFile_CreatesCcittImage()
+    {
+        using PDDocument doc = new();
+
+        PDImageXObject img = CCITTFactory.CreateFromFile(doc, ImageFixture("ccittg4.tif"));
+
+        Assert.Equal(344, img.GetWidth());
+        Assert.Equal(287, img.GetHeight());
+        Assert.Equal(1, img.GetBitsPerComponent());
+        Assert.Equal("DeviceGray", img.GetColorSpace().GetName());
+        Assert.Equal(COSName.CCITTFAX_DECODE, img.GetStream()?.GetCOSObject().GetItem(COSName.FILTER));
+        Assert.Equal(((344 + 7) / 8) * 287, img.GetImageData().Length);
+    }
+
     // ─── PDImageXObject.CreateFromFile ─────────────────────────────────────────
 
     [Fact]
@@ -168,6 +246,16 @@ public class ImageFactoryTest
         // PNG images use FlateDecode
         COSBase? filter = img.GetStream()?.GetCOSObject().GetItem(COSName.FILTER);
         Assert.Equal(COSName.FLATE_DECODE, filter);
+    }
+
+    [Fact]
+    public void CreateFromFile_Tiff_DispatchesToCCITTFactory()
+    {
+        using PDDocument doc = new();
+
+        PDImageXObject img = PDImageXObject.CreateFromFile(ImageFixture("ccittg4.tif"), doc);
+
+        Assert.Equal(COSName.CCITTFAX_DECODE, img.GetStream()?.GetCOSObject().GetItem(COSName.FILTER));
     }
 
     [Fact]
