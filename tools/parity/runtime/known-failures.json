@@ -46,43 +46,7 @@
       "reason": "Default PDFTextStripper semantic output still differs from Java for many successful text extraction cases."
     },
     {
-      "id": "render-placeholder-regression-fixtures",
-      "op": "render",
-      "category": "render-placeholder",
-      "files": [
-        "acroform.pdf",
-        "AcroFormForMerge-DifferentExportValues.pdf",
-        "AcroFormForMerge-DifferentFieldType.pdf",
-        "AcroFormForMerge-DifferentOptions.pdf",
-        "AcroFormForMerge-SameNameNode.pdf",
-        "AcroFormForMerge-TextFieldsOnly.pdf",
-        "AcroFormForMerge.pdf",
-        "AcrobatMerge-DifferentExportValues-WasMaster.pdf",
-        "AcrobatMerge-DifferentExportValues.pdf",
-        "AcrobatMerge-DifferentFieldType-WasMaster.pdf",
-        "AcrobatMerge-DifferentFieldType.pdf",
-        "AcrobatMerge-DifferentOptions-WasMaster.pdf"
-      ],
-      "issue": 441,
-      "owner": "issue-441",
-      "rootCause": "render-placeholder-output",
-      "expiresWhen": "Issue #441 reaches zero-known runtime parity for rendering rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove fixture names as non-placeholder rendering lands.",
-      "reason": "Current .NET first-page renders are blank or near-uniform while Java renders non-background content; tracked as regression fixtures for render validity."
-    },
-    {
-      "id": "render-placeholder-ratchet",
-      "op": "render",
-      "category": "render-placeholder",
-      "issue": 441,
-      "owner": "issue-441",
-      "rootCause": "render-placeholder-output",
-      "expiresWhen": "Issue #441 reaches zero-known runtime parity for rendering rows.",
-      "ratchet": "The total known render-placeholder rows must trend down and must not exceed the checked-in ratchet baseline.",
-      "reason": "Placeholder renders are reported separately until PageDrawer and related rendering gaps are fixed."
-    },
-    {
-      "id": "render-placeholder-and-quality-gaps",
+      "id": "render-quality-gaps",
       "op": "render",
       "category": "detail-mismatch",
       "issue": 441,
@@ -90,7 +54,22 @@
       "rootCause": "render-quality-semantics",
       "expiresWhen": "Issue #441 reaches zero-known runtime parity for rendering rows.",
       "ratchet": "The total known render detail mismatches must trend down and must not exceed the checked-in ratchet baseline.",
-      "reason": "Successful render output may be blank or near-blank until rendering validity checks and PageDrawer work land."
+      "reason": "Successful render output still differs from Java until remaining PageDrawer glyph, color, pattern, annotation, and image fidelity work lands."
+    },
+    {
+      "id": "render-placeholder-remaining-font-gaps",
+      "op": "render",
+      "category": "render-placeholder",
+      "files": [
+        "rotation.pdf",
+        "with_outline.pdf"
+      ],
+      "issue": 441,
+      "owner": "issue-441",
+      "rootCause": "render-font-fallback",
+      "expiresWhen": "Issue #441 reaches zero-known runtime parity for rendering rows.",
+      "ratchet": "Known rows covered by this entry must not increase; remove fixture names as remaining fallback rendering becomes non-placeholder.",
+      "reason": "These first-page text renders remain near-blank on Linux until non-Standard14 fallback and embedded-font drawing match Java more closely."
     },
     {
       "id": "survey-pattern-color-space",
