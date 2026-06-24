@@ -61,6 +61,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private readonly GeneralPath _linePath = new();
     private readonly Matrix _initialMatrix = new();
     private Point2D? _currentPoint;
+    private List<PDFStreamEngine.PathSegment>? _textClippings;
     private readonly Stack<bool> _hiddenMarkedContentStack = new();
     private int _nestedHiddenOptionalContentCount;
 
@@ -148,6 +149,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     public override void BeginText()
     {
+        SetClip();
         BeginTextClip();
     }
 
@@ -158,25 +160,35 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     private void BeginTextClip()
     {
+        _textClippings = [];
     }
 
     private void EndTextClip()
     {
+        List<PDFStreamEngine.PathSegment>? textClippings = _textClippings;
+        _textClippings = null;
+
+        RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
+        if (renderingMode.IsClip() && textClippings is { Count: > 0 })
+        {
+            GetGraphicsState().IntersectClippingPath(textClippings, new Matrix(), 1);
+        }
     }
 
     protected virtual void ShowFontGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
     {
-        if (_graphics?.Canvas is null || !IsContentRendered())
-        {
-            return;
-        }
-
         if (font is PDVectorFont vectorFont)
         {
             GeneralPath path = GetGlyphCache(vectorFont).GetPathForCharacterCode(code);
             if (path.Segments.Count > 0)
             {
                 Matrix glyphMatrix = Matrix.Concatenate(textRenderingMatrix, font.GetFontMatrix());
+                BufferTextClipPath(path, glyphMatrix);
+                if (_graphics?.Canvas is null || !IsContentRendered())
+                {
+                    return;
+                }
+
                 using SKPath skPath = BuildSkPath(path, glyphMatrix);
                 DrawTextPath(skPath);
                 return;
@@ -188,12 +200,18 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     private void DrawGlyph(GeneralPath path, PDFont font, int code, Vector displacement, AffineTransform at)
     {
-        if (_graphics?.Canvas is null || path.Segments.Count == 0)
+        if (path.Segments.Count == 0)
         {
             return;
         }
 
         Matrix matrix = new(at);
+        BufferTextClipPath(path, matrix);
+        if (_graphics?.Canvas is null || !IsContentRendered())
+        {
+            return;
+        }
+
         using SKPath skPath = BuildSkPath(path, matrix);
         DrawTextPath(skPath);
     }
@@ -227,6 +245,189 @@ public class PageDrawer : PDFGraphicsStreamEngine
             using SKPaint strokePaint = CreateSkiaPaint(GetGraphicsState(), stroke: true);
             DrawWithCurrentClip(canvas => canvas.DrawPath(path, strokePaint));
         }
+    }
+
+    private void BufferTextClipPath(GeneralPath path, Matrix matrix)
+    {
+        RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
+        if (!renderingMode.IsClip() || _textClippings is not { } textClippings)
+        {
+            return;
+        }
+
+        float currentX = 0;
+        float currentY = 0;
+        float startX = 0;
+        float startY = 0;
+        bool hasCurrentPoint = false;
+
+        foreach (GeneralPath.Segment segment in path.Segments)
+        {
+            switch (segment.Type)
+            {
+                case GeneralPath.SegmentType.MoveTo:
+                {
+                    AddTransformedPathSegment(textClippings, PDFStreamEngine.PathSegmentType.MoveTo, matrix, segment.X1, segment.Y1);
+                    currentX = startX = segment.X1;
+                    currentY = startY = segment.Y1;
+                    hasCurrentPoint = true;
+                    break;
+                }
+                case GeneralPath.SegmentType.LineTo:
+                {
+                    AddTransformedPathSegment(textClippings, PDFStreamEngine.PathSegmentType.LineTo, matrix, segment.X1, segment.Y1);
+                    currentX = segment.X1;
+                    currentY = segment.Y1;
+                    hasCurrentPoint = true;
+                    break;
+                }
+                case GeneralPath.SegmentType.QuadTo:
+                {
+                    if (!hasCurrentPoint)
+                    {
+                        AddTransformedPathSegment(textClippings, PDFStreamEngine.PathSegmentType.MoveTo, matrix, segment.X2, segment.Y2);
+                        currentX = startX = segment.X2;
+                        currentY = startY = segment.Y2;
+                        hasCurrentPoint = true;
+                        break;
+                    }
+
+                    float x1 = currentX + (2f / 3f * (segment.X1 - currentX));
+                    float y1 = currentY + (2f / 3f * (segment.Y1 - currentY));
+                    float x2 = segment.X2 + (2f / 3f * (segment.X1 - segment.X2));
+                    float y2 = segment.Y2 + (2f / 3f * (segment.Y1 - segment.Y2));
+                    Vector c1 = matrix.Transform(x1, y1);
+                    Vector c2 = matrix.Transform(x2, y2);
+                    Vector end = matrix.Transform(segment.X2, segment.Y2);
+                    textClippings.Add(new PDFStreamEngine.PathSegment(
+                        PDFStreamEngine.PathSegmentType.CurveTo,
+                        c1.GetX(),
+                        c1.GetY(),
+                        c2.GetX(),
+                        c2.GetY(),
+                        end.GetX(),
+                        end.GetY()));
+                    currentX = segment.X2;
+                    currentY = segment.Y2;
+                    hasCurrentPoint = true;
+                    break;
+                }
+                case GeneralPath.SegmentType.Close:
+                    textClippings.Add(new PDFStreamEngine.PathSegment(PDFStreamEngine.PathSegmentType.Close, 0, 0, 0, 0, 0, 0));
+                    currentX = startX;
+                    currentY = startY;
+                    hasCurrentPoint = true;
+                    break;
+            }
+        }
+    }
+
+    private void BufferTextClipPath(SKPath path, Matrix matrix)
+    {
+        RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
+        if (!renderingMode.IsClip() || _textClippings is not { } textClippings)
+        {
+            return;
+        }
+
+        using SKPath.RawIterator iterator = path.CreateRawIterator();
+        SKPoint[] points = new SKPoint[4];
+        SKPathVerb verb;
+        while ((verb = iterator.Next(points)) != SKPathVerb.Done)
+        {
+            switch (verb)
+            {
+                case SKPathVerb.Move:
+                    AddTransformedPathSegment(textClippings, PDFStreamEngine.PathSegmentType.MoveTo, matrix, points[0].X, points[0].Y);
+                    break;
+                case SKPathVerb.Line:
+                    AddTransformedPathSegment(textClippings, PDFStreamEngine.PathSegmentType.LineTo, matrix, points[1].X, points[1].Y);
+                    break;
+                case SKPathVerb.Quad:
+                    AddTransformedQuadSegment(textClippings, matrix, points[0], points[1], points[2]);
+                    break;
+                case SKPathVerb.Conic:
+                    AddTransformedConicSegment(textClippings, matrix, points[0], points[1], points[2], iterator.ConicWeight());
+                    break;
+                case SKPathVerb.Cubic:
+                    AddTransformedCubicSegment(textClippings, matrix, points[1], points[2], points[3]);
+                    break;
+                case SKPathVerb.Close:
+                    textClippings.Add(new PDFStreamEngine.PathSegment(PDFStreamEngine.PathSegmentType.Close, 0, 0, 0, 0, 0, 0));
+                    break;
+            }
+        }
+    }
+
+    private static void AddTransformedQuadSegment(
+        List<PDFStreamEngine.PathSegment> segments,
+        Matrix matrix,
+        SKPoint start,
+        SKPoint control,
+        SKPoint end)
+    {
+        SKPoint c1 = new(
+            start.X + (2f / 3f * (control.X - start.X)),
+            start.Y + (2f / 3f * (control.Y - start.Y)));
+        SKPoint c2 = new(
+            end.X + (2f / 3f * (control.X - end.X)),
+            end.Y + (2f / 3f * (control.Y - end.Y)));
+        AddTransformedCubicSegment(segments, matrix, c1, c2, end);
+    }
+
+    private static void AddTransformedConicSegment(
+        List<PDFStreamEngine.PathSegment> segments,
+        Matrix matrix,
+        SKPoint start,
+        SKPoint control,
+        SKPoint end,
+        float weight)
+    {
+        const int Pow2 = 2;
+        SKPoint[] quads = new SKPoint[1 + (2 * (1 << Pow2))];
+        int quadCount = SKPath.ConvertConicToQuads(start, control, end, weight, quads, Pow2);
+        if (quadCount <= 0)
+        {
+            AddTransformedQuadSegment(segments, matrix, start, control, end);
+            return;
+        }
+
+        for (int i = 0; i < quadCount; i++)
+        {
+            int index = i * 2;
+            AddTransformedQuadSegment(segments, matrix, quads[index], quads[index + 1], quads[index + 2]);
+        }
+    }
+
+    private static void AddTransformedCubicSegment(
+        List<PDFStreamEngine.PathSegment> segments,
+        Matrix matrix,
+        SKPoint control1,
+        SKPoint control2,
+        SKPoint end)
+    {
+        Vector c1 = matrix.Transform(control1.X, control1.Y);
+        Vector c2 = matrix.Transform(control2.X, control2.Y);
+        Vector transformedEnd = matrix.Transform(end.X, end.Y);
+        segments.Add(new PDFStreamEngine.PathSegment(
+            PDFStreamEngine.PathSegmentType.CurveTo,
+            c1.GetX(),
+            c1.GetY(),
+            c2.GetX(),
+            c2.GetY(),
+            transformedEnd.GetX(),
+            transformedEnd.GetY()));
+    }
+
+    private static void AddTransformedPathSegment(
+        List<PDFStreamEngine.PathSegment> segments,
+        PDFStreamEngine.PathSegmentType type,
+        Matrix matrix,
+        float x,
+        float y)
+    {
+        Vector transformed = matrix.Transform(x, y);
+        segments.Add(new PDFStreamEngine.PathSegment(type, transformed.GetX(), transformed.GetY(), 0, 0, 0, 0));
     }
 
     public override void AppendRectangle(Point2D p0, Point2D p1, Point2D p2, Point2D p3)
@@ -983,17 +1184,6 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     private void DrawUnicodeGlyphFallback(Matrix textRenderingMatrix, PDFont font, int code)
     {
-        if (_graphics?.Canvas is null)
-        {
-            return;
-        }
-
-        RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
-        if (!renderingMode.IsFill() && !renderingMode.IsStroke())
-        {
-            return;
-        }
-
         string? unicode = font.ToUnicode(code, PdfBox.Net.PDModel.Font.Encoding.GlyphList.GetAdobeGlyphList());
         unicode ??= code is >= 0 and <= 255 ? ((char)code).ToString() : null;
         if (string.IsNullOrEmpty(unicode))
@@ -1001,9 +1191,20 @@ public class PageDrawer : PDFGraphicsStreamEngine
             return;
         }
 
+        RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
         SKMatrix matrix = ToCanvasMatrix(textRenderingMatrix, _pageHeightPt);
         using SKTypeface? typeface = CreateFallbackTypeface(font);
         using SKFont skFont = new(typeface ?? SKTypeface.Default, GetFallbackFontSize(font));
+        if (renderingMode.IsClip())
+        {
+            using SKPath clipPath = skFont.GetTextPath(unicode, new SKPoint(0, 0));
+            BufferTextClipPath(clipPath, textRenderingMatrix);
+        }
+
+        if (_graphics?.Canvas is null || !IsContentRendered() || (!renderingMode.IsFill() && !renderingMode.IsStroke()))
+        {
+            return;
+        }
 
         DrawWithCurrentClip(canvas =>
         {
