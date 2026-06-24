@@ -128,13 +128,6 @@
       "reason": "Successful render output may be blank or near-blank until rendering validity checks and PageDrawer work land."
     },
     {
-      "id": "merge-output-hash-ratchet",
-      "op": "merge",
-      "category": "detail-mismatch",
-      "owner": "issue-437",
-      "reason": "Merged PDF bytes are tracked as a parity ratchet while the corpus expands and merge/save output normalization is defined."
-    },
-    {
       "id": "survey-pattern-color-space",
       "op": "render",
       "files": [

@@ -13,7 +13,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -293,7 +293,7 @@ def has_only_punctuation_spacing_drift(java_text: str, dotnet_text: str) -> bool
 
 
 def is_match_category(category: str) -> bool:
-    return category in {"match", "save-structural-match"} or (
+    return category in {"match", "save-structural-match", "merge-structural-match"} or (
         category.startswith("text-semantic-") and category.endswith("-match")
     )
 
@@ -321,20 +321,32 @@ def save_artifact_path(out_dir: Path, file: str, runtime: str) -> Path:
     return out_dir / save_artifact_name(file, runtime)
 
 
-def collect_save_structures(
+def merge_artifact_name(file: str, runtime: str) -> str:
+    left, right = file.split("+", 1)
+    return f"{Path(left).stem}__{Path(right).stem}-{runtime}-merged.pdf"
+
+
+def merge_artifact_path(out_dir: Path, file: str, runtime: str) -> Path:
+    return out_dir / merge_artifact_name(file, runtime)
+
+
+def collect_document_structures(
     java_home: Path | None,
     java_cp: str,
     java_rows: list[Result],
     dotnet_rows: list[Result],
     java_out: Path,
     dotnet_out: Path,
+    operation: str,
+    structure_operation: str,
+    artifact_path: Callable[[Path, str, str], Path],
 ) -> dict[tuple[str, str], Result]:
     requests: list[tuple[str, str, Path]] = []
     for runtime, rows, out_dir in (("java", java_rows, java_out), ("dotnet", dotnet_rows, dotnet_out)):
         for row in rows:
-            if row.op != "save" or not row.ok:
+            if row.op != operation or not row.ok:
                 continue
-            path = save_artifact_path(out_dir, row.file, runtime)
+            path = artifact_path(out_dir, row.file, runtime)
             if path.exists():
                 requests.append((runtime, row.file, path.resolve()))
 
@@ -354,13 +366,55 @@ def collect_save_structures(
             structures[(runtime, file)] = Result(
                 runtime=runtime,
                 file=file,
-                op="save-structure",
+                op=structure_operation,
                 ok=row.ok,
                 pages=row.pages,
                 ms=row.ms,
                 detail=row.detail,
             )
     return structures
+
+
+def collect_save_structures(
+    java_home: Path | None,
+    java_cp: str,
+    java_rows: list[Result],
+    dotnet_rows: list[Result],
+    java_out: Path,
+    dotnet_out: Path,
+) -> dict[tuple[str, str], Result]:
+    return collect_document_structures(
+        java_home,
+        java_cp,
+        java_rows,
+        dotnet_rows,
+        java_out,
+        dotnet_out,
+        "save",
+        "save-structure",
+        save_artifact_path,
+    )
+
+
+def collect_merge_structures(
+    java_home: Path | None,
+    java_cp: str,
+    java_rows: list[Result],
+    dotnet_rows: list[Result],
+    java_out: Path,
+    dotnet_out: Path,
+) -> dict[tuple[str, str], Result]:
+    return collect_document_structures(
+        java_home,
+        java_cp,
+        java_rows,
+        dotnet_rows,
+        java_out,
+        dotnet_out,
+        "merge",
+        "merge-structure",
+        merge_artifact_path,
+    )
 
 
 def classify_text_mismatch(file: str, java_out: Path, dotnet_out: Path) -> str:
@@ -396,18 +450,26 @@ def classify_text_mismatch(file: str, java_out: Path, dotnet_out: Path) -> str:
 
 
 def classify_save_mismatch(file: str, save_structures: dict[tuple[str, str], Result]) -> str:
-    java = save_structures.get(("java", file))
-    dotnet = save_structures.get(("dotnet", file))
+    return classify_document_mismatch(file, save_structures, "save")
+
+
+def classify_merge_mismatch(file: str, merge_structures: dict[tuple[str, str], Result]) -> str:
+    return classify_document_mismatch(file, merge_structures, "merge")
+
+
+def classify_document_mismatch(file: str, structures: dict[tuple[str, str], Result], prefix: str) -> str:
+    java = structures.get(("java", file))
+    dotnet = structures.get(("dotnet", file))
     if java is None or dotnet is None or not java.ok or not dotnet.ok:
-        return "save-structural-missing"
+        return f"{prefix}-structural-missing"
     if java.pages != dotnet.pages:
-        return "save-structural-mismatch"
-    if save_structures_equivalent(java.detail, dotnet.detail):
-        return "save-structural-match"
-    return "save-structural-mismatch"
+        return f"{prefix}-structural-mismatch"
+    if document_structures_equivalent(java.detail, dotnet.detail):
+        return f"{prefix}-structural-match"
+    return f"{prefix}-structural-mismatch"
 
 
-def save_structures_equivalent(java_detail: str, dotnet_detail: str) -> bool:
+def document_structures_equivalent(java_detail: str, dotnet_detail: str) -> bool:
     if java_detail == dotnet_detail:
         return True
 
@@ -468,6 +530,7 @@ def classify(
     java_out: Path,
     dotnet_out: Path,
     save_structures: dict[tuple[str, str], Result],
+    merge_structures: dict[tuple[str, str], Result],
 ) -> str:
     if java is None or dotnet is None:
         return "missing-result"
@@ -479,6 +542,8 @@ def classify(
         return "match" if java.diagnostic == dotnet.diagnostic else "diagnostic-mismatch"
     if op == "save" and java.detail != dotnet.detail:
         return classify_save_mismatch(java.file, save_structures)
+    if op == "merge" and java.detail != dotnet.detail:
+        return classify_merge_mismatch(java.file, merge_structures)
     if op == "render" and is_near_blank_render(dotnet) and not is_near_blank_render(java):
         return "render-placeholder"
     if java.detail != dotnet.detail:
@@ -496,6 +561,7 @@ def compare(
     java_out: Path,
     dotnet_out: Path,
     save_structures: dict[tuple[str, str], Result],
+    merge_structures: dict[tuple[str, str], Result],
 ) -> tuple[list[dict], Counter]:
     java_by_key = {(row.file, row.op): row for row in java_rows}
     dotnet_by_key = {(row.file, row.op): row for row in dotnet_rows}
@@ -505,7 +571,7 @@ def compare(
     for file, op in keys:
         java = java_by_key.get((file, op))
         dotnet = dotnet_by_key.get((file, op))
-        category = classify(op, java, dotnet, java_out, dotnet_out, save_structures)
+        category = classify(op, java, dotnet, java_out, dotnet_out, save_structures, merge_structures)
         known_id = None if is_match_category(category) else known_failure_id(file, op, category, known_entries)
         status = "match" if is_match_category(category) else ("known" if known_id else "unexpected")
         counts[status] += 1
@@ -521,16 +587,25 @@ def compare(
                 "java": None if java is None else result_payload(java),
                 "dotnet": None if dotnet is None else result_payload(dotnet),
                 "saveStructural": save_structural_payload(file, op, save_structures),
+                "mergeStructural": merge_structural_payload(file, op, merge_structures),
             }
         )
     return rows, counts
 
 
 def save_structural_payload(file: str, op: str, save_structures: dict[tuple[str, str], Result]) -> dict | None:
-    if op != "save":
+    return structural_payload(file, op, "save", save_structures)
+
+
+def merge_structural_payload(file: str, op: str, merge_structures: dict[tuple[str, str], Result]) -> dict | None:
+    return structural_payload(file, op, "merge", merge_structures)
+
+
+def structural_payload(file: str, op: str, expected_op: str, structures: dict[tuple[str, str], Result]) -> dict | None:
+    if op != expected_op:
         return None
-    java = save_structures.get(("java", file))
-    dotnet = save_structures.get(("dotnet", file))
+    java = structures.get(("java", file))
+    dotnet = structures.get(("dotnet", file))
     if java is None and dotnet is None:
         return None
     return {
@@ -627,6 +702,32 @@ def markdown_summary(summary: dict, rows: list[dict]) -> str:
         else:
             lines.append("")
             lines.append("All successful save rows are byte-identical or structurally equivalent.")
+    lines.append("")
+    lines.extend(["## Merge Structural Parity", ""])
+    merge_rows = [row for row in rows if row["op"] == "merge"]
+    if not merge_rows:
+        lines.append("No merge rows detected.")
+    else:
+        merge_counts = Counter(row["category"] for row in merge_rows)
+        lines.append("| Category | Count |")
+        lines.append("|---|---:|")
+        for key, value in sorted(merge_counts.items()):
+            lines.append(f"| `{key}` | {value} |")
+        merge_gaps = [row for row in merge_rows if row["category"] not in {"match", "merge-structural-match"}]
+        if merge_gaps:
+            lines.extend(["", "| File | Status | Category | Java | .NET |"])
+            lines.append("|---|---|---|---|---|")
+            for row in merge_gaps[:100]:
+                java = row["java"] or {}
+                dotnet = row["dotnet"] or {}
+                lines.append(
+                    f"| `{row['file']}` | `{row['status']}` | `{row['category']}` | `{short(java.get('detail', 'missing'))}` | `{short(dotnet.get('detail', 'missing'))}` |"
+                )
+            if len(merge_gaps) > 100:
+                lines.append(f"\nTruncated to 100 of {len(merge_gaps)} merge structural gaps.")
+        else:
+            lines.append("")
+            lines.append("All successful merge rows are byte-identical or structurally equivalent.")
     lines.append("")
     lines.extend(["## Text Mismatches", ""])
     text_mismatches = [row for row in rows if row["op"] == "text" and row["status"] != "match"]
@@ -737,6 +838,8 @@ def main() -> int:
     write_jsonl(out_dir / "dotnet-results.jsonl", dotnet_rows)
     save_structures = collect_save_structures(args.java_home, java_cp, java_rows, dotnet_rows, java_out, dotnet_out)
     write_jsonl(out_dir / "save-structures.jsonl", save_structures.values())
+    merge_structures = collect_merge_structures(args.java_home, java_cp, java_rows, dotnet_rows, java_out, dotnet_out)
+    write_jsonl(out_dir / "merge-structures.jsonl", merge_structures.values())
 
     comparison_rows, counts = compare(
         java_rows,
@@ -746,6 +849,7 @@ def main() -> int:
         java_out,
         dotnet_out,
         save_structures,
+        merge_structures,
     )
     category_counts = {key: value for key, value in counts.items() if key not in {"match", "known", "unexpected"}}
     operation_counts: dict[str, dict[str, int]] = defaultdict(lambda: {"javaOk": 0, "javaFail": 0, "dotnetOk": 0, "dotnetFail": 0})
