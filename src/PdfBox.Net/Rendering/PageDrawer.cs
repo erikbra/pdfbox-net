@@ -1435,7 +1435,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
         if (stroke)
         {
-            paint.StrokeWidth = Math.Max(0f, graphicsState.GetLineWidth());
+            paint.StrokeWidth = Math.Max(0.25f, TransformWidth(graphicsState, graphicsState.GetLineWidth()));
             paint.StrokeCap = graphicsState.GetLineCap() switch
             {
                 1 => SKStrokeCap.Round,
@@ -1449,9 +1449,54 @@ public class PageDrawer : PDFGraphicsStreamEngine
                 _ => SKStrokeJoin.Miter,
             };
             paint.StrokeMiter = graphicsState.GetMiterLimit();
+            ApplyLineDashPattern(paint, graphicsState);
         }
 
         return paint;
+    }
+
+    private static float TransformWidth(PDGraphicsState graphicsState, float width)
+    {
+        Matrix ctm = graphicsState.GetCurrentTransformationMatrix();
+        float x = ctm.GetScaleX() + ctm.GetShearX();
+        float y = ctm.GetScaleY() + ctm.GetShearY();
+        return width * MathF.Sqrt(((x * x) + (y * y)) * 0.5f);
+    }
+
+    private static void ApplyLineDashPattern(SKPaint paint, PDGraphicsState graphicsState)
+    {
+        PDLineDashPattern dashPattern = graphicsState.GetLineDashPattern();
+        float[] dashArray = dashPattern.GetDashArray();
+        if (dashArray.Length == 0)
+        {
+            return;
+        }
+
+        if (IsAllZeroDash(dashArray))
+        {
+            paint.Color = paint.Color.WithAlpha(0);
+            return;
+        }
+
+        List<float> intervals = [];
+        foreach (float dash in dashArray)
+        {
+            if (!float.IsFinite(dash))
+            {
+                return;
+            }
+
+            float transformed = TransformWidth(graphicsState, dash);
+            intervals.Add(Math.Max(transformed, 0.062f));
+        }
+
+        if (intervals.Count % 2 == 1)
+        {
+            intervals.AddRange(intervals);
+        }
+
+        float phase = Math.Max(0f, TransformWidth(graphicsState, dashPattern.GetPhaseStart()));
+        paint.PathEffect = SKPathEffect.CreateDash(intervals.ToArray(), phase);
     }
 
     private int ResolvePaintColor(PDColor color, bool stroke)
