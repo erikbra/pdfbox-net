@@ -7,6 +7,23 @@ namespace PdfBox.Net.Tests;
 public class PDImageXObjectTest
 {
     [Fact]
+    public void Interpolate_DefaultsFalseAndWritesDictionaryFlag()
+    {
+        PDStream stream = new();
+        PDImageXObject image = new(stream, null);
+
+        Assert.False(image.GetInterpolate());
+
+        image.SetInterpolate(true);
+        Assert.True(image.GetInterpolate());
+        Assert.True(stream.GetCOSObject().GetBoolean(COSName.INTERPOLATE, false));
+
+        image.SetInterpolate(false);
+        Assert.False(image.GetInterpolate());
+        Assert.False(stream.GetCOSObject().GetBoolean(COSName.INTERPOLATE, true));
+    }
+
+    [Fact]
     public void GetImageData_DecodesSimpleFlateEncodedDeviceRgbStream()
     {
         // 2x1 RGB pixels: red, green
