@@ -36,6 +36,9 @@ small Java/.NET decoder and color-management drift.
 Near-blank render rows with less than 0.5% foreground coverage have a separate
 low-ink visual-equivalence classifier, guarded by low moderate/large
 pixel-difference ratios plus RMS and mean channel-error limits.
+Sparse non-near-blank rows have their own visual-equivalence classifier with a
+2% foreground cap and low mean, RMS, moderate, and large pixel-difference
+limits.
 
 ## Local ratchet run
 

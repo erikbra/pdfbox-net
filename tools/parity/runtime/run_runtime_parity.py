@@ -37,6 +37,11 @@ RENDER_LOW_INK_MAX_MODERATE_DIFF_RATIO = 0.01
 RENDER_LOW_INK_MAX_LARGE_DIFF_RATIO = 0.0075
 RENDER_LOW_INK_MAX_RMS = 10.5
 RENDER_LOW_INK_MAX_MEAN = 0.8
+RENDER_SPARSE_MAX_FOREGROUND_RATIO = 0.02
+RENDER_SPARSE_MAX_MODERATE_DIFF_RATIO = 0.025
+RENDER_SPARSE_MAX_LARGE_DIFF_RATIO = 0.015
+RENDER_SPARSE_MAX_RMS = 17.0
+RENDER_SPARSE_MAX_MEAN = 1.5
 
 
 @dataclass(frozen=True)
@@ -739,6 +744,8 @@ def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: 
         return "render-lossy-jpeg-decoder-equivalence-match"
     if is_low_ink_render_drift(java, dotnet, java_png, dotnet_png):
         return "render-low-ink-equivalence-match"
+    if is_sparse_render_drift(java, dotnet, java_png, dotnet_png):
+        return "render-sparse-equivalence-match"
     return "detail-mismatch"
 
 
@@ -770,6 +777,30 @@ def is_low_ink_render_drift(java: Result, dotnet: Result, java_png: Path, dotnet
         and stats.large_diff_ratio <= RENDER_LOW_INK_MAX_LARGE_DIFF_RATIO
         and stats.rms <= RENDER_LOW_INK_MAX_RMS
         and stats.mean <= RENDER_LOW_INK_MAX_MEAN
+    )
+
+
+def is_sparse_render_drift(java: Result, dotnet: Result, java_png: Path, dotnet_png: Path) -> bool:
+    if is_near_blank_render(java) or is_near_blank_render(dotnet):
+        return False
+
+    stats = render_image_diff_stats(java_png, dotnet_png)
+    if stats is None or stats.total_pixels <= 0:
+        return False
+
+    java_non_background = render_metric_int(java, "nonBg")
+    dotnet_non_background = render_metric_int(dotnet, "nonBg")
+    if java_non_background is None or dotnet_non_background is None:
+        return False
+    foreground_ratio = max(java_non_background, dotnet_non_background) / stats.total_pixels
+    if foreground_ratio > RENDER_SPARSE_MAX_FOREGROUND_RATIO:
+        return False
+
+    return (
+        stats.moderate_diff_ratio <= RENDER_SPARSE_MAX_MODERATE_DIFF_RATIO
+        and stats.large_diff_ratio <= RENDER_SPARSE_MAX_LARGE_DIFF_RATIO
+        and stats.rms <= RENDER_SPARSE_MAX_RMS
+        and stats.mean <= RENDER_SPARSE_MAX_MEAN
     )
 
 
