@@ -32,6 +32,11 @@ RENDER_VISUAL_MAX_RMS = 5.0
 RENDER_JPEG_MAX_LARGE_DIFF_RATIO = 0.015
 RENDER_JPEG_MAX_RMS = 12.0
 RENDER_JPEG_MAX_MEAN = 2.0
+RENDER_LOW_INK_MAX_FOREGROUND_RATIO = 0.005
+RENDER_LOW_INK_MAX_MODERATE_DIFF_RATIO = 0.01
+RENDER_LOW_INK_MAX_LARGE_DIFF_RATIO = 0.0075
+RENDER_LOW_INK_MAX_RMS = 10.5
+RENDER_LOW_INK_MAX_MEAN = 0.8
 
 
 @dataclass(frozen=True)
@@ -270,6 +275,16 @@ def render_metric(result: Result | None, name: str) -> str | None:
         if part.startswith(prefix):
             return part[len(prefix) :]
     return None
+
+
+def render_metric_int(result: Result | None, name: str) -> int | None:
+    value = render_metric(result, name)
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except ValueError:
+        return None
 
 
 def is_near_blank_render(result: Result | None) -> bool:
@@ -722,6 +737,8 @@ def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: 
         return "render-visual-equivalence-match"
     if is_lossy_jpeg_decoder_drift(file, java_png, dotnet_png):
         return "render-lossy-jpeg-decoder-equivalence-match"
+    if is_low_ink_render_drift(java, dotnet, java_png, dotnet_png):
+        return "render-low-ink-equivalence-match"
     return "detail-mismatch"
 
 
@@ -732,17 +749,38 @@ def is_lossy_jpeg_decoder_drift(file: str, java_png: Path, dotnet_png: Path) -> 
     return render_jpeg_images_equivalent(java_png, dotnet_png)
 
 
+def is_low_ink_render_drift(java: Result, dotnet: Result, java_png: Path, dotnet_png: Path) -> bool:
+    if not is_near_blank_render(java) or not is_near_blank_render(dotnet):
+        return False
+
+    stats = render_image_diff_stats(java_png, dotnet_png)
+    if stats is None or stats.total_pixels <= 0:
+        return False
+
+    java_non_background = render_metric_int(java, "nonBg")
+    dotnet_non_background = render_metric_int(dotnet, "nonBg")
+    if java_non_background is None or dotnet_non_background is None:
+        return False
+    foreground_ratio = max(java_non_background, dotnet_non_background) / stats.total_pixels
+    if foreground_ratio > RENDER_LOW_INK_MAX_FOREGROUND_RATIO:
+        return False
+
+    return (
+        stats.moderate_diff_ratio <= RENDER_LOW_INK_MAX_MODERATE_DIFF_RATIO
+        and stats.large_diff_ratio <= RENDER_LOW_INK_MAX_LARGE_DIFF_RATIO
+        and stats.rms <= RENDER_LOW_INK_MAX_RMS
+        and stats.mean <= RENDER_LOW_INK_MAX_MEAN
+    )
+
+
 def is_java_optional_jpx_reader_gap(file: str, java: Result, dotnet: Result) -> bool:
     if "JPX" not in Path(file).name:
         return False
     if not is_near_blank_render(java) or is_near_blank_render(dotnet):
         return False
 
-    non_background = render_metric(dotnet, "nonBg")
-    try:
-        return non_background is not None and int(non_background) > 0
-    except ValueError:
-        return False
+    non_background = render_metric_int(dotnet, "nonBg")
+    return non_background is not None and non_background > 0
 
 
 def classify_save_mismatch(file: str, save_structures: dict[tuple[str, str], Result]) -> str:

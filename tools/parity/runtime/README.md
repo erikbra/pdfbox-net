@@ -33,6 +33,9 @@ optional image reader is unavailable, while .NET renders visible pixels, are
 classified separately so they do not count as .NET render-quality gaps.
 JPEG-named rows also have a narrow lossy-decoder equivalence classifier for
 small Java/.NET decoder and color-management drift.
+Near-blank render rows with less than 0.5% foreground coverage have a separate
+low-ink visual-equivalence classifier, guarded by low moderate/large
+pixel-difference ratios plus RMS and mean channel-error limits.
 
 ## Local ratchet run
 
