@@ -30,6 +30,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.FontBox;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.Util;
 using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.PDModel.Font;
@@ -81,6 +82,8 @@ public partial class PDTrueTypeFont : PDSimpleFont
 
     public TrueTypeFont GetTrueTypeFont() => _trueTypeFont;
 
+    public override Matrix GetFontMatrix() => GetFontMatrixFromDictionary();
+
     public override float GetWidthFromFont(int code)
     {
         int gid = CodeToGID(code);
@@ -96,9 +99,10 @@ public partial class PDTrueTypeFont : PDSimpleFont
     public override GeneralPath GetNormalizedPath(int code)
     {
         int gid = CodeToGID(code);
-        return gid == 0
-            ? new GeneralPath()
-            : _trueTypeFont.GetGlyph()?.GetGlyph(gid)?.GetPath() ?? new GeneralPath();
+        return TrueTypePathNormalizer.GetNormalizedPath(
+            _trueTypeFont,
+            gid,
+            drawGidZero: IsEmbedded() || IsStandard14());
     }
 
     public byte[] ExportFont()

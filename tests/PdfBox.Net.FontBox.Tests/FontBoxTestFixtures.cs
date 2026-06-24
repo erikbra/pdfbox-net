@@ -360,8 +360,8 @@ internal static class FontBoxTestFixtures
         stream.WriteByte(1); stream.WriteByte(1); stream.WriteByte(1); stream.WriteByte(1);
         // xCoordinates (relative): 0, 500, 0, -500
         WriteInt16(stream, 0); WriteInt16(stream, 500); WriteInt16(stream, 0); WriteInt16(stream, unchecked((short)-500));
-        // yCoordinates (relative): 0, 0, 700, -700
-        WriteInt16(stream, 0); WriteInt16(stream, 0); WriteInt16(stream, 700); WriteInt16(stream, unchecked((short)-700));
+        // yCoordinates (relative): 0, 0, 700, 0
+        WriteInt16(stream, 0); WriteInt16(stream, 0); WriteInt16(stream, 700); WriteInt16(stream, 0);
         return stream.ToArray();
     }
 
@@ -574,7 +574,7 @@ internal static class FontBoxTestFixtures
         WriteUInt16(stream, 0);
         WriteUInt16(stream, 8);
         WriteInt16(stream, 2);
-        WriteInt16(stream, 0);
+        WriteInt16(stream, 1);
         WriteInt16(stream, 0);
         return stream.ToArray();
     }

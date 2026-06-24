@@ -265,6 +265,11 @@ public abstract class PDFont : PDFontLike
 
     public virtual Matrix GetFontMatrix()
     {
+        return GetFontMatrixFromDictionary();
+    }
+
+    protected Matrix GetFontMatrixFromDictionary()
+    {
         if (_fontMatrix != null)
         {
             return _fontMatrix;

@@ -213,7 +213,10 @@ public partial class PDType0Font : PDVectorFont
         if (_descendantFont is PDCIDFontType2 type2)
         {
             int gid = type2.CodeToGID(CodeToCID(code));
-            return type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(gid)?.GetPath() ?? new GeneralPath();
+            return TrueTypePathNormalizer.GetNormalizedPath(
+                type2.GetTrueTypeFont(),
+                gid,
+                drawGidZero: type2.IsEmbedded());
         }
 
         return new GeneralPath();
