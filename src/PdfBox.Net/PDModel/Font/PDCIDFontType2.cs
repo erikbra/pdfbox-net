@@ -42,10 +42,12 @@ public partial class PDCIDFontType2 : PDCIDFont
     private readonly TrueTypeFont _trueTypeFont;
     private readonly CmapLookup? _unicodeCmap;
     private readonly int[]? _cidToGid;
+    private readonly bool _isEmbedded;
 
     public PDCIDFontType2(COSDictionary dictionary, TrueTypeFont? trueTypeFont = null)
         : base(dictionary)
     {
+        _isEmbedded = trueTypeFont is not null;
         _trueTypeFont = trueTypeFont ?? new TrueTypeFont();
         _unicodeCmap = _trueTypeFont.GetUnicodeCmapLookup(false);
         _cidToGid = ReadCidToGidMap(dictionary);
@@ -126,6 +128,7 @@ public partial class PDCIDFontType2 : PDCIDFont
     }
 
     public TrueTypeFont GetTrueTypeFont() => _trueTypeFont;
+    public override bool IsEmbedded() => _isEmbedded;
 
     /// <summary>
     /// Maps a CID to a glyph ID (GID) using the CIDToGIDMap entry.
@@ -174,6 +177,13 @@ public partial class PDCIDFontType2 : PDCIDFont
         int gid = CodeToGID(code);
         int unitsPerEm = _trueTypeFont.GetUnitsPerEm();
         return _trueTypeFont.GetAdvanceWidth(gid) * 1000f / unitsPerEm;
+    }
+
+    public override float GetWidthFromFont(int code)
+    {
+        int gid = CodeToGID(code);
+        int unitsPerEm = _trueTypeFont.GetUnitsPerEm();
+        return _trueTypeFont.GetAdvanceWidth(gid) * 1000f / Math.Max(1, unitsPerEm);
     }
 
     private static int[]? ReadCidToGidMap(COSDictionary dictionary)

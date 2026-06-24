@@ -133,6 +133,17 @@ public abstract partial class PDSimpleFont : PDVectorFont
         return base.GetStringWidth(text);
     }
 
+    public override float GetWidthFromFont(int code)
+    {
+        string glyphName = _encoding.GetName(code);
+        if (glyphName == ".notdef")
+        {
+            return 0f;
+        }
+
+        return GetFontBoxFont()?.GetWidth(glyphName) ?? 0f;
+    }
+
     private float GetStandard14Width(string glyphName)
     {
         if (glyphName == ".notdef")
@@ -179,7 +190,7 @@ public abstract partial class PDSimpleFont : PDVectorFont
     }
 
     public abstract FontBoxFont? GetFontBoxFont();
-    public abstract bool IsStandard14();
+    public abstract override bool IsStandard14();
 
     protected static bool? GetSymbolicFlag(COSDictionary fontDictionary)
     {

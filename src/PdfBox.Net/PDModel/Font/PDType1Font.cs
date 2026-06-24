@@ -120,6 +120,7 @@ public partial class PDType1Font : PDSimpleFont
 
     public override FontBoxFont? GetFontBoxFont() => _fontBoxFont;
     public override bool IsStandard14() => _isStandard14;
+    public override bool IsEmbedded() => _type1Font is not null;
 
     private PDType1Font(EmbeddedType1FontData embeddedFontData)
         : this(embeddedFontData.Dictionary, embeddedFontData.Type1Font, embeddedFontData.Type1Font)

@@ -77,6 +77,10 @@ public abstract class PDFont : PDFontLike
 
     public virtual bool IsVertical() => false;
 
+    public virtual bool IsEmbedded() => false;
+
+    public virtual bool IsStandard14() => false;
+
     public virtual float GetWidth(int code)
     {
         if (TryGetExplicitWidth(code, out float width))
@@ -101,6 +105,16 @@ public abstract class PDFont : PDFontLike
 
         width = 0f;
         return false;
+    }
+
+    public virtual bool HasExplicitWidth(int code)
+    {
+        return TryGetExplicitWidth(code, out _);
+    }
+
+    public virtual float GetWidthFromFont(int code)
+    {
+        return 0f;
     }
 
     /// <summary>

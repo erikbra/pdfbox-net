@@ -143,6 +143,9 @@ public partial class PDType0Font : PDVectorFont
     public CMap? GetCMapUCS2() => _cMapUcs2;
 
     public override bool IsVertical() => _cMap?.WMode == 1;
+    public override bool IsEmbedded() => _descendantFont?.IsEmbedded() ?? false;
+    public override bool HasExplicitWidth(int code) => _descendantFont?.HasExplicitWidth(CodeToCID(code)) ?? base.HasExplicitWidth(code);
+    public override float GetWidthFromFont(int code) => _descendantFont?.GetWidthFromFont(CodeToCID(code)) ?? base.GetWidthFromFont(code);
     public override float GetWidth(int code) => _descendantFont?.GetWidth(CodeToCID(code)) ?? base.GetWidth(code);
     public override float GetAverageFontWidth() => _descendantFont?.GetAverageFontWidth() ?? base.GetAverageFontWidth();
     public override float GetSpaceWidth() => _descendantFont?.GetSpaceWidth() ?? base.GetSpaceWidth();

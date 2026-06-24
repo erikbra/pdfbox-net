@@ -66,6 +66,11 @@ public abstract partial class PDCIDFont : PDFont
     /// <summary>Returns true when the CID widths dictionary (W array) contains an explicit entry for the given CID.</summary>
     protected bool HasExplicitCidWidth(int cid) => _widthsByCid.ContainsKey(cid);
 
+    public override bool HasExplicitWidth(int code)
+    {
+        return HasExplicitCidWidth(CodeToCID(code));
+    }
+
     public override float GetWidth(int code)
     {
         if (_widthsByCid.TryGetValue(code, out float width))
