@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Interactive.Form;
+using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.MultiPdf;
 
@@ -36,6 +38,7 @@ namespace PdfBox.Net.MultiPdf;
 public class PDFMergerUtility
 {
     private readonly List<object> _sources = [];
+    private int _nextFieldNum = 1;
 
     /// <summary>
     /// Gets or sets the destination file path.
@@ -46,6 +49,11 @@ public class PDFMergerUtility
     /// Gets or sets the destination output stream.
     /// </summary>
     public Stream? DestinationStream { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether AcroForm merge errors should be ignored.
+    /// </summary>
+    public bool IgnoreAcroFormErrors { get; set; }
 
     /// <summary>
     /// Adds a source PDF file path to the merge list.
@@ -123,16 +131,228 @@ public class PDFMergerUtility
         ArgumentNullException.ThrowIfNull(source);
 
         PDFCloneUtility cloner = new(destination);
+        if (source.GetDocument().IsClosed())
+        {
+            throw new IOException("Error: source PDF is closed.");
+        }
+
+        if (destination.GetDocument().IsClosed())
+        {
+            throw new IOException("Error: destination PDF is closed.");
+        }
+
+        PDDocumentCatalog sourceCatalog = source.GetDocumentCatalog();
+        if (IsDynamicXfa(sourceCatalog.GetAcroForm(null)))
+        {
+            throw new IOException("Error: can't merge source document containing dynamic XFA form content.");
+        }
+
+        MergeInto(
+            (COSDictionary)source.GetDocumentInformation().GetCOSObject(),
+            (COSDictionary)destination.GetDocumentInformation().GetCOSObject(),
+            cloner,
+            new HashSet<COSName>());
+
+        if (destination.GetVersion() < source.GetVersion())
+        {
+            destination.SetVersion(source.GetVersion());
+        }
+
+        PDDocumentCatalog destinationCatalog = destination.GetDocumentCatalog();
+        MergeAcroForm(cloner, destinationCatalog, sourceCatalog);
+        MergeCatalogDictionaries(cloner, destinationCatalog, sourceCatalog);
+
         foreach (PDPage page in source.GetPages())
         {
             COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
             COSDictionary clonedPageDictionary = cloner.CloneForNewDocument(pageDictionary)
                 ?? throw new IOException("Unable to clone source page dictionary.");
 
-            clonedPageDictionary.RemoveItem(COSName.PARENT);
-
             PDPage newPage = new(clonedPageDictionary);
+            newPage.SetCropBox(page.GetCropBox());
+            newPage.SetMediaBox(page.GetMediaBox());
+            newPage.SetRotation(page.GetRotation());
+
+            PDResources? resources = page.GetResources();
+            newPage.SetResources(resources is null
+                ? new PDResources()
+                : new PDResources(cloner.CloneForNewDocument(resources.GetCOSObject())!));
+
             destination.AddPage(newPage);
+        }
+    }
+
+    private void MergeAcroForm(PDFCloneUtility cloner, PDDocumentCatalog destinationCatalog, PDDocumentCatalog sourceCatalog)
+    {
+        try
+        {
+            PDAcroForm? destinationAcroForm = destinationCatalog.GetAcroForm(null);
+            PDAcroForm? sourceAcroForm = sourceCatalog.GetAcroForm(null);
+
+            if (destinationAcroForm is null && sourceAcroForm is not null)
+            {
+                COSDictionary clonedForm = cloner.CloneForNewDocument((COSDictionary)sourceAcroForm.GetCOSObject())
+                    ?? throw new IOException("Unable to clone source AcroForm dictionary.");
+                ((COSDictionary)destinationCatalog.GetCOSObject()).SetItem(COSName.ACRO_FORM, clonedForm);
+                return;
+            }
+
+            if (sourceAcroForm is not null && destinationAcroForm is not null)
+            {
+                MergeAcroFormFields(cloner, destinationAcroForm, sourceAcroForm);
+            }
+        }
+        catch (IOException) when (IgnoreAcroFormErrors)
+        {
+        }
+    }
+
+    private void MergeAcroFormFields(PDFCloneUtility cloner, PDAcroForm destinationAcroForm, PDAcroForm sourceAcroForm)
+    {
+        IList<PDField> sourceFields = sourceAcroForm.GetFields();
+        if (sourceFields.Count == 0)
+        {
+            return;
+        }
+
+        const string prefix = "dummyFieldName";
+        foreach (PDField destinationField in destinationAcroForm.GetFieldTree())
+        {
+            string? fieldName = destinationField.GetPartialName();
+            if (fieldName is not null &&
+                fieldName.StartsWith(prefix, StringComparison.Ordinal) &&
+                int.TryParse(fieldName[prefix.Length..], out int fieldNumber))
+            {
+                _nextFieldNum = Math.Max(_nextFieldNum, fieldNumber + 1);
+            }
+        }
+
+        COSDictionary destinationFormDictionary = (COSDictionary)destinationAcroForm.GetCOSObject();
+        COSArray destinationFields = destinationFormDictionary.GetCOSArray(COSName.GetPDFName("Fields")) ?? new COSArray();
+        foreach (PDField sourceField in sourceFields)
+        {
+            COSDictionary destinationField = cloner.CloneForNewDocument((COSDictionary)sourceField.GetCOSObject())
+                ?? throw new IOException("Unable to clone source AcroForm field.");
+            if (HasField(destinationAcroForm, sourceField.GetFullyQualifiedName()))
+            {
+                destinationField.SetString(COSName.T, prefix + _nextFieldNum++);
+            }
+
+            destinationFields.Add(destinationField);
+        }
+
+        destinationFormDictionary.SetItem(COSName.GetPDFName("Fields"), destinationFields);
+    }
+
+    private static bool HasField(PDAcroForm acroForm, string? fullyQualifiedName)
+    {
+        if (string.IsNullOrEmpty(fullyQualifiedName))
+        {
+            return false;
+        }
+
+        foreach (PDField field in acroForm.GetFieldTree())
+        {
+            if (string.Equals(field.GetFullyQualifiedName(), fullyQualifiedName, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsDynamicXfa(PDAcroForm? acroForm)
+    {
+        if (acroForm is null)
+        {
+            return false;
+        }
+
+        COSDictionary dictionary = (COSDictionary)acroForm.GetCOSObject();
+        return dictionary.ContainsKey(COSName.GetPDFName("XFA")) && acroForm.GetFields().Count == 0;
+    }
+
+    private static void MergeCatalogDictionaries(PDFCloneUtility cloner, PDDocumentCatalog destinationCatalog, PDDocumentCatalog sourceCatalog)
+    {
+        COSDictionary destination = (COSDictionary)destinationCatalog.GetCOSObject();
+        COSDictionary source = (COSDictionary)sourceCatalog.GetCOSObject();
+
+        MergeCloneOrAppendArray(source, destination, COSName.THREADS, cloner);
+        MergeCloneOrMergeDictionary(source, destination, COSName.NAMES, cloner);
+        MergeCloneOrMergeDictionary(source, destination, COSName.DESTS, cloner);
+        MergeCloneIfMissing(source, destination, COSName.OUTLINES, cloner);
+        MergeCloneIfMissing(source, destination, COSName.PAGE_MODE, cloner);
+        MergeCloneIfMissing(source, destination, COSName.PAGE_LABELS, cloner);
+        MergeCloneIfMissing(source, destination, COSName.METADATA, cloner);
+        MergeCloneOrMergeDictionary(source, destination, COSName.GetPDFName("OCProperties"), cloner);
+        MergeCloneOrAppendArray(source, destination, COSName.OUTPUT_INTENTS, cloner);
+    }
+
+    private static void MergeCloneIfMissing(COSDictionary source, COSDictionary destination, COSName key, PDFCloneUtility cloner)
+    {
+        if (!destination.ContainsKey(key) && source.GetItem(key) is COSBase value)
+        {
+            destination.SetItem(key, cloner.CloneForNewDocument(value));
+        }
+    }
+
+    private static void MergeCloneOrMergeDictionary(COSDictionary source, COSDictionary destination, COSName key, PDFCloneUtility cloner)
+    {
+        COSDictionary? sourceDictionary = source.GetCOSDictionary(key);
+        if (sourceDictionary is null)
+        {
+            return;
+        }
+
+        COSDictionary? destinationDictionary = destination.GetCOSDictionary(key);
+        if (destinationDictionary is null)
+        {
+            destination.SetItem(key, cloner.CloneForNewDocument(sourceDictionary));
+            return;
+        }
+
+        cloner.CloneMerge(new DictionaryObjectable(sourceDictionary), new DictionaryObjectable(destinationDictionary));
+    }
+
+    private static void MergeCloneOrAppendArray(COSDictionary source, COSDictionary destination, COSName key, PDFCloneUtility cloner)
+    {
+        COSArray? sourceArray = source.GetCOSArray(key);
+        if (sourceArray is null)
+        {
+            return;
+        }
+
+        COSArray? destinationArray = destination.GetCOSArray(key);
+        if (destinationArray is null)
+        {
+            destination.SetItem(key, cloner.CloneForNewDocument(sourceArray));
+            return;
+        }
+
+        for (int i = 0; i < sourceArray.Size(); i++)
+        {
+            COSBase? item = sourceArray.GetObject(i);
+            destinationArray.Add(item is null ? null : cloner.CloneForNewDocument(item));
+        }
+    }
+
+    private static void MergeInto(COSDictionary source, COSDictionary destination, PDFCloneUtility cloner, ISet<COSName> exclude)
+    {
+        foreach (KeyValuePair<COSName, COSBase> entry in source.EntrySet())
+        {
+            if (!exclude.Contains(entry.Key) && !destination.ContainsKey(entry.Key))
+            {
+                destination.SetItem(entry.Key, cloner.CloneForNewDocument(entry.Value));
+            }
+        }
+    }
+
+    private sealed class DictionaryObjectable(COSDictionary dictionary) : COSObjectable
+    {
+        public COSBase GetCOSObject()
+        {
+            return dictionary;
         }
     }
 

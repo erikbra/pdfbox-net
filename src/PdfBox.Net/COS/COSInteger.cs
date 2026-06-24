@@ -73,6 +73,11 @@ public sealed class COSInteger : COSNumber
         return new COSInteger(val, true);
     }
 
+    internal static COSInteger CreateDirect(long val)
+    {
+        return new COSInteger(val, true);
+    }
+
     private static COSInteger GetInvalid(bool maxValue)
     {
         return maxValue ? new COSInteger(long.MaxValue, false) : new COSInteger(long.MinValue, false);

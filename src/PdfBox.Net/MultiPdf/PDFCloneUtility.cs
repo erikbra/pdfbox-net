@@ -118,7 +118,32 @@ public class PDFCloneUtility
             return CloneCOSDictionary(dictionary);
         }
 
-        return baseObject;
+        return CloneCOSScalar(baseObject);
+    }
+
+    private static COSBase CloneCOSScalar(COSBase baseObject)
+    {
+        switch (baseObject)
+        {
+            case COSInteger integer:
+                return COSInteger.CreateDirect(integer.LongValue());
+            case COSFloat floatValue:
+                return new COSFloat(floatValue.FloatValue());
+            case COSString stringValue:
+                return new COSString(stringValue.GetBytes(), stringValue.GetForceHexForm());
+            case COSName name:
+                name.SetKey(null);
+                return name;
+            case COSBoolean boolean:
+                boolean.SetKey(null);
+                return boolean;
+            case COSNull:
+                COSNull.NULL.SetKey(null);
+                return COSNull.NULL;
+            default:
+                baseObject.SetKey(null);
+                return baseObject;
+        }
     }
 
     private COSArray CloneCOSArray(COSArray array)
@@ -143,6 +168,7 @@ public class PDFCloneUtility
     private COSStream CloneCOSStream(COSStream stream)
     {
         COSStream newStream = new();
+        newStream.SetKey(_destination.AllocateObjectKey());
         using (Stream output = newStream.CreateRawOutputStream())
         using (Stream input = stream.CreateRawInputStream())
         {
