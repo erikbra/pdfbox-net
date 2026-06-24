@@ -22,6 +22,7 @@ PROBE_ASSEMBLY = ROOT / "tools/parity/runtime/DotnetPdfProbe/bin/Release/net10.0
 JAVA_PROBE = ROOT / "tools/parity/runtime/JavaPdfProbe.java"
 KNOWN_FAILURES = ROOT / "tools/parity/runtime/known-failures.json"
 CORPUS_CATEGORIES = ROOT / "tools/parity/runtime/corpus-categories.json"
+DEFAULT_PDFBOX_ROOT = os.environ.get("PDFBOX_SOURCE_ROOT")
 
 
 @dataclass(frozen=True)
@@ -73,18 +74,36 @@ def java_probe_args(java_home: Path | None, java_cp: str) -> list[str]:
     return [java_tool(java_home, "java"), "-Djava.awt.headless=true", "-cp", java_cp, "JavaPdfProbe"]
 
 
-def read_manifest(path: Path) -> list[Path]:
+def resolve_corpus_path(value: str, manifest_dir: Path, pdfbox_root: Path | None) -> Path:
+    prefix, separator, rest = value.partition(":")
+    if separator and prefix == "repo":
+        return (ROOT / rest).resolve()
+    if separator and prefix == "pdfbox":
+        if pdfbox_root is None:
+            raise ValueError(f"manifest entry requires --pdfbox-root or PDFBOX_SOURCE_ROOT: {value}")
+        return (pdfbox_root / rest).resolve()
+
+    path = Path(os.path.expandvars(value)).expanduser()
+    if not path.is_absolute():
+        path = manifest_dir / path
+    return path.resolve()
+
+
+def read_manifest(path: Path, pdfbox_root: Path | None) -> list[Path]:
     pdfs: list[Path] = []
     with path.open("r", encoding="utf-8") as f:
         for raw in f:
             line = raw.strip()
             if not line or line.startswith("#"):
                 continue
-            pdfs.append(Path(line).expanduser().resolve())
+            pdf = resolve_corpus_path(line, path.parent, pdfbox_root)
+            if not pdf.exists():
+                raise FileNotFoundError(f"manifest entry does not exist: {line} -> {pdf}")
+            pdfs.append(pdf)
     return pdfs
 
 
-def read_merge_pairs(path: Path | None, pdfs: list[Path]) -> list[tuple[Path, Path]]:
+def read_merge_pairs(path: Path | None, pdfs: list[Path], pdfbox_root: Path | None) -> list[tuple[Path, Path]]:
     if path is None:
         return [(pdfs[i], pdfs[i + 1]) for i in range(0, len(pdfs) - 1, 2)]
 
@@ -97,7 +116,12 @@ def read_merge_pairs(path: Path | None, pdfs: list[Path]) -> list[tuple[Path, Pa
             parts = line.split()
             if len(parts) != 2:
                 raise ValueError(f"merge pair line must contain exactly two paths: {line}")
-            pairs.append((Path(parts[0]).expanduser().resolve(), Path(parts[1]).expanduser().resolve()))
+            left = resolve_corpus_path(parts[0], path.parent, pdfbox_root)
+            right = resolve_corpus_path(parts[1], path.parent, pdfbox_root)
+            for original, resolved in ((parts[0], left), (parts[1], right)):
+                if not resolved.exists():
+                    raise FileNotFoundError(f"merge pair entry does not exist: {original} -> {resolved}")
+            pairs.append((left, right))
     return pairs
 
 
@@ -150,6 +174,27 @@ def load_known_failures(path: Path) -> list[dict]:
         return []
     payload = json.loads(path.read_text(encoding="utf-8"))
     return list(payload.get("entries", []))
+
+
+def validate_known_failures(entries: list[dict]) -> list[str]:
+    failures: list[str] = []
+    required = ("id", "op", "issue", "owner", "rootCause", "reason", "expiresWhen", "ratchet")
+    for index, entry in enumerate(entries):
+        entry_id = str(entry.get("id", f"entry-{index}"))
+        for field in required:
+            value = entry.get(field)
+            if value is None or (isinstance(value, str) and not value.strip()):
+                failures.append(f"known failure `{entry_id}` is missing `{field}`")
+
+        issue = entry.get("issue")
+        if not isinstance(issue, int) or issue <= 0:
+            failures.append(f"known failure `{entry_id}` has invalid `issue`: {issue!r}")
+
+        owner = entry.get("owner")
+        if isinstance(owner, str) and isinstance(issue, int) and owner != f"issue-{issue}":
+            failures.append(f"known failure `{entry_id}` owner `{owner}` does not match issue #{issue}")
+
+    return failures
 
 
 def load_corpus_categories(path: Path) -> list[dict]:
@@ -782,6 +827,16 @@ def ratchet_failures(summary: dict, baseline_path: Path) -> list[str]:
     return failures
 
 
+def strict_gate_failures(summary: dict) -> list[str]:
+    failures: list[str] = []
+    counts = summary["counts"]
+    if counts.get("unexpected", 0):
+        failures.append(f"strict gate requires 0 unexpected rows; found {counts['unexpected']}")
+    if counts.get("known", 0):
+        failures.append(f"strict gate requires 0 known rows; found {counts['known']}")
+    return failures
+
+
 def short(value: str) -> str:
     return value if len(value) <= 96 else value[:93] + "..."
 
@@ -792,16 +847,37 @@ def main() -> int:
     parser.add_argument("--out-dir", required=True, type=Path, help="Output directory for probe artifacts and reports.")
     parser.add_argument("--java-classpath", required=True, help="Classpath containing Apache PDFBox and dependencies.")
     parser.add_argument("--java-home", type=Path, help="Optional JDK home containing bin/java and bin/javac.")
+    parser.add_argument(
+        "--pdfbox-root",
+        default=DEFAULT_PDFBOX_ROOT,
+        type=Path,
+        help="Apache PDFBox source checkout root used to resolve pdfbox: manifest entries. Defaults to PDFBOX_SOURCE_ROOT.",
+    )
     parser.add_argument("--merge-pairs", type=Path, help="Optional text file containing '<pdf-a> <pdf-b>' merge pairs.")
     parser.add_argument("--known-failures", default=KNOWN_FAILURES, type=Path, help="Known-failure JSON file.")
     parser.add_argument("--corpus-categories", default=CORPUS_CATEGORIES, type=Path, help="Corpus category JSON file.")
     parser.add_argument("--ratchet-baseline", type=Path, help="Fail when status/category counts exceed this baseline.")
+    parser.add_argument(
+        "--gate-mode",
+        choices=("ratchet", "strict"),
+        default=os.environ.get("PDFBOX_PARITY_GATE_MODE", "ratchet"),
+        help="ratchet allows existing known rows within the baseline; strict requires zero known and zero unexpected rows.",
+    )
     parser.add_argument("--fail-on-unexpected", action="store_true", help="Exit non-zero when an untracked divergence is found.")
     parser.add_argument("--skip-build", action="store_true", help="Skip dotnet build and javac compile.")
     args = parser.parse_args()
 
-    pdfs = read_manifest(args.manifest)
-    merge_pairs = read_merge_pairs(args.merge_pairs, pdfs)
+    pdfbox_root = args.pdfbox_root.resolve() if args.pdfbox_root is not None else None
+    known_failures = load_known_failures(args.known_failures)
+    known_metadata_failures = validate_known_failures(known_failures)
+    if known_metadata_failures:
+        print("Known-failure metadata validation failed:", file=sys.stderr)
+        for failure in known_metadata_failures:
+            print(f"- {failure}", file=sys.stderr)
+        return 1
+
+    pdfs = read_manifest(args.manifest, pdfbox_root)
+    merge_pairs = read_merge_pairs(args.merge_pairs, pdfs, pdfbox_root)
     out_dir = args.out_dir.resolve()
     java_out = out_dir / "java"
     dotnet_out = out_dir / "dotnet"
@@ -844,7 +920,7 @@ def main() -> int:
     comparison_rows, counts = compare(
         java_rows,
         dotnet_rows,
-        load_known_failures(args.known_failures),
+        known_failures,
         load_corpus_categories(args.corpus_categories),
         java_out,
         dotnet_out,
@@ -872,7 +948,14 @@ def main() -> int:
     (out_dir / "summary.md").write_text(markdown_summary(summary, comparison_rows), encoding="utf-8")
 
     print(json.dumps(summary, indent=2))
-    if args.ratchet_baseline is not None:
+    if args.gate_mode == "strict":
+        failures = strict_gate_failures(summary)
+        if failures:
+            print("Runtime parity strict gate failed:", file=sys.stderr)
+            for failure in failures:
+                print(f"- {failure}", file=sys.stderr)
+            return 1
+    elif args.ratchet_baseline is not None:
         failures = ratchet_failures(summary, args.ratchet_baseline)
         if failures:
             print("Runtime parity ratchet failed:", file=sys.stderr)

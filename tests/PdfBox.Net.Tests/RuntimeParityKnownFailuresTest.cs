@@ -21,6 +21,50 @@ public class RuntimeParityKnownFailuresTest
         Assert.Empty(staleIssue438Entries);
     }
 
+    [Fact]
+    public void KnownFailures_HaveRoadmapMetadata()
+    {
+        string path = FindRepoFile("tools/parity/runtime/known-failures.json");
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+
+        string[] requiredStringProperties = ["id", "op", "owner", "rootCause", "reason", "expiresWhen", "ratchet"];
+        List<string> failures = [];
+
+        foreach (JsonElement entry in document.RootElement.GetProperty("entries").EnumerateArray())
+        {
+            string id = entry.TryGetProperty("id", out JsonElement idElement)
+                ? idElement.GetString() ?? "<empty>"
+                : "<missing-id>";
+
+            foreach (string property in requiredStringProperties)
+            {
+                if (!entry.TryGetProperty(property, out JsonElement value)
+                    || value.ValueKind != JsonValueKind.String
+                    || string.IsNullOrWhiteSpace(value.GetString()))
+                {
+                    failures.Add($"{id}: missing {property}");
+                }
+            }
+
+            if (!entry.TryGetProperty("issue", out JsonElement issueElement)
+                || issueElement.ValueKind != JsonValueKind.Number
+                || !issueElement.TryGetInt32(out int issue)
+                || issue <= 0)
+            {
+                failures.Add($"{id}: missing positive issue");
+                continue;
+            }
+
+            if (entry.TryGetProperty("owner", out JsonElement ownerElement)
+                && ownerElement.GetString() != $"issue-{issue}")
+            {
+                failures.Add($"{id}: owner must match issue");
+            }
+        }
+
+        Assert.Empty(failures);
+    }
+
     private static string FindRepoFile(string relativePath)
     {
         DirectoryInfo? directory = new(AppContext.BaseDirectory);

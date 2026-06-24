@@ -7,6 +7,10 @@ on:
 permissions:
   contents: read
 
+env:
+  PDFBOX_PARITY_GATE_MODE: ${{ vars.PDFBOX_PARITY_GATE_MODE || 'ratchet' }}
+  PDFBOX_PARITY_PDFBOX_REF: ${{ vars.PDFBOX_PARITY_PDFBOX_REF || '2589dc979982b11e3ba92e107aed9f309362d517' }}
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -34,20 +38,66 @@ jobs:
           python3 -m py_compile tools/parity/runtime/run_runtime_parity.py
           python3 tools/parity/runtime/run_runtime_parity.py --help
 
+  runtime-parity:
+    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Checkout Apache PDFBox
+        uses: actions/checkout@v5
+        with:
+          repository: apache/pdfbox
+          ref: ${{ env.PDFBOX_PARITY_PDFBOX_REF }}
+          path: apache-pdfbox
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build Apache PDFBox app jar
+        working-directory: apache-pdfbox
+        run: mvn -B -pl app -am -DskipTests package
+
+      - name: Restore runtime probe
+        run: dotnet restore tools/parity/runtime/DotnetPdfProbe/DotnetPdfProbe.csproj
+
       - name: Runtime parity suite
-        if: ${{ env.PDFBOX_PARITY_MANIFEST != '' && env.PDFBOX_PARITY_CLASSPATH != '' }}
         run: >
           python3 tools/parity/runtime/run_runtime_parity.py
-          --manifest "$PDFBOX_PARITY_MANIFEST"
-          --java-classpath "$PDFBOX_PARITY_CLASSPATH"
+          --manifest tools/parity/runtime/corpus-manifest.txt
+          --pdfbox-root apache-pdfbox
+          --java-classpath apache-pdfbox/app/target/pdfbox-app-4.0.0-SNAPSHOT.jar
           --out-dir artifacts/runtime-parity
           --ratchet-baseline tools/parity/runtime/ratchet-baseline.json
+          --gate-mode "${PDFBOX_PARITY_GATE_MODE:-ratchet}"
+          --fail-on-unexpected
 
       - name: Runtime parity summary
-        if: ${{ env.PDFBOX_PARITY_MANIFEST != '' && env.PDFBOX_PARITY_CLASSPATH != '' && always() }}
+        if: ${{ always() }}
         run: |
           if [ -f artifacts/runtime-parity/summary.md ]; then
             cat artifacts/runtime-parity/summary.md
+            cat artifacts/runtime-parity/summary.md >> "$GITHUB_STEP_SUMMARY"
           else
             echo "Runtime parity summary was not generated."
           fi
+
+      - name: Upload runtime parity artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-parity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/runtime-parity

@@ -84,7 +84,7 @@ internal static class DotnetPdfProbe
                     using BufferedImage image = new PDFRenderer(document).RenderImageWithDPI(0, 36);
                     string png = Path.Combine(outDir, StripExt(name) + "-dotnet-p1.png");
                     ImageIOUtil.WriteImage(image, png, 36);
-                    Emit(name, "render", true, pages, $"{image.Width}x{image.Height}:{FileSignature(png)}:{ImageMetrics(image)}", Elapsed(started));
+                    Emit(name, "render", true, pages, $"{image.Width}x{image.Height}:{ImagePixelHash(image)}:{ImageMetrics(image)}", Elapsed(started));
                 }
                 else
                 {
@@ -177,6 +177,28 @@ internal static class DotnetPdfProbe
 
         bool nearBlank = transparent == total || nonBackground <= Math.Max(10, total / 1000) || dominant >= (int)Math.Ceiling(total * 0.995);
         return $"nonBg={nonBackground}:unique={histogram.Count}:dominant={dominant}:transparent={transparent}:nearBlank={nearBlank.ToString().ToLowerInvariant()}";
+    }
+
+    private static string ImagePixelHash(BufferedImage image)
+    {
+        using SHA256 digest = SHA256.Create();
+        byte[] argb = new byte[4];
+        SKBitmap bitmap = image.Bitmap;
+        for (int y = 0; y < bitmap.Height; y++)
+        {
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                SKColor color = bitmap.GetPixel(x, y);
+                argb[0] = color.Alpha;
+                argb[1] = color.Red;
+                argb[2] = color.Green;
+                argb[3] = color.Blue;
+                digest.TransformBlock(argb, 0, argb.Length, null, 0);
+            }
+        }
+
+        digest.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+        return Convert.ToHexString(digest.Hash!)[..16].ToLowerInvariant();
     }
 
     private static int ColorDistance(SKColor a, SKColor b)
