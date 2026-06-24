@@ -462,7 +462,7 @@ public sealed class PDFParser
 
             ParsedIndirectObject parsedObject = parsed ?? throw new InvalidOperationException("Object parsing unexpectedly produced no result.");
             COSObject objectShell = GetOrCreateIndirectObject(parsedObject.Key);
-            parsedObject.Value.SetKey(parsedObject.Key);
+            SetObjectKeyIfStable(parsedObject.Value, parsedObject.Key);
             objectShell.SetObject(parsedObject.Value);
         }
     }
@@ -506,7 +506,7 @@ public sealed class PDFParser
                 }
 
                 COSObject shell = GetOrCreateIndirectObject(key);
-                value.SetKey(key);
+                SetObjectKeyIfStable(value, key);
                 shell.SetObject(value);
             }
         }
@@ -1252,6 +1252,14 @@ public sealed class PDFParser
             >= 'a' and <= 'f' => value - 'a' + 10,
             _ => -1
         };
+    }
+
+    private static void SetObjectKeyIfStable(COSBase value, COSObjectKey key)
+    {
+        if (value is COSDictionary or COSArray or COSStream or COSString or COSFloat)
+        {
+            value.SetKey(key);
+        }
     }
 
     private sealed record ParsedIndirectObject(COSObjectKey Key, COSBase Value);
