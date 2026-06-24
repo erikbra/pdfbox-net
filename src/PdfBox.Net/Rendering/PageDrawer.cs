@@ -1192,13 +1192,14 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
 
         RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
-        SKMatrix matrix = ToCanvasMatrix(textRenderingMatrix, _pageHeightPt);
+        Matrix fallbackGlyphMatrix = CreateFallbackGlyphMatrix(textRenderingMatrix);
+        SKMatrix matrix = ToCanvasMatrix(fallbackGlyphMatrix, _pageHeightPt);
         using SKTypeface? typeface = CreateFallbackTypeface(font);
         using SKFont skFont = new(typeface ?? SKTypeface.Default, GetFallbackFontSize(font));
         if (renderingMode.IsClip())
         {
             using SKPath clipPath = skFont.GetTextPath(unicode, new SKPoint(0, 0));
-            BufferTextClipPath(clipPath, textRenderingMatrix);
+            BufferTextClipPath(clipPath, fallbackGlyphMatrix);
         }
 
         if (_graphics?.Canvas is null || !IsContentRendered() || (!renderingMode.IsFill() && !renderingMode.IsStroke()))
@@ -1221,6 +1222,17 @@ public class PageDrawer : PDFGraphicsStreamEngine
                 canvas.DrawText(unicode, 0, 0, skFont, strokePaint);
             }
         });
+    }
+
+    private static Matrix CreateFallbackGlyphMatrix(Matrix textRenderingMatrix)
+    {
+        return new Matrix(
+            textRenderingMatrix.GetScaleX(),
+            textRenderingMatrix.GetShearY(),
+            -textRenderingMatrix.GetShearX(),
+            -textRenderingMatrix.GetScaleY(),
+            textRenderingMatrix.GetTranslateX(),
+            textRenderingMatrix.GetTranslateY());
     }
 
     private static float GetFallbackFontSize(PDFont font)

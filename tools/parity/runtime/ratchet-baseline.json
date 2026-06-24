@@ -2,26 +2,26 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "GitHub Actions run 28132670636 runtime-parity summary after TrueType glyph normalization",
-    "generatedAtUtc": "2026-06-24T22:22:50Z",
+    "generatedFrom": "GitHub Actions run 28134911317 runtime-parity summary after Standard14 fallback text orientation",
+    "generatedAtUtc": "2026-06-24T23:12:24Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
   "maxStatus": {
-    "known": 58,
+    "known": 56,
     "unexpected": 0
   },
   "maxCategories": {
-    "detail-mismatch": 58,
+    "detail-mismatch": 56,
     "save-structural-match": 148,
     "merge-structural-match": 72,
     "render-java-optional-jpx-reader-missing-match": 3,
-    "render-low-ink-equivalence-match": 6,
-    "render-low-mean-raster-drift-equivalence-match": 4,
+    "render-low-ink-equivalence-match": 1,
+    "render-low-mean-raster-drift-equivalence-match": 3,
     "render-lossy-jpeg-decoder-equivalence-match": 2,
-    "render-near-blank-threshold-equivalence-match": 3,
-    "render-sparse-equivalence-match": 8,
-    "render-visual-equivalence-match": 49,
+    "render-near-blank-threshold-equivalence-match": 2,
+    "render-sparse-equivalence-match": 13,
+    "render-visual-equivalence-match": 53,
     "render-placeholder": 0,
     "text-semantic-math-linewrap-match": 1,
     "text-semantic-punctuation-spacing-match": 1
