@@ -25,16 +25,18 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Patterns;
 using PdfBox.Net.Util;
+using SkiaSharp;
 
 namespace PdfBox.Net.Rendering;
 
-internal class TilingPaint : IPaint
+internal class TilingPaint : IContextPaint
 {
     private const int MAXEDGE = 3000;
-    private readonly IPaint _paint;
+    private readonly IContextPaint _paint;
     private readonly Matrix _patternMatrix;
 
     internal TilingPaint(PageDrawer drawer, PDTilingPattern pattern, AffineTransform xform)
@@ -44,13 +46,25 @@ internal class TilingPaint : IPaint
 
     internal TilingPaint(PageDrawer drawer, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, AffineTransform xform)
     {
-        _patternMatrix = drawer.GetInitialMatrix();
-        _paint = new TexturePaint(GetImage(drawer, pattern, colorSpace, color, xform, GetAnchorRect(pattern)), GetAnchorRect(pattern));
+        _patternMatrix = Matrix.Concatenate(drawer.GetInitialMatrix(), pattern.GetMatrix());
+        Rectangle2D anchorRect = GetAnchorRect(pattern);
+        _paint = new TexturePaint(GetImage(drawer, pattern, colorSpace, color, xform, anchorRect, _patternMatrix), anchorRect);
     }
 
     public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        AffineTransform xformPattern = xform.Clone();
+
+        AffineTransform patternNoScale = _patternMatrix.CreateAffineTransform();
+        float scaleX = _patternMatrix.GetScalingFactorX();
+        float scaleY = _patternMatrix.GetScalingFactorY();
+        if (scaleX != 0 && scaleY != 0)
+        {
+            patternNoScale.Scale(1 / scaleX, 1 / scaleY);
+        }
+
+        xformPattern.Concatenate(patternNoScale);
+        return _paint.CreateContext(cm, deviceBounds, userBounds, xformPattern, hints);
     }
 
     public int GetTransparency()
@@ -63,13 +77,78 @@ internal class TilingPaint : IPaint
         return (int)Math.Ceiling(num);
     }
 
-    private static Rectangle2D GetAnchorRect(PDTilingPattern pattern)
+    private Rectangle2D GetAnchorRect(PDTilingPattern pattern)
     {
-        return new Rectangle2D(0, 0, Math.Min(MAXEDGE, 1), Math.Min(MAXEDGE, 1));
+        PDRectangle bbox = pattern.GetBBox() ?? throw new IOException("Pattern /BBox is missing");
+        float xStep = pattern.GetXStep();
+        if (xStep == 0)
+        {
+            xStep = bbox.GetWidth();
+        }
+
+        float yStep = pattern.GetYStep();
+        if (yStep == 0)
+        {
+            yStep = bbox.GetHeight();
+        }
+
+        float xScale = _patternMatrix.GetScalingFactorX();
+        float yScale = _patternMatrix.GetScalingFactorY();
+        float width = xStep * xScale;
+        float height = yStep * yScale;
+
+        if (Math.Abs(width * height) > MAXEDGE * MAXEDGE)
+        {
+            width = Math.Min(MAXEDGE, Math.Abs(width)) * Math.Sign(width);
+            height = Math.Min(MAXEDGE, Math.Abs(height)) * Math.Sign(height);
+        }
+
+        return new Rectangle2D(
+            bbox.GetLowerLeftX() * xScale,
+            bbox.GetLowerLeftY() * yScale,
+            width,
+            height);
     }
 
-    private static BufferedImage GetImage(PageDrawer drawer, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, AffineTransform xform, Rectangle2D anchorRect)
+    private static BufferedImage GetImage(PageDrawer drawer, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, AffineTransform xform, Rectangle2D anchorRect, Matrix patternMatrixForScale)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        float width = (float)Math.Abs(anchorRect.Width);
+        float height = (float)Math.Abs(anchorRect.Height);
+
+        Matrix xformMatrix = new(xform);
+        float xScale = Math.Abs(xformMatrix.GetScalingFactorX());
+        float yScale = Math.Abs(xformMatrix.GetScalingFactorY());
+        width *= xScale == 0 ? 1 : xScale;
+        height *= yScale == 0 ? 1 : yScale;
+
+        int rasterWidth = Math.Max(1, Ceiling(width));
+        int rasterHeight = Math.Max(1, Ceiling(height));
+        BufferedImage image = new(rasterWidth, rasterHeight, BufferedImage.TYPE_INT_ARGB);
+        image.Bitmap.Erase(SKColors.Transparent);
+
+        using Graphics2D graphics = image.CreateGraphics();
+        if (pattern.GetYStep() < 0)
+        {
+            graphics.Translate(0, rasterHeight);
+            graphics.Scale(1, -1);
+        }
+
+        if (pattern.GetXStep() < 0)
+        {
+            graphics.Translate(rasterWidth, 0);
+            graphics.Scale(-1, 1);
+        }
+
+        graphics.Scale(xScale == 0 ? 1 : xScale, yScale == 0 ? 1 : yScale);
+
+        Matrix patternMatrix = Matrix.GetScaleInstance(
+            Math.Abs(patternMatrixForScale.GetScalingFactorX()),
+            Math.Abs(patternMatrixForScale.GetScalingFactorY()));
+
+        PDRectangle bbox = pattern.GetBBox() ?? new PDRectangle(0, 0, rasterWidth, rasterHeight);
+        patternMatrix = patternMatrix.Translate(-bbox.GetLowerLeftX(), -bbox.GetLowerLeftY());
+        drawer.DrawTilingPattern(graphics, pattern, colorSpace, color, patternMatrix);
+
+        return image;
     }
 }

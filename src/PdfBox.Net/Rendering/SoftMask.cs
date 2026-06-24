@@ -45,12 +45,17 @@ internal class SoftMask : IPaint
         _mask = mask;
         _bboxDevice = bboxDevice;
         _transferFunction = transferFunction is PDFunctionTypeIdentity ? null : transferFunction;
-        _backdropComponent = backdropColor is null ? 0 : 0;
+        _backdropComponent = GetBackdropGray(backdropColor);
     }
 
     public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
     {
-        throw new NotImplementedException("TODO: requires AWT equivalent");
+        return new SoftPaintContext(
+            CreatePaintContext(_paint, cm, deviceBounds, userBounds, xform, hints),
+            _mask,
+            _bboxDevice,
+            _transferFunction,
+            _backdropComponent);
     }
 
     public int GetTransparency()
@@ -58,10 +63,57 @@ internal class SoftMask : IPaint
         return Transparency.TRANSLUCENT;
     }
 
+    private static PaintContext CreatePaintContext(IPaint paint, ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
+    {
+        if (paint is IContextPaint contextPaint)
+        {
+            return contextPaint.CreateContext(cm, deviceBounds, userBounds, xform, hints);
+        }
+
+        return Color.Transparent.CreateContext(cm, deviceBounds, userBounds, xform, hints);
+    }
+
+    private static int GetBackdropGray(PDColor? backdropColor)
+    {
+        if (backdropColor is null)
+        {
+            return 0;
+        }
+
+        try
+        {
+            int rgb = backdropColor.ToRGB();
+            int r = (rgb >> 16) & 0xFF;
+            int g = (rgb >> 8) & 0xFF;
+            int b = rgb & 0xFF;
+            return ((299 * r) + (587 * g) + (114 * b)) / 1000;
+        }
+        catch (Exception)
+        {
+            return 0;
+        }
+    }
+
     private sealed class SoftPaintContext : PaintContext
     {
+        private readonly PaintContext _context;
+        private readonly BufferedImage _mask;
+        private readonly Rectangle2D _bboxDevice;
+        private readonly PDFunction? _transferFunction;
+        private readonly int _backdropComponent;
+
+        internal SoftPaintContext(PaintContext context, BufferedImage mask, Rectangle2D bboxDevice, PDFunction? transferFunction, int backdropComponent)
+        {
+            _context = context;
+            _mask = mask;
+            _bboxDevice = bboxDevice;
+            _transferFunction = transferFunction;
+            _backdropComponent = backdropComponent;
+        }
+
         public void Dispose()
         {
+            _context.Dispose();
         }
 
         public ColorModel GetColorModel()
@@ -71,7 +123,76 @@ internal class SoftMask : IPaint
 
         public Raster GetRaster(int x, int y, int width, int height)
         {
-            throw new NotImplementedException("TODO: requires AWT equivalent");
+            Raster contextRaster = _context.GetRaster(x, y, width, height);
+            ColorModel contextColorModel = _context.GetColorModel();
+            WritableRaster outputRaster = GetColorModel().CreateCompatibleWritableRaster(width, height);
+            WritableRaster maskRaster = _mask.GetRaster();
+
+            int maskOffsetX = x - (int)_bboxDevice.X;
+            int maskOffsetY = y - (int)_bboxDevice.Y;
+            float[] input = new float[1];
+            float?[] transferMap = new float?[256];
+            int[] gray = new int[4];
+            int[] output = new int[4];
+            object? pixelInput = null;
+
+            for (int py = 0; py < height; py++)
+            {
+                for (int px = 0; px < width; px++)
+                {
+                    pixelInput = contextRaster.GetDataElements(px, py, pixelInput);
+                    output[0] = contextColorModel.GetRed(pixelInput);
+                    output[1] = contextColorModel.GetGreen(pixelInput);
+                    output[2] = contextColorModel.GetBlue(pixelInput);
+                    output[3] = contextColorModel.GetAlpha(pixelInput);
+
+                    int mx = maskOffsetX + px;
+                    int my = maskOffsetY + py;
+                    if (mx >= 0 && my >= 0 && mx < maskRaster.Width && my < maskRaster.Height)
+                    {
+                        maskRaster.GetPixel(mx, my, gray);
+                        int g = Math.Clamp(gray[0], 0, 255);
+                        output[3] = ApplyMaskAlpha(output[3], g, input, transferMap);
+                    }
+                    else
+                    {
+                        output[3] = (int)MathF.Round(output[3] * (_backdropComponent / 255f));
+                    }
+
+                    outputRaster.SetPixel(px, py, output);
+                }
+            }
+
+            return outputRaster;
+        }
+
+        private int ApplyMaskAlpha(int alpha, int gray, float[] input, float?[] transferMap)
+        {
+            if (_transferFunction is null)
+            {
+                return (int)MathF.Round(alpha * (gray / 255f));
+            }
+
+            try
+            {
+                float factor;
+                if (transferMap[gray].HasValue)
+                {
+                    factor = transferMap[gray]!.Value;
+                }
+                else
+                {
+                    input[0] = gray / 255f;
+                    factor = _transferFunction.Eval(input)[0];
+                    transferMap[gray] = factor;
+                }
+
+                return (int)MathF.Round(alpha * factor);
+            }
+            catch (Exception)
+            {
+                return (int)MathF.Round(alpha * (_backdropComponent / 255f));
+            }
         }
     }
 }
