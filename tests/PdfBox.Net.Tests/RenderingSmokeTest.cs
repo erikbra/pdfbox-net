@@ -294,6 +294,32 @@ public class RenderingSmokeTest
     }
 
     [Fact]
+    public void RenderImage_TextClipRenderingMode_ClipsSubsequentFill()
+    {
+        var resources = new PDModel.Resources.PDResources();
+        resources.Put(COSName.GetPDFName("F1"), new PDType1Font(PDType1Font.FontName.HELVETICA_BOLD));
+        const string content =
+            "BT\n/F1 96 Tf\n7 Tr\n100 500 Td\n(Hi) Tj\nET\n" +
+            "0 0 1 rg\n0 0 612 792 re\nf\n";
+        using var document = CreateDocument(content, resources);
+
+        var renderer = new PDFRenderer(document);
+        using BufferedImage image = renderer.RenderImage(0, 1f, ImageType.RGB);
+
+        int cornerArgb = image.GetRgb(10, 10);
+        int cr = (cornerArgb >> 16) & 0xFF;
+        int cg = (cornerArgb >> 8) & 0xFF;
+        int cb = cornerArgb & 0xFF;
+        Assert.Equal(255, cr);
+        Assert.Equal(255, cg);
+        Assert.Equal(255, cb);
+
+        int clippedFillPixels = CountNonWhitePixels(image, 90, 180, 240, 150);
+        Assert.True(clippedFillPixels > 100,
+            $"Expected colored pixels inside text clip but saw {clippedFillPixels}.");
+    }
+
+    [Fact]
     public void RenderImage_PdfBox5002Standard14Fallback_DrawsVisibleText()
     {
         byte[] pdf = Convert.FromBase64String(PdfBox5002FixtureBase64);
