@@ -260,6 +260,52 @@ public class FilterTest
     }
 
     [Fact]
+    public void Jbig2FilterReportsMissingDecoderClearly()
+    {
+        IOException ex = Assert.Throws<IOException>(() => Decode(new JBIG2Filter(), [1, 2, 3], new COSDictionary()));
+
+        Assert.Contains("JBIG2 decoder is not installed", ex.Message);
+    }
+
+    [Fact]
+    public void Jbig2FilterPassesGlobalsAndDecodeOptionsToDecoder()
+    {
+        RecordingJbig2Decoder decoder = new([0x80]);
+        JBIG2Filter filter = new(decoder);
+        COSStream globals = new();
+        using (Stream globalOutput = globals.CreateOutputStream())
+        {
+            globalOutput.Write([0xAA, 0xBB]);
+        }
+
+        COSDictionary decodeParms = new();
+        decodeParms.SetItem(COSName.JBIG2_GLOBALS, globals);
+        COSDictionary parameters = new();
+        parameters.SetItem(COSName.FILTER, COSName.JBIG2_DECODE);
+        parameters.SetItem(COSName.DECODE_PARMS, decodeParms);
+        parameters.SetInt(COSName.BITS_PER_COMPONENT, 2);
+        DecodeOptions options = new(new System.Drawing.Rectangle(1, 2, 3, 4));
+        options.SetSubsamplingX(2);
+        options.SetSubsamplingY(3);
+        options.SetSubsamplingOffsetX(1);
+        options.SetSubsamplingOffsetY(2);
+
+        DecodeResult result = DecodeWithResult(filter, [0x10, 0x20, 0x30], parameters, options, out byte[] decoded);
+
+        Assert.Equal([0x80], decoded);
+        Assert.Equal([0x10, 0x20, 0x30], decoder.Encoded);
+        Assert.Equal([0xAA, 0xBB], decoder.Globals);
+        Assert.Equal(options.GetSourceRegion(), decoder.Options.SourceRegion);
+        Assert.Equal(2, decoder.Options.SubsamplingX);
+        Assert.Equal(3, decoder.Options.SubsamplingY);
+        Assert.Equal(1, decoder.Options.SubsamplingOffsetX);
+        Assert.Equal(2, decoder.Options.SubsamplingOffsetY);
+        Assert.Equal(2, decoder.Options.BitsPerComponent);
+        Assert.True(options.IsFilterSubsampled());
+        Assert.Same(parameters, result.GetParameters());
+    }
+
+    [Fact]
     public void LzwRoundTrip()
     {
         LZWFilter filter = new();
@@ -306,10 +352,7 @@ public class FilterTest
     [Fact]
     public void PlaceholderFilters_ThrowNotSupported()
     {
-        COSDictionary parameters = new();
-        byte[] payload = [1, 2, 3];
-
-        Assert.Throws<NotSupportedException>(() => Decode(new JBIG2Filter(), payload, parameters));
+        Assert.Throws<NotSupportedException>(() => Encode(new JBIG2Filter(), [1, 2, 3]));
     }
 
     [Fact]
@@ -417,6 +460,21 @@ public class FilterTest
         for (int i = 0; i < expected.Length; i++)
         {
             Assert.InRange(actual[i], Math.Max(0, expected[i] - tolerance), Math.Min(255, expected[i] + tolerance));
+        }
+    }
+
+    private sealed class RecordingJbig2Decoder(byte[] decoded) : IJbig2RasterDecoder
+    {
+        public byte[] Encoded { get; private set; } = [];
+        public byte[]? Globals { get; private set; }
+        public Jbig2DecodeOptions Options { get; private set; } = new(null, 1, 1, 0, 0, 1);
+
+        public byte[] Decode(byte[] encoded, byte[]? globals, Jbig2DecodeOptions options)
+        {
+            Encoded = encoded;
+            Globals = globals;
+            Options = options;
+            return decoded;
         }
     }
 }

@@ -81,6 +81,10 @@ The generated `summary.md` includes a Corpus Categories table with match, known,
 Current blank or near-uniform .NET render regressions are listed in `tools/parity/runtime/render-placeholder-fixtures.txt`.
 When `--fail-on-unexpected` is set, the harness exits non-zero only for divergences that are not covered by that ledger.
 
+## Optional Image Decoders
+
+`JPXDecode` is decoded through the existing Magick.NET image dependency. `JBIG2Decode` is wired through an internal decoder integration point that receives the encoded stream, optional `JBIG2Globals`, source-region, subsampling, and bit-depth options. Until a maintained .NET JBIG2 decoder is plugged into that interface, PdfBox.Net fails JBIG2 streams with a clear `IOException` stating that the decoder is not installed, mirroring Java PDFBox behavior when its optional `jbig2-imageio` plugin is unavailable.
+
 `tools/parity/runtime/ratchet-baseline.json` records the maximum accepted known and unexpected divergence counts for the tracked corpus.
 When `--ratchet-baseline` is supplied, the harness exits non-zero if any status count or divergence category count exceeds the baseline.
 If a new divergence is expected, update `known-failures.json` with an owner and reason, rerun the parity suite, and update `ratchet-baseline.json` in the same change.
