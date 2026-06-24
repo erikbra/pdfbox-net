@@ -49,6 +49,7 @@ RENDER_LOW_MEAN_RASTER_MAX_LARGE_DIFF_RATIO = 0.005
 RENDER_LOW_MEAN_RASTER_MAX_RMS = 6.0
 RENDER_LOW_MEAN_RASTER_MAX_MEAN = 0.8
 IGNORED_PROBE_OUTPUT_SAMPLE_LIMIT = 8
+STACK_TRACE_FRAME_RE = re.compile(r"^(?:at\s+.+\(.+\)|\.\.\. \d+ more)$")
 
 
 @dataclass(frozen=True)
@@ -167,23 +168,45 @@ def read_merge_pairs(path: Path | None, pdfs: list[Path], pdfbox_root: Path | No
     return pairs
 
 
-def warn_ignored_probe_output(runtime: str, lines: list[str]) -> None:
+def append_ignored_probe_output(runtime: str, lines: list[str], path: Path | None) -> None:
+    if not lines or path is None:
+        return
+
+    with path.open("a", encoding="utf-8") as f:
+        f.write(f"# {runtime} probe non-JSON stdout captured at {utc_now()}\n")
+        for line in lines:
+            f.write(line)
+            f.write("\n")
+
+
+def is_stack_trace_frame(line: str) -> bool:
+    return STACK_TRACE_FRAME_RE.match(line) is not None
+
+
+def warn_ignored_probe_output(runtime: str, lines: list[str], diagnostic_path: Path | None = None) -> None:
     if not lines:
         return
 
-    counts = Counter(lines)
+    sampled_lines = [line for line in lines if not is_stack_trace_frame(line)]
+    stack_frame_count = len(lines) - len(sampled_lines)
+    if not sampled_lines and diagnostic_path is not None:
+        return
+
+    counts = Counter(sampled_lines if sampled_lines else lines)
     unique_count = len(counts)
     sample_count = min(unique_count, IGNORED_PROBE_OUTPUT_SAMPLE_LIMIT)
+    stack_note = f"; suppressed {stack_frame_count} stack-frame lines" if stack_frame_count else ""
+    diagnostic_note = f"; full output in {diagnostic_path}" if diagnostic_path is not None else ""
     print(
         f"warning: ignored {len(lines)} non-JSON {runtime} probe output lines "
-        f"(showing {sample_count} of {unique_count} unique):",
+        f"(showing {sample_count} of {unique_count} unique{stack_note}{diagnostic_note}):",
         file=sys.stderr,
     )
     for line, count in counts.most_common(IGNORED_PROBE_OUTPUT_SAMPLE_LIMIT):
         print(f"warning:   {count}x {line}", file=sys.stderr)
 
 
-def parse_jsonl(text: str, runtime: str) -> list[Result]:
+def parse_jsonl(text: str, runtime: str, diagnostic_path: Path | None = None) -> list[Result]:
     results: list[Result] = []
     ignored_lines: list[str] = []
     for raw in text.splitlines():
@@ -205,7 +228,8 @@ def parse_jsonl(text: str, runtime: str) -> list[Result]:
                 detail=str(row["detail"]),
             )
         )
-    warn_ignored_probe_output(runtime, ignored_lines)
+    append_ignored_probe_output(runtime, ignored_lines, diagnostic_path)
+    warn_ignored_probe_output(runtime, ignored_lines, diagnostic_path)
     return results
 
 
@@ -665,6 +689,7 @@ def collect_document_structures(
     structure_rows = parse_jsonl(
         run([*java_probe_args(java_home, java_cp), "--structure", *paths]).stdout,
         "java",
+        java_out.parent / "java-ignored-output.txt",
     )
     by_path = {Path(row.file).resolve(): row for row in structure_rows}
     structures: dict[tuple[str, str], Result] = {}
@@ -1309,6 +1334,12 @@ def main() -> int:
     classes_out = out_dir / "java-classes"
     for directory in (java_out, dotnet_out, classes_out):
         directory.mkdir(parents=True, exist_ok=True)
+    ignored_output_paths = {
+        "java": out_dir / "java-ignored-output.txt",
+        "dotnet": out_dir / "dotnet-ignored-output.txt",
+    }
+    for path in ignored_output_paths.values():
+        path.unlink(missing_ok=True)
 
     if not args.skip_build:
         try:
@@ -1325,15 +1356,29 @@ def main() -> int:
     java_rows = parse_jsonl(
         run([*java_probe_args(args.java_home, java_cp), str(java_out), *[str(pdf) for pdf in pdfs]]).stdout,
         "java",
+        ignored_output_paths["java"],
     )
     dotnet_rows = parse_jsonl(
         run([*dotnet_args, str(dotnet_out), *[str(pdf) for pdf in pdfs]]).stdout,
         "dotnet",
+        ignored_output_paths["dotnet"],
     )
 
     for a, b in merge_pairs:
-        java_rows.extend(parse_jsonl(run([*java_probe_args(args.java_home, java_cp), "--merge", str(java_out), str(a), str(b)]).stdout, "java"))
-        dotnet_rows.extend(parse_jsonl(run([*dotnet_args, "--merge", str(dotnet_out), str(a), str(b)]).stdout, "dotnet"))
+        java_rows.extend(
+            parse_jsonl(
+                run([*java_probe_args(args.java_home, java_cp), "--merge", str(java_out), str(a), str(b)]).stdout,
+                "java",
+                ignored_output_paths["java"],
+            )
+        )
+        dotnet_rows.extend(
+            parse_jsonl(
+                run([*dotnet_args, "--merge", str(dotnet_out), str(a), str(b)]).stdout,
+                "dotnet",
+                ignored_output_paths["dotnet"],
+            )
+        )
 
     write_jsonl(out_dir / "java-results.jsonl", java_rows)
     write_jsonl(out_dir / "dotnet-results.jsonl", dotnet_rows)
