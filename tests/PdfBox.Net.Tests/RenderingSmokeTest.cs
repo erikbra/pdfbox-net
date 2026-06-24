@@ -292,6 +292,21 @@ public class RenderingSmokeTest
             $"Expected visible text glyph pixels but render was near blank; nonBackground={nonBackground}, dominant={dominant}.");
     }
 
+    [Theory]
+    [InlineData("rotation.pdf")]
+    [InlineData("with_outline.pdf")]
+    public void RenderImage_RuntimePlaceholderFixtures_DrawVisibleFirstPage(string fixtureName)
+    {
+        string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureName);
+        using PDDocument document = Loader.LoadPDF(fixturePath);
+
+        using BufferedImage image = new PDFRenderer(document).RenderImageWithDPI(0, 36f, ImageType.RGB);
+
+        (bool nearBlank, int nonBackground, int dominant) = MeasureNearBlank(image);
+        Assert.False(nearBlank,
+            $"Expected visible text glyph pixels for {fixtureName} but render was near blank; nonBackground={nonBackground}, dominant={dominant}.");
+    }
+
     [Fact]
     public void RenderImage_ImageXObject_DrawsDecodedImagePixels()
     {

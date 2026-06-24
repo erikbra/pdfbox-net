@@ -57,21 +57,6 @@
       "reason": "Successful render output still differs from Java until remaining PageDrawer glyph, color, pattern, annotation, and image fidelity work lands."
     },
     {
-      "id": "render-placeholder-remaining-font-gaps",
-      "op": "render",
-      "category": "render-placeholder",
-      "files": [
-        "rotation.pdf",
-        "with_outline.pdf"
-      ],
-      "issue": 441,
-      "owner": "issue-441",
-      "rootCause": "render-font-fallback",
-      "expiresWhen": "Issue #441 reaches zero-known runtime parity for rendering rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove fixture names as remaining fallback rendering becomes non-placeholder.",
-      "reason": "These first-page text renders remain near-blank on Linux until non-Standard14 fallback and embedded-font drawing match Java more closely."
-    },
-    {
       "id": "survey-pattern-color-space",
       "op": "render",
       "files": [

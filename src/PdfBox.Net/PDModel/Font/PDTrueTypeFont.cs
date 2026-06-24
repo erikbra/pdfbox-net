@@ -25,10 +25,12 @@
  * limitations under the License.
  */
 
+using System.Globalization;
 using PdfBox.Net.COS;
 using PdfBox.Net.FontBox;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.PDModel.Font;
 
@@ -78,6 +80,19 @@ public partial class PDTrueTypeFont : PDSimpleFont
 
     public TrueTypeFont GetTrueTypeFont() => _trueTypeFont;
 
+    public override bool HasGlyph(int code)
+    {
+        return CodeToGID(code) != 0;
+    }
+
+    public override GeneralPath GetNormalizedPath(int code)
+    {
+        int gid = CodeToGID(code);
+        return gid == 0
+            ? new GeneralPath()
+            : _trueTypeFont.GetGlyph()?.GetGlyph(gid)?.GetPath() ?? new GeneralPath();
+    }
+
     public byte[] ExportFont()
     {
         if (FontDictionary.GetDictionaryObject(FontDescriptorKey) is COSDictionary descriptor)
@@ -124,5 +139,26 @@ public partial class PDTrueTypeFont : PDSimpleFont
         }
 
         return null;
+    }
+
+    private int CodeToGID(int code)
+    {
+        if (_unicodeCmap is null)
+        {
+            return _trueTypeFont.NameToGID(code.ToString(CultureInfo.InvariantCulture));
+        }
+
+        string? unicode = base.ToUnicode(code, GlyphList.GetAdobeGlyphList());
+        if (!string.IsNullOrEmpty(unicode))
+        {
+            int codePoint = char.ConvertToUtf32(unicode, 0);
+            int gid = _unicodeCmap.GetGlyphId(codePoint);
+            if (gid != 0)
+            {
+                return gid;
+            }
+        }
+
+        return _unicodeCmap.GetGlyphId(code);
     }
 }
