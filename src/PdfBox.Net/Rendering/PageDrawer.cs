@@ -38,6 +38,7 @@ using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.OptionalContent;
 using PdfBox.Net.PDModel.Graphics.Patterns;
+using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.Util;
@@ -48,9 +49,8 @@ namespace PdfBox.Net.Rendering;
 
 /// <summary>
 /// Page drawer backed by SkiaSharp.
-/// Path fill and stroke operations are implemented; complex operations
-/// (transparency groups, shading, Type-3 glyphs) remain stubs pending
-/// future issues.
+/// Path fill/stroke, images, text, form XObjects, annotation appearances,
+/// and conservative shading/pattern fallbacks are implemented.
 /// </summary>
 public class PageDrawer : PDFGraphicsStreamEngine
 {
@@ -100,6 +100,10 @@ public class PageDrawer : PDFGraphicsStreamEngine
         _pageHeightPt = pageSize.GetHeight();
         SetRenderingHints();
         ProcessPage(Page);
+        foreach (PDAnnotation annotation in Page.GetAnnotations())
+        {
+            ShowAnnotation(annotation);
+        }
     }
 
     internal void DrawTilingPattern(Graphics2D graphics, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, Matrix patternMatrix)
@@ -351,7 +355,25 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     public override void ShadingFill(COSName shadingName)
     {
-        // TODO: shading fills (issue #22 scope).
+        if (_graphics?.Canvas is null || !IsContentRendered())
+        {
+            return;
+        }
+
+        PDShading? shading = GetResources()?.GetShading(shadingName);
+        if (shading is null)
+        {
+            return;
+        }
+
+        SKRect bounds = GetShadingBounds(shading);
+        if (bounds.IsEmpty)
+        {
+            return;
+        }
+
+        using SKPaint paint = CreateShadingPaint(shading, GetGraphicsState());
+        _graphics.Canvas.DrawRect(bounds, paint);
     }
 
     public void ShowAnnotation(PDAnnotation annotation)
@@ -361,27 +383,94 @@ public class PageDrawer : PDFGraphicsStreamEngine
             return;
         }
 
-        // TODO: annotation rendering.
+        PDAppearanceStream? appearance = annotation.GetNormalAppearanceStream();
+        if (appearance is null)
+        {
+            annotation.ConstructAppearances();
+            appearance = annotation.GetNormalAppearanceStream();
+        }
+
+        if (appearance is null)
+        {
+            return;
+        }
+
+        ShowAnnotationAppearance(annotation, appearance);
     }
 
     private bool ShouldSkipAnnotation(PDAnnotation annotation)
     {
-        return !_annotationFilter(annotation);
+        return !_annotationFilter(annotation) || annotation.IsHidden() || annotation.IsInvisible() || annotation.IsNoView();
     }
 
     private static bool HasTransparency(PDFormXObject form)
     {
-        return false;
+        return form is PDTransparencyGroup || form.GetCOSObject()?.GetCOSDictionary(COSName.GetPDFName("Group")) is not null;
     }
 
     public void ShowForm(PDFormXObject form)
     {
-        // TODO: form XObject rendering.
+        if (!IsContentRendered())
+        {
+            return;
+        }
+
+        SaveGraphicsState();
+        try
+        {
+            ConcatenateMatrix(form.GetMatrix());
+            base.XObject(form);
+        }
+        finally
+        {
+            RestoreGraphicsState();
+        }
+    }
+
+    private void ShowAnnotationAppearance(PDAnnotation annotation, PDAppearanceStream appearance)
+    {
+        if (!IsContentRendered())
+        {
+            return;
+        }
+
+        PDRectangle? rectangle = annotation.GetRectangle();
+        PDRectangle? bbox = appearance.GetBBox();
+        Matrix placement = CreateAnnotationPlacementMatrix(rectangle, bbox);
+
+        SaveGraphicsState();
+        try
+        {
+            ConcatenateMatrix(placement);
+            ConcatenateMatrix(appearance.GetMatrix());
+            base.XObject(appearance);
+        }
+        finally
+        {
+            RestoreGraphicsState();
+        }
+    }
+
+    private static Matrix CreateAnnotationPlacementMatrix(PDRectangle? rectangle, PDRectangle? bbox)
+    {
+        if (rectangle is null)
+        {
+            return new Matrix();
+        }
+
+        float bboxWidth = bbox?.GetWidth() ?? rectangle.GetWidth();
+        float bboxHeight = bbox?.GetHeight() ?? rectangle.GetHeight();
+        float scaleX = bboxWidth == 0 ? 1f : rectangle.GetWidth() / bboxWidth;
+        float scaleY = bboxHeight == 0 ? 1f : rectangle.GetHeight() / bboxHeight;
+        float translateX = rectangle.GetLowerLeftX() - (bbox?.GetLowerLeftX() ?? 0f) * scaleX;
+        float translateY = rectangle.GetLowerLeftY() - (bbox?.GetLowerLeftY() ?? 0f) * scaleY;
+
+        return new Matrix(scaleX, 0, 0, scaleY, translateX, translateY);
     }
 
     public void ShowTransparencyGroup(PDTransparencyGroup form)
     {
-        // TODO: transparency group rendering.
+        ShowForm(form);
     }
 
     public override void XObject(PDXObject xobject)
@@ -392,12 +481,24 @@ public class PageDrawer : PDFGraphicsStreamEngine
             return;
         }
 
+        if (xobject is PDTransparencyGroup transparencyGroup)
+        {
+            ShowTransparencyGroup(transparencyGroup);
+            return;
+        }
+
+        if (xobject is PDFormXObject form)
+        {
+            ShowForm(form);
+            return;
+        }
+
         base.XObject(xobject);
     }
 
     protected virtual void ShowTransparencyGroupOnGraphics(PDTransparencyGroup form, Graphics2D graphics)
     {
-        // TODO: transparency group compositing.
+        ShowTransparencyGroup(form);
     }
 
     private TransparencyGroup CreateTransparencyGroup(PDTransparencyGroup form, bool isSoftMask, Matrix ctm, PDColor backdropColor)
@@ -780,13 +881,13 @@ public class PageDrawer : PDFGraphicsStreamEngine
     }
 
     /// <summary>Creates a SkiaSharp paint from the current graphics state.</summary>
-    private static SKPaint CreateSkiaPaint(PDGraphicsState graphicsState, bool stroke)
+    private SKPaint CreateSkiaPaint(PDGraphicsState graphicsState, bool stroke)
     {
         PDColor pdColor = stroke
             ? graphicsState.GetStrokingColor()
             : graphicsState.GetNonStrokingColor();
 
-        int rgb = pdColor.ToRGB();
+        int rgb = ResolvePaintColor(pdColor, stroke);
         byte r = (byte)((rgb >> 16) & 0xFF);
         byte g = (byte)((rgb >> 8) & 0xFF);
         byte b = (byte)(rgb & 0xFF);
@@ -822,6 +923,105 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
 
         return paint;
+    }
+
+    private int ResolvePaintColor(PDColor color, bool stroke)
+    {
+        PDColorSpace? colorSpace = color.GetColorSpace();
+        if (colorSpace is not PDPattern patternColorSpace)
+        {
+            return SafeToRgb(color, 0);
+        }
+
+        COSName? patternName = color.GetPatternName();
+        PDAbstractPattern? pattern = patternName is null ? null : patternColorSpace.GetResources()?.GetPattern(patternName);
+        return pattern switch
+        {
+            PDShadingPattern shadingPattern when shadingPattern.GetShading() is PDShading shading
+                => ResolveShadingColor(shading),
+            PDTilingPattern tilingPattern when tilingPattern.GetPaintType() == PDTilingPattern.PAINT_UNCOLORED
+                => ResolveUncoloredPatternColor(patternColorSpace, color),
+            _ => stroke ? 0x000000 : 0x000000
+        };
+    }
+
+    private static int ResolveUncoloredPatternColor(PDPattern patternColorSpace, PDColor color)
+    {
+        PDColorSpace? underlying = patternColorSpace.GetUnderlyingColorSpace();
+        if (underlying is null)
+        {
+            return 0;
+        }
+
+        return SafeToRgb(new PDColor(color.GetComponents(), underlying), 0);
+    }
+
+    private static int ResolveShadingColor(PDShading shading)
+    {
+        COSArray? background = shading.GetBackground();
+        if (background is not null && background.Size() > 0)
+        {
+            return SafeToRgb(new PDColor(background, shading.GetColorSpace()), 0);
+        }
+
+        try
+        {
+            float[] color = shading.EvalFunction([0.5f]);
+            return SafeToRgb(new PDColor(color, shading.GetColorSpace()), 0);
+        }
+        catch (Exception ex) when (IsRecoverableRenderingException(ex))
+        {
+            return 0;
+        }
+    }
+
+    private static int SafeToRgb(PDColor color, int fallback)
+    {
+        try
+        {
+            return color.ToRGB();
+        }
+        catch (Exception ex) when (IsRecoverableRenderingException(ex))
+        {
+            return fallback;
+        }
+    }
+
+    private SKRect GetShadingBounds(PDShading shading)
+    {
+        PDRectangle? bbox = shading.GetBBox();
+        if (bbox is null)
+        {
+            return new SKRect(0, 0, _parameters.GetPage().GetCropBox().GetWidth(), _parameters.GetPage().GetCropBox().GetHeight());
+        }
+
+        Matrix ctm = GetGraphicsState().GetCurrentTransformationMatrix();
+        (float x0, float y0) = PdfToCanvas(bbox.GetLowerLeftX(), bbox.GetLowerLeftY(), ctm, _pageHeightPt);
+        (float x1, float y1) = PdfToCanvas(bbox.GetUpperRightX(), bbox.GetUpperRightY(), ctm, _pageHeightPt);
+        return new SKRect(Math.Min(x0, x1), Math.Min(y0, y1), Math.Max(x0, x1), Math.Max(y0, y1));
+    }
+
+    private SKPaint CreateShadingPaint(PDShading shading, PDGraphicsState graphicsState)
+    {
+        int rgb = ResolveShadingColor(shading);
+        byte r = (byte)((rgb >> 16) & 0xFF);
+        byte g = (byte)((rgb >> 8) & 0xFF);
+        byte b = (byte)(rgb & 0xFF);
+        byte a = (byte)Math.Round(Math.Clamp(graphicsState.GetNonStrokeAlphaConstant(), 0f, 1f) * 255f);
+        return new SKPaint
+        {
+            Color = new SKColor(r, g, b, a),
+            IsAntialias = true,
+            Style = SKPaintStyle.Fill,
+        };
+    }
+
+    private static bool IsRecoverableRenderingException(Exception ex)
+    {
+        return ex is IOException
+            or InvalidOperationException
+            or NotSupportedException
+            or ArgumentException;
     }
 
     private sealed class TransparencyGroup
