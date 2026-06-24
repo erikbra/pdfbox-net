@@ -8,14 +8,86 @@
       "files": [
         "orimi-test.pdf"
       ],
-      "owner": "issue-420",
+      "owner": "issue-438",
       "reason": "Encrypted/compressed path reports lower-level unsupported compression diagnostics before Java-compatible decryption semantics."
+    },
+    {
+      "id": "image-filter-render-status-mismatches",
+      "op": "render",
+      "category": "status-mismatch",
+      "files": [
+        "JBIG2Image.pdf",
+        "JPXTestCMYK.pdf",
+        "png_demo.pdf"
+      ],
+      "owner": "issue-435",
+      "reason": "Image/filter decoder parity gaps: JBIG2 integration, JPX/CMYK sample handling, and sampled image bit-depth support."
+    },
+    {
+      "id": "pdfbox-2725-encrypted-load-path",
+      "op": "*",
+      "fileGlob": "PDFBOX-2725-878725.pdf",
+      "categoryGlob": "*",
+      "owner": "issue-438",
+      "reason": "Java can load the encrypted fixture while .NET fails in the encrypted/compressed load path, suppressing downstream operation results."
+    },
+    {
+      "id": "pdfbox-2725-merge-encrypted-load-path",
+      "op": "merge",
+      "category": "status-mismatch",
+      "files": [
+        "PDFBOX-2725-878725.pdf+PDFBOX-2984-rotations.pdf"
+      ],
+      "owner": "issue-438",
+      "reason": "Merge fails because the first encrypted input follows the same lower-level load failure tracked for the encryption parity issue."
+    },
+    {
+      "id": "pdfbox-6040-malformed-header-recovery",
+      "op": "*",
+      "fileGlob": "PDFBOX-6040-nodeloop.pdf",
+      "categoryGlob": "*",
+      "owner": "issue-442",
+      "reason": "Parser header recovery differs from Java for this malformed/header-offset fixture, so downstream operations are missing until load parity is fixed."
+    },
+    {
+      "id": "minimal-content-resource-render-status",
+      "op": "render",
+      "category": "status-mismatch",
+      "files": [
+        "classic-xref-fixture.pdf",
+        "flate-content-fixture.pdf",
+        "xref-stream-fixture.pdf"
+      ],
+      "owner": "issue-434",
+      "reason": "Rendering minimal parser fixtures currently throws before producing Java-compatible blank-page output."
+    },
+    {
+      "id": "minimal-content-resource-text-status",
+      "op": "text",
+      "category": "status-mismatch",
+      "files": [
+        "classic-xref-fixture.pdf",
+        "flate-content-fixture.pdf",
+        "xref-stream-fixture.pdf"
+      ],
+      "owner": "issue-433",
+      "reason": "Text extraction for minimal parser fixtures currently throws before producing Java-compatible text output."
+    },
+    {
+      "id": "encrypted-owner-restricted-save-diagnostic",
+      "op": "save",
+      "category": "diagnostic-mismatch",
+      "files": [
+        "encrypted-owner-restricted.pdf"
+      ],
+      "owner": "issue-438",
+      "reason": "Encrypted save restrictions need Java-compatible exception classification and diagnostics."
     },
     {
       "id": "text-semantic-mismatch-ratchet",
       "op": "text",
       "categoryGlob": "text-*",
-      "owner": "issue-413",
+      "owner": "issue-433",
       "reason": "Default PDFTextStripper semantic output still differs from Java for many successful text extraction cases."
     },
     {
@@ -36,35 +108,35 @@
         "AcrobatMerge-DifferentFieldType.pdf",
         "AcrobatMerge-DifferentOptions-WasMaster.pdf"
       ],
-      "owner": "issue-411",
+      "owner": "issue-434",
       "reason": "Current .NET first-page renders are blank or near-uniform while Java renders non-background content; tracked as regression fixtures for render validity."
     },
     {
       "id": "render-placeholder-ratchet",
       "op": "render",
       "category": "render-placeholder",
-      "owner": "issue-411",
+      "owner": "issue-434",
       "reason": "Placeholder renders are reported separately until PageDrawer and related rendering gaps are fixed."
     },
     {
       "id": "render-placeholder-and-quality-gaps",
       "op": "render",
       "category": "detail-mismatch",
-      "owner": "issue-411",
+      "owner": "issue-434",
       "reason": "Successful render output may be blank or near-blank until rendering validity checks and PageDrawer work land."
     },
     {
       "id": "save-output-hash-ratchet",
       "op": "save",
       "category": "detail-mismatch",
-      "owner": "issue-422",
+      "owner": "issue-436",
       "reason": "Saved PDF bytes are not yet Java-equivalent across the corpus; faithful save output depends on remaining create/edit, font, and writer parity work."
     },
     {
       "id": "merge-output-hash-ratchet",
       "op": "merge",
       "category": "detail-mismatch",
-      "owner": "issue-424",
+      "owner": "issue-437",
       "reason": "Merged PDF bytes are tracked as a parity ratchet while the corpus expands and merge/save output normalization is defined."
     },
     {
@@ -73,21 +145,21 @@
       "files": [
         "survey.pdf"
       ],
-      "owner": "issue-419",
+      "owner": "issue-434",
       "reason": "Pattern color space rendering fails until advanced rendering work is implemented."
     },
     {
       "id": "encrypted-diagnostics",
       "op": "load",
       "category": "diagnostic-mismatch",
-      "owner": "issue-420",
+      "owner": "issue-438",
       "reason": "Encrypted/public-key failures need Java-compatible exception classification and diagnostics."
     },
     {
       "id": "merge-encrypted-diagnostics",
       "op": "merge",
       "category": "diagnostic-mismatch",
-      "owner": "issue-420",
+      "owner": "issue-438",
       "reason": "Encrypted merge failures need Java-compatible exception classification and diagnostics."
     }
   ]
