@@ -3,18 +3,6 @@
   "description": "Known Java-vs-.NET runtime parity divergences. Entries are matched by operation and optional file, fileGlob, category, or categoryGlob.",
   "entries": [
     {
-      "id": "pdfbox-6040-malformed-header-recovery",
-      "op": "*",
-      "fileGlob": "PDFBOX-6040-nodeloop.pdf",
-      "categoryGlob": "*",
-      "issue": 442,
-      "owner": "issue-442",
-      "rootCause": "parser-recovery",
-      "expiresWhen": "Issue #442 closes and malformed/header-offset load parity reaches match status.",
-      "ratchet": "Known rows for this fixture must not increase; remove this entry when the fixture matches Java.",
-      "reason": "Parser header recovery differs from Java for this malformed/header-offset fixture, so downstream operations are missing until load parity is fixed."
-    },
-    {
       "id": "minimal-content-resource-render-status",
       "op": "render",
       "category": "status-mismatch",
