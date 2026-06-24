@@ -1,17 +1,17 @@
 {
-  "generated_at_utc": "2026-06-23T20:00:03.796Z",
+  "generated_at_utc": "2026-06-24T12:24:57.865Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
-  "upstream_head": "2589dc979982b11e3ba92e107aed9f309362d517",
-  "tracked_parity_baseline_commit": "2589dc979982b11e3ba92e107aed9f309362d517",
+  "upstream_head": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
+  "tracked_parity_baseline_commit": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
   "mapped": 1067,
   "missing": 0,
   "gap_category_counts": {
-    "missing-provenance-marker": 2,
+    "missing-provenance-marker": 1,
     "missing-traceability-row": 278,
-    "none": 787
+    "none": 788
   },
   "rows": [
     {
@@ -7779,13 +7779,15 @@
         "traceability"
       ],
       "provenance_target_paths": [
-        "src/PdfBox.Net/ContentStream/Operator/State/SetLineCap.cs"
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineCap.cs",
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineCapStyle.cs"
       ],
       "traceability_target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/State/SetLineCap.cs"
       ],
       "target_paths": [
-        "src/PdfBox.Net/ContentStream/Operator/State/SetLineCap.cs"
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineCap.cs",
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineCapStyle.cs"
       ],
       "gap_category": "none"
     },
@@ -7819,13 +7821,15 @@
         "traceability"
       ],
       "provenance_target_paths": [
-        "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoin.cs"
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoin.cs",
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoinStyle.cs"
       ],
       "traceability_target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoin.cs"
       ],
       "target_paths": [
-        "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoin.cs"
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoin.cs",
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineJoinStyle.cs"
       ],
       "gap_category": "none"
     },
@@ -7839,12 +7843,14 @@
         "traceability"
       ],
       "provenance_target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineMiterLimit.cs",
         "src/PdfBox.Net/ContentStream/Operator/State/SetMiterLimit.cs"
       ],
       "traceability_target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/State/SetMiterLimit.cs"
       ],
       "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineMiterLimit.cs",
         "src/PdfBox.Net/ContentStream/Operator/State/SetMiterLimit.cs"
       ],
       "gap_category": "none"
@@ -9211,16 +9217,20 @@
       "family": "pdfparser",
       "mapped": true,
       "mapping_sources": [
+        "provenance",
         "traceability"
       ],
-      "provenance_target_paths": [],
+      "provenance_target_paths": [
+        "src/PdfBox.Net/PdfParser/BaseParser.cs"
+      ],
       "traceability_target_paths": [
         "src/PdfBox.Net/PdfParser/COSParser.cs"
       ],
       "target_paths": [
+        "src/PdfBox.Net/PdfParser/BaseParser.cs",
         "src/PdfBox.Net/PdfParser/COSParser.cs"
       ],
-      "gap_category": "missing-provenance-marker"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
@@ -12641,13 +12651,15 @@
         "traceability"
       ],
       "provenance_target_paths": [
-        "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs"
+        "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs",
+        "src/PdfBox.Net/PDModel/Font/FontMapperImpl.cs"
       ],
       "traceability_target_paths": [
         "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs"
       ],
       "target_paths": [
-        "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs"
+        "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs",
+        "src/PdfBox.Net/PDModel/Font/FontMapperImpl.cs"
       ],
       "gap_category": "none"
     },
@@ -16066,12 +16078,14 @@
         "traceability"
       ],
       "provenance_target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationRubberStamp.cs",
         "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationStamp.cs"
       ],
       "traceability_target_paths": [
         "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationStamp.cs"
       ],
       "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationRubberStamp.cs",
         "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationStamp.cs"
       ],
       "gap_category": "none"
@@ -19576,12 +19590,14 @@
         "traceability"
       ],
       "provenance_target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/Attribute.cs",
         "src/PdfBox.Net.XmpBox/XmpBox/Type/XmpAttribute.cs"
       ],
       "traceability_target_paths": [
         "src/PdfBox.Net.XmpBox/XmpBox/Type/XmpAttribute.cs"
       ],
       "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/Attribute.cs",
         "src/PdfBox.Net.XmpBox/XmpBox/Type/XmpAttribute.cs"
       ],
       "gap_category": "none"
@@ -20156,12 +20172,14 @@
         "traceability"
       ],
       "provenance_target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/PropertyType.cs",
         "src/PdfBox.Net.XmpBox/XmpBox/Type/PropertyTypeAttribute.cs"
       ],
       "traceability_target_paths": [
         "src/PdfBox.Net.XmpBox/XmpBox/Type/PropertyTypeAttribute.cs"
       ],
       "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/PropertyType.cs",
         "src/PdfBox.Net.XmpBox/XmpBox/Type/PropertyTypeAttribute.cs"
       ],
       "gap_category": "none"
@@ -20276,12 +20294,14 @@
         "traceability"
       ],
       "provenance_target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/StructuredType.cs",
         "src/PdfBox.Net.XmpBox/XmpBox/Type/StructuredTypeAttribute.cs"
       ],
       "traceability_target_paths": [
         "src/PdfBox.Net.XmpBox/XmpBox/Type/StructuredTypeAttribute.cs"
       ],
       "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/StructuredType.cs",
         "src/PdfBox.Net.XmpBox/XmpBox/Type/StructuredTypeAttribute.cs"
       ],
       "gap_category": "none"
