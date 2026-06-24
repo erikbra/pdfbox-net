@@ -31,7 +31,7 @@ using System;
 namespace PdfBox.Net.XmpBox.Type;
 
 [AttributeUsage(AttributeTargets.Class)]
-public sealed class StructuredTypeAttribute : Attribute
+public class StructuredTypeAttribute : global::System.Attribute
 {
     public StructuredTypeAttribute(string @namespace, string preferedPrefix)
     {

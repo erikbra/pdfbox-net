@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.ContentStream.Operator.State;
 
-public sealed class SetMiterLimit : OperatorProcessor
+public class SetMiterLimit : OperatorProcessor
 {
     public SetMiterLimit(PDFStreamEngine context) : base(OperatorName.SET_LINE_MITERLIMIT, context) { }
 

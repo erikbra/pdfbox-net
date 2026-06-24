@@ -37,9 +37,9 @@ public class XmpAttribute
         Value = value;
     }
 
-    public string? Namespace { get; }
+    public string? Namespace { get; set; }
 
-    public string Name { get; }
+    public string Name { get; set; }
 
     public string Value { get; set; }
 }

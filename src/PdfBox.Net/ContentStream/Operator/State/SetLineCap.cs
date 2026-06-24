@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.ContentStream.Operator.State;
 
-public sealed class SetLineCap : OperatorProcessor
+public class SetLineCap : OperatorProcessor
 {
     public SetLineCap(PDFStreamEngine context) : base(OperatorName.SET_LINE_CAPSTYLE, context) { }
 

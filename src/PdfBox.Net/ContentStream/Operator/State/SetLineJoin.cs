@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.ContentStream.Operator.State;
 
-public sealed class SetLineJoin : OperatorProcessor
+public class SetLineJoin : OperatorProcessor
 {
     public SetLineJoin(PDFStreamEngine context) : base(OperatorName.SET_LINE_JOINSTYLE, context) { }
 
