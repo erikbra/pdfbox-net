@@ -331,7 +331,7 @@ public class PDFStreamEngine
     {
         if (_pendingClipWindingRule.HasValue)
         {
-            _currentGraphicsState.SetClippingWindingRule(_pendingClipWindingRule.Value);
+            ApplyClip(_pendingClipWindingRule.Value);
             _pendingClipWindingRule = null;
         }
     }
@@ -339,6 +339,19 @@ public class PDFStreamEngine
     public virtual void Clip(int windingRule)
     {
         _pendingClipWindingRule = windingRule;
+        ApplyPendingClip();
+    }
+
+    private void ApplyClip(int windingRule)
+    {
+        _currentGraphicsState.SetClippingWindingRule(windingRule);
+        if (_currentPath.Count > 0)
+        {
+            _currentGraphicsState.IntersectClippingPath(
+                GetCurrentPathSegments(),
+                _currentGraphicsState.GetCurrentTransformationMatrix(),
+                windingRule);
+        }
     }
 
     public virtual void StrokePath()
@@ -538,6 +551,14 @@ public class PDFStreamEngine
     }
 
     public virtual void ShadingFill(COSName shadingName)
+    {
+    }
+
+    public virtual void BeginText()
+    {
+    }
+
+    public virtual void EndText()
     {
     }
 

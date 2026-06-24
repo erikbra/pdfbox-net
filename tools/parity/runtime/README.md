@@ -39,6 +39,10 @@ pixel-difference ratios plus RMS and mean channel-error limits.
 Sparse non-near-blank rows have their own visual-equivalence classifier with a
 2% foreground cap and low mean, RMS, moderate, and large pixel-difference
 limits.
+Rows where only one runtime crosses the near-blank metric boundary use a
+separate near-blank-threshold visual classifier, capped at 1% foreground
+coverage and the same sparse diff limits, before they are treated as render
+placeholders.
 
 ## Local ratchet run
 

@@ -72,6 +72,8 @@ public class OperatorProcessorsTest
         public List<Type3WidthCall> Type3WidthCalls { get; } = new();
         public List<Type3WidthAndBBoxCall> Type3WidthAndBBoxCalls { get; } = new();
         public List<FillAndStrokeCall> FillAndStrokeCalls { get; } = new();
+        public int BeginTextCalls { get; private set; }
+        public int EndTextCalls { get; private set; }
 
         public override void BeginMarkedContentSequence(COSName tag, COSDictionary? properties)
             => MarkedContentCalls.Add(new("Begin", tag.GetName(), properties));
@@ -93,6 +95,12 @@ public class OperatorProcessorsTest
 
         public override void ShadingFill(COSName shadingName)
             => ShadingFillCalls.Add(shadingName.GetName());
+
+        public override void BeginText()
+            => BeginTextCalls++;
+
+        public override void EndText()
+            => EndTextCalls++;
 
         public override void SetType3GlyphWidth(float wx, float wy)
             => Type3WidthCalls.Add(new(wx, wy));
@@ -614,7 +622,39 @@ public class OperatorProcessorsTest
         engine.RunStream("0 0 m 10 0 l 10 10 l h W* n");
 
         Assert.Equal(0, engine.GetGraphicsState().GetClippingWindingRule());
+        Assert.Single(engine.GetGraphicsState().GetCurrentClippingPaths());
+        Assert.Equal(0, engine.GetGraphicsState().GetCurrentClippingPaths()[0].WindingRule);
         Assert.Equal(0, engine.GetPathSegmentCount());
+    }
+
+    [Fact]
+    public void ClipOperator_EmptyPath_DoesNotAddClipPath()
+    {
+        var engine = new ObservingEngine();
+        engine.AddOperator(new ClipNonZeroRule(engine));
+        engine.AddOperator(new EndPath(engine));
+
+        engine.RunStream("W n");
+
+        Assert.Empty(engine.GetGraphicsState().GetCurrentClippingPaths());
+        Assert.Equal(0, engine.GetPathSegmentCount());
+    }
+
+    [Fact]
+    public void ClipOperator_SnapshotsCurrentTransformationMatrix()
+    {
+        var engine = new ObservingEngine();
+        engine.AddOperator(new ContentStream.Operator.State.Concatenate(engine));
+        engine.AddOperator(new MoveTo(engine));
+        engine.AddOperator(new LineTo(engine));
+        engine.AddOperator(new ClosePath(engine));
+        engine.AddOperator(new ClipNonZeroRule(engine));
+        engine.AddOperator(new EndPath(engine));
+
+        engine.RunStream("2 0 0 2 0 0 cm 0 0 m 10 0 l 10 10 l h W n 3 0 0 3 0 0 cm");
+
+        PDGraphicsState.ClippingPath clip = Assert.Single(engine.GetGraphicsState().GetCurrentClippingPaths());
+        Assert.Equal(2f, clip.CurrentTransformationMatrix.GetScaleX());
     }
 
     [Fact]
@@ -751,6 +791,8 @@ public class OperatorProcessorsTest
         Assert.Equal([0.2f, 0.4f, 0.6f], engine.GetGraphicsState().GetNonStrokingColor().GetComponents());
         Assert.Single(engine.GlyphCalls);
         Assert.Equal(0x41, engine.GlyphCalls[0].Code);
+        Assert.Equal(1, engine.BeginTextCalls);
+        Assert.Equal(1, engine.EndTextCalls);
     }
 
     // ── DrawObject "Do" ───────────────────────────────────────────────────────

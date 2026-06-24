@@ -44,5 +44,6 @@ public sealed class BeginText : OperatorProcessor
     public override void Process(Operator op, IList<COSBase> operands)
     {
         Context.SetTextMatrices(new Matrix(), new Matrix());
+        Context.BeginText();
     }
 }

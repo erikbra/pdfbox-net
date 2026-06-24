@@ -146,12 +146,14 @@ public class PageDrawer : PDFGraphicsStreamEngine
     {
     }
 
-    public void BeginText()
+    public override void BeginText()
     {
+        BeginTextClip();
     }
 
-    public void EndText()
+    public override void EndText()
     {
+        EndTextClip();
     }
 
     private void BeginTextClip()
@@ -177,7 +179,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
                 Matrix glyphMatrix = Matrix.Concatenate(textRenderingMatrix, font.GetFontMatrix());
                 using SKPath skPath = BuildSkPath(path, glyphMatrix);
                 using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
-                _graphics.Canvas.DrawPath(skPath, paint);
+                DrawWithCurrentClip(canvas => canvas.DrawPath(skPath, paint));
                 return;
             }
         }
@@ -195,7 +197,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
         Matrix matrix = new(at);
         using SKPath skPath = BuildSkPath(path, matrix);
         using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
-        _graphics.Canvas.DrawPath(skPath, paint);
+        DrawWithCurrentClip(canvas => canvas.DrawPath(skPath, paint));
     }
 
     protected virtual void ShowType3Glyph(Matrix textRenderingMatrix, PDType3Font font, int code, Vector displacement)
@@ -252,7 +254,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
         if (_graphics?.Canvas is null || path.Count == 0) return;
         using SKPath skPath = BuildSkPath(path, graphicsState);
         using SKPaint paint = CreateSkiaPaint(graphicsState, stroke: true);
-        _graphics.Canvas.DrawPath(skPath, paint);
+        DrawWithCurrentClip(canvas => canvas.DrawPath(skPath, paint));
     }
 
     /// <inheritdoc />
@@ -262,7 +264,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
         using SKPath skPath = BuildSkPath(path, graphicsState);
         skPath.FillType = windingRule == 0 ? SKPathFillType.EvenOdd : SKPathFillType.Winding;
         using SKPaint paint = CreateSkiaPaint(graphicsState, stroke: false);
-        _graphics.Canvas.DrawPath(skPath, paint);
+        DrawWithCurrentClip(canvas => canvas.DrawPath(skPath, paint));
     }
 
     /// <inheritdoc />
@@ -390,7 +392,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
 
         using SKPaint paint = CreateShadingPaint(shading, GetGraphicsState());
-        _graphics.Canvas.DrawRect(bounds, paint);
+        DrawWithCurrentClip(canvas => canvas.DrawRect(bounds, paint));
     }
 
     public void ShowAnnotation(PDAnnotation annotation)
@@ -692,6 +694,132 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     // ── SkiaSharp helpers ─────────────────────────────────────────────────────
 
+    private void DrawWithCurrentClip(Action<SKCanvas> draw)
+    {
+        if (_graphics?.Canvas is not SKCanvas canvas)
+        {
+            return;
+        }
+
+        canvas.Save();
+        try
+        {
+            ApplyCurrentClip(canvas);
+            draw(canvas);
+        }
+        finally
+        {
+            canvas.Restore();
+        }
+    }
+
+    private void ApplyCurrentClip(SKCanvas canvas)
+    {
+        foreach (PDGraphicsState.ClippingPath clip in GetGraphicsState().GetCurrentClippingPaths())
+        {
+            if (TryGetClipRect(clip, out SKRect rect))
+            {
+                canvas.ClipRect(rect, SKClipOperation.Intersect, antialias: true);
+                continue;
+            }
+
+            using SKPath skPath = BuildClipPath(clip);
+            skPath.FillType = clip.WindingRule == 0 ? SKPathFillType.EvenOdd : SKPathFillType.Winding;
+            canvas.ClipPath(skPath, SKClipOperation.Intersect, antialias: true);
+        }
+    }
+
+    private bool TryGetClipRect(PDGraphicsState.ClippingPath clip, out SKRect rect)
+    {
+        rect = SKRect.Empty;
+        List<SKPoint> points = [];
+        foreach (PDFStreamEngine.PathSegment segment in clip.Segments)
+        {
+            switch (segment.Type)
+            {
+                case PDFStreamEngine.PathSegmentType.MoveTo:
+                case PDFStreamEngine.PathSegmentType.LineTo:
+                {
+                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix, _pageHeightPt);
+                    points.Add(new SKPoint(x, y));
+                    break;
+                }
+                case PDFStreamEngine.PathSegmentType.Close:
+                    break;
+                default:
+                    return false;
+            }
+        }
+
+        if (points.Count != 4)
+        {
+            return false;
+        }
+
+        float left = points.Min(p => p.X);
+        float right = points.Max(p => p.X);
+        float top = points.Min(p => p.Y);
+        float bottom = points.Max(p => p.Y);
+        if (right <= left || bottom <= top)
+        {
+            return false;
+        }
+
+        foreach (SKPoint point in points)
+        {
+            bool onXEdge = NearlyEqual(point.X, left) || NearlyEqual(point.X, right);
+            bool onYEdge = NearlyEqual(point.Y, top) || NearlyEqual(point.Y, bottom);
+            if (!onXEdge || !onYEdge)
+            {
+                return false;
+            }
+        }
+
+        rect = new SKRect(left, top, right, bottom);
+        return true;
+    }
+
+    private static bool NearlyEqual(float a, float b)
+    {
+        return MathF.Abs(a - b) <= 0.001f;
+    }
+
+    private SKPath BuildClipPath(PDGraphicsState.ClippingPath clip)
+    {
+        var skPath = new SKPath();
+        foreach (PDFStreamEngine.PathSegment segment in clip.Segments)
+        {
+            switch (segment.Type)
+            {
+                case PDFStreamEngine.PathSegmentType.MoveTo:
+                {
+                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix, _pageHeightPt);
+                    skPath.MoveTo(x, y);
+                    break;
+                }
+                case PDFStreamEngine.PathSegmentType.LineTo:
+                {
+                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix, _pageHeightPt);
+                    skPath.LineTo(x, y);
+                    break;
+                }
+                case PDFStreamEngine.PathSegmentType.CurveTo:
+                {
+                    (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix, _pageHeightPt);
+                    (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, clip.CurrentTransformationMatrix, _pageHeightPt);
+                    (float x3, float y3) = PdfToCanvas(segment.X3, segment.Y3, clip.CurrentTransformationMatrix, _pageHeightPt);
+                    skPath.CubicTo(x1, y1, x2, y2, x3, y3);
+                    break;
+                }
+                case PDFStreamEngine.PathSegmentType.Close:
+                    skPath.Close();
+                    break;
+            }
+        }
+
+        return skPath;
+    }
+
     /// <summary>
     /// Builds an <see cref="SKPath"/> from the accumulated path segments,
     /// applying the current transformation matrix and flipping Y so that
@@ -848,10 +976,11 @@ public class PageDrawer : PDFGraphicsStreamEngine
         using SKTypeface? typeface = CreateFallbackTypeface(font);
         using SKFont skFont = new(typeface ?? SKTypeface.Default, GetFallbackFontSize(font));
 
-        _graphics.Canvas.Save();
-        _graphics.Canvas.Concat(in matrix);
-        _graphics.Canvas.DrawText(unicode, 0, 0, skFont, paint);
-        _graphics.Canvas.Restore();
+        DrawWithCurrentClip(canvas =>
+        {
+            canvas.Concat(in matrix);
+            canvas.DrawText(unicode, 0, 0, skFont, paint);
+        });
     }
 
     private static float GetFallbackFontSize(PDFont font)
@@ -1025,7 +1154,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private void DrawBitmap(SKBitmap bitmap, SKRect dest, SKPaint paint)
     {
         using SKImage image = SKImage.FromBitmap(bitmap);
-        _graphics!.Canvas!.DrawImage(image, dest, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear), paint);
+        DrawWithCurrentClip(canvas => canvas.DrawImage(image, dest, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear), paint));
     }
 
     /// <summary>Creates a SkiaSharp paint from the current graphics state.</summary>
