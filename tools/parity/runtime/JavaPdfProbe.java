@@ -80,7 +80,7 @@ public final class JavaPdfProbe {
                     BufferedImage image = new PDFRenderer(document).renderImageWithDPI(0, 36);
                     File png = new File(outDir, stripExt(name) + "-java-p1.png");
                     ImageIO.write(image, "png", png);
-                    emit(name, "render", true, pages, image.getWidth() + "x" + image.getHeight() + ":" + fileSignature(png) + ":" + imageMetrics(image), elapsed(started));
+                    emit(name, "render", true, pages, image.getWidth() + "x" + image.getHeight() + ":" + imagePixelHash(image) + ":" + imageMetrics(image), elapsed(started));
                 } else {
                     emit(name, "render", true, pages, "no-pages", elapsed(started));
                 }
