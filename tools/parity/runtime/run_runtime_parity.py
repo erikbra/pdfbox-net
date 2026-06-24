@@ -20,6 +20,7 @@ PROBE_PROJECT = ROOT / "tools/parity/runtime/DotnetPdfProbe/DotnetPdfProbe.cspro
 PROBE_ASSEMBLY = ROOT / "tools/parity/runtime/DotnetPdfProbe/bin/Release/net10.0/DotnetPdfProbe.dll"
 JAVA_PROBE = ROOT / "tools/parity/runtime/JavaPdfProbe.java"
 KNOWN_FAILURES = ROOT / "tools/parity/runtime/known-failures.json"
+CORPUS_CATEGORIES = ROOT / "tools/parity/runtime/corpus-categories.json"
 
 
 @dataclass(frozen=True)
@@ -150,6 +151,25 @@ def load_known_failures(path: Path) -> list[dict]:
     return list(payload.get("entries", []))
 
 
+def load_corpus_categories(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return list(payload.get("entries", []))
+
+
+def corpus_category(file: str, entries: list[dict]) -> str:
+    name = Path(file).name
+    for entry in entries:
+        files = entry.get("files")
+        if isinstance(files, list) and name in files:
+            return str(entry["category"])
+        glob = entry.get("fileGlob")
+        if isinstance(glob, str) and fnmatch.fnmatch(name, glob):
+            return str(entry["category"])
+    return "uncategorized"
+
+
 def known_failure_id(file: str, op: str, category: str, entries: list[dict]) -> str | None:
     for entry in entries:
         entry_op = entry.get("op", "*")
@@ -259,7 +279,12 @@ def classify(op: str, java: Result | None, dotnet: Result | None, java_out: Path
 
 
 def compare(
-    java_rows: list[Result], dotnet_rows: list[Result], known_entries: list[dict], java_out: Path, dotnet_out: Path
+    java_rows: list[Result],
+    dotnet_rows: list[Result],
+    known_entries: list[dict],
+    corpus_entries: list[dict],
+    java_out: Path,
+    dotnet_out: Path,
 ) -> tuple[list[dict], Counter]:
     java_by_key = {(row.file, row.op): row for row in java_rows}
     dotnet_by_key = {(row.file, row.op): row for row in dotnet_rows}
@@ -277,6 +302,7 @@ def compare(
         rows.append(
             {
                 "file": file,
+                "corpusCategory": corpus_category(file, corpus_entries),
                 "op": op,
                 "category": category,
                 "status": status,
@@ -314,6 +340,11 @@ def markdown_summary(summary: dict, rows: list[dict]) -> str:
     lines.extend(["", "## Categories", "", "| Category | Count |", "|---|---:|"])
     for key, value in sorted(summary["categories"].items()):
         lines.append(f"| `{key}` | {value} |")
+    lines.extend(["", "## Corpus Categories", "", "| Corpus category | Match | Known | Unexpected | Total |", "|---|---:|---:|---:|---:|"])
+    for key, value in sorted(summary["corpusCategories"].items()):
+        lines.append(
+            f"| `{key}` | {value.get('match', 0)} | {value.get('known', 0)} | {value.get('unexpected', 0)} | {value.get('total', 0)} |"
+        )
     lines.extend(["", "## Unexpected Divergences", ""])
     unexpected = [row for row in rows if row["status"] == "unexpected"]
     if not unexpected:
@@ -369,6 +400,36 @@ def markdown_summary(summary: dict, rows: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def status_counts_by_corpus_category(rows: list[dict]) -> dict[str, dict[str, int]]:
+    counts: dict[str, dict[str, int]] = defaultdict(lambda: {"match": 0, "known": 0, "unexpected": 0, "total": 0})
+    for row in rows:
+        bucket = counts[row["corpusCategory"]]
+        bucket[row["status"]] += 1
+        bucket["total"] += 1
+    return dict(sorted((key, dict(value)) for key, value in counts.items()))
+
+
+def ratchet_failures(summary: dict, baseline_path: Path) -> list[str]:
+    if not baseline_path.exists():
+        return [f"ratchet baseline not found: {baseline_path}"]
+
+    baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+    failures: list[str] = []
+    max_status = baseline.get("maxStatus", {})
+    for key, actual in summary["counts"].items():
+        allowed = max_status.get(key)
+        if isinstance(allowed, int) and actual > allowed:
+            failures.append(f"status `{key}` increased from allowed {allowed} to {actual}")
+
+    max_categories = baseline.get("maxCategories", {})
+    for key, actual in summary["categories"].items():
+        allowed = max_categories.get(key, 0)
+        if actual > allowed:
+            failures.append(f"category `{key}` increased from allowed {allowed} to {actual}")
+
+    return failures
+
+
 def short(value: str) -> str:
     return value if len(value) <= 96 else value[:93] + "..."
 
@@ -381,6 +442,8 @@ def main() -> int:
     parser.add_argument("--java-home", type=Path, help="Optional JDK home containing bin/java and bin/javac.")
     parser.add_argument("--merge-pairs", type=Path, help="Optional text file containing '<pdf-a> <pdf-b>' merge pairs.")
     parser.add_argument("--known-failures", default=KNOWN_FAILURES, type=Path, help="Known-failure JSON file.")
+    parser.add_argument("--corpus-categories", default=CORPUS_CATEGORIES, type=Path, help="Corpus category JSON file.")
+    parser.add_argument("--ratchet-baseline", type=Path, help="Fail when status/category counts exceed this baseline.")
     parser.add_argument("--fail-on-unexpected", action="store_true", help="Exit non-zero when an untracked divergence is found.")
     parser.add_argument("--skip-build", action="store_true", help="Skip dotnet build and javac compile.")
     args = parser.parse_args()
@@ -422,7 +485,14 @@ def main() -> int:
     write_jsonl(out_dir / "java-results.jsonl", java_rows)
     write_jsonl(out_dir / "dotnet-results.jsonl", dotnet_rows)
 
-    comparison_rows, counts = compare(java_rows, dotnet_rows, load_known_failures(args.known_failures), java_out, dotnet_out)
+    comparison_rows, counts = compare(
+        java_rows,
+        dotnet_rows,
+        load_known_failures(args.known_failures),
+        load_corpus_categories(args.corpus_categories),
+        java_out,
+        dotnet_out,
+    )
     category_counts = {key: value for key, value in counts.items() if key not in {"match", "known", "unexpected"}}
     operation_counts: dict[str, dict[str, int]] = defaultdict(lambda: {"javaOk": 0, "javaFail": 0, "dotnetOk": 0, "dotnetFail": 0})
     for row in java_rows:
@@ -437,12 +507,20 @@ def main() -> int:
         "mergePairCount": len(merge_pairs),
         "counts": {key: counts.get(key, 0) for key in ("match", "known", "unexpected")},
         "categories": category_counts,
+        "corpusCategories": status_counts_by_corpus_category(comparison_rows),
         "operations": dict(sorted(operation_counts.items())),
     }
     (out_dir / "comparison.json").write_text(json.dumps({"summary": summary, "rows": comparison_rows}, indent=2) + "\n", encoding="utf-8")
     (out_dir / "summary.md").write_text(markdown_summary(summary, comparison_rows), encoding="utf-8")
 
     print(json.dumps(summary, indent=2))
+    if args.ratchet_baseline is not None:
+        failures = ratchet_failures(summary, args.ratchet_baseline)
+        if failures:
+            print("Runtime parity ratchet failed:", file=sys.stderr)
+            for failure in failures:
+                print(f"- {failure}", file=sys.stderr)
+            return 1
     if args.fail_on_unexpected and counts.get("unexpected", 0):
         return 1
     return 0

@@ -41,7 +41,7 @@ jobs:
           --manifest "$PDFBOX_PARITY_MANIFEST"
           --java-classpath "$PDFBOX_PARITY_CLASSPATH"
           --out-dir artifacts/runtime-parity
-          --fail-on-unexpected
+          --ratchet-baseline tools/parity/runtime/ratchet-baseline.json
 
       - name: Runtime parity summary
         if: ${{ env.PDFBOX_PARITY_MANIFEST != '' && env.PDFBOX_PARITY_CLASSPATH != '' && always() }}

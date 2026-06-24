@@ -12,7 +12,7 @@ python3 tools/parity/runtime/run_runtime_parity.py \
   --java-home "$JAVA_HOME" \
   --out-dir artifacts/runtime-parity \
   --merge-pairs /tmp/pdfbox-gap-scan/merge-pairs.txt \
-  --fail-on-unexpected
+  --ratchet-baseline tools/parity/runtime/ratchet-baseline.json
 ```
 
 `--merge-pairs` is optional. If omitted, the harness creates adjacent manifest pairs.
@@ -76,8 +76,14 @@ On the current `/tmp/pdfbox-gap-scan` corpus, this groups successful text mismat
 
 Known divergences are tracked in `tools/parity/runtime/known-failures.json` with owner and reason fields.
 Entries can match by operation plus exact `category`, globbed `categoryGlob`, exact `files`, or `fileGlob`.
+Corpus domain categories are tracked in `tools/parity/runtime/corpus-categories.json` with exact file names and file globs.
+The generated `summary.md` includes a Corpus Categories table with match, known, unexpected, and total counts per domain.
 Current blank or near-uniform .NET render regressions are listed in `tools/parity/runtime/render-placeholder-fixtures.txt`.
 When `--fail-on-unexpected` is set, the harness exits non-zero only for divergences that are not covered by that ledger.
+
+`tools/parity/runtime/ratchet-baseline.json` records the maximum accepted known and unexpected divergence counts for the tracked corpus.
+When `--ratchet-baseline` is supplied, the harness exits non-zero if any status count or divergence category count exceeds the baseline.
+If a new divergence is expected, update `known-failures.json` with an owner and reason, rerun the parity suite, and update `ratchet-baseline.json` in the same change.
 
 ## CI
 
@@ -88,3 +94,4 @@ The full parity suite runs when both environment variables are present:
 - `PDFBOX_PARITY_CLASSPATH`
 
 That lets normal CI stay lightweight while allowing scheduled or provisioned parity jobs to print and archive a concise summary from `artifacts/runtime-parity/summary.md`.
+Provisioned parity CI uses `--ratchet-baseline tools/parity/runtime/ratchet-baseline.json`, so the job fails when the known-failure or unexpected-divergence count grows without an intentional baseline update.
