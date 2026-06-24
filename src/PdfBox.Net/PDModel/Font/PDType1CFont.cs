@@ -78,6 +78,15 @@ public sealed class PDType1CFont : PDSimpleFont
 
     private static PdfBox.Net.PDModel.Font.Encoding.Encoding ResolveEncoding(COSDictionary dictionary, CFFType1Font cffFont)
     {
+        if (dictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is COSDictionary encodingDictionary)
+        {
+            PdfBox.Net.PDModel.Font.Encoding.Encoding? builtIn = cffFont is EncodedFont encodedFontForDifferences
+                ? new BuiltInEncoding(encodedFontForDifferences.GetEncoding().GetCodeToNameMap())
+                : null;
+            bool symbolic = GetSymbolicFlag(dictionary) ?? false;
+            return new DictionaryEncoding(encodingDictionary, !symbolic, builtIn);
+        }
+
         if (dictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is not null)
         {
             return DictionaryEncoding.ResolveEncoding(dictionary);

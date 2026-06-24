@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.Rendering;
 using PdfBox.Net.Text;
 using PdfBox.Net.Util;
@@ -512,6 +514,171 @@ public class RenderingTextTest
     }
 
     [Fact]
+    public void PDFTextStripper_GetText_Standard14WidthsAdvanceRepeatedGlyphs()
+    {
+        using var document = CreateSimpleTextFixtureDocument("""
+            BT
+            /F1 12 Tf
+            50 700 Td
+            (xxx line) Tj
+            ET
+            """);
+
+        string extracted = new PDFTextStripper().GetText(document);
+
+        Assert.Equal($"xxx line{Environment.NewLine}", extracted);
+    }
+
+    [Fact]
+    public void PDFTextStripper_GetText_DereferencesContentStreamsInArray()
+    {
+        using var document = new PDDocument();
+        var page = new PDPage();
+        document.AddPage(page);
+
+        var pageDict = (COSDictionary)page.GetCOSObject();
+        pageDict.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
+
+        var contents = new COSArray();
+        contents.Add(new COSObject(CreateContentStream("""
+            BT
+            /F1 12 Tf
+            50 700 Td
+            (First) Tj
+            ET
+            """)));
+        contents.Add(new COSObject(CreateContentStream("""
+            BT
+            /F1 12 Tf
+            50 680 Td
+            (Second) Tj
+            ET
+            """)));
+        pageDict.SetItem(COSName.CONTENTS, contents);
+
+        string extracted = new PDFTextStripper().GetText(document);
+
+        Assert.Equal($"First{Environment.NewLine}Second{Environment.NewLine}", extracted);
+    }
+
+    [Fact]
+    public void PDFTextStripper_GetText_ParsesOperatorsSplitAcrossContentStreams()
+    {
+        using var document = new PDDocument();
+        var page = new PDPage();
+        document.AddPage(page);
+
+        var pageDict = (COSDictionary)page.GetCOSObject();
+        pageDict.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
+
+        var contents = new COSArray();
+        contents.Add(new COSObject(CreateContentStream("BT\n/F1 12 Tf\n50 700 Td\n[ (Hel")));
+        contents.Add(new COSObject(CreateContentStream("lo) 120 (World) ] TJ\nET")));
+        pageDict.SetItem(COSName.CONTENTS, contents);
+
+        string extracted = new PDFTextStripper().GetText(document);
+
+        Assert.Equal($"HelloWorld{Environment.NewLine}", extracted);
+    }
+
+    [Fact]
+    public void PDFTextStripper_GetText_MalformedArrayInContentStreamDoesNotAbortPage()
+    {
+        using var document = new PDDocument();
+        var page = new PDPage();
+        document.AddPage(page);
+
+        var pageDict = (COSDictionary)page.GetCOSObject();
+        pageDict.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
+
+        var contents = new COSArray();
+        contents.Add(new COSObject(CreateContentStream("""
+            BT
+            /F1 12 Tf
+            50 700 Td
+            (First) Tj
+            ET
+            """)));
+        contents.Add(new COSObject(CreateContentStream("[ 1 2 3")));
+        pageDict.SetItem(COSName.CONTENTS, contents);
+
+        string extracted = new PDFTextStripper().GetText(document);
+
+        Assert.Equal($"First{Environment.NewLine}", extracted);
+    }
+
+    [Fact]
+    public void PDFTextStripper_GetText_ProcessesStreamWhenDictionaryLengthIsStale()
+    {
+        using var document = new PDDocument();
+        var page = new PDPage();
+        document.AddPage(page);
+
+        var pageDict = (COSDictionary)page.GetCOSObject();
+        pageDict.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
+        COSStream stream = CreateContentStream("""
+            BT
+            /F1 12 Tf
+            50 700 Td
+            (First) Tj
+            ET
+            """);
+        stream.SetInt(COSName.LENGTH, 0);
+        pageDict.SetItem(COSName.CONTENTS, stream);
+
+        string extracted = new PDFTextStripper().GetText(document);
+
+        Assert.Equal($"First{Environment.NewLine}", extracted);
+    }
+
+    [Fact]
+    public void PDFTextStripper_GetText_AppliesFormXObjectMatrix()
+    {
+        using var document = new PDDocument();
+        var page = new PDPage();
+        document.AddPage(page);
+
+        var form = new PDFormXObject(CreateContentStream("""
+            BT
+            /F1 12 Tf
+            0 1 -1 0 0 0 Tm
+            (AB) Tj
+            ET
+            """));
+        form.SetBBox(new PDRectangle(-100, -100, 300, 300));
+        form.SetMatrix(new Matrix(0, -1, 1, 0, 100, 100));
+        form.SetResources(new PDModel.Resources.PDResources(CreateDefaultResourcesDictionary()));
+
+        var pageResources = new COSDictionary();
+        var xObjects = new COSDictionary();
+        xObjects.SetItem(COSName.GetPDFName("Fm1"), form.GetCOSObject());
+        pageResources.SetItem(COSName.GetPDFName("XObject"), xObjects);
+
+        var pageDict = (COSDictionary)page.GetCOSObject();
+        pageDict.SetItem(COSName.RESOURCES, pageResources);
+        pageDict.SetItem(COSName.CONTENTS, CreateContentStream("/Fm1 Do"));
+
+        var stripper = new HookTrackingTextStripper();
+        string extracted = stripper.GetText(document);
+
+        Assert.Equal($"AB{Environment.NewLine}", extracted);
+        Assert.All(stripper.GlyphPositions, position => Assert.Equal(0, position.GetDir()));
+    }
+
+    [Fact]
+    public void PDFTextStripper_NormalizeWord_ReversesRtlTextLikeJava()
+    {
+        var stripper = new PDFTextStripper();
+        var normalizeWord = typeof(PDFTextStripper).GetMethod(
+            "NormalizeWord",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+        Assert.NotNull(normalizeWord);
+        Assert.Equal("\u0628\u0661\u0662\u0627", normalizeWord.Invoke(stripper, ["\u0627\u0661\u0662\u0628"]));
+        Assert.Equal("\u0628\u064E\u0627", normalizeWord.Invoke(stripper, ["\u0627\u064E\u0628"]));
+    }
+
+    [Fact]
     public void PDFMarkedContentExtractor_ProcessPage_CapturesMarkedContentText()
     {
         using var document = CreateSimpleTextFixtureDocument("""
@@ -579,6 +746,13 @@ public class RenderingTextTest
         var pageDict = (COSDictionary)page.GetCOSObject();
         pageDict.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
 
+        COSStream stream = CreateContentStream(contentStream);
+        pageDict.SetItem(COSName.CONTENTS, stream);
+        return document;
+    }
+
+    private static COSStream CreateContentStream(string contentStream)
+    {
         var stream = new COSStream();
         using (Stream output = stream.CreateOutputStream())
         {
@@ -586,8 +760,7 @@ public class RenderingTextTest
             output.Write(bytes, 0, bytes.Length);
         }
 
-        pageDict.SetItem(COSName.CONTENTS, stream);
-        return document;
+        return stream;
     }
 
     private static COSDictionary CreateDefaultResourcesDictionary()

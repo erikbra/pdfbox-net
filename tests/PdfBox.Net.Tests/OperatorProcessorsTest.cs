@@ -186,27 +186,28 @@ public class OperatorProcessorsTest
     // ── Marked-content: BDC ───────────────────────────────────────────────────
 
     [Fact]
-    public void BeginMarkedContentSequenceWithProperties_BDC_CallsBeginHookWithNullProps()
+    public void BeginMarkedContentSequenceWithProperties_BDC_CallsBeginHookWithDictionaryProps()
     {
         var engine = new ObservingEngine();
         engine.AddOperator(new BeginMarkedContentSequenceWithProperties(engine));
 
-        engine.RunStream("/P BDC");
+        engine.RunStream("/P << >> BDC");
 
         Assert.Single(engine.MarkedContentCalls);
         Assert.Equal("Begin", engine.MarkedContentCalls[0].Kind);
         Assert.Equal("P", engine.MarkedContentCalls[0].Tag);
+        Assert.NotNull(engine.MarkedContentCalls[0].Props);
     }
 
     [Fact]
-    public void BeginMarkedContentSequenceWithProperties_BDC_MissingTag_UsesUnknown()
+    public void BeginMarkedContentSequenceWithProperties_BDC_MissingProperty_DoesNotCallHook()
     {
         var engine = new ObservingEngine();
         engine.AddOperator(new BeginMarkedContentSequenceWithProperties(engine));
 
         engine.RunStream("BDC");
 
-        Assert.Equal("Unknown", engine.MarkedContentCalls[0].Tag);
+        Assert.Empty(engine.MarkedContentCalls);
     }
 
     // ── Marked-content: EMC ───────────────────────────────────────────────────
@@ -258,11 +259,12 @@ public class OperatorProcessorsTest
         var engine = new ObservingEngine();
         engine.AddOperator(new MarkedContentPointWithProperties(engine));
 
-        engine.RunStream("/Note DP");
+        engine.RunStream("/Note << >> DP");
 
         Assert.Single(engine.MarkedContentCalls);
         Assert.Equal("Point", engine.MarkedContentCalls[0].Kind);
         Assert.Equal("Note", engine.MarkedContentCalls[0].Tag);
+        Assert.NotNull(engine.MarkedContentCalls[0].Props);
     }
 
     // ── Marked-content nesting ────────────────────────────────────────────────
@@ -293,7 +295,7 @@ public class OperatorProcessorsTest
         engine.AddOperator(new BeginMarkedContentSequenceWithProperties(engine));
         engine.AddOperator(new EndMarkedContentSequence(engine));
 
-        engine.RunStream("/Sect BMC /P BDC EMC EMC");
+        engine.RunStream("/Sect BMC /P << >> BDC EMC EMC");
 
         Assert.Equal(4, engine.MarkedContentCalls.Count);
         Assert.Equal("Sect", engine.MarkedContentCalls[0].Tag);

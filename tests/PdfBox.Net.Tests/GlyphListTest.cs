@@ -115,6 +115,26 @@ public class GlyphListTest
         Assert.Equal(expected, agl.ToUnicode(glyphName));
     }
 
+    [Theory]
+    [InlineData("logicalnot", "\u00AC")]
+    [InlineData("openbullet", "\u25E6")]
+    [InlineData("SF100000", "\u2500")]
+    public void ToUnicode_RuntimeParityGlyphNames_ReturnExpectedCharacter(string glyphName, string expected)
+    {
+        GlyphList agl = GlyphList.GetAdobeGlyphList();
+        Assert.Equal(expected, agl.ToUnicode(glyphName));
+    }
+
+    [Theory]
+    [InlineData("A.swash", "A")]
+    [InlineData("uni0041.alt", "A")]
+    [InlineData("logicalnot.variant", "\u00AC")]
+    public void ToUnicode_GlyphNameSuffix_UsesBaseGlyphName(string glyphName, string expected)
+    {
+        GlyphList agl = GlyphList.GetAdobeGlyphList();
+        Assert.Equal(expected, agl.ToUnicode(glyphName));
+    }
+
     [Fact]
     public void ToUnicode_UnknownGlyphName_ReturnsNull()
     {

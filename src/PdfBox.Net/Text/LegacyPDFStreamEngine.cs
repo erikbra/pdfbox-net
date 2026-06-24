@@ -38,6 +38,7 @@ using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Font.Encoding;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.Util;
+using System.Reflection;
 
 namespace PdfBox.Net.Text;
 
@@ -49,7 +50,7 @@ public class LegacyPDFStreamEngine : PDFStreamEngine
     private int _pageRotation;
     private PDRectangle? _pageSize;
     private Matrix? _translateMatrix;
-    private static readonly GlyphList GLYPHLIST = new(GlyphList.GetAdobeGlyphList(), null);
+    private static readonly GlyphList GLYPHLIST = LoadGlyphList();
     private readonly Dictionary<COSDictionary, float> _fontHeightMap = new();
 
     internal LegacyPDFStreamEngine()
@@ -129,7 +130,7 @@ public class LegacyPDFStreamEngine : PDFStreamEngine
         float tx = displacementX * fontSize * horizontalScaling;
         float ty = displacement.GetY() * fontSize;
         Matrix td = Matrix.GetTranslateInstance(tx, ty);
-        Matrix nextTextRenderingMatrix = td.Multiply(textRenderingMatrix);
+        Matrix nextTextRenderingMatrix = td.Multiply(textMatrix).Multiply(ctm);
         float nextX = nextTextRenderingMatrix.GetTranslateX();
         float nextY = nextTextRenderingMatrix.GetTranslateY();
 
@@ -253,5 +254,12 @@ public class LegacyPDFStreamEngine : PDFStreamEngine
 
     protected virtual void ProcessTextPosition(TextPosition text)
     {
+    }
+
+    private static GlyphList LoadGlyphList()
+    {
+        const string resourceName = "PdfBox.Net.PDModel.Font.Encoding.additional.txt";
+        using Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
+        return new GlyphList(GlyphList.GetAdobeGlyphList(), stream);
     }
 }

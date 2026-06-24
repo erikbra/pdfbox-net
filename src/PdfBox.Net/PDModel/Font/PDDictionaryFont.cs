@@ -38,9 +38,12 @@ namespace PdfBox.Net.PDModel.Font;
 /// </summary>
 public sealed class PDDictionaryFont : PDFont
 {
+    private readonly Encoding.Encoding _encoding;
+
     private PDDictionaryFont(COSDictionary dict)
         : base(dict)
     {
+        _encoding = DictionaryEncoding.ResolveEncoding(dict);
     }
 
     /// <summary>
@@ -61,15 +64,21 @@ public sealed class PDDictionaryFont : PDFont
         return code == 0x20 ? 20f : 40f;
     }
 
-    /// <inheritdoc/>
-    public override float GetSpaceWidth() => 20f;
-
-    /// <inheritdoc/>
-    public override string? ToUnicode(int code, GlyphList glyphList)
+    protected override string? ToUnicodeFallback(int code, GlyphList glyphList)
     {
         if (code < 0 || code > byte.MaxValue)
         {
             return null;
+        }
+
+        string glyphName = _encoding.GetName(code);
+        if (glyphName != ".notdef")
+        {
+            string? mapped = glyphList.ToUnicode(glyphName);
+            if (mapped is not null)
+            {
+                return mapped;
+            }
         }
 
         return System.Text.Encoding.Latin1.GetString([(byte)code]);

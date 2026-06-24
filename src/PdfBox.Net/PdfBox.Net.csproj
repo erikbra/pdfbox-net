@@ -17,6 +17,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="PDModel/Font/Encoding/glyphlist.txt" />
+    <EmbeddedResource Include="PDModel/Font/Encoding/additional.txt" />
+    <EmbeddedResource Include="PDModel/Font/Resources/AFM/*.afm" />
   </ItemGroup>
 
 </Project>

@@ -27,6 +27,7 @@
 
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.Util;
+using System.Text;
 using System.Linq;
 
 namespace PdfBox.Net.Text;
@@ -37,6 +38,7 @@ namespace PdfBox.Net.Text;
 public sealed class TextPosition
 {
     private const float Tolerance = 1E-07f;
+    private static readonly Dictionary<int, string> Diacritics = CreateDiacritics();
 
     private readonly int[] _charCodes;
     private readonly Matrix _textMatrix;
@@ -95,55 +97,59 @@ public sealed class TextPosition
         _fontSizePt = fontSizeInPt;
         _fontSizeInPt = fontSizeInPt;
 
-        if (_rotation == 0)
+        _x = GetXRot(_rotation);
+        if (_rotation == 0 || _rotation == 180)
         {
-            _x = GetXRot(textMatrix);
-            if (_textMatrix.GetScaleY() > 0)
-            {
-                _y = pageHeight - GetYLowerLeftRot(textMatrix);
-            }
-            else
-            {
-                _y = GetYLowerLeftRot(textMatrix);
-            }
-        }
-        else if (_rotation == 90)
-        {
-            _x = GetYLowerLeftRot(textMatrix);
-            _y = GetXRot(textMatrix);
-        }
-        else if (_rotation == 180)
-        {
-            _x = pageWidth - GetXRot(textMatrix);
-            if (_textMatrix.GetScaleY() > 0)
-            {
-                _y = GetYLowerLeftRot(textMatrix);
-            }
-            else
-            {
-                _y = pageHeight - GetYLowerLeftRot(textMatrix);
-            }
-        }
-        else if (_rotation == 270)
-        {
-            _x = pageWidth - GetYLowerLeftRot(textMatrix);
-            _y = pageHeight - GetXRot(textMatrix);
+            _y = _pageHeight - GetYLowerLeftRot(_rotation);
         }
         else
         {
-            _x = 0;
-            _y = 0;
+            _y = _pageWidth - GetYLowerLeftRot(_rotation);
         }
     }
 
-    private static float GetXRot(Matrix matrix)
+    private float GetXRot(float rotation)
     {
-        return matrix.GetTranslateX();
+        if (rotation.CompareTo(0f) == 0)
+        {
+            return _textMatrix.GetTranslateX();
+        }
+        else if (rotation.CompareTo(90f) == 0)
+        {
+            return _textMatrix.GetTranslateY();
+        }
+        else if (rotation.CompareTo(180f) == 0)
+        {
+            return _pageWidth - _textMatrix.GetTranslateX();
+        }
+        else if (rotation.CompareTo(270f) == 0)
+        {
+            return _pageHeight - _textMatrix.GetTranslateY();
+        }
+
+        return 0;
     }
 
-    private static float GetYLowerLeftRot(Matrix matrix)
+    private float GetYLowerLeftRot(float rotation)
     {
-        return matrix.GetTranslateY();
+        if (rotation.CompareTo(0f) == 0)
+        {
+            return _textMatrix.GetTranslateY();
+        }
+        else if (rotation.CompareTo(90f) == 0)
+        {
+            return _pageWidth - _textMatrix.GetTranslateX();
+        }
+        else if (rotation.CompareTo(180f) == 0)
+        {
+            return _pageHeight - _textMatrix.GetTranslateY();
+        }
+        else if (rotation.CompareTo(270f) == 0)
+        {
+            return _textMatrix.GetTranslateX();
+        }
+
+        return 0;
     }
 
     /// <summary>
@@ -208,24 +214,7 @@ public sealed class TextPosition
     /// <returns>The X position.</returns>
     public float GetXDirAdj()
     {
-        if (_rotation == 0)
-        {
-            return GetX();
-        }
-        else if (_rotation == 90)
-        {
-            return GetY();
-        }
-        else if (_rotation == 180)
-        {
-            return GetPageWidth() - GetX();
-        }
-        else if (_rotation == 270)
-        {
-            return GetPageHeight() - GetY();
-        }
-
-        return GetX();
+        return GetXRot(GetDir());
     }
 
     /// <summary>
@@ -235,17 +224,14 @@ public sealed class TextPosition
     /// <returns>The Y position.</returns>
     public float GetYDirAdj()
     {
-        if (_rotation == 0 || _rotation == 90)
+        float dir = GetDir();
+        if (dir.CompareTo(0f) == 0 || dir.CompareTo(180f) == 0)
         {
-            return GetY();
-        }
-        else if (_rotation == 180)
-        {
-            return GetPageHeight() - GetY();
+            return _pageHeight - GetYLowerLeftRot(dir);
         }
         else
         {
-            return GetPageWidth() - GetX();
+            return _pageWidth - GetYLowerLeftRot(dir);
         }
     }
 
@@ -319,18 +305,17 @@ public sealed class TextPosition
     /// <returns>The width of the text in display units.</returns>
     public float GetWidth()
     {
-        if (_individualWidths == null)
+        return GetWidthRot(_rotation);
+    }
+
+    private float GetWidthRot(float rotation)
+    {
+        if (rotation.CompareTo(90f) == 0 || rotation.CompareTo(270f) == 0)
         {
-            return 0;
+            return MathF.Abs(_endY - _textMatrix.GetTranslateY());
         }
 
-        float sum = 0;
-        foreach (float width in _individualWidths)
-        {
-            sum += width;
-        }
-
-        return sum;
+        return MathF.Abs(_endX - _textMatrix.GetTranslateX());
     }
 
     /// <summary>
@@ -357,12 +342,7 @@ public sealed class TextPosition
     /// <returns>The height.</returns>
     public float GetHeightDir()
     {
-        if (_rotation == 90 || _rotation == 270)
-        {
-            return GetWidth();
-        }
-
-        return GetHeight();
+        return _maxTextHeight;
     }
 
     /// <summary>
@@ -380,27 +360,29 @@ public sealed class TextPosition
     /// <returns>The direction of the text.</returns>
     public float GetDir()
     {
-        float a = _textMatrix.GetScaleX();
-        float b = _textMatrix.GetShearX();
-        float c = _textMatrix.GetShearY();
-        float d = _textMatrix.GetScaleY();
+        float a = _textMatrix.GetScaleY();
+        float b = _textMatrix.GetShearY();
+        float c = _textMatrix.GetShearX();
+        float d = _textMatrix.GetScaleX();
 
-        if (NearlyZero(a) && NearlyZero(b) && NearlyZero(c) && NearlyZero(d))
+        if (a > 0 && MathF.Abs(b) < d && MathF.Abs(c) < a && d > 0)
         {
             return 0;
         }
-
-        double angle;
-        if (Math.Abs(a) < Math.Abs(b))
+        else if (a < 0 && MathF.Abs(b) < MathF.Abs(d) && MathF.Abs(c) < MathF.Abs(a) && d < 0)
         {
-            angle = Math.Atan2(a, -b);
+            return 180;
         }
-        else
+        else if (MathF.Abs(a) < MathF.Abs(c) && b > 0 && c < 0 && MathF.Abs(d) < b)
         {
-            angle = Math.Atan2(-c, d);
+            return 90;
+        }
+        else if (MathF.Abs(a) < c && b < 0 && c > 0 && MathF.Abs(d) < MathF.Abs(b))
+        {
+            return 270;
         }
 
-        return (float)(angle * (180.0 / Math.PI));
+        return 0;
     }
 
     /// <summary>
@@ -427,12 +409,7 @@ public sealed class TextPosition
     /// <returns>The direction adjusted width.</returns>
     public float GetWidthDirAdj()
     {
-        if (_rotation == 90 || _rotation == 270)
-        {
-            return GetHeight();
-        }
-
-        return GetWidth();
+        return GetWidthRot(GetDir());
     }
 
     /// <summary>
@@ -516,22 +493,67 @@ public sealed class TextPosition
 
     public string GetVisuallyOrderedUnicode()
     {
+        int length = _unicode.Length;
+        int nextIndex;
+        for (int index = 0; index < length; index = nextIndex)
+        {
+            int codePoint = char.ConvertToUtf32(_unicode, index);
+            nextIndex = index + (char.IsSurrogatePair(_unicode, index) ? 2 : 1);
+            if (IsRightToLeft(codePoint) && (index != 0 || nextIndex < length))
+            {
+                char[] chars = _unicode.ToCharArray();
+                Array.Reverse(chars);
+                return new string(chars);
+            }
+        }
+
         return _unicode;
     }
 
-    public bool IsDiacritic()
+    private static bool IsRightToLeft(int codePoint)
     {
-        if (string.IsNullOrEmpty(_unicode))
-        {
-            return false;
-        }
-
-        return _unicode.All(ch => char.GetUnicodeCategory(ch) == System.Globalization.UnicodeCategory.NonSpacingMark);
+        return (codePoint >= 0x0590 && codePoint <= 0x08FF)
+            || (codePoint >= 0xFB1D && codePoint <= 0xFDFF)
+            || (codePoint >= 0xFE70 && codePoint <= 0xFEFF);
     }
 
     public bool Contains(TextPosition other)
     {
-        return CompletelyContains(other);
+        double thisXStart = GetXDirAdj();
+        double thisWidth = GetWidthDirAdj();
+        double thisXEnd = thisXStart + thisWidth;
+
+        double otherXStart = other.GetXDirAdj();
+        double otherXEnd = otherXStart + other.GetWidthDirAdj();
+
+        if (otherXEnd <= thisXStart || otherXStart >= thisXEnd)
+        {
+            return false;
+        }
+
+        double thisYStart = GetYDirAdj();
+        double otherYStart = other.GetYDirAdj();
+        if (otherYStart + other.GetHeightDir() < thisYStart
+            || otherYStart > thisYStart + GetHeightDir())
+        {
+            return false;
+        }
+
+        if (otherXStart > thisXStart && otherXEnd > thisXEnd)
+        {
+            double overlap = thisXEnd - otherXStart;
+            double overlapPercent = overlap / thisWidth;
+            return overlapPercent > .15;
+        }
+
+        if (otherXStart < thisXStart && otherXEnd < thisXEnd)
+        {
+            double overlap = otherXEnd - thisXStart;
+            double overlapPercent = overlap / thisWidth;
+            return overlapPercent > .15;
+        }
+
+        return true;
     }
 
     public bool CompletelyContains(TextPosition other)
@@ -546,8 +568,159 @@ public sealed class TextPosition
     public void MergeDiacritic(TextPosition textPosition)
     {
         ArgumentNullException.ThrowIfNull(textPosition);
-        _unicode += textPosition.GetUnicode();
-        MergeSingleMultiplePositions(textPosition);
+        if (textPosition.GetUnicode().Length > 1)
+        {
+            return;
+        }
+
+        float diacriticXStart = textPosition.GetXDirAdj();
+        float diacriticXEnd = diacriticXStart + (textPosition._individualWidths is { Length: > 0 } widths
+            ? widths[0]
+            : textPosition.GetWidthDirAdj());
+
+        float currentCharXStart = GetXDirAdj();
+
+        int strLength = _unicode.Length;
+        bool wasAdded = false;
+        float[] currentWidths = _individualWidths ?? Array.Empty<float>();
+
+        for (int i = 0; i < strLength && !wasAdded; i++)
+        {
+            if (i >= currentWidths.Length)
+            {
+                break;
+            }
+
+            float currentCharXEnd = currentCharXStart + currentWidths[i];
+            if (diacriticXStart < currentCharXStart && diacriticXEnd <= currentCharXEnd)
+            {
+                if (i == 0)
+                {
+                    InsertDiacritic(i, textPosition);
+                }
+                else
+                {
+                    float distanceOverlapping1 = diacriticXEnd - currentCharXStart;
+                    float percentage1 = distanceOverlapping1 / currentWidths[i];
+
+                    float distanceOverlapping2 = currentCharXStart - diacriticXStart;
+                    float percentage2 = distanceOverlapping2 / currentWidths[i - 1];
+
+                    InsertDiacritic(percentage1 >= percentage2 ? i : i - 1, textPosition);
+                }
+
+                wasAdded = true;
+            }
+            else if (diacriticXStart < currentCharXStart)
+            {
+                InsertDiacritic(i, textPosition);
+                wasAdded = true;
+            }
+            else if (diacriticXEnd <= currentCharXEnd)
+            {
+                InsertDiacritic(i, textPosition);
+                wasAdded = true;
+            }
+            else if (i == strLength - 1)
+            {
+                InsertDiacritic(i, textPosition);
+                wasAdded = true;
+            }
+
+            currentCharXStart += currentWidths[i];
+        }
+    }
+
+    private void InsertDiacritic(int index, TextPosition diacritic)
+    {
+        float[] widths = _individualWidths ?? Array.Empty<float>();
+        StringBuilder builder = new();
+        builder.Append(_unicode, 0, index);
+
+        float[] widths2 = new float[widths.Length + 1];
+        Array.Copy(widths, 0, widths2, 0, index);
+        widths2[index] = widths[index];
+        widths2[index + 1] = 0;
+        Array.Copy(widths, index + 1, widths2, index + 2, widths.Length - index - 1);
+
+        builder.Append(_unicode[index]);
+        if (index < _unicode.Length - 1 && char.IsSurrogatePair(_unicode[index], _unicode[index + 1]))
+        {
+            builder.Append(_unicode[index + 1]);
+            index++;
+        }
+
+        builder.Append(CombineDiacritic(diacritic.GetUnicode()));
+        builder.Append(_unicode[(index + 1)..]);
+
+        _unicode = builder.ToString();
+        _individualWidths = widths2;
+    }
+
+    private static string CombineDiacritic(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return value;
+        }
+
+        int codePoint = char.ConvertToUtf32(value, 0);
+        if (Diacritics.TryGetValue(codePoint, out string? mapped))
+        {
+            return mapped;
+        }
+
+        return value.Normalize(NormalizationForm.FormKC).Trim();
+    }
+
+    public bool IsDiacritic()
+    {
+        if (_unicode.Length != 1 || _unicode == "ー")
+        {
+            return false;
+        }
+
+        System.Globalization.UnicodeCategory type = char.GetUnicodeCategory(_unicode[0]);
+        return type == System.Globalization.UnicodeCategory.NonSpacingMark
+            || type == System.Globalization.UnicodeCategory.ModifierSymbol
+            || type == System.Globalization.UnicodeCategory.ModifierLetter;
+    }
+
+    private static Dictionary<int, string> CreateDiacritics()
+    {
+        return new Dictionary<int, string>
+        {
+            [0x0060] = "\u0300",
+            [0x02CB] = "\u0300",
+            [0x0027] = "\u0301",
+            [0x02B9] = "\u0301",
+            [0x02CA] = "\u0301",
+            [0x005e] = "\u0302",
+            [0x02C6] = "\u0302",
+            [0x007E] = "\u0303",
+            [0x02C9] = "\u0304",
+            [0x00B0] = "\u030A",
+            [0x02BA] = "\u030B",
+            [0x02C7] = "\u030C",
+            [0x02C8] = "\u030D",
+            [0x0022] = "\u030E",
+            [0x02BB] = "\u0312",
+            [0x02BC] = "\u0313",
+            [0x0486] = "\u0313",
+            [0x055A] = "\u0313",
+            [0x02BD] = "\u0314",
+            [0x0485] = "\u0314",
+            [0x0559] = "\u0314",
+            [0x02D4] = "\u031D",
+            [0x02D5] = "\u031E",
+            [0x02D6] = "\u031F",
+            [0x02D7] = "\u0320",
+            [0x02B2] = "\u0321",
+            [0x02CC] = "\u0329",
+            [0x02B7] = "\u032B",
+            [0x02CD] = "\u0331",
+            [0x204E] = "\u0359"
+        };
     }
 
     private static bool NearlyZero(float value)

@@ -10,6 +10,8 @@ using SkiaSharp;
 
 internal static class DotnetPdfProbe
 {
+    private static readonly UTF8Encoding Utf8NoBom = new(false);
+
     public static int Main(string[] args)
     {
         if (args.Length < 2)
@@ -54,7 +56,7 @@ internal static class DotnetPdfProbe
             try
             {
                 string text = new PDFTextStripper().GetText(document);
-                File.WriteAllText(Path.Combine(outDir, StripExt(name) + "-dotnet-text.txt"), text, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(outDir, StripExt(name) + "-dotnet-text.txt"), text, Utf8NoBom);
                 Emit(name, "text", true, pages, Hash(text), Elapsed(started));
             }
             catch (Exception ex)

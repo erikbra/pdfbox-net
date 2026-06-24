@@ -27,6 +27,7 @@ using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Tests;
 
@@ -133,12 +134,99 @@ public class FontStubsReplacementTest
     }
 
     [Fact]
+    public void PDType1Font_GetSpaceWidth_UsesEncodingSpaceCode()
+    {
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "Type1");
+        dict.SetName(COSName.GetPDFName("BaseFont"), "Helvetica");
+        dict.SetInt(COSName.GetPDFName("FirstChar"), 1);
+        dict.SetInt(COSName.GetPDFName("LastChar"), 32);
+
+        var widths = new COSArray();
+        widths.Add(new COSFloat(250f));
+        for (int i = 2; i < 32; i++)
+        {
+            widths.Add(new COSFloat(500f));
+        }
+
+        widths.Add(new COSFloat(1000f));
+        dict.SetItem(COSName.GetPDFName("Widths"), widths);
+
+        var differences = new COSArray();
+        differences.Add(COSInteger.Get(1));
+        differences.Add(COSName.GetPDFName("space"));
+        var encoding = new COSDictionary();
+        encoding.SetItem(COSName.GetPDFName("Differences"), differences);
+        dict.SetItem(COSName.GetPDFName("Encoding"), encoding);
+
+        PDFont font = PDFontFactory.CreateFont(dict);
+
+        Assert.Equal(250f, font.GetSpaceWidth());
+        Assert.Equal(1000f, font.GetWidth(32));
+    }
+
+    [Fact]
+    public void PDType3Font_GetDisplacement_AppliesFontMatrix()
+    {
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "Type3");
+        dict.SetInt(COSName.GetPDFName("FirstChar"), 1);
+        dict.SetInt(COSName.GetPDFName("LastChar"), 1);
+        dict.SetItem(COSName.GetPDFName("FontMatrix"), COSArray.Of(0.01724f, 0f, 0f, -0.01724f, 0f, 0f));
+
+        var widths = new COSArray();
+        widths.Add(new COSFloat(38f));
+        dict.SetItem(COSName.GetPDFName("Widths"), widths);
+
+        PDFont font = PDFontFactory.CreateFont(dict);
+        Vector displacement = font.GetDisplacement(1);
+
+        Assert.Equal(38f * 0.01724f, displacement.GetX(), precision: 5);
+        Assert.Equal(0f, displacement.GetY());
+    }
+
+    [Fact]
     public void PDType1Font_Standard14ConstructorSetsBaseFont()
     {
         PDType1Font font = new(PDType1Font.FontName.HELVETICA_BOLD);
 
         Assert.Equal("Helvetica-Bold", font.GetName());
         Assert.True(font.IsStandard14());
+    }
+
+    [Fact]
+    public void PDType1Font_Standard14UsesEmbeddedAfmWidths()
+    {
+        PDType1Font font = new(PDType1Font.FontName.HELVETICA);
+
+        Assert.Equal(278f, font.GetWidth(' '));
+        Assert.Equal(500f, font.GetWidth('x'));
+    }
+
+    [Fact]
+    public void PDType1Font_Standard14DictionaryWithoutEncodingUsesAfmEncoding()
+    {
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "Type1");
+        dict.SetName(COSName.GetPDFName("BaseFont"), "Helvetica");
+
+        PDFont font = PDFontFactory.CreateFont(dict);
+        GlyphList glyphList = GlyphList.GetAdobeGlyphList();
+
+        Assert.Equal("\u2019", font.ToUnicode(39, glyphList));
+    }
+
+    [Fact]
+    public void PDType1Font_Standard14UsesEmbeddedAfmBoundingBox()
+    {
+        PDType1Font font = new(PDType1Font.FontName.HELVETICA);
+
+        var bbox = font.GetBoundingBox();
+
+        Assert.Equal(-166f, bbox.GetLowerLeftX());
+        Assert.Equal(-225f, bbox.GetLowerLeftY());
+        Assert.Equal(1000f, bbox.GetUpperRightX());
+        Assert.Equal(931f, bbox.GetUpperRightY());
     }
 
     [Fact]
@@ -172,6 +260,68 @@ public class FontStubsReplacementTest
 
         Assert.Equal(700f, font.GetWidth(65));
         Assert.Equal("MiniTTF", font.GetName());
+    }
+
+    [Fact]
+    public void PDTrueTypeFont_MacRomanEncodingMapsGuillemetsThroughGlyphList()
+    {
+        TrueTypeFont ttf = new TTFParser().Parse(FontBoxTestFixtures.CreateMinimalTrueType());
+
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "TrueType");
+        dict.SetName(COSName.GetPDFName("BaseFont"), "MiniTTF");
+        dict.SetName(COSName.GetPDFName("Encoding"), "MacRomanEncoding");
+
+        PDFont font = new PDTrueTypeFont(dict, ttf);
+        GlyphList glyphList = GlyphList.GetAdobeGlyphList();
+
+        Assert.Equal("\u00AB", font.ToUnicode(199, glyphList));
+        Assert.Equal("\u00BB", font.ToUnicode(200, glyphList));
+    }
+
+    [Fact]
+    public void PDDictionaryFont_WinAnsiEncodingMapsSmartPunctuationThroughGlyphList()
+    {
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "TrueType");
+        dict.SetName(COSName.GetPDFName("BaseFont"), "MissingEmbeddedTimes");
+        dict.SetName(COSName.GetPDFName("Encoding"), "WinAnsiEncoding");
+
+        PDFont font = PDFontFactory.CreateFont(dict);
+        GlyphList glyphList = GlyphList.GetAdobeGlyphList();
+
+        Assert.IsType<PDDictionaryFont>(font);
+        Assert.Equal("\u2019", font.ToUnicode(0x92, glyphList));
+        Assert.Equal("\u2014", font.ToUnicode(0x97, glyphList));
+    }
+
+    [Fact]
+    public void PDDictionaryFont_GetSpaceWidth_UsesExplicitWidths()
+    {
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "TrueType");
+        dict.SetName(COSName.GetPDFName("BaseFont"), "MissingEmbeddedTimes");
+        dict.SetInt(COSName.GetPDFName("FirstChar"), 32);
+        dict.SetInt(COSName.GetPDFName("LastChar"), 33);
+        dict.SetItem(COSName.GetPDFName("Widths"), COSArray.Of(249f, 333f));
+
+        PDFont font = PDFontFactory.CreateFont(dict);
+
+        Assert.IsType<PDDictionaryFont>(font);
+        Assert.Equal(249f, font.GetSpaceWidth());
+    }
+
+    [Fact]
+    public void PDDictionaryFont_GetSpaceWidth_FallsBackWhenMetricsAreMissing()
+    {
+        var dict = new COSDictionary();
+        dict.SetName(COSName.GetPDFName("Subtype"), "TrueType");
+        dict.SetName(COSName.GetPDFName("BaseFont"), "MissingEmbeddedTimes");
+
+        PDFont font = PDFontFactory.CreateFont(dict);
+
+        Assert.IsType<PDDictionaryFont>(font);
+        Assert.Equal(20f, font.GetSpaceWidth());
     }
 
     [Fact]

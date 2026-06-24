@@ -310,7 +310,7 @@ public sealed class PDPage : COSObjectable, PDContentStream
         COSBase? contents = _page.GetDictionaryObject(COSName.CONTENTS);
         if (contents is COSStream stream)
         {
-            return stream.GetInt(COSName.LENGTH, 0) > 0;
+            return stream.HasData();
         }
         else if (contents is COSArray array)
         {

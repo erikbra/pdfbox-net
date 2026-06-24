@@ -52,6 +52,31 @@ public sealed class DictionaryEncoding : Encoding
         }
     }
 
+    public DictionaryEncoding(COSDictionary encodingDictionary, bool isNonSymbolic, Encoding? builtIn)
+    {
+        ArgumentNullException.ThrowIfNull(encodingDictionary);
+
+        Encoding? baseEncoding = null;
+        if (encodingDictionary.GetDictionaryObject(BaseEncodingKey) is COSName baseName)
+        {
+            baseEncoding = ResolveNamedEncodingOrNull(baseName.GetName());
+        }
+
+        baseEncoding ??= isNonSymbolic
+            ? StandardEncoding.INSTANCE
+            : builtIn ?? new Encoding();
+
+        foreach (KeyValuePair<int, string> kv in baseEncoding.GetCodeToNameMap())
+        {
+            AddCharacterEncoding(kv.Key, kv.Value);
+        }
+
+        if (encodingDictionary.GetCOSArray(DifferencesKey) is COSArray differences)
+        {
+            ApplyDifferences(differences);
+        }
+    }
+
     public static Encoding ResolveEncoding(COSDictionary fontDictionary)
     {
         COSBase? encoding = fontDictionary.GetDictionaryObject(EncodingKey);
@@ -106,6 +131,21 @@ public sealed class DictionaryEncoding : Encoding
             "SymbolEncoding" => SymbolEncoding.INSTANCE,
             "ZapfDingbatsEncoding" => ZapfDingbatsEncoding.INSTANCE,
             _ => WinAnsiEncoding.INSTANCE,
+        };
+    }
+
+    private static Encoding? ResolveNamedEncodingOrNull(string name)
+    {
+        return name switch
+        {
+            "MacRomanEncoding" => MacRomanEncoding.INSTANCE,
+            "MacOSRomanEncoding" => MacOSRomanEncoding.INSTANCE,
+            "MacExpertEncoding" => MacExpertEncoding.INSTANCE,
+            "StandardEncoding" => StandardEncoding.INSTANCE,
+            "WinAnsiEncoding" => WinAnsiEncoding.INSTANCE,
+            "SymbolEncoding" => SymbolEncoding.INSTANCE,
+            "ZapfDingbatsEncoding" => ZapfDingbatsEncoding.INSTANCE,
+            _ => null,
         };
     }
 

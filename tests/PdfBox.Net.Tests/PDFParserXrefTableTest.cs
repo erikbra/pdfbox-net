@@ -57,6 +57,42 @@ public class PDFParserXrefTableTest
     }
 
     [Fact]
+    public void Parse_DamagedHeaderAndNearbyXrefOffset_LoadsLeniently()
+    {
+        const string bodyTemplate = """
+            %P?F-1.4
+            1 0 obj
+            << /Type /Catalog >>
+            endobj
+            """;
+        byte[] bodyBytes = Encoding.ASCII.GetBytes(bodyTemplate);
+        bodyBytes[2] = 0xb5;
+        string body = Encoding.Latin1.GetString(bodyBytes);
+        int rootOffset = Encoding.Latin1.GetByteCount(body[..body.IndexOf("1 0 obj", StringComparison.Ordinal)]);
+        int xrefOffset = Encoding.Latin1.GetByteCount(body);
+        string document = body + $"""
+            xref
+            0 3
+            0000000000 65535 f 
+            {rootOffset:D10} 00000 n 
+            0000000001 00000 ,n 
+            trailer
+            << /Size 3 /Root 1 0 R >>
+            startxref
+            {xrefOffset + 1}
+            %%EOF
+            """;
+        using MemoryStream input = new(Encoding.Latin1.GetBytes(document));
+
+        PDFParser parser = new(input);
+        ParsedPDFDocument parsed = parser.Parse();
+
+        COSObject rootRef = Assert.IsType<COSObject>(parsed.Trailer.GetItem(COSName.ROOT));
+        COSDictionary root = Assert.IsType<COSDictionary>(rootRef.GetObject());
+        Assert.Equal("Catalog", root.GetNameAsString(COSName.TYPE));
+    }
+
+    [Fact]
     public void Parse_MalformedXrefSubsectionHeader_Throws()
     {
         byte[] bytes = BuildPdfWithXref("""

@@ -191,6 +191,32 @@ public sealed class Matrix
     }
 
     /// <summary>
+    /// Returns a copy of this matrix translated by the given vector.
+    /// </summary>
+    /// <param name="vector">The translation vector.</param>
+    /// <returns>The translated matrix.</returns>
+    public Matrix Translate(Vector vector)
+    {
+        ArgumentNullException.ThrowIfNull(vector);
+        return Translate(vector.GetX(), vector.GetY());
+    }
+
+    /// <summary>
+    /// Returns a copy of this matrix translated by the given amount.
+    /// </summary>
+    /// <param name="tx">The x translation.</param>
+    /// <param name="ty">The y translation.</param>
+    /// <returns>The translated matrix.</returns>
+    public Matrix Translate(float tx, float ty)
+    {
+        float[] translated = (float[])_single.Clone();
+        translated[6] += (tx * translated[0]) + (ty * translated[3]);
+        translated[7] += (tx * translated[1]) + (ty * translated[4]);
+        translated[8] += (tx * translated[2]) + (ty * translated[5]);
+        return new Matrix(CheckFloatValues(translated));
+    }
+
+    /// <summary>
     /// Multiplies this matrix with another matrix.
     /// </summary>
     /// <param name="other">The other matrix.</param>

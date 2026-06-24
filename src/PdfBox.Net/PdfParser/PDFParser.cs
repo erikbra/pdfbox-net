@@ -28,25 +28,31 @@
 using System.Globalization;
 using System.Text;
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Encryption;
 
 namespace PdfBox.Net.PdfParser;
 
 public sealed class PDFParser
 {
     private static readonly byte[] EndStreamBytes = Encoding.ASCII.GetBytes("endstream");
+    private static readonly byte[] XrefBytes = Encoding.ASCII.GetBytes("xref");
 
     private readonly byte[] _data;
     private readonly COSDocument _document = new();
     private readonly Dictionary<COSObjectKey, COSObject> _objectPool;
     private readonly Dictionary<COSObjectKey, long> _resolvedXrefTable = [];
+    private readonly string? _password;
+    private SecurityHandler<ProtectionPolicy>? _securityHandler;
+    private COSDictionary? _encryptionDictionary;
 
-    public PDFParser(Stream input)
+    public PDFParser(Stream input, string? password = null)
     {
         ArgumentNullException.ThrowIfNull(input);
         using MemoryStream buffer = new();
         input.CopyTo(buffer);
         _data = buffer.ToArray();
         _objectPool = _document.GetObjectPool();
+        _password = password;
     }
 
     public ParsedPDFDocument Parse()
@@ -74,12 +80,148 @@ public sealed class PDFParser
         }
 
         LoadIndirectObjectsFromXref();
+        PrepareDecryption(trailer);
+        DecryptLoadedIndirectObjects();
         LoadCompressedObjects();
         BindTrailerReferences(trailer);
         _document.SetTrailer(trailer);
+        if (_securityHandler is not null)
+        {
+            _document.SetDecrypted();
+        }
+
         _document.GetDocumentState().SetParsing(false);
 
         return new ParsedPDFDocument(_document, trailer, headerVersion);
+    }
+
+    private void PrepareDecryption(COSDictionary trailer)
+    {
+        _encryptionDictionary = trailer.GetCOSDictionary(COSName.GetPDFName("Encrypt"));
+        if (_encryptionDictionary is null)
+        {
+            return;
+        }
+
+        PDEncryption encryption = new(_encryptionDictionary);
+        string filter = encryption.GetFilter() ?? PDEncryption.DEFAULT_NAME;
+        _securityHandler = SecurityHandlerFactory.INSTANCE.NewSecurityHandlerForFilter(filter)
+            ?? throw new IOException($"No security handler available for filter '{filter}'.");
+
+        DecryptionMaterial material = _securityHandler switch
+        {
+            StandardSecurityHandler => new StandardDecryptionMaterial(_password ?? string.Empty),
+            PublicKeySecurityHandler => throw new IOException("Public-key encrypted documents require PublicKeyDecryptionMaterial and are not supported by this Load overload."),
+            _ => throw new IOException($"Unsupported security handler type '{_securityHandler.GetType().FullName}'.")
+        };
+
+        _securityHandler.PrepareForDecryption(encryption, trailer.GetCOSArray(COSName.GetPDFName("ID")), material);
+    }
+
+    private void DecryptLoadedIndirectObjects()
+    {
+        if (_securityHandler is null)
+        {
+            return;
+        }
+
+        HashSet<COSBase> visited = new(ReferenceEqualityComparer.Instance);
+        foreach (COSObject cosObject in _objectPool.Values)
+        {
+            COSObjectKey? key = cosObject.GetKey();
+            COSBase? value = cosObject.GetObject();
+            if (key is null || value is null || ReferenceEquals(value, _encryptionDictionary))
+            {
+                continue;
+            }
+
+            DecryptObjectGraph(value, key.GetNumber(), key.GetGeneration(), visited);
+        }
+    }
+
+    private void DecryptObjectGraph(COSBase obj, long objNum, long genNum, HashSet<COSBase> visited)
+    {
+        if (_securityHandler is null || !visited.Add(obj) || ReferenceEquals(obj, _encryptionDictionary))
+        {
+            return;
+        }
+
+        switch (obj)
+        {
+            case COSObject cosObject:
+            {
+                COSObjectKey? key = cosObject.GetKey();
+                COSBase? inner = cosObject.GetObject();
+                if (inner is not null)
+                {
+                    DecryptObjectGraph(inner, key?.GetNumber() ?? objNum, key?.GetGeneration() ?? genNum, visited);
+                }
+
+                break;
+            }
+
+            case COSString cosString:
+                _securityHandler.DecryptString(objNum, genNum, cosString);
+                break;
+
+            case COSStream cosStream:
+                if (ShouldDecryptStream(cosStream))
+                {
+                    DecryptStream(cosStream, objNum, genNum);
+                }
+
+                DecryptDictionaryItems(cosStream, objNum, genNum, visited);
+                break;
+
+            case COSDictionary cosDictionary:
+                DecryptDictionaryItems(cosDictionary, objNum, genNum, visited);
+                break;
+
+            case COSArray cosArray:
+                for (int i = 0; i < cosArray.Size(); i++)
+                {
+                    COSBase? value = cosArray.Get(i);
+                    if (value is not null)
+                    {
+                        DecryptObjectGraph(value, objNum, genNum, visited);
+                    }
+                }
+
+                break;
+        }
+    }
+
+    private void DecryptDictionaryItems(COSDictionary dictionary, long objNum, long genNum, HashSet<COSBase> visited)
+    {
+        foreach (COSName key in dictionary.KeySet().ToList())
+        {
+            COSBase? value = dictionary.GetItem(key);
+            if (value is not null)
+            {
+                DecryptObjectGraph(value, objNum, genNum, visited);
+            }
+        }
+    }
+
+    private bool ShouldDecryptStream(COSStream stream)
+    {
+        return _securityHandler is not null
+            && !COSName.IDENTITY.Equals(_securityHandler.GetStreamFilterName())
+            && !COSName.GetPDFName("XRef").Equals(stream.GetCOSName(COSName.TYPE))
+            && (_securityHandler.IsDecryptMetadata() || !COSName.METADATA.Equals(stream.GetCOSName(COSName.TYPE)));
+    }
+
+    private void DecryptStream(COSStream stream, long objNum, long genNum)
+    {
+        using MemoryStream decrypted = new();
+        using (Stream encrypted = stream.CreateRawInputStream())
+        {
+            _securityHandler!.DecryptData(objNum, genNum, encrypted, decrypted);
+        }
+
+        using Stream output = stream.CreateRawOutputStream();
+        byte[] data = decrypted.ToArray();
+        output.Write(data, 0, data.Length);
     }
 
     private void ParseXrefSection(long offset, XrefTrailerResolver resolver, HashSet<long> visited)
@@ -96,6 +238,12 @@ public sealed class PDFParser
         {
             resolver.NextXrefObj(offset, XrefTrailerResolver.XRefType.TABLE);
             ParseXrefTable(reader, resolver, visited);
+            return;
+        }
+
+        if (TryFindNearbyXrefTableOffset(offset, out long correctedOffset))
+        {
+            ParseXrefSection(correctedOffset, resolver, visited);
             return;
         }
 
@@ -158,6 +306,11 @@ public sealed class PDFParser
                 }
 
                 if (inUseToken.Equals("n", StringComparison.Ordinal))
+                {
+                    COSObjectKey key = new(firstObject + i, generation);
+                    resolver.SetXRef(key, entryOffset);
+                }
+                else if (inUseToken.EndsWith('n'))
                 {
                     COSObjectKey key = new(firstObject + i, generation);
                     resolver.SetXRef(key, entryOffset);
@@ -286,7 +439,16 @@ public sealed class PDFParser
                 continue;
             }
 
-            ParsedIndirectObject parsed = ParseIndirectObjectAt(offset);
+            ParsedIndirectObject parsed;
+            try
+            {
+                parsed = ParseIndirectObjectAt(offset);
+            }
+            catch (IOException)
+            {
+                continue;
+            }
+
             COSObject objectShell = GetOrCreateIndirectObject(parsed.Key);
             parsed.Value.SetKey(parsed.Key);
             objectShell.SetObject(parsed.Value);
@@ -827,6 +989,34 @@ public sealed class PDFParser
         }
 
         return -1;
+    }
+
+    private bool TryFindNearbyXrefTableOffset(long declaredOffset, out long correctedOffset)
+    {
+        const int correctionWindow = 16;
+        int start = checked((int)Math.Max(0, declaredOffset - correctionWindow));
+        int end = checked((int)Math.Min(_data.Length, declaredOffset + correctionWindow + XrefBytes.Length));
+        for (int i = start; i <= end - XrefBytes.Length; i++)
+        {
+            bool matched = true;
+            for (int j = 0; j < XrefBytes.Length; j++)
+            {
+                if (_data[i + j] != XrefBytes[j])
+                {
+                    matched = false;
+                    break;
+                }
+            }
+
+            if (matched)
+            {
+                correctedOffset = i;
+                return true;
+            }
+        }
+
+        correctedOffset = -1;
+        return false;
     }
 
     private static bool IsWhiteSpace(int value)

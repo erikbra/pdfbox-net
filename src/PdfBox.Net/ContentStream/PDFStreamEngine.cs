@@ -53,6 +53,8 @@ namespace PdfBox.Net.ContentStream;
 /// </summary>
 public class PDFStreamEngine
 {
+    private static readonly PDFont DefaultFont = new PDType1Font(PDType1Font.FontName.HELVETICA);
+
     protected internal enum PathSegmentType
     {
         MoveTo,
@@ -81,6 +83,8 @@ public class PDFStreamEngine
     private int _compatibilitySectionDepth;
     private PDPage? _currentPage;
     private PDResources? _resources;
+
+    private readonly record struct GraphicsStackSnapshot(PDGraphicsState Current, List<PDGraphicsState> SavedStatesTopFirst);
 
     public PDFStreamEngine()
     {
@@ -128,13 +132,18 @@ public class PDFStreamEngine
             }
             else if (contents is COSArray array)
             {
-                foreach (COSBase? item in array)
+                using MemoryStream combinedStream = new();
+                for (int i = 0; i < array.Size(); i++)
                 {
-                    if (item is COSStream s)
+                    if (array.GetObject(i) is COSStream s)
                     {
-                        ProcessStream(s.CreateInputStream());
+                        using Stream contentPart = s.CreateInputStream();
+                        contentPart.CopyTo(combinedStream);
                     }
                 }
+
+                combinedStream.Position = 0;
+                ProcessStream(combinedStream);
             }
         }
     }
@@ -187,6 +196,24 @@ public class PDFStreamEngine
         if (_graphicsStateStack.Count > 0)
         {
             _currentGraphicsState = _graphicsStateStack.Pop();
+        }
+    }
+
+    private GraphicsStackSnapshot SaveGraphicsStack()
+    {
+        GraphicsStackSnapshot snapshot = new(_currentGraphicsState, _graphicsStateStack.ToList());
+        _graphicsStateStack.Clear();
+        _currentGraphicsState = _currentGraphicsState.Clone();
+        return snapshot;
+    }
+
+    private void RestoreGraphicsStack(GraphicsStackSnapshot snapshot)
+    {
+        _currentGraphicsState = snapshot.Current;
+        _graphicsStateStack.Clear();
+        for (int i = snapshot.SavedStatesTopFirst.Count - 1; i >= 0; i--)
+        {
+            _graphicsStateStack.Push(snapshot.SavedStatesTopFirst[i]);
         }
     }
 
@@ -340,9 +367,8 @@ public class PDFStreamEngine
     // ── Glyph rendering ───────────────────────────────────────────────────────
 
     /// <summary>
-    /// Processes each byte of <paramref name="bytes"/> as a single-byte character code,
-    /// computing the text rendering matrix and calling <see cref="ShowGlyph"/> for each,
-    /// then advancing the text matrix.
+    /// Processes encoded text bytes by letting the current font read each character code,
+    /// computing the text rendering matrix and calling <see cref="ShowGlyph"/> for each.
     /// </summary>
     internal void ShowStringGlyphs(byte[] bytes)
     {
@@ -352,28 +378,52 @@ public class PDFStreamEngine
         float fontSize = textState.GetFontSize();
         float horizontalScaling = textState.GetHorizontalScaling() / 100f;
         float charSpacing = textState.GetCharacterSpacing();
-        float wordSpacing = textState.GetWordSpacing();
         float rise = textState.GetRise();
-        PDFont? font = textState.GetFont();
-        Matrix ctm = _currentGraphicsState.GetCurrentTransformationMatrix();
+        PDFont font = textState.GetFont() ?? DefaultFont;
+        Matrix parameters = new Matrix(fontSize * horizontalScaling, 0, 0, fontSize, 0, rise);
 
-        foreach (byte b in bytes)
+        using MemoryStream input = new(bytes, writable: false);
+        while (input.Position < input.Length)
         {
-            int code = b & 0xFF;
-            float w = font != null ? font.GetWidth(code) / 1000f : 0f;
-            float tx = (w * fontSize + charSpacing) * horizontalScaling;
-            if (code == 0x20)
+            long before = input.Position;
+            int code = font.ReadCode(input);
+            int codeLength = (int)(input.Position - before);
+            if (code < 0 || codeLength <= 0)
             {
-                tx += wordSpacing * horizontalScaling;
+                break;
             }
 
-            Matrix tdScale = new Matrix(fontSize * horizontalScaling, 0, 0, fontSize, 0, rise);
-            Matrix textRenderingMatrix = tdScale.Multiply(_textMatrix).Multiply(ctm);
+            float wordSpacing = 0;
+            if (codeLength == 1 && code == 32)
+            {
+                wordSpacing = textState.GetWordSpacing();
+            }
 
-            ShowGlyph(textRenderingMatrix, font!, code, new Vector(tx, 0));
+            Matrix ctm = _currentGraphicsState.GetCurrentTransformationMatrix();
+            Matrix textRenderingMatrix = parameters.Multiply(_textMatrix).Multiply(ctm);
+            if (font.IsVertical())
+            {
+                textRenderingMatrix = textRenderingMatrix.Translate(font.GetPositionVector(code));
+            }
 
-            Matrix advance = Matrix.GetTranslateInstance(tx, 0);
-            _textMatrix = advance.Multiply(_textMatrix);
+            Vector displacement = font.GetDisplacement(code);
+
+            ShowGlyph(textRenderingMatrix, font, code, displacement);
+
+            float tx;
+            float ty;
+            if (font.IsVertical())
+            {
+                tx = 0;
+                ty = displacement.GetY() * fontSize + charSpacing + wordSpacing;
+            }
+            else
+            {
+                tx = (displacement.GetX() * fontSize + charSpacing + wordSpacing) * horizontalScaling;
+                ty = 0;
+            }
+
+            _textMatrix = _textMatrix.Translate(tx, ty);
         }
     }
 
@@ -415,16 +465,19 @@ public class PDFStreamEngine
     {
         if (xobject is PDFormXObject form)
         {
+            GraphicsStackSnapshot savedStack = SaveGraphicsStack();
             PDResources? previousResources = _resources;
             _resources = form.GetResources() ?? previousResources;
             try
             {
+                ConcatenateMatrix(form.GetMatrix());
                 using Stream content = form.GetContents();
                 ProcessStream(content);
             }
             finally
             {
                 _resources = previousResources;
+                RestoreGraphicsStack(savedStack);
             }
         }
     }

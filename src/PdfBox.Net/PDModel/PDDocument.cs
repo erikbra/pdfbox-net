@@ -101,7 +101,7 @@ public sealed class PDDocument : IDisposable
         byte[] sourceBytes = buffer.ToArray();
 
         using var parsedStream = new MemoryStream(sourceBytes);
-        PDFParser parser = new(parsedStream);
+        PDFParser parser = new(parsedStream, password);
         ParsedPDFDocument parsed = parser.Parse();
         PDDocument doc = new(parsed.Document);
         doc._sourceBytes = sourceBytes;
@@ -1288,7 +1288,7 @@ public sealed class PDDocument : IDisposable
     private void DecryptIfNeeded(string? password)
     {
         COSDictionary? encryptDict = _trailer.GetCOSDictionary(COSName.GetPDFName("Encrypt"));
-        if (encryptDict is null)
+        if (encryptDict is null || _document.IsDecrypted())
         {
             return;
         }
@@ -1408,8 +1408,10 @@ public sealed class PDDocument : IDisposable
 
     private static bool ShouldDecryptStream(COSStream stream, SecurityHandler<ProtectionPolicy> handler)
     {
-        return handler.IsDecryptMetadata()
-            || !COSName.METADATA.Equals(stream.GetCOSName(COSName.TYPE));
+        return !COSName.IDENTITY.Equals(handler.GetStreamFilterName())
+            && !COSName.GetPDFName("XRef").Equals(stream.GetCOSName(COSName.TYPE))
+            && (handler.IsDecryptMetadata()
+                || !COSName.METADATA.Equals(stream.GetCOSName(COSName.TYPE)));
     }
 
     private static void DecryptStream(COSStream stream, SecurityHandler<ProtectionPolicy> handler, long objNum, long genNum)

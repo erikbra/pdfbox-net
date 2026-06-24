@@ -27,6 +27,8 @@
 
 namespace PdfBox.Net.PDModel.Font;
 
+using PdfBox.Net.FontBox.AFM;
+
 public static class Standard14Fonts
 {
     private static readonly Dictionary<string, string> CanonicalMap = new(StringComparer.Ordinal)
@@ -81,6 +83,8 @@ public static class Standard14Fonts
         "Symbol", "ZapfDingbats",
     ];
 
+    private static readonly Dictionary<string, FontMetrics> MetricsByName = new(StringComparer.Ordinal);
+
     public static string? GetMappedFontName(string? fontName)
     {
         if (string.IsNullOrWhiteSpace(fontName))
@@ -106,6 +110,26 @@ public static class Standard14Fonts
 
     public static IReadOnlyCollection<string> GetStandard14Names() => CanonicalStandard14;
 
+    public static FontMetrics? GetAFM(string? fontName)
+    {
+        string? mappedName = GetMappedFontName(fontName);
+        if (mappedName == null)
+        {
+            return null;
+        }
+
+        lock (MetricsByName)
+        {
+            if (!MetricsByName.TryGetValue(mappedName, out FontMetrics? metrics))
+            {
+                metrics = LoadMetrics(mappedName);
+                MetricsByName[mappedName] = metrics;
+            }
+
+            return metrics;
+        }
+    }
+
     private static string NormalizeName(string input)
     {
         string value = input.Trim();
@@ -116,5 +140,30 @@ public static class Standard14Fonts
         }
 
         return value;
+    }
+
+    private static FontMetrics LoadMetrics(string mappedName)
+    {
+        string resourceName = $"PdfBox.Net.PDModel.Font.Resources.AFM.{mappedName}.afm";
+        Stream? stream = typeof(Standard14Fonts).Assembly.GetManifestResourceStream(resourceName);
+        if (stream == null)
+        {
+            string? fallbackResourceName = typeof(Standard14Fonts).Assembly
+                .GetManifestResourceNames()
+                .FirstOrDefault(name => name.EndsWith($".{mappedName}.afm", StringComparison.Ordinal));
+            stream = fallbackResourceName == null
+                ? null
+                : typeof(Standard14Fonts).Assembly.GetManifestResourceStream(fallbackResourceName);
+        }
+
+        if (stream == null)
+        {
+            throw new InvalidOperationException($"Standard 14 AFM resource '{mappedName}.afm' was not found.");
+        }
+
+        using (stream)
+        {
+            return new AFMParser(stream).Parse();
+        }
     }
 }
