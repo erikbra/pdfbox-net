@@ -4,18 +4,27 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.List;
 import javax.imageio.ImageIO;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 public final class JavaPdfProbe {
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            System.err.println("usage: JavaPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b>");
+            System.err.println("usage: JavaPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b> | --structure <pdf> [<pdf>...]");
             System.exit(2);
         }
         if ("--merge".equals(args[0])) {
@@ -24,6 +33,12 @@ public final class JavaPdfProbe {
                 System.exit(2);
             }
             merge(new File(args[1]), new File(args[2]), new File(args[3]));
+            return;
+        }
+        if ("--structure".equals(args[0])) {
+            for (int i = 1; i < args.length; i++) {
+                structure(new File(args[i]));
+            }
             return;
         }
         File outDir = new File(args[0]);
@@ -77,6 +92,17 @@ public final class JavaPdfProbe {
         }
     }
 
+    private static void structure(File input) {
+        long started = System.nanoTime();
+        int pages = -1;
+        try (PDDocument document = Loader.loadPDF(input)) {
+            pages = document.getNumberOfPages();
+            emit(input.getAbsolutePath(), "structure", true, pages, structuralSignature(document), elapsed(started));
+        } catch (Throwable t) {
+            emit(input.getAbsolutePath(), "structure", false, pages, message(t), elapsed(started));
+        }
+    }
+
     static void merge(File outDir, File a, File b) {
         long started = System.nanoTime();
         try {
@@ -117,6 +143,90 @@ public final class JavaPdfProbe {
             }
         }
         return file.length() + ":" + HexFormat.of().formatHex(digest.digest()).substring(0, 16);
+    }
+
+    private static String structuralSignature(PDDocument document) throws Exception {
+        List<String> parts = new ArrayList<>();
+        int pages = document.getNumberOfPages();
+        parts.add("pages=" + pages);
+        parts.add("info=" + documentInformationSignature(document.getDocumentInformation()));
+        parts.add("forms=" + formSignature(document.getDocumentCatalog()));
+        parts.add("pageShape=" + pageShapeSignature(document));
+        parts.add("text=" + hash(new PDFTextStripper().getText(document)));
+        if (pages > 0) {
+            BufferedImage image = new PDFRenderer(document).renderImageWithDPI(0, 36);
+            parts.add("render=" + image.getWidth() + "x" + image.getHeight() + ":" + imagePixelHash(image) + ":" + imageMetrics(image));
+        } else {
+            parts.add("render=no-pages");
+        }
+        return String.join("|", parts);
+    }
+
+    private static String documentInformationSignature(PDDocumentInformation info) {
+        List<String> entries = new ArrayList<>();
+        for (String key : info.getMetadataKeys()) {
+            String value = info.getCustomMetadataValue(key);
+            entries.add(key + "=" + (value == null ? "" : value));
+        }
+        return String.join(",", entries);
+    }
+
+    private static String formSignature(PDDocumentCatalog catalog) {
+        PDAcroForm form = catalog.getAcroForm(null);
+        if (form == null) {
+            return "fields=0";
+        }
+
+        List<String> fields = new ArrayList<>();
+        for (PDField field : form.getFieldTree()) {
+            fields.add(field.getFullyQualifiedName());
+        }
+        return "fields=" + fields.size() + ":" + String.join(",", fields);
+    }
+
+    private static String pageShapeSignature(PDDocument document) throws Exception {
+        List<String> pages = new ArrayList<>();
+        for (int i = 0; i < document.getNumberOfPages(); i++) {
+            PDPage page = document.getPage(i);
+            pages.add(page.getAnnotations().size() + "/" + resourcesSignature(page.getResources()));
+        }
+        return String.join(";", pages);
+    }
+
+    private static String resourcesSignature(PDResources resources) {
+        if (resources == null) {
+            return "res=none";
+        }
+
+        return "font=" + countNames(resources.getFontNames())
+            + ",xobject=" + countNames(resources.getXObjectNames())
+            + ",colorspace=" + countNames(resources.getColorSpaceNames())
+            + ",extgstate=" + countNames(resources.getExtGStateNames())
+            + ",pattern=" + countNames(resources.getPatternNames())
+            + ",shading=" + countNames(resources.getShadingNames())
+            + ",properties=" + countNames(resources.getPropertiesNames());
+    }
+
+    private static int countNames(Iterable<COSName> names) {
+        int count = 0;
+        for (COSName ignored : names) {
+            count++;
+        }
+        return count;
+    }
+
+    private static String imagePixelHash(BufferedImage image) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                int argb = image.getRGB(x, y);
+                digest.update((byte) (argb >>> 24));
+                digest.update((byte) (argb >>> 16));
+                digest.update((byte) (argb >>> 8));
+                digest.update((byte) argb);
+            }
+        }
+        return HexFormat.of().formatHex(digest.digest()).substring(0, 16);
     }
 
     private static String imageMetrics(BufferedImage image) {
@@ -173,6 +283,40 @@ public final class JavaPdfProbe {
     }
 
     private static String esc(String s) {
-        return s.replace("\\", "\\\\").replace("\"", "\\\"");
+        StringBuilder sb = new StringBuilder(s.length());
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            switch (ch) {
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\b':
+                    sb.append("\\b");
+                    break;
+                case '\f':
+                    sb.append("\\f");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                default:
+                    if (ch < 0x20) {
+                        sb.append(String.format("\\u%04x", (int) ch));
+                    } else {
+                        sb.append(ch);
+                    }
+                    break;
+            }
+        }
+        return sb.toString();
     }
 }

@@ -62,21 +62,35 @@
       "reason": "Text extraction for minimal parser fixtures currently throws before producing Java-compatible text output."
     },
     {
-      "id": "encrypted-owner-restricted-save-diagnostic",
-      "op": "save",
-      "category": "diagnostic-mismatch",
-      "files": [
-        "encrypted-owner-restricted.pdf"
-      ],
-      "owner": "issue-438",
-      "reason": "Encrypted save restrictions need Java-compatible exception classification and diagnostics."
-    },
-    {
       "id": "text-semantic-mismatch-ratchet",
       "op": "text",
       "categoryGlob": "text-*",
       "owner": "issue-433",
       "reason": "Default PDFTextStripper semantic output still differs from Java for many successful text extraction cases."
+    },
+    {
+      "id": "save-structural-object-stream-page-tree-gaps",
+      "op": "save",
+      "category": "save-structural-missing",
+      "files": [
+        "PDFBOX-5797-SO79271803.pdf",
+        "PDFBOX-6049-ExpectedResult.pdf",
+        "PDFBOX-6049-Source.pdf"
+      ],
+      "owner": "issue-439",
+      "reason": "Saved .NET output reloads in Java but exposes object-stream/page-tree traversal gaps; Java cannot visit the expected page index after save."
+    },
+    {
+      "id": "save-structural-text-render-content-gaps",
+      "op": "save",
+      "category": "save-structural-mismatch",
+      "files": [
+        "PDFBOX-5811-362972.pdf",
+        "unencrypted.pdf",
+        "with_outline.pdf"
+      ],
+      "owner": "issue-439",
+      "reason": "Saved .NET output reloads in Java but loses Java-observable text or first-page render semantics; tracked as remaining semantic parity work."
     },
     {
       "id": "render-placeholder-regression-fixtures",
@@ -112,13 +126,6 @@
       "category": "detail-mismatch",
       "owner": "issue-434",
       "reason": "Successful render output may be blank or near-blank until rendering validity checks and PageDrawer work land."
-    },
-    {
-      "id": "save-output-hash-ratchet",
-      "op": "save",
-      "category": "detail-mismatch",
-      "owner": "issue-436",
-      "reason": "Saved PDF bytes are not yet Java-equivalent across the corpus; faithful save output depends on remaining create/edit, font, and writer parity work."
     },
     {
       "id": "merge-output-hash-ratchet",
