@@ -21,9 +21,12 @@ manifest, uploads `java-results.jsonl`, `dotnet-results.jsonl`,
 `comparison.json`, structure JSONL files, generated PDFs/images/text, and
 `summary.md` as a workflow artifact.
 
-Render rows compare raw rendered pixel hashes and image metrics instead of PNG
-file bytes. Save and merge rows compare Java-observable document structure
-signatures when byte hashes differ.
+Render rows first compare raw rendered pixel hashes and image metrics. When
+those differ, the harness decodes the saved Java/.NET PNGs and accepts only
+small visual-equivalence drift: same dimensions, low moderate-difference pixel
+ratio, very low large-difference pixel ratio, and low RMS channel error. Save
+and merge rows compare Java-observable document structure signatures when byte
+hashes differ.
 
 ## Local ratchet run
 
