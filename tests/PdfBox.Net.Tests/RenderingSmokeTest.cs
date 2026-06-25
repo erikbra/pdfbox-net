@@ -487,6 +487,27 @@ public class RenderingSmokeTest
     }
 
     [Fact]
+    public void RenderImage_ImageXObject_AppliesRotatedImageMatrix()
+    {
+        using var document = new PDDocument();
+        using var source = new SKBitmap(2, 1);
+        source.SetPixel(0, 0, SKColors.Red);
+        source.SetPixel(1, 0, SKColors.Blue);
+        PDImageXObject imageXObject = LosslessFactory.CreateFromImage(document, source);
+
+        var resources = new PDModel.Resources.PDResources();
+        resources.Put(COSName.GetPDFName("Im1"), imageXObject);
+        using PDDocument pageDocument = CreateDocument("q\n0 -40 20 0 100 340 cm\n/Im1 Do\nQ\n", resources);
+
+        using BufferedImage image = new PDFRenderer(pageDocument).RenderImage(0, 1f, ImageType.RGB);
+
+        AssertRedDominant(image.GetRgb(105, 462), "near the top of the rotated image");
+        AssertBlueDominant(image.GetRgb(105, 482), "near the bottom of the rotated image");
+        AssertRedDominant(image.GetRgb(115, 462), "near the top-right of the rotated image");
+        AssertBlueDominant(image.GetRgb(115, 482), "near the bottom-right of the rotated image");
+    }
+
+    [Fact]
     public void RenderImage_ImageXObject_UsesNearestNeighborWhenScaledUpWithoutInterpolate()
     {
         using var document = new PDDocument();
@@ -521,6 +542,24 @@ public class RenderingSmokeTest
         Assert.Equal(0, grayPixels);
         AssertNotWhite(image.GetRgb(110, row), "inside the black half of the scaled image");
         AssertWhite(image.GetRgb(130, row), "inside the white half of the scaled image");
+    }
+
+    private static void AssertRedDominant(int argb, string context)
+    {
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+        Assert.True(r > 180 && g < 80 && b < 80,
+            $"Expected red-dominant pixel {context} but got RGB({r},{g},{b}).");
+    }
+
+    private static void AssertBlueDominant(int argb, string context)
+    {
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+        Assert.True(b > 180 && r < 80 && g < 80,
+            $"Expected blue-dominant pixel {context} but got RGB({r},{g},{b}).");
     }
 
     private static int CountNonWhitePixels(BufferedImage image, int x, int y, int width, int height)

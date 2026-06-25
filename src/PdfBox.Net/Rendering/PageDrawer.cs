@@ -617,9 +617,8 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
 
         Matrix matrix = new(at);
-        SKRect dest = GetImageDestination(matrix);
         using SKPaint paint = CreateImagePaint(GetGraphicsState());
-        DrawBitmap(image.Bitmap, dest, paint);
+        DrawBitmap(image.Bitmap, matrix, paint);
     }
 
     private static BufferedImage ApplyTransferFunction(BufferedImage image, COSBase transfer)
@@ -1167,14 +1166,8 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
 
         using SKBitmap bitmap = CreateBitmapFromRgb(rgb, width, height);
-        SKRect dest = GetImageDestination(matrix);
-        if (dest.Width <= 0 || dest.Height <= 0)
-        {
-            return;
-        }
-
         using SKPaint paint = CreateImagePaint(GetGraphicsState());
-        DrawBitmap(bitmap, dest, paint, GetImageSamplingOptions(width, height, matrix, interpolate));
+        DrawBitmap(bitmap, matrix, paint, GetImageSamplingOptions(width, height, matrix, interpolate));
     }
 
     private GlyphCache GetGlyphCache(PDVectorFont font)
@@ -1657,20 +1650,6 @@ public class PageDrawer : PDFGraphicsStreamEngine
         };
     }
 
-    private SKRect GetImageDestination(Matrix matrix)
-    {
-        (float x0, float y0) = PdfToCanvas(0, 0, matrix);
-        (float x1, float y1) = PdfToCanvas(1, 0, matrix);
-        (float x2, float y2) = PdfToCanvas(1, 1, matrix);
-        (float x3, float y3) = PdfToCanvas(0, 1, matrix);
-
-        float left = MathF.Min(MathF.Min(x0, x1), MathF.Min(x2, x3));
-        float right = MathF.Max(MathF.Max(x0, x1), MathF.Max(x2, x3));
-        float top = MathF.Min(MathF.Min(y0, y1), MathF.Min(y2, y3));
-        float bottom = MathF.Max(MathF.Max(y0, y1), MathF.Max(y2, y3));
-        return new SKRect(left, top, right, bottom);
-    }
-
     private static SKBitmap CreateBitmapFromRgb(byte[] rgb, int width, int height)
     {
         var bitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Opaque);
@@ -1697,15 +1676,39 @@ public class PageDrawer : PDFGraphicsStreamEngine
         };
     }
 
-    private void DrawBitmap(SKBitmap bitmap, SKRect dest, SKPaint paint)
+    private void DrawBitmap(SKBitmap bitmap, Matrix matrix, SKPaint paint)
     {
-        DrawBitmap(bitmap, dest, paint, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
+        DrawBitmap(bitmap, matrix, paint, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
     }
 
-    private void DrawBitmap(SKBitmap bitmap, SKRect dest, SKPaint paint, SKSamplingOptions samplingOptions)
+    private void DrawBitmap(SKBitmap bitmap, Matrix matrix, SKPaint paint, SKSamplingOptions samplingOptions)
     {
         using SKImage image = SKImage.FromBitmap(bitmap);
-        DrawWithCurrentClip(canvas => canvas.DrawImage(image, dest, samplingOptions, paint));
+        SKMatrix imageTransform = CreateImageTransform(matrix, bitmap.Width, bitmap.Height);
+        SKRect sourceRect = new(0, 0, bitmap.Width, bitmap.Height);
+        DrawWithCurrentClip(canvas =>
+        {
+            canvas.Concat(in imageTransform);
+            canvas.DrawImage(image, sourceRect, samplingOptions, paint);
+        });
+    }
+
+    private SKMatrix CreateImageTransform(Matrix matrix, int imageWidth, int imageHeight)
+    {
+        (float x0, float y0) = PdfToCanvas(0, 1, matrix);
+        (float x1, float y1) = PdfToCanvas(1, 1, matrix);
+        (float x2, float y2) = PdfToCanvas(0, 0, matrix);
+
+        return new SKMatrix
+        {
+            ScaleX = (x1 - x0) / imageWidth,
+            SkewY = (y1 - y0) / imageWidth,
+            SkewX = (x2 - x0) / imageHeight,
+            ScaleY = (y2 - y0) / imageHeight,
+            TransX = x0,
+            TransY = y0,
+            Persp2 = 1,
+        };
     }
 
     private SKSamplingOptions GetImageSamplingOptions(int imageWidth, int imageHeight, Matrix matrix, bool interpolate)
