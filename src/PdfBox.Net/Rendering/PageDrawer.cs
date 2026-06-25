@@ -1195,7 +1195,13 @@ public class PageDrawer : PDFGraphicsStreamEngine
         Matrix fallbackGlyphMatrix = CreateFallbackGlyphMatrix(textRenderingMatrix);
         SKMatrix matrix = ToCanvasMatrix(fallbackGlyphMatrix, _pageHeightPt);
         using SKTypeface? typeface = CreateFallbackTypeface(font);
-        using SKFont skFont = new(typeface ?? SKTypeface.Default, GetFallbackFontSize(font));
+        // Java2D renders fallback glyphs with grayscale antialiasing and fractional placement.
+        using SKFont skFont = new(typeface ?? SKTypeface.Default, GetFallbackFontSize(font))
+        {
+            Edging = SKFontEdging.Antialias,
+            Hinting = SKFontHinting.Normal,
+            Subpixel = true,
+        };
         if (renderingMode.IsClip())
         {
             using SKPath clipPath = skFont.GetTextPath(unicode, new SKPoint(0, 0));
