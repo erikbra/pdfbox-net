@@ -183,6 +183,36 @@ def is_stack_trace_frame(line: str) -> bool:
     return STACK_TRACE_FRAME_RE.match(line) is not None
 
 
+class IgnoredProbeOutputSummary:
+    def __init__(self) -> None:
+        self._line_counts: Counter[tuple[str, str]] = Counter()
+        self._stack_frame_counts: Counter[tuple[str, str]] = Counter()
+
+    def add(self, runtime: str, lines: list[str], diagnostic_path: Path | None = None) -> None:
+        if not lines:
+            return
+
+        key = (runtime, str(diagnostic_path) if diagnostic_path is not None else "")
+        self._line_counts[key] += len(lines)
+        self._stack_frame_counts[key] += sum(1 for line in lines if is_stack_trace_frame(line))
+
+    def emit(self) -> None:
+        for (runtime, diagnostic_path), line_count in sorted(self._line_counts.items()):
+            stack_frame_count = self._stack_frame_counts[(runtime, diagnostic_path)]
+            diagnostic_count = line_count - stack_frame_count
+            parts: list[str] = []
+            if diagnostic_count:
+                parts.append(f"{diagnostic_count} diagnostic lines")
+            if stack_frame_count:
+                parts.append(f"{stack_frame_count} stack-frame lines")
+            detail = ", ".join(parts) if parts else "no diagnostic lines"
+            diagnostic_note = f"; full output in {diagnostic_path}" if diagnostic_path else ""
+            print(
+                f"info: captured {line_count} non-JSON {runtime} probe output lines ({detail}{diagnostic_note})",
+                file=sys.stderr,
+            )
+
+
 def warn_ignored_probe_output(runtime: str, lines: list[str], diagnostic_path: Path | None = None) -> None:
     if not lines:
         return
@@ -206,7 +236,12 @@ def warn_ignored_probe_output(runtime: str, lines: list[str], diagnostic_path: P
         print(f"warning:   {count}x {line}", file=sys.stderr)
 
 
-def parse_jsonl(text: str, runtime: str, diagnostic_path: Path | None = None) -> list[Result]:
+def parse_jsonl(
+    text: str,
+    runtime: str,
+    diagnostic_path: Path | None = None,
+    ignored_output_summary: IgnoredProbeOutputSummary | None = None,
+) -> list[Result]:
     results: list[Result] = []
     ignored_lines: list[str] = []
     for raw in text.splitlines():
@@ -229,7 +264,10 @@ def parse_jsonl(text: str, runtime: str, diagnostic_path: Path | None = None) ->
             )
         )
     append_ignored_probe_output(runtime, ignored_lines, diagnostic_path)
-    warn_ignored_probe_output(runtime, ignored_lines, diagnostic_path)
+    if ignored_output_summary is not None:
+        ignored_output_summary.add(runtime, ignored_lines, diagnostic_path)
+    else:
+        warn_ignored_probe_output(runtime, ignored_lines, diagnostic_path)
     return results
 
 
@@ -672,6 +710,7 @@ def collect_document_structures(
     operation: str,
     structure_operation: str,
     artifact_path: Callable[[Path, str, str], Path],
+    ignored_output_summary: IgnoredProbeOutputSummary | None = None,
 ) -> dict[tuple[str, str], Result]:
     requests: list[tuple[str, str, Path]] = []
     for runtime, rows, out_dir in (("java", java_rows, java_out), ("dotnet", dotnet_rows, dotnet_out)):
@@ -690,6 +729,7 @@ def collect_document_structures(
         run([*java_probe_args(java_home, java_cp), "--structure", *paths]).stdout,
         "java",
         java_out.parent / "java-ignored-output.txt",
+        ignored_output_summary,
     )
     by_path = {Path(row.file).resolve(): row for row in structure_rows}
     structures: dict[tuple[str, str], Result] = {}
@@ -715,6 +755,7 @@ def collect_save_structures(
     dotnet_rows: list[Result],
     java_out: Path,
     dotnet_out: Path,
+    ignored_output_summary: IgnoredProbeOutputSummary | None = None,
 ) -> dict[tuple[str, str], Result]:
     return collect_document_structures(
         java_home,
@@ -726,6 +767,7 @@ def collect_save_structures(
         "save",
         "save-structure",
         save_artifact_path,
+        ignored_output_summary,
     )
 
 
@@ -736,6 +778,7 @@ def collect_merge_structures(
     dotnet_rows: list[Result],
     java_out: Path,
     dotnet_out: Path,
+    ignored_output_summary: IgnoredProbeOutputSummary | None = None,
 ) -> dict[tuple[str, str], Result]:
     return collect_document_structures(
         java_home,
@@ -747,6 +790,7 @@ def collect_merge_structures(
         "merge",
         "merge-structure",
         merge_artifact_path,
+        ignored_output_summary,
     )
 
 
@@ -1338,6 +1382,7 @@ def main() -> int:
         "java": out_dir / "java-ignored-output.txt",
         "dotnet": out_dir / "dotnet-ignored-output.txt",
     }
+    ignored_output_summary = IgnoredProbeOutputSummary()
     for path in ignored_output_paths.values():
         path.unlink(missing_ok=True)
 
@@ -1357,11 +1402,13 @@ def main() -> int:
         run([*java_probe_args(args.java_home, java_cp), str(java_out), *[str(pdf) for pdf in pdfs]]).stdout,
         "java",
         ignored_output_paths["java"],
+        ignored_output_summary,
     )
     dotnet_rows = parse_jsonl(
         run([*dotnet_args, str(dotnet_out), *[str(pdf) for pdf in pdfs]]).stdout,
         "dotnet",
         ignored_output_paths["dotnet"],
+        ignored_output_summary,
     )
 
     for a, b in merge_pairs:
@@ -1370,6 +1417,7 @@ def main() -> int:
                 run([*java_probe_args(args.java_home, java_cp), "--merge", str(java_out), str(a), str(b)]).stdout,
                 "java",
                 ignored_output_paths["java"],
+                ignored_output_summary,
             )
         )
         dotnet_rows.extend(
@@ -1377,14 +1425,20 @@ def main() -> int:
                 run([*dotnet_args, "--merge", str(dotnet_out), str(a), str(b)]).stdout,
                 "dotnet",
                 ignored_output_paths["dotnet"],
+                ignored_output_summary,
             )
         )
 
     write_jsonl(out_dir / "java-results.jsonl", java_rows)
     write_jsonl(out_dir / "dotnet-results.jsonl", dotnet_rows)
-    save_structures = collect_save_structures(args.java_home, java_cp, java_rows, dotnet_rows, java_out, dotnet_out)
+    save_structures = collect_save_structures(
+        args.java_home, java_cp, java_rows, dotnet_rows, java_out, dotnet_out, ignored_output_summary
+    )
     write_jsonl(out_dir / "save-structures.jsonl", save_structures.values())
-    merge_structures = collect_merge_structures(args.java_home, java_cp, java_rows, dotnet_rows, java_out, dotnet_out)
+    merge_structures = collect_merge_structures(
+        args.java_home, java_cp, java_rows, dotnet_rows, java_out, dotnet_out, ignored_output_summary
+    )
+    ignored_output_summary.emit()
     write_jsonl(out_dir / "merge-structures.jsonl", merge_structures.values())
 
     comparison_rows, counts = compare(

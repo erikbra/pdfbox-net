@@ -28,6 +28,7 @@
 
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.COS;
+using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.PDModel.Annotations;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
@@ -56,6 +57,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
 {
     private readonly PageDrawerParameters _parameters;
     private readonly Dictionary<PDVectorFont, GlyphCache> _glyphCaches = new();
+    private readonly Dictionary<COSDictionary, PDTrueTypeFont?> _mappedTrueTypeFonts = new();
     private AnnotationFilter _annotationFilter = _ => true;
     private Graphics2D? _graphics;
     private readonly GeneralPath _linePath = new();
@@ -65,6 +67,10 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private readonly Stack<bool> _hiddenMarkedContentStack = new();
     private int _nestedHiddenOptionalContentCount;
     private const float GlyphWidthTolerance = 0.0001f;
+    private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
+    private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
+    private static readonly COSName FontNameKey = COSName.GetPDFName("FontName");
+    private static readonly COSName FontSubtypeKey = COSName.GetPDFName("Subtype");
 
     // Page crop box in PDF points, used to translate visible content and flip
     // from PDF space (Y-up, origin bottom-left) to canvas space (Y-down).
@@ -212,7 +218,10 @@ public class PageDrawer : PDFGraphicsStreamEngine
             }
         }
 
-        DrawUnicodeGlyphFallback(textRenderingMatrix, font, code, displacement);
+        if (!DrawMappedTrueTypeGlyph(textRenderingMatrix, font, code, displacement))
+        {
+            DrawUnicodeGlyphFallback(textRenderingMatrix, font, code, displacement);
+        }
     }
 
     private void DrawGlyph(GeneralPath path, PDFont font, int code, Vector displacement, AffineTransform at)
@@ -1261,6 +1270,201 @@ public class PageDrawer : PDFGraphicsStreamEngine
                 canvas.DrawText(unicode, 0, 0, skFont, strokePaint);
             }
         });
+    }
+
+    private bool DrawMappedTrueTypeGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
+    {
+        PDTrueTypeFont? mappedFont = GetMappedTrueTypeFont(font);
+        if (mappedFont is null)
+        {
+            return false;
+        }
+
+        GeneralPath path = GetGlyphCache(mappedFont).GetPathForCharacterCode(code);
+        if (path.Segments.Count == 0)
+        {
+            return false;
+        }
+
+        Matrix glyphMatrix = Matrix.Concatenate(textRenderingMatrix, font.GetFontMatrix());
+        float stretch = CalculateGlyphStretch(font, code, displacement, mappedFont.GetWidthFromFont(code));
+        if (stretch != 1f)
+        {
+            glyphMatrix = ApplyGlyphStretch(glyphMatrix, stretch);
+        }
+
+        BufferTextClipPath(path, glyphMatrix);
+        if (_graphics?.Canvas is null || !IsContentRendered())
+        {
+            return true;
+        }
+
+        using SKPath skPath = BuildSkPath(path, glyphMatrix);
+        DrawTextPath(skPath);
+        return true;
+    }
+
+    private PDTrueTypeFont? GetMappedTrueTypeFont(PDFont font)
+    {
+        COSDictionary fontDictionary = font.GetCOSObject();
+        if (_mappedTrueTypeFonts.TryGetValue(fontDictionary, out PDTrueTypeFont? cachedFont))
+        {
+            return cachedFont;
+        }
+
+        PDTrueTypeFont? mappedFont = LoadMappedTrueTypeFont(font);
+        _mappedTrueTypeFonts[fontDictionary] = mappedFont;
+        return mappedFont;
+    }
+
+    private static PDTrueTypeFont? LoadMappedTrueTypeFont(PDFont font)
+    {
+        COSDictionary fontDictionary = font.GetCOSObject();
+        if (font is not PDDictionaryFont ||
+            !string.Equals(fontDictionary.GetNameAsString(FontSubtypeKey), "TrueType", StringComparison.Ordinal) ||
+            fontDictionary.GetCOSDictionary(FontDescriptorKey)?.ContainsKey(FontFile2Key) == true)
+        {
+            return null;
+        }
+
+        foreach (string fontName in GetMappingNames(font, fontDictionary))
+        {
+            string? fontPath = FontMappers.Instance.FindFontFile(fontName);
+            if (string.IsNullOrWhiteSpace(fontPath) || !File.Exists(fontPath))
+            {
+                continue;
+            }
+
+            try
+            {
+                string extension = Path.GetExtension(fontPath);
+                if (extension.Equals(".ttf", StringComparison.OrdinalIgnoreCase) ||
+                    extension.Equals(".otf", StringComparison.OrdinalIgnoreCase))
+                {
+                    byte[] bytes = File.ReadAllBytes(fontPath);
+                    TrueTypeFont trueTypeFont = new TTFParser().Parse(bytes);
+                    return new PDTrueTypeFont(fontDictionary, trueTypeFont);
+                }
+            }
+            catch
+            {
+                // Keep Unicode fallback rendering when a substitute font cannot be parsed.
+            }
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<string> GetMappingNames(PDFont font, COSDictionary fontDictionary)
+    {
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+        foreach (string name in GetCandidateMappingNames(font, fontDictionary))
+        {
+            if (!string.IsNullOrWhiteSpace(name) && seen.Add(name))
+            {
+                yield return name;
+            }
+        }
+    }
+
+    private static IEnumerable<string> GetCandidateMappingNames(PDFont font, COSDictionary fontDictionary)
+    {
+        string baseFont = font.GetName();
+        if (!string.IsNullOrWhiteSpace(baseFont))
+        {
+            yield return baseFont;
+            foreach (string alias in GetCommonTrueTypeFallbackNames(baseFont))
+            {
+                yield return alias;
+            }
+        }
+
+        if (fontDictionary.GetCOSDictionary(FontDescriptorKey) is COSDictionary descriptorDictionary)
+        {
+            string? fontName = descriptorDictionary.GetNameAsString(FontNameKey);
+            if (!string.IsNullOrWhiteSpace(fontName) && !string.Equals(fontName, baseFont, StringComparison.OrdinalIgnoreCase))
+            {
+                yield return fontName;
+                foreach (string alias in GetCommonTrueTypeFallbackNames(fontName))
+                {
+                    yield return alias;
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<string> GetCommonTrueTypeFallbackNames(string fontName)
+    {
+        string compact = fontName
+            .Replace(" ", string.Empty, StringComparison.Ordinal)
+            .Replace("-", string.Empty, StringComparison.Ordinal)
+            .Replace(",", string.Empty, StringComparison.Ordinal);
+        bool bold = compact.Contains("Bold", StringComparison.OrdinalIgnoreCase) ||
+                    compact.Contains("Black", StringComparison.OrdinalIgnoreCase);
+        bool italic = compact.Contains("Italic", StringComparison.OrdinalIgnoreCase) ||
+                      compact.Contains("Oblique", StringComparison.OrdinalIgnoreCase);
+
+        if (compact.Contains("Arial", StringComparison.OrdinalIgnoreCase) ||
+            compact.Contains("Helvetica", StringComparison.OrdinalIgnoreCase) ||
+            compact.Contains("LiberationSans", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (string alias in GetStyledTrueTypeAliases(bold, italic, "Arial", "LiberationSans", "DejaVuSans", "NimbusSans", "Helvetica"))
+            {
+                yield return alias;
+            }
+        }
+        else if (compact.Contains("Courier", StringComparison.OrdinalIgnoreCase) ||
+                 compact.Contains("LiberationMono", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (string alias in GetStyledTrueTypeAliases(bold, italic, "Courier New", "LiberationMono", "DejaVuSansMono", "NimbusMonoPS", "Courier"))
+            {
+                yield return alias;
+            }
+        }
+        else if (compact.Contains("Times", StringComparison.OrdinalIgnoreCase) ||
+                 compact.Contains("LiberationSerif", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (string alias in GetStyledTrueTypeAliases(bold, italic, "Times New Roman", "LiberationSerif", "DejaVuSerif", "NimbusRoman", "Times"))
+            {
+                yield return alias;
+            }
+        }
+    }
+
+    private static IEnumerable<string> GetStyledTrueTypeAliases(bool bold, bool italic, params string[] families)
+    {
+        foreach (string family in families)
+        {
+            if (family.Contains(' '))
+            {
+                yield return GetSpacedStyleName(family, bold, italic);
+            }
+
+            yield return GetHyphenStyleName(family.Replace(" ", string.Empty, StringComparison.Ordinal), bold, italic);
+            yield return family;
+        }
+    }
+
+    private static string GetSpacedStyleName(string family, bool bold, bool italic)
+    {
+        return (bold, italic) switch
+        {
+            (true, true) => family + " Bold Italic",
+            (true, false) => family + " Bold",
+            (false, true) => family + " Italic",
+            _ => family,
+        };
+    }
+
+    private static string GetHyphenStyleName(string family, bool bold, bool italic)
+    {
+        return (bold, italic) switch
+        {
+            (true, true) => family + "-BoldItalic",
+            (true, false) => family + "-Bold",
+            (false, true) => family + "-Italic",
+            _ => family + "-Regular",
+        };
     }
 
     private static Matrix CreateFallbackGlyphMatrix(Matrix textRenderingMatrix)

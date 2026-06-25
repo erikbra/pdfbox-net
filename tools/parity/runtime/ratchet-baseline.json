@@ -2,26 +2,26 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "CI runtime parity summary after explicit glyph width stretching",
-    "generatedAtUtc": "2026-06-25T01:55:26Z",
+    "generatedFrom": "CI runtime parity summary after render-only TrueType outline substitution",
+    "generatedAtUtc": "2026-06-25T02:57:15Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
   "maxStatus": {
-    "known": 55,
+    "known": 53,
     "unexpected": 0
   },
   "maxCategories": {
-    "detail-mismatch": 55,
+    "detail-mismatch": 53,
     "save-structural-match": 148,
     "merge-structural-match": 72,
     "render-java-optional-jpx-reader-missing-match": 3,
     "render-low-ink-equivalence-match": 3,
-    "render-low-mean-raster-drift-equivalence-match": 4,
+    "render-low-mean-raster-drift-equivalence-match": 6,
     "render-lossy-jpeg-decoder-equivalence-match": 2,
     "render-near-blank-threshold-equivalence-match": 2,
-    "render-sparse-equivalence-match": 11,
-    "render-visual-equivalence-match": 57,
+    "render-sparse-equivalence-match": 10,
+    "render-visual-equivalence-match": 58,
     "render-placeholder": 0,
     "text-semantic-math-linewrap-match": 1,
     "text-semantic-punctuation-spacing-match": 1
