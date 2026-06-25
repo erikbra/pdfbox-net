@@ -22,6 +22,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Image;
@@ -207,6 +208,23 @@ public class RenderingSmokeTest
         Assert.Equal(255, r);
         Assert.Equal(255, g);
         Assert.Equal(255, b);
+    }
+
+    [Fact]
+    public void RenderImage_NonZeroCropBox_RendersContentRelativeToCropOrigin()
+    {
+        const string cs = "0.8 0.2 0.2 rg\n10 20 20 20 re\nf\n";
+        using var document = CreateDocument(cs);
+        PDPage page = document.GetPage(0);
+        page.SetMediaBox(new PDRectangle(0, 0, 200, 200));
+        page.SetCropBox(new PDRectangle(10, 20, 100, 100));
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        Assert.Equal(100, image.Width);
+        Assert.Equal(100, image.Height);
+        AssertNotWhite(image.GetRgb(10, 90), "inside the crop-origin rectangle");
+        AssertWhite(image.GetRgb(30, 80), "to the right of the crop-origin rectangle");
     }
 
     // ── Stroked rectangle produces non-white pixels on its border ─────────────
@@ -449,6 +467,24 @@ public class RenderingSmokeTest
         }
 
         return count;
+    }
+
+    private static void AssertWhite(int argb, string context)
+    {
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+        Assert.True(r == 255 && g == 255 && b == 255,
+            $"Expected white pixel {context} but got RGB({r},{g},{b}).");
+    }
+
+    private static void AssertNotWhite(int argb, string context)
+    {
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+        Assert.False(r == 255 && g == 255 && b == 255,
+            $"Expected non-white pixel {context} but got RGB({r},{g},{b}).");
     }
 
     private static (bool NearBlank, int NonBackground, int Dominant) MeasureNearBlank(BufferedImage image)
