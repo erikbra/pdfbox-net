@@ -1141,7 +1141,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     private void DrawImage(PDImage image, Matrix matrix)
     {
-        DrawDecodedImage(SampledImageReader.GetRGBImage(image), image.GetWidth(), image.GetHeight(), matrix);
+        DrawDecodedImage(SampledImageReader.GetRGBImage(image), image.GetWidth(), image.GetHeight(), matrix, image.GetInterpolate());
     }
 
     private void DrawImageXObject(PDImageXObject image)
@@ -1150,10 +1150,11 @@ public class PageDrawer : PDFGraphicsStreamEngine
             SampledImageReader.GetRGBImage(image),
             image.GetWidth(),
             image.GetHeight(),
-            GetGraphicsState().GetCurrentTransformationMatrix());
+            GetGraphicsState().GetCurrentTransformationMatrix(),
+            image.GetInterpolate());
     }
 
-    private void DrawDecodedImage(byte[] rgb, int width, int height, Matrix matrix)
+    private void DrawDecodedImage(byte[] rgb, int width, int height, Matrix matrix, bool interpolate)
     {
         if (_graphics?.Canvas is null || !IsContentRendered())
         {
@@ -1173,7 +1174,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
 
         using SKPaint paint = CreateImagePaint(GetGraphicsState());
-        DrawBitmap(bitmap, dest, paint);
+        DrawBitmap(bitmap, dest, paint, GetImageSamplingOptions(width, height, matrix, interpolate));
     }
 
     private GlyphCache GetGlyphCache(PDVectorFont font)
@@ -1698,8 +1699,37 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     private void DrawBitmap(SKBitmap bitmap, SKRect dest, SKPaint paint)
     {
+        DrawBitmap(bitmap, dest, paint, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
+    }
+
+    private void DrawBitmap(SKBitmap bitmap, SKRect dest, SKPaint paint, SKSamplingOptions samplingOptions)
+    {
         using SKImage image = SKImage.FromBitmap(bitmap);
-        DrawWithCurrentClip(canvas => canvas.DrawImage(image, dest, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear), paint));
+        DrawWithCurrentClip(canvas => canvas.DrawImage(image, dest, samplingOptions, paint));
+    }
+
+    private SKSamplingOptions GetImageSamplingOptions(int imageWidth, int imageHeight, Matrix matrix, bool interpolate)
+    {
+        if (!interpolate && IsImageScaledUp(imageWidth, imageHeight, matrix))
+        {
+            return new SKSamplingOptions(SKFilterMode.Nearest, SKMipmapMode.None);
+        }
+
+        return new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear);
+    }
+
+    private bool IsImageScaledUp(int imageWidth, int imageHeight, Matrix matrix)
+    {
+        Matrix deviceTransform = new(_xform);
+        float scaleX = matrix.GetScalingFactorX() * deviceTransform.GetScalingFactorX();
+        float scaleY = matrix.GetScalingFactorY() * deviceTransform.GetScalingFactorY();
+        return imageWidth <= AbsJavaRounded(scaleX) ||
+               imageHeight <= AbsJavaRounded(scaleY);
+    }
+
+    private static int AbsJavaRounded(float value)
+    {
+        return Math.Abs((int)MathF.Floor(value + 0.5f));
     }
 
     /// <summary>Creates a SkiaSharp paint from the current graphics state.</summary>
