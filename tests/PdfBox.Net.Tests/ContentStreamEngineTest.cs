@@ -563,6 +563,56 @@ public class ContentStreamEngineTest
         Assert.Contains("Q", engine.DispatchedOperators);
     }
 
+    [Fact]
+    public void ProcessPage_FormXObject_UsesFormCtmAsInitialMatrix()
+    {
+        var engine = new TrackingEngine();
+        Matrix? observedInitialMatrix = null;
+        engine.AddOperator(new LambdaProcessor("probe", engine, (_, _) =>
+            observedInitialMatrix = engine.GetInitialMatrix()));
+
+        COSStream pageContents = new();
+        using (Stream output = pageContents.CreateOutputStream())
+        using (StreamWriter writer = new(output))
+        {
+            writer.Write("/Fm0 Do");
+        }
+
+        COSStream formStream = new();
+        formStream.SetName(COSName.GetPDFName("Subtype"), "Form");
+        formStream.SetItem(COSName.MATRIX, COSArray.Of(2f, 0f, 0f, 3f, 4f, 5f));
+        using (Stream output = formStream.CreateOutputStream())
+        using (StreamWriter writer = new(output))
+        {
+            writer.Write("probe");
+        }
+
+        COSDictionary xObjects = new();
+        xObjects.SetItem(COSName.GetPDFName("Fm0"), formStream);
+
+        COSDictionary resources = new();
+        resources.SetItem(COSName.GetPDFName("XObject"), xObjects);
+
+        COSDictionary pageDict = new();
+        pageDict.SetItem(COSName.TYPE, COSName.PAGE);
+        pageDict.SetItem(COSName.CONTENTS, pageContents);
+        pageDict.SetItem(COSName.RESOURCES, resources);
+
+        engine.ProcessPage(new PDPage(pageDict));
+
+        Assert.NotNull(observedInitialMatrix);
+        Assert.Equal(2f, observedInitialMatrix.GetScaleX());
+        Assert.Equal(3f, observedInitialMatrix.GetScaleY());
+        Assert.Equal(4f, observedInitialMatrix.GetTranslateX());
+        Assert.Equal(5f, observedInitialMatrix.GetTranslateY());
+
+        Matrix restoredInitialMatrix = engine.GetInitialMatrix();
+        Assert.Equal(1f, restoredInitialMatrix.GetScaleX());
+        Assert.Equal(1f, restoredInitialMatrix.GetScaleY());
+        Assert.Equal(0f, restoredInitialMatrix.GetTranslateX());
+        Assert.Equal(0f, restoredInitialMatrix.GetTranslateY());
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     /// <summary>

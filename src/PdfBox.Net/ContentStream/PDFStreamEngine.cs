@@ -80,6 +80,7 @@ public class PDFStreamEngine
     private PDGraphicsState _currentGraphicsState = new();
     private Matrix _textMatrix = new();
     private Matrix _textLineMatrix = new();
+    private Matrix _initialMatrix = new();
     private (float X, float Y)? _currentPoint;
     private int? _pendingClipWindingRule;
     private int _compatibilitySectionDepth;
@@ -119,6 +120,7 @@ public class PDFStreamEngine
         _graphicsStateStack.Clear();
         _textMatrix = new Matrix();
         _textLineMatrix = new Matrix();
+        _initialMatrix = new Matrix();
         _currentPath.Clear();
         _currentPoint = null;
         _pendingClipWindingRule = null;
@@ -179,6 +181,8 @@ public class PDFStreamEngine
 
         PDResources? previousResources = _resources;
         _resources = tilingPattern.GetResources() ?? previousResources;
+        Matrix previousInitialMatrix = _initialMatrix;
+        _initialMatrix = Matrix.Concatenate(_initialMatrix, patternMatrix);
 
         GraphicsStackSnapshot savedStack = SaveGraphicsStack();
         List<PathSegment> savedPath = [.. _currentPath];
@@ -206,6 +210,7 @@ public class PDFStreamEngine
         finally
         {
             _resources = previousResources;
+            _initialMatrix = previousInitialMatrix;
             RestoreGraphicsStack(savedStack);
             _currentPath.Clear();
             _currentPath.AddRange(savedPath);
@@ -489,6 +494,9 @@ public class PDFStreamEngine
     /// <summary>Returns the current graphics state.</summary>
     protected internal PDGraphicsState GetGraphicsState() => _currentGraphicsState;
 
+    /// <summary>Returns the current stream's initial matrix.</summary>
+    public virtual Matrix GetInitialMatrix() => _initialMatrix;
+
     /// <summary>Returns the current text matrix.</summary>
     protected internal Matrix GetTextMatrix() => _textMatrix;
 
@@ -524,10 +532,12 @@ public class PDFStreamEngine
         {
             GraphicsStackSnapshot savedStack = SaveGraphicsStack();
             PDResources? previousResources = _resources;
+            Matrix previousInitialMatrix = _initialMatrix;
             _resources = form.GetResources() ?? previousResources;
             try
             {
                 ConcatenateMatrix(form.GetMatrix());
+                _initialMatrix = GetGraphicsState().GetCurrentTransformationMatrix();
                 ClipToRect(form.GetBBox());
                 using Stream content = form.GetContents();
                 ProcessStream(content);
@@ -535,6 +545,7 @@ public class PDFStreamEngine
             finally
             {
                 _resources = previousResources;
+                _initialMatrix = previousInitialMatrix;
                 RestoreGraphicsStack(savedStack);
             }
         }

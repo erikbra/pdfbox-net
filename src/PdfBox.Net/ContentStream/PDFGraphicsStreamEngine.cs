@@ -41,9 +41,9 @@ public abstract class PDFGraphicsStreamEngine : PDFStreamEngine
 
     protected PDPage Page { get; }
 
-    public virtual Matrix GetInitialMatrix()
+    public override Matrix GetInitialMatrix()
     {
-        return new Matrix();
+        return base.GetInitialMatrix();
     }
 
     public override void AppendRectangle(float x, float y, float width, float height)

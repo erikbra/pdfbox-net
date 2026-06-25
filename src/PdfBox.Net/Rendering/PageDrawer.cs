@@ -63,7 +63,6 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private Graphics2D? _graphics;
     private AffineTransform _xform = new();
     private readonly GeneralPath _linePath = new();
-    private readonly Matrix _initialMatrix = new();
     private Point2D? _currentPoint;
     private List<PDFStreamEngine.PathSegment>? _textClippings;
     private readonly Stack<bool> _hiddenMarkedContentStack = new();
@@ -100,7 +99,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     protected GeneralPath GetLinePath() => _linePath;
 
-    public override Matrix GetInitialMatrix() => _initialMatrix;
+    public override Matrix GetInitialMatrix() => base.GetInitialMatrix();
 
     private void SetRenderingHints()
     {
