@@ -115,7 +115,7 @@ public class PDFStreamEngine
     public virtual void ProcessPage(PDPage page)
     {
         _currentPage = page;
-        _currentGraphicsState = new PDGraphicsState();
+        _currentGraphicsState = new PDGraphicsState(page.GetCropBox());
         _graphicsStateStack.Clear();
         _textMatrix = new Matrix();
         _textLineMatrix = new Matrix();

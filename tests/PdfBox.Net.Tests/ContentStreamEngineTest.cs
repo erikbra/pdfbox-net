@@ -30,6 +30,7 @@ using PdfBox.Net.ContentStream;
 using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.Util;
 using Xunit;
@@ -101,6 +102,29 @@ public class ContentStreamEngineTest
         engine.RunStream("q Q");
 
         Assert.Equal(new[] { "q", "Q" }, engine.DispatchedOperators);
+    }
+
+    [Fact]
+    public void ProcessPage_SeedsGraphicsStateClipFromCropBox()
+    {
+        var engine = new TrackingEngine();
+        var page = new PDPage();
+        page.SetMediaBox(new PDRectangle(0, 0, 200, 200));
+        page.SetCropBox(new PDRectangle(10, 20, 100, 80));
+
+        engine.ProcessPage(page);
+
+        PDGraphicsState.ClippingPath clip = Assert.Single(engine.GetGraphicsState().GetCurrentClippingPaths());
+        Assert.Equal(1, clip.WindingRule);
+        Assert.Equal(5, clip.Segments.Count);
+        Assert.Equal(10, clip.Segments[0].X1);
+        Assert.Equal(20, clip.Segments[0].Y1);
+        Assert.Equal(110, clip.Segments[1].X1);
+        Assert.Equal(20, clip.Segments[1].Y1);
+        Assert.Equal(110, clip.Segments[2].X1);
+        Assert.Equal(100, clip.Segments[2].Y1);
+        Assert.Equal(10, clip.Segments[3].X1);
+        Assert.Equal(100, clip.Segments[3].Y1);
     }
 
     [Fact]
