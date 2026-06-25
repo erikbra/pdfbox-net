@@ -1145,15 +1145,21 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
     private void DrawImageXObject(PDImageXObject image)
     {
+        int width = image.GetWidth();
+        int height = image.GetHeight();
+        byte[] rgb = SampledImageReader.GetRGBImage(image);
+        byte[]? alpha = CreateSoftMaskAlpha(image, width, height);
+
         DrawDecodedImage(
-            SampledImageReader.GetRGBImage(image),
-            image.GetWidth(),
-            image.GetHeight(),
+            rgb,
+            width,
+            height,
             GetGraphicsState().GetCurrentTransformationMatrix(),
-            image.GetInterpolate());
+            image.GetInterpolate(),
+            alpha);
     }
 
-    private void DrawDecodedImage(byte[] rgb, int width, int height, Matrix matrix, bool interpolate)
+    private void DrawDecodedImage(byte[] rgb, int width, int height, Matrix matrix, bool interpolate, byte[]? alpha = null)
     {
         if (_graphics?.Canvas is null || !IsContentRendered())
         {
@@ -1165,7 +1171,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
             return;
         }
 
-        using SKBitmap bitmap = CreateBitmapFromRgb(rgb, width, height);
+        using SKBitmap bitmap = CreateBitmapFromRgb(rgb, width, height, alpha);
         using SKPaint paint = CreateImagePaint(GetGraphicsState());
         DrawBitmap(bitmap, matrix, paint, GetImageSamplingOptions(width, height, matrix, interpolate));
     }
@@ -1650,16 +1656,55 @@ public class PageDrawer : PDFGraphicsStreamEngine
         };
     }
 
-    private static SKBitmap CreateBitmapFromRgb(byte[] rgb, int width, int height)
+    private static byte[]? CreateSoftMaskAlpha(PDImageXObject image, int width, int height)
     {
-        var bitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Opaque);
+        PDImageXObject? softMask = image.GetSoftMask();
+        if (softMask is null || width <= 0 || height <= 0)
+        {
+            return null;
+        }
+
+        int maskWidth = softMask.GetWidth();
+        int maskHeight = softMask.GetHeight();
+        if (maskWidth <= 0 || maskHeight <= 0)
+        {
+            return null;
+        }
+
+        byte[] maskRgb = SampledImageReader.GetRGBImage(softMask);
+        if (maskRgb.Length < maskWidth * maskHeight * 3)
+        {
+            return null;
+        }
+
+        byte[] alpha = new byte[width * height];
+        for (int y = 0; y < height; y++)
+        {
+            int maskY = Math.Min(maskHeight - 1, y * maskHeight / height);
+            for (int x = 0; x < width; x++)
+            {
+                int maskX = Math.Min(maskWidth - 1, x * maskWidth / width);
+                alpha[(y * width) + x] = maskRgb[((maskY * maskWidth) + maskX) * 3];
+            }
+        }
+
+        return alpha;
+    }
+
+    private static SKBitmap CreateBitmapFromRgb(byte[] rgb, int width, int height, byte[]? alpha = null)
+    {
+        bool hasAlpha = alpha is { Length: var alphaLength } && alphaLength >= width * height;
+        var bitmap = new SKBitmap(width, height, SKColorType.Bgra8888, hasAlpha ? SKAlphaType.Premul : SKAlphaType.Opaque);
         int src = 0;
+        int alphaIndex = 0;
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                bitmap.SetPixel(x, y, new SKColor(rgb[src], rgb[src + 1], rgb[src + 2]));
+                byte a = hasAlpha ? alpha![alphaIndex] : (byte)255;
+                bitmap.SetPixel(x, y, new SKColor(rgb[src], rgb[src + 1], rgb[src + 2], a));
                 src += 3;
+                alphaIndex++;
             }
         }
 

@@ -189,6 +189,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName SHADING = GetPDFName("Shading");
     public static readonly COSName SHADING_TYPE = GetPDFName("ShadingType");
     public static readonly COSName SIZE = GetPDFName("Size");
+    public static readonly COSName SMASK = GetPDFName("SMask");
     public static readonly COSName SMASK_IN_DATA = GetPDFName("SMaskInData");
     public static readonly COSName ST = GetPDFName("St");
     public static readonly COSName STRUCT_PARENTS = GetPDFName("StructParents");

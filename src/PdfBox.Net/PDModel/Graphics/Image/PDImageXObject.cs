@@ -104,6 +104,12 @@ public sealed class PDImageXObject : PDXObject
         return PDColorSpace.Create(colorSpace, _resources);
     }
 
+    public PDImageXObject? GetSoftMask()
+    {
+        COSStream? cosStream = GetCOSObject()?.GetCOSStream(COSName.SMASK);
+        return cosStream is null ? null : new PDImageXObject(new PDStream(cosStream), null);
+    }
+
     public byte[] GetImageData()
     {
         return DecodeImageData().Data;
