@@ -9,6 +9,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.PdfParser;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Tests;
 
@@ -52,6 +53,58 @@ public class PDAppearanceGenerationTest
 
         Assert.Contains(tokens, token => token is COSString text && text.GetString() == "beta");
         Assert.Contains(tokens, token => token is Operator op && op.GetName() == "Tj");
+    }
+
+    [Fact]
+    public void TextFieldConstructAppearancesAppliesWidgetRotationToAppearanceStream()
+    {
+        using PDDocument document = new();
+        PDAcroForm acroForm = CreateAcroFormWithHelvetica(document);
+        PDTextField field = new(acroForm);
+        field.SetDefaultAppearance("/F1 10 Tf 0 g");
+        PDAnnotationWidget widget = CreateWidget(new PDRectangle(10, 20, 120, 24));
+        PDAppearanceCharacteristicsDictionary characteristics = new();
+        characteristics.SetRotation(90);
+        widget.SetAppearanceCharacteristics(characteristics);
+        field.SetWidgets([widget]);
+
+        field.SetValue("Rotated");
+
+        PDAppearanceStream stream = widget.GetNormalAppearanceStream()!;
+        PDRectangle bbox = stream.GetBBox()!;
+        Matrix matrix = stream.GetMatrix();
+        Assert.Equal(24, bbox.GetWidth(), precision: 3);
+        Assert.Equal(120, bbox.GetHeight(), precision: 3);
+        Assert.Equal(0, matrix.GetScaleX(), precision: 3);
+        Assert.Equal(1, matrix.GetShearY(), precision: 3);
+        Assert.Equal(-1, matrix.GetShearX(), precision: 3);
+        Assert.Equal(0, matrix.GetScaleY(), precision: 3);
+        Assert.Equal(120, matrix.GetTranslateX(), precision: 3);
+        Assert.Equal(0, matrix.GetTranslateY(), precision: 3);
+    }
+
+    [Fact]
+    public void TextFieldConstructAppearancesPreservesGeneratedBorderWhenWritingValue()
+    {
+        using PDDocument document = new();
+        PDAcroForm acroForm = CreateAcroFormWithHelvetica(document);
+        PDTextField field = new(acroForm);
+        field.SetDefaultAppearance("/F1 10 Tf 0 g");
+        PDAnnotationWidget widget = CreateWidget(new PDRectangle(20, 20, 100, 22));
+        PDAppearanceCharacteristicsDictionary characteristics = new();
+        characteristics.SetBorderColour(new PDColor(new COSArray { new COSFloat(0f) }, PDDeviceGray.Instance));
+        widget.SetAppearanceCharacteristics(characteristics);
+        field.SetWidgets([widget]);
+
+        field.SetValue("Bordered");
+
+        IList<object> tokens = ParseAppearance(widget.GetNormalAppearanceStream()!);
+        int strokeIndex = tokens.TakeWhile(token => token is not Operator op || op.GetName() != "s").Count();
+        int bmcIndex = tokens.TakeWhile(token => token is not Operator op || op.GetName() != "BMC").Count();
+        Assert.True(strokeIndex < tokens.Count);
+        Assert.True(bmcIndex < tokens.Count);
+        Assert.True(strokeIndex < bmcIndex);
+        Assert.Contains(tokens, token => token is COSString text && text.GetString().Contains("Bordered", StringComparison.Ordinal));
     }
 
     [Fact]
