@@ -508,6 +508,29 @@ public class RenderingSmokeTest
     }
 
     [Fact]
+    public void RenderImage_ImageXObject_AppliesSoftMaskAlpha()
+    {
+        using var document = new PDDocument();
+        using var source = new SKBitmap(2, 1);
+        source.SetPixel(0, 0, SKColors.Black);
+        source.SetPixel(1, 0, SKColors.Black);
+        PDImageXObject imageXObject = LosslessFactory.CreateFromImage(document, source);
+
+        byte[] mask = [255, 0];
+        PDImageXObject softMask = LosslessFactory.CreateFromRawData(document, mask, 2, 1, 8, 1);
+        imageXObject.GetCOSObject()!.SetItem(COSName.SMASK, softMask.GetCOSObject());
+
+        var resources = new PDModel.Resources.PDResources();
+        resources.Put(COSName.GetPDFName("Im1"), imageXObject);
+        using PDDocument pageDocument = CreateDocument("q\n40 0 0 20 100 300 cm\n/Im1 Do\nQ\n", resources);
+
+        using BufferedImage image = new PDFRenderer(pageDocument).RenderImage(0, 1f, ImageType.RGB);
+
+        AssertNotWhite(image.GetRgb(110, 482), "inside the opaque soft-mask pixel");
+        AssertWhite(image.GetRgb(130, 482), "inside the transparent soft-mask pixel");
+    }
+
+    [Fact]
     public void RenderImage_ImageXObject_UsesNearestNeighborWhenScaledUpWithoutInterpolate()
     {
         using var document = new PDDocument();
