@@ -2,8 +2,8 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "CI runtime parity summary after render-only TrueType outline substitution",
-    "generatedAtUtc": "2026-06-25T02:57:15Z",
+    "generatedFrom": "CI runtime parity summary after form XObject BBox clipping",
+    "generatedAtUtc": "2026-06-25T03:43:51Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
@@ -21,7 +21,7 @@
     "render-lossy-jpeg-decoder-equivalence-match": 2,
     "render-near-blank-threshold-equivalence-match": 2,
     "render-sparse-equivalence-match": 10,
-    "render-visual-equivalence-match": 58,
+    "render-visual-equivalence-match": 60,
     "render-placeholder": 0,
     "text-semantic-math-linewrap-match": 1,
     "text-semantic-punctuation-spacing-match": 1

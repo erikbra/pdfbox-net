@@ -33,6 +33,7 @@ using PdfBox.Net.ContentStream.Operator.State;
 using PdfBox.Net.ContentStream.Operator.Text;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
@@ -527,6 +528,7 @@ public class PDFStreamEngine
             try
             {
                 ConcatenateMatrix(form.GetMatrix());
+                ClipToRect(form.GetBBox());
                 using Stream content = form.GetContents();
                 ProcessStream(content);
             }
@@ -536,6 +538,27 @@ public class PDFStreamEngine
                 RestoreGraphicsStack(savedStack);
             }
         }
+    }
+
+    private void ClipToRect(PDRectangle? bbox)
+    {
+        if (bbox is null || bbox.GetWidth() <= 0 || bbox.GetHeight() <= 0)
+        {
+            return;
+        }
+
+        PathSegment[] rectanglePath =
+        [
+            new(PathSegmentType.MoveTo, bbox.GetLowerLeftX(), bbox.GetLowerLeftY(), 0, 0, 0, 0),
+            new(PathSegmentType.LineTo, bbox.GetUpperRightX(), bbox.GetLowerLeftY(), 0, 0, 0, 0),
+            new(PathSegmentType.LineTo, bbox.GetUpperRightX(), bbox.GetUpperRightY(), 0, 0, 0, 0),
+            new(PathSegmentType.LineTo, bbox.GetLowerLeftX(), bbox.GetUpperRightY(), 0, 0, 0, 0),
+            new(PathSegmentType.Close, 0, 0, 0, 0, 0, 0),
+        ];
+        _currentGraphicsState.IntersectClippingPath(
+            rectanglePath,
+            _currentGraphicsState.GetCurrentTransformationMatrix(),
+            1);
     }
 
     public virtual void BeginInlineImage()
