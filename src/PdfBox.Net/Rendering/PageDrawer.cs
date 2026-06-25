@@ -65,9 +65,11 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private readonly Stack<bool> _hiddenMarkedContentStack = new();
     private int _nestedHiddenOptionalContentCount;
 
-    // Page height in PDF points, used to flip the Y axis when converting
+    // Page crop box in PDF points, used to translate visible content and flip
     // from PDF space (Y-up, origin bottom-left) to canvas space (Y-down).
     private float _pageHeightPt;
+    private float _pageLowerLeftXPt;
+    private float _pageLowerLeftYPt;
 
     public PageDrawer(PageDrawerParameters parameters)
         : base(parameters.GetPage())
@@ -99,6 +101,8 @@ public class PageDrawer : PDFGraphicsStreamEngine
         _graphics = graphics ?? throw new ArgumentNullException(nameof(graphics));
         ArgumentNullException.ThrowIfNull(pageSize);
         _pageHeightPt = pageSize.GetHeight();
+        _pageLowerLeftXPt = pageSize.GetLowerLeftX();
+        _pageLowerLeftYPt = pageSize.GetLowerLeftY();
         SetRenderingHints();
         ProcessPage(Page);
         foreach (PDAnnotation annotation in Page.GetAnnotations())
@@ -111,11 +115,15 @@ public class PageDrawer : PDFGraphicsStreamEngine
     {
         Graphics2D? savedGraphics = _graphics;
         float savedPageHeight = _pageHeightPt;
+        float savedPageLowerLeftX = _pageLowerLeftXPt;
+        float savedPageLowerLeftY = _pageLowerLeftYPt;
         _graphics = graphics;
         if (graphics.BitmapHeight is int bitmapHeight && bitmapHeight > 0)
         {
             _pageHeightPt = bitmapHeight;
         }
+        _pageLowerLeftXPt = 0;
+        _pageLowerLeftYPt = 0;
 
         try
         {
@@ -126,6 +134,8 @@ public class PageDrawer : PDFGraphicsStreamEngine
         {
             _graphics = savedGraphics;
             _pageHeightPt = savedPageHeight;
+            _pageLowerLeftXPt = savedPageLowerLeftX;
+            _pageLowerLeftYPt = savedPageLowerLeftY;
         }
     }
 
@@ -965,7 +975,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
                 case PDFStreamEngine.PathSegmentType.MoveTo:
                 case PDFStreamEngine.PathSegmentType.LineTo:
                 {
-                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix, _pageHeightPt);
+                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix);
                     points.Add(new SKPoint(x, y));
                     break;
                 }
@@ -1018,21 +1028,21 @@ public class PageDrawer : PDFGraphicsStreamEngine
             {
                 case PDFStreamEngine.PathSegmentType.MoveTo:
                 {
-                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix, _pageHeightPt);
+                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix);
                     skPath.MoveTo(x, y);
                     break;
                 }
                 case PDFStreamEngine.PathSegmentType.LineTo:
                 {
-                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix, _pageHeightPt);
+                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix);
                     skPath.LineTo(x, y);
                     break;
                 }
                 case PDFStreamEngine.PathSegmentType.CurveTo:
                 {
-                    (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix, _pageHeightPt);
-                    (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, clip.CurrentTransformationMatrix, _pageHeightPt);
-                    (float x3, float y3) = PdfToCanvas(segment.X3, segment.Y3, clip.CurrentTransformationMatrix, _pageHeightPt);
+                    (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix);
+                    (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, clip.CurrentTransformationMatrix);
+                    (float x3, float y3) = PdfToCanvas(segment.X3, segment.Y3, clip.CurrentTransformationMatrix);
                     skPath.CubicTo(x1, y1, x2, y2, x3, y3);
                     break;
                 }
@@ -1054,7 +1064,6 @@ public class PageDrawer : PDFGraphicsStreamEngine
     {
         var skPath = new SKPath();
         Matrix ctm = graphicsState.GetCurrentTransformationMatrix();
-        float pageH = _pageHeightPt;
 
         foreach (PDFStreamEngine.PathSegment seg in segments)
         {
@@ -1062,21 +1071,21 @@ public class PageDrawer : PDFGraphicsStreamEngine
             {
                 case PDFStreamEngine.PathSegmentType.MoveTo:
                 {
-                    (float cx, float cy) = PdfToCanvas(seg.X1, seg.Y1, ctm, pageH);
+                    (float cx, float cy) = PdfToCanvas(seg.X1, seg.Y1, ctm);
                     skPath.MoveTo(cx, cy);
                     break;
                 }
                 case PDFStreamEngine.PathSegmentType.LineTo:
                 {
-                    (float cx, float cy) = PdfToCanvas(seg.X1, seg.Y1, ctm, pageH);
+                    (float cx, float cy) = PdfToCanvas(seg.X1, seg.Y1, ctm);
                     skPath.LineTo(cx, cy);
                     break;
                 }
                 case PDFStreamEngine.PathSegmentType.CurveTo:
                 {
-                    (float cx1, float cy1) = PdfToCanvas(seg.X1, seg.Y1, ctm, pageH);
-                    (float cx2, float cy2) = PdfToCanvas(seg.X2, seg.Y2, ctm, pageH);
-                    (float cx3, float cy3) = PdfToCanvas(seg.X3, seg.Y3, ctm, pageH);
+                    (float cx1, float cy1) = PdfToCanvas(seg.X1, seg.Y1, ctm);
+                    (float cx2, float cy2) = PdfToCanvas(seg.X2, seg.Y2, ctm);
+                    (float cx3, float cy3) = PdfToCanvas(seg.X3, seg.Y3, ctm);
                     skPath.CubicTo(cx1, cy1, cx2, cy2, cx3, cy3);
                     break;
                 }
@@ -1093,10 +1102,21 @@ public class PageDrawer : PDFGraphicsStreamEngine
     /// Converts a point from PDF user space to SkiaSharp canvas space.
     /// Applies the CTM then flips Y.
     /// </summary>
-    private static (float x, float y) PdfToCanvas(float x, float y, Matrix ctm, float pageHeightPt)
+    private (float x, float y) PdfToCanvas(float x, float y, Matrix ctm)
+    {
+        return PdfToCanvas(x, y, ctm, _pageHeightPt, _pageLowerLeftXPt, _pageLowerLeftYPt);
+    }
+
+    private static (float x, float y) PdfToCanvas(
+        float x,
+        float y,
+        Matrix ctm,
+        float pageHeightPt,
+        float pageLowerLeftXPt,
+        float pageLowerLeftYPt)
     {
         Vector v = ctm.Transform(x, y);
-        return (v.GetX(), pageHeightPt - v.GetY());
+        return (v.GetX() - pageLowerLeftXPt, pageHeightPt - v.GetY() + pageLowerLeftYPt);
     }
 
     private void DrawImage(PDImage image, Matrix matrix)
@@ -1156,20 +1176,20 @@ public class PageDrawer : PDFGraphicsStreamEngine
             {
                 case GeneralPath.SegmentType.MoveTo:
                 {
-                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, matrix, _pageHeightPt);
+                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, matrix);
                     skPath.MoveTo(x, y);
                     break;
                 }
                 case GeneralPath.SegmentType.LineTo:
                 {
-                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, matrix, _pageHeightPt);
+                    (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, matrix);
                     skPath.LineTo(x, y);
                     break;
                 }
                 case GeneralPath.SegmentType.QuadTo:
                 {
-                    (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, matrix, _pageHeightPt);
-                    (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, matrix, _pageHeightPt);
+                    (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, matrix);
+                    (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, matrix);
                     skPath.QuadTo(x1, y1, x2, y2);
                     break;
                 }
@@ -1193,7 +1213,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
         RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
         Matrix fallbackGlyphMatrix = CreateFallbackGlyphMatrix(textRenderingMatrix);
-        SKMatrix matrix = ToCanvasMatrix(fallbackGlyphMatrix, _pageHeightPt);
+        SKMatrix matrix = ToCanvasMatrix(fallbackGlyphMatrix);
         using SKTypeface? typeface = CreateFallbackTypeface(font);
         // Java2D renders fallback glyphs with grayscale antialiasing and fractional placement.
         using SKFont skFont = new(typeface ?? SKTypeface.Default, GetFallbackFontSize(font))
@@ -1355,26 +1375,35 @@ public class PageDrawer : PDFGraphicsStreamEngine
         return plus >= 0 && plus + 1 < name.Length ? name[(plus + 1)..] : name;
     }
 
-    private static SKMatrix ToCanvasMatrix(Matrix matrix, float pageHeightPt)
+    private SKMatrix ToCanvasMatrix(Matrix matrix)
+    {
+        return ToCanvasMatrix(matrix, _pageHeightPt, _pageLowerLeftXPt, _pageLowerLeftYPt);
+    }
+
+    private static SKMatrix ToCanvasMatrix(
+        Matrix matrix,
+        float pageHeightPt,
+        float pageLowerLeftXPt,
+        float pageLowerLeftYPt)
     {
         return new SKMatrix
         {
             ScaleX = matrix.GetScaleX(),
             SkewX = matrix.GetShearX(),
-            TransX = matrix.GetTranslateX(),
+            TransX = matrix.GetTranslateX() - pageLowerLeftXPt,
             SkewY = -matrix.GetShearY(),
             ScaleY = -matrix.GetScaleY(),
-            TransY = pageHeightPt - matrix.GetTranslateY(),
+            TransY = pageHeightPt - matrix.GetTranslateY() + pageLowerLeftYPt,
             Persp2 = 1f,
         };
     }
 
     private SKRect GetImageDestination(Matrix matrix)
     {
-        (float x0, float y0) = PdfToCanvas(0, 0, matrix, _pageHeightPt);
-        (float x1, float y1) = PdfToCanvas(1, 0, matrix, _pageHeightPt);
-        (float x2, float y2) = PdfToCanvas(1, 1, matrix, _pageHeightPt);
-        (float x3, float y3) = PdfToCanvas(0, 1, matrix, _pageHeightPt);
+        (float x0, float y0) = PdfToCanvas(0, 0, matrix);
+        (float x1, float y1) = PdfToCanvas(1, 0, matrix);
+        (float x2, float y2) = PdfToCanvas(1, 1, matrix);
+        (float x3, float y3) = PdfToCanvas(0, 1, matrix);
 
         float left = MathF.Min(MathF.Min(x0, x1), MathF.Min(x2, x3));
         float right = MathF.Max(MathF.Max(x0, x1), MathF.Max(x2, x3));
@@ -1576,8 +1605,8 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
 
         Matrix ctm = GetGraphicsState().GetCurrentTransformationMatrix();
-        (float x0, float y0) = PdfToCanvas(bbox.GetLowerLeftX(), bbox.GetLowerLeftY(), ctm, _pageHeightPt);
-        (float x1, float y1) = PdfToCanvas(bbox.GetUpperRightX(), bbox.GetUpperRightY(), ctm, _pageHeightPt);
+        (float x0, float y0) = PdfToCanvas(bbox.GetLowerLeftX(), bbox.GetLowerLeftY(), ctm);
+        (float x1, float y1) = PdfToCanvas(bbox.GetUpperRightX(), bbox.GetUpperRightY(), ctm);
         return new SKRect(Math.Min(x0, x1), Math.Min(y0, y1), Math.Max(x0, x1), Math.Max(y0, y1));
     }
 
