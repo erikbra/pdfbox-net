@@ -58,8 +58,10 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private readonly PageDrawerParameters _parameters;
     private readonly Dictionary<PDVectorFont, GlyphCache> _glyphCaches = new();
     private readonly Dictionary<COSDictionary, PDTrueTypeFont?> _mappedTrueTypeFonts = new();
+    private readonly TilingPaintFactory _tilingPaintFactory;
     private AnnotationFilter _annotationFilter = _ => true;
     private Graphics2D? _graphics;
+    private AffineTransform _xform = new();
     private readonly GeneralPath _linePath = new();
     private readonly Matrix _initialMatrix = new();
     private Point2D? _currentPoint;
@@ -82,6 +84,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
         : base(parameters.GetPage())
     {
         _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+        _tilingPaintFactory = new TilingPaintFactory(this);
     }
 
     public AnnotationFilter GetAnnotationFilter() => _annotationFilter;
@@ -106,6 +109,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
     public void DrawPage(Graphics2D graphics, PDRectangle pageSize)
     {
         _graphics = graphics ?? throw new ArgumentNullException(nameof(graphics));
+        _xform = graphics.GetTransform();
         ArgumentNullException.ThrowIfNull(pageSize);
         _pageHeightPt = pageSize.GetHeight();
         _pageLowerLeftXPt = pageSize.GetLowerLeftX();
@@ -1705,6 +1709,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
             ? graphicsState.GetStrokingColor()
             : graphicsState.GetNonStrokingColor();
 
+        SKShader? shader = CreatePatternShader(pdColor);
         int rgb = ResolvePaintColor(pdColor, stroke);
         byte r = (byte)((rgb >> 16) & 0xFF);
         byte g = (byte)((rgb >> 8) & 0xFF);
@@ -1721,6 +1726,11 @@ public class PageDrawer : PDFGraphicsStreamEngine
             IsAntialias = true,
             Style = stroke ? SKPaintStyle.Stroke : SKPaintStyle.Fill,
         };
+        if (shader is not null)
+        {
+            paint.Shader = shader;
+            shader.Dispose();
+        }
 
         if (stroke)
         {
@@ -1742,6 +1752,53 @@ public class PageDrawer : PDFGraphicsStreamEngine
         }
 
         return paint;
+    }
+
+    private SKShader? CreatePatternShader(PDColor color)
+    {
+        PDColorSpace? colorSpace = color.GetColorSpace();
+        if (colorSpace is not PDPattern patternColorSpace)
+        {
+            return null;
+        }
+
+        COSName? patternName = color.GetPatternName();
+        PDAbstractPattern? pattern = patternName is null ? null : patternColorSpace.GetResources()?.GetPattern(patternName);
+        if (pattern is not PDTilingPattern tilingPattern)
+        {
+            return null;
+        }
+
+        PDColorSpace? underlyingColorSpace = tilingPattern.GetPaintType() == PDTilingPattern.PAINT_UNCOLORED
+            ? patternColorSpace.GetUnderlyingColorSpace()
+            : null;
+        PDColor? uncoloredPatternColor = underlyingColorSpace is null ? null : color;
+        IPaint tilingPaint = _tilingPaintFactory.Create(tilingPattern, underlyingColorSpace, uncoloredPatternColor, _xform);
+        return tilingPaint is TilingPaint paint ? CreateTextureShader(paint.TexturePaint) : null;
+    }
+
+    private static SKShader CreateTextureShader(TexturePaint texturePaint)
+    {
+        BufferedImage image = texturePaint.Image;
+        Rectangle2D anchor = texturePaint.AnchorRect;
+        double anchorWidth = Math.Abs(anchor.Width) > double.Epsilon ? Math.Abs(anchor.Width) : image.Width;
+        double anchorHeight = Math.Abs(anchor.Height) > double.Epsilon ? Math.Abs(anchor.Height) : image.Height;
+        float scaleX = (float)(image.Width / anchorWidth);
+        float scaleY = (float)(image.Height / anchorHeight);
+        SKMatrix localMatrix = new()
+        {
+            ScaleX = scaleX,
+            ScaleY = scaleY,
+            TransX = (float)(-anchor.X * scaleX),
+            TransY = (float)(-anchor.Y * scaleY),
+            Persp2 = 1,
+        };
+
+        return SKShader.CreateBitmap(
+            image.Bitmap,
+            SKShaderTileMode.Repeat,
+            SKShaderTileMode.Repeat,
+            localMatrix);
     }
 
     private static float TransformWidth(PDGraphicsState graphicsState, float width)
