@@ -8,11 +8,14 @@
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
+using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.PdfParser;
+using PdfBox.Net.PdfWriter;
 using PdfBox.Net.Util;
 using System.Text;
 
@@ -20,7 +23,10 @@ namespace PdfBox.Net.PDModel.Interactive.Form;
 
 internal sealed class AppearanceGeneratorHelper
 {
-    private const float DefaultPadding = 1f;
+    private const float DefaultPadding = 0.5f;
+    private static readonly Operator Bmc = Operator.GetOperator("BMC");
+    private static readonly Operator Emc = Operator.GetOperator("EMC");
+    private static readonly COSName TxName = COSName.GetPDFName("Tx");
 
     private readonly PDVariableText _field;
     private readonly PDDefaultAppearanceString? _defaultAppearance;
@@ -85,12 +91,46 @@ internal sealed class AppearanceGeneratorHelper
     private PDAppearanceStream PrepareNormalAppearanceStream(PDAnnotationWidget widget)
     {
         PDAppearanceStream stream = new(_field.GetAcroForm().GetDocument());
-        PDRectangle bbox = widget.GetRectangle()!.CreateRetranslatedRectangle();
+        int rotation = ResolveRotation(widget);
+        PDRectangle rectangle = widget.GetRectangle()!;
+        Matrix rotationMatrix = Matrix.GetRotateInstance(Math.PI * rotation / 180.0, 0, 0);
+        Vector transformedUpperRight = rotationMatrix.TransformPoint(rectangle.GetWidth(), rectangle.GetHeight());
+
+        PDRectangle bbox = new(Math.Abs(transformedUpperRight.GetX()), Math.Abs(transformedUpperRight.GetY()));
         stream.SetBBox(bbox);
-        stream.SetMatrix(Matrix.GetTranslateInstance(-widget.GetRectangle()!.GetLowerLeftX(), -widget.GetRectangle()!.GetLowerLeftY()));
+        if (rotation != 0)
+        {
+            stream.SetMatrix(CalculateMatrix(bbox, rotation));
+        }
         stream.SetFormType(1);
         stream.SetResources(new PDResources());
         return stream;
+    }
+
+    private static int ResolveRotation(PDAnnotationWidget widget)
+    {
+        return widget.GetAppearanceCharacteristics()?.GetRotation() ?? 0;
+    }
+
+    private static Matrix CalculateMatrix(PDRectangle bbox, int rotation)
+    {
+        float tx = 0;
+        float ty = 0;
+        switch (rotation)
+        {
+            case 90:
+                tx = bbox.GetUpperRightY();
+                break;
+            case 180:
+                tx = bbox.GetUpperRightY();
+                ty = bbox.GetUpperRightX();
+                break;
+            case 270:
+                ty = bbox.GetUpperRightX();
+                break;
+        }
+
+        return Matrix.GetRotateInstance(Math.PI * rotation / 180.0, tx, ty);
     }
 
     private void InitializeWidgetAppearance(PDAnnotationWidget widget, PDAppearanceStream stream)
@@ -130,11 +170,26 @@ internal sealed class AppearanceGeneratorHelper
     {
         PDDefaultAppearanceString defaultAppearance = _defaultAppearance!;
         using MemoryStream buffer = new();
+        ContentStreamWriter writer = new(buffer);
+        IList<object> tokens = ParseAppearanceTokens(stream);
+        int bmcIndex = IndexOfOperator(tokens, "BMC");
+        if (bmcIndex == -1)
+        {
+            writer.WriteTokens(tokens);
+            writer.WriteTokens(TxName, Bmc);
+        }
+        else
+        {
+            writer.WriteTokens(tokens.Take(bmcIndex + 1).ToList());
+        }
+
         using (PDAppearanceContentStream contents = new(stream, buffer))
         {
             PDRectangle bbox = ResolveBoundingBox(widget, stream);
-            PDRectangle clipRect = ApplyPadding(bbox, DefaultPadding);
-            PDRectangle contentRect = ApplyPadding(clipRect, DefaultPadding);
+            float borderWidth = widget.GetBorderStyle()?.GetWidth() ?? 0f;
+            float padding = Math.Max(1f, borderWidth);
+            PDRectangle clipRect = ApplyPadding(bbox, padding);
+            PDRectangle contentRect = ApplyPadding(clipRect, padding);
 
             defaultAppearance.CopyNeededResourcesTo(stream);
 
@@ -172,7 +227,41 @@ internal sealed class AppearanceGeneratorHelper
             contents.RestoreGraphicsState();
         }
 
+        int emcIndex = IndexOfOperator(tokens, "EMC");
+        if (emcIndex == -1)
+        {
+            writer.WriteTokens(Emc);
+        }
+        else
+        {
+            writer.WriteTokens(tokens.Skip(emcIndex).ToList());
+        }
+
         WriteToStream(buffer.ToArray(), stream);
+    }
+
+    private static IList<object> ParseAppearanceTokens(PDAppearanceStream stream)
+    {
+        if (stream.GetCOSObject()?.HasData() != true)
+        {
+            return [];
+        }
+
+        using Stream input = stream.GetContents();
+        return PDFStreamParser.Parse(input);
+    }
+
+    private static int IndexOfOperator(IList<object> tokens, string name)
+    {
+        for (int i = 0; i < tokens.Count; i++)
+        {
+            if (tokens[i] is Operator op && string.Equals(op.GetName(), name, StringComparison.Ordinal))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private static void WriteFallbackValue(PDAppearanceStream stream, string value)
