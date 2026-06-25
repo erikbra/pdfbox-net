@@ -486,6 +486,43 @@ public class RenderingSmokeTest
         Assert.True(blueB > blueR && blueB > blueG, $"Expected blue-dominant image pixel but got RGB({blueR},{blueG},{blueB})");
     }
 
+    [Fact]
+    public void RenderImage_ImageXObject_UsesNearestNeighborWhenScaledUpWithoutInterpolate()
+    {
+        using var document = new PDDocument();
+        using var source = new SKBitmap(2, 1);
+        source.SetPixel(0, 0, SKColors.Black);
+        source.SetPixel(1, 0, SKColors.White);
+        PDImageXObject imageXObject = LosslessFactory.CreateFromImage(document, source);
+        Assert.False(imageXObject.GetInterpolate());
+
+        var resources = new PDModel.Resources.PDResources();
+        resources.Put(COSName.GetPDFName("Im1"), imageXObject);
+        using PDDocument pageDocument = CreateDocument("q\n40 0 0 20 100 300 cm\n/Im1 Do\nQ\n", resources);
+
+        using BufferedImage image = new PDFRenderer(pageDocument).RenderImage(0, 1f, ImageType.RGB);
+
+        int row = 482;
+        int grayPixels = 0;
+        for (int x = 105; x < 135; x++)
+        {
+            int argb = image.GetRgb(x, row);
+            int r = (argb >> 16) & 0xFF;
+            int g = (argb >> 8) & 0xFF;
+            int b = argb & 0xFF;
+            bool nearBlack = r <= 8 && g <= 8 && b <= 8;
+            bool nearWhite = r >= 247 && g >= 247 && b >= 247;
+            if (!nearBlack && !nearWhite)
+            {
+                grayPixels++;
+            }
+        }
+
+        Assert.Equal(0, grayPixels);
+        AssertNotWhite(image.GetRgb(110, row), "inside the black half of the scaled image");
+        AssertWhite(image.GetRgb(130, row), "inside the white half of the scaled image");
+    }
+
     private static int CountNonWhitePixels(BufferedImage image, int x, int y, int width, int height)
     {
         int count = 0;
