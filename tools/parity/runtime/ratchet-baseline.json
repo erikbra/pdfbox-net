@@ -2,8 +2,8 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "GitHub Actions run 28138089353 runtime-parity summary after fallback font antialiasing",
-    "generatedAtUtc": "2026-06-25T00:31:10Z",
+    "generatedFrom": "CI runtime parity summary after explicit glyph width stretching",
+    "generatedAtUtc": "2026-06-25T01:55:26Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
@@ -16,12 +16,12 @@
     "save-structural-match": 148,
     "merge-structural-match": 72,
     "render-java-optional-jpx-reader-missing-match": 3,
-    "render-low-ink-equivalence-match": 1,
+    "render-low-ink-equivalence-match": 3,
     "render-low-mean-raster-drift-equivalence-match": 4,
     "render-lossy-jpeg-decoder-equivalence-match": 2,
     "render-near-blank-threshold-equivalence-match": 2,
     "render-sparse-equivalence-match": 11,
-    "render-visual-equivalence-match": 56,
+    "render-visual-equivalence-match": 57,
     "render-placeholder": 0,
     "text-semantic-math-linewrap-match": 1,
     "text-semantic-punctuation-spacing-match": 1

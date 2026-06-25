@@ -73,6 +73,28 @@ public class RenderingSmokeTest
         return document;
     }
 
+    private static PDDocument CreateUnembeddedTrueTypeWidthDocument(float glyphWidth)
+    {
+        var font = new COSDictionary();
+        font.SetItem(COSName.TYPE, COSName.GetPDFName("Font"));
+        font.SetName(COSName.GetPDFName("Subtype"), "TrueType");
+        font.SetName(COSName.GetPDFName("BaseFont"), "ArialMT");
+        font.SetName(COSName.GetPDFName("Encoding"), "WinAnsiEncoding");
+        font.SetInt(COSName.GetPDFName("FirstChar"), 65);
+        font.SetInt(COSName.GetPDFName("LastChar"), 65);
+        var widths = new COSArray();
+        widths.Add(new COSFloat(glyphWidth));
+        font.SetItem(COSName.GetPDFName("Widths"), widths);
+
+        var fonts = new COSDictionary();
+        fonts.SetItem(COSName.GetPDFName("F1"), font);
+        var resources = new COSDictionary();
+        resources.SetItem(COSName.GetPDFName("Font"), fonts);
+
+        const string content = "BT\n0 0 0 rg\n/F1 120 Tf\n100 500 Td\n(A) Tj\nET\n";
+        return CreateDocument(content, new PDResources(resources));
+    }
+
     // ── RenderImage returns a correctly-sized bitmap ──────────────────────────
 
     [Fact]
@@ -348,6 +370,22 @@ public class RenderingSmokeTest
     }
 
     [Fact]
+    public void RenderImage_UnembeddedTrueTypeFallback_StretchesGlyphToExplicitWidth()
+    {
+        using var narrowDocument = CreateUnembeddedTrueTypeWidthDocument(250f);
+        using var wideDocument = CreateUnembeddedTrueTypeWidthDocument(850f);
+
+        using BufferedImage narrowImage = new PDFRenderer(narrowDocument).RenderImage(0, 1f, ImageType.RGB);
+        using BufferedImage wideImage = new PDFRenderer(wideDocument).RenderImage(0, 1f, ImageType.RGB);
+
+        PixelBounds narrowBounds = GetNonWhiteBounds(narrowImage);
+        PixelBounds wideBounds = GetNonWhiteBounds(wideImage);
+        Assert.True(narrowBounds.Width > 5, $"Expected narrow glyph to render, got width={narrowBounds.Width}.");
+        Assert.True(narrowBounds.Width < wideBounds.Width * 0.55f,
+            $"Expected explicit PDF width to narrow fallback glyph paint, got narrow={narrowBounds.Width}, wide={wideBounds.Width}.");
+    }
+
+    [Fact]
     public void RenderImage_InvisibleTextRenderingMode_DoesNotDrawGlyphPixels()
     {
         var resources = new PDModel.Resources.PDResources();
@@ -467,6 +505,41 @@ public class RenderingSmokeTest
         }
 
         return count;
+    }
+
+    private static PixelBounds GetNonWhiteBounds(BufferedImage image)
+    {
+        int left = image.Width;
+        int top = image.Height;
+        int right = -1;
+        int bottom = -1;
+        for (int y = 0; y < image.Height; y++)
+        {
+            for (int x = 0; x < image.Width; x++)
+            {
+                int argb = image.GetRgb(x, y);
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >> 8) & 0xFF;
+                int b = argb & 0xFF;
+                if (r == 255 && g == 255 && b == 255)
+                {
+                    continue;
+                }
+
+                left = Math.Min(left, x);
+                top = Math.Min(top, y);
+                right = Math.Max(right, x);
+                bottom = Math.Max(bottom, y);
+            }
+        }
+
+        Assert.True(right >= left && bottom >= top, "Expected image to contain non-white pixels.");
+        return new PixelBounds(left, top, right, bottom);
+    }
+
+    private readonly record struct PixelBounds(int Left, int Top, int Right, int Bottom)
+    {
+        public int Width => Right - Left + 1;
     }
 
     private static void AssertWhite(int argb, string context)
