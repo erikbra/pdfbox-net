@@ -234,6 +234,40 @@ public class RenderingSmokeTest
             $"Expected non-white pixel on stroked border but got RGB({r},{g},{b})");
     }
 
+    [Fact]
+    public void RenderImage_StrokedPath_ScalesLineWidthWithCtm()
+    {
+        const string cs =
+            "q\n" +
+            "0.25 0 0 0.25 0 0 cm\n" +
+            "0 0 0 RG\n" +
+            "20 w\n" +
+            "100 100 m\n500 100 l\nS\n" +
+            "Q\n";
+        using var document = CreateDocument(cs);
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        int strokedColumnPixels = CountNonWhitePixels(image, 75, 740, 1, 50);
+        Assert.InRange(strokedColumnPixels, 3, 9);
+    }
+
+    [Fact]
+    public void RenderImage_StrokedPath_AppliesLineDashPattern()
+    {
+        const string cs = "0 0 0 RG\n6 w\n[20 20] 0 d\n100 500 m\n260 500 l\nS\n";
+        using var document = CreateDocument(cs);
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        int firstDashPixels = CountNonWhitePixels(image, 106, 289, 8, 7);
+        int gapPixels = CountNonWhitePixels(image, 126, 289, 8, 7);
+        int secondDashPixels = CountNonWhitePixels(image, 146, 289, 8, 7);
+        Assert.True(firstDashPixels > 20, $"Expected first dash to draw, saw {firstDashPixels} pixels.");
+        Assert.True(gapPixels <= 2, $"Expected dash gap to stay white, saw {gapPixels} pixels.");
+        Assert.True(secondDashPixels > 20, $"Expected second dash to draw, saw {secondDashPixels} pixels.");
+    }
+
     // ── Multiple filled regions ────────────────────────────────────────────────
 
     [Fact]
