@@ -64,6 +64,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
     private List<PDFStreamEngine.PathSegment>? _textClippings;
     private readonly Stack<bool> _hiddenMarkedContentStack = new();
     private int _nestedHiddenOptionalContentCount;
+    private const float GlyphWidthTolerance = 0.0001f;
 
     // Page crop box in PDF points, used to translate visible content and flip
     // from PDF space (Y-up, origin bottom-left) to canvas space (Y-down).
@@ -193,6 +194,12 @@ public class PageDrawer : PDFGraphicsStreamEngine
             if (path.Segments.Count > 0)
             {
                 Matrix glyphMatrix = Matrix.Concatenate(textRenderingMatrix, font.GetFontMatrix());
+                float stretch = CalculateVectorGlyphStretch(font, code, displacement);
+                if (stretch != 1f)
+                {
+                    glyphMatrix = ApplyGlyphStretch(glyphMatrix, stretch);
+                }
+
                 BufferTextClipPath(path, glyphMatrix);
                 if (_graphics?.Canvas is null || !IsContentRendered())
                 {
@@ -205,7 +212,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
             }
         }
 
-        DrawUnicodeGlyphFallback(textRenderingMatrix, font, code);
+        DrawUnicodeGlyphFallback(textRenderingMatrix, font, code, displacement);
     }
 
     private void DrawGlyph(GeneralPath path, PDFont font, int code, Vector displacement, AffineTransform at)
@@ -233,7 +240,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
             return;
         }
 
-        DrawUnicodeGlyphFallback(textRenderingMatrix, font, code);
+        DrawUnicodeGlyphFallback(textRenderingMatrix, font, code, displacement);
     }
 
     private void DrawTextPath(SKPath path)
@@ -1202,7 +1209,7 @@ public class PageDrawer : PDFGraphicsStreamEngine
         return skPath;
     }
 
-    private void DrawUnicodeGlyphFallback(Matrix textRenderingMatrix, PDFont font, int code)
+    private void DrawUnicodeGlyphFallback(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
     {
         string? unicode = font.ToUnicode(code, PdfBox.Net.PDModel.Font.Encoding.GlyphList.GetAdobeGlyphList());
         unicode ??= code is >= 0 and <= 255 ? ((char)code).ToString() : null;
@@ -1213,7 +1220,6 @@ public class PageDrawer : PDFGraphicsStreamEngine
 
         RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
         Matrix fallbackGlyphMatrix = CreateFallbackGlyphMatrix(textRenderingMatrix);
-        SKMatrix matrix = ToCanvasMatrix(fallbackGlyphMatrix);
         using SKTypeface? typeface = CreateFallbackTypeface(font);
         // Java2D renders fallback glyphs with grayscale antialiasing and fractional placement.
         using SKFont skFont = new(typeface ?? SKTypeface.Default, GetFallbackFontSize(font))
@@ -1222,6 +1228,13 @@ public class PageDrawer : PDFGraphicsStreamEngine
             Hinting = SKFontHinting.Normal,
             Subpixel = true,
         };
+        float stretch = CalculateFallbackGlyphStretch(font, code, displacement, skFont.MeasureText(unicode));
+        if (stretch != 1f)
+        {
+            fallbackGlyphMatrix = ApplyGlyphStretch(fallbackGlyphMatrix, stretch);
+        }
+
+        SKMatrix matrix = ToCanvasMatrix(fallbackGlyphMatrix);
         if (renderingMode.IsClip())
         {
             using SKPath clipPath = skFont.GetTextPath(unicode, new SKPoint(0, 0));
@@ -1259,6 +1272,43 @@ public class PageDrawer : PDFGraphicsStreamEngine
             -textRenderingMatrix.GetScaleY(),
             textRenderingMatrix.GetTranslateX(),
             textRenderingMatrix.GetTranslateY());
+    }
+
+    private static Matrix ApplyGlyphStretch(Matrix glyphMatrix, float stretch)
+    {
+        return Matrix.GetScaleInstance(stretch, 1f).Multiply(glyphMatrix);
+    }
+
+    private static float CalculateVectorGlyphStretch(PDFont font, int code, Vector displacement)
+    {
+        return CalculateGlyphStretch(font, code, displacement, font.GetWidthFromFont(code));
+    }
+
+    private static float CalculateFallbackGlyphStretch(PDFont font, int code, Vector displacement, float measuredTextWidth)
+    {
+        return CalculateGlyphStretch(font, code, displacement, measuredTextWidth * 1000f);
+    }
+
+    private static float CalculateGlyphStretch(PDFont font, int code, Vector displacement, float fontWidth)
+    {
+        if (font.IsEmbedded() || font.IsVertical() || font.IsStandard14() || !font.HasExplicitWidth(code))
+        {
+            return 1f;
+        }
+
+        float pdfWidth = displacement.GetX() * 1000f;
+        if (displacement.GetX() <= 0 || fontWidth <= 0 || !float.IsFinite(fontWidth))
+        {
+            return 1f;
+        }
+
+        if (MathF.Abs(fontWidth - pdfWidth) <= GlyphWidthTolerance)
+        {
+            return 1f;
+        }
+
+        float stretch = pdfWidth / fontWidth;
+        return float.IsFinite(stretch) && stretch > 0 ? stretch : 1f;
     }
 
     private static float GetFallbackFontSize(PDFont font)
