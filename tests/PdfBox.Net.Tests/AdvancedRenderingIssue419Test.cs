@@ -247,6 +247,27 @@ public class AdvancedRenderingIssue419Test
     }
 
     [Fact]
+    public void RenderImage_PatternColorSpace_RepeatsColoredTilingCell()
+    {
+        PDResources resources = new();
+        PDTilingPattern pattern = new();
+        pattern.SetPaintType(PDTilingPattern.PAINT_COLORED);
+        pattern.SetTilingType(PDTilingPattern.TILING_CONSTANT_SPACING);
+        pattern.SetBBox(new PDRectangle(0, 0, 8, 8));
+        pattern.SetXStep(8);
+        pattern.SetYStep(8);
+        WriteStream((COSStream)pattern.GetCOSObject(), "0 0 0 rg\n0 0 4 8 re\nf\n");
+        COSName patternName = resources.Add(pattern);
+
+        using PDDocument document = CreateDocument($"/Pattern cs\n/{patternName.GetName()} scn\n100 300 32 16 re\nf\n", resources);
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        int nonWhitePixels = CountNonWhitePixels(image, 100, 476, 32, 16);
+        Assert.InRange(nonWhitePixels, 120, 420);
+    }
+
+    [Fact]
     public void RenderImage_ApacheSurveyPdf_DoesNotThrowWhenFixtureIsAvailable()
     {
         string? surveyPath = FindApacheSurveyFixture();

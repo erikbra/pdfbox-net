@@ -118,6 +118,7 @@ public class Graphics2D : Graphics, IDisposable
     private Shape? _clip;
     private Stroke _stroke = new();
     private IPaint _paint = Color.Black;
+    private AffineTransform _transform = new();
 
     public Graphics2D()
     {
@@ -130,11 +131,12 @@ public class Graphics2D : Graphics, IDisposable
         _ownsCanvas = true;
     }
 
-    internal Graphics2D(SKBitmap? bitmap, SKCanvas canvas, bool ownsCanvas = false)
+    internal Graphics2D(SKBitmap? bitmap, SKCanvas canvas, bool ownsCanvas = false, AffineTransform? transform = null)
     {
         _bitmap = bitmap;
         _canvas = canvas;
         _ownsCanvas = ownsCanvas;
+        _transform = transform?.Clone() ?? new AffineTransform();
     }
 
     /// <summary>Returns the underlying SkiaSharp canvas (may be null for a default-constructed instance).</summary>
@@ -149,7 +151,7 @@ public class Graphics2D : Graphics, IDisposable
             return new Graphics2D();
         }
         // Return a wrapper sharing the same canvas (the canvas is not owned by the copy).
-        return new Graphics2D(_bitmap, _canvas, ownsCanvas: false);
+        return new Graphics2D(_bitmap, _canvas, ownsCanvas: false, transform: _transform);
     }
 
     public virtual void ClearRect(int x, int y, int width, int height)
@@ -180,13 +182,17 @@ public class Graphics2D : Graphics, IDisposable
 
     public virtual Stroke GetStroke() => _stroke;
 
+    public virtual AffineTransform GetTransform() => _transform.Clone();
+
     public virtual void Rotate(double theta)
     {
+        _transform.Rotate(theta);
         _canvas?.RotateRadians((float)theta);
     }
 
     public virtual void Scale(double scaleX, double scaleY)
     {
+        _transform.Scale(scaleX, scaleY);
         _canvas?.Scale((float)scaleX, (float)scaleY);
     }
 
@@ -212,6 +218,7 @@ public class Graphics2D : Graphics, IDisposable
 
     public virtual void Translate(double tx, double ty)
     {
+        _transform.Translate(tx, ty);
         _canvas?.Translate((float)tx, (float)ty);
     }
 

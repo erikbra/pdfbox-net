@@ -36,7 +36,7 @@ namespace PdfBox.Net.Rendering;
 internal class TilingPaint : IContextPaint
 {
     private const int MAXEDGE = 3000;
-    private readonly IContextPaint _paint;
+    private readonly TexturePaint _paint;
     private readonly Matrix _patternMatrix;
 
     internal TilingPaint(PageDrawer drawer, PDTilingPattern pattern, AffineTransform xform)
@@ -50,6 +50,8 @@ internal class TilingPaint : IContextPaint
         Rectangle2D anchorRect = GetAnchorRect(pattern);
         _paint = new TexturePaint(GetImage(drawer, pattern, colorSpace, color, xform, anchorRect, _patternMatrix), anchorRect);
     }
+
+    internal TexturePaint TexturePaint => _paint;
 
     public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
     {
