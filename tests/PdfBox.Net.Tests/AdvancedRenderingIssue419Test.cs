@@ -124,6 +124,31 @@ public class AdvancedRenderingIssue419Test
     }
 
     [Fact]
+    public void RenderImage_AnnotationAppearance_ClipsToAppearanceBBox()
+    {
+        using PDDocument document = CreateDocument(string.Empty);
+        PDPage page = document.GetPage(0);
+
+        PDAppearanceStream appearance = new(new COSStream());
+        appearance.SetBBox(new PDRectangle(0, 0, 10, 10));
+        WriteStream(appearance.GetCOSObject()!, "1 0 0 rg\n0 0 20 20 re\nf\n");
+
+        PDAppearanceDictionary appearanceDictionary = new();
+        appearanceDictionary.SetNormalAppearance(appearance);
+
+        PDAnnotationSquare annotation = new();
+        annotation.SetRectangle(new PDRectangle(120, 420, 20, 20));
+        annotation.SetAppearance(appearanceDictionary);
+        page.SetAnnotations([annotation]);
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        Assert.True(CountNonWhitePixels(image, 120, 352, 20, 20) > 300);
+        Assert.Equal(0, CountNonWhitePixels(image, 140, 332, 20, 40));
+        Assert.Equal(0, CountNonWhitePixels(image, 120, 332, 40, 20));
+    }
+
+    [Fact]
     public void SoftMask_CreateContext_AppliesMaskAlpha()
     {
         BufferedImage mask = new(2, 1, BufferedImage.TYPE_INT_ARGB);
