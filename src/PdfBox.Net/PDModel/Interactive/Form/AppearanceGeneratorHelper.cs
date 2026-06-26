@@ -23,6 +23,9 @@ namespace PdfBox.Net.PDModel.Interactive.Form;
 
 internal sealed class AppearanceGeneratorHelper
 {
+    private const int FontScale = 1000;
+    private const float DefaultFontSize = 12f;
+    private const float MinimumFontSize = 4f;
     private const float DefaultPadding = 0.5f;
     private static readonly Operator Bmc = Operator.GetOperator("BMC");
     private static readonly Operator Emc = Operator.GetOperator("EMC");
@@ -34,6 +37,7 @@ internal sealed class AppearanceGeneratorHelper
     internal AppearanceGeneratorHelper(PDVariableText field)
     {
         _field = field ?? throw new ArgumentNullException(nameof(field));
+        ValidateAndEnsureAcroFormResources();
         try
         {
             _defaultAppearance = field.GetDefaultAppearanceString();
@@ -45,6 +49,39 @@ internal sealed class AppearanceGeneratorHelper
         catch (IOException)
         {
             _defaultAppearance = null;
+        }
+    }
+
+    private void ValidateAndEnsureAcroFormResources()
+    {
+        PDResources? acroFormResources = _field.GetAcroForm().GetDefaultResources();
+        if (acroFormResources == null)
+        {
+            return;
+        }
+
+        foreach (PDAnnotationWidget widget in _field.GetWidgets())
+        {
+            PDResources? widgetResources = widget.GetNormalAppearanceStream()?.GetResources();
+            if (widgetResources == null)
+            {
+                continue;
+            }
+
+            foreach (COSName fontName in widgetResources.GetFontNames())
+            {
+                try
+                {
+                    if (acroFormResources.GetFont(fontName) == null && widgetResources.GetFont(fontName) is { } font)
+                    {
+                        acroFormResources.Put(fontName, font);
+                    }
+                }
+                catch (IOException)
+                {
+                    // Match PDFBox's best-effort resource repair for malformed widget resources.
+                }
+            }
         }
     }
 
@@ -64,15 +101,37 @@ internal sealed class AppearanceGeneratorHelper
 
             PDAppearanceStream stream = widget.GetNormalAppearanceStream() ?? PrepareNormalAppearanceStream(widget);
             appearance.SetNormalAppearance(stream);
-            if (_defaultAppearance?.Font == null)
+            PDDefaultAppearanceString? defaultAppearance = ResolveDefaultAppearance(widget);
+            if (defaultAppearance?.Font == null)
             {
                 WriteFallbackValue(stream, appearanceValue);
                 continue;
             }
 
             InitializeWidgetAppearance(widget, stream);
-            WriteValue(widget, stream, appearanceValue);
+            WriteValue(widget, stream, appearanceValue, defaultAppearance);
         }
+    }
+
+    private PDDefaultAppearanceString? ResolveDefaultAppearance(PDAnnotationWidget widget)
+    {
+        if (widget.GetCOSDictionary().GetDictionaryObject(COSName.GetPDFName("DA")) is COSString widgetAppearance)
+        {
+            try
+            {
+                return new PDDefaultAppearanceString(widgetAppearance, _field.GetAcroForm().GetDefaultResources());
+            }
+            catch (ArgumentException)
+            {
+                return _defaultAppearance;
+            }
+            catch (IOException)
+            {
+                return _defaultAppearance;
+            }
+        }
+
+        return _defaultAppearance;
     }
 
     private string NormalizeValue(string value)
@@ -166,9 +225,8 @@ internal sealed class AppearanceGeneratorHelper
         WriteToStream(buffer.ToArray(), stream);
     }
 
-    private void WriteValue(PDAnnotationWidget widget, PDAppearanceStream stream, string value)
+    private void WriteValue(PDAnnotationWidget widget, PDAppearanceStream stream, string value, PDDefaultAppearanceString defaultAppearance)
     {
-        PDDefaultAppearanceString defaultAppearance = _defaultAppearance!;
         using MemoryStream buffer = new();
         ContentStreamWriter writer = new(buffer);
         IList<object> tokens = ParseAppearanceTokens(stream);
@@ -196,11 +254,21 @@ internal sealed class AppearanceGeneratorHelper
             PDFont font = defaultAppearance.Font
                 ?? throw new IOException("Widget appearance generation requires a resolved font.");
 
-            float fontSize = defaultAppearance.FontSize == 0 ? 12f : defaultAppearance.FontSize;
-            float boundingHeight = font.GetBoundingBox().GetHeight();
-            float leading = boundingHeight > 0
-                ? boundingHeight * fontSize / 1000f
-                : fontSize * 1.2f;
+            float fontSize = defaultAppearance.FontSize;
+            if (fontSize == 0)
+            {
+                fontSize = CalculateFontSize(defaultAppearance, font, contentRect, value);
+            }
+
+            float fontScaleY = fontSize / FontScale;
+            float fontBoundingBoxAtSize = font.GetBoundingBox().GetHeight() * fontScaleY;
+            float leading = fontBoundingBoxAtSize > 0 ? fontBoundingBoxAtSize : fontSize * 1.2f;
+            float clipRectLowerLeftY = clipRect.GetLowerLeftY();
+            float clipRectHeight = clipRect.GetHeight();
+
+            PDFontDescriptor? descriptor = font.GetFontDescriptor();
+            float fontCapAtSize = (descriptor != null ? descriptor.GetCapHeight() : ResolveCapHeight(font)) * fontScaleY;
+            float fontDescentAtSize = (descriptor != null ? descriptor.GetDescent() : ResolveDescent(font)) * fontScaleY;
 
             contents.SaveGraphicsState();
             contents.AddRect(clipRect.GetLowerLeftX(), clipRect.GetLowerLeftY(), clipRect.GetWidth(), clipRect.GetHeight());
@@ -208,7 +276,27 @@ internal sealed class AppearanceGeneratorHelper
             contents.BeginText();
             defaultAppearance.WriteTo(contents, fontSize);
 
-            float baseline = contentRect.GetUpperRightY() - fontSize;
+            float baseline;
+            if (_field is PDTextField multilineTextField && multilineTextField.IsMultiline())
+            {
+                baseline = contentRect.GetUpperRightY() - fontBoundingBoxAtSize;
+            }
+            else if (fontCapAtSize > clipRectHeight)
+            {
+                baseline = clipRectLowerLeftY + -fontDescentAtSize;
+            }
+            else
+            {
+                baseline = clipRectLowerLeftY + (clipRectHeight - fontCapAtSize) / 2f;
+                if (baseline - clipRectLowerLeftY < -fontDescentAtSize)
+                {
+                    float contentRectLowerLeftY = contentRect.GetLowerLeftY();
+                    float fontDescentBased = -fontDescentAtSize + contentRectLowerLeftY;
+                    float fontCapBased = contentRect.GetHeight() - contentRectLowerLeftY - fontCapAtSize;
+                    baseline = Math.Min(fontDescentBased, Math.Max(baseline, fontCapBased));
+                }
+            }
+
             AppearanceStyle style = new();
             style.SetFont(font);
             style.SetFontSize(fontSize);
@@ -238,6 +326,76 @@ internal sealed class AppearanceGeneratorHelper
         }
 
         WriteToStream(buffer.ToArray(), stream);
+    }
+
+    private float CalculateFontSize(PDDefaultAppearanceString defaultAppearance, PDFont font, PDRectangle contentRect, string value)
+    {
+        float fontSize = defaultAppearance.FontSize;
+        if (fontSize != 0)
+        {
+            return fontSize;
+        }
+
+        if (_field is PDTextField textField && textField.IsMultiline())
+        {
+            PlainText textContent = new(value);
+            float multilineWidth = contentRect.GetWidth() - contentRect.GetLowerLeftX();
+            float candidate = MinimumFontSize;
+            while (candidate <= DefaultFontSize)
+            {
+                int lineCount = 0;
+                foreach (PlainText.Paragraph paragraph in textContent.GetParagraphs())
+                {
+                    lineCount += paragraph.GetLines(font, candidate, multilineWidth).Count;
+                }
+
+                float leading = font.GetBoundingBox().GetHeight() * candidate / FontScale;
+                float requiredHeight = leading * lineCount;
+                if (requiredHeight > contentRect.GetHeight())
+                {
+                    return Math.Max(candidate - 1f, MinimumFontSize);
+                }
+
+                candidate += 1f;
+            }
+
+            return Math.Min(candidate, DefaultFontSize);
+        }
+
+        Matrix fontMatrix = font.GetFontMatrix();
+        float yScalingFactor = FontScale * fontMatrix.GetScaleY();
+        float xScalingFactor = FontScale * fontMatrix.GetScaleX();
+        float width = font.GetStringWidth(value) * fontMatrix.GetScaleX();
+        float widthBasedFontSize = contentRect.GetWidth() / width * xScalingFactor;
+
+        PDFontDescriptor? descriptor = font.GetFontDescriptor();
+        float height = descriptor != null
+            ? (descriptor.GetCapHeight() + -descriptor.GetDescent()) * fontMatrix.GetScaleY()
+            : 0f;
+        if (height <= 0)
+        {
+            height = font.GetBoundingBox().GetHeight() * fontMatrix.GetScaleY();
+        }
+
+        float heightBasedFontSize = contentRect.GetHeight() / height * yScalingFactor;
+        if (float.IsInfinity(widthBasedFontSize))
+        {
+            return heightBasedFontSize;
+        }
+
+        return Math.Min(heightBasedFontSize, widthBasedFontSize);
+    }
+
+    private static float ResolveCapHeight(PDFont font)
+    {
+        float height = font.GetBoundingBox().GetHeight();
+        return height > 0 ? height * 0.7f : FontScale * 0.7f;
+    }
+
+    private static float ResolveDescent(PDFont font)
+    {
+        float descent = font.GetBoundingBox().GetLowerLeftY();
+        return descent < 0 ? descent : -FontScale * 0.2f;
     }
 
     private static IList<object> ParseAppearanceTokens(PDAppearanceStream stream)

@@ -1348,6 +1348,17 @@ public class PageDrawer : PDFGraphicsStreamEngine
                     TrueTypeFont trueTypeFont = new TTFParser().Parse(bytes);
                     return new PDTrueTypeFont(fontDictionary, trueTypeFont);
                 }
+
+                if (extension.Equals(".ttc", StringComparison.OrdinalIgnoreCase))
+                {
+                    using TrueTypeCollection collection = new(fontPath);
+                    TrueTypeFont? trueTypeFont = collection.GetFontByName(fontName)
+                                                 ?? collection.GetFontByName(Path.GetFileNameWithoutExtension(fontPath));
+                    if (trueTypeFont is not null)
+                    {
+                        return new PDTrueTypeFont(fontDictionary, trueTypeFont);
+                    }
+                }
             }
             catch
             {

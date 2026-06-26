@@ -37,7 +37,6 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotationMarkup</c>.</remarks>
 public abstract class PDAnnotationMarkup : PDAnnotation
 {
-    private static readonly COSName BorderName = COSName.GetPDFName("Border");
     private static readonly COSName InteriorColorName = COSName.GetPDFName("IC");
 
     /// <summary>Constant for an annotation reply type.</summary>
@@ -92,16 +91,6 @@ public abstract class PDAnnotationMarkup : PDAnnotation
     public void SetConstantOpacity(float ca)
     {
         GetCOSDictionary().SetFloat(COSName.CA, ca);
-    }
-
-    public COSArray GetBorder()
-    {
-        return GetCOSDictionary().GetCOSArray(BorderName) ?? new COSArray { COSInteger.ZERO, COSInteger.ZERO, COSInteger.Get(1) };
-    }
-
-    public void SetBorder(COSArray? border)
-    {
-        GetCOSDictionary().SetItem(BorderName, border);
     }
 
     public virtual PDBorderStyleDictionary? GetBorderStyle()

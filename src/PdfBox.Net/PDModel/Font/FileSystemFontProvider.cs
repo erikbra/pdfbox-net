@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.FontBox.TTF;
+
 namespace PdfBox.Net.PDModel.Font;
 
 public sealed class FileSystemFontProvider
@@ -47,11 +49,8 @@ public sealed class FileSystemFontProvider
 
             foreach (string file in EnumerateFontFiles(directory))
             {
-                string postScriptName = Path.GetFileNameWithoutExtension(file);
-                if (!_fontsByPostScriptName.ContainsKey(postScriptName))
-                {
-                    _fontsByPostScriptName[postScriptName] = file;
-                }
+                AddFont(file, Path.GetFileNameWithoutExtension(file));
+                AddTrueTypeCollectionFonts(file);
             }
         }
     }
@@ -126,7 +125,38 @@ public sealed class FileSystemFontProvider
     {
         return path.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase) ||
                path.EndsWith(".otf", StringComparison.OrdinalIgnoreCase) ||
+               path.EndsWith(".ttc", StringComparison.OrdinalIgnoreCase) ||
                path.EndsWith(".pfb", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void AddTrueTypeCollectionFonts(string file)
+    {
+        if (!file.EndsWith(".ttc", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        try
+        {
+            TrueTypeCollection.ProcessAllFontHeaders(file, headers => AddFont(file, headers.GetName()));
+        }
+        catch
+        {
+            // Keep filesystem discovery best-effort, matching the existing non-throwing provider behavior.
+        }
+    }
+
+    private void AddFont(string file, string? postScriptName)
+    {
+        if (string.IsNullOrWhiteSpace(postScriptName))
+        {
+            return;
+        }
+
+        if (!_fontsByPostScriptName.ContainsKey(postScriptName))
+        {
+            _fontsByPostScriptName[postScriptName] = file;
+        }
     }
 
     private static string NormalizePostScriptName(string postScriptName)

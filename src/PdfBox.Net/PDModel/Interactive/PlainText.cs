@@ -158,13 +158,7 @@ public class PlainText
                 return 0f;
             }
 
-            float total = 0f;
-            foreach (char ch in value)
-            {
-                total += char.IsWhiteSpace(ch) ? font.GetSpaceWidth() : font.GetAverageFontWidth();
-            }
-
-            return total * fontSize / FontScale;
+            return font.GetStringWidth(value) * fontSize / FontScale;
         }
     }
 
@@ -197,7 +191,7 @@ public class PlainText
             string last = _words[^1].GetText();
             if (char.IsWhiteSpace(last[^1]))
             {
-                width -= (char.IsWhiteSpace(last[^1]) ? font.GetSpaceWidth() : font.GetAverageFontWidth()) * fontSize / FontScale;
+                width -= font.GetStringWidth(last[^1].ToString()) * fontSize / FontScale;
             }
 
             return width;

@@ -2,8 +2,8 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "Local runtime parity summary after render known-failure root-cause bucketing",
-    "generatedAtUtc": "2026-06-26T10:14:59Z",
+    "generatedFrom": "Local and hosted runtime parity summaries after issue #489 TTC/form appearance progress",
+    "generatedAtUtc": "2026-06-26T11:39:18Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
@@ -13,16 +13,15 @@
   },
   "maxCategories": {
     "detail-mismatch": 52,
-    "save-structural-match": 148,
     "merge-structural-match": 72,
     "render-java-optional-jpx-reader-missing-match": 3,
-    "render-low-ink-equivalence-match": 3,
-    "render-low-mean-raster-drift-equivalence-match": 6,
     "render-lossy-jpeg-decoder-equivalence-match": 2,
-    "render-near-blank-threshold-equivalence-match": 2,
-    "render-sparse-equivalence-match": 10,
-    "render-visual-equivalence-match": 60,
-    "render-placeholder": 0,
+    "render-low-ink-equivalence-match": 1,
+    "render-low-mean-raster-drift-equivalence-match": 7,
+    "render-near-blank-threshold-equivalence-match": 1,
+    "render-sparse-equivalence-match": 9,
+    "render-visual-equivalence-match": 68,
+    "save-structural-match": 148,
     "text-semantic-math-linewrap-match": 1,
     "text-semantic-punctuation-spacing-match": 1
   }

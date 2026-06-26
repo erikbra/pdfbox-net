@@ -200,13 +200,7 @@ public class PlainTextFormatter
             return 0f;
         }
 
-        float total = 0f;
-        foreach (char ch in value)
-        {
-            total += char.IsWhiteSpace(ch) ? font.GetSpaceWidth() : font.GetAverageFontWidth();
-        }
-
-        return total * fontSize / FontScale;
+        return font.GetStringWidth(value) * fontSize / FontScale;
     }
 
     private float ComputeAlignedOffset(float lineWidth)
