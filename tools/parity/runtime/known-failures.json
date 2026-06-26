@@ -32,25 +32,6 @@
       "reason": "Widget appearance generation, multiline layout, auto font sizing, inherited default appearance resources, and widget rotation still differ from Java for these render fixtures."
     },
     {
-      "id": "render-pattern-shading-transparency",
-      "op": "render",
-      "category": "detail-mismatch",
-      "files": [
-        "PDFBox.GlobalResourceMergeTest.Doc01.decoded.pdf",
-        "PDFBox.GlobalResourceMergeTest.Doc01.pdf",
-        "PDFBox.GlobalResourceMergeTest.Doc02.decoded.pdf",
-        "PDFBox.GlobalResourceMergeTest.Doc02.pdf",
-        "custom-render-demo.pdf",
-        "survey.pdf"
-      ],
-      "issue": 493,
-      "owner": "issue-493",
-      "rootCause": "render-pattern-shading-transparency",
-      "expiresWhen": "Issue #493 closes all pattern, shading, transparency group, and form XObject render rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove file names as pattern/shading/transparency render parity improves.",
-      "reason": "Shading BBox intersection, tiling pattern matrix handling, transparency group rasterization/compositing, blend modes, soft masks, and form XObject rendering still differ from Java for these render fixtures."
-    },
-    {
       "id": "render-ci-variance-watch",
       "op": "render",
       "category": "detail-mismatch",

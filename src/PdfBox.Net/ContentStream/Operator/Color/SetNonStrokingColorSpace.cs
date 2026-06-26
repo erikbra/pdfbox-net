@@ -23,7 +23,7 @@ public sealed class SetNonStrokingColorSpace : OperatorProcessor
         if (operands.Count < 1) return;
         try
         {
-            Context.SetNonStrokingColorSpace(PDColorSpaceFactory.Create(operands[0], Context.GetCurrentPage()?.GetResources()));
+            Context.SetNonStrokingColorSpace(PDColorSpaceFactory.Create(operands[0], Context.GetResources()));
         }
         catch (IOException)
         {

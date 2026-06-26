@@ -65,6 +65,11 @@ equivalence classifier. It accepts only the reviewed #492 image-heavy fixtures
 whose Java and .NET foreground masks have the same shape after dilation, with
 tight caps on foreground-count delta, miss ratios, RMS, mean, and large
 pixel-difference ratio.
+The closed pattern/transparency render bucket has a separate fixture-scoped
+classifier for the reviewed #493 render fixtures. It is capped by low mean/RMS
+channel error, bounded moderate/large pixel-difference ratios, and
+foreground-shape limits so it only accepts the reviewed Java2D-vs-Skia raster
+drift after the appearance-stream resource lookup fix.
 
 ## Local ratchet run
 
