@@ -67,7 +67,14 @@ public sealed class CFFCIDFont : CFFFont
         int gid = GetCharset().GetGIDForCID(cidOrGid);
         IList<byte[]> charStrings = GetCharStringBytes();
         byte[] bytes = gid >= 0 && gid < charStrings.Count ? charStrings[gid] : charStrings[0];
-        CIDKeyedType2CharString charString = new(GetName(), cidOrGid, bytes);
+        List<object> sequence = new Type2CharStringParser(GetName()).Parse(bytes, GetGlobalSubrIndex().ToArray(), GetLocalSubrIndex(gid));
+        CIDKeyedType2CharString charString = new(
+            GetName(),
+            cidOrGid,
+            gid,
+            sequence,
+            GetDefaultWidthX(gid),
+            GetNominalWidthX(gid));
         _charStringCache[cidOrGid] = charString;
         return charString;
     }
@@ -84,5 +91,54 @@ public sealed class CFFCIDFont : CFFFont
         }
 
         return int.Parse(selector.AsSpan(1), System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private byte[][]? GetLocalSubrIndex(int gid)
+    {
+        int fdIndex = _fdSelect?.GetFDIndex(gid) ?? -1;
+        if (fdIndex < 0 || fdIndex >= _privateDictionaries.Count)
+        {
+            return null;
+        }
+
+        return _privateDictionaries[fdIndex].TryGetValue("Subrs", out object? value) && value is byte[][] subrs
+            ? subrs
+            : null;
+    }
+
+    private int GetDefaultWidthX(int gid) => GetPrivateNumber(gid, "defaultWidthX", 1000);
+
+    private int GetNominalWidthX(int gid) => GetPrivateNumber(gid, "nominalWidthX", 0);
+
+    private int GetPrivateNumber(int gid, string name, int defaultValue)
+    {
+        int fdIndex = _fdSelect?.GetFDIndex(gid) ?? -1;
+        if (fdIndex < 0 || fdIndex >= _privateDictionaries.Count)
+        {
+            return defaultValue;
+        }
+
+        return _privateDictionaries[fdIndex].TryGetValue(name, out object? value) && TryNumber(value, out int number)
+            ? number
+            : defaultValue;
+    }
+
+    private static bool TryNumber(object value, out int number)
+    {
+        switch (value)
+        {
+            case int intValue:
+                number = intValue;
+                return true;
+            case float floatValue:
+                number = (int)floatValue;
+                return true;
+            case double doubleValue:
+                number = (int)doubleValue;
+                return true;
+            default:
+                number = 0;
+                return false;
+        }
     }
 }

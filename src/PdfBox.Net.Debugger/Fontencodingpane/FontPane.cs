@@ -79,6 +79,16 @@ public abstract class FontPane
 
             minY = Math.Min(minY, seg.Y1);
             maxY = Math.Max(maxY, seg.Y1);
+            if (seg.Type is GeneralPath.SegmentType.QuadTo or GeneralPath.SegmentType.CurveTo)
+            {
+                minY = Math.Min(minY, seg.Y2);
+                maxY = Math.Max(maxY, seg.Y2);
+            }
+            if (seg.Type == GeneralPath.SegmentType.CurveTo)
+            {
+                minY = Math.Min(minY, seg.Y3);
+                maxY = Math.Max(maxY, seg.Y3);
+            }
             hasPoints = true;
         }
 

@@ -44,6 +44,24 @@ public class CIDKeyedType2CharString : Type2CharString
         CID = cid;
     }
 
+    public CIDKeyedType2CharString(
+        string fontName,
+        int cid,
+        int gid,
+        List<object> sequence,
+        int defaultWidthX,
+        int nominalWidthX)
+        : base(
+            fontName,
+            string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:x4}", cid),
+            gid,
+            sequence,
+            defaultWidthX,
+            nominalWidthX)
+    {
+        CID = cid;
+    }
+
     /// <summary>
     /// Returns the CID (character identifier) of this charstring.
     /// </summary>

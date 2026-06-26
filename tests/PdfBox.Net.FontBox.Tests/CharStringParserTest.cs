@@ -1,5 +1,6 @@
 using PdfBox.Net.FontBox.CFF;
 using PdfBox.Net.IO;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.FontBox.Tests;
 
@@ -277,8 +278,32 @@ public class CharStringParserTest
         Assert.Equal("MyType2Font", cs.FontName);
         Assert.Equal("B", cs.GlyphName);
         Assert.Equal(bytes, cs.Bytes);
-        Assert.Equal(0, cs.GetWidth());
+        Assert.Equal(1000, cs.GetWidth());
         Assert.NotNull(cs.GetPath());
+    }
+
+    [Fact]
+    public void Type2CharString_RendersCubicOutlineAndExplicitWidth()
+    {
+        List<object> sequence =
+        [
+            120d,
+            100d,
+            200d,
+            CharStringCommand.RMOVETO,
+            50d,
+            0d,
+            50d,
+            100d,
+            0d,
+            100d,
+            CharStringCommand.RRCURVETO,
+            CharStringCommand.ENDCHAR
+        ];
+        Type2CharString cs = new("MyType2Font", "curve", 1, sequence, 500, 20);
+
+        Assert.Equal(140, cs.GetWidth());
+        Assert.Contains(cs.GetPath().Segments, segment => segment.Type == GeneralPath.SegmentType.CurveTo);
     }
 
     // ── EmbeddedCharset ───────────────────────────────────────────────────

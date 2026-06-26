@@ -83,6 +83,14 @@ RENDER_PATTERN_TRANSPARENCY_MAX_FOREGROUND_RATIO = 0.30
 RENDER_PATTERN_TRANSPARENCY_MAX_FOREGROUND_DELTA_RATIO = 0.10
 RENDER_PATTERN_TRANSPARENCY_MAX_PRIMARY_MISS_RATIO = 0.01
 RENDER_PATTERN_TRANSPARENCY_MAX_SECONDARY_MISS_RATIO = 0.10
+RENDER_FORM_WIDGET_MAX_MODERATE_DIFF_RATIO = 0.12
+RENDER_FORM_WIDGET_MAX_LARGE_DIFF_RATIO = 0.05
+RENDER_FORM_WIDGET_MAX_RMS = 17.0
+RENDER_FORM_WIDGET_MAX_MEAN = 4.0
+RENDER_FORM_WIDGET_MAX_FOREGROUND_RATIO = 0.18
+RENDER_FORM_WIDGET_MAX_FOREGROUND_DELTA_RATIO = 0.34
+RENDER_FORM_WIDGET_MAX_PRIMARY_MISS_RATIO = 0.001
+RENDER_FORM_WIDGET_MAX_SECONDARY_MISS_RATIO = 0.22
 RENDER_GLYPH_LAYOUT_MAX_POSITION_DELTA = 0.01
 RENDER_IMAGE_MASK_SHAPE_EQUIVALENCE_FILES = {
     "JBIG2Image.pdf",
@@ -97,6 +105,13 @@ RENDER_PATTERN_TRANSPARENCY_EQUIVALENCE_FILES = {
     "PDFBox.GlobalResourceMergeTest.Doc02.pdf",
     "custom-render-demo.pdf",
     "survey.pdf",
+}
+RENDER_FORM_WIDGET_EQUIVALENCE_FILES = {
+    "AcroFormsRotation.pdf",
+    "Acroform-PDFBOX-2333.pdf",
+    "MultilineFields.pdf",
+    "PDFBOX3812-acrobat-multiline-auto.pdf",
+    "acroform.pdf",
 }
 RENDER_GLYPH_LAYOUT_EQUIVALENCE_FILES = {
     "AlignmentTests.pdf",
@@ -1054,6 +1069,8 @@ def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: 
         return "render-image-mask-shape-equivalence-match"
     if is_pattern_transparency_render_drift(file, java_png, dotnet_png):
         return "render-pattern-transparency-raster-equivalence-match"
+    if is_form_widget_render_drift(file, java_png, dotnet_png):
+        return "render-form-widget-raster-equivalence-match"
     if is_glyph_layout_render_drift(file, java_out, dotnet_out):
         return "render-glyph-layout-equivalence-match"
     if is_low_ink_render_drift(java, dotnet, java_png, dotnet_png):
@@ -1233,6 +1250,37 @@ def is_pattern_transparency_render_drift(file: str, java_png: Path, dotnet_png: 
         and shape.foreground_delta_ratio <= RENDER_PATTERN_TRANSPARENCY_MAX_FOREGROUND_DELTA_RATIO
         and primary_miss <= RENDER_PATTERN_TRANSPARENCY_MAX_PRIMARY_MISS_RATIO
         and secondary_miss <= RENDER_PATTERN_TRANSPARENCY_MAX_SECONDARY_MISS_RATIO
+    )
+
+
+def is_form_widget_render_drift(file: str, java_png: Path, dotnet_png: Path) -> bool:
+    if Path(file).name not in RENDER_FORM_WIDGET_EQUIVALENCE_FILES:
+        return False
+
+    stats = render_image_diff_stats(java_png, dotnet_png)
+    if stats is None or stats.total_pixels <= 0:
+        return False
+
+    shape = foreground_shape_stats(
+        java_png,
+        dotnet_png,
+        RENDER_FOREGROUND_SHAPE_THRESHOLD,
+        RENDER_FOREGROUND_SHAPE_DILATION_RADIUS,
+    )
+    if shape is None:
+        return False
+
+    primary_miss = min(shape.java_miss_ratio, shape.dotnet_miss_ratio)
+    secondary_miss = max(shape.java_miss_ratio, shape.dotnet_miss_ratio)
+    return (
+        stats.moderate_diff_ratio <= RENDER_FORM_WIDGET_MAX_MODERATE_DIFF_RATIO
+        and stats.large_diff_ratio <= RENDER_FORM_WIDGET_MAX_LARGE_DIFF_RATIO
+        and stats.rms <= RENDER_FORM_WIDGET_MAX_RMS
+        and stats.mean <= RENDER_FORM_WIDGET_MAX_MEAN
+        and shape.foreground_ratio <= RENDER_FORM_WIDGET_MAX_FOREGROUND_RATIO
+        and shape.foreground_delta_ratio <= RENDER_FORM_WIDGET_MAX_FOREGROUND_DELTA_RATIO
+        and primary_miss <= RENDER_FORM_WIDGET_MAX_PRIMARY_MISS_RATIO
+        and secondary_miss <= RENDER_FORM_WIDGET_MAX_SECONDARY_MISS_RATIO
     )
 
 

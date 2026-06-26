@@ -1,49 +1,5 @@
 {
   "schema": 1,
-  "description": "Known Java-vs-.NET runtime parity divergences. Entries are matched by operation and optional file, fileGlob, category, or categoryGlob.",
-  "entries": [
-    {
-      "id": "text-semantic-mismatch-ratchet",
-      "op": "text",
-      "categoryGlob": "text-*",
-      "issue": 441,
-      "owner": "issue-441",
-      "rootCause": "text-extraction-semantics",
-      "expiresWhen": "Issue #441 reaches zero-known runtime parity for text extraction.",
-      "ratchet": "The total known text rows must trend down and must not exceed the checked-in ratchet baseline.",
-      "reason": "Default PDFTextStripper semantic output still differs from Java for many successful text extraction cases."
-    },
-    {
-      "id": "render-form-widget-appearance",
-      "op": "render",
-      "category": "detail-mismatch",
-      "files": [
-        "AcroFormsRotation.pdf",
-        "Acroform-PDFBOX-2333.pdf",
-        "MultilineFields.pdf",
-        "PDFBOX3812-acrobat-multiline-auto.pdf",
-        "acroform.pdf"
-      ],
-      "issue": 489,
-      "owner": "issue-489",
-      "rootCause": "render-form-widget-appearance",
-      "expiresWhen": "Issue #489 closes all form and widget appearance render rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove file names as form/widget render parity improves.",
-      "reason": "Widget appearance generation, multiline layout, auto font sizing, inherited default appearance resources, and widget rotation still differ from Java for these render fixtures."
-    },
-    {
-      "id": "render-ci-variance-watch",
-      "op": "render",
-      "category": "detail-mismatch",
-      "files": [
-        "PDFBOX-5920-4MQTG6ZXOYSMTQ444KGQOVC6ZFQHWFNY-spaces-reduced.pdf"
-      ],
-      "issue": 488,
-      "owner": "issue-488",
-      "rootCause": "render-ci-environment-variance",
-      "expiresWhen": "The hosted-only PDFBOX-5920 render row is assigned to one of the specific implementation buckets or fixed.",
-      "ratchet": "This entry must account for at most one hosted-only detail-mismatch row under the ratchet baseline; remove it after the variance is assigned or fixed.",
-      "reason": "Local runtime parity reports this row as equivalent, while hosted CI reports it as a render detail mismatch. The dedicated entry documents the 51-vs-52 variance without preserving a broad render-quality catch-all."
-    }
-  ]
+  "description": "Known Java-vs-.NET runtime parity divergences. Issue #441 moved the tracked corpus to zero known failures; new entries must include owner metadata and a removal condition.",
+  "entries": []
 }

@@ -341,6 +341,28 @@ public class PageDrawer : PDFGraphicsStreamEngine
                     hasCurrentPoint = true;
                     break;
                 }
+                case GeneralPath.SegmentType.CurveTo:
+                {
+                    if (!hasCurrentPoint)
+                    {
+                        AddTransformedPathSegment(textClippings, PDFStreamEngine.PathSegmentType.MoveTo, matrix, segment.X3, segment.Y3);
+                        currentX = startX = segment.X3;
+                        currentY = startY = segment.Y3;
+                        hasCurrentPoint = true;
+                        break;
+                    }
+
+                    AddTransformedCubicSegment(
+                        textClippings,
+                        matrix,
+                        new SKPoint(segment.X1, segment.Y1),
+                        new SKPoint(segment.X2, segment.Y2),
+                        new SKPoint(segment.X3, segment.Y3));
+                    currentX = segment.X3;
+                    currentY = segment.Y3;
+                    hasCurrentPoint = true;
+                    break;
+                }
                 case GeneralPath.SegmentType.Close:
                     textClippings.Add(new PDFStreamEngine.PathSegment(PDFStreamEngine.PathSegmentType.Close, 0, 0, 0, 0, 0, 0));
                     currentX = startX;
@@ -1210,6 +1232,14 @@ public class PageDrawer : PDFGraphicsStreamEngine
                     (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, matrix);
                     (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, matrix);
                     skPath.QuadTo(x1, y1, x2, y2);
+                    break;
+                }
+                case GeneralPath.SegmentType.CurveTo:
+                {
+                    (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, matrix);
+                    (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, matrix);
+                    (float x3, float y3) = PdfToCanvas(segment.X3, segment.Y3, matrix);
+                    skPath.CubicTo(x1, y1, x2, y2, x3, y3);
                     break;
                 }
                 case GeneralPath.SegmentType.Close:

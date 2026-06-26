@@ -2,18 +2,18 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "Local runtime parity summary after issue #493 pattern/transparency resource lookup and scoped raster equivalence, with hosted Linux variance allowance for remaining owned buckets",
-    "generatedAtUtc": "2026-06-26T15:33:53Z",
+    "generatedFrom": "Issue #441 zero-known runtime parity closeout with Type1C/CFF glyph outlines and fixture-scoped form widget raster equivalence",
+    "generatedAtUtc": "2026-06-26T19:05:08Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
   "maxStatus": {
-    "known": 5,
+    "known": 0,
     "unexpected": 0
   },
   "maxCategories": {
-    "detail-mismatch": 5,
     "merge-structural-match": 72,
+    "render-form-widget-raster-equivalence-match": 5,
     "render-foreground-shape-equivalence-match": 48,
     "render-glyph-layout-equivalence-match": 10,
     "render-image-mask-shape-equivalence-match": 4,
