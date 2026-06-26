@@ -3,38 +3,6 @@
   "description": "Known Java-vs-.NET runtime parity divergences. Entries are matched by operation and optional file, fileGlob, category, or categoryGlob.",
   "entries": [
     {
-      "id": "minimal-content-resource-render-status",
-      "op": "render",
-      "category": "status-mismatch",
-      "files": [
-        "classic-xref-fixture.pdf",
-        "flate-content-fixture.pdf",
-        "xref-stream-fixture.pdf"
-      ],
-      "issue": 441,
-      "owner": "issue-441",
-      "rootCause": "rendering-resource-defaults",
-      "expiresWhen": "Issue #441 reaches zero-known runtime parity for rendering rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove fixture names as rendering parity improves.",
-      "reason": "Rendering minimal parser fixtures currently throws before producing Java-compatible blank-page output."
-    },
-    {
-      "id": "minimal-content-resource-text-status",
-      "op": "text",
-      "category": "status-mismatch",
-      "files": [
-        "classic-xref-fixture.pdf",
-        "flate-content-fixture.pdf",
-        "xref-stream-fixture.pdf"
-      ],
-      "issue": 441,
-      "owner": "issue-441",
-      "rootCause": "text-resource-defaults",
-      "expiresWhen": "Issue #441 reaches zero-known runtime parity for text rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove fixture names as text parity improves.",
-      "reason": "Text extraction for minimal parser fixtures currently throws before producing Java-compatible text output."
-    },
-    {
       "id": "text-semantic-mismatch-ratchet",
       "op": "text",
       "categoryGlob": "text-*",
@@ -46,28 +14,134 @@
       "reason": "Default PDFTextStripper semantic output still differs from Java for many successful text extraction cases."
     },
     {
-      "id": "render-quality-gaps",
+      "id": "render-form-widget-appearance",
       "op": "render",
       "category": "detail-mismatch",
-      "issue": 441,
-      "owner": "issue-441",
-      "rootCause": "render-quality-semantics",
-      "expiresWhen": "Issue #441 reaches zero-known runtime parity for rendering rows.",
-      "ratchet": "The total known render detail mismatches must trend down and must not exceed the checked-in ratchet baseline.",
-      "reason": "Successful render output still differs from Java until remaining PageDrawer glyph, color, pattern, annotation, and image fidelity work lands."
+      "files": [
+        "AcroFormsBasicFields.pdf",
+        "AcroFormsRotation.pdf",
+        "Acroform-PDFBOX-2333.pdf",
+        "MultilineFields.pdf",
+        "PDFBOX-3835-input-acrobat-wrap.pdf",
+        "PDFBOX3812-acrobat-multiline-auto.pdf",
+        "acroform.pdf",
+        "eu-001.pdf"
+      ],
+      "issue": 489,
+      "owner": "issue-489",
+      "rootCause": "render-form-widget-appearance",
+      "expiresWhen": "Issue #489 closes all form and widget appearance render rows.",
+      "ratchet": "Known rows covered by this entry must not increase; remove file names as form/widget render parity improves.",
+      "reason": "Widget appearance generation, multiline layout, auto font sizing, inherited default appearance resources, and widget rotation still differ from Java for these render fixtures."
     },
     {
-      "id": "survey-pattern-color-space",
+      "id": "render-page-geometry-overlay",
       "op": "render",
+      "category": "detail-mismatch",
       "files": [
-        "survey.pdf"
+        "OverlayTestBaseRot0.pdf",
+        "Overlayed-with-rot0.pdf",
+        "Overlayed-with-rot180.pdf",
+        "Overlayed-with-rot270.pdf",
+        "Overlayed-with-rot90.pdf",
+        "PDFBOX-3110-poems-beads-cropbox.pdf",
+        "PDFBOX-3110-poems-beads.pdf",
+        "rot0.pdf",
+        "rot180.pdf",
+        "rot270.pdf",
+        "rot90.pdf",
+        "source.pdf"
       ],
-      "issue": 441,
-      "owner": "issue-441",
-      "rootCause": "render-pattern-color-space",
-      "expiresWhen": "Issue #441 reaches zero-known runtime parity for pattern color-space rendering.",
-      "ratchet": "Known rows covered by this entry must not increase; remove this entry when survey.pdf renders like Java.",
-      "reason": "Pattern color space rendering fails until advanced rendering work is implemented."
+      "issue": 490,
+      "owner": "issue-490",
+      "rootCause": "render-page-geometry-overlay",
+      "expiresWhen": "Issue #490 closes all page geometry, rotation, overlay, and clipping render rows.",
+      "ratchet": "Known rows covered by this entry must not increase; remove file names as page geometry render parity improves.",
+      "reason": "Page/form initial matrix handling, crop/media box transforms, rotated page strokes, overlay placement, and clipping still differ from Java for these render fixtures."
+    },
+    {
+      "id": "render-text-glyph-font",
+      "op": "render",
+      "category": "detail-mismatch",
+      "files": [
+        "AlignmentTests.pdf",
+        "ControlCharacters.pdf",
+        "PDFBOX-2725-878725.pdf",
+        "PDFBOX-3038-001033-p2.pdf",
+        "PDFBOX-3042-003177-p2.pdf",
+        "PDFBOX-3044-010197-p5-ligatures.pdf",
+        "PDFBOX-3062-002207-p1.pdf",
+        "PDFBOX-3062-005717-p1.pdf",
+        "PDFBOX-3656-SF1199AEG (Complete).pdf",
+        "PDFBOX-4417-001031.pdf",
+        "PDFBOX-4417-054080.pdf",
+        "PDFBOX-5784.pdf",
+        "PDFBOX-5792-240045.pdf",
+        "PDFBOX-5811-362972.pdf",
+        "arxiv-sample.pdf",
+        "cweb.pdf",
+        "unencrypted.pdf"
+      ],
+      "issue": 491,
+      "owner": "issue-491",
+      "rootCause": "render-text-glyph-font",
+      "expiresWhen": "Issue #491 closes all text, glyph, and font render fidelity rows.",
+      "ratchet": "Known rows covered by this entry must not increase; remove file names as glyph/font render parity improves.",
+      "reason": "Glyph outline selection, fallback font selection, width/stretch behavior, ligatures, control characters, and renderer antialiasing semantics still differ from Java for these render fixtures."
+    },
+    {
+      "id": "render-image-color-mask",
+      "op": "render",
+      "category": "detail-mismatch",
+      "files": [
+        "JBIG2Image.pdf",
+        "PDFBOX-5809-509329.pdf",
+        "PDFBOX-5840-410609.pdf",
+        "PDFBOX-6049-ExpectedResult.pdf",
+        "data-000001.pdf",
+        "png_demo.pdf",
+        "testPDFPackage.pdf"
+      ],
+      "issue": 492,
+      "owner": "issue-492",
+      "rootCause": "render-image-color-mask",
+      "expiresWhen": "Issue #492 closes all image, color, stencil, and mask render rows.",
+      "ratchet": "Known rows covered by this entry must not increase; remove file names as image/color render parity improves.",
+      "reason": "Sampled image decoding, high-bit-depth handling, decode arrays, indexed/ICC/CMYK color conversion, color-key masks, stencil masks, and interpolation/subsampling still differ from Java for these render fixtures."
+    },
+    {
+      "id": "render-pattern-shading-transparency",
+      "op": "render",
+      "category": "detail-mismatch",
+      "files": [
+        "PDFBox.GlobalResourceMergeTest.Doc01.decoded.pdf",
+        "PDFBox.GlobalResourceMergeTest.Doc01.pdf",
+        "PDFBox.GlobalResourceMergeTest.Doc02.decoded.pdf",
+        "PDFBox.GlobalResourceMergeTest.Doc02.pdf",
+        "custom-render-demo.pdf",
+        "survey.pdf",
+        "tiger-as-form-xobject.pdf"
+      ],
+      "issue": 493,
+      "owner": "issue-493",
+      "rootCause": "render-pattern-shading-transparency",
+      "expiresWhen": "Issue #493 closes all pattern, shading, transparency group, and form XObject render rows.",
+      "ratchet": "Known rows covered by this entry must not increase; remove file names as pattern/shading/transparency render parity improves.",
+      "reason": "Shading BBox intersection, tiling pattern matrix handling, transparency group rasterization/compositing, blend modes, soft masks, and form XObject rendering still differ from Java for these render fixtures."
+    },
+    {
+      "id": "render-ci-variance-watch",
+      "op": "render",
+      "category": "detail-mismatch",
+      "files": [
+        "PDFBOX-5920-4MQTG6ZXOYSMTQ444KGQOVC6ZFQHWFNY-spaces-reduced.pdf"
+      ],
+      "issue": 488,
+      "owner": "issue-488",
+      "rootCause": "render-ci-environment-variance",
+      "expiresWhen": "The hosted-only PDFBOX-5920 render row is assigned to one of the specific implementation buckets or fixed.",
+      "ratchet": "This entry must account for at most one hosted-only detail-mismatch row under the ratchet baseline; remove it after the variance is assigned or fixed.",
+      "reason": "Local runtime parity reports this row as equivalent, while hosted CI reports it as a render detail mismatch. The dedicated entry documents the 51-vs-52 variance without preserving a broad render-quality catch-all."
     }
   ]
 }

@@ -21,6 +21,19 @@ manifest, uploads `java-results.jsonl`, `dotnet-results.jsonl`,
 `comparison.json`, structure JSONL files, generated PDFs/images/text, and
 `summary.md` as a workflow artifact.
 
+`comparison.json` includes the matched known-failure id, owning issue,
+root-cause bucket, parsed render metrics, render pixel-diff statistics, and
+Java/.NET artifact paths for each row where artifacts exist. `summary.md`
+groups known rows by root cause and lists known render detail rows with the
+same metrics and artifact paths so CI/local 51-vs-52 variance can be compared
+directly from uploaded artifacts.
+
+The broad render-quality known-failure allowance is intentionally split into
+issue-owned root-cause buckets. A temporary `render-ci-variance-watch` bucket
+documents the hosted-only PDFBOX-5920 row and is limited by the ratchet
+baseline. Remove it once that row is assigned to a specific implementation
+bucket or fixed.
+
 Render rows first compare raw rendered pixel hashes and image metrics. When
 those differ, the harness decodes the saved Java/.NET PNGs and accepts only
 small visual-equivalence drift: same dimensions, low moderate-difference pixel
