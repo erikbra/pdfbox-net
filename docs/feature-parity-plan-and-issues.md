@@ -4,6 +4,32 @@ Generated: 2026-06-23
 
 Source report: `/tmp/pdfbox-gap-scan/pdfbox-net-gap-analysis-report.md`
 
+## 2026-06-26 Status Addendum
+
+The runtime parity corpus has since been driven to zero known and zero unexpected rows for the tracked corpus.  That establishes corpus parity, not complete Java API feature parity.
+
+A new API-surface comparison has been added:
+
+- Human-readable report: `reports/pdfbox-api-surface-analysis.md`
+- Machine-readable detail: `reports/api-surface-comparison.json`
+
+Current library API-surface result against Apache PDFBox commit `833ed8f378f00838fd8df8c01bfc4b915b4c350b`:
+
+| Metric | Count |
+|---|---:|
+| Java public/protected types | 581 |
+| Matched public .NET types | 579 |
+| Same-name public .NET types | 573 |
+| Renamed public .NET replacements | 6 |
+| Mapped but non-public/replacement-marker types | 2 |
+| Missing mapped public .NET types | 0 |
+| Java public/protected members | 6305 |
+| Matched members | 4651 |
+| Arity-drift members | 105 |
+| Missing members | 1549 |
+
+Member coverage by name/signature heuristic is **75.4%**.  The remaining feature-parity work should now be tracked as API compatibility plus behavioral parity for each accepted API family.
+
 ## Goal
 
 Reach practical 100% feature parity with the Java Apache PDFBox revision used by the scan, starting from the observed runtime and source gaps in PdfBox.Net.
@@ -600,4 +626,3 @@ The current corpus is useful but not sufficient to claim 100% feature parity. It
 
 - `/tmp/pdfbox-gap-scan/manifest.txt`
 - `/tmp/pdfbox-gap-scan/pdfbox-net-gap-analysis-report.md`
-

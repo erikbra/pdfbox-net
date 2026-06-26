@@ -41,6 +41,27 @@ Among **795** rows with scoped upstream `source_path`:
 - No `partial` or `partially-in-sync` rows remain for scoped upstream `source_path` entries.
 - Build and tests are green on the parity branch.
 
+## API surface parity addendum
+
+Generated API-surface comparison: `reports/pdfbox-api-surface-analysis.md`
+
+The source-file parity gate above is green, but Java public/protected API compatibility is not yet complete.  The API comparison scans Apache PDFBox library modules (`io`, `fontbox`, `xmpbox`, `pdfbox`) and compares Java public/protected types and members against reflected PdfBox.Net Release assemblies.
+
+| Metric | Count |
+|---|---:|
+| Java public/protected types | 581 |
+| Matched public .NET types | 579 |
+| Same-name public .NET types | 573 |
+| Renamed public .NET replacements | 6 |
+| Mapped but non-public/replacement-marker types | 2 |
+| Missing mapped public .NET types | 0 |
+| Java public/protected members | 6305 |
+| Matched members | 4651 |
+| Arity-drift members | 105 |
+| Missing members | 1549 |
+
+Member coverage by name/signature heuristic: **4756 / 6305 = 75.4%**.  This should be treated as an API compatibility backlog, not as a contradiction of the file-level parity gate.
+
 ## File-by-file report
 
 The generated `reports/upstream-file-comparison.json` contains one row for each scoped upstream Java file, including mapping evidence and metadata-gap classification.
@@ -60,4 +81,3 @@ The generated `reports/upstream-file-comparison.json` contains one row for each 
 | `missing-traceability-row` | `io` | 8 |
 | `missing-traceability-row` | `pdfbox` | 141 |
 | `missing-traceability-row` | `tools` | 26 |
-
