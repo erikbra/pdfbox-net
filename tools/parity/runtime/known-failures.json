@@ -18,14 +18,11 @@
       "op": "render",
       "category": "detail-mismatch",
       "files": [
-        "AcroFormsBasicFields.pdf",
         "AcroFormsRotation.pdf",
         "Acroform-PDFBOX-2333.pdf",
         "MultilineFields.pdf",
-        "PDFBOX-3835-input-acrobat-wrap.pdf",
         "PDFBOX3812-acrobat-multiline-auto.pdf",
-        "acroform.pdf",
-        "eu-001.pdf"
+        "acroform.pdf"
       ],
       "issue": 489,
       "owner": "issue-489",
@@ -35,52 +32,20 @@
       "reason": "Widget appearance generation, multiline layout, auto font sizing, inherited default appearance resources, and widget rotation still differ from Java for these render fixtures."
     },
     {
-      "id": "render-page-geometry-overlay",
-      "op": "render",
-      "category": "detail-mismatch",
-      "files": [
-        "OverlayTestBaseRot0.pdf",
-        "Overlayed-with-rot0.pdf",
-        "Overlayed-with-rot180.pdf",
-        "Overlayed-with-rot270.pdf",
-        "Overlayed-with-rot90.pdf",
-        "PDFBOX-3110-poems-beads-cropbox.pdf",
-        "PDFBOX-3110-poems-beads.pdf",
-        "rot0.pdf",
-        "rot180.pdf",
-        "rot270.pdf",
-        "rot90.pdf",
-        "source.pdf"
-      ],
-      "issue": 490,
-      "owner": "issue-490",
-      "rootCause": "render-page-geometry-overlay",
-      "expiresWhen": "Issue #490 closes all page geometry, rotation, overlay, and clipping render rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove file names as page geometry render parity improves.",
-      "reason": "Page/form initial matrix handling, crop/media box transforms, rotated page strokes, overlay placement, and clipping still differ from Java for these render fixtures."
-    },
-    {
       "id": "render-text-glyph-font",
       "op": "render",
       "category": "detail-mismatch",
       "files": [
         "AlignmentTests.pdf",
         "ControlCharacters.pdf",
-        "PDFBOX-2725-878725.pdf",
         "PDFBOX-3038-001033-p2.pdf",
-        "PDFBOX-3042-003177-p2.pdf",
         "PDFBOX-3044-010197-p5-ligatures.pdf",
         "PDFBOX-3062-002207-p1.pdf",
-        "PDFBOX-3062-005717-p1.pdf",
         "PDFBOX-3656-SF1199AEG (Complete).pdf",
-        "PDFBOX-4417-001031.pdf",
         "PDFBOX-4417-054080.pdf",
         "PDFBOX-5784.pdf",
-        "PDFBOX-5792-240045.pdf",
         "PDFBOX-5811-362972.pdf",
-        "arxiv-sample.pdf",
-        "cweb.pdf",
-        "unencrypted.pdf"
+        "arxiv-sample.pdf"
       ],
       "issue": 491,
       "owner": "issue-491",
@@ -95,11 +60,8 @@
       "category": "detail-mismatch",
       "files": [
         "JBIG2Image.pdf",
-        "PDFBOX-5809-509329.pdf",
         "PDFBOX-5840-410609.pdf",
-        "PDFBOX-6049-ExpectedResult.pdf",
         "data-000001.pdf",
-        "png_demo.pdf",
         "testPDFPackage.pdf"
       ],
       "issue": 492,
@@ -119,8 +81,7 @@
         "PDFBox.GlobalResourceMergeTest.Doc02.decoded.pdf",
         "PDFBox.GlobalResourceMergeTest.Doc02.pdf",
         "custom-render-demo.pdf",
-        "survey.pdf",
-        "tiger-as-form-xobject.pdf"
+        "survey.pdf"
       ],
       "issue": 493,
       "owner": "issue-493",

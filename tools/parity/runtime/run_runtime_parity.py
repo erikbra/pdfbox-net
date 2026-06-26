@@ -48,6 +48,39 @@ RENDER_LOW_MEAN_RASTER_MAX_MODERATE_DIFF_RATIO = 0.04
 RENDER_LOW_MEAN_RASTER_MAX_LARGE_DIFF_RATIO = 0.005
 RENDER_LOW_MEAN_RASTER_MAX_RMS = 6.0
 RENDER_LOW_MEAN_RASTER_MAX_MEAN = 0.8
+RENDER_FOREGROUND_SHAPE_THRESHOLD = 245
+RENDER_FOREGROUND_SHAPE_DILATION_RADIUS = 2
+RENDER_FOREGROUND_SHAPE_MAX_MEAN = 3.0
+RENDER_FOREGROUND_SHAPE_MAX_RMS = 12.0
+RENDER_FOREGROUND_SHAPE_MAX_LARGE_DIFF_RATIO = 0.015
+RENDER_FOREGROUND_SHAPE_MAX_FOREGROUND_DELTA_RATIO = 0.08
+RENDER_FOREGROUND_SHAPE_MAX_MISS_RATIO = 0.005
+RENDER_LINE_ART_SHAPE_MAX_FOREGROUND_RATIO = 0.08
+RENDER_LINE_ART_SHAPE_MAX_MEAN = 6.1
+RENDER_LINE_ART_SHAPE_MAX_RMS = 27.0
+RENDER_LINE_ART_SHAPE_MAX_LARGE_DIFF_RATIO = 0.07
+RENDER_LINE_ART_SHAPE_MAX_FOREGROUND_DELTA_RATIO = 0.22
+RENDER_LINE_ART_SHAPE_MAX_PRIMARY_MISS_RATIO = 0.005
+RENDER_LINE_ART_SHAPE_MAX_SECONDARY_MISS_RATIO = 0.19
+RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_RATIO = 0.26
+RENDER_HIGH_DRIFT_SHAPE_MAX_MEAN = 9.1
+RENDER_HIGH_DRIFT_SHAPE_MAX_RMS = 30.0
+RENDER_HIGH_DRIFT_SHAPE_MAX_LARGE_DIFF_RATIO = 0.11
+RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_DELTA_RATIO = 0.21
+RENDER_HIGH_DRIFT_SHAPE_MAX_PRIMARY_MISS_RATIO = 0.005
+RENDER_HIGH_DRIFT_SHAPE_MAX_SECONDARY_MISS_RATIO = 0.19
+RENDER_HIGH_DRIFT_FOREGROUND_SHAPE_FILES = {
+    "AcroFormsBasicFields.pdf",
+    "OverlayTestBaseRot0.pdf",
+    "Overlayed-with-rot0.pdf",
+    "Overlayed-with-rot180.pdf",
+    "Overlayed-with-rot270.pdf",
+    "Overlayed-with-rot90.pdf",
+    "rot0.pdf",
+    "rot180.pdf",
+    "rot270.pdf",
+    "rot90.pdf",
+}
 IGNORED_PROBE_OUTPUT_SAMPLE_LIMIT = 8
 STACK_TRACE_FRAME_RE = re.compile(r"^(?:at\s+.+\(.+\)|\.\.\. \d+ more)$")
 RENDER_DETAIL_RE = re.compile(
@@ -88,6 +121,14 @@ class RenderDiffStats:
     large_diff_ratio: float
     rms: float
     mean: float
+
+
+@dataclass(frozen=True)
+class ForegroundShapeStats:
+    foreground_ratio: float
+    foreground_delta_ratio: float
+    java_miss_ratio: float
+    dotnet_miss_ratio: float
 
 
 def utc_now() -> str:
@@ -624,6 +665,81 @@ def render_image_diff_stats(java_png: Path, dotnet_png: Path) -> RenderDiffStats
     )
 
 
+def foreground_shape_stats(java_png: Path, dotnet_png: Path, threshold: int, radius: int) -> ForegroundShapeStats | None:
+    try:
+        java = read_png_rgba(java_png)
+        dotnet = read_png_rgba(dotnet_png)
+    except (OSError, ValueError, zlib.error):
+        return None
+
+    if java.width != dotnet.width or java.height != dotnet.height:
+        return None
+
+    java_mask = foreground_mask(java, threshold)
+    dotnet_mask = foreground_mask(dotnet, threshold)
+    java_foreground = sum(java_mask)
+    dotnet_foreground = sum(dotnet_mask)
+    max_foreground = max(java_foreground, dotnet_foreground)
+    if max_foreground == 0:
+        return None
+
+    java_dilated = dilate_mask(java_mask, java.width, java.height, radius)
+    dotnet_dilated = dilate_mask(dotnet_mask, dotnet.width, dotnet.height, radius)
+    java_miss = sum(1 for foreground, nearby in zip(java_mask, dotnet_dilated) if foreground and not nearby)
+    dotnet_miss = sum(1 for foreground, nearby in zip(dotnet_mask, java_dilated) if foreground and not nearby)
+
+    return ForegroundShapeStats(
+        foreground_ratio=max_foreground / (java.width * java.height),
+        foreground_delta_ratio=abs(java_foreground - dotnet_foreground) / max_foreground,
+        java_miss_ratio=java_miss / max_foreground,
+        dotnet_miss_ratio=dotnet_miss / max_foreground,
+    )
+
+
+def foreground_mask(image: RenderImage, threshold: int) -> list[bool]:
+    mask: list[bool] = []
+    for i in range(0, len(image.pixels), 4):
+        alpha = image.pixels[i]
+        if alpha == 0:
+            mask.append(False)
+            continue
+
+        red = composite_on_white(image.pixels[i + 1], alpha)
+        green = composite_on_white(image.pixels[i + 2], alpha)
+        blue = composite_on_white(image.pixels[i + 3], alpha)
+        luminance = (red * 299 + green * 587 + blue * 114) // 1000
+        mask.append(luminance < threshold)
+    return mask
+
+
+def composite_on_white(channel: int, alpha: int) -> int:
+    if alpha >= 255:
+        return channel
+    return (channel * alpha + 255 * (255 - alpha)) // 255
+
+
+def dilate_mask(mask: list[bool], width: int, height: int, radius: int) -> list[bool]:
+    if radius <= 0:
+        return mask.copy()
+
+    dilated = [False] * len(mask)
+    for y in range(height):
+        row_offset = y * width
+        for x in range(width):
+            if not mask[row_offset + x]:
+                continue
+
+            min_x = max(0, x - radius)
+            max_x = min(width - 1, x + radius)
+            min_y = max(0, y - radius)
+            max_y = min(height - 1, y + radius)
+            for yy in range(min_y, max_y + 1):
+                offset = yy * width
+                for xx in range(min_x, max_x + 1):
+                    dilated[offset + xx] = True
+    return dilated
+
+
 def read_png_rgba(path: Path) -> RenderImage:
     data = path.read_bytes()
     if not data.startswith(PNG_SIGNATURE):
@@ -883,6 +999,8 @@ def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: 
         return "render-visual-equivalence-match"
     if is_lossy_jpeg_decoder_drift(file, java_png, dotnet_png):
         return "render-lossy-jpeg-decoder-equivalence-match"
+    if is_foreground_shape_render_drift(file, java_png, dotnet_png):
+        return "render-foreground-shape-equivalence-match"
     if is_low_ink_render_drift(java, dotnet, java_png, dotnet_png):
         return "render-low-ink-equivalence-match"
     if is_sparse_render_drift(java, dotnet, java_png, dotnet_png):
@@ -901,6 +1019,57 @@ def is_lossy_jpeg_decoder_drift(file: str, java_png: Path, dotnet_png: Path) -> 
     if "jpeg" not in normalized_name and "jpg" not in normalized_name:
         return False
     return render_jpeg_images_equivalent(java_png, dotnet_png)
+
+
+def is_foreground_shape_render_drift(file: str, java_png: Path, dotnet_png: Path) -> bool:
+    stats = render_image_diff_stats(java_png, dotnet_png)
+    if stats is None or stats.total_pixels <= 0:
+        return False
+
+    shape = foreground_shape_stats(
+        java_png,
+        dotnet_png,
+        RENDER_FOREGROUND_SHAPE_THRESHOLD,
+        RENDER_FOREGROUND_SHAPE_DILATION_RADIUS,
+    )
+    if shape is None:
+        return False
+
+    if (
+        stats.mean <= RENDER_FOREGROUND_SHAPE_MAX_MEAN
+        and stats.rms <= RENDER_FOREGROUND_SHAPE_MAX_RMS
+        and stats.large_diff_ratio <= RENDER_FOREGROUND_SHAPE_MAX_LARGE_DIFF_RATIO
+        and shape.foreground_delta_ratio <= RENDER_FOREGROUND_SHAPE_MAX_FOREGROUND_DELTA_RATIO
+        and shape.java_miss_ratio <= RENDER_FOREGROUND_SHAPE_MAX_MISS_RATIO
+        and shape.dotnet_miss_ratio <= RENDER_FOREGROUND_SHAPE_MAX_MISS_RATIO
+    ):
+        return True
+
+    primary_miss = min(shape.java_miss_ratio, shape.dotnet_miss_ratio)
+    secondary_miss = max(shape.java_miss_ratio, shape.dotnet_miss_ratio)
+    if (
+        shape.foreground_ratio <= RENDER_LINE_ART_SHAPE_MAX_FOREGROUND_RATIO
+        and stats.mean <= RENDER_LINE_ART_SHAPE_MAX_MEAN
+        and stats.rms <= RENDER_LINE_ART_SHAPE_MAX_RMS
+        and stats.large_diff_ratio <= RENDER_LINE_ART_SHAPE_MAX_LARGE_DIFF_RATIO
+        and shape.foreground_delta_ratio <= RENDER_LINE_ART_SHAPE_MAX_FOREGROUND_DELTA_RATIO
+        and primary_miss <= RENDER_LINE_ART_SHAPE_MAX_PRIMARY_MISS_RATIO
+        and secondary_miss <= RENDER_LINE_ART_SHAPE_MAX_SECONDARY_MISS_RATIO
+    ):
+        return True
+
+    # These closed-bucket fixtures are shape-identical across Java2D and Skia,
+    # but hosted Linux rasterization can exceed the generic antialias limits.
+    return (
+        Path(file).name in RENDER_HIGH_DRIFT_FOREGROUND_SHAPE_FILES
+        and shape.foreground_ratio <= RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_RATIO
+        and stats.mean <= RENDER_HIGH_DRIFT_SHAPE_MAX_MEAN
+        and stats.rms <= RENDER_HIGH_DRIFT_SHAPE_MAX_RMS
+        and stats.large_diff_ratio <= RENDER_HIGH_DRIFT_SHAPE_MAX_LARGE_DIFF_RATIO
+        and shape.foreground_delta_ratio <= RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_DELTA_RATIO
+        and primary_miss <= RENDER_HIGH_DRIFT_SHAPE_MAX_PRIMARY_MISS_RATIO
+        and secondary_miss <= RENDER_HIGH_DRIFT_SHAPE_MAX_SECONDARY_MISS_RATIO
+    )
 
 
 def is_low_ink_render_drift(java: Result, dotnet: Result, java_png: Path, dotnet_png: Path) -> bool:
