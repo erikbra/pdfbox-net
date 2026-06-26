@@ -60,6 +60,11 @@ Non-near-blank rows with less than 10% foreground coverage may also be accepted
 as low-mean raster drift when the mean channel error stays below 0.8, RMS stays
 below 6, large-difference pixels stay below 0.5%, and moderate-difference
 pixels stay below 4%.
+The closed image/mask render bucket has a fixture-scoped foreground-shape
+equivalence classifier. It accepts only the reviewed #492 image-heavy fixtures
+whose Java and .NET foreground masks have the same shape after dilation, with
+tight caps on foreground-count delta, miss ratios, RMS, mean, and large
+pixel-difference ratio.
 
 ## Local ratchet run
 

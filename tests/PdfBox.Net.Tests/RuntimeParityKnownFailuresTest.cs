@@ -7,18 +7,13 @@ public class RuntimeParityKnownFailuresTest
     [Fact]
     public void KnownFailures_DoNotContainClosedIssue438EncryptionDiagnostics()
     {
-        string path = FindRepoFile("tools/parity/runtime/known-failures.json");
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+        Assert.Empty(KnownFailureIdsForOwner("issue-438"));
+    }
 
-        JsonElement.ArrayEnumerator entries = document.RootElement.GetProperty("entries").EnumerateArray();
-        string[] staleIssue438Entries = entries
-            .Where(entry => entry.TryGetProperty("owner", out JsonElement owner)
-                && owner.GetString() == "issue-438")
-            .Select(entry => entry.GetProperty("id").GetString() ?? string.Empty)
-            .Where(id => id.Length != 0)
-            .ToArray();
-
-        Assert.Empty(staleIssue438Entries);
+    [Fact]
+    public void KnownFailures_DoNotContainClosedIssue492ImageMaskRenderBucket()
+    {
+        Assert.Empty(KnownFailureIdsForOwner("issue-492"));
     }
 
     [Fact]
@@ -63,6 +58,19 @@ public class RuntimeParityKnownFailuresTest
         }
 
         Assert.Empty(failures);
+    }
+
+    private static string[] KnownFailureIdsForOwner(string ownerName)
+    {
+        string path = FindRepoFile("tools/parity/runtime/known-failures.json");
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+
+        return document.RootElement.GetProperty("entries").EnumerateArray()
+            .Where(entry => entry.TryGetProperty("owner", out JsonElement owner)
+                && owner.GetString() == ownerName)
+            .Select(entry => entry.GetProperty("id").GetString() ?? string.Empty)
+            .Where(id => id.Length != 0)
+            .ToArray();
     }
 
     private static string FindRepoFile(string relativePath)

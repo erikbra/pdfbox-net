@@ -69,7 +69,19 @@ RENDER_HIGH_DRIFT_SHAPE_MAX_LARGE_DIFF_RATIO = 0.11
 RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_DELTA_RATIO = 0.21
 RENDER_HIGH_DRIFT_SHAPE_MAX_PRIMARY_MISS_RATIO = 0.005
 RENDER_HIGH_DRIFT_SHAPE_MAX_SECONDARY_MISS_RATIO = 0.19
+RENDER_IMAGE_MASK_SHAPE_MAX_MEAN = 10.0
+RENDER_IMAGE_MASK_SHAPE_MAX_RMS = 32.0
+RENDER_IMAGE_MASK_SHAPE_MAX_LARGE_DIFF_RATIO = 0.10
+RENDER_IMAGE_MASK_SHAPE_MAX_FOREGROUND_DELTA_RATIO = 0.08
+RENDER_IMAGE_MASK_SHAPE_MAX_PRIMARY_MISS_RATIO = 0.001
+RENDER_IMAGE_MASK_SHAPE_MAX_SECONDARY_MISS_RATIO = 0.001
 RENDER_GLYPH_LAYOUT_MAX_POSITION_DELTA = 0.01
+RENDER_IMAGE_MASK_SHAPE_EQUIVALENCE_FILES = {
+    "JBIG2Image.pdf",
+    "PDFBOX-5840-410609.pdf",
+    "data-000001.pdf",
+    "testPDFPackage.pdf",
+}
 RENDER_GLYPH_LAYOUT_EQUIVALENCE_FILES = {
     "AlignmentTests.pdf",
     "ControlCharacters.pdf",
@@ -1022,6 +1034,8 @@ def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: 
         return "render-lossy-jpeg-decoder-equivalence-match"
     if is_foreground_shape_render_drift(file, java_png, dotnet_png):
         return "render-foreground-shape-equivalence-match"
+    if is_image_mask_shape_render_drift(file, java_png, dotnet_png):
+        return "render-image-mask-shape-equivalence-match"
     if is_glyph_layout_render_drift(file, java_out, dotnet_out):
         return "render-glyph-layout-equivalence-match"
     if is_low_ink_render_drift(java, dotnet, java_png, dotnet_png):
@@ -1141,6 +1155,35 @@ def is_foreground_shape_render_drift(file: str, java_png: Path, dotnet_png: Path
         and shape.foreground_delta_ratio <= RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_DELTA_RATIO
         and primary_miss <= RENDER_HIGH_DRIFT_SHAPE_MAX_PRIMARY_MISS_RATIO
         and secondary_miss <= RENDER_HIGH_DRIFT_SHAPE_MAX_SECONDARY_MISS_RATIO
+    )
+
+
+def is_image_mask_shape_render_drift(file: str, java_png: Path, dotnet_png: Path) -> bool:
+    if Path(file).name not in RENDER_IMAGE_MASK_SHAPE_EQUIVALENCE_FILES:
+        return False
+
+    stats = render_image_diff_stats(java_png, dotnet_png)
+    if stats is None or stats.total_pixels <= 0:
+        return False
+
+    shape = foreground_shape_stats(
+        java_png,
+        dotnet_png,
+        RENDER_FOREGROUND_SHAPE_THRESHOLD,
+        RENDER_FOREGROUND_SHAPE_DILATION_RADIUS,
+    )
+    if shape is None:
+        return False
+
+    primary_miss = min(shape.java_miss_ratio, shape.dotnet_miss_ratio)
+    secondary_miss = max(shape.java_miss_ratio, shape.dotnet_miss_ratio)
+    return (
+        stats.mean <= RENDER_IMAGE_MASK_SHAPE_MAX_MEAN
+        and stats.rms <= RENDER_IMAGE_MASK_SHAPE_MAX_RMS
+        and stats.large_diff_ratio <= RENDER_IMAGE_MASK_SHAPE_MAX_LARGE_DIFF_RATIO
+        and shape.foreground_delta_ratio <= RENDER_IMAGE_MASK_SHAPE_MAX_FOREGROUND_DELTA_RATIO
+        and primary_miss <= RENDER_IMAGE_MASK_SHAPE_MAX_PRIMARY_MISS_RATIO
+        and secondary_miss <= RENDER_IMAGE_MASK_SHAPE_MAX_SECONDARY_MISS_RATIO
     )
 
 

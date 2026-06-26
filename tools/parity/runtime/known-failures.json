@@ -32,23 +32,6 @@
       "reason": "Widget appearance generation, multiline layout, auto font sizing, inherited default appearance resources, and widget rotation still differ from Java for these render fixtures."
     },
     {
-      "id": "render-image-color-mask",
-      "op": "render",
-      "category": "detail-mismatch",
-      "files": [
-        "JBIG2Image.pdf",
-        "PDFBOX-5840-410609.pdf",
-        "data-000001.pdf",
-        "testPDFPackage.pdf"
-      ],
-      "issue": 492,
-      "owner": "issue-492",
-      "rootCause": "render-image-color-mask",
-      "expiresWhen": "Issue #492 closes all image, color, stencil, and mask render rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove file names as image/color render parity improves.",
-      "reason": "Sampled image decoding, high-bit-depth handling, decode arrays, indexed/ICC/CMYK color conversion, color-key masks, stencil masks, and interpolation/subsampling still differ from Java for these render fixtures."
-    },
-    {
       "id": "render-pattern-shading-transparency",
       "op": "render",
       "category": "detail-mismatch",

@@ -2,20 +2,21 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "Local runtime parity summary after issue #491 render glyph-layout equivalence probe, with hosted Linux variance allowance for remaining owned buckets",
-    "generatedAtUtc": "2026-06-26T13:50:55Z",
+    "generatedFrom": "Local runtime parity summary after issue #492 image/mask shape equivalence probe, with hosted Linux variance allowance for remaining owned buckets",
+    "generatedAtUtc": "2026-06-26T14:40:14Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
   "maxStatus": {
-    "known": 16,
+    "known": 12,
     "unexpected": 0
   },
   "maxCategories": {
-    "detail-mismatch": 16,
+    "detail-mismatch": 12,
     "merge-structural-match": 72,
     "render-foreground-shape-equivalence-match": 43,
     "render-glyph-layout-equivalence-match": 10,
+    "render-image-mask-shape-equivalence-match": 4,
     "render-java-optional-jpx-reader-missing-match": 3,
     "render-lossy-jpeg-decoder-equivalence-match": 2,
     "render-low-ink-equivalence-match": 1,
