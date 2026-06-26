@@ -34,14 +34,11 @@ public class AFMCompositePartTest
     [Fact]
     public void TestCompositePart()
     {
-        CompositePart compositePart = new()
-        {
-            Name = "name",
-            DisplacementX = 10,
-            DisplacementY = 20,
-        };
+        CompositePart compositePart = new("name", 10, 20);
         Assert.Equal("name", compositePart.Name);
         Assert.Equal(10, compositePart.DisplacementX);
         Assert.Equal(20, compositePart.DisplacementY);
+        Assert.Equal(10, compositePart.XDisplacement);
+        Assert.Equal(20, compositePart.YDisplacement);
     }
 }

@@ -75,6 +75,16 @@ public sealed class CFFType1Font : CFFFont, EncodedFont
         });
     }
 
+    public Type2CharString GetType1CharString(string name)
+    {
+        return GetType2CharString(NameToGID(name));
+    }
+
+    public int NameToGID(string name)
+    {
+        return _nameToGid.TryGetValue(name, out int gid) ? gid : 0;
+    }
+
     public override GeneralPath GetPath(string name)
     {
         return _nameToGid.TryGetValue(name, out int gid) ? GetType2CharString(gid).GetPath() : new GeneralPath();

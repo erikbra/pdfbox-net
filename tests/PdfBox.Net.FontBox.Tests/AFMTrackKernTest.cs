@@ -34,19 +34,14 @@ public class AFMTrackKernTest
     [Fact]
     public void TestTrackKern()
     {
-        TrackKern trackKern = new()
-        {
-            Degree = 0,
-            MinPtSize = 1.0f,
-            MinKern = 1.0f,
-            MaxPtSize = 10.0f,
-            MaxKern = 10.0f,
-        };
+        TrackKern trackKern = new(0, 1.0f, 1.0f, 10.0f, 10.0f);
 
         Assert.Equal(0, trackKern.Degree);
         Assert.Equal(1.0f, trackKern.MinPtSize);
         Assert.Equal(1.0f, trackKern.MinKern);
         Assert.Equal(10.0f, trackKern.MaxPtSize);
         Assert.Equal(10.0f, trackKern.MaxKern);
+        Assert.Equal(1.0f, trackKern.MinPointSize);
+        Assert.Equal(10.0f, trackKern.MaxPointSize);
     }
 }

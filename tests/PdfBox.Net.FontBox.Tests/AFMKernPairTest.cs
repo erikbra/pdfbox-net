@@ -34,17 +34,15 @@ public class AFMKernPairTest
     [Fact]
     public void TestKernPair()
     {
-        KernPair kernPair = new()
-        {
-            FirstGlyph = "firstKernCharacter",
-            SecondGlyph = "secondKernCharacter",
-            DeltaX = 10f,
-            DeltaY = 20f,
-        };
+        KernPair kernPair = new("firstKernCharacter", "secondKernCharacter", 10f, 20f);
 
         Assert.Equal("firstKernCharacter", kernPair.FirstGlyph);
         Assert.Equal("secondKernCharacter", kernPair.SecondGlyph);
         Assert.Equal(10f, kernPair.DeltaX);
         Assert.Equal(20f, kernPair.DeltaY);
+        Assert.Equal("firstKernCharacter", kernPair.FirstKernCharacter);
+        Assert.Equal("secondKernCharacter", kernPair.SecondKernCharacter);
+        Assert.Equal(10f, kernPair.X);
+        Assert.Equal(20f, kernPair.Y);
     }
 }

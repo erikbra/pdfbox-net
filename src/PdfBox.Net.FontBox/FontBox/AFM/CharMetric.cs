@@ -55,6 +55,18 @@ public class CharMetric
     /// <summary>Gets or sets the advance width in y direction for writing direction 1.</summary>
     public float W1y { get; set; }
 
+    /// <summary>Gets or sets the two-dimensional advance vector.</summary>
+    public float[]? W { get; set; }
+
+    /// <summary>Gets or sets the writing direction 0 advance vector.</summary>
+    public float[]? W0 { get; set; }
+
+    /// <summary>Gets or sets the writing direction 1 advance vector.</summary>
+    public float[]? W1 { get; set; }
+
+    /// <summary>Gets or sets the vertical vector.</summary>
+    public float[]? Vv { get; set; }
+
     /// <summary>Gets or sets the glyph name.</summary>
     public string Name { get; set; } = string.Empty;
 
@@ -63,6 +75,12 @@ public class CharMetric
 
     /// <summary>Gets the list of ligature substitutions for this character.</summary>
     public List<Ligature> Ligatures { get; } = [];
+
+    public void AddLigature(Ligature ligature)
+    {
+        ArgumentNullException.ThrowIfNull(ligature);
+        Ligatures.Add(ligature);
+    }
 
     public override string ToString() => $"CharMetric[code={CharacterCode}, name={Name}, wx={Wx}]";
 }

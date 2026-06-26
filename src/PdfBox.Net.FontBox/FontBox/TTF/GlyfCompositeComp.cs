@@ -38,6 +38,15 @@ public class GlyfCompositeComp
     public const short WeHaveATwoByTwo = 0x0080;
     public const short WeHaveInstructions = 0x0100;
     public const short UseMyMetrics = 0x0200;
+    protected const short ARG_1_AND_2_ARE_WORDS = Arg1And2AreWords;
+    protected const short ARGS_ARE_XY_VALUES = ArgsAreXyValues;
+    protected const short ROUND_XY_TO_GRID = RoundXyToGrid;
+    protected const short WE_HAVE_A_SCALE = WeHaveAScale;
+    protected const short MORE_COMPONENTS = MoreComponents;
+    protected const short WE_HAVE_AN_X_AND_Y_SCALE = WeHaveAnXAndYScale;
+    protected const short WE_HAVE_A_TWO_BY_TWO = WeHaveATwoByTwo;
+    protected const short WE_HAVE_INSTRUCTIONS = WeHaveInstructions;
+    protected const short USE_MY_METRICS = UseMyMetrics;
 
     public int FirstIndex { get; set; }
     public int FirstContour { get; set; }

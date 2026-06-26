@@ -33,6 +33,19 @@ namespace PdfBox.Net.FontBox.AFM;
 /// </summary>
 public class TrackKern
 {
+    public TrackKern()
+    {
+    }
+
+    public TrackKern(int degree, float minPointSize, float minKern, float maxPointSize, float maxKern)
+    {
+        Degree = degree;
+        MinPtSize = minPointSize;
+        MinKern = minKern;
+        MaxPtSize = maxPointSize;
+        MaxKern = maxKern;
+    }
+
     /// <summary>Gets or sets the degree of track kerning (negative = tighter, positive = looser).</summary>
     public int Degree { get; set; }
 
@@ -44,6 +57,18 @@ public class TrackKern
 
     /// <summary>Gets or sets the maximum point size for this track kern entry.</summary>
     public float MaxPtSize { get; set; }
+
+    public float MinPointSize
+    {
+        get => MinPtSize;
+        set => MinPtSize = value;
+    }
+
+    public float MaxPointSize
+    {
+        get => MaxPtSize;
+        set => MaxPtSize = value;
+    }
 
     /// <summary>Gets or sets the kern amount at the maximum point size.</summary>
     public float MaxKern { get; set; }

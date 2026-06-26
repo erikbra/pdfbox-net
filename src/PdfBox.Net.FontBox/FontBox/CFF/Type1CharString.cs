@@ -46,6 +46,8 @@ public class Type1CharString
 
     public byte[] Bytes { get; }
 
+    public string GetName() => GlyphName;
+
     public virtual GeneralPath GetPath() => _path;
 
     public virtual float GetWidth() => 0;

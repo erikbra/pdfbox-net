@@ -51,7 +51,7 @@ public class AFMFontMetricsTest
         Assert.Equal("notice", fontMetrics.Notice);
 
         Assert.Empty(fontMetrics.Comments);
-        fontMetrics.Comments.Add("comment");
+        fontMetrics.AddComment("comment");
         Assert.Single(fontMetrics.Comments);
     }
 
@@ -100,6 +100,14 @@ public class AFMFontMetricsTest
         Assert.Equal(80f, fontMetrics.UnderlineThickness);
         Assert.Equal(90f, fontMetrics.ItalicAngle);
         Assert.True(fontMetrics.IsFixedPitch);
+
+        fontMetrics.StandardHorizontalWidth = 51f;
+        fontMetrics.StandardVerticalWidth = 61f;
+        fontMetrics.FixedPitch = false;
+
+        Assert.Equal(51f, fontMetrics.StdHW);
+        Assert.Equal(61f, fontMetrics.StdVW);
+        Assert.False(fontMetrics.IsFixedPitch);
     }
 
     [Fact]
@@ -143,7 +151,7 @@ public class AFMFontMetricsTest
         Assert.Empty(fontMetrics.CharMetrics);
 
         CharMetric charMetric = new();
-        fontMetrics.CharMetrics.Add(charMetric);
+        fontMetrics.AddCharMetric(charMetric);
         Assert.Single(fontMetrics.CharMetrics);
     }
 
@@ -154,8 +162,30 @@ public class AFMFontMetricsTest
         Assert.Empty(fontMetrics.Composites);
 
         Composite composite = new() { Name = "name" };
-        fontMetrics.Composites.Add(composite);
+        fontMetrics.AddComposite(composite);
         Assert.Single(fontMetrics.Composites);
+    }
+
+    [Fact]
+    public void TestKernAliases()
+    {
+        FontMetrics fontMetrics = new();
+
+        TrackKern trackKern = new();
+        fontMetrics.AddTrackKern(trackKern);
+        Assert.Same(trackKern, Assert.Single(fontMetrics.GetTrackKern()));
+
+        KernPair kernPair = new();
+        fontMetrics.AddKernPair(kernPair);
+        Assert.Same(kernPair, Assert.Single(fontMetrics.KernPairs));
+
+        KernPair kernPair0 = new();
+        fontMetrics.AddKernPair0(kernPair0);
+        Assert.Same(kernPair0, Assert.Single(fontMetrics.KernPairs0));
+
+        KernPair kernPair1 = new();
+        fontMetrics.AddKernPair1(kernPair1);
+        Assert.Same(kernPair1, Assert.Single(fontMetrics.KernPairs1));
     }
 
     [Fact]
