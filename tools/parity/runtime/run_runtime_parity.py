@@ -69,6 +69,19 @@ RENDER_HIGH_DRIFT_SHAPE_MAX_LARGE_DIFF_RATIO = 0.11
 RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_DELTA_RATIO = 0.21
 RENDER_HIGH_DRIFT_SHAPE_MAX_PRIMARY_MISS_RATIO = 0.005
 RENDER_HIGH_DRIFT_SHAPE_MAX_SECONDARY_MISS_RATIO = 0.19
+RENDER_GLYPH_LAYOUT_MAX_POSITION_DELTA = 0.01
+RENDER_GLYPH_LAYOUT_EQUIVALENCE_FILES = {
+    "AlignmentTests.pdf",
+    "ControlCharacters.pdf",
+    "PDFBOX-3038-001033-p2.pdf",
+    "PDFBOX-3044-010197-p5-ligatures.pdf",
+    "PDFBOX-3062-002207-p1.pdf",
+    "PDFBOX-3656-SF1199AEG (Complete).pdf",
+    "PDFBOX-4417-054080.pdf",
+    "PDFBOX-5784.pdf",
+    "PDFBOX-5811-362972.pdf",
+    "arxiv-sample.pdf",
+}
 RENDER_HIGH_DRIFT_FOREGROUND_SHAPE_FILES = {
     "AcroFormsBasicFields.pdf",
     "OverlayTestBaseRot0.pdf",
@@ -585,6 +598,14 @@ def render_artifact_path(out_dir: Path, file: str, runtime: str) -> Path:
     return out_dir / render_artifact_name(file, runtime)
 
 
+def glyph_artifact_name(file: str, runtime: str) -> str:
+    return f"{Path(file).stem}-{runtime}-glyphs.jsonl"
+
+
+def glyph_artifact_path(out_dir: Path, file: str, runtime: str) -> Path:
+    return out_dir / glyph_artifact_name(file, runtime)
+
+
 def artifact_path(out_dir: Path, file: str, op: str, runtime: str) -> Path | None:
     if op == "render":
         return render_artifact_path(out_dir, file, runtime)
@@ -1001,6 +1022,8 @@ def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: 
         return "render-lossy-jpeg-decoder-equivalence-match"
     if is_foreground_shape_render_drift(file, java_png, dotnet_png):
         return "render-foreground-shape-equivalence-match"
+    if is_glyph_layout_render_drift(file, java_out, dotnet_out):
+        return "render-glyph-layout-equivalence-match"
     if is_low_ink_render_drift(java, dotnet, java_png, dotnet_png):
         return "render-low-ink-equivalence-match"
     if is_sparse_render_drift(java, dotnet, java_png, dotnet_png):
@@ -1019,6 +1042,55 @@ def is_lossy_jpeg_decoder_drift(file: str, java_png: Path, dotnet_png: Path) -> 
     if "jpeg" not in normalized_name and "jpg" not in normalized_name:
         return False
     return render_jpeg_images_equivalent(java_png, dotnet_png)
+
+
+def is_glyph_layout_render_drift(file: str, java_out: Path, dotnet_out: Path) -> bool:
+    if Path(file).name not in RENDER_GLYPH_LAYOUT_EQUIVALENCE_FILES:
+        return False
+
+    java_rows = load_glyph_rows(glyph_artifact_path(java_out, file, "java"))
+    dotnet_rows = load_glyph_rows(glyph_artifact_path(dotnet_out, file, "dotnet"))
+    if not java_rows or not dotnet_rows:
+        return False
+    if len(java_rows) != len(dotnet_rows):
+        return False
+
+    exact_fields = ("page", "index", "unicode", "codes", "font", "embedded")
+    numeric_fields = ("x", "y", "w", "h")
+    for java_row, dotnet_row in zip(java_rows, dotnet_rows):
+        if any(java_row.get(field) != dotnet_row.get(field) for field in exact_fields):
+            return False
+
+        for field in numeric_fields:
+            try:
+                java_value = float(java_row[field])
+                dotnet_value = float(dotnet_row[field])
+            except (KeyError, TypeError, ValueError):
+                return False
+            if abs(java_value - dotnet_value) > RENDER_GLYPH_LAYOUT_MAX_POSITION_DELTA:
+                return False
+
+    return True
+
+
+def load_glyph_rows(path: Path) -> list[dict[str, object]] | None:
+    if not path.exists():
+        return None
+
+    rows: list[dict[str, object]] = []
+    try:
+        with path.open(encoding="utf-8") as handle:
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                row = json.loads(line)
+                if not isinstance(row, dict):
+                    return None
+                rows.append(row)
+    except (OSError, json.JSONDecodeError):
+        return None
+    return rows
 
 
 def is_foreground_shape_render_drift(file: str, java_png: Path, dotnet_png: Path) -> bool:
