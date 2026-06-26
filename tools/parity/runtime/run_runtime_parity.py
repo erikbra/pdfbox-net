@@ -50,6 +50,11 @@ RENDER_LOW_MEAN_RASTER_MAX_RMS = 6.0
 RENDER_LOW_MEAN_RASTER_MAX_MEAN = 0.8
 IGNORED_PROBE_OUTPUT_SAMPLE_LIMIT = 8
 STACK_TRACE_FRAME_RE = re.compile(r"^(?:at\s+.+\(.+\)|\.\.\. \d+ more)$")
+RENDER_DETAIL_RE = re.compile(
+    r"^(?P<width>\d+)x(?P<height>\d+):(?P<hash>[^:]+):"
+    r"nonBg=(?P<nonBg>\d+):unique=(?P<unique>\d+):"
+    r"dominant=(?P<dominant>\d+):transparent=(?P<transparent>\d+):nearBlank=(?P<nearBlank>true|false)$"
+)
 
 
 @dataclass(frozen=True)
@@ -338,7 +343,7 @@ def corpus_category(file: str, entries: list[dict]) -> str:
     return "uncategorized"
 
 
-def known_failure_id(file: str, op: str, category: str, entries: list[dict]) -> str | None:
+def known_failure_match(file: str, op: str, category: str, entries: list[dict]) -> dict | None:
     for entry in entries:
         entry_op = entry.get("op", "*")
         if entry_op not in {"*", op}:
@@ -355,8 +360,30 @@ def known_failure_id(file: str, op: str, category: str, entries: list[dict]) -> 
         glob = entry.get("fileGlob")
         if isinstance(glob, str) and not fnmatch.fnmatch(file, glob):
             continue
-        return str(entry.get("id", "known-failure"))
+        return entry
     return None
+
+
+def known_failure_id(file: str, op: str, category: str, entries: list[dict]) -> str | None:
+    entry = known_failure_match(file, op, category, entries)
+    return None if entry is None else str(entry.get("id", "known-failure"))
+
+
+def known_failure_payload(entry: dict | None) -> dict:
+    if entry is None:
+        return {
+            "knownFailureIssue": None,
+            "knownFailureOwner": None,
+            "knownFailureRootCause": None,
+            "knownFailureReason": None,
+        }
+
+    return {
+        "knownFailureIssue": entry.get("issue"),
+        "knownFailureOwner": entry.get("owner"),
+        "knownFailureRootCause": entry.get("rootCause"),
+        "knownFailureReason": entry.get("reason"),
+    }
 
 
 def render_metric(result: Result | None, name: str) -> str | None:
@@ -515,6 +542,26 @@ def render_artifact_name(file: str, runtime: str) -> str:
 
 def render_artifact_path(out_dir: Path, file: str, runtime: str) -> Path:
     return out_dir / render_artifact_name(file, runtime)
+
+
+def artifact_path(out_dir: Path, file: str, op: str, runtime: str) -> Path | None:
+    if op == "render":
+        return render_artifact_path(out_dir, file, runtime)
+    if op == "text":
+        return out_dir / text_artifact_name(file, runtime)
+    if op == "save":
+        return save_artifact_path(out_dir, file, runtime)
+    if op == "merge":
+        return merge_artifact_path(out_dir, file, runtime)
+    return None
+
+
+def relative_existing_artifact_path(out_dir: Path, file: str, op: str, runtime: str) -> str | None:
+    runtime_dir = out_dir / runtime
+    path = artifact_path(runtime_dir, file, op, runtime)
+    if path is None or not path.exists():
+        return None
+    return path.relative_to(out_dir).as_posix()
 
 
 def render_images_equivalent(java_png: Path, dotnet_png: Path) -> bool:
@@ -1091,24 +1138,27 @@ def compare(
         java = java_by_key.get((file, op))
         dotnet = dotnet_by_key.get((file, op))
         category = classify(op, java, dotnet, java_out, dotnet_out, save_structures, merge_structures)
-        known_id = None if is_match_category(category) else known_failure_id(file, op, category, known_entries)
+        known_entry = None if is_match_category(category) else known_failure_match(file, op, category, known_entries)
+        known_id = None if known_entry is None else str(known_entry.get("id", "known-failure"))
         status = "match" if is_match_category(category) else ("known" if known_id else "unexpected")
         counts[status] += 1
         counts[category] += 1
-        rows.append(
-            {
-                "file": file,
-                "corpusCategory": corpus_category(file, corpus_entries),
-                "op": op,
-                "category": category,
-                "status": status,
-                "knownFailure": known_id,
-                "java": None if java is None else result_payload(java),
-                "dotnet": None if dotnet is None else result_payload(dotnet),
-                "saveStructural": save_structural_payload(file, op, save_structures),
-                "mergeStructural": merge_structural_payload(file, op, merge_structures),
-            }
-        )
+        row = {
+            "file": file,
+            "corpusCategory": corpus_category(file, corpus_entries),
+            "op": op,
+            "category": category,
+            "status": status,
+            "knownFailure": known_id,
+            **known_failure_payload(known_entry),
+            "artifacts": artifact_payload(file, op, java_out.parent),
+            "renderDiff": render_diff_payload(file, op, java_out, dotnet_out),
+            "java": None if java is None else result_payload(java),
+            "dotnet": None if dotnet is None else result_payload(dotnet),
+            "saveStructural": save_structural_payload(file, op, save_structures),
+            "mergeStructural": merge_structural_payload(file, op, merge_structures),
+        }
+        rows.append(row)
     return rows, counts
 
 
@@ -1134,13 +1184,96 @@ def structural_payload(file: str, op: str, expected_op: str, structures: dict[tu
 
 
 def result_payload(result: Result) -> dict:
-    return {
+    payload = {
         "ok": result.ok,
         "pages": result.pages,
         "ms": result.ms,
         "detail": result.detail,
         "diagnostic": result.diagnostic,
     }
+    metrics = render_metrics_payload(result)
+    if metrics is not None:
+        payload["metrics"] = metrics
+    return payload
+
+
+def render_metrics_payload(result: Result) -> dict | None:
+    if result.op != "render" or not result.ok:
+        return None
+
+    match = RENDER_DETAIL_RE.match(result.detail)
+    if match is None:
+        return None
+
+    groups = match.groupdict()
+    return {
+        "width": int(groups["width"]),
+        "height": int(groups["height"]),
+        "hash": groups["hash"],
+        "nonBg": int(groups["nonBg"]),
+        "unique": int(groups["unique"]),
+        "dominant": int(groups["dominant"]),
+        "transparent": int(groups["transparent"]),
+        "nearBlank": groups["nearBlank"] == "true",
+    }
+
+
+def artifact_payload(file: str, op: str, out_dir: Path) -> dict | None:
+    java_path = relative_existing_artifact_path(out_dir, file, op, "java")
+    dotnet_path = relative_existing_artifact_path(out_dir, file, op, "dotnet")
+    if java_path is None and dotnet_path is None:
+        return None
+    return {"java": java_path, "dotnet": dotnet_path}
+
+
+def render_diff_payload(file: str, op: str, java_out: Path, dotnet_out: Path) -> dict | None:
+    if op != "render":
+        return None
+
+    stats = render_image_diff_stats(
+        render_artifact_path(java_out, file, "java"),
+        render_artifact_path(dotnet_out, file, "dotnet"),
+    )
+    if stats is None:
+        return None
+
+    return {
+        "totalPixels": stats.total_pixels,
+        "moderateDiffRatio": stats.moderate_diff_ratio,
+        "largeDiffRatio": stats.large_diff_ratio,
+        "rms": stats.rms,
+        "mean": stats.mean,
+    }
+
+
+def format_ratio(value: object) -> str:
+    if not isinstance(value, (int, float)):
+        return ""
+    return f"{value * 100:.3f}%"
+
+
+def format_float(value: object) -> str:
+    if not isinstance(value, (int, float)):
+        return ""
+    return f"{value:.3f}"
+
+
+def metric_value(row: dict, runtime: str, name: str) -> object:
+    result = row.get(runtime)
+    if not isinstance(result, dict):
+        return ""
+    metrics = result.get("metrics")
+    if not isinstance(metrics, dict):
+        return ""
+    return metrics.get(name, "")
+
+
+def artifact_value(row: dict, runtime: str) -> str:
+    artifacts = row.get("artifacts")
+    if not isinstance(artifacts, dict):
+        return ""
+    value = artifacts.get(runtime)
+    return "" if value is None else str(value)
 
 
 def markdown_summary(summary: dict, rows: list[dict]) -> str:
@@ -1164,6 +1297,48 @@ def markdown_summary(summary: dict, rows: list[dict]) -> str:
         lines.append(
             f"| `{key}` | {value.get('match', 0)} | {value.get('known', 0)} | {value.get('unexpected', 0)} | {value.get('total', 0)} |"
         )
+    lines.extend(["", "## Known Failure Buckets", ""])
+    known_rows = [row for row in rows if row["status"] == "known"]
+    if not known_rows:
+        lines.append("No known divergences.")
+    else:
+        lines.append("| Root cause | Known failure | Issue | Count |")
+        lines.append("|---|---|---:|---:|")
+        bucket_counts = Counter(
+            (
+                str(row.get("knownFailureRootCause") or "unclassified"),
+                str(row.get("knownFailure") or "unknown"),
+                row.get("knownFailureIssue") or "",
+            )
+            for row in known_rows
+        )
+        for (root_cause, known_failure, issue), count in sorted(bucket_counts.items()):
+            issue_text = "" if issue == "" else f"#{issue}"
+            lines.append(f"| `{root_cause}` | `{known_failure}` | {issue_text} | {count} |")
+
+        known_render_detail_rows = [
+            row for row in known_rows if row["op"] == "render" and row["category"] == "detail-mismatch"
+        ]
+        if known_render_detail_rows:
+            lines.extend(
+                [
+                    "",
+                    "### Known Render Detail Rows",
+                    "",
+                    "| File | Root cause | Corpus category | Java non-bg | .NET non-bg | Large diff | RMS | Java artifact | .NET artifact |",
+                    "|---|---|---|---:|---:|---:|---:|---|---|",
+                ]
+            )
+            for row in known_render_detail_rows[:200]:
+                diff = row.get("renderDiff") if isinstance(row.get("renderDiff"), dict) else {}
+                lines.append(
+                    f"| `{row['file']}` | `{row.get('knownFailureRootCause') or ''}` | `{row['corpusCategory']}` | "
+                    f"{metric_value(row, 'java', 'nonBg')} | {metric_value(row, 'dotnet', 'nonBg')} | "
+                    f"{format_ratio(diff.get('largeDiffRatio'))} | {format_float(diff.get('rms'))} | "
+                    f"`{artifact_value(row, 'java')}` | `{artifact_value(row, 'dotnet')}` |"
+                )
+            if len(known_render_detail_rows) > 200:
+                lines.append(f"\nTruncated to 200 of {len(known_render_detail_rows)} known render detail rows.")
     lines.extend(["", "## Unexpected Divergences", ""])
     unexpected = [row for row in rows if row["status"] == "unexpected"]
     if not unexpected:
@@ -1298,6 +1473,30 @@ def status_counts_by_corpus_category(rows: list[dict]) -> dict[str, dict[str, in
         bucket[row["status"]] += 1
         bucket["total"] += 1
     return dict(sorted((key, dict(value)) for key, value in counts.items()))
+
+
+def known_failure_bucket_counts(rows: list[dict]) -> list[dict]:
+    counts: Counter[tuple[str, str, object]] = Counter()
+    for row in rows:
+        if row["status"] != "known":
+            continue
+        counts[
+            (
+                str(row.get("knownFailureRootCause") or "unclassified"),
+                str(row.get("knownFailure") or "unknown"),
+                row.get("knownFailureIssue"),
+            )
+        ] += 1
+
+    return [
+        {
+            "rootCause": root_cause,
+            "knownFailure": known_failure,
+            "issue": issue,
+            "count": count,
+        }
+        for (root_cause, known_failure, issue), count in sorted(counts.items())
+    ]
 
 
 def ratchet_failures(summary: dict, baseline_path: Path) -> list[str]:
@@ -1466,6 +1665,7 @@ def main() -> int:
         "counts": {key: counts.get(key, 0) for key in ("match", "known", "unexpected")},
         "categories": category_counts,
         "corpusCategories": status_counts_by_corpus_category(comparison_rows),
+        "knownFailureBuckets": known_failure_bucket_counts(comparison_rows),
         "operations": dict(sorted(operation_counts.items())),
     }
     (out_dir / "comparison.json").write_text(json.dumps({"summary": summary, "rows": comparison_rows}, indent=2) + "\n", encoding="utf-8")
