@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-06-26T22:55:36Z
+Generated (UTC): 2026-06-26T23:22:45Z
 Apache PDFBox source commit: `833ed8f378f00838fd8df8c01bfc4b915b4c350b`
-PdfBox.Net commit: `aa2b54d220846e85d52dd3b3fb3cca7f85750f81`
+PdfBox.Net commit: `546704ff768d4e0b78ffcedcfeeb3bfe88861b19`
 
 ## Scope
 
@@ -23,12 +23,12 @@ PdfBox.Net commit: `aa2b54d220846e85d52dd3b3fb3cca7f85750f81`
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
 | Java public/protected members | 6305 |
-| Matched members | 4651 |
-| Arity-drift members | 105 |
-| Missing members | 1549 |
-| Reflected .NET extra members on matched types | 963 |
+| Matched members | 4784 |
+| Arity-drift members | 100 |
+| Missing members | 1421 |
+| Reflected .NET extra members on matched types | 968 |
 
-Member coverage by name/signature heuristic: **4756 / 6305 = 75.4%**.
+Member coverage by name/signature heuristic: **4884 / 6305 = 77.5%**.
 
 ## Review Disposition Backlog
 
@@ -36,21 +36,23 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 
 | Delta kind | Raw | Reviewed | Unreviewed |
 |---|---:|---:|---:|
-| Missing members | 1549 | 359 | 1190 |
-| Arity-drift members | 105 | 5 | 100 |
-| Type-name/visibility gaps | 8 | 2 | 6 |
-| Total reviewable deltas | 1662 | 366 | 1296 |
+| Missing members | 1421 | 378 | 1043 |
+| Arity-drift members | 100 | 9 | 91 |
+| Type-name/visibility gaps | 8 | 7 | 1 |
+| Total reviewable deltas | 1529 | 394 | 1135 |
 
 | Disposition | Reviewed rows |
 |---|---:|
-| `intentional-dotnet-adaptation` | 365 |
-| `not-applicable` | 1 |
+| `behavior-covered` | 9 |
+| `intentional-dotnet-adaptation` | 376 |
+| `internal-by-design` | 7 |
+| `not-applicable` | 2 |
 
 ## Module Breakdown
 
 | Module | Java types | Same-name types | Renamed public types | Non-public/replacement types | Missing types | Java members | Matched/arity-drift members | Missing members | Member coverage |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `fontbox` | 110 | 105 | 4 | 1 | 0 | 1028 | 881 | 147 | 85.7% |
+| `fontbox` | 110 | 105 | 4 | 1 | 0 | 1028 | 1009 | 19 | 98.2% |
 | `io` | 15 | 15 | 0 | 0 | 0 | 131 | 126 | 5 | 96.2% |
 | `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3166 | 1038 | 75.3% |
 | `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 583 | 359 | 61.9% |
@@ -61,7 +63,6 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 |---:|---:|---|---|---|---|
 | 108 | 149 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDLayoutAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java` |
 | 78 | 100 | `xmpbox` | `org.apache.xmpbox.schema.PhotoshopSchema` | `PdfBox.Net.XmpBox.Schema.PhotoshopSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java` |
-| 62 | 65 | `fontbox` | `org.apache.fontbox.afm.AFMParser` | `PdfBox.Net.FontBox.AFM.AFMParser` | `fontbox/src/main/java/org/apache/fontbox/afm/AFMParser.java` |
 | 60 | 80 | `xmpbox` | `org.apache.xmpbox.schema.XMPMediaManagementSchema` | `PdfBox.Net.XmpBox.Schema.XMPMediaManagementSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java` |
 | 49 | 83 | `xmpbox` | `org.apache.xmpbox.schema.DublinCoreSchema` | `PdfBox.Net.XmpBox.Schema.DublinCoreSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java` |
 | 46 | 54 | `xmpbox` | `org.apache.xmpbox.schema.XMPSchema` | `PdfBox.Net.XmpBox.Schema.XMPSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java` |
@@ -87,8 +88,9 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 | 17 | 18 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDCIDFontType0` | `PdfBox.Net.PDModel.Font.PDCIDFontType0` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java` |
 | 16 | 26 | `pdfbox` | `org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationMarkup` | `PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationMarkup` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationMarkup.java` |
 | 16 | 24 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDTrueTypeFont` | `PdfBox.Net.PDModel.Font.PDTrueTypeFont` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java` |
-| 16 | 20 | `fontbox` | `org.apache.fontbox.ttf.CmapTable` | `PdfBox.Net.FontBox.TTF.CmapTable` | `fontbox/src/main/java/org/apache/fontbox/ttf/CmapTable.java` |
 | 14 | 49 | `pdfbox` | `org.apache.pdfbox.pdmodel.PDPage` | `PdfBox.Net.PDModel.PDPage` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java` |
+| 14 | 46 | `pdfbox` | `org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState` | `PdfBox.Net.PDModel.Graphics.State.PDExtendedGraphicsState` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDExtendedGraphicsState.java` |
+| 14 | 40 | `xmpbox` | `org.apache.xmpbox.schema.TiffSchema` | `PdfBox.Net.XmpBox.Schema.TiffSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java` |
 
 ## Java-Named Public API Type Gaps
 

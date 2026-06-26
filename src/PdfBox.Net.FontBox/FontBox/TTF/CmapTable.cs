@@ -33,8 +33,12 @@ public sealed class CmapTable() : TTFTable(Tag)
     public const int PlatformUnicode = 0;
     public const int PlatformMacintosh = 1;
     public const int PlatformWindows = 3;
+    public const int PLATFORM_UNICODE = PlatformUnicode;
+    public const int PLATFORM_MACINTOSH = PlatformMacintosh;
+    public const int PLATFORM_WINDOWS = PlatformWindows;
 
     public const int EncodingMacRoman = 0;
+    public const int ENCODING_MAC_ROMAN = EncodingMacRoman;
 
     public const int EncodingWinSymbol = 0;
     public const int EncodingWinUnicodeBmp = 1;
@@ -44,11 +48,23 @@ public sealed class CmapTable() : TTFTable(Tag)
     public const int EncodingWinWansung = 5;
     public const int EncodingWinJohab = 6;
     public const int EncodingWinUnicodeFull = 10;
+    public const int ENCODING_WIN_SYMBOL = EncodingWinSymbol;
+    public const int ENCODING_WIN_UNICODE_BMP = EncodingWinUnicodeBmp;
+    public const int ENCODING_WIN_SHIFT_JIS = EncodingWinShiftJis;
+    public const int ENCODING_WIN_BIG5 = EncodingWinBig5;
+    public const int ENCODING_WIN_PRC = EncodingWinPrc;
+    public const int ENCODING_WIN_WANSUNG = EncodingWinWansung;
+    public const int ENCODING_WIN_JOHAB = EncodingWinJohab;
+    public const int ENCODING_WIN_UNICODE_FULL = EncodingWinUnicodeFull;
 
     public const int EncodingUnicode10 = 0;
     public const int EncodingUnicode11 = 1;
     public const int EncodingUnicode20Bmp = 3;
     public const int EncodingUnicode20Full = 4;
+    public const int ENCODING_UNICODE_1_0 = EncodingUnicode10;
+    public const int ENCODING_UNICODE_1_1 = EncodingUnicode11;
+    public const int ENCODING_UNICODE_2_0_BMP = EncodingUnicode20Bmp;
+    public const int ENCODING_UNICODE_2_0_FULL = EncodingUnicode20Full;
 
     private CmapSubtable[]? _cmaps;
 

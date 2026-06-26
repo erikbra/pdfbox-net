@@ -33,6 +33,18 @@ namespace PdfBox.Net.FontBox.AFM;
 /// </summary>
 public class KernPair
 {
+    public KernPair()
+    {
+    }
+
+    public KernPair(string firstKernCharacter, string secondKernCharacter, float x, float y)
+    {
+        FirstGlyph = firstKernCharacter;
+        SecondGlyph = secondKernCharacter;
+        DeltaX = x;
+        DeltaY = y;
+    }
+
     /// <summary>Gets or sets the first glyph name.</summary>
     public string FirstGlyph { get; set; } = string.Empty;
 
@@ -44,6 +56,30 @@ public class KernPair
 
     /// <summary>Gets or sets the vertical kern adjustment (delta y).</summary>
     public float DeltaY { get; set; }
+
+    public string FirstKernCharacter
+    {
+        get => FirstGlyph;
+        set => FirstGlyph = value;
+    }
+
+    public string SecondKernCharacter
+    {
+        get => SecondGlyph;
+        set => SecondGlyph = value;
+    }
+
+    public float X
+    {
+        get => DeltaX;
+        set => DeltaX = value;
+    }
+
+    public float Y
+    {
+        get => DeltaY;
+        set => DeltaY = value;
+    }
 
     public override string ToString() =>
         $"KernPair[first={FirstGlyph}, second={SecondGlyph}, dx={DeltaX}, dy={DeltaY}]";

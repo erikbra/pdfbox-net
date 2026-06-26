@@ -33,6 +33,17 @@ namespace PdfBox.Net.FontBox.AFM;
 /// </summary>
 public class CompositePart
 {
+    public CompositePart()
+    {
+    }
+
+    public CompositePart(string name, int xDisplacement, int yDisplacement)
+    {
+        Name = name;
+        DisplacementX = xDisplacement;
+        DisplacementY = yDisplacement;
+    }
+
     /// <summary>Gets or sets the component glyph name.</summary>
     public string Name { get; set; } = string.Empty;
 
@@ -41,6 +52,18 @@ public class CompositePart
 
     /// <summary>Gets or sets the y displacement from the origin of the composite.</summary>
     public int DisplacementY { get; set; }
+
+    public int XDisplacement
+    {
+        get => DisplacementX;
+        set => DisplacementX = value;
+    }
+
+    public int YDisplacement
+    {
+        get => DisplacementY;
+        set => DisplacementY = value;
+    }
 
     public override string ToString() =>
         $"CompositePart[name={Name}, dx={DisplacementX}, dy={DisplacementY}]";

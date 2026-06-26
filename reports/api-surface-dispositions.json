@@ -2913,6 +2913,222 @@
       "issue": 502,
       "reviewed_at_utc": "2026-06-26T22:54:12Z",
       "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CFFParser.java|org.apache.fontbox.cff.CFFParser|method|parse|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java ByteSource overload is collapsed into .NET byte[] and RandomAccessRead parsing entry points.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CFFParser.java|org.apache.fontbox.cff.CFFParser|method|toString|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java diagnostic toString() is not preserved as a dedicated C# override; parser functionality is exposed through Parse methods.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CIDKeyedType2CharString.java|org.apache.fontbox.cff.CIDKeyedType2CharString|constructor|CIDKeyedType2CharString|7|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java Type1CharStringReader constructor shape is collapsed into parsed-sequence constructors in the .NET charstring model.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+      "disposition": "behavior-covered",
+      "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|2|missing",
+      "disposition": "behavior-covered",
+      "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getType1KeyWord|0|missing",
+      "disposition": "behavior-covered",
+      "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getType2KeyWord|0|missing",
+      "disposition": "behavior-covered",
+      "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getValue|0|missing",
+      "disposition": "behavior-covered",
+      "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|toString|0|missing",
+      "disposition": "behavior-covered",
+      "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|constructor|Type1CharString|4|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java Type1CharString diagnostic/constructor shape is adapted to the simplified .NET byte/GeneralPath model.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|addCommand|2|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected charstring interpreter hooks are internal to the .NET renderer implementation.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|getBounds|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java AWT Rectangle2D bounds API is not exposed by the FontBox-only geometry layer; callers use rendered GeneralPath data.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|getLastSequenceEntry|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected charstring interpreter hooks are internal to the .NET renderer implementation.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|isSequenceEmpty|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected charstring interpreter hooks are internal to the .NET renderer implementation.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|toString|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java Type1CharString diagnostic/constructor shape is adapted to the simplified .NET byte/GeneralPath model.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type2CharString.java|org.apache.fontbox.cff.Type2CharString|constructor|Type2CharString|7|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java Type1CharStringReader constructor shape is collapsed into parsed-sequence constructors in the .NET charstring model.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/encoding/MacRomanEncoding.java|org.apache.fontbox.encoding.MacRomanEncoding|constructor|MacRomanEncoding|0|missing",
+      "disposition": "not-applicable",
+      "note": "Parser artifact for the public INSTANCE singleton initializer; MacRomanEncoding.INSTANCE is already present and the constructor remains private.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/ttf/SubstitutingCmapLookup.java|org.apache.fontbox.ttf.SubstitutingCmapLookup|constructor|SubstitutingCmapLookup|3|missing",
+      "disposition": "internal-by-design",
+      "note": "SubstitutingCmapLookup is an internal .NET implementation detail behind public cmap/GSUB lookup APIs.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/ttf/SubstitutingCmapLookup.java|org.apache.fontbox.ttf.SubstitutingCmapLookup|method|getCharCodes|1|missing",
+      "disposition": "internal-by-design",
+      "note": "SubstitutingCmapLookup is an internal .NET implementation detail behind public cmap/GSUB lookup APIs.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/ttf/SubstitutingCmapLookup.java|org.apache.fontbox.ttf.SubstitutingCmapLookup|method|getGlyphId|1|missing",
+      "disposition": "internal-by-design",
+      "note": "SubstitutingCmapLookup is an internal .NET implementation detail behind public cmap/GSUB lookup APIs.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/ttf/model/GsubData.java|org.apache.fontbox.ttf.model.GsubData|constructor|GsubData|0|missing",
+      "disposition": "behavior-covered",
+      "note": "Java NO_DATA_FOUND singleton is represented by IGsubData.NoDataFound on the C# interface.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/ttf/model/Language.java|org.apache.fontbox.ttf.model.Language|method|getScriptNames|0|missing",
+      "disposition": "behavior-covered",
+      "note": "Language script-name behavior is exposed as the C# LanguageExtensions.GetScriptNames() extension method.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "type|fontbox/src/main/java/org/apache/fontbox/ttf/SubstitutingCmapLookup.java|org.apache.fontbox.ttf.SubstitutingCmapLookup|nonpublic-or-replacement-type",
+      "disposition": "internal-by-design",
+      "note": "SubstitutingCmapLookup remains internal in the .NET port; glyph substitution lookup is exposed through public TrueTypeFont/GlyphSubstitutionTable APIs.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "type|fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GlyphArraySplitter.java|org.apache.fontbox.ttf.gsub.GlyphArraySplitter|renamed-public-type",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java public interface is ported as C# IGlyphArraySplitter using the standard interface prefix; member surface is otherwise equivalent.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "type|fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorker.java|org.apache.fontbox.ttf.gsub.GsubWorker|renamed-public-type",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java public interface is ported as C# IGsubWorker using the standard interface prefix; member surface is otherwise equivalent.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "type|fontbox/src/main/java/org/apache/fontbox/ttf/model/GsubData.java|org.apache.fontbox.ttf.model.GsubData|renamed-public-type",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java public interface is ported as C# IGsubData using the standard interface prefix; NoDataFound singleton remains available on the interface.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "type|fontbox/src/main/java/org/apache/fontbox/ttf/model/ScriptFeature.java|org.apache.fontbox.ttf.model.ScriptFeature|renamed-public-type",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java public interface is ported as C# IScriptFeature using the standard interface prefix; member surface is otherwise equivalent.",
+      "issue": 503,
+      "reviewed_at_utc": "2026-06-26T23:22:00Z",
+      "reviewed_by": "Codex"
     }
   ]
 }

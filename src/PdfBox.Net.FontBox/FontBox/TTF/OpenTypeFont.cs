@@ -82,6 +82,8 @@ public sealed class OpenTypeFont : TrueTypeFont
 
     public bool IsPostScript => _hasPostScriptTag || tables.ContainsKey(CFFTable.TAG) || tables.ContainsKey("CFF2");
 
+    public bool PostScript => IsPostScript;
+
     public bool IsSupportedOTF()
     {
         return !(_hasPostScriptTag && !tables.ContainsKey(CFFTable.TAG) && tables.ContainsKey("CFF2"));

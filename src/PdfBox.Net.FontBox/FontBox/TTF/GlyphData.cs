@@ -36,6 +36,10 @@ public class GlyphData
     public short YMin { get; private set; }
     public short XMax { get; private set; }
     public short YMax { get; private set; }
+    public short XMinimum => XMin;
+    public short YMinimum => YMin;
+    public short XMaximum => XMax;
+    public short YMaximum => YMax;
     public short NumberOfContours { get; private set; }
     public BoundingBox BoundingBox { get; private set; } = new();
 

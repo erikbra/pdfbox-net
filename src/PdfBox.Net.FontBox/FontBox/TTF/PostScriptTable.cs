@@ -160,4 +160,9 @@ public sealed class PostScriptTable() : TTFTable(TAG)
 
         return GlyphNames[gid];
     }
+
+    public void SetMimMemType1(long mimMemType1Value)
+    {
+        MinMemType1 = checked((uint)mimMemType1Value);
+    }
 }

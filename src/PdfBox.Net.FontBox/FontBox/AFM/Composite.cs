@@ -33,11 +33,26 @@ namespace PdfBox.Net.FontBox.AFM;
 /// </summary>
 public class Composite
 {
+    public Composite()
+    {
+    }
+
+    public Composite(string name)
+    {
+        Name = name;
+    }
+
     /// <summary>Gets or sets the name of this composite glyph.</summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>Gets the list of parts that make up this composite glyph.</summary>
     public List<CompositePart> Parts { get; } = [];
+
+    public void AddPart(CompositePart part)
+    {
+        ArgumentNullException.ThrowIfNull(part);
+        Parts.Add(part);
+    }
 
     public override string ToString() => $"Composite[name={Name}, parts={Parts.Count}]";
 }

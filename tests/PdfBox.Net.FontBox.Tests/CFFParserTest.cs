@@ -23,6 +23,9 @@ public class CFFParserTest
         Assert.IsType<CFFStandardEncoding>(font.GetEncoding());
         Assert.Single(font.GetPrivateDict());
         Assert.True(font.HasGlyph("space"));
+        Assert.Equal(1, font.NameToGID("space"));
+        Assert.Equal(0, font.NameToGID("missing"));
+        Assert.Equal("space", font.GetType1CharString("space").GlyphName);
         Assert.NotNull(font.GetPath("space"));
     }
 

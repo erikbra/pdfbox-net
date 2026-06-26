@@ -32,11 +32,23 @@ namespace PdfBox.Net.FontBox.AFM;
 /// </summary>
 public class Ligature
 {
+    public Ligature()
+    {
+    }
+
+    public Ligature(string successor, string ligature)
+    {
+        Successor = successor;
+        LigatureValue = ligature;
+    }
+
     /// <summary>Gets or sets the successor glyph name.</summary>
     public string Successor { get; set; } = string.Empty;
 
     /// <summary>Gets or sets the ligature glyph name.</summary>
     public string LigatureValue { get; set; } = string.Empty;
+
+    public string GetLigature() => LigatureValue;
 
     public override string ToString() => $"Ligature[successor={Successor}, ligature={LigatureValue}]";
 }

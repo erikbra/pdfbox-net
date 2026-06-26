@@ -103,6 +103,18 @@ public class FontMetrics
     /// <summary>Gets or sets the standard vertical stem width.</summary>
     public float StdVW { get; set; }
 
+    public float StandardHorizontalWidth
+    {
+        get => StdHW;
+        set => StdHW = value;
+    }
+
+    public float StandardVerticalWidth
+    {
+        get => StdVW;
+        set => StdVW = value;
+    }
+
     /// <summary>Gets or sets the italic angle in degrees.</summary>
     public float ItalicAngle { get; set; }
 
@@ -111,6 +123,12 @@ public class FontMetrics
 
     /// <summary>Gets or sets whether the font is fixed-pitch.</summary>
     public bool IsFixedPitch { get; set; }
+
+    public bool FixedPitch
+    {
+        get => IsFixedPitch;
+        set => IsFixedPitch = value;
+    }
 
     /// <summary>Gets or sets the underline position.</summary>
     public float UnderlinePosition { get; set; }
@@ -159,6 +177,46 @@ public class FontMetrics
     /// This is a convenience wrapper for <see cref="GetAverageFontWidth()"/>.
     /// </summary>
     public float GetAverageCharacterWidth() => GetAverageFontWidth();
+
+    public void AddComment(string comment) => Comments.Add(comment);
+
+    public void AddCharMetric(CharMetric metric)
+    {
+        ArgumentNullException.ThrowIfNull(metric);
+        CharMetrics.Add(metric);
+    }
+
+    public List<TrackKern> GetTrackKern() => TrackKerns;
+
+    public void AddTrackKern(TrackKern kern)
+    {
+        ArgumentNullException.ThrowIfNull(kern);
+        TrackKerns.Add(kern);
+    }
+
+    public void AddComposite(Composite composite)
+    {
+        ArgumentNullException.ThrowIfNull(composite);
+        Composites.Add(composite);
+    }
+
+    public void AddKernPair(KernPair kernPair)
+    {
+        ArgumentNullException.ThrowIfNull(kernPair);
+        KernPairs.Add(kernPair);
+    }
+
+    public void AddKernPair0(KernPair kernPair)
+    {
+        ArgumentNullException.ThrowIfNull(kernPair);
+        KernPairs0.Add(kernPair);
+    }
+
+    public void AddKernPair1(KernPair kernPair)
+    {
+        ArgumentNullException.ThrowIfNull(kernPair);
+        KernPairs1.Add(kernPair);
+    }
 
     /// <summary>
     /// Looks up the advance width (Wx) for a given glyph name.

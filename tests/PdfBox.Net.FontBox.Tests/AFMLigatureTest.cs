@@ -34,9 +34,10 @@ public class AFMLigatureTest
     [Fact]
     public void TestLigature()
     {
-        Ligature ligature = new() { Successor = "successor", LigatureValue = "ligature" };
+        Ligature ligature = new("successor", "ligature");
 
         Assert.Equal("successor", ligature.Successor);
         Assert.Equal("ligature", ligature.LigatureValue);
+        Assert.Equal("ligature", ligature.GetLigature());
     }
 }

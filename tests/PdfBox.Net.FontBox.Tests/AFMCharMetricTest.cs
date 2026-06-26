@@ -55,6 +55,16 @@ public class AFMCharMetricTest
         Assert.Equal(40f, charMetric.Wy);
         Assert.Equal(50f, charMetric.W0y);
         Assert.Equal(60f, charMetric.W1y);
+
+        charMetric.W = [1f, 2f];
+        charMetric.W0 = [3f, 4f];
+        charMetric.W1 = [5f, 6f];
+        charMetric.Vv = [7f, 8f];
+
+        Assert.Equal([1f, 2f], charMetric.W);
+        Assert.Equal([3f, 4f], charMetric.W0);
+        Assert.Equal([5f, 6f], charMetric.W1);
+        Assert.Equal([7f, 8f], charMetric.Vv);
     }
 
     [Fact]
@@ -72,7 +82,7 @@ public class AFMCharMetricTest
 
         Assert.Empty(charMetric.Ligatures);
         Ligature ligature = new() { Successor = "successor", LigatureValue = "ligature" };
-        charMetric.Ligatures.Add(ligature);
+        charMetric.AddLigature(ligature);
         List<Ligature> ligatures = charMetric.Ligatures;
         Assert.Single(ligatures);
         Assert.Equal("successor", ligatures[0].Successor);
