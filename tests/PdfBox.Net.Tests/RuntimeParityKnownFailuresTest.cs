@@ -23,6 +23,15 @@ public class RuntimeParityKnownFailuresTest
     }
 
     [Fact]
+    public void KnownFailures_AreEmptyAfterIssue441ZeroKnownGate()
+    {
+        string path = FindRepoFile("tools/parity/runtime/known-failures.json");
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+
+        Assert.Empty(document.RootElement.GetProperty("entries").EnumerateArray());
+    }
+
+    [Fact]
     public void KnownFailures_HaveRoadmapMetadata()
     {
         string path = FindRepoFile("tools/parity/runtime/known-failures.json");

@@ -594,6 +594,11 @@ public class PDTrueTypeFontAndCIDType2Test
                     Include(segment.X1, segment.Y1);
                     Include(segment.X2, segment.Y2);
                     break;
+                case GeneralPath.SegmentType.CurveTo:
+                    Include(segment.X1, segment.Y1);
+                    Include(segment.X2, segment.Y2);
+                    Include(segment.X3, segment.Y3);
+                    break;
             }
         }
 

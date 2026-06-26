@@ -10,8 +10,9 @@ PDF corpus.
   to an Apache PDFBox source checkout passed with `--pdfbox-root` or the
   `PDFBOX_SOURCE_ROOT` environment variable.
 - `known-failures.json` is the reviewed ledger for current Java/.NET
-  divergences. Each entry must identify an owning issue, root-cause category,
-  expiry condition, and ratchet rule.
+  divergences. The issue #441 closeout leaves it empty; any future entry must
+  identify an owning issue, root-cause category, expiry condition, and ratchet
+  rule.
 - `ratchet-baseline.json` stores the maximum accepted known/unexpected and
   category counts for ratchet mode.
 
@@ -28,11 +29,8 @@ groups known rows by root cause and lists known render detail rows with the
 same metrics and artifact paths so CI/local 51-vs-52 variance can be compared
 directly from uploaded artifacts.
 
-The broad render-quality known-failure allowance is intentionally split into
-issue-owned root-cause buckets. A temporary `render-ci-variance-watch` bucket
-documents the hosted-only PDFBOX-5920 row and is limited by the ratchet
-baseline. Remove it once that row is assigned to a specific implementation
-bucket or fixed.
+The broad render-quality known-failure allowance has been removed. The ratchet
+baseline now accepts zero known and zero unexpected rows.
 
 Render rows first compare raw rendered pixel hashes and image metrics. When
 those differ, the harness decodes the saved Java/.NET PNGs and accepts only
@@ -70,6 +68,11 @@ classifier for the reviewed #493 render fixtures. It is capped by low mean/RMS
 channel error, bounded moderate/large pixel-difference ratios, and
 foreground-shape limits so it only accepts the reviewed Java2D-vs-Skia raster
 drift after the appearance-stream resource lookup fix.
+The closed form/widget appearance bucket has a fixture-scoped raster
+equivalence classifier for the reviewed AcroForm fixtures. It is capped by
+mean/RMS error, bounded moderate/large pixel-difference ratios, and
+foreground-shape limits so these rows no longer require a known-failure ledger
+entry after the #489 renderer fixes.
 
 ## Local ratchet run
 

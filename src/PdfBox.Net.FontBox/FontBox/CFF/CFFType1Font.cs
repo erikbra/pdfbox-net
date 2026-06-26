@@ -66,7 +66,13 @@ public sealed class CFFType1Font : CFFFont, EncodedFont
 
     public override Type2CharString GetType2CharString(int gid)
     {
-        return _cache.GetOrAdd(gid, value => new Type2CharString(GetName(), GetCharset().GetNameForGID(value), GetCharStringBytes()[value]));
+        return _cache.GetOrAdd(gid, value =>
+        {
+            IList<byte[]> charStrings = GetCharStringBytes();
+            byte[] bytes = value >= 0 && value < charStrings.Count ? charStrings[value] : charStrings[0];
+            List<object> sequence = new Type2CharStringParser(GetName()).Parse(bytes, GetGlobalSubrIndex().ToArray(), _localSubrs);
+            return new Type2CharString(GetName(), GetCharset().GetNameForGID(value), value, sequence, GetDefaultWidthX(), GetNominalWidthX());
+        });
     }
 
     public override GeneralPath GetPath(string name)
@@ -82,5 +88,40 @@ public sealed class CFFType1Font : CFFFont, EncodedFont
     public override bool HasGlyph(string name)
     {
         return _nameToGid.ContainsKey(name);
+    }
+
+    private int GetDefaultWidthX() => GetNumberProperty("defaultWidthX", 1000);
+
+    private int GetNominalWidthX() => GetNumberProperty("nominalWidthX", 0);
+
+    private int GetNumberProperty(string name, int defaultValue)
+    {
+        if (topDict.TryGetValue(name, out object? topValue) && TryNumber(topValue, out int topNumber))
+        {
+            return topNumber;
+        }
+
+        return _privateDict.TryGetValue(name, out object? privateValue) && TryNumber(privateValue, out int privateNumber)
+            ? privateNumber
+            : defaultValue;
+    }
+
+    private static bool TryNumber(object value, out int number)
+    {
+        switch (value)
+        {
+            case int intValue:
+                number = intValue;
+                return true;
+            case float floatValue:
+                number = (int)floatValue;
+                return true;
+            case double doubleValue:
+                number = (int)doubleValue;
+                return true;
+            default:
+                number = 0;
+                return false;
+        }
     }
 }

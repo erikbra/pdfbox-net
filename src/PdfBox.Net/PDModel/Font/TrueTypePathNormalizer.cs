@@ -66,6 +66,15 @@ internal static class TrueTypePathNormalizer
                         segment.X2 * scale,
                         segment.Y2 * scale);
                     break;
+                case GeneralPath.SegmentType.CurveTo:
+                    scaled.CurveTo(
+                        segment.X1 * scale,
+                        segment.Y1 * scale,
+                        segment.X2 * scale,
+                        segment.Y2 * scale,
+                        segment.X3 * scale,
+                        segment.Y3 * scale);
+                    break;
                 case GeneralPath.SegmentType.Close:
                     scaled.ClosePath();
                     break;
