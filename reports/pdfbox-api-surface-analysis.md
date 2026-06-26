@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-06-26T21:38:41Z
+Generated (UTC): 2026-06-26T22:32:17Z
 Apache PDFBox source commit: `833ed8f378f00838fd8df8c01bfc4b915b4c350b`
-PdfBox.Net commit: `655e4d55cf346556e280a4edd22ba43cc23ae740`
+PdfBox.Net commit: `a5abbe8c95367c7371050e858dac70091f3b0d1a`
 
 ## Scope
 
@@ -29,6 +29,17 @@ PdfBox.Net commit: `655e4d55cf346556e280a4edd22ba43cc23ae740`
 | Reflected .NET extra members on matched types | 963 |
 
 Member coverage by name/signature heuristic: **4756 / 6305 = 75.4%**.
+
+## Review Disposition Backlog
+
+Disposition ledger: `reports/api-surface-dispositions.json`
+
+| Delta kind | Raw | Reviewed | Unreviewed |
+|---|---:|---:|---:|
+| Missing members | 1549 | 0 | 1549 |
+| Arity-drift members | 105 | 0 | 105 |
+| Type-name/visibility gaps | 8 | 0 | 8 |
+| Total reviewable deltas | 1662 | 0 | 1662 |
 
 ## Module Breakdown
 

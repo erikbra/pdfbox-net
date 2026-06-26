@@ -53,16 +53,31 @@ Content: per-module table (Java files / mapped / missing / %), traceability-stat
 ### `api-surface-comparison.json`
 **Purpose:** Machine-readable Java-vs-.NET public/protected API-surface comparison for the core library modules (`io`, `fontbox`, `xmpbox`, `pdfbox`).
 
-Key fields: upstream and port commits, per-type rows, member match rows, same-name / renamed / non-public type categories, arity-drift rows, and missing-member detail.
+Key fields: upstream and port commits, per-type rows, member match rows, same-name / renamed / non-public type categories, arity-drift rows, missing-member detail, and `review` counters that merge in `api-surface-dispositions.json`.
 
 > **Overlap note:** This is stricter than source-file coverage.  `upstream-file-comparison.json` answers whether a Java source file has a mapped C# file; this report answers whether the Java public/protected API shape is publicly available from the compiled .NET assemblies.
+
+---
+
+### `api-surface-dispositions.json`
+**Purpose:** Machine-readable ledger for reviewed API-surface delta decisions.
+
+Each entry is keyed by an `api_review.key` emitted into `api-surface-comparison.json` and records one of the allowed dispositions: `implemented`, `compat-overload-added`, `intentional-dotnet-adaptation`, `internal-by-design`, `not-applicable`, or `behavior-covered`.
+
+The local gate command is:
+
+```bash
+python3 tools/parity/generate_api_surface_report.py --fail-on-unreviewed
+```
+
+This command regenerates the API report and exits non-zero if reviewable API deltas or invalid disposition entries remain.
 
 ---
 
 ### `pdfbox-api-surface-analysis.md`
 **Purpose:** Human-readable summary of `api-surface-comparison.json`.
 
-Content: public/protected type and member counts, module-level API coverage, highest missing-member types, Java-named public type gaps, and next API-parity work.
+Content: public/protected type and member counts, reviewed/unreviewed disposition counts, module-level API coverage, highest missing-member types, Java-named public type gaps, and next API-parity work.
 
 > **Overlap note:** This complements both `pdfbox-main-gap-analysis.md` and `pdfbox-runtime-gap-analysis.md`: source-file and runtime corpus parity can be green while Java client-code API compatibility remains incomplete.
 
@@ -120,6 +135,7 @@ This file is **append-only** during active work: each implementation slice adds 
 | `upstream-file-comparison.json` | One row per upstream Java file with mapping evidence and gap category | `all-upstream-coverage.json` (totals), `traceability-parity-report.json` (traceability-backed target paths) |
 | `pdfbox-main-gap-analysis.md` | Human-readable Markdown rendering | `all-upstream-coverage.json`, `upstream-port-coverage-state.json` |
 | `api-surface-comparison.json` | Public/protected Java API shape compared to reflected .NET assemblies | `upstream-file-comparison.json` (source mapping), `traceability-parity-report.json` (source provenance) |
+| `api-surface-dispositions.json` | Reviewed dispositions for API-surface deltas | `api-surface-comparison.json` (`api_review.key` rows) |
 | `pdfbox-api-surface-analysis.md` | Human-readable API-surface parity assessment | `api-surface-comparison.json` |
 | `pdfbox-runtime-gap-analysis.md` | Runtime behavior/timing gaps and implementation-stub findings | JSONL artifacts in `/tmp/pdfbox-gap-scan` |
 | `traceability-parity-report.json` | Per-file sync status and notes | `conversion-records.json` (key fields) |

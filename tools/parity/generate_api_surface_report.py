@@ -30,7 +30,16 @@ CS_ROOTS = (
 )
 REPORT_JSON = Path("reports/api-surface-comparison.json")
 REPORT_MD = Path("reports/pdfbox-api-surface-analysis.md")
+DISPOSITIONS_PATH = Path("reports/api-surface-dispositions.json")
 SOURCE_PATH_RE = re.compile(r"PDFBOX_SOURCE_PATH:\s*(.+?)\s*$")
+ALLOWED_DISPOSITIONS = {
+    "implemented",
+    "compat-overload-added",
+    "intentional-dotnet-adaptation",
+    "internal-by-design",
+    "not-applicable",
+    "behavior-covered",
+}
 TYPE_DECL_RE = re.compile(
     r"\b(?:(?:public|protected|internal|private|abstract|sealed|static|partial|readonly|unsafe|new)\s+)*"
     r"(?P<kind>class|interface|struct|enum|record(?:\s+class|\s+struct)?)\s+"
@@ -975,6 +984,36 @@ def build_markdown(payload: dict) -> str:
         f"Member coverage by name/signature heuristic: **{matched_or_drift} / {totals.get('java_members', 0)} = {pct(matched_or_drift, totals.get('java_members', 0)):.1f}%**."
     )
     lines.append("")
+    review = payload.get("review", {})
+    if review:
+        lines.append("## Review Disposition Backlog")
+        lines.append("")
+        lines.append(f"Disposition ledger: `{review['disposition_file']}`")
+        lines.append("")
+        lines.append("| Delta kind | Raw | Reviewed | Unreviewed |")
+        lines.append("|---|---:|---:|---:|")
+        for key, label in (
+            ("missing_members", "Missing members"),
+            ("arity_drift_members", "Arity-drift members"),
+            ("type_name_or_visibility_gaps", "Type-name/visibility gaps"),
+            ("total", "Total reviewable deltas"),
+        ):
+            lines.append(
+                f"| {label} | {review['raw'][key]} | {review['reviewed'][key]} | {review['unreviewed'][key]} |"
+            )
+        lines.append("")
+        if review["disposition_counts"]:
+            lines.append("| Disposition | Reviewed rows |")
+            lines.append("|---|---:|")
+            for disposition, count in review["disposition_counts"].items():
+                lines.append(f"| `{disposition}` | {count} |")
+            lines.append("")
+        if review["invalid_entries"]:
+            lines.append(f"Invalid disposition entries: **{len(review['invalid_entries'])}**. See `review.invalid_entries` in the JSON report.")
+            lines.append("")
+        if review["unused_disposition_keys"]:
+            lines.append(f"Unused disposition keys: **{len(review['unused_disposition_keys'])}**. See `review.unused_disposition_keys` in the JSON report.")
+            lines.append("")
     lines.append("## Module Breakdown")
     lines.append("")
     lines.append("| Module | Java types | Same-name types | Renamed public types | Non-public/replacement types | Missing types | Java members | Matched/arity-drift members | Missing members | Member coverage |")
@@ -1046,6 +1085,175 @@ def write_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
+def read_dispositions(path: Path) -> dict:
+    if not path.exists():
+        return {
+            "schema": 1,
+            "description": "No API-surface disposition ledger found; all reviewable API deltas are unreviewed.",
+            "entries": [],
+            "missing": True,
+        }
+    with path.open("r", encoding="utf-8") as f:
+        payload = json.load(f)
+    if not isinstance(payload, dict):
+        raise ValueError(f"{path} must contain a JSON object")
+    entries = payload.get("entries")
+    if not isinstance(entries, list):
+        raise ValueError(f"{path} must contain an 'entries' array")
+    return payload
+
+
+def type_review_status(row: dict) -> str | None:
+    if row["status"] in {"missing-type", "nonpublic-or-replacement-type"}:
+        return row["status"]
+    if row.get("type_name_status") == "renamed-public":
+        return "renamed-public-type"
+    return None
+
+
+def type_review_key(row: dict, status: str) -> str:
+    return f"type|{row['source_path']}|{row['java_type']}|{status}"
+
+
+def member_review_key(type_row: dict, member: dict) -> str:
+    return (
+        f"member|{type_row['source_path']}|{type_row['java_type']}|"
+        f"{member['java_kind']}|{member['java_name']}|{member['java_arity']}|{member['status']}"
+    )
+
+
+def normalize_disposition_entry(entry: dict, index: int) -> tuple[str | None, dict | None, dict | None]:
+    if not isinstance(entry, dict):
+        return None, None, {"index": index, "reason": "entry is not an object"}
+
+    key = entry.get("key")
+    if not isinstance(key, str) or not key:
+        return None, None, {"index": index, "reason": "entry key is missing or empty", "entry": entry}
+
+    disposition = entry.get("disposition")
+    if disposition not in ALLOWED_DISPOSITIONS:
+        return (
+            key,
+            None,
+            {
+                "index": index,
+                "key": key,
+                "reason": "unsupported disposition",
+                "disposition": disposition,
+                "allowed_dispositions": sorted(ALLOWED_DISPOSITIONS),
+            },
+        )
+
+    normalized = {
+        "key": key,
+        "disposition": disposition,
+        "note": entry.get("note"),
+        "issue": entry.get("issue"),
+        "reviewed_at_utc": entry.get("reviewed_at_utc"),
+        "reviewed_by": entry.get("reviewed_by"),
+    }
+    return key, normalized, None
+
+
+def build_disposition_index(dispositions: dict) -> tuple[dict[str, dict], list[dict]]:
+    index: dict[str, dict] = {}
+    invalid: list[dict] = []
+    for i, entry in enumerate(dispositions.get("entries", [])):
+        key, normalized, error = normalize_disposition_entry(entry, i)
+        if error is not None:
+            invalid.append(error)
+            continue
+        if key in index:
+            invalid.append({"index": i, "key": key, "reason": "duplicate key"})
+            continue
+        index[key] = normalized
+    return index, invalid
+
+
+def review_payload(key: str, disposition_index: dict[str, dict]) -> dict:
+    entry = disposition_index.get(key)
+    if entry is None:
+        return {"key": key, "state": "unreviewed"}
+    return {
+        "key": key,
+        "state": "reviewed",
+        "disposition": entry["disposition"],
+        "note": entry.get("note"),
+        "issue": entry.get("issue"),
+        "reviewed_at_utc": entry.get("reviewed_at_utc"),
+        "reviewed_by": entry.get("reviewed_by"),
+    }
+
+
+def apply_dispositions(payload: dict, dispositions: dict, disposition_path: Path) -> None:
+    disposition_index, invalid_entries = build_disposition_index(dispositions)
+    used_keys: set[str] = set()
+    raw = Counter()
+    reviewed = Counter()
+    disposition_counts = Counter()
+
+    for row in payload["type_rows"]:
+        status = type_review_status(row)
+        if status is not None:
+            key = type_review_key(row, status)
+            row["api_review"] = review_payload(key, disposition_index)
+            raw["type_name_or_visibility_gaps"] += 1
+            if row["api_review"]["state"] == "reviewed":
+                reviewed["type_name_or_visibility_gaps"] += 1
+                disposition_counts[row["api_review"]["disposition"]] += 1
+                used_keys.add(key)
+
+        for member in row.get("members", []):
+            if member.get("status") not in {"missing", "arity-drift"}:
+                continue
+            key = member_review_key(row, member)
+            member["api_review"] = review_payload(key, disposition_index)
+            counter_key = "missing_members" if member["status"] == "missing" else "arity_drift_members"
+            raw[counter_key] += 1
+            if member["api_review"]["state"] == "reviewed":
+                reviewed[counter_key] += 1
+                disposition_counts[member["api_review"]["disposition"]] += 1
+                used_keys.add(key)
+
+    for row in payload.get("missing_members", []):
+        key = (
+            f"member|{row['source_path']}|{row['java_type']}|"
+            f"{row['java_kind']}|{row['java_name']}|{row['java_arity']}|{row['status']}"
+        )
+        row["api_review"] = review_payload(key, disposition_index)
+
+    raw_total = sum(raw.values())
+    reviewed_total = sum(reviewed.values())
+    unreviewed = Counter({key: raw[key] - reviewed[key] for key in raw})
+    unused_keys = sorted(set(disposition_index) - used_keys)
+    payload["review"] = {
+        "disposition_file": disposition_path.as_posix(),
+        "disposition_file_missing": bool(dispositions.get("missing")),
+        "allowed_dispositions": sorted(ALLOWED_DISPOSITIONS),
+        "raw": {
+            "missing_members": raw["missing_members"],
+            "arity_drift_members": raw["arity_drift_members"],
+            "type_name_or_visibility_gaps": raw["type_name_or_visibility_gaps"],
+            "total": raw_total,
+        },
+        "reviewed": {
+            "missing_members": reviewed["missing_members"],
+            "arity_drift_members": reviewed["arity_drift_members"],
+            "type_name_or_visibility_gaps": reviewed["type_name_or_visibility_gaps"],
+            "total": reviewed_total,
+        },
+        "unreviewed": {
+            "missing_members": unreviewed["missing_members"],
+            "arity_drift_members": unreviewed["arity_drift_members"],
+            "type_name_or_visibility_gaps": unreviewed["type_name_or_visibility_gaps"],
+            "total": raw_total - reviewed_total,
+        },
+        "disposition_counts": dict(sorted(disposition_counts.items())),
+        "invalid_entries": invalid_entries,
+        "unused_disposition_keys": unused_keys,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate Java-vs-.NET API surface parity reports.")
     parser.add_argument(
@@ -1056,6 +1264,17 @@ def main() -> None:
     )
     parser.add_argument("--configuration", default="Release", help="Build configuration for reflected .NET assemblies.")
     parser.add_argument("--no-build", action="store_true", help="Use existing .NET build outputs.")
+    parser.add_argument(
+        "--dispositions",
+        type=Path,
+        default=DISPOSITIONS_PATH,
+        help="API-surface disposition ledger to merge into the generated report.",
+    )
+    parser.add_argument(
+        "--fail-on-unreviewed",
+        action="store_true",
+        help="Exit non-zero after writing reports if any reviewable API deltas remain unreviewed.",
+    )
     args = parser.parse_args()
 
     repo_root = Path.cwd()
@@ -1072,6 +1291,10 @@ def main() -> None:
     source_map = collect_csharp_source_map(repo_root)
     cs_types = reflect_csharp_api(repo_root, args.configuration)
     comparison = compare_api(java_types, cs_types, source_map)
+    disposition_path = args.dispositions.expanduser()
+    if not disposition_path.is_absolute():
+        disposition_path = repo_root / disposition_path
+    dispositions = read_dispositions(disposition_path)
     payload = {
         "schema": 1,
         "generated_at_utc": utc_now_iso(),
@@ -1086,8 +1309,15 @@ def main() -> None:
         },
         **comparison,
     }
+    apply_dispositions(payload, dispositions, args.dispositions)
     write_json(REPORT_JSON, payload)
     REPORT_MD.write_text(build_markdown(payload), encoding="utf-8")
+    unreviewed = payload["review"]["unreviewed"]["total"]
+    invalid = len(payload["review"]["invalid_entries"])
+    if args.fail_on_unreviewed and (unreviewed > 0 or invalid > 0):
+        raise SystemExit(
+            f"API surface review gate failed: {unreviewed} unreviewed deltas, {invalid} invalid disposition entries"
+        )
 
 
 if __name__ == "__main__":

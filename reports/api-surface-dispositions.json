@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "description": "Reviewed dispositions for Java-vs-.NET API-surface deltas. Entries are keyed by the api_review.key values emitted into reports/api-surface-comparison.json.",
+  "allowedDispositions": [
+    "implemented",
+    "compat-overload-added",
+    "intentional-dotnet-adaptation",
+    "internal-by-design",
+    "not-applicable",
+    "behavior-covered"
+  ],
+  "entries": []
+}
