@@ -2,18 +2,19 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "Local and hosted runtime parity summaries after issue #489 TTC/form appearance progress",
-    "generatedAtUtc": "2026-06-26T11:39:18Z",
+    "generatedFrom": "Local runtime parity summary after issue #490 foreground-shape render equivalence classifier, with hosted Linux variance allowance",
+    "generatedAtUtc": "2026-06-26T12:49:54Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
   "maxStatus": {
-    "known": 52,
+    "known": 24,
     "unexpected": 0
   },
   "maxCategories": {
-    "detail-mismatch": 52,
+    "detail-mismatch": 24,
     "merge-structural-match": 72,
+    "render-foreground-shape-equivalence-match": 43,
     "render-java-optional-jpx-reader-missing-match": 3,
     "render-lossy-jpeg-decoder-equivalence-match": 2,
     "render-low-ink-equivalence-match": 1,
