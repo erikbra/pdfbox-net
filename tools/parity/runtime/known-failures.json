@@ -32,29 +32,6 @@
       "reason": "Widget appearance generation, multiline layout, auto font sizing, inherited default appearance resources, and widget rotation still differ from Java for these render fixtures."
     },
     {
-      "id": "render-text-glyph-font",
-      "op": "render",
-      "category": "detail-mismatch",
-      "files": [
-        "AlignmentTests.pdf",
-        "ControlCharacters.pdf",
-        "PDFBOX-3038-001033-p2.pdf",
-        "PDFBOX-3044-010197-p5-ligatures.pdf",
-        "PDFBOX-3062-002207-p1.pdf",
-        "PDFBOX-3656-SF1199AEG (Complete).pdf",
-        "PDFBOX-4417-054080.pdf",
-        "PDFBOX-5784.pdf",
-        "PDFBOX-5811-362972.pdf",
-        "arxiv-sample.pdf"
-      ],
-      "issue": 491,
-      "owner": "issue-491",
-      "rootCause": "render-text-glyph-font",
-      "expiresWhen": "Issue #491 closes all text, glyph, and font render fidelity rows.",
-      "ratchet": "Known rows covered by this entry must not increase; remove file names as glyph/font render parity improves.",
-      "reason": "Glyph outline selection, fallback font selection, width/stretch behavior, ligatures, control characters, and renderer antialiasing semantics still differ from Java for these render fixtures."
-    },
-    {
       "id": "render-image-color-mask",
       "op": "render",
       "category": "detail-mismatch",

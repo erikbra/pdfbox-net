@@ -1,12 +1,15 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import javax.imageio.ImageIO;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.Loader;
@@ -18,10 +21,27 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.rendering.PageDrawer;
+import org.apache.pdfbox.rendering.PageDrawerParameters;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.util.Matrix;
+import org.apache.pdfbox.util.Vector;
 
 public final class JavaPdfProbe {
+    private static final Set<String> GLYPH_PROBE_FILES = Set.of(
+        "AlignmentTests.pdf",
+        "ControlCharacters.pdf",
+        "PDFBOX-3038-001033-p2.pdf",
+        "PDFBOX-3044-010197-p5-ligatures.pdf",
+        "PDFBOX-3062-002207-p1.pdf",
+        "PDFBOX-3656-SF1199AEG (Complete).pdf",
+        "PDFBOX-4417-054080.pdf",
+        "PDFBOX-5784.pdf",
+        "PDFBOX-5811-362972.pdf",
+        "arxiv-sample.pdf");
+
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.err.println("usage: JavaPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b> | --structure <pdf> [<pdf>...]");
@@ -87,6 +107,8 @@ public final class JavaPdfProbe {
             } catch (Throwable t) {
                 emit(name, "render", false, pages, message(t), elapsed(started));
             }
+
+            writeGlyphProbe(outDir, name, document);
         } catch (Throwable t) {
             emit(name, "load", false, pages, message(t), elapsed(started));
         }
@@ -256,6 +278,108 @@ public final class JavaPdfProbe {
         }
         boolean nearBlank = transparent == total || nonBackground <= Math.max(10, total / 1000) || dominant >= (int) Math.ceil(total * 0.995);
         return "nonBg=" + nonBackground + ":unique=" + histogram.size() + ":dominant=" + dominant + ":transparent=" + transparent + ":nearBlank=" + nearBlank;
+    }
+
+    private static void writeGlyphProbe(File outDir, String name, PDDocument document) {
+        if (!GLYPH_PROBE_FILES.contains(name)) {
+            return;
+        }
+
+        try {
+            GlyphProbeRenderer renderer = new GlyphProbeRenderer(document);
+            if (document.getNumberOfPages() > 0) {
+                renderer.renderImageWithDPI(0, 36);
+            }
+            File output = new File(outDir, stripExt(name) + "-java-glyphs.jsonl");
+            java.nio.file.Files.writeString(output.toPath(), renderer.toJsonLines(), StandardCharsets.UTF_8);
+        } catch (Throwable ignored) {
+            // Glyph probes are diagnostic artifacts; text extraction remains authoritative.
+        }
+    }
+
+    private static final class GlyphProbeRenderer extends PDFRenderer {
+        private final GlyphRecorder recorder = new GlyphRecorder();
+
+        GlyphProbeRenderer(PDDocument document) {
+            super(document);
+        }
+
+        @Override
+        protected PageDrawer createPageDrawer(PageDrawerParameters parameters) {
+            return new GlyphProbePageDrawer(parameters, recorder);
+        }
+
+        String toJsonLines() {
+            return recorder.toJsonLines();
+        }
+    }
+
+    private static final class GlyphProbePageDrawer extends PageDrawer {
+        private final GlyphRecorder recorder;
+
+        GlyphProbePageDrawer(PageDrawerParameters parameters, GlyphRecorder recorder) {
+            super(parameters);
+            this.recorder = recorder;
+        }
+
+        @Override
+        protected void showGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement) throws IOException {
+            recorder.record(1, textRenderingMatrix, font, code, displacement);
+            super.showGlyph(textRenderingMatrix, font, code, displacement);
+        }
+    }
+
+    private static final class GlyphRecorder {
+        private final StringBuilder lines = new StringBuilder();
+        private int index;
+
+        void record(int page, Matrix textRenderingMatrix, PDFont font, int code, Vector displacement) {
+            String unicode = toUnicode(font, code);
+            String fontName = font == null ? "" : font.getName();
+            String fontType = font == null ? "" : font.getClass().getSimpleName();
+            boolean embedded = font != null && font.isEmbedded();
+            boolean standard14 = font != null && font.isStandard14();
+            float advance = displacement.getX() * textRenderingMatrix.getScalingFactorX();
+
+            lines.append("{\"page\":").append(page)
+                .append(",\"index\":").append(index++)
+                .append(",\"unicode\":\"").append(esc(unicode)).append('"')
+                .append(",\"codes\":\"").append(code).append('"')
+                .append(",\"x\":").append(f(textRenderingMatrix.getTranslateX()))
+                .append(",\"y\":").append(f(textRenderingMatrix.getTranslateY()))
+                .append(",\"w\":").append(f(advance))
+                .append(",\"h\":").append(f(textRenderingMatrix.getScalingFactorY()))
+                .append(",\"space\":").append(f(0))
+                .append(",\"fontSize\":").append(f(textRenderingMatrix.getScalingFactorY()))
+                .append(",\"fontSizePt\":").append(f(textRenderingMatrix.getScalingFactorY()))
+                .append(",\"xScale\":").append(f(textRenderingMatrix.getScalingFactorX()))
+                .append(",\"yScale\":").append(f(textRenderingMatrix.getScalingFactorY()))
+                .append(",\"font\":\"").append(esc(fontName)).append('"')
+                .append(",\"fontType\":\"").append(esc(fontType)).append('"')
+                .append(",\"embedded\":").append(embedded)
+                .append(",\"standard14\":").append(standard14)
+                .append("}\n");
+        }
+
+        private static String toUnicode(PDFont font, int code) {
+            if (font == null) {
+                return "";
+            }
+            try {
+                String value = font.toUnicode(code);
+                return value == null ? "" : value;
+            } catch (Throwable ignored) {
+                return "";
+            }
+        }
+
+        String toJsonLines() {
+            return lines.toString();
+        }
+    }
+
+    private static String f(float value) {
+        return String.format(Locale.ROOT, "%.3f", value);
     }
 
     private static int colorDistance(int a, int b) {

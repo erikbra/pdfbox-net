@@ -1,16 +1,33 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using PdfBox.Net;
 using PdfBox.Net.MultiPdf;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.Rendering;
 using PdfBox.Net.Text;
 using PdfBox.Net.Tools.ImageIO;
+using PdfBox.Net.Util;
 using SkiaSharp;
+using GlyphList = PdfBox.Net.PDModel.Font.Encoding.GlyphList;
 
 internal static class DotnetPdfProbe
 {
     private static readonly UTF8Encoding Utf8NoBom = new(false);
+    private static readonly HashSet<string> GlyphProbeFiles =
+    [
+        "AlignmentTests.pdf",
+        "ControlCharacters.pdf",
+        "PDFBOX-3038-001033-p2.pdf",
+        "PDFBOX-3044-010197-p5-ligatures.pdf",
+        "PDFBOX-3062-002207-p1.pdf",
+        "PDFBOX-3656-SF1199AEG (Complete).pdf",
+        "PDFBOX-4417-054080.pdf",
+        "PDFBOX-5784.pdf",
+        "PDFBOX-5811-362972.pdf",
+        "arxiv-sample.pdf",
+    ];
 
     public static int Main(string[] args)
     {
@@ -95,6 +112,8 @@ internal static class DotnetPdfProbe
             {
                 Emit(name, "render", false, pages, Message(ex), Elapsed(started));
             }
+
+            WriteGlyphProbe(outDir, name, document);
         }
         catch (Exception ex)
         {
@@ -206,6 +225,106 @@ internal static class DotnetPdfProbe
         return Math.Abs(a.Alpha - b.Alpha) + Math.Abs(a.Red - b.Red) + Math.Abs(a.Green - b.Green) + Math.Abs(a.Blue - b.Blue);
     }
 
+    private static void WriteGlyphProbe(string outDir, string name, PDDocument document)
+    {
+        if (!GlyphProbeFiles.Contains(name))
+        {
+            return;
+        }
+
+        try
+        {
+            GlyphProbeRenderer renderer = new(document);
+            if (document.GetNumberOfPages() > 0)
+            {
+                renderer.RenderImageWithDPI(0, 36);
+            }
+
+            File.WriteAllText(Path.Combine(outDir, StripExt(name) + "-dotnet-glyphs.jsonl"), renderer.ToJsonLines(), Utf8NoBom);
+        }
+        catch
+        {
+            // Glyph probes are diagnostic artifacts; text extraction remains authoritative.
+        }
+    }
+
+    private sealed class GlyphProbeRenderer(PDDocument document) : PDFRenderer(document)
+    {
+        private readonly GlyphRecorder _recorder = new();
+
+        protected override PageDrawer CreatePageDrawer(PageDrawerParameters parameters)
+        {
+            return new GlyphProbePageDrawer(parameters, _recorder);
+        }
+
+        public string ToJsonLines() => _recorder.ToJsonLines();
+    }
+
+    private sealed class GlyphProbePageDrawer(PageDrawerParameters parameters, GlyphRecorder recorder) : PageDrawer(parameters)
+    {
+        protected override void ShowGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
+        {
+            recorder.Record(1, textRenderingMatrix, font, code, displacement);
+            base.ShowGlyph(textRenderingMatrix, font, code, displacement);
+        }
+    }
+
+    private sealed class GlyphRecorder
+    {
+        private readonly StringBuilder _lines = new();
+        private int _index;
+
+        public void Record(int page, Matrix textRenderingMatrix, PDFont? font, int code, Vector displacement)
+        {
+            string unicode = ToUnicode(font, code);
+            string fontName = font?.GetName() ?? string.Empty;
+            string fontType = font?.GetType().Name ?? string.Empty;
+            bool embedded = font?.IsEmbedded() ?? false;
+            bool standard14 = font?.IsStandard14() ?? false;
+            float advance = displacement.GetX() * textRenderingMatrix.GetScalingFactorX();
+
+            _lines.Append("{\"page\":").Append(page)
+                .Append(",\"index\":").Append(_index++)
+                .Append(",\"unicode\":\"").Append(EscapeJson(unicode)).Append('"')
+                .Append(",\"codes\":\"").Append(code).Append('"')
+                .Append(",\"x\":").Append(F(textRenderingMatrix.GetTranslateX()))
+                .Append(",\"y\":").Append(F(textRenderingMatrix.GetTranslateY()))
+                .Append(",\"w\":").Append(F(advance))
+                .Append(",\"h\":").Append(F(textRenderingMatrix.GetScalingFactorY()))
+                .Append(",\"space\":").Append(F(0))
+                .Append(",\"fontSize\":").Append(F(textRenderingMatrix.GetScalingFactorY()))
+                .Append(",\"fontSizePt\":").Append(F(textRenderingMatrix.GetScalingFactorY()))
+                .Append(",\"xScale\":").Append(F(textRenderingMatrix.GetScalingFactorX()))
+                .Append(",\"yScale\":").Append(F(textRenderingMatrix.GetScalingFactorY()))
+                .Append(",\"font\":\"").Append(EscapeJson(fontName)).Append('"')
+                .Append(",\"fontType\":\"").Append(EscapeJson(fontType)).Append('"')
+                .Append(",\"embedded\":").Append(embedded.ToString().ToLowerInvariant())
+                .Append(",\"standard14\":").Append(standard14.ToString().ToLowerInvariant())
+                .AppendLine("}");
+        }
+
+        public string ToJsonLines() => _lines.ToString();
+
+        private static string ToUnicode(PDFont? font, int code)
+        {
+            if (font is null)
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                return font.ToUnicode(code, GlyphList.GetAdobeGlyphList()) ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+    }
+
+    private static string F(float value) => value.ToString("F3", CultureInfo.InvariantCulture);
+
     private static string Message(Exception ex)
     {
         Exception root = ex;
@@ -225,4 +344,48 @@ internal static class DotnetPdfProbe
     }
 
     private static string Escape(string value) => value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+    private static string EscapeJson(string value)
+    {
+        StringBuilder builder = new(value.Length);
+        foreach (char ch in value)
+        {
+            switch (ch)
+            {
+                case '\\':
+                    builder.Append("\\\\");
+                    break;
+                case '"':
+                    builder.Append("\\\"");
+                    break;
+                case '\b':
+                    builder.Append("\\b");
+                    break;
+                case '\f':
+                    builder.Append("\\f");
+                    break;
+                case '\n':
+                    builder.Append("\\n");
+                    break;
+                case '\r':
+                    builder.Append("\\r");
+                    break;
+                case '\t':
+                    builder.Append("\\t");
+                    break;
+                default:
+                    if (char.IsControl(ch))
+                    {
+                        builder.Append("\\u").Append(((int)ch).ToString("x4", CultureInfo.InvariantCulture));
+                    }
+                    else
+                    {
+                        builder.Append(ch);
+                    }
+                    break;
+            }
+        }
+
+        return builder.ToString();
+    }
 }
