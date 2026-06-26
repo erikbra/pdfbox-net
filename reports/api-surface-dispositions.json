@@ -9,5 +9,2910 @@
     "not-applicable",
     "behavior-covered"
   ],
-  "entries": []
+  "entries": [
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getKeywordsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getKeywords|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getPDFVersionProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getPDFVersion|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getProducerProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getProducer|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setKeywordsProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setPDFVersionProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setProducerProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|addDate|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getContributorsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getContributors|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getCoverageProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getCoverage|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getCreatorsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getCreators|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getDatesProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getDates|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getDescriptionLanguages|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getDescriptionProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getDescription|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getDescription|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getFormatProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getFormat|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getIdentifierProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getIdentifier|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getLanguagesProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getLanguages|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getPublishersProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getPublishers|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getRelationsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getRelations|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getRightsLanguages|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getRightsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getRights|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getRights|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getSourceProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getSource|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getSubjectsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getSubjects|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getTitleLanguages|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getTitleProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getTitle|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getTitle|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getTypesProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|getTypes|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|removeContributor|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|removeCreator|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|removeDate|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|removeLanguage|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|removePublisher|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|removeRelation|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|removeSubject|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|removeType|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|setCoverageProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|setFormatProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|setIdentifierProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|setSourceProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/ExifSchema.java|org.apache.xmpbox.schema.ExifSchema|method|getUserCommentLanguages|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/ExifSchema.java|org.apache.xmpbox.schema.ExifSchema|method|getUserCommentProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/ExifSchema.java|org.apache.xmpbox.schema.ExifSchema|method|getUserComment|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/ExifSchema.java|org.apache.xmpbox.schema.ExifSchema|method|getUserComment|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAExtensionSchema.java|org.apache.xmpbox.schema.PDFAExtensionSchema|method|getSchemasProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|getAmdProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|getAmd|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|getAmendment|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|getConformanceProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|getConformance|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|getPartProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|getPart|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|getRevProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|getRev|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|setAmdProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|setAmd|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|setConformanceProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|setPartProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|setPartValueWithInt|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|setPartValueWithString|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|setRevProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|setRevValueWithInt|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|setRevValueWithString|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java|org.apache.xmpbox.schema.PDFAIdentificationSchema|method|setRev|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|addDocumentAncestors|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|addTextLayers|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getAncestorIDProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getAncestorID|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getAuthorsPositionProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getAuthorsPosition|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getCaptionWriterProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getCaptionWriter|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getCategoryProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getCategory|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getCityProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getCity|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getColorModeProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getColorMode|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getCountryProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getCountry|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getCreditProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getCredit|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getDateCreatedProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getDateCreated|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getDocumentAncestorsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getDocumentAncestors|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getHeadlineProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getHeadline|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getHistoryProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getHistory|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getICCProfileProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getICCProfile|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getInstructionsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getInstructions|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getSourceProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getSource|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getStateProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getState|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getSupplementalCategoriesProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getSupplementalCategories|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getTextLayers|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getTransmissionReferenceProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getTransmissionReference|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getUrgencyProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|getUrgency|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setAncestorIDProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setAncestorID|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setAuthorsPositionProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setAuthorsPosition|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setCaptionWriterProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setCaptionWriter|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setCategoryProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setCategory|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setCityProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setCity|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setColorModeProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setColorMode|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setCountryProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setCountry|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setCreditProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setCredit|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setDateCreatedProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setDateCreated|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setHeadlineProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setHeadline|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setHistoryProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setHistory|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setICCProfileProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setICCProfile|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setInstructionsProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setInstructions|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setSourceProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setSource|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setStateProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setState|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setSupplementalCategoriesProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setSupplementalCategories|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setTransmissionReferenceProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setTransmissionReference|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setUrgencyProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java|org.apache.xmpbox.schema.PhotoshopSchema|method|setUrgency|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|field|BITS_PER_SAMPLE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|addCopyright|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|addImageDescription|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|getArtistProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|getArtist|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|getCopyrightLanguages|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|getCopyrightProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|getCopyright|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|getCopyright|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|getImageDescriptionLanguages|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|getImageDescriptionProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|getImageDescription|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|getImageDescription|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java|org.apache.xmpbox.schema.TiffSchema|method|setArtist|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java|org.apache.xmpbox.schema.XMPBasicJobTicketSchema|method|addJob|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java|org.apache.xmpbox.schema.XMPBasicJobTicketSchema|method|addJob|3|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java|org.apache.xmpbox.schema.XMPBasicJobTicketSchema|method|addJob|4|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java|org.apache.xmpbox.schema.XMPBasicJobTicketSchema|method|getJobs|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|addThumbnails|4|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getAdvisoryProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getAdvisory|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getBaseURLProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getBaseURL|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getCreateDateProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getCreateDate|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getCreatorToolProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getCreatorTool|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getIdentifiersProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getIdentifiers|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getLabelProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getLabel|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getMetadataDateProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getMetadataDate|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getModifierDateProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getModifierDate|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getModifyDateProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getModifyDate|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getNicknameProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getNickname|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getRatingProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getRating|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|getThumbnailsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|removeAdvisory|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|removeIdentifier|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|setBaseURLProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|setCreateDateProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|setCreatorToolProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|setLabelProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|setMetadataDateProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|setModifierDateProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|setModifyDateProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|setNicknameProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java|org.apache.xmpbox.schema.XMPBasicSchema|method|setRatingProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|addHistory|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|addIngredients|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|addVersions|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getDerivedFromProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getDocumentIDProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getDocumentID|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getHistoryProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getIngredientsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getIngredients|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getInstanceIDProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getInstanceID|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getLastURLProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getLastURL|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getManageToProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getManageTo|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getManageUIProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getManageUI|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getManagedFromProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getManagerProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getManagerVariantProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getManagerVariant|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getManager|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getOriginalDocumentIDProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getOriginalDocumentID|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getRenditionClassProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getRenditionClass|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getRenditionParamsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getRenditionParams|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getSaveIDProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getSaveID|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getVersionIDProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getVersionID|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getVersionsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getVersions|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setDerivedFromProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setDocumentIDProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setDocumentID|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setInstanceIDProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setInstanceID|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setLastURLProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setLastURL|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setManageToProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setManageTo|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setManageUIProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setManageUI|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setManagedFromProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setManagerProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setManagerVariantProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setManagerVariant|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setManager|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setOriginalDocumentIDProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setOriginalDocumentID|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setRenditionClassProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setRenditionClass|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setRenditionParamsProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setRenditionParams|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setSaveIDProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setSaveId|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setVersionIDProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|setVersionID|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|addOwner|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|addUsageTerms|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getCertificateProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getCertificate|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getMarkedProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getMarked|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getOwnersProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getOwners|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getUsageTermsLanguages|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getUsageTermsProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getUsageTerms|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getUsageTerms|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getWebStatementProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|getWebStatement|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|removeOwner|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|setCertificateProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|setCertificate|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|setMarkedProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|setMarked|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|setUsageTerms|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|setWebStatementProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java|org.apache.xmpbox.schema.XMPRightsManagementSchema|method|setWebStatement|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|constructor|XMPSchema|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|constructor|XMPSchema|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|constructor|XMPSchema|4|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|addBagValueAsSimple|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|addQualifiedBagValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|addSequenceDateValueAsSimple|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|addUnqualifiedSequenceDateValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|addUnqualifiedSequenceValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getAboutAttribute|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getAbstractProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getBooleanPropertyValueAsSimple|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getBooleanPropertyValue|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getBooleanProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getDatePropertyValueAsSimple|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getDatePropertyValue|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getDateProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getIntegerPropertyValueAsSimple|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getIntegerPropertyValue|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getIntegerProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getUnqualifiedArrayList|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getUnqualifiedBagValueList|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getUnqualifiedLanguagePropertyLanguagesValue|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getUnqualifiedLanguagePropertyValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getUnqualifiedSequenceDateValueList|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getUnqualifiedSequenceValueList|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getUnqualifiedTextPropertyValue|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|getUnqualifiedTextProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|instanciateSimple|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|merge|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|removeUnqualifiedArrayValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|removeUnqualifiedBagValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|removeUnqualifiedSequenceDateValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|removeUnqualifiedSequenceValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|reorganizeAltOrder|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setAbout|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setBooleanPropertyValueAsSimple|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setBooleanPropertyValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setBooleanProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setDatePropertyValueAsSimple|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setDatePropertyValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setDateProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setIntegerPropertyValueAsSimple|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setIntegerPropertyValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setIntegerProperty|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setTextPropertyValueAsSimple|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setTextPropertyValue|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setTextProperty|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setUnqualifiedLanguagePropertyValue|3|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/BooleanType.java|org.apache.xmpbox.type.BooleanType|field|FALSE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java TRUE/FALSE constants are exposed as C# TrueValue/FalseValue constants while preserving boolean parsing and string output behavior.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/BooleanType.java|org.apache.xmpbox.type.BooleanType|field|TRUE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java TRUE/FALSE constants are exposed as C# TrueValue/FalseValue constants while preserving boolean parsing and string output behavior.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/Cardinality.java|org.apache.xmpbox.type.Cardinality|method|isArray|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java enum method is exposed as the C# CardinalityExtensions.IsArray() extension method.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/PDFASchemaType.java|org.apache.xmpbox.type.PDFASchemaType|method|getProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java getProperty() is exposed as GetPropertyValue() to avoid ambiguity with inherited named-property lookup in the C# type hierarchy.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/PDFATypeType.java|org.apache.xmpbox.type.PDFATypeType|method|getType|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java getType() is exposed as GetTypeValue() to avoid conflict with object.GetType() and keep the PDF/A field meaning explicit.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/PropertyType.java|org.apache.xmpbox.type.PropertyType|method|type|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java annotation element type() is exposed through C# PropertyTypeAttribute.TypeName and Type properties.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/StructuredType.java|org.apache.xmpbox.type.StructuredType|method|namespace|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java annotation elements are exposed as C# StructuredTypeAttribute.Namespace and PreferedPrefix properties.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/StructuredType.java|org.apache.xmpbox.type.StructuredType|method|preferedPrefix|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java annotation elements are exposed as C# StructuredTypeAttribute.Namespace and PreferedPrefix properties.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/Types.java|org.apache.xmpbox.type.Types|enum-value|private|0|missing",
+      "disposition": "not-applicable",
+      "note": "Parser artifact for the private Java enum constructor; not a public API member to port.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/Types.java|org.apache.xmpbox.type.Types|method|isDefined|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java enum predicate methods are exposed as C# boolean properties on the enum-like Types registry.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/Types.java|org.apache.xmpbox.type.Types|method|isSimple|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java enum predicate methods are exposed as C# boolean properties on the enum-like Types registry.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/Types.java|org.apache.xmpbox.type.Types|method|isStructured|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java enum predicate methods are exposed as C# boolean properties on the enum-like Types registry.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/VersionType.java|org.apache.xmpbox.type.VersionType|method|getVersion|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Version accessors are intentionally named GetVersionValue/SetVersionValue in C# to make the XMP field value explicit.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/type/VersionType.java|org.apache.xmpbox.type.VersionType|method|setVersion|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Version accessors are intentionally named GetVersionValue/SetVersionValue in C# to make the XMP field value explicit.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/xml/XmpParsingException.java|org.apache.xmpbox.xml.XmpParsingException|method|getErrorType|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java getErrorType() is exposed as the C# Type property on XmpParsingException.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializer.java|org.apache.xmpbox.xml.XmpSerializer|constructor|XmpSerializer|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Custom Java XML factory constructor is not exposed because the .NET serializer uses XmlWriter/XmlDocument settings directly.",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializer.java|org.apache.xmpbox.xml.XmpSerializer|method|createRdfElement|3|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java DOM helper method is internal to the .NET serializer design; public serialization behavior is exposed through Serialize().",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializer.java|org.apache.xmpbox.xml.XmpSerializer|method|serializeFields|6|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java DOM helper method is internal to the .NET serializer design; public serialization behavior is exposed through Serialize().",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/xml/XmpSerializer.java|org.apache.xmpbox.xml.XmpSerializer|method|serializeSchema|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java DOM helper method is internal to the .NET serializer design; public serialization behavior is exposed through Serialize().",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "type|xmpbox/src/main/java/org/apache/xmpbox/type/PropertyType.java|org.apache.xmpbox.type.PropertyType|renamed-public-type",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java annotation is ported as C# PropertyTypeAttribute; consumers still use the idiomatic short attribute form [PropertyType].",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "type|xmpbox/src/main/java/org/apache/xmpbox/type/StructuredType.java|org.apache.xmpbox.type.StructuredType|renamed-public-type",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java annotation is ported as C# StructuredTypeAttribute; consumers still use the idiomatic short attribute form [StructuredType].",
+      "issue": 502,
+      "reviewed_at_utc": "2026-06-26T22:54:12Z",
+      "reviewed_by": "Codex"
+    }
+  ]
 }
