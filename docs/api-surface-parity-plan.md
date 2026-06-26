@@ -6,6 +6,7 @@ Source reports:
 
 - `reports/pdfbox-api-surface-analysis.md`
 - `reports/api-surface-comparison.json`
+- `reports/api-surface-dispositions.json`
 
 Tracking issue: https://github.com/erikbra/pdfbox-net/issues/511
 
@@ -71,7 +72,9 @@ The review backlog is roughly:
 4. Do not expose implementation-only internals just to satisfy the report.
 5. For intentional .NET adaptations, document the replacement API and record the disposition.
 6. For behavior-sensitive APIs, add focused tests before marking the row `implemented` or `behavior-covered`.
-7. Rerun `tools/parity/generate_api_surface_report.py` after each workstream and update report totals.
+7. Record reviewed decisions in `reports/api-surface-dispositions.json` using the `api_review.key` values emitted into `reports/api-surface-comparison.json`.
+8. Rerun `tools/parity/generate_api_surface_report.py` after each workstream and update report totals.
+9. Use `python3 tools/parity/generate_api_surface_report.py --fail-on-unreviewed` as the final gate when all workstreams are expected to be closed.
 
 ## Workstreams
 
