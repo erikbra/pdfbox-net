@@ -87,6 +87,18 @@ public class PDAnnotationLink : PDAnnotation
         GetCOSDictionary().SetItem(COSName.A, action);
     }
 
+    public void SetBorderStyle(PDBorderStyleDictionary? borderStyle)
+    {
+        GetCOSDictionary().SetItem(COSName.BS, borderStyle);
+    }
+
+    public PDBorderStyleDictionary? GetBorderStyle()
+    {
+        return GetCOSDictionary().GetCOSDictionary(COSName.BS) is COSDictionary dictionary
+            ? new PDBorderStyleDictionary(dictionary)
+            : null;
+    }
+
     /// <summary>
     /// Get the destination to be displayed when the annotation is activated. Either this or the
     /// action entry should be set, but not both.
@@ -102,6 +114,28 @@ public class PDAnnotationLink : PDAnnotation
     public void SetDestination(PDDestination? dest)
     {
         GetCOSDictionary().SetItem(COSName.DEST, dest);
+    }
+
+    public void SetQuadPoints(float[]? quadPoints)
+    {
+        if (quadPoints == null)
+        {
+            GetCOSDictionary().RemoveItem(COSName.GetPDFName("QuadPoints"));
+            return;
+        }
+
+        COSArray array = new();
+        foreach (float value in quadPoints)
+        {
+            array.Add(new COSFloat(value));
+        }
+
+        GetCOSDictionary().SetItem(COSName.GetPDFName("QuadPoints"), array);
+    }
+
+    public float[]? GetQuadPoints()
+    {
+        return GetCOSDictionary().GetCOSArray(COSName.GetPDFName("QuadPoints"))?.ToFloatArray();
     }
 
     /// <summary>

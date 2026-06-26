@@ -336,6 +336,14 @@ public partial class PDType1Font : PDSimpleFont
                 byte[] bytes = File.ReadAllBytes(fontPath);
                 return new TTFParser().Parse(bytes);
             }
+
+            if (extension.Equals(".ttc", StringComparison.OrdinalIgnoreCase))
+            {
+                using TrueTypeCollection collection = new(fontPath);
+                return collection.GetFontByName(mappedName)
+                       ?? (fontName is not null ? collection.GetFontByName(fontName) : null)
+                       ?? collection.GetFontByName(Path.GetFileNameWithoutExtension(fontPath));
+            }
         }
         catch
         {

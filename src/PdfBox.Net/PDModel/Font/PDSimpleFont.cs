@@ -76,6 +76,12 @@ public abstract partial class PDSimpleFont : PDVectorFont
 
     public override BoundingBox GetBoundingBox()
     {
+        if (IsStandard14() && Standard14Fonts.GetAFM(GetName())?.FontBBox is { } afmBBox
+            && (afmBBox.GetWidth() != 0 || afmBBox.GetHeight() != 0))
+        {
+            return afmBBox;
+        }
+
         FontBoxFont? fbFont = GetFontBoxFont();
         if (fbFont != null)
         {
@@ -84,12 +90,6 @@ public abstract partial class PDSimpleFont : PDVectorFont
             {
                 return bbox;
             }
-        }
-
-        if (IsStandard14() && Standard14Fonts.GetAFM(GetName())?.FontBBox is { } afmBBox
-            && (afmBBox.GetWidth() != 0 || afmBBox.GetHeight() != 0))
-        {
-            return afmBBox;
         }
 
         return base.GetBoundingBox();

@@ -40,6 +40,7 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 public abstract class PDAnnotation : COSObjectable
 {
     private static readonly COSName AppearanceName = COSName.GetPDFName("AP");
+    private static readonly COSName BorderName = COSName.GetPDFName("Border");
 
     /// <summary>An annotation flag.</summary>
     private const int FlagInvisible = 1 << 0;
@@ -436,6 +437,34 @@ public abstract class PDAnnotation : COSObjectable
     public void SetColor(PDColor? c)
     {
         _dictionary.SetItem(COSName.C, c?.ToCOSArray());
+    }
+
+    public virtual COSArray GetBorder()
+    {
+        COSArray? border = GetCOSDictionary().GetCOSArray(BorderName);
+        if (border != null)
+        {
+            if (border.Size() >= 3)
+            {
+                return border;
+            }
+
+            COSArray padded = new();
+            padded.AddAll(border);
+            while (padded.Size() < 3)
+            {
+                padded.Add(COSInteger.ZERO);
+            }
+
+            return padded;
+        }
+
+        return new COSArray { COSInteger.ZERO, COSInteger.ZERO, COSInteger.ONE };
+    }
+
+    public virtual void SetBorder(COSArray? border)
+    {
+        GetCOSDictionary().SetItem(BorderName, border);
     }
 
     public PDAppearanceDictionary? GetAppearance()
