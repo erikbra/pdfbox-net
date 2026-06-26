@@ -77,6 +77,33 @@ public class AdvancedRenderingIssue419Test
     }
 
     [Fact]
+    public void RenderImage_AnnotationAppearance_UsesAppearanceColorSpaceResources()
+    {
+        using PDDocument document = CreateDocument(string.Empty);
+        PDPage page = document.GetPage(0);
+
+        PDResources appearanceResources = new();
+        COSName colorSpaceName = appearanceResources.Add(PDDeviceRGB.Instance, "Cs");
+
+        PDAppearanceStream appearance = new(new COSStream());
+        appearance.SetBBox(new PDRectangle(0, 0, 20, 20));
+        appearance.SetResources(appearanceResources);
+        WriteStream(appearance.GetCOSObject()!, $"/{colorSpaceName.GetName()} cs\n1 0.82 0.39 sc\n0 0 20 20 re\nf\n");
+
+        PDAppearanceDictionary appearanceDictionary = new();
+        appearanceDictionary.SetNormalAppearance(appearance);
+
+        PDAnnotationSquare annotation = new();
+        annotation.SetRectangle(new PDRectangle(150, 450, 20, 20));
+        annotation.SetAppearance(appearanceDictionary);
+        page.SetAnnotations([annotation]);
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        Assert.True(CountYellowPixels(image, 150, 322, 20, 20) > 300);
+    }
+
+    [Fact]
     public void RenderImage_AnnotationAppearance_DoesNotInheritPageContentCtm()
     {
         using PDDocument document = CreateDocument("0.24 0 0 -0.24 7.2 654.72 cm\n0 0 1 1 re\nf\n");
@@ -371,6 +398,27 @@ public class AdvancedRenderingIssue419Test
                 int g = (argb >> 8) & 0xFF;
                 int b = argb & 0xFF;
                 if (r != 255 || g != 255 || b != 255)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    private static int CountYellowPixels(BufferedImage image, int x, int y, int width, int height)
+    {
+        int count = 0;
+        for (int py = y; py < y + height; py++)
+        {
+            for (int px = x; px < x + width; px++)
+            {
+                int argb = image.GetRgb(px, py);
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >> 8) & 0xFF;
+                int b = argb & 0xFF;
+                if (r > 220 && g > 160 && g < 240 && b > 60 && b < 150)
                 {
                     count++;
                 }

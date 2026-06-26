@@ -2,19 +2,19 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "Local runtime parity summary after issue #492 image/mask shape equivalence probe, with hosted Linux variance allowance for remaining owned buckets",
-    "generatedAtUtc": "2026-06-26T14:40:14Z",
+    "generatedFrom": "Local runtime parity summary after issue #493 pattern/transparency resource lookup and scoped raster equivalence, with hosted Linux variance allowance for remaining owned buckets",
+    "generatedAtUtc": "2026-06-26T15:33:53Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
   "maxStatus": {
-    "known": 12,
+    "known": 5,
     "unexpected": 0
   },
   "maxCategories": {
-    "detail-mismatch": 12,
+    "detail-mismatch": 5,
     "merge-structural-match": 72,
-    "render-foreground-shape-equivalence-match": 43,
+    "render-foreground-shape-equivalence-match": 48,
     "render-glyph-layout-equivalence-match": 10,
     "render-image-mask-shape-equivalence-match": 4,
     "render-java-optional-jpx-reader-missing-match": 3,
@@ -22,6 +22,7 @@
     "render-low-ink-equivalence-match": 1,
     "render-low-mean-raster-drift-equivalence-match": 7,
     "render-near-blank-threshold-equivalence-match": 1,
+    "render-pattern-transparency-raster-equivalence-match": 6,
     "render-sparse-equivalence-match": 9,
     "render-visual-equivalence-match": 68,
     "save-structural-match": 148,

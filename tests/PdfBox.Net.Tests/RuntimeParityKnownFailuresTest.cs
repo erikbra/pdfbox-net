@@ -17,6 +17,12 @@ public class RuntimeParityKnownFailuresTest
     }
 
     [Fact]
+    public void KnownFailures_DoNotContainClosedIssue493PatternTransparencyBucket()
+    {
+        Assert.Empty(KnownFailureIdsForOwner("issue-493"));
+    }
+
+    [Fact]
     public void KnownFailures_HaveRoadmapMetadata()
     {
         string path = FindRepoFile("tools/parity/runtime/known-failures.json");
