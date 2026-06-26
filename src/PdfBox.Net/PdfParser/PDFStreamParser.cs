@@ -55,6 +55,11 @@ public sealed class PDFStreamParser
         return new PDFStreamParser(input).ParseTokens();
     }
 
+    public List<object> Parse()
+    {
+        return ParseTokens();
+    }
+
     public List<object> ParseTokens()
     {
         List<object> tokens = new();
@@ -76,6 +81,24 @@ public sealed class PDFStreamParser
         }
 
         return tokens;
+    }
+
+    public object? ParseNextToken()
+    {
+        SkipSpacesAndComments();
+        if (PeekByte() == -1)
+        {
+            Close();
+            return null;
+        }
+
+        return ReadTokenObject();
+    }
+
+    public void Close()
+    {
+        _input.Dispose();
+        _lookAhead = NoLookAhead;
     }
 
     private object? ReadTokenObject()

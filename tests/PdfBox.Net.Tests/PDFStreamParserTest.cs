@@ -47,6 +47,29 @@ public class PDFStreamParserTest
     }
 
     [Fact]
+    public void JavaCompatibilityMethodsDelegateToTokenParser()
+    {
+        using MemoryStream input = new(Encoding.Latin1.GetBytes("1 q\n"));
+
+        PDFStreamParser parser = new(input);
+
+        Assert.Equal(1, Assert.IsType<COSInteger>(parser.ParseNextToken()).IntValue());
+        Assert.Equal(OperatorName.SAVE, Assert.IsType<Operator>(parser.ParseNextToken()).GetName());
+        Assert.Null(parser.ParseNextToken());
+    }
+
+    [Fact]
+    public void ParseInstanceMethodReturnsAllTokens()
+    {
+        using MemoryStream input = new(Encoding.Latin1.GetBytes("1 /Type q\n"));
+
+        PDFStreamParser parser = new(input);
+        List<object> tokens = parser.Parse();
+
+        Assert.Equal(3, tokens.Count);
+    }
+
+    [Fact]
     public void ParseTokensStaticReturnsList()
     {
         using MemoryStream input = new(Encoding.Latin1.GetBytes("1 /Type q\n"));

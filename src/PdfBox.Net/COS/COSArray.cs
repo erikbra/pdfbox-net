@@ -489,7 +489,7 @@ public class COSArray : COSBase, IEnumerable<COSBase?>, COSUpdateInfo
     /// </summary>
     /// <param name="indirectObjects">A collection of already found indirect objects.</param>
     /// <returns>The collection of indirect objects.</returns>
-    protected ICollection<COSObjectKey>? ResetObjectKeys(ICollection<COSObjectKey>? indirectObjects)
+    protected internal ICollection<COSObjectKey>? ResetObjectKeys(ICollection<COSObjectKey>? indirectObjects)
     {
         if (indirectObjects is null)
         {

@@ -61,7 +61,7 @@ public class COSStandardOutputStreamTest
         var output = new COSStandardOutputStream(memoryStream, 9);
 
         output.SetOnNewLine(true);
-        output.WriteByte((byte)'B');
+        output.Write('B');
 
         Assert.Equal(10, output.GetPos());
         Assert.False(output.IsOnNewLine());

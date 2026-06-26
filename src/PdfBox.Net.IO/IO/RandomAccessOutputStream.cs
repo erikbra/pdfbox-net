@@ -84,6 +84,11 @@ public class RandomAccessOutputStream : Stream
         _writer.Write(buffer, offset, count);
     }
 
+    public void Write(int value)
+    {
+        WriteByte((byte)value);
+    }
+
     public override void WriteByte(byte value)
     {
         _writer.Write(value);

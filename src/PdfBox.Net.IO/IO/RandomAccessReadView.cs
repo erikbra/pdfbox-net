@@ -48,6 +48,11 @@ public class RandomAccessReadView(RandomAccessRead randomAccessRead, long startP
     // current position within the view
     private long _currentPosition;
 
+    public RandomAccessReadView(RandomAccessRead randomAccessRead, long startPosition, long streamLength)
+        : this(randomAccessRead, startPosition, streamLength, false)
+    {
+    }
+
     public long GetPosition()
     {
         CheckClosed();
