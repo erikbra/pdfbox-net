@@ -31,56 +31,44 @@ namespace PdfBox.Net.FontBox.AFM;
 /// This class represents a kern pair. A kern pair contains two glyph names and
 /// the x and y adjustments to apply when the two glyphs are adjacent.
 /// </summary>
-public class KernPair
+public partial class KernPair
 {
+    private string _firstKernCharacter = string.Empty;
+    private string _secondKernCharacter = string.Empty;
+    private float _x;
+    private float _y;
+
     public KernPair()
     {
     }
 
     public KernPair(string firstKernCharacter, string secondKernCharacter, float x, float y)
     {
-        FirstGlyph = firstKernCharacter;
-        SecondGlyph = secondKernCharacter;
-        DeltaX = x;
-        DeltaY = y;
+        _firstKernCharacter = firstKernCharacter;
+        _secondKernCharacter = secondKernCharacter;
+        _x = x;
+        _y = y;
     }
 
-    /// <summary>Gets or sets the first glyph name.</summary>
-    public string FirstGlyph { get; set; } = string.Empty;
-
-    /// <summary>Gets or sets the second glyph name.</summary>
-    public string SecondGlyph { get; set; } = string.Empty;
-
-    /// <summary>Gets or sets the horizontal kern adjustment (delta x).</summary>
-    public float DeltaX { get; set; }
-
-    /// <summary>Gets or sets the vertical kern adjustment (delta y).</summary>
-    public float DeltaY { get; set; }
-
-    public string FirstKernCharacter
+    public string GetFirstKernCharacter()
     {
-        get => FirstGlyph;
-        set => FirstGlyph = value;
+        return _firstKernCharacter;
     }
 
-    public string SecondKernCharacter
+    public string GetSecondKernCharacter()
     {
-        get => SecondGlyph;
-        set => SecondGlyph = value;
+        return _secondKernCharacter;
     }
 
-    public float X
+    public float GetX()
     {
-        get => DeltaX;
-        set => DeltaX = value;
+        return _x;
     }
 
-    public float Y
+    public float GetY()
     {
-        get => DeltaY;
-        set => DeltaY = value;
+        return _y;
     }
 
-    public override string ToString() =>
-        $"KernPair[first={FirstGlyph}, second={SecondGlyph}, dx={DeltaX}, dy={DeltaY}]";
+    public override string ToString() => $"KernPair[first={GetFirstKernCharacter()}, second={GetSecondKernCharacter()}, dx={GetX()}, dy={GetY()}]";
 }

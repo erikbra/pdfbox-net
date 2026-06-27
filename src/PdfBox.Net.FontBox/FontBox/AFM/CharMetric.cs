@@ -32,55 +32,167 @@ namespace PdfBox.Net.FontBox.AFM;
 /// <summary>
 /// This class represents the metrics for a single character in an AFM font.
 /// </summary>
-public class CharMetric
+public partial class CharMetric
 {
-    /// <summary>Gets or sets the character code (decimal). -1 if not encoded.</summary>
-    public int CharacterCode { get; set; } = -1;
+    private int _characterCode = -1;
 
-    /// <summary>Gets or sets the advance width in x direction (writing direction 0).</summary>
-    public float Wx { get; set; }
+    private float _wx;
+    private float _w0x;
+    private float _w1x;
 
-    /// <summary>Gets or sets the advance width in x direction for writing direction 0.</summary>
-    public float W0x { get; set; }
+    private float _wy;
+    private float _w0y;
+    private float _w1y;
 
-    /// <summary>Gets or sets the advance width in x direction for writing direction 1.</summary>
-    public float W1x { get; set; }
+    private float[]? _w;
+    private float[]? _w0;
+    private float[]? _w1;
+    private float[]? _vv;
 
-    /// <summary>Gets or sets the advance width in y direction (writing direction 0).</summary>
-    public float Wy { get; set; }
+    private string _name = string.Empty;
+    private BoundingBox? _boundingBox;
+    private readonly List<Ligature> _ligatures = [];
 
-    /// <summary>Gets or sets the advance width in y direction for writing direction 0.</summary>
-    public float W0y { get; set; }
+    public BoundingBox? GetBoundingBox()
+    {
+        return _boundingBox;
+    }
 
-    /// <summary>Gets or sets the advance width in y direction for writing direction 1.</summary>
-    public float W1y { get; set; }
+    public void SetBoundingBox(BoundingBox? bBox)
+    {
+        _boundingBox = bBox;
+    }
 
-    /// <summary>Gets or sets the two-dimensional advance vector.</summary>
-    public float[]? W { get; set; }
+    public int GetCharacterCode()
+    {
+        return _characterCode;
+    }
 
-    /// <summary>Gets or sets the writing direction 0 advance vector.</summary>
-    public float[]? W0 { get; set; }
-
-    /// <summary>Gets or sets the writing direction 1 advance vector.</summary>
-    public float[]? W1 { get; set; }
-
-    /// <summary>Gets or sets the vertical vector.</summary>
-    public float[]? Vv { get; set; }
-
-    /// <summary>Gets or sets the glyph name.</summary>
-    public string Name { get; set; } = string.Empty;
-
-    /// <summary>Gets or sets the character bounding box.</summary>
-    public BoundingBox? BoundingBox { get; set; }
-
-    /// <summary>Gets the list of ligature substitutions for this character.</summary>
-    public List<Ligature> Ligatures { get; } = [];
+    public void SetCharacterCode(int cCode)
+    {
+        _characterCode = cCode;
+    }
 
     public void AddLigature(Ligature ligature)
     {
         ArgumentNullException.ThrowIfNull(ligature);
-        Ligatures.Add(ligature);
+        _ligatures.Add(ligature);
     }
 
-    public override string ToString() => $"CharMetric[code={CharacterCode}, name={Name}, wx={Wx}]";
+    public List<Ligature> GetLigatures()
+    {
+        return _ligatures;
+    }
+
+    public string GetName()
+    {
+        return _name;
+    }
+
+    public void SetName(string n)
+    {
+        _name = n;
+    }
+
+    public float[]? GetVv()
+    {
+        return _vv;
+    }
+
+    public void SetVv(float[]? vvValue)
+    {
+        _vv = vvValue;
+    }
+
+    public float[]? GetW()
+    {
+        return _w;
+    }
+
+    public void SetW(float[]? wValue)
+    {
+        _w = wValue;
+    }
+
+    public float[]? GetW0()
+    {
+        return _w0;
+    }
+
+    public void SetW0(float[]? w0Value)
+    {
+        _w0 = w0Value;
+    }
+
+    public float GetW0x()
+    {
+        return _w0x;
+    }
+
+    public void SetW0x(float w0xValue)
+    {
+        _w0x = w0xValue;
+    }
+
+    public float GetW0y()
+    {
+        return _w0y;
+    }
+
+    public void SetW0y(float w0yValue)
+    {
+        _w0y = w0yValue;
+    }
+
+    public float[]? GetW1()
+    {
+        return _w1;
+    }
+
+    public void SetW1(float[]? w1Value)
+    {
+        _w1 = w1Value;
+    }
+
+    public float GetW1x()
+    {
+        return _w1x;
+    }
+
+    public void SetW1x(float w1xValue)
+    {
+        _w1x = w1xValue;
+    }
+
+    public float GetW1y()
+    {
+        return _w1y;
+    }
+
+    public void SetW1y(float w1yValue)
+    {
+        _w1y = w1yValue;
+    }
+
+    public float GetWx()
+    {
+        return _wx;
+    }
+
+    public void SetWx(float wxValue)
+    {
+        _wx = wxValue;
+    }
+
+    public float GetWy()
+    {
+        return _wy;
+    }
+
+    public void SetWy(float wyValue)
+    {
+        _wy = wyValue;
+    }
+
+    public override string ToString() => $"CharMetric[code={GetCharacterCode()}, name={GetName()}, wx={GetWx()}]";
 }

@@ -276,3 +276,51 @@ Always place the provenance block **before** the Apache license block.
 | Platform API replaced (e.g. `ByteBuffer`→`byte[]`) but **behavior preserved** | `mechanical` *(note the substitution in the traceability note field)* |
 | Behavior intentionally changed (e.g. richer .NET API surface, culture-invariant formatting) | `adapted` |
 | Upstream logic removed or replaced by a fundamentally different algorithm | `adapted` |
+
+---
+
+## 17. JavaBean accessors and .NET facade properties
+
+Mechanically converted source should stay as close to upstream Java as C# allows.
+Port JavaBean-style accessors as methods in the upstream-linked file:
+
+| Java | C# mechanical method |
+|---|---|
+| `getMediaBox()` | `GetMediaBox()` |
+| `setMediaBox(PDRectangle value)` | `SetMediaBox(PDRectangle value)` |
+| `isEmbedded()` | `IsEmbedded()` |
+| `hasChildren()` | `HasChildren()` |
+
+Do not replace those methods with C# properties in the mechanical file. If a
+.NET-friendly property is useful, add it as a proxy in a sibling partial adapter file:
+
+```csharp
+// PDPage.Properties.cs
+namespace PdfBox.Net.PDModel;
+
+public partial class PDPage
+{
+    public PDRectangle MediaBox
+    {
+        get => GetMediaBox();
+        set => SetMediaBox(value);
+    }
+}
+```
+
+Rules:
+- Mark the original type `partial`; this is an acceptable minimal mechanical
+  divergence because it keeps local facade code out of the upstream-shaped file.
+- Name the sidecar `<Type>.Properties.cs`, keep it in the same folder/namespace, and
+  make properties true proxies over the Java-shaped methods.
+- Keep `GetX`/`SetX`/`IsX`/`HasX` public so Java API parity remains visible and easy to
+  compare.
+- For Java getter-only members, prefer get-only facade properties. If the existing
+  port already exposed a mutable property and removing the setter would break callers,
+  keep that compatibility setter in the sibling adapter file and let it update the
+  backing field directly; do not add non-upstream setter methods to the mechanical file.
+- Do not create proxy properties for accessor-like methods that take extra parameters,
+  perform I/O, allocate expensive data, expose ambiguous overloads, or are conventional
+  PDFBox methods rather than JavaBean accessors (for example `GetCOSObject()`).
+- Do not rename Java-origin interfaces just to add an `I` prefix; preserve upstream
+  names unless there is a specific compatibility reason to add an adapter.

@@ -44,5 +44,9 @@ public class AFMKernPairTest
         Assert.Equal("secondKernCharacter", kernPair.SecondKernCharacter);
         Assert.Equal(10f, kernPair.X);
         Assert.Equal(20f, kernPair.Y);
+        Assert.Equal("firstKernCharacter", kernPair.GetFirstKernCharacter());
+        Assert.Equal("secondKernCharacter", kernPair.GetSecondKernCharacter());
+        Assert.Equal(10f, kernPair.GetX());
+        Assert.Equal(20f, kernPair.GetY());
     }
 }

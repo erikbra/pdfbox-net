@@ -24,6 +24,11 @@ This index splits the conversion workflow into small, focused skills.
 11. Keep external NuGet library dependencies isolated behind narrow internal interfaces
     or adapters. Do not let third-party API types leak through core PDFBox abstractions;
     this keeps dependency-specific functionality movable into separate packages later.
+12. Keep JavaBean-style accessor methods in mechanically converted files. When adding a
+    more idiomatic .NET property facade for `GetX`/`SetX`/`IsX`/`HasX`, mark the type
+    `partial` and put the proxy property in a sibling partial class file such as
+    `PDPage.Properties.cs`; do not replace the upstream-shaped methods in the
+    mechanical file.
 
 ## Skill files
 

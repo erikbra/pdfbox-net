@@ -55,6 +55,13 @@ public class AFMCharMetricTest
         Assert.Equal(40f, charMetric.Wy);
         Assert.Equal(50f, charMetric.W0y);
         Assert.Equal(60f, charMetric.W1y);
+        Assert.Equal(0, charMetric.GetCharacterCode());
+        Assert.Equal("name", charMetric.GetName());
+        Assert.Equal(10f, charMetric.GetWx());
+        Assert.Equal(60f, charMetric.GetW1y());
+
+        charMetric.SetWx(11f);
+        Assert.Equal(11f, charMetric.Wx);
 
         charMetric.W = [1f, 2f];
         charMetric.W0 = [3f, 4f];
@@ -65,6 +72,8 @@ public class AFMCharMetricTest
         Assert.Equal([3f, 4f], charMetric.W0);
         Assert.Equal([5f, 6f], charMetric.W1);
         Assert.Equal([7f, 8f], charMetric.Vv);
+        Assert.Equal([1f, 2f], charMetric.GetW()!);
+        Assert.Equal([7f, 8f], charMetric.GetVv()!);
     }
 
     [Fact]
@@ -79,6 +88,7 @@ public class AFMCharMetricTest
         Assert.Equal(20, charMetric.BoundingBox.GetLowerLeftY());
         Assert.Equal(30, charMetric.BoundingBox.GetUpperRightX());
         Assert.Equal(40, charMetric.BoundingBox.GetUpperRightY());
+        Assert.Same(charMetric.BoundingBox, charMetric.GetBoundingBox());
 
         Assert.Empty(charMetric.Ligatures);
         Ligature ligature = new() { Successor = "successor", LigatureValue = "ligature" };
@@ -86,6 +96,7 @@ public class AFMCharMetricTest
         List<Ligature> ligatures = charMetric.Ligatures;
         Assert.Single(ligatures);
         Assert.Equal("successor", ligatures[0].Successor);
+        Assert.Same(ligatures, charMetric.GetLigatures());
 
         // Ligatures list is mutable by design in C# (direct List<T> property)
     }
