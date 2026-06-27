@@ -38,6 +38,8 @@ public class PDBoxStyle : COSObjectable
 {
     public const string GuidelineStyleSolid = "S";
     public const string GuidelineStyleDashed = "D";
+    public const string GUIDELINE_STYLE_SOLID = GuidelineStyleSolid;
+    public const string GUIDELINE_STYLE_DASHED = GuidelineStyleDashed;
     private static readonly COSName WidthName = COSName.GetPDFName("W");
 
     private readonly COSDictionary _dictionary;

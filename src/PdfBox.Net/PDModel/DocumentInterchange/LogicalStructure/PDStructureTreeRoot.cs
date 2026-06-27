@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
@@ -68,6 +69,23 @@ public class PDStructureTreeRoot : PDStructureNode
     /// Sets the K entry.
     /// </summary>
     public void SetK(COSBase? k) => GetCOSObject().SetItem(COSName.K, k);
+
+    /// <summary>
+    /// Returns the ID tree.
+    /// </summary>
+    public PDNameTreeNode<PDStructureElement>? GetIDTree()
+    {
+        COSDictionary? idTree = GetCOSObject().GetCOSDictionary(COSName.ID_TREE);
+        return idTree is null ? null : new PDStructureElementNameTreeNode(idTree);
+    }
+
+    /// <summary>
+    /// Sets the ID tree.
+    /// </summary>
+    public void SetIDTree(PDNameTreeNode<PDStructureElement>? idTree)
+    {
+        GetCOSObject().SetItem(COSName.ID_TREE, idTree);
+    }
 
     /// <summary>
     /// Returns the next key value to use in the parent tree.

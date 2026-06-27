@@ -28,9 +28,11 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.IO;
+using PdfBox.Net.PDModel.Annotations;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Interactive.Measurement;
 using PdfBox.Net.PDModel.Interactive.PageNavigation;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Util;
@@ -91,6 +93,16 @@ public sealed class PDPage : COSObjectable, PDContentStream
     public COSBase GetCOSObject()
     {
         return _page;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return ReferenceEquals(this, obj) || (obj is PDPage other && _page.Equals(other._page));
+    }
+
+    public override int GetHashCode()
+    {
+        return _page.GetHashCode();
     }
 
     /// <summary>
@@ -407,6 +419,12 @@ public sealed class PDPage : COSObjectable, PDContentStream
         return new COSArrayList<PDAnnotation>(annotations, annots);
     }
 
+    public IList<PDAnnotation> GetAnnotations(AnnotationFilter annotationFilter)
+    {
+        ArgumentNullException.ThrowIfNull(annotationFilter);
+        return GetAnnotations().Where(annotation => annotationFilter(annotation)).ToList();
+    }
+
     /// <summary>
     /// Sets the annotation list for this page.
     /// </summary>
@@ -440,6 +458,25 @@ public sealed class PDPage : COSObjectable, PDContentStream
     public COSBase? GetContents()
     {
         return _page.GetDictionaryObject(COSName.CONTENTS);
+    }
+
+    public IEnumerable<PDStream> GetContentStreams()
+    {
+        COSBase? contents = GetContents();
+        if (contents is COSStream stream)
+        {
+            yield return new PDStream(stream);
+        }
+        else if (contents is COSArray array)
+        {
+            for (int i = 0; i < array.Size(); i++)
+            {
+                if (array.GetObject(i) is COSStream item)
+                {
+                    yield return new PDStream(item);
+                }
+            }
+        }
     }
 
     public void SetContents(PDStream? contents)
@@ -476,6 +513,16 @@ public sealed class PDPage : COSObjectable, PDContentStream
         return contents is null ? null : new RandomAccessReadBuffer(contents);
     }
 
+    public RandomAccessRead? GetContentsForRandomAccess()
+    {
+        return ((PDContentStream)this).GetContentsForRandomAccess();
+    }
+
+    public RandomAccessRead? GetContentsForStreamParsing()
+    {
+        return GetContentsForRandomAccess();
+    }
+
     /// <summary>
     /// Returns the resource dictionary for this page, or <see langword="null"/> if none is set.
     /// Resources are inherited from parent nodes in the page tree when not set directly on the page.
@@ -494,6 +541,32 @@ public sealed class PDPage : COSObjectable, PDContentStream
     PDRectangle? PDContentStream.GetBBox() => GetCropBox();
 
     Matrix PDContentStream.GetMatrix() => new();
+
+    public PDRectangle? GetBBox()
+    {
+        return GetCropBox();
+    }
+
+    public Matrix GetMatrix()
+    {
+        return new Matrix();
+    }
+
+    public PDMetadata? GetMetadata()
+    {
+        COSStream? metadata = _page.GetCOSStream(COSName.METADATA);
+        return metadata is null ? null : new PDMetadata(metadata);
+    }
+
+    public void SetMetadata(PDMetadata? metadata)
+    {
+        _page.SetItem(COSName.METADATA, metadata);
+    }
+
+    public ResourceCache? GetResourceCache()
+    {
+        return _resourceCache;
+    }
 
     /// <summary>
     /// Sets the resource dictionary for this page.
@@ -548,6 +621,47 @@ public sealed class PDPage : COSObjectable, PDContentStream
                 removeAction(indirect);
             }
         }
+    }
+
+    public List<PDViewportDictionary>? GetViewports()
+    {
+        COSArray? viewports = _page.GetCOSArray(COSName.VP);
+        if (viewports is null)
+        {
+            return null;
+        }
+
+        List<PDViewportDictionary> result = new(viewports.Size());
+        for (int i = 0; i < viewports.Size(); i++)
+        {
+            if (viewports.GetObject(i) is COSDictionary dictionary)
+            {
+                result.Add(new PDViewportDictionary(dictionary));
+            }
+        }
+
+        return result;
+    }
+
+    public void SetViewports(IList<PDViewportDictionary>? viewports)
+    {
+        _page.SetItem(COSName.VP, viewports is null ? null : new COSArray(viewports));
+    }
+
+    public float GetUserUnit()
+    {
+        float userUnit = _page.GetFloat(COSName.USER_UNIT, 1f);
+        return userUnit > 0 ? userUnit : 1f;
+    }
+
+    public void SetUserUnit(float userUnit)
+    {
+        if (userUnit <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(userUnit), "UserUnit must be greater than zero.");
+        }
+
+        _page.SetFloat(COSName.USER_UNIT, userUnit);
     }
 
     /// <summary>

@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Common.FileSpecification;
 using System.Xml;
 
@@ -259,6 +260,52 @@ public class FDFDictionary : COSObjectable
     public void SetAnnotations(IList<FDFAnnotation>? annotations)
     {
         _fdf.SetItem(AnnotsName, annotations is null ? null : new COSArray(annotations));
+    }
+
+    public COSStream? GetDifferences()
+    {
+        return _fdf.GetCOSStream(COSName.DIFFERENCES);
+    }
+
+    public void SetDifferences(COSStream? differences)
+    {
+        _fdf.SetItem(COSName.DIFFERENCES, differences);
+    }
+
+    public string? GetTarget()
+    {
+        return _fdf.GetString(COSName.TARGET);
+    }
+
+    public void SetTarget(string? target)
+    {
+        _fdf.SetString(COSName.TARGET, target);
+    }
+
+    public IList<PDFileSpecification>? GetEmbeddedFDFs()
+    {
+        COSArray? embeddedArray = _fdf.GetCOSArray(COSName.EMBEDDED_FDFS);
+        if (embeddedArray is null)
+        {
+            return null;
+        }
+
+        List<PDFileSpecification> embedded = new(embeddedArray.Size());
+        for (int i = 0; i < embeddedArray.Size(); i++)
+        {
+            PDFileSpecification? fileSpecification = PDFileSpecification.CreateFS(embeddedArray.Get(i));
+            if (fileSpecification is not null)
+            {
+                embedded.Add(fileSpecification);
+            }
+        }
+
+        return new COSArrayList<PDFileSpecification>(embedded, embeddedArray);
+    }
+
+    public void SetEmbeddedFDFs(IList<PDFileSpecification>? embedded)
+    {
+        _fdf.SetItem(COSName.EMBEDDED_FDFS, embedded is null ? null : new COSArray(embedded));
     }
 
     public FDFJavaScript? GetJavaScript()

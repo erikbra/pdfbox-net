@@ -41,6 +41,7 @@ public class PDPageXYZDestination : PDPageDestination
     /// The type of this destination.
     /// </summary>
     internal const string Type = "XYZ";
+    protected const string TYPE = Type;
 
     /// <summary>
     /// Default constructor.

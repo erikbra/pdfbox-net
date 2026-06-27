@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-06-27T00:21:31Z
+Generated (UTC): 2026-06-27T01:00:53Z
 Apache PDFBox source commit: `833ed8f378f00838fd8df8c01bfc4b915b4c350b`
-PdfBox.Net commit: `f59ab4995771d71565723eebbcae418855677ba6`
+PdfBox.Net commit: `da454ac7b4de0a3bb348e49c7cc906b2dd990b1f`
 
 ## Scope
 
@@ -23,12 +23,12 @@ PdfBox.Net commit: `f59ab4995771d71565723eebbcae418855677ba6`
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
 | Java public/protected members | 6305 |
-| Matched members | 4872 |
-| Arity-drift members | 80 |
-| Missing members | 1353 |
-| Reflected .NET extra members on matched types | 977 |
+| Matched members | 4932 |
+| Arity-drift members | 70 |
+| Missing members | 1303 |
+| Reflected .NET extra members on matched types | 979 |
 
-Member coverage by name/signature heuristic: **4952 / 6305 = 78.5%**.
+Member coverage by name/signature heuristic: **5002 / 6305 = 79.3%**.
 
 ## Review Disposition Backlog
 
@@ -36,17 +36,17 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 
 | Delta kind | Raw | Reviewed | Unreviewed |
 |---|---:|---:|---:|
-| Missing members | 1353 | 466 | 887 |
-| Arity-drift members | 80 | 21 | 59 |
+| Missing members | 1303 | 536 | 767 |
+| Arity-drift members | 70 | 21 | 49 |
 | Type-name/visibility gaps | 8 | 7 | 1 |
-| Total reviewable deltas | 1441 | 494 | 947 |
+| Total reviewable deltas | 1381 | 564 | 817 |
 
 | Disposition | Reviewed rows |
 |---|---:|
-| `behavior-covered` | 9 |
-| `intentional-dotnet-adaptation` | 412 |
-| `internal-by-design` | 55 |
-| `not-applicable` | 18 |
+| `behavior-covered` | 56 |
+| `intentional-dotnet-adaptation` | 432 |
+| `internal-by-design` | 57 |
+| `not-applicable` | 19 |
 
 ## Module Breakdown
 
@@ -54,7 +54,7 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | `fontbox` | 110 | 105 | 4 | 1 | 0 | 1028 | 1009 | 19 | 98.2% |
 | `io` | 15 | 15 | 0 | 0 | 0 | 131 | 126 | 5 | 96.2% |
-| `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3234 | 970 | 76.9% |
+| `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3284 | 920 | 78.1% |
 | `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 583 | 359 | 61.9% |
 
 ## Highest Missing-Member Types
@@ -88,9 +88,9 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 | 17 | 18 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDCIDFontType0` | `PdfBox.Net.PDModel.Font.PDCIDFontType0` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java` |
 | 16 | 26 | `pdfbox` | `org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationMarkup` | `PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationMarkup` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationMarkup.java` |
 | 16 | 24 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDTrueTypeFont` | `PdfBox.Net.PDModel.Font.PDTrueTypeFont` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java` |
-| 14 | 49 | `pdfbox` | `org.apache.pdfbox.pdmodel.PDPage` | `PdfBox.Net.PDModel.PDPage` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java` |
 | 14 | 46 | `pdfbox` | `org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState` | `PdfBox.Net.PDModel.Graphics.State.PDExtendedGraphicsState` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDExtendedGraphicsState.java` |
 | 14 | 40 | `xmpbox` | `org.apache.xmpbox.schema.TiffSchema` | `PdfBox.Net.XmpBox.Schema.TiffSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java` |
+| 12 | 16 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDListAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java` |
 
 ## Java-Named Public API Type Gaps
 

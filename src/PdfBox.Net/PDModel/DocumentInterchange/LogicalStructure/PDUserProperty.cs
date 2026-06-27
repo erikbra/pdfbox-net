@@ -113,6 +113,19 @@ public class PDUserProperty : PDDictionaryWrapper
     public override string ToString() =>
         $"Name={GetName()}, Value={GetValue()}, FormattedValue={GetFormattedValue()}, Hidden={IsHidden()}";
 
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(base.GetHashCode(), _userAttributeObject);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return ReferenceEquals(this, obj)
+            || (obj is PDUserProperty other
+                && base.Equals(obj)
+                && Equals(_userAttributeObject, other._userAttributeObject));
+    }
+
     private void PotentiallyNotifyChanged(object? oldEntry, object? newEntry)
     {
         if (IsEntryChanged(oldEntry, newEntry))

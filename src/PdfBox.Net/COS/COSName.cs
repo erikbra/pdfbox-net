@@ -91,6 +91,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName DESC = GetPDFName("Desc");
     public static readonly COSName DEST = GetPDFName("Dest");
     public static readonly COSName DESTS = GetPDFName("Dests");
+    public static readonly COSName DIFFERENCES = GetPDFName("Differences");
     public static readonly COSName DOMAIN = GetPDFName("Domain");
     public static readonly COSName DOS = GetPDFName("DOS");
     public static readonly COSName DP = GetPDFName("DP");
@@ -98,6 +99,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName EARLY_CHANGE = GetPDFName("EarlyChange");
     public static readonly COSName EF = GetPDFName("EF");
     public static readonly COSName EMBEDDED_FILE = GetPDFName("EmbeddedFile");
+    public static readonly COSName EMBEDDED_FDFS = GetPDFName("EmbeddedFDFs");
     public static readonly COSName ENCODE = GetPDFName("Encode");
     public static readonly COSName ENCODED_BYTE_ALIGN = GetPDFName("EncodedByteAlign");
     public static readonly COSName END_OF_LINE = GetPDFName("EndOfLine");
@@ -106,6 +108,8 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName EMPTY = GetPDFName(string.Empty);
     // F
     public static readonly COSName F = GetPDFName("F");
+    public static readonly COSName F_DECODE_PARMS = GetPDFName("FDecodeParms");
+    public static readonly COSName F_FILTER = GetPDFName("FFilter");
     public static readonly COSName FILESPEC = GetPDFName("Filespec");
     public static readonly COSName FILTER = GetPDFName("Filter");
     public static readonly COSName FIRST = GetPDFName("First");
@@ -118,6 +122,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName H = GetPDFName("H");
     public static readonly COSName HEIGHT = GetPDFName("Height");
     // I
+    public static readonly COSName ID_TREE = GetPDFName("IDTree");
     public static readonly COSName IDENTITY = GetPDFName("Identity");
     public static readonly COSName IMAGE_MASK = GetPDFName("ImageMask");
     public static readonly COSName INTERPOLATE = GetPDFName("Interpolate");
@@ -197,6 +202,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName SUBJECT = GetPDFName("Subject");
     // T
     public static readonly COSName T = GetPDFName("T");
+    public static readonly COSName TARGET = GetPDFName("Target");
     public static readonly COSName THREADS = GetPDFName("Threads");
     public static readonly COSName TITLE = GetPDFName("Title");
     public static readonly COSName TRAPPED = GetPDFName("Trapped");
@@ -206,10 +212,12 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName UF = GetPDFName("UF");
     public static readonly COSName UNIX = GetPDFName("Unix");
     public static readonly COSName URI = GetPDFName("URI");
+    public static readonly COSName USER_UNIT = GetPDFName("UserUnit");
     // V
     public static readonly COSName V = GetPDFName("V");
     public static readonly COSName VERSION = GetPDFName("Version");
     public static readonly COSName VERTICES_PER_ROW = GetPDFName("VerticesPerRow");
+    public static readonly COSName VP = GetPDFName("VP");
     // W
     public static readonly COSName VIEWER_PREFERENCES = GetPDFName("ViewerPreferences");
     public static readonly COSName WIDTH = GetPDFName("Width");
