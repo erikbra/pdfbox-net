@@ -39,7 +39,7 @@ The end state is:
 
 ## Current State
 
-API comparison generated against Apache PDFBox commit `833ed8f378f00838fd8df8c01bfc4b915b4c350b` and PdfBox.Net commit `655e4d55cf346556e280a4edd22ba43cc23ae740`.
+API comparison generated against Apache PDFBox commit `833ed8f378f00838fd8df8c01bfc4b915b4c350b` and PdfBox.Net commit `d88a042b0b1a179afdcf45b7a0f0724291254077`.
 
 | Metric | Count |
 |---|---:|
@@ -50,19 +50,32 @@ API comparison generated against Apache PDFBox commit `833ed8f378f00838fd8df8c01
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
 | Java public/protected members | 6305 |
-| Matched members | 4651 |
-| Arity-drift members | 105 |
-| Missing members | 1549 |
-| Reflected .NET extra members on matched types | 963 |
+| Matched members | 5366 |
+| Arity-drift members | 42 |
+| Missing members | 897 |
+| Reflected .NET extra members on matched types | 1027 |
 
-Member coverage by name/signature heuristic: **4756 / 6305 = 75.4%**.
+Member coverage by name/signature heuristic: **5408 / 6305 = 85.8%**.
 
-The review backlog is roughly:
+Review disposition status:
 
-- 232 type-level reviews.
-- 1549 missing-member decisions.
-- 105 arity-drift decisions.
-- 8 type-name/visibility decisions.
+| Delta kind | Raw | Reviewed | Unreviewed |
+|---|---:|---:|---:|
+| Missing members | 897 | 897 | 0 |
+| Arity-drift members | 42 | 42 | 0 |
+| Type-name/visibility gaps | 8 | 8 | 0 |
+| Total reviewable deltas | 947 | 947 | 0 |
+
+Disposition mix:
+
+| Disposition | Reviewed rows |
+|---|---:|
+| `behavior-covered` | 109 |
+| `intentional-dotnet-adaptation` | 734 |
+| `internal-by-design` | 79 |
+| `not-applicable` | 25 |
+
+This means the reviewed API-surface goal is complete. It does not mean PdfBox.Net exposes every Java public/protected member with an identical source-compatible signature; the remaining raw API-shape differences are accepted and documented in `reports/api-surface-dispositions.json`.
 
 ## Execution Rules
 
@@ -74,7 +87,7 @@ The review backlog is roughly:
 6. For behavior-sensitive APIs, add focused tests before marking the row `implemented` or `behavior-covered`.
 7. Record reviewed decisions in `reports/api-surface-dispositions.json` using the `api_review.key` values emitted into `reports/api-surface-comparison.json`.
 8. Rerun `tools/parity/generate_api_surface_report.py` after each workstream and update report totals.
-9. Use `python3 tools/parity/generate_api_surface_report.py --fail-on-unreviewed` as the final gate when all workstreams are expected to be closed.
+9. Use `python3 tools/parity/generate_api_surface_report.py --upstream-root <path-to-apache-pdfbox> --no-build --fail-on-unreviewed` as the final local gate when all workstreams are expected to be closed.
 
 ## Workstreams
 
@@ -90,8 +103,20 @@ The review backlog is roughly:
 | Font API surface | `pdmodel:font` | 21 | 158 | 7 | [#508](https://github.com/erikbra/pdfbox-net/issues/508) |
 | Graphics/rendering API surface | `pdmodel:graphics/*`, `pdfbox:rendering`, `pdfbox:text` renderer-facing rows | 22 | 130 | 14 | [#509](https://github.com/erikbra/pdfbox-net/issues/509) |
 | Digital signature and encryption API surface | `pdmodel:interactive/digitalsignature`, `pdmodel:encryption` | 9 | 107 | 5 | [#510](https://github.com/erikbra/pdfbox-net/issues/510) |
+| Final reviewed-surface closeout | residual `multipdf` and tagged-PDF attribute helper rows | 0 | 188 | 2 | [#511](https://github.com/erikbra/pdfbox-net/issues/511) |
 
 The totals above are planning counts grouped from the generated report.  The source of truth remains `reports/api-surface-comparison.json`.
+
+## Final Closeout Decisions
+
+Issue #511 reviewed the last 190 unreviewed rows:
+
+- `PDLayoutAttributeObject`, `PDExportFormatAttributeObject`, `PDListAttributeObject`, `PDPrintFieldAttributeObject`, `PDTableAttributeObject`, `PDFourColours`, and `StandardStructureTypes`: accepted .NET PascalCase constants, focused typed helper subsets, `IList`/`PDColor` idioms, and raw attribute access instead of the full Java all-caps constant/helper matrix.
+- `PDFMergerUtility`: accepted the property-oriented .NET merge API and current save pipeline instead of Java merge-mode, stream-cache, metadata-override, and compression-parameter entry points.
+- `Splitter`: accepted the `StartPage`, `EndPage`, `SplitAtPage`, and `CreateNewDocument` customization surface while keeping Java protected state/process hooks internal to the port.
+- `Overlay` and `PDArtifactMarkedContent`: accepted renamed .NET entry points where existing regression tests cover the behavior.
+
+CI now runs the API surface review gate in `.github/workflows/ci.yml` against pinned Apache PDFBox commit `833ed8f378f00838fd8df8c01bfc4b915b4c350b`. New public/protected API deltas must either be implemented or added to the disposition ledger, otherwise `--fail-on-unreviewed` fails the build.
 
 ## Acceptance Criteria For Each Workstream
 
@@ -103,7 +128,7 @@ The totals above are planning counts grouped from the generated report.  The sou
 - `reports/api-surface-comparison.json` and `reports/pdfbox-api-surface-analysis.md` are regenerated.
 - The workstream issue is closed only when unreviewed rows for its scope are zero.
 
-## Recommended Order
+## Completed Order
 
 1. Build the disposition ledger and ratchet support.
 2. Close low-risk metadata/model areas: XmpBox and FontBox.
@@ -115,4 +140,4 @@ The totals above are planning counts grouped from the generated report.  The sou
 8. Close graphics/rendering APIs.
 9. Close digital signature/encryption APIs.
 
-This order front-loads review infrastructure and lower-risk model APIs before high-risk areas where public API shape is tightly coupled to behavior.
+The source of truth for follow-up implementation work is no longer unreviewed API-surface rows; it is the explicit disposition ledger plus runtime parity results. Rows marked `intentional-dotnet-adaptation` or `internal-by-design` can still be revisited later when one-for-one Java source compatibility is more valuable than preserving the current .NET API shape.

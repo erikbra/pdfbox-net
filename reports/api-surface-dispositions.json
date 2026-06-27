@@ -5617,6 +5617,1478 @@
       "issue": 510,
       "reviewed_at_utc": "2026-06-27T03:38:00Z",
       "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/Overlay.java|org.apache.pdfbox.multipdf.Overlay|method|overlay|1|missing",
+      "disposition": "behavior-covered",
+      "note": "Overlay uses Process/OverlayDocuments with IDictionary-based .NET inputs instead of Java lower-case overlay(Map); the overlay behavior is covered by the multipdf regression tests.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getAcroFormMergeMode|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getDestinationDocumentInformation|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getDestinationMetadata|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getDocumentMergeMode|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setAcroFormMergeMode|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setDestinationDocumentInformation|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setDestinationMetadata|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setDocumentMergeMode|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java|org.apache.pdfbox.multipdf.Splitter|method|getDestinationDocument|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Splitter exposes StartPage, EndPage, SplitAtPage, and CreateNewDocument as the supported .NET customization surface; Java protected state/process hooks and stream-cache injection are intentionally not public API in this port.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java|org.apache.pdfbox.multipdf.Splitter|method|getSourceDocument|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Splitter exposes StartPage, EndPage, SplitAtPage, and CreateNewDocument as the supported .NET customization surface; Java protected state/process hooks and stream-cache injection are intentionally not public API in this port.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java|org.apache.pdfbox.multipdf.Splitter|method|getStreamCacheCreateFunction|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Splitter exposes StartPage, EndPage, SplitAtPage, and CreateNewDocument as the supported .NET customization surface; Java protected state/process hooks and stream-cache injection are intentionally not public API in this port.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java|org.apache.pdfbox.multipdf.Splitter|method|processPage|1|missing",
+      "disposition": "internal-by-design",
+      "note": "Splitter exposes StartPage, EndPage, SplitAtPage, and CreateNewDocument as the supported .NET customization surface; Java protected state/process hooks and stream-cache injection are intentionally not public API in this port.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java|org.apache.pdfbox.multipdf.Splitter|method|setStreamCacheCreateFunction|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Splitter exposes StartPage, EndPage, SplitAtPage, and CreateNewDocument as the supported .NET customization surface; Java protected state/process hooks and stream-cache injection are intentionally not public API in this port.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java|org.apache.pdfbox.multipdf.Splitter|method|splitAtPage|1|missing",
+      "disposition": "internal-by-design",
+      "note": "Splitter exposes StartPage, EndPage, SplitAtPage, and CreateNewDocument as the supported .NET customization surface; Java protected state/process hooks and stream-cache injection are intentionally not public API in this port.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDArtifactMarkedContent.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDArtifactMarkedContent|method|getType|0|missing",
+      "disposition": "behavior-covered",
+      "note": "Artifact marked content exposes GetArtifactType in .NET to avoid the ambiguous Java getType name; tagged artifact behavior is covered by document-interchange tests.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|field|OWNER_CSS_1_00|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|field|OWNER_CSS_2_00|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|field|OWNER_HTML_3_20|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|field|OWNER_HTML_4_01|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|field|OWNER_OEB_1_00|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|field|OWNER_RTF_1_05|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|field|OWNER_XML_1_00|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|getColSpan|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|getHeaders|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|getRowSpan|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|getScope|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|getSummary|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|setColSpan|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|setHeaders|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|setRowSpan|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|setScope|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|setSummary|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|toString|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours|method|getAfterColour|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFourColours uses the .NET/PDFBox.Net Color spelling and PDColor-based accessors while preserving the four-entry COS array representation.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours|method|getBeforeColour|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFourColours uses the .NET/PDFBox.Net Color spelling and PDColor-based accessors while preserving the four-entry COS array representation.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours|method|getEndColour|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFourColours uses the .NET/PDFBox.Net Color spelling and PDColor-based accessors while preserving the four-entry COS array representation.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours|method|getStartColour|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFourColours uses the .NET/PDFBox.Net Color spelling and PDColor-based accessors while preserving the four-entry COS array representation.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours|method|setAfterColour|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFourColours uses the .NET/PDFBox.Net Color spelling and PDColor-based accessors while preserving the four-entry COS array representation.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours|method|setBeforeColour|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFourColours uses the .NET/PDFBox.Net Color spelling and PDColor-based accessors while preserving the four-entry COS array representation.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours|method|setEndColour|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFourColours uses the .NET/PDFBox.Net Color spelling and PDColor-based accessors while preserving the four-entry COS array representation.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours|method|setStartColour|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFourColours uses the .NET/PDFBox.Net Color spelling and PDColor-based accessors while preserving the four-entry COS array representation.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BLOCK_ALIGN_AFTER|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BLOCK_ALIGN_BEFORE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BLOCK_ALIGN_JUSTIFY|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BLOCK_ALIGN_MIDDLE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BORDER_STYLE_DASHED|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BORDER_STYLE_DOTTED|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BORDER_STYLE_DOUBLE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BORDER_STYLE_GROOVE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BORDER_STYLE_HIDDEN|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BORDER_STYLE_INSET|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BORDER_STYLE_NONE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BORDER_STYLE_OUTSET|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BORDER_STYLE_RIDGE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|BORDER_STYLE_SOLID|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|GLYPH_ORIENTATION_VERTICAL_180_DEGREES|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|GLYPH_ORIENTATION_VERTICAL_270_DEGREES|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|GLYPH_ORIENTATION_VERTICAL_360_DEGREES|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|GLYPH_ORIENTATION_VERTICAL_90_DEGREES|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|GLYPH_ORIENTATION_VERTICAL_AUTO|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|GLYPH_ORIENTATION_VERTICAL_MINUS_180_DEGREES|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|GLYPH_ORIENTATION_VERTICAL_MINUS_90_DEGREES|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|GLYPH_ORIENTATION_VERTICAL_ZERO_DEGREES|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|HEIGHT_AUTO|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|INLINE_ALIGN_CENTER|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|INLINE_ALIGN_END|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|INLINE_ALIGN_START|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|LINE_HEIGHT_AUTO|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|LINE_HEIGHT_NORMAL|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|OWNER_LAYOUT|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|PLACEMENT_BEFORE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|PLACEMENT_BLOCK|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|PLACEMENT_END|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|PLACEMENT_INLINE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|PLACEMENT_START|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|RUBY_ALIGN_CENTER|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|RUBY_ALIGN_DISTRIBUTE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|RUBY_ALIGN_END|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|RUBY_ALIGN_JUSTIFY|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|RUBY_ALIGN_START|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|RUBY_POSITION_AFTER|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|RUBY_POSITION_BEFORE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|RUBY_POSITION_INLINE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|RUBY_POSITION_WARICHU|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|TEXT_ALIGN_CENTER|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|TEXT_ALIGN_END|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|TEXT_ALIGN_JUSTIFY|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|TEXT_ALIGN_START|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|TEXT_DECORATION_TYPE_LINE_THROUGH|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|TEXT_DECORATION_TYPE_NONE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|TEXT_DECORATION_TYPE_OVERLINE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|TEXT_DECORATION_TYPE_UNDERLINE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|WIDTH_AUTO|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|WRITING_MODE_LRTB|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|WRITING_MODE_RLTB|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|field|WRITING_MODE_TBRL|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getBBox|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getBackgroundColor|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getBorderColors|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getBorderStyle|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getBorderThickness|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getColor|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getColumnGap|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getColumnWidths|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getGlyphOrientationVertical|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getPadding|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getRubyAlign|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getRubyPosition|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getTBorderStyle|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getTPadding|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getTextDecorationColor|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getTextDecorationThickness|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|getTextDecorationType|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setAllBorderColors|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setAllBorderStyles|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setAllBorderThicknesses|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setAllColumnWidths|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setAllPaddings|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setAllTBorderStyles|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setAllTPaddings|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setBBox|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setBackgroundColor|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setBorderColors|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setBorderStyles|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setBorderThicknesses|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setColor|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setColumnGap|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setColumnGaps|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setColumnWidths|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setGlyphOrientationVertical|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setHeightAuto|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setLineHeightAuto|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setLineHeightNormal|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setPaddings|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setRubyAlign|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setRubyPosition|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setTBorderStyles|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setTPaddings|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setTextDecorationColor|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setTextDecorationThickness|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setTextDecorationType|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|setWidthAuto|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject|method|toString|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Tagged-PDF layout attributes keep .NET PascalCase constants, a focused typed helper subset, and raw attribute access through PDDefaultAttributeObject instead of the full Java all-caps constant/helper matrix.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|LIST_NUMBERING|0|missing",
+      "disposition": "internal-by-design",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|LIST_NUMBERING_CIRCLE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|LIST_NUMBERING_DECIMAL|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|LIST_NUMBERING_DISC|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|LIST_NUMBERING_LOWER_ALPHA|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|LIST_NUMBERING_LOWER_ROMAN|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|LIST_NUMBERING_NONE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|LIST_NUMBERING_SQUARE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|LIST_NUMBERING_UPPER_ALPHA|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|LIST_NUMBERING_UPPER_ROMAN|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|field|OWNER_LIST|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject|method|toString|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "List attributes keep .NET PascalCase constants and typed list-numbering helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject|field|CHECKED_STATE_NEUTRAL|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Print-field attributes keep .NET PascalCase constants and typed role/checked/alternate-name helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject|field|CHECKED_STATE_OFF|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Print-field attributes keep .NET PascalCase constants and typed role/checked/alternate-name helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject|field|CHECKED_STATE_ON|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Print-field attributes keep .NET PascalCase constants and typed role/checked/alternate-name helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject|field|OWNER_PRINT_FIELD|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Print-field attributes keep .NET PascalCase constants and typed role/checked/alternate-name helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject|field|ROLE_CB|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Print-field attributes keep .NET PascalCase constants and typed role/checked/alternate-name helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject|field|ROLE_PB|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Print-field attributes keep .NET PascalCase constants and typed role/checked/alternate-name helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject|field|ROLE_RB|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Print-field attributes keep .NET PascalCase constants and typed role/checked/alternate-name helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject|field|ROLE_TV|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Print-field attributes keep .NET PascalCase constants and typed role/checked/alternate-name helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject|method|toString|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Print-field attributes keep .NET PascalCase constants and typed role/checked/alternate-name helpers; Java all-caps constants and lower-case toString are reviewed naming-shape adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|COL_SPAN|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|HEADERS|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|OWNER_TABLE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|ROW_SPAN|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SCOPE|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SCOPE_BOTH|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SCOPE_COLUMN|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SCOPE_ROW|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SUMMARY|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|method|toString|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes|field|BIB_ENTRY|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "StandardStructureTypes keeps .NET PascalCase constants for Java all-caps structure type names; values are unchanged and included in the Types collection.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes|field|BLOCK_QUOTE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "StandardStructureTypes keeps .NET PascalCase constants for Java all-caps structure type names; values are unchanged and included in the Types collection.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes|field|L_BODY|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "StandardStructureTypes keeps .NET PascalCase constants for Java all-caps structure type names; values are unchanged and included in the Types collection.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes|field|NON_STRUCT|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "StandardStructureTypes keeps .NET PascalCase constants for Java all-caps structure type names; values are unchanged and included in the Types collection.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes|field|T_BODY|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "StandardStructureTypes keeps .NET PascalCase constants for Java all-caps structure type names; values are unchanged and included in the Types collection.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes|field|T_FOOT|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "StandardStructureTypes keeps .NET PascalCase constants for Java all-caps structure type names; values are unchanged and included in the Types collection.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes|field|T_HEAD|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "StandardStructureTypes keeps .NET PascalCase constants for Java all-caps structure type names; values are unchanged and included in the Types collection.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|mergeDocuments|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|mergeDocuments|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
+      "issue": 511,
+      "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
     }
   ]
 }
