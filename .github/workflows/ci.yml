@@ -10,6 +10,7 @@ permissions:
 env:
   PDFBOX_PARITY_GATE_MODE: ${{ vars.PDFBOX_PARITY_GATE_MODE || 'ratchet' }}
   PDFBOX_PARITY_PDFBOX_REF: ${{ vars.PDFBOX_PARITY_PDFBOX_REF || '2589dc979982b11e3ba92e107aed9f309362d517' }}
+  PDFBOX_API_SURFACE_PDFBOX_REF: ${{ vars.PDFBOX_API_SURFACE_PDFBOX_REF || '833ed8f378f00838fd8df8c01bfc4b915b4c350b' }}
 
 jobs:
   build-and-test:
@@ -32,6 +33,20 @@ jobs:
 
       - name: Test
         run: dotnet test PdfBoxNet.slnx --configuration Release --no-build --nologo
+
+      - name: Checkout Apache PDFBox for API surface gate
+        uses: actions/checkout@v5
+        with:
+          repository: apache/pdfbox
+          ref: ${{ env.PDFBOX_API_SURFACE_PDFBOX_REF }}
+          path: apache-pdfbox-api
+
+      - name: API surface review gate
+        run: >
+          python3 tools/parity/generate_api_surface_report.py
+          --upstream-root apache-pdfbox-api
+          --no-build
+          --fail-on-unreviewed
 
       - name: Runtime parity harness smoke
         run: |
