@@ -26,7 +26,6 @@
  */
 
 using PdfBox.Net.Rendering;
-using SkiaSharp;
 
 namespace PdfBox.Net.Tools.ImageIO;
 
@@ -34,10 +33,8 @@ public static class JPEGUtil
 {
     public static bool WriteImage(BufferedImage image, string filename, int quality = 90)
     {
-        using SKImage skImage = SKImage.FromBitmap(image.Bitmap);
-        using SKData data = skImage.Encode(SKEncodedImageFormat.Jpeg, quality);
-        using FileStream output = File.Create(filename);
-        data.SaveTo(output);
+        byte[] data = RenderingBackend.Current.ImageCodec.Encode(image, EncodedImageFormat.Jpeg, quality);
+        File.WriteAllBytes(filename, data);
         return true;
     }
 }

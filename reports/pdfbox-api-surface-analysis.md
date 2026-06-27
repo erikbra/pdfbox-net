@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-06-27T03:49:27Z
+Generated (UTC): 2026-06-27T15:04:08Z
 Apache PDFBox source commit: `833ed8f378f00838fd8df8c01bfc4b915b4c350b`
-PdfBox.Net commit: `d88a042b0b1a179afdcf45b7a0f0724291254077`
+PdfBox.Net commit: `c824ed1cfdbe5e414850c5cdde955577c4a8a770`
 
 ## Scope
 
@@ -23,12 +23,12 @@ PdfBox.Net commit: `d88a042b0b1a179afdcf45b7a0f0724291254077`
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
 | Java public/protected members | 6305 |
-| Matched members | 5366 |
+| Matched members | 5369 |
 | Arity-drift members | 42 |
-| Missing members | 897 |
-| Reflected .NET extra members on matched types | 1027 |
+| Missing members | 894 |
+| Reflected .NET extra members on matched types | 1637 |
 
-Member coverage by name/signature heuristic: **5408 / 6305 = 85.8%**.
+Member coverage by name/signature heuristic: **5411 / 6305 = 85.8%**.
 
 ## Review Disposition Backlog
 
@@ -36,16 +36,16 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 
 | Delta kind | Raw | Reviewed | Unreviewed |
 |---|---:|---:|---:|
-| Missing members | 897 | 897 | 0 |
+| Missing members | 894 | 894 | 0 |
 | Arity-drift members | 42 | 42 | 0 |
 | Type-name/visibility gaps | 8 | 8 | 0 |
-| Total reviewable deltas | 947 | 947 | 0 |
+| Total reviewable deltas | 944 | 944 | 0 |
 
 | Disposition | Reviewed rows |
 |---|---:|
 | `behavior-covered` | 109 |
 | `intentional-dotnet-adaptation` | 734 |
-| `internal-by-design` | 79 |
+| `internal-by-design` | 76 |
 | `not-applicable` | 25 |
 
 ## Module Breakdown
@@ -54,7 +54,7 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | `fontbox` | 110 | 105 | 4 | 1 | 0 | 1028 | 1009 | 19 | 98.2% |
 | `io` | 15 | 15 | 0 | 0 | 0 | 131 | 126 | 5 | 96.2% |
-| `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3690 | 514 | 87.8% |
+| `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3693 | 511 | 87.8% |
 | `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 583 | 359 | 61.9% |
 
 ## Highest Missing-Member Types
@@ -82,7 +82,6 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 | 12 | 16 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDListAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java` |
 | 11 | 24 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDTrueTypeFont` | `PdfBox.Net.PDModel.Font.PDTrueTypeFont` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java` |
 | 10 | 32 | `pdfbox` | `org.apache.pdfbox.pdmodel.common.PDRectangle` | `PdfBox.Net.PDModel.Common.PDRectangle` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java` |
-| 10 | 22 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDTableAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java` |
 | 9 | 18 | `pdfbox` | `org.apache.pdfbox.pdmodel.common.COSDictionaryMap` | `PdfBox.Net.PDModel.Common.COSDictionaryMap` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java` |
 | 9 | 17 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDPrintFieldAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java` |
 | 9 | 17 | `xmpbox` | `org.apache.xmpbox.schema.AdobePDFSchema` | `PdfBox.Net.XmpBox.Schema.AdobePDFSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java` |
@@ -91,6 +90,7 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 | 8 | 8 | `pdfbox` | `org.apache.pdfbox.pdmodel.PageLayout` | `PdfBox.Net.PDModel.PageLayout` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java` |
 | 8 | 8 | `pdfbox` | `org.apache.pdfbox.pdmodel.PageMode` | `PdfBox.Net.PDModel.PageMode` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java` |
 | 7 | 67 | `fontbox` | `org.apache.fontbox.cff.CharStringCommand` | `PdfBox.Net.FontBox.CFF.CharStringCommand` | `fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java` |
+| 7 | 49 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes` | `PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf.StandardStructureTypes` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java` |
 
 ## Java-Named Public API Type Gaps
 

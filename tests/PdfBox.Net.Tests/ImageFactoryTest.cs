@@ -1,7 +1,7 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Graphics.Image;
-using SkiaSharp;
+using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Tests;
 
@@ -90,7 +90,7 @@ public class ImageFactoryTest
     public void LosslessFactory_CreateFromImage_ReturnsCorrectDimensions()
     {
         using PDDocument doc = new();
-        using SKBitmap bmp = new SKBitmap(4, 3);
+        using BufferedImage bmp = new(4, 3, BufferedImage.TYPE_INT_ARGB);
 
         PDImageXObject img = LosslessFactory.CreateFromImage(doc, bmp);
 
@@ -102,7 +102,7 @@ public class ImageFactoryTest
     public void LosslessFactory_CreateFromImage_HasFlateDecodeFilter()
     {
         using PDDocument doc = new();
-        using SKBitmap bmp = new SKBitmap(2, 2);
+        using BufferedImage bmp = new(2, 2, BufferedImage.TYPE_INT_ARGB);
 
         PDImageXObject img = LosslessFactory.CreateFromImage(doc, bmp);
 
@@ -116,7 +116,7 @@ public class ImageFactoryTest
     public void LosslessFactory_CreateFromImage_HasDeviceRGBColorSpace()
     {
         using PDDocument doc = new();
-        using SKBitmap bmp = new SKBitmap(1, 1);
+        using BufferedImage bmp = new(1, 1, BufferedImage.TYPE_INT_ARGB);
 
         PDImageXObject img = LosslessFactory.CreateFromImage(doc, bmp);
 
@@ -128,9 +128,9 @@ public class ImageFactoryTest
     public void LosslessFactory_CreateFromImage_PixelDataRoundtrips()
     {
         using PDDocument doc = new();
-        using SKBitmap bmp = new SKBitmap(2, 1);
-        bmp.SetPixel(0, 0, new SKColor(255, 0, 0));    // red
-        bmp.SetPixel(1, 0, new SKColor(0, 255, 0));    // green
+        using BufferedImage bmp = new(2, 1, BufferedImage.TYPE_INT_ARGB);
+        bmp.SetRgb(0, 0, unchecked((int)0xFFFF0000));    // red
+        bmp.SetRgb(1, 0, unchecked((int)0xFF00FF00));    // green
 
         PDImageXObject img = LosslessFactory.CreateFromImage(doc, bmp);
 

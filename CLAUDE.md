@@ -24,6 +24,11 @@ This index splits the conversion workflow into small, focused skills.
 11. Keep external NuGet library dependencies isolated behind narrow internal interfaces
     or adapters. Do not let third-party API types leak through core PDFBox abstractions;
     this keeps dependency-specific functionality movable into separate packages later.
+    For Java AWT/ImageIO-style APIs, prefer Java-shaped proxy classes in the core
+    package (`BufferedImage`, `Graphics2D`, `ImageIO`, etc.) and place concrete
+    SkiaSharp/System.Drawing/ImageSharp implementations in optional backend packages.
+    Do not introduce broad new rendering abstractions when a one-for-one Java proxy
+    plus a small backend peer interface will preserve Java-source comparability.
 12. Keep JavaBean-style accessor methods in mechanically converted files. When adding a
     more idiomatic .NET property facade for `GetX`/`SetX`/`IsX`/`HasX`, mark the type
     `partial` and put the proxy property in a sibling partial class file such as

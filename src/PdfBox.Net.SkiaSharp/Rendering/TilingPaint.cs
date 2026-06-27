@@ -40,11 +40,16 @@ internal class TilingPaint : IContextPaint
     private readonly Matrix _patternMatrix;
 
     internal TilingPaint(PageDrawer drawer, PDTilingPattern pattern, AffineTransform xform)
+        : this(GetSkiaPeer(drawer), pattern, xform)
+    {
+    }
+
+    internal TilingPaint(SkiaPageDrawerPeer drawer, PDTilingPattern pattern, AffineTransform xform)
         : this(drawer, pattern, null, null, xform)
     {
     }
 
-    internal TilingPaint(PageDrawer drawer, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, AffineTransform xform)
+    internal TilingPaint(SkiaPageDrawerPeer drawer, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, AffineTransform xform)
     {
         _patternMatrix = Matrix.Concatenate(drawer.GetInitialMatrix(), pattern.GetMatrix());
         Rectangle2D anchorRect = GetAnchorRect(pattern);
@@ -112,7 +117,7 @@ internal class TilingPaint : IContextPaint
             height);
     }
 
-    private static BufferedImage GetImage(PageDrawer drawer, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, AffineTransform xform, Rectangle2D anchorRect, Matrix patternMatrixForScale)
+    private static BufferedImage GetImage(SkiaPageDrawerPeer drawer, PDTilingPattern pattern, PDColorSpace? colorSpace, PDColor? color, AffineTransform xform, Rectangle2D anchorRect, Matrix patternMatrixForScale)
     {
         float width = (float)Math.Abs(anchorRect.Width);
         float height = (float)Math.Abs(anchorRect.Height);
@@ -126,7 +131,7 @@ internal class TilingPaint : IContextPaint
         int rasterWidth = Math.Max(1, Ceiling(width));
         int rasterHeight = Math.Max(1, Ceiling(height));
         BufferedImage image = new(rasterWidth, rasterHeight, BufferedImage.TYPE_INT_ARGB);
-        image.Bitmap.Erase(SKColors.Transparent);
+        image.GetSkiaBitmap().Erase(SKColors.Transparent);
 
         using Graphics2D graphics = image.CreateGraphics();
         if (pattern.GetYStep() < 0)
@@ -152,5 +157,11 @@ internal class TilingPaint : IContextPaint
         drawer.DrawTilingPattern(graphics, pattern, colorSpace, color, patternMatrix);
 
         return image;
+    }
+
+    private static SkiaPageDrawerPeer GetSkiaPeer(PageDrawer drawer)
+    {
+        return drawer.Peer as SkiaPageDrawerPeer
+            ?? throw new InvalidOperationException("The supplied PageDrawer is not backed by the SkiaSharp rendering backend.");
     }
 }

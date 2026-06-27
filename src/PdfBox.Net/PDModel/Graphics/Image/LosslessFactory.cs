@@ -28,7 +28,7 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
-using SkiaSharp;
+using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
@@ -45,7 +45,7 @@ public static class LosslessFactory
     /// <param name="document">The PDF document that will own the image.</param>
     /// <param name="bitmap">The source bitmap. The caller retains ownership.</param>
     /// <returns>A new <see cref="PDImageXObject"/> backed by FlateDecode-compressed DeviceRGB data.</returns>
-    public static PDImageXObject CreateFromImage(PDDocument document, SKBitmap bitmap)
+    public static PDImageXObject CreateFromImage(PDDocument document, BufferedImage bitmap)
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(bitmap);
@@ -53,18 +53,19 @@ public static class LosslessFactory
         int width = bitmap.Width;
         int height = bitmap.Height;
 
-        // Obtain pixel colors in reading order (row-major, top-left first).
-        SKColor[] pixels = bitmap.Pixels;
-
         // Build a packed RGB byte array (3 bytes per pixel, no alpha).
         // The alpha channel is intentionally discarded; PDF DeviceRGB images are always opaque.
         byte[] rgbData = new byte[width * height * 3];
         int dst = 0;
-        foreach (SKColor pixel in pixels)
+        for (int y = 0; y < height; y++)
         {
-            rgbData[dst++] = pixel.Red;
-            rgbData[dst++] = pixel.Green;
-            rgbData[dst++] = pixel.Blue;
+            for (int x = 0; x < width; x++)
+            {
+                int pixel = bitmap.GetRgb(x, y);
+                rgbData[dst++] = (byte)((pixel >> 16) & 0xFF);
+                rgbData[dst++] = (byte)((pixel >> 8) & 0xFF);
+                rgbData[dst++] = (byte)(pixel & 0xFF);
+            }
         }
 
         PDStream pdStream = new(document);

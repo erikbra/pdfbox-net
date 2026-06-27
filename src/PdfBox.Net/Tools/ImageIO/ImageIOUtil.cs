@@ -26,7 +26,6 @@
  */
 
 using PdfBox.Net.Rendering;
-using SkiaSharp;
 
 namespace PdfBox.Net.Tools.ImageIO;
 
@@ -37,11 +36,9 @@ public static class ImageIOUtil
         ArgumentNullException.ThrowIfNull(image);
         ArgumentException.ThrowIfNullOrWhiteSpace(filename);
 
-        using SKImage skImage = SKImage.FromBitmap(image.Bitmap);
-        using SKData data = skImage.Encode(SKEncodedImageFormat.Png, 100);
+        byte[] data = RenderingBackend.Current.ImageCodec.Encode(image, EncodedImageFormat.Png, 100);
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(filename))!);
-        using FileStream output = File.Create(filename);
-        data.SaveTo(output);
+        File.WriteAllBytes(filename, data);
         return true;
     }
 }

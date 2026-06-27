@@ -29,7 +29,6 @@ using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
-using SkiaSharp;
 using System.Text;
 
 namespace PdfBox.Net.Tests;
@@ -457,11 +456,11 @@ public class RenderingSmokeTest
     public void RenderImage_ImageXObject_DrawsDecodedImagePixels()
     {
         using var document = new PDDocument();
-        using var source = new SKBitmap(2, 2);
-        source.SetPixel(0, 0, SKColors.Red);
-        source.SetPixel(1, 0, SKColors.Green);
-        source.SetPixel(0, 1, SKColors.Blue);
-        source.SetPixel(1, 1, SKColors.White);
+        using var source = new BufferedImage(2, 2, BufferedImage.TYPE_INT_ARGB);
+        source.SetRgb(0, 0, unchecked((int)0xFFFF0000));
+        source.SetRgb(1, 0, unchecked((int)0xFF00FF00));
+        source.SetRgb(0, 1, unchecked((int)0xFF0000FF));
+        source.SetRgb(1, 1, unchecked((int)0xFFFFFFFF));
         PDImageXObject imageXObject = LosslessFactory.CreateFromImage(document, source);
 
         var resources = new PDModel.Resources.PDResources();
@@ -490,9 +489,9 @@ public class RenderingSmokeTest
     public void RenderImage_ImageXObject_AppliesRotatedImageMatrix()
     {
         using var document = new PDDocument();
-        using var source = new SKBitmap(2, 1);
-        source.SetPixel(0, 0, SKColors.Red);
-        source.SetPixel(1, 0, SKColors.Blue);
+        using var source = new BufferedImage(2, 1, BufferedImage.TYPE_INT_ARGB);
+        source.SetRgb(0, 0, unchecked((int)0xFFFF0000));
+        source.SetRgb(1, 0, unchecked((int)0xFF0000FF));
         PDImageXObject imageXObject = LosslessFactory.CreateFromImage(document, source);
 
         var resources = new PDModel.Resources.PDResources();
@@ -511,9 +510,9 @@ public class RenderingSmokeTest
     public void RenderImage_ImageXObject_AppliesSoftMaskAlpha()
     {
         using var document = new PDDocument();
-        using var source = new SKBitmap(2, 1);
-        source.SetPixel(0, 0, SKColors.Black);
-        source.SetPixel(1, 0, SKColors.Black);
+        using var source = new BufferedImage(2, 1, BufferedImage.TYPE_INT_ARGB);
+        source.SetRgb(0, 0, unchecked((int)0xFF000000));
+        source.SetRgb(1, 0, unchecked((int)0xFF000000));
         PDImageXObject imageXObject = LosslessFactory.CreateFromImage(document, source);
 
         byte[] mask = [255, 0];
@@ -534,9 +533,9 @@ public class RenderingSmokeTest
     public void RenderImage_ImageXObject_UsesNearestNeighborWhenScaledUpWithoutInterpolate()
     {
         using var document = new PDDocument();
-        using var source = new SKBitmap(2, 1);
-        source.SetPixel(0, 0, SKColors.Black);
-        source.SetPixel(1, 0, SKColors.White);
+        using var source = new BufferedImage(2, 1, BufferedImage.TYPE_INT_ARGB);
+        source.SetRgb(0, 0, unchecked((int)0xFF000000));
+        source.SetRgb(1, 0, unchecked((int)0xFFFFFFFF));
         PDImageXObject imageXObject = LosslessFactory.CreateFromImage(document, source);
         Assert.False(imageXObject.GetInterpolate());
 

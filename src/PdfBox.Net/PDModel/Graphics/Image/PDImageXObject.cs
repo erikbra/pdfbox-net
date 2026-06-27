@@ -31,7 +31,7 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Resources;
-using SkiaSharp;
+using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
@@ -73,7 +73,7 @@ public sealed partial class PDImageXObject : PDXObject
             string.Equals(extension, ".bmp", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(extension, ".gif", StringComparison.OrdinalIgnoreCase))
         {
-            using SKBitmap bitmap = SKBitmap.Decode(imagePath)
+            using BufferedImage bitmap = RenderingBackend.Current.ImageCodec.Decode(File.ReadAllBytes(imagePath))
                 ?? throw new IOException($"Failed to decode image: {imagePath}");
             return LosslessFactory.CreateFromImage(document, bitmap);
         }

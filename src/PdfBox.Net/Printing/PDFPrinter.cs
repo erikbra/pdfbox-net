@@ -28,7 +28,6 @@
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.Rendering;
-using SkiaSharp;
 using System.Drawing.Printing;
 
 namespace PdfBox.Net.Printing;
@@ -184,8 +183,7 @@ public sealed class PDFPrinter
 
     private static System.Drawing.Image ToDrawingImage(BufferedImage image)
     {
-        using SKImage skImage = SKImage.FromBitmap(image.Bitmap);
-        using SKData data = skImage.Encode(SKEncodedImageFormat.Png, 100);
+        byte[] data = RenderingBackend.Current.ImageCodec.Encode(image, EncodedImageFormat.Png, 100);
         using MemoryStream pngStream = new(data.ToArray());
         using System.Drawing.Image decoded = System.Drawing.Image.FromStream(pngStream);
         return new System.Drawing.Bitmap(decoded);
