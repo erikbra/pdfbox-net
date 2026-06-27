@@ -65,4 +65,64 @@ public class COSDictionaryTest
         Assert.Equal(true, converted["Flag"]);
     }
 
+    [Fact]
+    public void JavaCompatibilityOverloadsDelegateToDictionaryValues()
+    {
+        COSDictionary dictionary = new();
+        COSName first = COSName.GetPDFName("First");
+        COSName second = COSName.GetPDFName("Second");
+        COSName flag = COSName.GetPDFName("Flag");
+        COSName date = COSName.GetPDFName("Date");
+
+        dictionary.SetInt(first, 7);
+        dictionary.SetLong(second, 12);
+        dictionary.SetBoolean(flag, true);
+        DateTimeOffset fallbackDate = new(2026, 1, 2, 3, 4, 5, TimeSpan.Zero);
+
+        Assert.Equal(7, dictionary.GetInt(first));
+        Assert.Equal(7, dictionary.GetInt("First"));
+        Assert.Equal(7, dictionary.GetInt(COSName.GetPDFName("Missing"), first, -1));
+        Assert.Equal(12, dictionary.GetLong(second));
+        Assert.Equal(12, dictionary.GetLong("Second"));
+        Assert.Equal(-1f, dictionary.GetFloat(COSName.GetPDFName("Missing")));
+        Assert.True(dictionary.GetBoolean(COSName.GetPDFName("Missing"), flag, false));
+        Assert.Equal(fallbackDate, dictionary.GetDate(date, fallbackDate));
+        Assert.Same(dictionary.GetItem(first), dictionary.GetItem(COSName.GetPDFName("Missing"), first));
+
+        List<COSName> keys = [];
+        dictionary.ForEach((key, _) => keys.Add(key));
+        Assert.Contains(first, keys);
+        Assert.Contains(second, keys);
+        Assert.Contains(flag, keys);
+    }
+
+    [Fact]
+    public void ResetImportedObjectKeysClearsNestedKeysButSkipsParentLinks()
+    {
+        COSDictionary root = new();
+        COSDictionary child = new();
+        COSDictionary parent = new();
+        COSArray array = new();
+        COSDictionary arrayChild = new();
+
+        root.SetKey(new COSObjectKey(1, 0));
+        child.SetKey(new COSObjectKey(2, 0));
+        parent.SetKey(new COSObjectKey(3, 0));
+        arrayChild.SetKey(new COSObjectKey(4, 0));
+        array.SetKey(new COSObjectKey(5, 0));
+
+        array.Add(arrayChild);
+        root.SetItem(COSName.GetPDFName("Child"), child);
+        root.SetItem(COSName.PARENT, parent);
+        root.SetItem(COSName.GetPDFName("Array"), array);
+
+        root.ResetImportedObjectKeys();
+
+        Assert.Null(root.GetKey());
+        Assert.Null(child.GetKey());
+        Assert.Null(array.GetKey());
+        Assert.Null(arrayChild.GetKey());
+        Assert.NotNull(parent.GetKey());
+    }
+
 }

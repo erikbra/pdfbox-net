@@ -153,6 +153,11 @@ public class COSStandardOutputStream : Stream
         _position++;
     }
 
+    public void Write(int value)
+    {
+        WriteByte((byte)value);
+    }
+
     /// <summary>
     /// This will write a CRLF to the stream.
     /// </summary>

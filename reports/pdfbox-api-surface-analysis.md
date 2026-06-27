@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-06-26T23:22:45Z
+Generated (UTC): 2026-06-26T23:52:39Z
 Apache PDFBox source commit: `833ed8f378f00838fd8df8c01bfc4b915b4c350b`
-PdfBox.Net commit: `546704ff768d4e0b78ffcedcfeeb3bfe88861b19`
+PdfBox.Net commit: `5aa6d2da3f0fb26acf43526bbeb19fa697229e55`
 
 ## Scope
 
@@ -23,12 +23,12 @@ PdfBox.Net commit: `546704ff768d4e0b78ffcedcfeeb3bfe88861b19`
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
 | Java public/protected members | 6305 |
-| Matched members | 4784 |
-| Arity-drift members | 100 |
-| Missing members | 1421 |
-| Reflected .NET extra members on matched types | 968 |
+| Matched members | 4810 |
+| Arity-drift members | 81 |
+| Missing members | 1414 |
+| Reflected .NET extra members on matched types | 975 |
 
-Member coverage by name/signature heuristic: **4884 / 6305 = 77.5%**.
+Member coverage by name/signature heuristic: **4891 / 6305 = 77.6%**.
 
 ## Review Disposition Backlog
 
@@ -36,17 +36,17 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 
 | Delta kind | Raw | Reviewed | Unreviewed |
 |---|---:|---:|---:|
-| Missing members | 1421 | 378 | 1043 |
-| Arity-drift members | 100 | 9 | 91 |
+| Missing members | 1414 | 466 | 948 |
+| Arity-drift members | 81 | 21 | 60 |
 | Type-name/visibility gaps | 8 | 7 | 1 |
-| Total reviewable deltas | 1529 | 394 | 1135 |
+| Total reviewable deltas | 1503 | 494 | 1009 |
 
 | Disposition | Reviewed rows |
 |---|---:|
 | `behavior-covered` | 9 |
-| `intentional-dotnet-adaptation` | 376 |
-| `internal-by-design` | 7 |
-| `not-applicable` | 2 |
+| `intentional-dotnet-adaptation` | 412 |
+| `internal-by-design` | 55 |
+| `not-applicable` | 18 |
 
 ## Module Breakdown
 
@@ -54,7 +54,7 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | `fontbox` | 110 | 105 | 4 | 1 | 0 | 1028 | 1009 | 19 | 98.2% |
 | `io` | 15 | 15 | 0 | 0 | 0 | 131 | 126 | 5 | 96.2% |
-| `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3166 | 1038 | 75.3% |
+| `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3173 | 1031 | 75.5% |
 | `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 583 | 359 | 61.9% |
 
 ## Highest Missing-Member Types

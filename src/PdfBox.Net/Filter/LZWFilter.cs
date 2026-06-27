@@ -15,6 +15,7 @@ namespace PdfBox.Net.Filter;
 public sealed class LZWFilter : Filter
 {
     public const int ClearTable = 256;
+    public const long CLEAR_TABLE = ClearTable;
     public const int Eod = 257;
 
     public override DecodeResult Decode(Stream input, Stream output, COSDictionary parameters, int index, DecodeOptions options)
@@ -29,6 +30,11 @@ public sealed class LZWFilter : Filter
         output.Flush();
 
         return new DecodeResult(parameters);
+    }
+
+    public DecodeResult Decode(Stream input, Stream output, COSDictionary parameters, int index)
+    {
+        return Decode(input, output, parameters, index, DecodeOptions.DEFAULT);
     }
 
     public override void Encode(Stream input, Stream output, COSDictionary parameters, int index)
@@ -84,6 +90,11 @@ public sealed class LZWFilter : Filter
         writer.WriteBits(Eod, chunk);
         writer.FlushWithPadding();
         output.Flush();
+    }
+
+    public void Encode(Stream input, Stream output, COSDictionary parameters)
+    {
+        Encode(input, output, parameters, 0);
     }
 
     private static void DecodeInternal(Stream encoded, Stream decoded, bool earlyChange)

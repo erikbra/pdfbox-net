@@ -285,22 +285,62 @@ public class COSDictionary : COSBase, COSUpdateInfo
         return GetDictionaryObject(key) is COSBoolean cosBoolean ? cosBoolean.GetValue() : defaultValue;
     }
 
-    public int GetInt(string key, int defaultValue = -1)
+    public bool GetBoolean(COSName firstKey, COSName secondKey, bool defaultValue)
+    {
+        return GetDictionaryObject(firstKey, secondKey) is COSBoolean cosBoolean ? cosBoolean.GetValue() : defaultValue;
+    }
+
+    public int GetInt(string key)
+    {
+        return GetInt(key, -1);
+    }
+
+    public int GetInt(string key, int defaultValue)
     {
         return GetInt(COSName.GetPDFName(key), defaultValue);
     }
 
-    public int GetInt(COSName key, int defaultValue = -1)
+    public int GetInt(COSName key)
+    {
+        return GetInt(key, -1);
+    }
+
+    public int GetInt(COSName key, int defaultValue)
     {
         return GetDictionaryObject(key) is COSNumber number ? number.IntValue() : defaultValue;
     }
 
-    public long GetLong(COSName key, long defaultValue = -1)
+    public int GetInt(COSName firstKey, COSName secondKey, int defaultValue)
+    {
+        return GetDictionaryObject(firstKey, secondKey) is COSNumber number ? number.IntValue() : defaultValue;
+    }
+
+    public long GetLong(string key)
+    {
+        return GetLong(COSName.GetPDFName(key), -1);
+    }
+
+    public long GetLong(COSName key)
+    {
+        return GetLong(key, -1);
+    }
+
+    public long GetLong(COSName key, long defaultValue)
     {
         return GetDictionaryObject(key) is COSNumber number ? number.LongValue() : defaultValue;
     }
 
-    public float GetFloat(COSName key, float defaultValue = -1f)
+    public float GetFloat(string key)
+    {
+        return GetFloat(COSName.GetPDFName(key), -1f);
+    }
+
+    public float GetFloat(COSName key)
+    {
+        return GetFloat(key, -1f);
+    }
+
+    public float GetFloat(COSName key, float defaultValue)
     {
         return GetDictionaryObject(key) is COSNumber number ? number.FloatValue() : defaultValue;
     }
@@ -325,6 +365,16 @@ public class COSDictionary : COSBase, COSUpdateInfo
         }
 
         return ParsePdfDate(value);
+    }
+
+    public DateTimeOffset? GetDate(string key, DateTimeOffset? defaultValue)
+    {
+        return GetDate(key) ?? defaultValue;
+    }
+
+    public DateTimeOffset? GetDate(COSName key, DateTimeOffset? defaultValue)
+    {
+        return GetDate(key) ?? defaultValue;
     }
 
     /// <summary>
@@ -520,6 +570,12 @@ public class COSDictionary : COSBase, COSUpdateInfo
         return value;
     }
 
+    public COSBase? GetItem(COSName firstKey, COSName secondKey)
+    {
+        COSBase? value = GetItem(firstKey);
+        return value ?? GetItem(secondKey);
+    }
+
     public COSBase? GetItem(string key)
     {
         return GetItem(COSName.GetPDFName(key));
@@ -600,6 +656,15 @@ public class COSDictionary : COSBase, COSUpdateInfo
         return items.Values;
     }
 
+    public void ForEach(Action<COSName, COSBase> action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+        foreach (KeyValuePair<COSName, COSBase> entry in items)
+        {
+            action(entry.Key, entry.Value);
+        }
+    }
+
     public override string ToString()
     {
         return $"COSDictionary{{{string.Join(";", items.Select(kvp => $"{kvp.Key}:{kvp.Value}"))}}}";
@@ -613,6 +678,80 @@ public class COSDictionary : COSBase, COSUpdateInfo
     public COSUpdateState GetUpdateState()
     {
         return _updateState;
+    }
+
+    /// <summary>
+    /// Reset all object keys to avoid overlapping numbers when saving the new PDF.
+    /// </summary>
+    public void ResetImportedObjectKeys()
+    {
+        ResetObjectKeys(new HashSet<COSObjectKey>())?.Clear();
+    }
+
+    /// <summary>
+    /// Collects all indirect object numbers within this dictionary and included dictionaries/arrays.
+    /// Expert use only; choosing a wrong starting point may create recursion through parent links.
+    /// </summary>
+    /// <param name="indirectObjects">A collection of already found indirect objects.</param>
+    /// <returns>The collection of indirect objects.</returns>
+    protected ICollection<COSObjectKey>? ResetObjectKeys(ICollection<COSObjectKey>? indirectObjects)
+    {
+        if (indirectObjects is null)
+        {
+            return indirectObjects;
+        }
+
+        COSObjectKey? key = GetKey();
+        if (key is not null)
+        {
+            if (indirectObjects.Contains(key))
+            {
+                return indirectObjects;
+            }
+
+            indirectObjects.Add(key);
+            SetKey(null);
+        }
+
+        foreach (KeyValuePair<COSName, COSBase> entry in items)
+        {
+            COSBase cosBase = entry.Value;
+            COSObjectKey? indirectObjectKey = cosBase is COSObject ? cosBase.GetKey() : null;
+            if (indirectObjectKey is not null)
+            {
+                if (indirectObjects.Contains(indirectObjectKey))
+                {
+                    continue;
+                }
+
+                COSBase? dereferencedObject = ((COSObject)cosBase).GetObject();
+                cosBase.SetKey(null);
+                if (dereferencedObject is null)
+                {
+                    continue;
+                }
+
+                cosBase = dereferencedObject;
+            }
+
+            if (cosBase is COSDictionary dictionary)
+            {
+                if (!COSName.PARENT.Equals(entry.Key) && !COSName.P.Equals(entry.Key))
+                {
+                    dictionary.ResetObjectKeys(indirectObjects);
+                }
+            }
+            else if (cosBase is COSArray array)
+            {
+                array.ResetObjectKeys(indirectObjects);
+            }
+            else if (indirectObjectKey is not null)
+            {
+                indirectObjects.Add(indirectObjectKey);
+            }
+        }
+
+        return indirectObjects;
     }
 
     public virtual bool IsNeedToBeUpdated()

@@ -40,6 +40,7 @@ public class CompressParameters
 
     /// <summary>Default number of objects per compressed object stream.</summary>
     public const int DefaultObjectStreamSize = 200;
+    public const int DEFAULT_OBJECT_STREAM_SIZE = DefaultObjectStreamSize;
 
     private readonly int _objectStreamSize;
 

@@ -3129,6 +3129,678 @@
       "issue": 503,
       "reviewed_at_utc": "2026-06-26T23:22:00Z",
       "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java|org.apache.pdfbox.io.RandomAccessReadBuffer|field|chunkSize|0|missing",
+      "disposition": "internal-by-design",
+      "note": "RandomAccessReadBuffer storage fields are protected Java implementation state; the C# port keeps buffer layout private while preserving the public RandomAccessRead behavior.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java|org.apache.pdfbox.io.RandomAccessReadBuffer|field|currentBufferPointer|0|missing",
+      "disposition": "internal-by-design",
+      "note": "RandomAccessReadBuffer storage fields are protected Java implementation state; the C# port keeps buffer layout private while preserving the public RandomAccessRead behavior.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java|org.apache.pdfbox.io.RandomAccessReadBuffer|field|currentBuffer|0|missing",
+      "disposition": "internal-by-design",
+      "note": "RandomAccessReadBuffer storage fields are protected Java implementation state; the C# port keeps buffer layout private while preserving the public RandomAccessRead behavior.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java|org.apache.pdfbox.io.RandomAccessReadBuffer|field|pointer|0|missing",
+      "disposition": "internal-by-design",
+      "note": "RandomAccessReadBuffer storage fields are protected Java implementation state; the C# port keeps buffer layout private while preserving the public RandomAccessRead behavior.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java|org.apache.pdfbox.io.RandomAccessReadBuffer|field|size|0|missing",
+      "disposition": "internal-by-design",
+      "note": "RandomAccessReadBuffer storage fields are protected Java implementation state; the C# port keeps buffer layout private while preserving the public RandomAccessRead behavior.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/filter/DecodeOptions.java|org.apache.pdfbox.filter.DecodeOptions|method|FinalDecodeOptions|1|missing",
+      "disposition": "internal-by-design",
+      "note": "FinalDecodeOptions is an immutable DEFAULT helper. The C# port keeps the helper private and exposes the same immutable DecodeOptions.DEFAULT behavior.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|constructor|BruteForceParser|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "BruteForceParser is an adapted wrapper over the C# PDFParser stream workflow; Java recovery-state construction and bfSearchTriggered inspection are not exposed as public .NET API.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|bfSearchForObjStreams|1|missing",
+      "disposition": "internal-by-design",
+      "note": "Brute-force xref recovery helpers remain parser implementation details in the adapted C# parser pipeline.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|bfSearchForXRef|1|missing",
+      "disposition": "internal-by-design",
+      "note": "Brute-force xref recovery helpers remain parser implementation details in the adapted C# parser pipeline.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|bfSearchTriggered|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "BruteForceParser is an adapted wrapper over the C# PDFParser stream workflow; Java recovery-state construction and bfSearchTriggered inspection are not exposed as public .NET API.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|getBFCOSObjectOffsets|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Brute-force xref recovery helpers remain parser implementation details in the adapted C# parser pipeline.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|rebuildTrailer|1|missing",
+      "disposition": "internal-by-design",
+      "note": "Brute-force xref recovery helpers remain parser implementation details in the adapted C# parser pipeline.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|constructor|COSParser|4|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSParser is a low-level COS object parser in this port; Java document-loader constructors, leniency controls, EOF lookup settings, and object dereference helpers are represented by the adapted PDFParser/Loader flow.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|constructor|COSParser|5|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSParser is a low-level COS object parser in this port; Java document-loader constructors, leniency controls, EOF lookup settings, and object dereference helpers are represented by the adapted PDFParser/Loader flow.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|SYSPROP_EOFLOOKUPRANGE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSParser is a low-level COS object parser in this port; Java document-loader constructors, leniency controls, EOF lookup settings, and object dereference helpers are represented by the adapted PDFParser/Loader flow.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|document|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|initialParseDone|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|checkPages|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|createRandomAccessReadView|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSParser is a low-level COS object parser in this port; Java document-loader constructors, leniency controls, EOF lookup settings, and object dereference helpers are represented by the adapted PDFParser/Loader flow.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|dereferenceCOSObject|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSParser is a low-level COS object parser in this port; Java document-loader constructors, leniency controls, EOF lookup settings, and object dereference helpers are represented by the adapted PDFParser/Loader flow.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getAccessPermission|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getBruteForceParser|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getEncryption|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getObjectKey|2|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getSecurityHandler|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|isLenient|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSParser is a low-level COS object parser in this port; Java document-loader constructors, leniency controls, EOF lookup settings, and object dereference helpers are represented by the adapted PDFParser/Loader flow.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|isString|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSArray|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSDictionary|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSHexString|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSLiteralString|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSName|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSStream|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseDirObject|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseFDFHeader|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseObjectStreamObject|2|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parsePDFHeader|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|prepareDecryption|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readGenerationNumber|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readLine|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readObjectMarker|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readObjectNumber|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|retrieveTrailer|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|setEOFLookupRange|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSParser is a low-level COS object parser in this port; Java document-loader constructors, leniency controls, EOF lookup settings, and object dereference helpers are represented by the adapted PDFParser/Loader flow.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|setLenient|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFObjectStreamParser.java|org.apache.pdfbox.pdfparser.PDFObjectStreamParser|method|parseAllObjects|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFObjectStreamParser exposes a consolidated Parse() result for object stream entries; Java stepwise parseObject/readObjectNumbers/parseAllObjects methods stay internal in the C# port.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFObjectStreamParser.java|org.apache.pdfbox.pdfparser.PDFObjectStreamParser|method|parseObject|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFObjectStreamParser exposes a consolidated Parse() result for object stream entries; Java stepwise parseObject/readObjectNumbers/parseAllObjects methods stay internal in the C# port.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFObjectStreamParser.java|org.apache.pdfbox.pdfparser.PDFObjectStreamParser|method|readObjectNumbers|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFObjectStreamParser exposes a consolidated Parse() result for object stream entries; Java stepwise parseObject/readObjectNumbers/parseAllObjects methods stay internal in the C# port.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|constructor|PDFParser|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|constructor|PDFParser|4|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|constructor|PDFParser|5|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|createDocument|0|missing",
+      "disposition": "internal-by-design",
+      "note": "PDFParser document creation and initial parse hooks remain internal to the adapted parser lifecycle.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|initialParse|0|missing",
+      "disposition": "internal-by-design",
+      "note": "PDFParser document creation and initial parse hooks remain internal to the adapted parser lifecycle.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|load|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|load|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|parse|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXRefStream.java|org.apache.pdfbox.pdfparser.PDFXRefStream|method|addEntry|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFXRefStream is represented as a COSStream wrapper in the C# port; xref entry/trailer mutation is handled by PDFParser/PDDocument serialization code rather than this Java builder API.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXRefStream.java|org.apache.pdfbox.pdfparser.PDFXRefStream|method|addTrailerInfo|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFXRefStream is represented as a COSStream wrapper in the C# port; xref entry/trailer mutation is handled by PDFParser/PDDocument serialization code rather than this Java builder API.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXRefStream.java|org.apache.pdfbox.pdfparser.PDFXRefStream|method|setSize|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFXRefStream is represented as a COSStream wrapper in the C# port; xref entry/trailer mutation is handled by PDFParser/PDDocument serialization code rather than this Java builder API.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java|org.apache.pdfbox.pdfparser.PDFXrefStreamParser|method|parse|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFXrefStreamParser returns the parsed wrapper directly; resolver population is handled by the surrounding C# parser flow instead of a Java parse(XrefTrailerResolver) overload.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java|org.apache.pdfbox.pdfparser.XrefParser|method|getXrefTable|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XrefParser delegates to the adapted PDFParser flow; xref tables are exposed from COSDocument/XrefTrailerResolver rather than Java parseXref/getXrefTable methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java|org.apache.pdfbox.pdfparser.XrefParser|method|parseXref|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XrefParser delegates to the adapted PDFParser flow; xref tables are exposed from COSDocument/XrefTrailerResolver rather than Java parseXref/getXrefTable methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/xref/XReferenceEntry.java|org.apache.pdfbox.pdfparser.xref.XReferenceEntry|method|getType|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XReferenceEntry exposes GetXReferenceType because getType conflicts with System.Object.GetType in C#.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/xref/XReferenceType.java|org.apache.pdfbox.pdfparser.xref.XReferenceType|method|getNumericValue|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XReferenceType is a C# enum with the Java numeric values as underlying enum values; callers use an int cast instead of getNumericValue().",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|constructor|COSWriter|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSWriter is intentionally a low-level COS serializer in this port; full document writing, compression, signing byte ranges, and reference emission are handled by PDDocument and writer helpers rather than Java COSWriter public methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|constructor|COSWriter|3|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSWriter is intentionally a low-level COS serializer in this port; full document writing, compression, signing byte ranges, and reference emission are handled by PDDocument and writer helpers rather than Java COSWriter public methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|addXRefEntry|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSWriter body/header/trailer/xref bookkeeping helpers remain internal to the C# document serialization path.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|doWriteBody|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSWriter body/header/trailer/xref bookkeeping helpers remain internal to the C# document serialization path.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|doWriteHeader|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSWriter body/header/trailer/xref bookkeeping helpers remain internal to the C# document serialization path.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|doWriteObject|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSWriter is intentionally a low-level COS serializer in this port; full document writing, compression, signing byte ranges, and reference emission are handled by PDDocument and writer helpers rather than Java COSWriter public methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|doWriteObject|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSWriter is intentionally a low-level COS serializer in this port; full document writing, compression, signing byte ranges, and reference emission are handled by PDDocument and writer helpers rather than Java COSWriter public methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|doWriteTrailer|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSWriter body/header/trailer/xref bookkeeping helpers remain internal to the C# document serialization path.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|getBytes|1|missing",
+      "disposition": "not-applicable",
+      "note": "COSWriter getBytes rows are Java source-parser artifacts from static byte-array initializer calls such as string.getBytes(StandardCharsets.US_ASCII), not public COSWriter methods to port.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|getDataToSign|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSWriter is intentionally a low-level COS serializer in this port; full document writing, compression, signing byte ranges, and reference emission are handled by PDDocument and writer helpers rather than Java COSWriter public methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|getOutput|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSWriter body/header/trailer/xref bookkeeping helpers remain internal to the C# document serialization path.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|getStandardOutput|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSWriter body/header/trailer/xref bookkeeping helpers remain internal to the C# document serialization path.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|getStartxref|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSWriter body/header/trailer/xref bookkeeping helpers remain internal to the C# document serialization path.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|getXRefEntries|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSWriter body/header/trailer/xref bookkeeping helpers remain internal to the C# document serialization path.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|getXRefRanges|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSWriter body/header/trailer/xref bookkeeping helpers remain internal to the C# document serialization path.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|isCompress|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSWriter is intentionally a low-level COS serializer in this port; full document writing, compression, signing byte ranges, and reference emission are handled by PDDocument and writer helpers rather than Java COSWriter public methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|setStartxref|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSWriter body/header/trailer/xref bookkeeping helpers remain internal to the C# document serialization path.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|writeExternalSignature|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSWriter is intentionally a low-level COS serializer in this port; full document writing, compression, signing byte ranges, and reference emission are handled by PDDocument and writer helpers rather than Java COSWriter public methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|writeReference|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSWriter is intentionally a low-level COS serializer in this port; full document writing, compression, signing byte ranges, and reference emission are handled by PDDocument and writer helpers rather than Java COSWriter public methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java|org.apache.pdfbox.pdfwriter.COSWriter|method|write|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "COSWriter is intentionally a low-level COS serializer in this port; full document writing, compression, signing byte ranges, and reference emission are handled by PDDocument and writer helpers rather than Java COSWriter public methods.",
+      "issue": 504,
+      "reviewed_at_utc": "2026-06-26T23:49:03Z",
+      "reviewed_by": "Codex"
     }
   ]
 }

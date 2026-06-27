@@ -59,6 +59,11 @@ public class RandomAccessInputStream : Stream
         return (int)Math.Max(0, Math.Min(_input.Length() - _position, int.MaxValue));
     }
 
+    public int Read()
+    {
+        return ReadByte();
+    }
+
     public long Skip(long n)
     {
         if (n <= 0)
