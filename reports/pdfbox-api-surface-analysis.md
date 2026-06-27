@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-06-27T02:49:45Z
+Generated (UTC): 2026-06-27T03:21:35Z
 Apache PDFBox source commit: `833ed8f378f00838fd8df8c01bfc4b915b4c350b`
-PdfBox.Net commit: `976d6cdf577d70c9741f8c780743517dc65d0aff`
+PdfBox.Net commit: `346ababe6f22d75d228cca7e8a11b482b659340c`
 
 ## Scope
 
@@ -23,12 +23,12 @@ PdfBox.Net commit: `976d6cdf577d70c9741f8c780743517dc65d0aff`
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
 | Java public/protected members | 6305 |
-| Matched members | 5260 |
+| Matched members | 5366 |
 | Arity-drift members | 42 |
-| Missing members | 1003 |
-| Reflected .NET extra members on matched types | 1000 |
+| Missing members | 897 |
+| Reflected .NET extra members on matched types | 1027 |
 
-Member coverage by name/signature heuristic: **5302 / 6305 = 84.1%**.
+Member coverage by name/signature heuristic: **5408 / 6305 = 85.8%**.
 
 ## Review Disposition Backlog
 
@@ -36,17 +36,17 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 
 | Delta kind | Raw | Reviewed | Unreviewed |
 |---|---:|---:|---:|
-| Missing members | 1003 | 708 | 295 |
-| Arity-drift members | 42 | 35 | 7 |
+| Missing members | 897 | 709 | 188 |
+| Arity-drift members | 42 | 40 | 2 |
 | Type-name/visibility gaps | 8 | 8 | 0 |
-| Total reviewable deltas | 1053 | 751 | 302 |
+| Total reviewable deltas | 947 | 757 | 190 |
 
 | Disposition | Reviewed rows |
 |---|---:|
 | `behavior-covered` | 107 |
-| `intentional-dotnet-adaptation` | 551 |
+| `intentional-dotnet-adaptation` | 556 |
 | `internal-by-design` | 69 |
-| `not-applicable` | 24 |
+| `not-applicable` | 25 |
 
 ## Module Breakdown
 
@@ -54,7 +54,7 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | `fontbox` | 110 | 105 | 4 | 1 | 0 | 1028 | 1009 | 19 | 98.2% |
 | `io` | 15 | 15 | 0 | 0 | 0 | 131 | 126 | 5 | 96.2% |
-| `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3584 | 620 | 85.3% |
+| `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3690 | 514 | 87.8% |
 | `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 583 | 359 | 61.9% |
 
 ## Highest Missing-Member Types
@@ -66,12 +66,9 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 | 60 | 80 | `xmpbox` | `org.apache.xmpbox.schema.XMPMediaManagementSchema` | `PdfBox.Net.XmpBox.Schema.XMPMediaManagementSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java` |
 | 49 | 83 | `xmpbox` | `org.apache.xmpbox.schema.DublinCoreSchema` | `PdfBox.Net.XmpBox.Schema.DublinCoreSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java` |
 | 46 | 54 | `xmpbox` | `org.apache.xmpbox.schema.XMPSchema` | `PdfBox.Net.XmpBox.Schema.XMPSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java` |
-| 42 | 54 | `pdfbox` | `org.apache.pdfbox.pdmodel.interactive.digitalsignature.visible.PDFTemplateStructure` | `PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible.PDFTemplateStructure` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDFTemplateStructure.java` |
 | 35 | 60 | `xmpbox` | `org.apache.xmpbox.schema.XMPBasicSchema` | `PdfBox.Net.XmpBox.Schema.XMPBasicSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java` |
 | 32 | 53 | `pdfbox` | `org.apache.pdfbox.pdfwriter.COSWriter` | `PdfBox.Net.PdfWriter.COSWriter` | `pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java` |
 | 31 | 34 | `pdfbox` | `org.apache.pdfbox.pdfparser.COSParser` | `PdfBox.Net.PdfParser.COSParser` | `pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java` |
-| 29 | 31 | `pdfbox` | `org.apache.pdfbox.pdmodel.interactive.digitalsignature.visible.PDVisibleSigBuilder` | `PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible.PDVisibleSigBuilder` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigBuilder.java` |
-| 28 | 29 | `pdfbox` | `org.apache.pdfbox.pdmodel.interactive.digitalsignature.visible.PDFTemplateBuilder` | `PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible.PDFTemplateBuilder` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDFTemplateBuilder.java` |
 | 27 | 32 | `pdfbox` | `org.apache.pdfbox.pdmodel.common.COSArrayList` | `PdfBox.Net.PDModel.Common.COSArrayList` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java` |
 | 23 | 23 | `pdfbox` | `org.apache.pdfbox.pdmodel.graphics.blend.BlendMode` | `PdfBox.Net.PDModel.Graphics.BlendMode` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java` |
 | 22 | 29 | `xmpbox` | `org.apache.xmpbox.schema.XMPRightsManagementSchema` | `PdfBox.Net.XmpBox.Schema.XMPRightsManagementSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java` |
@@ -91,6 +88,9 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 | 9 | 17 | `xmpbox` | `org.apache.xmpbox.schema.AdobePDFSchema` | `PdfBox.Net.XmpBox.Schema.AdobePDFSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java` |
 | 8 | 22 | `pdfbox` | `org.apache.pdfbox.multipdf.PDFMergerUtility` | `PdfBox.Net.MultiPdf.PDFMergerUtility` | `pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java` |
 | 8 | 11 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours` | `PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf.PDFourColours` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java` |
+| 8 | 8 | `pdfbox` | `org.apache.pdfbox.pdmodel.PageLayout` | `PdfBox.Net.PDModel.PageLayout` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java` |
+| 8 | 8 | `pdfbox` | `org.apache.pdfbox.pdmodel.PageMode` | `PdfBox.Net.PDModel.PageMode` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java` |
+| 7 | 67 | `fontbox` | `org.apache.fontbox.cff.CharStringCommand` | `PdfBox.Net.FontBox.CFF.CharStringCommand` | `fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java` |
 
 ## Java-Named Public API Type Gaps
 
