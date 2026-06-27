@@ -12,7 +12,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDPolylineAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDPolylineAppearanceHandler(PDAnnotation annotation, PDDocument? document = null)
+    public PDPolylineAppearanceHandler(PDAnnotation annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDPolylineAppearanceHandler(PDAnnotation annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -20,5 +25,13 @@ public sealed class PDPolylineAppearanceHandler : PDAbstractAppearanceHandler
     public override void GenerateNormalAppearance()
     {
         WriteDefaultNormalAppearance("PDPolylineAppearance");
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

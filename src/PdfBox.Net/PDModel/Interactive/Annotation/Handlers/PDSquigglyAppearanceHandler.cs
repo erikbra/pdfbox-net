@@ -12,7 +12,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDSquigglyAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDSquigglyAppearanceHandler(PDAnnotationSquiggly annotation, PDDocument? document = null)
+    public PDSquigglyAppearanceHandler(PDAnnotationSquiggly annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDSquigglyAppearanceHandler(PDAnnotationSquiggly annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -46,5 +51,13 @@ public sealed class PDSquigglyAppearanceHandler : PDAbstractAppearanceHandler
             }
             contents.Stroke();
         }
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

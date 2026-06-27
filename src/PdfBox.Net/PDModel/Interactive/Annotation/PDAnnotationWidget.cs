@@ -46,6 +46,27 @@ public sealed class PDAnnotationWidget : PDAnnotation
     {
     }
 
+    public string GetHighlightingMode()
+    {
+        return GetCOSDictionary().GetNameAsString(COSName.H, PDAnnotationLink.HIGHLIGHT_MODE_INVERT);
+    }
+
+    public void SetHighlightingMode(string? highlightingMode)
+    {
+        if (highlightingMode is null or
+            PDAnnotationLink.HIGHLIGHT_MODE_NONE or
+            PDAnnotationLink.HIGHLIGHT_MODE_INVERT or
+            PDAnnotationLink.HIGHLIGHT_MODE_OUTLINE or
+            PDAnnotationLink.HIGHLIGHT_MODE_PUSH or
+            "T")
+        {
+            GetCOSDictionary().SetName(COSName.H, highlightingMode);
+            return;
+        }
+
+        throw new ArgumentException("Valid values for highlighting mode are 'N', 'I', 'O', 'P' or 'T'.", nameof(highlightingMode));
+    }
+
     public PDAction? GetAction()
     {
         COSDictionary? action = GetCOSDictionary().GetCOSDictionary(COSName.A);

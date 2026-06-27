@@ -12,7 +12,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDCaretAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDCaretAppearanceHandler(PDAnnotation annotation, PDDocument? document = null)
+    public PDCaretAppearanceHandler(PDAnnotation annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDCaretAppearanceHandler(PDAnnotation annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -20,5 +25,13 @@ public sealed class PDCaretAppearanceHandler : PDAbstractAppearanceHandler
     public override void GenerateNormalAppearance()
     {
         WriteDefaultNormalAppearance("PDCaretAppearance");
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

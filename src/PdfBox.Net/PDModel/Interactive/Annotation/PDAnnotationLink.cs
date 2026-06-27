@@ -48,6 +48,10 @@ public class PDAnnotationLink : PDAnnotation
     public const string HighlightModeOutline = "O";
     /// <summary>Highlight mode — push annotation down.</summary>
     public const string HighlightModePush = "P";
+    public const string HIGHLIGHT_MODE_NONE = HighlightModeNone;
+    public const string HIGHLIGHT_MODE_INVERT = HighlightModeInvert;
+    public const string HIGHLIGHT_MODE_OUTLINE = HighlightModeOutline;
+    public const string HIGHLIGHT_MODE_PUSH = HighlightModePush;
 
     /// <summary>The type of annotation.</summary>
     public const string SUB_TYPE = "Link";
@@ -144,7 +148,7 @@ public class PDAnnotationLink : PDAnnotation
     /// </summary>
     public string? GetHighlightMode()
     {
-        return GetCOSDictionary().GetNameAsString(COSName.GetPDFName("H"));
+        return GetCOSDictionary().GetNameAsString(COSName.H, HIGHLIGHT_MODE_INVERT);
     }
 
     /// <summary>
@@ -152,7 +156,19 @@ public class PDAnnotationLink : PDAnnotation
     /// </summary>
     public void SetHighlightMode(string? mode)
     {
-        GetCOSDictionary().SetName(COSName.GetPDFName("H"), mode);
+        GetCOSDictionary().SetName(COSName.H, mode);
+    }
+
+    public void SetPreviousURI(PDActionURI? previousUri)
+    {
+        GetCOSDictionary().SetItem(COSName.GetPDFName("PA"), previousUri);
+    }
+
+    public PDActionURI? GetPreviousURI()
+    {
+        return GetCOSDictionary().GetCOSDictionary(COSName.GetPDFName("PA")) is COSDictionary dictionary
+            ? new PDActionURI(dictionary)
+            : null;
     }
 
     public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)

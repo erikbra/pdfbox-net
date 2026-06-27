@@ -12,7 +12,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDUnderlineAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDUnderlineAppearanceHandler(PDAnnotationUnderline annotation, PDDocument? document = null)
+    public PDUnderlineAppearanceHandler(PDAnnotationUnderline annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDUnderlineAppearanceHandler(PDAnnotationUnderline annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -47,5 +52,13 @@ public sealed class PDUnderlineAppearanceHandler : PDAbstractAppearanceHandler
             contents.LineTo(endX, y);
             contents.Stroke();
         }
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

@@ -33,6 +33,8 @@ public class PDViewportDictionary : COSObjectable
 
     public string GetViewportType() => TYPE;
 
+    public string GetTypeName() => TYPE;
+
     public PDRectangle? GetBBox()
     {
         COSArray? bbox = _dictionary.GetCOSArray(COSName.BBOX);

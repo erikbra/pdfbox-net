@@ -9,6 +9,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
@@ -27,6 +28,28 @@ public sealed class PDAnnotationPolygon : PDAnnotationMarkup
     public PDAnnotationPolygon(COSDictionary dictionary)
         : base(dictionary)
     {
+    }
+
+    public override PDColor? GetInteriorColor()
+    {
+        return base.GetInteriorColor();
+    }
+
+    public override void SetInteriorColor(PDColor? color)
+    {
+        base.SetInteriorColor(color);
+    }
+
+    public void SetBorderEffect(PDBorderEffectDictionary? borderEffect)
+    {
+        GetCOSDictionary().SetItem(COSName.BE, borderEffect);
+    }
+
+    public PDBorderEffectDictionary? GetBorderEffect()
+    {
+        return GetCOSDictionary().GetCOSDictionary(COSName.BE) is COSDictionary dictionary
+            ? new PDBorderEffectDictionary(dictionary)
+            : null;
     }
 
     public float[]? GetVertices()
@@ -62,9 +85,30 @@ public sealed class PDAnnotationPolygon : PDAnnotationMarkup
         GetCOSDictionary().SetItem(COSName.GetPDFName("Vertices"), array);
     }
 
+    public float[][]? GetPath()
+    {
+        COSArray? path = GetCOSDictionary().GetCOSArray(COSName.GetPDFName("Path"));
+        if (path == null)
+        {
+            return null;
+        }
+
+        float[][] values = new float[path.Size()][];
+        for (int i = 0; i < path.Size(); i++)
+        {
+            values[i] = path.GetObject(i) is COSArray array ? array.ToFloatArray() : [];
+        }
+        return values;
+    }
+
     public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
     {
         customAppearanceHandler = appearanceHandler;
+    }
+
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
     }
 
     public override void ConstructAppearances(PDDocument? document)

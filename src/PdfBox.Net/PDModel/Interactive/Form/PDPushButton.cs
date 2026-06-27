@@ -65,6 +65,11 @@ public class PDPushButton : PDButton
         return string.Empty;
     }
 
+    public override string? GetValueAsString()
+    {
+        return GetValue();
+    }
+
     public override ISet<string> GetOnValues()
     {
         return new HashSet<string>();

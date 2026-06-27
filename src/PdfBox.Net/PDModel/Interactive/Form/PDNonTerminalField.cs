@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
@@ -87,9 +88,44 @@ public class PDNonTerminalField : PDField
         return dictionary.GetNameAsString(COSName.GetPDFName("FT"));
     }
 
+    public int GetFieldFlags()
+    {
+        return dictionary.GetInt(COSName.GetPDFName("FF"), 0);
+    }
+
+    public COSBase? GetValue()
+    {
+        return dictionary.GetDictionaryObject(COSName.V);
+    }
+
+    public void SetValue(COSBase? value)
+    {
+        dictionary.SetItem(COSName.V, value);
+    }
+
+    public void SetValue(string? value)
+    {
+        dictionary.SetString(COSName.V, value);
+    }
+
+    public COSBase? GetDefaultValue()
+    {
+        return dictionary.GetDictionaryObject(COSName.GetPDFName("DV"));
+    }
+
+    public void SetDefaultValue(COSBase? value)
+    {
+        dictionary.SetItem(COSName.GetPDFName("DV"), value);
+    }
+
+    public override List<PDAnnotationWidget> GetWidgets()
+    {
+        return [];
+    }
+
     public override string? GetValueAsString()
     {
         COSBase? value = dictionary.GetDictionaryObject(COSName.V);
-        return value?.ToString();
+        return value?.ToString() ?? string.Empty;
     }
 }

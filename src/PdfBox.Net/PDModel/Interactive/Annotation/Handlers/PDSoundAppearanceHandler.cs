@@ -12,7 +12,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDSoundAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDSoundAppearanceHandler(PDAnnotation annotation, PDDocument? document = null)
+    public PDSoundAppearanceHandler(PDAnnotation annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDSoundAppearanceHandler(PDAnnotation annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -20,5 +25,13 @@ public sealed class PDSoundAppearanceHandler : PDAbstractAppearanceHandler
     public override void GenerateNormalAppearance()
     {
         WriteDefaultNormalAppearance("PDSoundAppearance");
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

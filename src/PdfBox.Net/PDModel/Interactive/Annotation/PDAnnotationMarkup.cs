@@ -38,6 +38,11 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 public abstract class PDAnnotationMarkup : PDAnnotation
 {
     private static readonly COSName InteriorColorName = COSName.GetPDFName("IC");
+    private static readonly COSName InReplyToName = COSName.GetPDFName("IRT");
+    private static readonly COSName SubjectName = COSName.GetPDFName("Subj");
+    private static readonly COSName ReplyTypeName = COSName.GetPDFName("RT");
+    private static readonly COSName IntentName = COSName.GetPDFName("IT");
+    private static readonly COSName ExternalDataName = COSName.GetPDFName("ExData");
 
     /// <summary>Constant for an annotation reply type.</summary>
     public const string RT_REPLY = "R";
@@ -77,6 +82,18 @@ public abstract class PDAnnotationMarkup : PDAnnotation
         GetCOSDictionary().SetString(COSName.T, t);
     }
 
+    public PDAnnotationPopup? GetPopup()
+    {
+        return GetCOSDictionary().GetCOSDictionary(COSName.POPUP) is COSDictionary dictionary
+            ? new PDAnnotationPopup(dictionary)
+            : null;
+    }
+
+    public void SetPopup(PDAnnotationPopup? popup)
+    {
+        GetCOSDictionary().SetItem(COSName.POPUP, popup);
+    }
+
     /// <summary>
     /// This will retrieve the constant opacity value used when rendering the annotation.
     /// </summary>
@@ -91,6 +108,85 @@ public abstract class PDAnnotationMarkup : PDAnnotation
     public void SetConstantOpacity(float ca)
     {
         GetCOSDictionary().SetFloat(COSName.CA, ca);
+    }
+
+    public string? GetRichContents()
+    {
+        return GetCOSDictionary().GetDictionaryObject(COSName.RC) switch
+        {
+            COSString str => str.GetString(),
+            COSStream stream => stream.ToTextString(),
+            _ => null
+        };
+    }
+
+    public void SetRichContents(string? rc)
+    {
+        GetCOSDictionary().SetItem(COSName.RC, rc is null ? null : new COSString(rc));
+    }
+
+    public DateTimeOffset? GetCreationDate()
+    {
+        return GetCOSDictionary().GetDate(COSName.CREATION_DATE);
+    }
+
+    public void SetCreationDate(DateTimeOffset? creationDate)
+    {
+        GetCOSDictionary().SetDate(COSName.CREATION_DATE, creationDate);
+    }
+
+    public PDAnnotation? GetInReplyTo()
+    {
+        return GetCOSDictionary().GetCOSDictionary(InReplyToName) is COSDictionary dictionary
+            ? CreateAnnotation(dictionary)
+            : null;
+    }
+
+    public void SetInReplyTo(PDAnnotation? annotation)
+    {
+        GetCOSDictionary().SetItem(InReplyToName, annotation);
+    }
+
+    public string? GetSubject()
+    {
+        return GetCOSDictionary().GetString(SubjectName);
+    }
+
+    public void SetSubject(string? subject)
+    {
+        GetCOSDictionary().SetString(SubjectName, subject);
+    }
+
+    public string GetReplyType()
+    {
+        return GetCOSDictionary().GetNameAsString(ReplyTypeName, RT_REPLY);
+    }
+
+    public void SetReplyType(string? replyType)
+    {
+        GetCOSDictionary().SetName(ReplyTypeName, replyType);
+    }
+
+    public string? GetIntent()
+    {
+        return GetCOSDictionary().GetNameAsString(IntentName);
+    }
+
+    public void SetIntent(string? intent)
+    {
+        GetCOSDictionary().SetName(IntentName, intent);
+    }
+
+    public PDExternalDataDictionary? GetExternalData()
+    {
+        return GetCOSDictionary().GetCOSDictionary(ExternalDataName) is COSDictionary dictionary
+            ? new PDExternalDataDictionary(dictionary)
+            : null;
+    }
+
+    public void SetExternalData(PDExternalDataDictionary? externalData)
+    {
+        GetCOSDictionary().SetItem(ExternalDataName, externalData);
     }
 
     public virtual PDBorderStyleDictionary? GetBorderStyle()
