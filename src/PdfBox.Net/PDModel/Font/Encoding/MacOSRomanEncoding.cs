@@ -27,6 +27,8 @@
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
+using PdfBox.Net.COS;
+
 public sealed class MacOSRomanEncoding : MacRomanEncoding
 {
     private static readonly (int Code, string Name)[] Entries =
@@ -51,11 +53,13 @@ public sealed class MacOSRomanEncoding : MacRomanEncoding
 
     public new static readonly MacOSRomanEncoding INSTANCE = new();
 
-    private MacOSRomanEncoding()
+    public MacOSRomanEncoding()
     {
         foreach ((int code, string name) in Entries)
         {
             AddCharacterEncoding(code, name);
         }
     }
+
+    public override COSBase GetCOSObject() => COSName.GetPDFName("MacOSRomanEncoding");
 }

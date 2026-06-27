@@ -31,6 +31,7 @@ using PdfBox.Net.FontBox.Pfb;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.FontBox.Type1;
 using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.PDModel.Font;
 
@@ -121,6 +122,11 @@ public partial class PDType1Font : PDSimpleFont
     public override FontBoxFont? GetFontBoxFont() => _fontBoxFont;
     public override bool IsStandard14() => _isStandard14;
     public override bool IsEmbedded() => _type1Font is not null;
+    public override bool IsDamaged() => false;
+    public string GetBaseFont() => GetName();
+    public Type1Font? GetType1Font() => _type1Font;
+    public override GeneralPath GetPath(int code) => base.GetPath(code);
+    public override GeneralPath GetPath(string name) => base.GetPath(name);
 
     private PDType1Font(EmbeddedType1FontData embeddedFontData)
         : this(embeddedFontData.Dictionary, embeddedFontData.Type1Font, embeddedFontData.Type1Font)

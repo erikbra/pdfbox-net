@@ -26,6 +26,7 @@
  */
 
 using FontBoxStandardEncoding = PdfBox.Net.FontBox.Encoding.StandardEncoding;
+using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
@@ -40,4 +41,8 @@ public sealed class StandardEncoding : Encoding
             AddCharacterEncoding(code, name);
         }
     }
+
+    public override COSBase GetCOSObject() => COSName.GetPDFName("StandardEncoding");
+
+    public override string GetEncodingName() => "StandardEncoding";
 }

@@ -27,6 +27,8 @@
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
+using PdfBox.Net.COS;
+
 public sealed class WinAnsiEncoding : Encoding
 {
     public static readonly WinAnsiEncoding INSTANCE = new();
@@ -91,4 +93,8 @@ public sealed class WinAnsiEncoding : Encoding
             AddCharacterEncoding(160 + i, latin1Glyphs[i]);
         }
     }
+
+    public override COSBase GetCOSObject() => COSName.GetPDFName("WinAnsiEncoding");
+
+    public override string GetEncodingName() => "WinAnsiEncoding";
 }

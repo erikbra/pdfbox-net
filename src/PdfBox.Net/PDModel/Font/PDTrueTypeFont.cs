@@ -81,8 +81,10 @@ public partial class PDTrueTypeFont : PDSimpleFont
     public override bool IsEmbedded() => true;
 
     public TrueTypeFont GetTrueTypeFont() => _trueTypeFont;
+    public string GetBaseFont() => GetName();
 
     public override Matrix GetFontMatrix() => GetFontMatrixFromDictionary();
+    public override bool IsDamaged() => false;
 
     public override float GetWidthFromFont(int code)
     {
@@ -103,6 +105,15 @@ public partial class PDTrueTypeFont : PDSimpleFont
             _trueTypeFont,
             gid,
             drawGidZero: IsEmbedded() || IsStandard14());
+    }
+
+    public override GeneralPath GetPath(int code) => GetNormalizedPath(code);
+
+    public override GeneralPath GetPath(string name)
+    {
+        return string.IsNullOrEmpty(name) || name == ".notdef"
+            ? new GeneralPath()
+            : _trueTypeFont.GetPath(name);
     }
 
     public byte[] ExportFont()
@@ -153,7 +164,7 @@ public partial class PDTrueTypeFont : PDSimpleFont
         return null;
     }
 
-    private int CodeToGID(int code)
+    public int CodeToGID(int code)
     {
         if (_unicodeCmap is null)
         {

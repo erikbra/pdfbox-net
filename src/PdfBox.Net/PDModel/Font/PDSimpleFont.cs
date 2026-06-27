@@ -178,6 +178,13 @@ public abstract partial class PDSimpleFont : PDVectorFont
         return glyphName != ".notdef" && (GetFontBoxFont()?.HasGlyph(glyphName) ?? false);
     }
 
+    public virtual bool HasGlyph(string name)
+    {
+        return !string.IsNullOrEmpty(name) && name != ".notdef" && (GetFontBoxFont()?.HasGlyph(name) ?? false);
+    }
+
+    public string CodeToName(int code) => _encoding.GetName(code);
+
     public override GeneralPath GetNormalizedPath(int code)
     {
         string glyphName = _encoding.GetName(code);
@@ -187,6 +194,15 @@ public abstract partial class PDSimpleFont : PDVectorFont
         }
 
         return GetFontBoxFont()?.GetPath(glyphName) ?? new GeneralPath();
+    }
+
+    public override GeneralPath GetPath(int code) => GetNormalizedPath(code);
+
+    public virtual GeneralPath GetPath(string name)
+    {
+        return string.IsNullOrEmpty(name) || name == ".notdef"
+            ? new GeneralPath()
+            : GetFontBoxFont()?.GetPath(name) ?? new GeneralPath();
     }
 
     public abstract FontBoxFont? GetFontBoxFont();

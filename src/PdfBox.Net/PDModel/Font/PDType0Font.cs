@@ -141,9 +141,14 @@ public partial class PDType0Font : PDVectorFont
     public PDCIDFont? GetDescendantFont() => _descendantFont;
     public CMap? GetCMap() => _cMap;
     public CMap? GetCMapUCS2() => _cMapUcs2;
+    public string GetBaseFont() => base.GetName();
 
     public override bool IsVertical() => _cMap?.WMode == 1;
     public override bool IsEmbedded() => _descendantFont?.IsEmbedded() ?? false;
+    public override bool IsDamaged() => _descendantFont?.IsDamaged() ?? false;
+    public override Matrix GetFontMatrix() => _descendantFont?.GetFontMatrix() ?? base.GetFontMatrix();
+    public override string GetName() => GetBaseFont();
+    public override bool IsStandard14() => false;
     public override bool HasExplicitWidth(int code) => _descendantFont?.HasExplicitWidth(CodeToCID(code)) ?? base.HasExplicitWidth(code);
     public override float GetWidthFromFont(int code) => _descendantFont?.GetWidthFromFont(CodeToCID(code)) ?? base.GetWidthFromFont(code);
     public override float GetWidth(int code) => _descendantFont?.GetWidth(CodeToCID(code)) ?? base.GetWidth(code);
@@ -189,6 +194,8 @@ public partial class PDType0Font : PDVectorFont
         return _descendantFont?.ToUnicode(CodeToCID(code), glyphList);
     }
 
+    public override string? ToUnicode(int code) => ToUnicode(code, GlyphList.GetAdobeGlyphList());
+
     public override BoundingBox GetBoundingBox()
     {
         BoundingBox bbox = base.GetBoundingBox();
@@ -208,6 +215,13 @@ public partial class PDType0Font : PDVectorFont
         return false;
     }
 
+    public int CodeToGID(int code)
+    {
+        return _descendantFont is PDCIDFontType2 type2
+            ? type2.CodeToGID(CodeToCID(code))
+            : CodeToCID(code);
+    }
+
     public override GeneralPath GetNormalizedPath(int code)
     {
         if (_descendantFont is PDCIDFontType2 type2)
@@ -220,6 +234,19 @@ public partial class PDType0Font : PDVectorFont
         }
 
         return new GeneralPath();
+    }
+
+    public override GeneralPath GetPath(int code) => GetNormalizedPath(code);
+
+    public override float GetHeight(int code)
+    {
+        return _descendantFont?.GetHeight(CodeToCID(code)) ?? base.GetHeight(code);
+    }
+
+    public override string ToString()
+    {
+        string? descendant = _descendantFont?.GetType().Name;
+        return $"{GetType().Name}/{descendant}, PostScript name: {GetBaseFont()}";
     }
 
     private static (CMap? CMap, bool IsPredefined) ReadEncodingCMap(COSDictionary dictionary)

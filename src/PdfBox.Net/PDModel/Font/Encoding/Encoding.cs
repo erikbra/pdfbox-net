@@ -26,6 +26,7 @@
  */
 
 using System.Collections.ObjectModel;
+using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
@@ -60,4 +61,8 @@ public class Encoding
     {
         return _readOnly;
     }
+
+    public virtual COSBase? GetCOSObject() => null;
+
+    public virtual string GetEncodingName() => GetType().Name;
 }

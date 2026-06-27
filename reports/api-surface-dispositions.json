@@ -4345,6 +4345,710 @@
       "issue": 507,
       "reviewed_at_utc": "2026-06-27T01:39:42Z",
       "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java|org.apache.pdfbox.pdmodel.font.FontMapper|method|getTrueTypeFont|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The .NET FontMapper surface intentionally exposes the narrow FindFontFile contract instead of Java FontMapping/CIDFontMapping objects, avoiding FontBox implementation types in the public mapper API.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java|org.apache.pdfbox.pdmodel.font.FontMapper|method|getFontBoxFont|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The .NET FontMapper surface intentionally exposes the narrow FindFontFile contract instead of Java FontMapping/CIDFontMapping objects, avoiding FontBox implementation types in the public mapper API.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java|org.apache.pdfbox.pdmodel.font.FontMapper|method|getCIDFont|3|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The .NET FontMapper surface intentionally exposes the narrow FindFontFile contract instead of Java FontMapping/CIDFontMapping objects, avoiding FontBox implementation types in the public mapper API.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|constructor|PDCIDFontType0|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getFontMatrix|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getBoundingBox|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getCFFFont|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getFontBoxFont|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getType2CharString|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getPath|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getNormalizedPath|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|hasGlyph|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|codeToCID|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|codeToGID|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|encode|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|encodeGlyphId|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getWidthFromFont|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|isEmbedded|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|isDamaged|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getHeight|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getAverageFontWidth|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|constructor|PDCIDFontType2|3|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The C# constructor accepts the optional TrueTypeFont directly and keeps parent Type0 CMap behavior in PDType0Font instead of storing the Java parent reference.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|getFontMatrix|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType2 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; #508 tests cover the added glyph/path helpers while the report counts declared concrete members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|getBoundingBox|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType2 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; #508 tests cover the added glyph/path helpers while the report counts declared concrete members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|codeToCID|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDCIDFontType2 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; #508 tests cover the added glyph/path helpers while the report counts declared concrete members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|encode|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java content-stream encoding hooks are not exposed on the current .NET font surface; CID/GID path and EncodeGlyphId behavior covered by #508 tests are available without adding the protected encode pipeline.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|load|3|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java PDTrueTypeFont load overloads require simple TrueType embedding with explicit Encoding; the current port avoids adding overloads until the embedding/encoding pipeline is fully implemented.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|readEncodingFromFont|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected TrueType encoding internals are not public .NET API; current glyph lookup behavior is exposed through CodeToGID/GetPath and covered by #508 tests.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|readCode|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDTrueTypeFont inherits this public PDFont/PDSimpleFont behavior; #508 tests cover the callable font-like contract while the report counts declared concrete members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|getName|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDTrueTypeFont inherits this public PDFont/PDSimpleFont behavior; #508 tests cover the callable font-like contract while the report counts declared concrete members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|getBoundingBox|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDTrueTypeFont inherits this public PDFont/PDSimpleFont behavior; #508 tests cover the callable font-like contract while the report counts declared concrete members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|getHeight|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDTrueTypeFont inherits this public PDFont/PDSimpleFont behavior; #508 tests cover the callable font-like contract while the report counts declared concrete members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|encode|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The current port does not expose Java protected font encode internals; public glyph lookup and path helpers are available where behavior is implemented.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|getGIDToCode|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected TrueType encoding internals are not public .NET API; current glyph lookup behavior is exposed through CodeToGID/GetPath and covered by #508 tests.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|load|4|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Vertical Type0 loading and RandomAccessRead/subsetting overloads depend on Java TrueType embedding features that are not implemented; existing Load overloads perform supported full embedding only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|loadVertical|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Vertical Type0 loading and RandomAccessRead/subsetting overloads depend on Java TrueType embedding features that are not implemented; existing Load overloads perform supported full embedding only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|loadVertical|3|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Vertical Type0 loading and RandomAccessRead/subsetting overloads depend on Java TrueType embedding features that are not implemented; existing Load overloads perform supported full embedding only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|addToSubset|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Type0 subsetting is intentionally not exposed until the embedder can subset and rewrite the PDF font program consistently.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|addGlyphsToSubset|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Type0 subsetting is intentionally not exposed until the embedder can subset and rewrite the PDF font program consistently.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|subset|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Type0 subsetting is intentionally not exposed until the embedder can subset and rewrite the PDF font program consistently.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|willBeSubset|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Type0 subsetting is intentionally not exposed until the embedder can subset and rewrite the PDF font program consistently.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|encode|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "This row depends on Java Type0 font-program internals such as protected encoding, GSUB data, cmap lookup, or descendant EncodeGlyphId delegation; the port only exposes implemented glyph/path behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|getStandard14Width|1|missing",
+      "disposition": "not-applicable",
+      "note": "Type0 fonts are never Standard 14 fonts; Java keeps this protected method only to satisfy the PDFont inheritance contract.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|getGsubData|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "This row depends on Java Type0 font-program internals such as protected encoding, GSUB data, cmap lookup, or descendant EncodeGlyphId delegation; the port only exposes implemented glyph/path behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|encodeGlyphId|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "This row depends on Java Type0 font-program internals such as protected encoding, GSUB data, cmap lookup, or descendant EncodeGlyphId delegation; the port only exposes implemented glyph/path behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|getCmapLookup|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "This row depends on Java Type0 font-program internals such as protected encoding, GSUB data, cmap lookup, or descendant EncodeGlyphId delegation; the port only exposes implemented glyph/path behavior.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|hasGlyph|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getNormalizedPath|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getName|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getBoundingBox|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|codeToName|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|readEncodingFromFont|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected CFF simple-font encoding hooks are kept internal/not exposed in the current .NET font-writing surface.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|readCode|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getFontMatrix|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getWidthFromFont|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getHeight|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|encode|1|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected CFF simple-font encoding hooks are kept internal/not exposed in the current .NET font-writing surface.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getStringWidth|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getAverageFontWidth|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|getHeight|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|encode|1|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected simple-font encoding hooks are kept internal/not exposed in the current .NET font-writing surface.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|getWidthFromFont|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|getAverageFontWidth|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|readCode|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|readEncodingFromFont|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected simple-font encoding hooks are kept internal/not exposed in the current .NET font-writing surface.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|getName|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|getBoundingBox|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|codeToName|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|getNormalizedPath|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|hasGlyph|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|getFontMatrix|0|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java|org.apache.pdfbox.pdmodel.font.PDType3Font|constructor|PDType3Font|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The ResourceCache constructor parameter is a Java loading cache concern; the .NET Type3 constructor uses the COSDictionary directly and resolves resources from the dictionary.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java|org.apache.pdfbox.pdmodel.font.PDType3Font|method|readEncoding|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected Type3 encoding and symbolic-state helpers are internal implementation details in the current .NET Type3 font surface.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java|org.apache.pdfbox.pdmodel.font.PDType3Font|method|readEncodingFromFont|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected Type3 encoding and symbolic-state helpers are internal implementation details in the current .NET Type3 font surface.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java|org.apache.pdfbox.pdmodel.font.PDType3Font|method|isFontSymbolic|0|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected Type3 encoding and symbolic-state helpers are internal implementation details in the current .NET Type3 font surface.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java|org.apache.pdfbox.pdmodel.font.PDType3Font|method|getHeight|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType3Font inherits this public PDFont behavior; existing Type3 tests cover width/metrics while the report counts declared concrete members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java|org.apache.pdfbox.pdmodel.font.PDType3Font|method|encode|1|missing",
+      "disposition": "internal-by-design",
+      "note": "Java protected Type3 encoding and symbolic-state helpers are internal implementation details in the current .NET Type3 font surface.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java|org.apache.pdfbox.pdmodel.font.PDType3Font|method|readCode|1|missing",
+      "disposition": "behavior-covered",
+      "note": "PDType3Font inherits this public PDFont behavior; existing Type3 tests cover width/metrics while the report counts declared concrete members only.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/BuiltInEncoding.java|org.apache.pdfbox.pdmodel.font.encoding.BuiltInEncoding|method|getCOSObject|0|missing",
+      "disposition": "behavior-covered",
+      "note": "The mapped PDModel encoding target file exposes this API and #508 tests cover the behavior; the report resolver currently binds the same simple type name to the FontBox encoding type, leaving this row conservative.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/BuiltInEncoding.java|org.apache.pdfbox.pdmodel.font.encoding.BuiltInEncoding|method|getEncodingName|0|missing",
+      "disposition": "behavior-covered",
+      "note": "The mapped PDModel encoding target file exposes this API and #508 tests cover the behavior; the report resolver currently binds the same simple type name to the FontBox encoding type, leaving this row conservative.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/MacRomanEncoding.java|org.apache.pdfbox.pdmodel.font.encoding.MacRomanEncoding|constructor|MacRomanEncoding|0|missing",
+      "disposition": "behavior-covered",
+      "note": "The mapped PDModel encoding target file exposes this API and #508 tests cover the behavior; the report resolver currently binds the same simple type name to the FontBox encoding type, leaving this row conservative.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/MacRomanEncoding.java|org.apache.pdfbox.pdmodel.font.encoding.MacRomanEncoding|method|getCOSObject|0|missing",
+      "disposition": "behavior-covered",
+      "note": "The mapped PDModel encoding target file exposes this API and #508 tests cover the behavior; the report resolver currently binds the same simple type name to the FontBox encoding type, leaving this row conservative.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/MacRomanEncoding.java|org.apache.pdfbox.pdmodel.font.encoding.MacRomanEncoding|method|getEncodingName|0|missing",
+      "disposition": "behavior-covered",
+      "note": "The mapped PDModel encoding target file exposes this API and #508 tests cover the behavior; the report resolver currently binds the same simple type name to the FontBox encoding type, leaving this row conservative.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/StandardEncoding.java|org.apache.pdfbox.pdmodel.font.encoding.StandardEncoding|method|getCOSObject|0|missing",
+      "disposition": "behavior-covered",
+      "note": "The mapped PDModel encoding target file exposes this API and #508 tests cover the behavior; the report resolver currently binds the same simple type name to the FontBox encoding type, leaving this row conservative.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/StandardEncoding.java|org.apache.pdfbox.pdmodel.font.encoding.StandardEncoding|method|getEncodingName|0|missing",
+      "disposition": "behavior-covered",
+      "note": "The mapped PDModel encoding target file exposes this API and #508 tests cover the behavior; the report resolver currently binds the same simple type name to the FontBox encoding type, leaving this row conservative.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/SymbolEncoding.java|org.apache.pdfbox.pdmodel.font.encoding.SymbolEncoding|constructor|SymbolEncoding|0|missing",
+      "disposition": "not-applicable",
+      "note": "Parser artifact for the public INSTANCE singleton initializer; the named encoding singleton is already present and the constructor remains private as in Java.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/WinAnsiEncoding.java|org.apache.pdfbox.pdmodel.font.encoding.WinAnsiEncoding|constructor|WinAnsiEncoding|0|missing",
+      "disposition": "not-applicable",
+      "note": "Parser artifact for the public INSTANCE singleton initializer; the named encoding singleton is already present and the constructor remains private as in Java.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/ZapfDingbatsEncoding.java|org.apache.pdfbox.pdmodel.font.encoding.ZapfDingbatsEncoding|constructor|ZapfDingbatsEncoding|0|missing",
+      "disposition": "not-applicable",
+      "note": "Parser artifact for the public INSTANCE singleton initializer; the named encoding singleton is already present and the constructor remains private as in Java.",
+      "issue": 508,
+      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "reviewed_by": "Codex"
     }
   ]
 }

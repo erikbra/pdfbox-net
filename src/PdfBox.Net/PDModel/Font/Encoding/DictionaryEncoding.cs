@@ -35,26 +35,40 @@ public sealed class DictionaryEncoding : Encoding
     private static readonly COSName DifferencesKey = COSName.GetPDFName("Differences");
     private static readonly COSName EncodingKey = COSName.GetPDFName("Encoding");
 
+    private readonly COSBase? _encoding;
+    private readonly Encoding? _baseEncoding;
+    private readonly Dictionary<int, string> _differences = new();
+    private readonly IReadOnlyDictionary<int, string> _readOnlyDifferences;
+
     public DictionaryEncoding(COSDictionary fontDictionary)
     {
         ArgumentNullException.ThrowIfNull(fontDictionary);
+        _readOnlyDifferences = _differences;
 
-        Encoding baseEncoding = ResolveBaseEncoding(fontDictionary.GetDictionaryObject(EncodingKey));
+        _encoding = fontDictionary.GetDictionaryObject(EncodingKey);
+        Encoding baseEncoding = ResolveBaseEncoding(_encoding);
+        _baseEncoding = baseEncoding;
         foreach (KeyValuePair<int, string> kv in baseEncoding.GetCodeToNameMap())
         {
             AddCharacterEncoding(kv.Key, kv.Value);
         }
 
-        COSBase? encoding = fontDictionary.GetDictionaryObject(EncodingKey);
-        if (encoding is COSDictionary encodingDictionary && encodingDictionary.GetCOSArray(DifferencesKey) is COSArray differences)
+        if (_encoding is COSDictionary encodingDictionary && encodingDictionary.GetCOSArray(DifferencesKey) is COSArray differences)
         {
             ApplyDifferences(differences);
         }
     }
 
+    public DictionaryEncoding(COSName baseEncoding, COSArray differences)
+        : this(CreateEncodingDictionary(baseEncoding, differences), true, null)
+    {
+    }
+
     public DictionaryEncoding(COSDictionary encodingDictionary, bool isNonSymbolic, Encoding? builtIn)
     {
         ArgumentNullException.ThrowIfNull(encodingDictionary);
+        _readOnlyDifferences = _differences;
+        _encoding = encodingDictionary;
 
         Encoding? baseEncoding = null;
         if (encodingDictionary.GetDictionaryObject(BaseEncodingKey) is COSName baseName)
@@ -65,6 +79,7 @@ public sealed class DictionaryEncoding : Encoding
         baseEncoding ??= isNonSymbolic
             ? StandardEncoding.INSTANCE
             : builtIn ?? new Encoding();
+        _baseEncoding = baseEncoding;
 
         foreach (KeyValuePair<int, string> kv in baseEncoding.GetCodeToNameMap())
         {
@@ -75,6 +90,19 @@ public sealed class DictionaryEncoding : Encoding
         {
             ApplyDifferences(differences);
         }
+    }
+
+    public Encoding? GetBaseEncoding() => _baseEncoding;
+
+    public IReadOnlyDictionary<int, string> GetDifferences() => _readOnlyDifferences;
+
+    public override COSBase? GetCOSObject() => _encoding;
+
+    public override string GetEncodingName()
+    {
+        return _baseEncoding == null
+            ? "differences"
+            : $"{_baseEncoding.GetEncodingName()} with differences";
     }
 
     public static Encoding ResolveEncoding(COSDictionary fontDictionary)
@@ -162,8 +190,19 @@ public sealed class DictionaryEncoding : Encoding
             else if (item is COSName name && currentCode >= 0)
             {
                 AddCharacterEncoding(currentCode, name.GetName());
+                _differences[currentCode] = name.GetName();
                 currentCode++;
             }
         }
+    }
+
+    private static COSDictionary CreateEncodingDictionary(COSName baseEncoding, COSArray differences)
+    {
+        ArgumentNullException.ThrowIfNull(baseEncoding);
+        ArgumentNullException.ThrowIfNull(differences);
+        COSDictionary dictionary = new();
+        dictionary.SetItem(BaseEncodingKey, baseEncoding);
+        dictionary.SetItem(DifferencesKey, differences);
+        return dictionary;
     }
 }
