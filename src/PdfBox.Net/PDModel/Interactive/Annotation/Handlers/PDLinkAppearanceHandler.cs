@@ -16,7 +16,12 @@ using PdfBox.Net.PDModel.Graphics.Color;
 
 public sealed class PDLinkAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDLinkAppearanceHandler(PDAnnotation annotation, PDDocument? document = null)
+    public PDLinkAppearanceHandler(PDAnnotation annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDLinkAppearanceHandler(PDAnnotation annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -117,4 +122,5 @@ public sealed class PDLinkAppearanceHandler : PDAbstractAppearanceHandler
             Math.Max(0, rectangle.GetWidth() - 2 * padding),
             Math.Max(0, rectangle.GetHeight() - 2 * padding));
     }
+
 }

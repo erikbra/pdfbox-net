@@ -36,6 +36,8 @@ public class PDMeasureDictionary : COSObjectable
 
     public string GetMeasureType() => TYPE;
 
+    public string GetTypeName() => TYPE;
+
     public string GetSubtype() => _dictionary.GetNameAsString(COSName.SUBTYPE, PDRectlinearMeasureDictionary.SUBTYPE) ?? PDRectlinearMeasureDictionary.SUBTYPE;
 
     protected void SetSubtype(string subtype) => _dictionary.SetName(COSName.SUBTYPE, subtype);

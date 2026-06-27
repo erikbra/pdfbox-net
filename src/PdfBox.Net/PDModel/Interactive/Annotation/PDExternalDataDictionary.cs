@@ -32,6 +32,11 @@ public sealed class PDExternalDataDictionary : COSObjectable
         return dictionary.GetNameAsString(COSName.SUBTYPE);
     }
 
+    public string GetTypeName()
+    {
+        return dictionary.GetNameAsString(COSName.TYPE, "ExData");
+    }
+
     public void SetSubtype(string? subtype)
     {
         dictionary.SetName(COSName.SUBTYPE, subtype);

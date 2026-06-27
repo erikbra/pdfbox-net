@@ -12,7 +12,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDLineAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDLineAppearanceHandler(PDAnnotationLine annotation, PDDocument? document = null)
+    public PDLineAppearanceHandler(PDAnnotationLine annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDLineAppearanceHandler(PDAnnotationLine annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -35,5 +40,13 @@ public sealed class PDLineAppearanceHandler : PDAbstractAppearanceHandler
         contents.MoveTo(line[0], line[1]);
         contents.LineTo(line[2], line[3]);
         contents.Stroke();
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

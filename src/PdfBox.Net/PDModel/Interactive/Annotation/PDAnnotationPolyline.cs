@@ -9,6 +9,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
@@ -27,6 +28,62 @@ public sealed class PDAnnotationPolyline : PDAnnotationMarkup
     public PDAnnotationPolyline(COSDictionary dictionary)
         : base(dictionary)
     {
+    }
+
+    public void SetStartPointEndingStyle(string? style)
+    {
+        string actualStyle = style ?? PDAnnotationLine.LE_NONE;
+        COSArray? array = GetCOSDictionary().GetCOSArray(COSName.GetPDFName("LE"));
+        if (array == null || array.IsEmpty())
+        {
+            array = new COSArray();
+            array.Add(COSName.GetPDFName(actualStyle));
+            array.Add(COSName.GetPDFName(PDAnnotationLine.LE_NONE));
+            GetCOSDictionary().SetItem(COSName.GetPDFName("LE"), array);
+        }
+        else
+        {
+            array.SetName(0, actualStyle);
+        }
+    }
+
+    public string GetStartPointEndingStyle()
+    {
+        COSArray? array = GetCOSDictionary().GetCOSArray(COSName.GetPDFName("LE"));
+        return array != null && array.Size() >= 2 ? array.GetName(0, PDAnnotationLine.LE_NONE)! : PDAnnotationLine.LE_NONE;
+    }
+
+    public void SetEndPointEndingStyle(string? style)
+    {
+        string actualStyle = style ?? PDAnnotationLine.LE_NONE;
+        COSArray? array = GetCOSDictionary().GetCOSArray(COSName.GetPDFName("LE"));
+        if (array == null || array.Size() < 2)
+        {
+            array = new COSArray();
+            array.Add(COSName.GetPDFName(PDAnnotationLine.LE_NONE));
+            array.Add(COSName.GetPDFName(actualStyle));
+            GetCOSDictionary().SetItem(COSName.GetPDFName("LE"), array);
+        }
+        else
+        {
+            array.SetName(1, actualStyle);
+        }
+    }
+
+    public string GetEndPointEndingStyle()
+    {
+        COSArray? array = GetCOSDictionary().GetCOSArray(COSName.GetPDFName("LE"));
+        return array != null && array.Size() >= 2 ? array.GetName(1, PDAnnotationLine.LE_NONE)! : PDAnnotationLine.LE_NONE;
+    }
+
+    public override PDColor? GetInteriorColor()
+    {
+        return base.GetInteriorColor();
+    }
+
+    public override void SetInteriorColor(PDColor? color)
+    {
+        base.SetInteriorColor(color);
     }
 
     public float[]? GetVertices()
@@ -65,6 +122,11 @@ public sealed class PDAnnotationPolyline : PDAnnotationMarkup
     public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
     {
         customAppearanceHandler = appearanceHandler;
+    }
+
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
     }
 
     public override void ConstructAppearances(PDDocument? document)

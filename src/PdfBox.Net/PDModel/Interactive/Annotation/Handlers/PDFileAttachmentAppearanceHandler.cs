@@ -12,7 +12,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDFileAttachmentAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDFileAttachmentAppearanceHandler(PDAnnotation annotation, PDDocument? document = null)
+    public PDFileAttachmentAppearanceHandler(PDAnnotation annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDFileAttachmentAppearanceHandler(PDAnnotation annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -20,5 +25,13 @@ public sealed class PDFileAttachmentAppearanceHandler : PDAbstractAppearanceHand
     public override void GenerateNormalAppearance()
     {
         WriteDefaultNormalAppearance("PDFileAttachmentAppearance");
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

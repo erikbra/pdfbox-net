@@ -10,6 +10,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Graphics.Form;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
@@ -18,6 +19,9 @@ public sealed class PDAppearanceCharacteristicsDictionary : COSObjectable
     private static readonly COSName BorderColorName = COSName.GetPDFName("BC");
     private static readonly COSName BackgroundColorName = COSName.GetPDFName("BG");
     private static readonly COSName RotationName = COSName.GetPDFName("R");
+    private static readonly COSName NormalIconName = COSName.GetPDFName("I");
+    private static readonly COSName RolloverIconName = COSName.GetPDFName("RI");
+    private static readonly COSName AlternateIconName = COSName.GetPDFName("IX");
 
     private readonly COSDictionary _dictionary;
 
@@ -56,6 +60,21 @@ public sealed class PDAppearanceCharacteristicsDictionary : COSObjectable
     public string? GetAlternateCaption() => _dictionary.GetString(COSName.GetPDFName("AC"));
 
     public void SetAlternateCaption(string? caption) => _dictionary.SetString(COSName.GetPDFName("AC"), caption);
+
+    public PDFormXObject? GetNormalIcon()
+    {
+        return _dictionary.GetCOSStream(NormalIconName) is COSStream stream ? new PDFormXObject(stream) : null;
+    }
+
+    public PDFormXObject? GetRolloverIcon()
+    {
+        return _dictionary.GetCOSStream(RolloverIconName) is COSStream stream ? new PDFormXObject(stream) : null;
+    }
+
+    public PDFormXObject? GetAlternateIcon()
+    {
+        return _dictionary.GetCOSStream(AlternateIconName) is COSStream stream ? new PDFormXObject(stream) : null;
+    }
 
     private PDColor? GetColor(COSName key)
     {

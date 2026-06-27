@@ -12,7 +12,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDHighlightAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDHighlightAppearanceHandler(PDAnnotationHighlight annotation, PDDocument? document = null)
+    public PDHighlightAppearanceHandler(PDAnnotationHighlight annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDHighlightAppearanceHandler(PDAnnotationHighlight annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -40,5 +45,13 @@ public sealed class PDHighlightAppearanceHandler : PDAbstractAppearanceHandler
             contents.ClosePath();
             contents.Fill();
         }
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

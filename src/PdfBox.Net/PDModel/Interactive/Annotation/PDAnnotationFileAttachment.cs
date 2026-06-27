@@ -37,6 +37,10 @@ public sealed class PDAnnotationFileAttachment : PDAnnotationMarkup
     private PDAppearanceHandler? customAppearanceHandler;
 
     public const string SUB_TYPE = "FileAttachment";
+    public const string ATTACHMENT_NAME_PUSH_PIN = "PushPin";
+    public const string ATTACHMENT_NAME_GRAPH = "Graph";
+    public const string ATTACHMENT_NAME_PAPERCLIP = "Paperclip";
+    public const string ATTACHMENT_NAME_TAG = "Tag";
 
     public PDAnnotationFileAttachment()
     {
@@ -57,6 +61,16 @@ public sealed class PDAnnotationFileAttachment : PDAnnotationMarkup
     public void SetFile(PDFileSpecification? file)
     {
         GetCOSDictionary().SetItem(COSName.GetPDFName("FS"), file);
+    }
+
+    public string GetAttachmentName()
+    {
+        return GetCOSDictionary().GetNameAsString(COSName.NAME, ATTACHMENT_NAME_PUSH_PIN);
+    }
+
+    public void SetAttachmentName(string? name)
+    {
+        GetCOSDictionary().SetName(COSName.NAME, name);
     }
 
     public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)

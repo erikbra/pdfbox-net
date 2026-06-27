@@ -39,9 +39,29 @@ public sealed class PDAnnotationCaret : PDAnnotationMarkup
         GetCOSDictionary().SetName(COSName.GetPDFName("Sy"), symbol);
     }
 
+    public void SetRectDifferences(float difference)
+    {
+        SetRectDifferences(difference, difference, difference, difference);
+    }
+
+    public void SetRectDifferences(float differenceLeft, float differenceTop, float differenceRight, float differenceBottom)
+    {
+        GetCOSDictionary().SetItem(COSName.GetPDFName("RD"), COSArray.Of(differenceLeft, differenceTop, differenceRight, differenceBottom));
+    }
+
+    public float[] GetRectDifferences()
+    {
+        return GetCOSDictionary().GetCOSArray(COSName.GetPDFName("RD"))?.ToFloatArray() ?? [];
+    }
+
     public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
     {
         customAppearanceHandler = appearanceHandler;
+    }
+
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
     }
 
     public override void ConstructAppearances(PDDocument? document)

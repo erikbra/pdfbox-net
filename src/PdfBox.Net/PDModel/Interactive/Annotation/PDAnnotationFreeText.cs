@@ -27,6 +27,7 @@
 
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
@@ -36,6 +37,9 @@ public sealed class PDAnnotationFreeText : PDAnnotationMarkup
     private PDAppearanceHandler? customAppearanceHandler;
 
     public const string SUB_TYPE = "FreeText";
+    public const string IT_FREE_TEXT = "FreeText";
+    public const string IT_FREE_TEXT_CALLOUT = "FreeTextCallout";
+    public const string IT_FREE_TEXT_TYPE_WRITER = "FreeTextTypeWriter";
 
     public PDAnnotationFreeText()
     {
@@ -45,6 +49,95 @@ public sealed class PDAnnotationFreeText : PDAnnotationMarkup
     public PDAnnotationFreeText(COSDictionary dict)
         : base(dict)
     {
+    }
+
+    public string? GetDefaultAppearance()
+    {
+        return GetCOSDictionary().GetString(COSName.GetPDFName("DA"));
+    }
+
+    public void SetDefaultAppearance(string? defaultAppearance)
+    {
+        GetCOSDictionary().SetString(COSName.GetPDFName("DA"), defaultAppearance);
+    }
+
+    public string? GetDefaultStyleString()
+    {
+        return GetCOSDictionary().GetString(COSName.GetPDFName("DS"));
+    }
+
+    public void SetDefaultStyleString(string? defaultStyleString)
+    {
+        GetCOSDictionary().SetString(COSName.GetPDFName("DS"), defaultStyleString);
+    }
+
+    public int GetQ()
+    {
+        return GetCOSDictionary().GetInt(COSName.GetPDFName("Q"), 0);
+    }
+
+    public void SetQ(int q)
+    {
+        GetCOSDictionary().SetInt(COSName.GetPDFName("Q"), q);
+    }
+
+    public void SetRectDifferences(float difference)
+    {
+        SetRectDifferences(difference, difference, difference, difference);
+    }
+
+    public void SetRectDifferences(float differenceLeft, float differenceTop, float differenceRight, float differenceBottom)
+    {
+        GetCOSDictionary().SetItem(COSName.GetPDFName("RD"), COSArray.Of(differenceLeft, differenceTop, differenceRight, differenceBottom));
+    }
+
+    public float[] GetRectDifferences()
+    {
+        return GetCOSDictionary().GetCOSArray(COSName.GetPDFName("RD"))?.ToFloatArray() ?? [];
+    }
+
+    public void SetCallout(float[]? callout)
+    {
+        GetCOSDictionary().SetItem(COSName.GetPDFName("CL"), callout == null ? null : COSArray.Of(callout));
+    }
+
+    public float[]? GetCallout()
+    {
+        return GetCOSDictionary().GetCOSArray(COSName.GetPDFName("CL"))?.ToFloatArray();
+    }
+
+    public void SetLineEndingStyle(string? style)
+    {
+        GetCOSDictionary().SetName(COSName.GetPDFName("LE"), style);
+    }
+
+    public string GetLineEndingStyle()
+    {
+        return GetCOSDictionary().GetNameAsString(COSName.GetPDFName("LE"), PDAnnotationLine.LE_NONE);
+    }
+
+    public void SetBorderEffect(PDBorderEffectDictionary? borderEffect)
+    {
+        GetCOSDictionary().SetItem(COSName.BE, borderEffect);
+    }
+
+    public PDBorderEffectDictionary? GetBorderEffect()
+    {
+        return GetCOSDictionary().GetCOSDictionary(COSName.BE) is COSDictionary dictionary
+            ? new PDBorderEffectDictionary(dictionary)
+            : null;
+    }
+
+    public void SetRectDifference(PDRectangle? rectangleDifference)
+    {
+        GetCOSDictionary().SetItem(COSName.GetPDFName("RD"), rectangleDifference);
+    }
+
+    public PDRectangle? GetRectDifference()
+    {
+        return GetCOSDictionary().GetCOSArray(COSName.GetPDFName("RD")) is COSArray array
+            ? new PDRectangle(array)
+            : null;
     }
 
     public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)

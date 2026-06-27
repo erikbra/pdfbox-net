@@ -52,6 +52,32 @@ public class PDAnnotationText : PDAnnotationMarkup
     public const string NameParagraph = "Paragraph";
     /// <summary>Constant for the name of a text annotation.</summary>
     public const string NameInsert = "Insert";
+    public const string NameCircle = "Circle";
+    public const string NameCross = "Cross";
+    public const string NameStar = "Star";
+    public const string NameCheck = "Check";
+    public const string NameRightArrow = "RightArrow";
+    public const string NameRightPointer = "RightPointer";
+    public const string NameUpArrow = "UpArrow";
+    public const string NameUpLeftArrow = "UpLeftArrow";
+    public const string NameCrossHairs = "CrossHairs";
+
+    public const string NAME_COMMENT = NameComment;
+    public const string NAME_KEY = NameKey;
+    public const string NAME_NOTE = NameNote;
+    public const string NAME_HELP = NameHelp;
+    public const string NAME_NEW_PARAGRAPH = NameNewParagraph;
+    public const string NAME_PARAGRAPH = NameParagraph;
+    public const string NAME_INSERT = NameInsert;
+    public const string NAME_CIRCLE = NameCircle;
+    public const string NAME_CROSS = NameCross;
+    public const string NAME_STAR = NameStar;
+    public const string NAME_CHECK = NameCheck;
+    public const string NAME_RIGHT_ARROW = NameRightArrow;
+    public const string NAME_RIGHT_POINTER = NameRightPointer;
+    public const string NAME_UP_ARROW = NameUpArrow;
+    public const string NAME_UP_LEFT_ARROW = NameUpLeftArrow;
+    public const string NAME_CROSS_HAIRS = NameCrossHairs;
 
     /// <summary>The type of annotation.</summary>
     public const string SUB_TYPE = "Text";
@@ -107,7 +133,27 @@ public class PDAnnotationText : PDAnnotationMarkup
     /// <returns>The name of the annotation.</returns>
     public string? GetName()
     {
-        return GetCOSDictionary().GetNameAsString(COSName.NAME);
+        return GetCOSDictionary().GetNameAsString(COSName.NAME, NAME_NOTE);
+    }
+
+    public string? GetState()
+    {
+        return GetCOSDictionary().GetString(COSName.GetPDFName("State"));
+    }
+
+    public void SetState(string? state)
+    {
+        GetCOSDictionary().SetString(COSName.GetPDFName("State"), state);
+    }
+
+    public string? GetStateModel()
+    {
+        return GetCOSDictionary().GetString(COSName.GetPDFName("StateModel"));
+    }
+
+    public void SetStateModel(string? stateModel)
+    {
+        GetCOSDictionary().SetString(COSName.GetPDFName("StateModel"), stateModel);
     }
 
     public void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)

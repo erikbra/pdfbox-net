@@ -44,6 +44,11 @@ public sealed class PDAnnotationInk : PDAnnotationMarkup
         customAppearanceHandler = appearanceHandler;
     }
 
+    public override void ConstructAppearances()
+    {
+        ConstructAppearances(null);
+    }
+
     public override void ConstructAppearances(PDDocument? document)
     {
         customAppearanceHandler ??= new PDInkAppearanceHandler(this, document);

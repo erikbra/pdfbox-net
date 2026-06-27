@@ -12,7 +12,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDInkAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDInkAppearanceHandler(PDAnnotation annotation, PDDocument? document = null)
+    public PDInkAppearanceHandler(PDAnnotation annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDInkAppearanceHandler(PDAnnotation annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -20,5 +25,13 @@ public sealed class PDInkAppearanceHandler : PDAbstractAppearanceHandler
     public override void GenerateNormalAppearance()
     {
         WriteDefaultNormalAppearance("PDInkAppearance");
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

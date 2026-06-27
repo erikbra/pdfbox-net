@@ -38,6 +38,8 @@ public class PDNumberFormatDictionary : COSObjectable
 
     public COSBase GetCOSObject() => _dictionary;
 
+    public string GetTypeName() => TYPE;
+
     public string GetUnits() => _dictionary.GetString(COSName.GetPDFName("U"), string.Empty);
     public void SetUnits(string? units) => _dictionary.SetString(COSName.GetPDFName("U"), units);
 

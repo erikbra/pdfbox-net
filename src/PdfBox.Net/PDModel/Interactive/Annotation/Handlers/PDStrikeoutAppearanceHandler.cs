@@ -12,7 +12,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDStrikeoutAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDStrikeoutAppearanceHandler(PDAnnotationStrikeOut annotation, PDDocument? document = null)
+    public PDStrikeoutAppearanceHandler(PDAnnotationStrikeOut annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDStrikeoutAppearanceHandler(PDAnnotationStrikeOut annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -41,5 +46,13 @@ public sealed class PDStrikeoutAppearanceHandler : PDAbstractAppearanceHandler
             contents.LineTo(endX, y);
             contents.Stroke();
         }
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

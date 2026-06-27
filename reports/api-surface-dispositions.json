@@ -4281,6 +4281,70 @@
       "issue": 506,
       "reviewed_at_utc": "2026-06-27T00:59:27Z",
       "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java|org.apache.pdfbox.pdmodel.interactive.TextAlign|method|valueOf|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# enum parsing is provided by Enum.Parse/TryParse and TextAlignExtensions.FromInt; adding a Java valueOf method to an enum is not a valid C# enum member shape.",
+      "issue": 507,
+      "reviewed_at_utc": "2026-06-27T01:39:42Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/AnnotationFilter.java|org.apache.pdfbox.pdmodel.interactive.annotation.AnnotationFilter|method|accept|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "AnnotationFilter is represented as a C# delegate in PdfBox.Net.PDModel.Annotations; delegate invocation replaces the Java functional-interface accept method.",
+      "issue": 507,
+      "reviewed_at_utc": "2026-06-27T01:39:42Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "type|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationUnknown.java|org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationUnknown|nonpublic-or-replacement-type",
+      "disposition": "internal-by-design",
+      "note": "PDAnnotationUnknown remains internal so unknown subtypes can round-trip through PDAnnotation.CreateAnnotation without exposing a public construction API for unsupported annotation types.",
+      "issue": 507,
+      "reviewed_at_utc": "2026-06-27T01:39:42Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationUnknown.java|org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationUnknown|constructor|PDAnnotationUnknown|1|missing",
+      "disposition": "internal-by-design",
+      "note": "The constructor is internal together with the PDAnnotationUnknown type; unknown annotations are produced by PDAnnotation.CreateAnnotation as an implementation detail.",
+      "issue": 507,
+      "reviewed_at_utc": "2026-06-27T01:39:42Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDExternalDataDictionary.java|org.apache.pdfbox.pdmodel.interactive.annotation.PDExternalDataDictionary|method|getType|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "A Java-style getType method would hide object.GetType for strongly-typed C# callers; the PDF dictionary type value is exposed as GetTypeName instead.",
+      "issue": 507,
+      "reviewed_at_utc": "2026-06-27T01:39:42Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDMeasureDictionary.java|org.apache.pdfbox.pdmodel.interactive.measurement.PDMeasureDictionary|method|getType|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "A Java-style getType method would hide object.GetType for strongly-typed C# callers; the PDF dictionary type value is exposed as GetMeasureType and GetTypeName instead.",
+      "issue": 507,
+      "reviewed_at_utc": "2026-06-27T01:39:42Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDNumberFormatDictionary.java|org.apache.pdfbox.pdmodel.interactive.measurement.PDNumberFormatDictionary|method|getType|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "A Java-style getType method would hide object.GetType for strongly-typed C# callers; the PDF dictionary type value is exposed as GetTypeName instead.",
+      "issue": 507,
+      "reviewed_at_utc": "2026-06-27T01:39:42Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDViewportDictionary.java|org.apache.pdfbox.pdmodel.interactive.measurement.PDViewportDictionary|method|getType|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "A Java-style getType method would hide object.GetType for strongly-typed C# callers; the PDF dictionary type value is exposed as GetViewportType and GetTypeName instead.",
+      "issue": 507,
+      "reviewed_at_utc": "2026-06-27T01:39:42Z",
+      "reviewed_by": "Codex"
     }
   ]
 }

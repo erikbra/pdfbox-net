@@ -14,7 +14,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDSquareAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDSquareAppearanceHandler(PDAnnotationSquare annotation, PDDocument? document = null)
+    public PDSquareAppearanceHandler(PDAnnotationSquare annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDSquareAppearanceHandler(PDAnnotationSquare annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -39,5 +44,13 @@ public sealed class PDSquareAppearanceHandler : PDAbstractAppearanceHandler
     {
         return new PDRectangle(rect.GetLowerLeftX() + inset, rect.GetLowerLeftY() + inset,
             Math.Max(0, rect.GetWidth() - inset * 2), Math.Max(0, rect.GetHeight() - inset * 2));
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

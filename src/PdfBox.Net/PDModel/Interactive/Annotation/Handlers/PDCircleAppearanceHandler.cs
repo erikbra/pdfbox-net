@@ -14,7 +14,12 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDCircleAppearanceHandler : PDAbstractAppearanceHandler
 {
-    public PDCircleAppearanceHandler(PDAnnotationCircle annotation, PDDocument? document = null)
+    public PDCircleAppearanceHandler(PDAnnotationCircle annotation)
+        : this(annotation, null)
+    {
+    }
+
+    public PDCircleAppearanceHandler(PDAnnotationCircle annotation, PDDocument? document)
         : base(annotation, document)
     {
     }
@@ -37,5 +42,13 @@ public sealed class PDCircleAppearanceHandler : PDAbstractAppearanceHandler
             Math.Max(0, Rectangle.GetHeight() - lineWidth));
         DrawCircle(contents, box);
         contents.DrawShape(lineWidth, hasStroke, hasFill);
+    }
+
+    public override void GenerateRolloverAppearance()
+    {
+    }
+
+    public override void GenerateDownAppearance()
+    {
     }
 }

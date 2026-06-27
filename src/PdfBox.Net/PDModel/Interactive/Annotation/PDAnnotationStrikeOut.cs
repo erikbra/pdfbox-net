@@ -69,6 +69,8 @@ public class PDAnnotationStrikeOut : PDAnnotationTextMarkup
 
 public sealed class PDAnnotationStrikeout : PDAnnotationStrikeOut
 {
+    public new const string SUB_TYPE = PDAnnotationStrikeOut.SUB_TYPE;
+
     public PDAnnotationStrikeout()
     {
     }
@@ -76,5 +78,20 @@ public sealed class PDAnnotationStrikeout : PDAnnotationStrikeOut
     public PDAnnotationStrikeout(COSDictionary dict)
         : base(dict)
     {
+    }
+
+    public new void SetCustomAppearanceHandler(PDAppearanceHandler? appearanceHandler)
+    {
+        base.SetCustomAppearanceHandler(appearanceHandler);
+    }
+
+    public override void ConstructAppearances()
+    {
+        base.ConstructAppearances();
+    }
+
+    public override void ConstructAppearances(PDDocument? document)
+    {
+        base.ConstructAppearances(document);
     }
 }
