@@ -30,7 +30,7 @@ namespace PdfBox.Net.FontBox.TTF;
 /// <summary>
 /// A name record in the name table.
 /// </summary>
-public sealed class NameRecord
+public sealed partial class NameRecord
 {
     public const int PLATFORM_UNICODE = 0;
     public const int PLATFORM_MACINTOSH = 1;
@@ -63,42 +63,41 @@ public sealed class NameRecord
     public const int NAME_POSTSCRIPT_NAME = 6;
     public const int NAME_TRADEMARK = 7;
 
-    public int PlatformId { get; set; }
-    public int PlatformEncodingId { get; set; }
-    public int LanguageId { get; set; }
-    public int NameId { get; set; }
-    public int StringLength { get; set; }
-    public int StringOffset { get; set; }
-    public string? String { get; set; }
+    private int _platformId;
+    private int _platformEncodingId;
+    private int _languageId;
+    private int _nameId;
+    private int _stringLength;
+    private int _stringOffset;
+    private string? _string;
 
     internal void InitData(TrueTypeFont ttf, TTFDataStream data)
     {
-        PlatformId = data.ReadUnsignedShort();
-        PlatformEncodingId = data.ReadUnsignedShort();
-        LanguageId = data.ReadUnsignedShort();
-        NameId = data.ReadUnsignedShort();
-        StringLength = data.ReadUnsignedShort();
-        StringOffset = data.ReadUnsignedShort();
+        _platformId = data.ReadUnsignedShort();
+        _platformEncodingId = data.ReadUnsignedShort();
+        _languageId = data.ReadUnsignedShort();
+        _nameId = data.ReadUnsignedShort();
+        _stringLength = data.ReadUnsignedShort();
+        _stringOffset = data.ReadUnsignedShort();
     }
 
     public override string ToString()
     {
-        return $"platform={PlatformId} pEncoding={PlatformEncodingId} language={LanguageId} name={NameId} {String}";
+        return $"platform={_platformId} pEncoding={_platformEncodingId} language={_languageId} name={_nameId} {_string}";
     }
 
-    public int GetStringLength() => StringLength;
-    public void SetStringLength(int stringLengthValue) => StringLength = stringLengthValue;
-    public int GetStringOffset() => StringOffset;
-    public void SetStringOffset(int stringOffsetValue) => StringOffset = stringOffsetValue;
-    public int GetLanguageId() => LanguageId;
-    public void SetLanguageId(int languageIdValue) => LanguageId = languageIdValue;
-    public int GetNameId() => NameId;
-    public void SetNameId(int nameIdValue) => NameId = nameIdValue;
-    public int GetPlatformEncodingId() => PlatformEncodingId;
-    public void SetPlatformEncodingId(int platformEncodingIdValue) => PlatformEncodingId = platformEncodingIdValue;
-    public int GetPlatformId() => PlatformId;
-    public void SetPlatformId(int platformIdValue) => PlatformId = platformIdValue;
-    public string? GetString() => String;
-    public void SetString(string? stringValue) => String = stringValue;
-    public string Value { get => String ?? string.Empty; internal set => String = value; }
+    public int GetStringLength() => _stringLength;
+    public void SetStringLength(int stringLengthValue) => _stringLength = stringLengthValue;
+    public int GetStringOffset() => _stringOffset;
+    public void SetStringOffset(int stringOffsetValue) => _stringOffset = stringOffsetValue;
+    public int GetLanguageId() => _languageId;
+    public void SetLanguageId(int languageIdValue) => _languageId = languageIdValue;
+    public int GetNameId() => _nameId;
+    public void SetNameId(int nameIdValue) => _nameId = nameIdValue;
+    public int GetPlatformEncodingId() => _platformEncodingId;
+    public void SetPlatformEncodingId(int platformEncodingIdValue) => _platformEncodingId = platformEncodingIdValue;
+    public int GetPlatformId() => _platformId;
+    public void SetPlatformId(int platformIdValue) => _platformId = platformIdValue;
+    public string? GetString() => _string;
+    public void SetString(string? stringValue) => _string = stringValue;
 }

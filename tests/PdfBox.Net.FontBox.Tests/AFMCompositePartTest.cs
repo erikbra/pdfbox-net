@@ -40,5 +40,8 @@ public class AFMCompositePartTest
         Assert.Equal(20, compositePart.DisplacementY);
         Assert.Equal(10, compositePart.XDisplacement);
         Assert.Equal(20, compositePart.YDisplacement);
+        Assert.Equal("name", compositePart.GetName());
+        Assert.Equal(10, compositePart.GetXDisplacement());
+        Assert.Equal(20, compositePart.GetYDisplacement());
     }
 }

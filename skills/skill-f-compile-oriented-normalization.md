@@ -30,10 +30,12 @@ Apply a constrained, post-mechanical normalization pass so converted files are c
 - **java.io.RandomAccessFile → FileStream with FileOptions.RandomAccess**: See **Skill G §1**.
 - **Memory-mapped files — empty file guard**: `MemoryMappedFile.CreateFromFile` throws for zero-length files. Add `if (_size > 0)` guard and explicit `_isClosed` flag. See **Skill G §4**.
 - **Test assertion char-literal widening**: `Assert.Equal('A', reader.Read())` does not compile in xUnit v3 (no implicit char→int widening). Cast to `(int)'A'` for `int`-returning methods or `(byte)'A'` for `byte[]` element comparisons. See **Skill G §14**.
+- **Partial marker for adapter facades**: If a type needs an idiomatic .NET property facade, the only compile-normalization change to the mechanical file should be adding the `partial` keyword. Put the actual property facade in a sibling partial adapter file; see **Skill G §17**.
 
 ## Disallowed changes in this skill
 - Functional redesign of behavior.
 - Public API redesign for ".NET-feeling" ergonomics.
+- Collapsing Java `GetX`/`SetX`/`IsX`/`HasX` methods into C# properties inside mechanically converted files.
 - Silent semantic changes without note.
 - Removing upstream license/provenance/doc traceability content from mechanically ported files.
 

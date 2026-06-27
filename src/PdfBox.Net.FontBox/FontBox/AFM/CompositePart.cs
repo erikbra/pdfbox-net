@@ -31,40 +31,37 @@ namespace PdfBox.Net.FontBox.AFM;
 /// This class represents a part of a composite glyph.
 /// It holds the component glyph name and its displacement offsets.
 /// </summary>
-public class CompositePart
+public partial class CompositePart
 {
+    private string _name = string.Empty;
+    private int _xDisplacement;
+    private int _yDisplacement;
+
     public CompositePart()
     {
     }
 
     public CompositePart(string name, int xDisplacement, int yDisplacement)
     {
-        Name = name;
-        DisplacementX = xDisplacement;
-        DisplacementY = yDisplacement;
+        _name = name;
+        _xDisplacement = xDisplacement;
+        _yDisplacement = yDisplacement;
     }
 
-    /// <summary>Gets or sets the component glyph name.</summary>
-    public string Name { get; set; } = string.Empty;
-
-    /// <summary>Gets or sets the x displacement from the origin of the composite.</summary>
-    public int DisplacementX { get; set; }
-
-    /// <summary>Gets or sets the y displacement from the origin of the composite.</summary>
-    public int DisplacementY { get; set; }
-
-    public int XDisplacement
+    public string GetName()
     {
-        get => DisplacementX;
-        set => DisplacementX = value;
+        return _name;
     }
 
-    public int YDisplacement
+    public int GetXDisplacement()
     {
-        get => DisplacementY;
-        set => DisplacementY = value;
+        return _xDisplacement;
     }
 
-    public override string ToString() =>
-        $"CompositePart[name={Name}, dx={DisplacementX}, dy={DisplacementY}]";
+    public int GetYDisplacement()
+    {
+        return _yDisplacement;
+    }
+
+    public override string ToString() => $"CompositePart[name={GetName()}, dx={GetXDisplacement()}, dy={GetYDisplacement()}]";
 }
