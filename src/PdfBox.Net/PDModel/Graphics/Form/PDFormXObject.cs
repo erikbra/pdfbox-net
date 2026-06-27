@@ -29,6 +29,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.IO;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Util;
 
@@ -39,6 +40,10 @@ public class PDFormXObject : PDXObject, PDContentStream
     private static readonly COSName FormTypeName = COSName.GetPDFName("FormType");
     private static readonly COSName BboxName = COSName.GetPDFName("BBox");
     private static readonly COSName MatrixName = COSName.GetPDFName("Matrix");
+    private static readonly COSName GroupName = COSName.GetPDFName("Group");
+    private static readonly COSName OptionalContentName = COSName.GetPDFName("OC");
+
+    private PDTransparencyGroupAttributes? _group;
 
     public PDFormXObject(PDStream stream)
         : base(stream)
@@ -60,6 +65,22 @@ public class PDFormXObject : PDXObject, PDContentStream
     public int GetFormType() => GetCOSObject()?.GetInt(FormTypeName, 1) ?? 1;
 
     public void SetFormType(int formType) => GetCOSObject()?.SetInt(FormTypeName, formType);
+
+    public PDTransparencyGroupAttributes? GetGroup()
+    {
+        if (_group is null && GetCOSObject()?.GetCOSDictionary(GroupName) is COSDictionary dictionary)
+        {
+            _group = new PDTransparencyGroupAttributes(dictionary);
+        }
+
+        return _group;
+    }
+
+    public void SetGroup(PDTransparencyGroupAttributes? group)
+    {
+        _group = group;
+        GetCOSObject()?.SetItem(GroupName, group);
+    }
 
     public PDStream GetContentStream() => new(GetCOSObject()!);
 
@@ -127,5 +148,20 @@ public class PDFormXObject : PDXObject, PDContentStream
     {
         ArgumentNullException.ThrowIfNull(at);
         SetMatrix(new Matrix(at));
+    }
+
+    public int GetStructParents() => GetCOSObject()?.GetInt(COSName.STRUCT_PARENTS) ?? -1;
+
+    public void SetStructParents(int structParent) => GetCOSObject()?.SetInt(COSName.STRUCT_PARENTS, structParent);
+
+    public PDPropertyList? GetOptionalContent()
+    {
+        COSDictionary? optionalContent = GetCOSObject()?.GetCOSDictionary(OptionalContentName);
+        return optionalContent is null ? null : PDPropertyList.Create(optionalContent);
+    }
+
+    public void SetOptionalContent(PDPropertyList? optionalContent)
+    {
+        GetCOSObject()?.SetItem(OptionalContentName, optionalContent);
     }
 }

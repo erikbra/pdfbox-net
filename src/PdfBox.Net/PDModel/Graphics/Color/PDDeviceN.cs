@@ -39,11 +39,14 @@ public sealed class PDDeviceN : PDColorSpace
     private const int TintTransformIndex = 3;
     private const int AttributesIndex = 4;
 
-    private readonly int _numberOfComponents;
-    private readonly PDColorSpace _alternateColorSpace;
-    private readonly PDFunction _tintTransform;
-    private readonly PDDeviceNAttributes? _attributes;
-    private readonly PDColor _initialColor;
+    private PDColorSpace _alternateColorSpace;
+    private PDFunction _tintTransform;
+    private PDDeviceNAttributes? _attributes;
+
+    public PDDeviceN()
+        : this(CreatePlaceholderArray(), null)
+    {
+    }
 
     public PDDeviceN(List<string> names, PDColorSpace alternateCS, PDFunction tintTransform)
         : this(CreateDeviceNArray(names, alternateCS, tintTransform), null)
@@ -53,27 +56,84 @@ public sealed class PDDeviceN : PDColorSpace
     public PDDeviceN(COSArray array, PDResources? resources) : base(array)
     {
         COSArray? names = array.Size() > ColorantNamesIndex ? array.GetObject(ColorantNamesIndex) as COSArray : null;
-        _numberOfComponents = Math.Max(1, names?.Size() ?? 1);
-        _alternateColorSpace = Create(array.GetObject(AlternateColorSpaceIndex), resources);
-        _tintTransform = PDFunction.Create(array.GetObject(TintTransformIndex)!);
+        COSBase? alternateColorSpace = array.GetObject(AlternateColorSpaceIndex);
+        _alternateColorSpace = alternateColorSpace is null or COSNull
+            ? PDDeviceGray.Instance
+            : Create(alternateColorSpace, resources);
+        COSBase? tintTransform = array.GetObject(TintTransformIndex);
+        _tintTransform = tintTransform is null or COSNull
+            ? new PDFunctionTypeIdentity(COSName.IDENTITY)
+            : PDFunction.Create(tintTransform);
         _attributes = array.Size() > AttributesIndex && array.GetObject(AttributesIndex) is COSDictionary attributesDictionary
             ? new PDDeviceNAttributes(attributesDictionary)
             : null;
-        float[] initial = new float[_numberOfComponents];
-        Array.Fill(initial, 1f);
-        _initialColor = new PDColor(initial, this);
     }
 
     public override string GetName() => DeviceN.GetName();
 
     public PDDeviceNAttributes? GetAttributes() => _attributes;
 
-    public override int GetNumberOfComponents() => _numberOfComponents;
+    public bool IsNChannel() => _attributes?.IsNChannel() ?? false;
+
+    public List<string> GetColorantNames()
+    {
+        COSArray? names = ((COSArray)GetCOSObject()).GetObject(ColorantNamesIndex) as COSArray;
+        if (names is null)
+        {
+            return [];
+        }
+
+        List<string> result = new(names.Size());
+        for (int i = 0; i < names.Size(); i++)
+        {
+            if (names.GetObject(i) is COSName name)
+            {
+                result.Add(name.GetName());
+            }
+        }
+
+        return result;
+    }
+
+    public void SetColorantNames(List<string> names)
+    {
+        ArgumentNullException.ThrowIfNull(names);
+        ((COSArray)GetCOSObject()).Set(ColorantNamesIndex, COSArray.OfCOSNames(names));
+    }
+
+    public void SetAttributes(PDDeviceNAttributes? attributes)
+    {
+        _attributes = attributes;
+        COSArray array = (COSArray)GetCOSObject();
+        EnsureSize(array, AttributesIndex + 1);
+        array.Set(AttributesIndex, attributes?.GetCOSDictionary());
+    }
+
+    public PDColorSpace GetAlternateColorSpace() => _alternateColorSpace;
+
+    public void SetAlternateColorSpace(PDColorSpace? colorSpace)
+    {
+        _alternateColorSpace = colorSpace ?? PDDeviceGray.Instance;
+        COSArray array = (COSArray)GetCOSObject();
+        array.Set(AlternateColorSpaceIndex, colorSpace?.GetCOSObject());
+    }
+
+    public PDFunction GetTintTransform() => _tintTransform;
+
+    public void SetTintTransform(PDFunction? tint)
+    {
+        _tintTransform = tint ?? new PDFunctionTypeIdentity(COSName.IDENTITY);
+        COSArray array = (COSArray)GetCOSObject();
+        array.Set(TintTransformIndex, tint?.GetCOSObject());
+    }
+
+    public override int GetNumberOfComponents() => Math.Max(1, GetColorantNames().Count);
 
     public override float[] GetDefaultDecode(int bitsPerComponent)
     {
-        float[] decode = new float[_numberOfComponents * 2];
-        for (int i = 0; i < _numberOfComponents; i++)
+        int numberOfComponents = GetNumberOfComponents();
+        float[] decode = new float[numberOfComponents * 2];
+        for (int i = 0; i < numberOfComponents; i++)
         {
             decode[i * 2] = 0f;
             decode[(i * 2) + 1] = 1f;
@@ -82,7 +142,12 @@ public sealed class PDDeviceN : PDColorSpace
         return decode;
     }
 
-    public override PDColor GetInitialColor() => _initialColor;
+    public override PDColor GetInitialColor()
+    {
+        float[] initial = new float[GetNumberOfComponents()];
+        Array.Fill(initial, 1f);
+        return new PDColor(initial, this);
+    }
 
     public override float[] ToRGB(float[] value)
     {
@@ -106,5 +171,28 @@ public sealed class PDDeviceN : PDColorSpace
         array.Add(alternateCS.GetCOSObject());
         array.Add(tintTransform.GetCOSObject());
         return array;
+    }
+
+    public override string ToString()
+    {
+        return $"{GetName()}{{{string.Join(",", GetColorantNames())} {_alternateColorSpace.GetName()} {_tintTransform}}}";
+    }
+
+    private static COSArray CreatePlaceholderArray()
+    {
+        COSArray array = new();
+        array.Add(DeviceN);
+        array.Add(COSNull.NULL);
+        array.Add(COSNull.NULL);
+        array.Add(COSNull.NULL);
+        return array;
+    }
+
+    private static void EnsureSize(COSArray array, int size)
+    {
+        while (array.Size() < size)
+        {
+            array.Add(COSNull.NULL);
+        }
     }
 }
