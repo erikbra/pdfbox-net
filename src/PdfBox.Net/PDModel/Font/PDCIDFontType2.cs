@@ -28,6 +28,7 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.PDModel.Font;
 
@@ -129,6 +130,7 @@ public partial class PDCIDFontType2 : PDCIDFont
 
     public TrueTypeFont GetTrueTypeFont() => _trueTypeFont;
     public override bool IsEmbedded() => _isEmbedded;
+    public override bool IsDamaged() => false;
 
     /// <summary>
     /// Maps a CID to a glyph ID (GID) using the CIDToGIDMap entry.
@@ -184,6 +186,30 @@ public partial class PDCIDFontType2 : PDCIDFont
         int gid = CodeToGID(code);
         int unitsPerEm = _trueTypeFont.GetUnitsPerEm();
         return _trueTypeFont.GetAdvanceWidth(gid) * 1000f / Math.Max(1, unitsPerEm);
+    }
+
+    public override float GetHeight(int code)
+    {
+        return GetBoundingBox().GetHeight();
+    }
+
+    public bool HasGlyph(int code)
+    {
+        int gid = CodeToGID(code);
+        return _trueTypeFont.GetGlyph()?.GetGlyph(gid) != null;
+    }
+
+    public GeneralPath GetNormalizedPath(int code)
+    {
+        int gid = CodeToGID(code);
+        return TrueTypePathNormalizer.GetNormalizedPath(_trueTypeFont, gid, drawGidZero: IsEmbedded());
+    }
+
+    public GeneralPath GetPath(int code) => GetNormalizedPath(code);
+
+    public byte[] EncodeGlyphId(int glyphId)
+    {
+        return [(byte)(glyphId >> 8), (byte)glyphId];
     }
 
     private static int[]? ReadCidToGidMap(COSDictionary dictionary)

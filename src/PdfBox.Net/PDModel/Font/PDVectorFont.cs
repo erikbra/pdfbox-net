@@ -38,5 +38,6 @@ public abstract partial class PDVectorFont : PDFont
     }
 
     public abstract bool HasGlyph(int code);
+    public virtual GeneralPath GetPath(int code) => GetNormalizedPath(code);
     public abstract GeneralPath GetNormalizedPath(int code);
 }

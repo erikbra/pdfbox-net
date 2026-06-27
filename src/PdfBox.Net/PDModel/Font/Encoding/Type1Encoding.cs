@@ -27,11 +27,29 @@
 
 using PdfBox.Net.FontBox.Type1;
 using PdfBox.Net.FontBox.AFM;
+using PdfBox.Net.COS;
+using FontBoxEncoding = PdfBox.Net.FontBox.Encoding.Encoding;
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
 public sealed class Type1Encoding : Encoding
 {
+    public static Type1Encoding FromFontBox(FontBoxEncoding encoding)
+    {
+        ArgumentNullException.ThrowIfNull(encoding);
+        Type1Encoding result = new();
+        foreach (KeyValuePair<int, string> kv in encoding.GetCodeToNameMap())
+        {
+            result.AddCharacterEncoding(kv.Key, kv.Value);
+        }
+
+        return result;
+    }
+
+    public Type1Encoding()
+    {
+    }
+
     public Type1Encoding(FontMetrics fontMetrics)
     {
         ArgumentNullException.ThrowIfNull(fontMetrics);
@@ -52,4 +70,8 @@ public sealed class Type1Encoding : Encoding
             AddCharacterEncoding(kv.Key, kv.Value);
         }
     }
+
+    public override COSBase? GetCOSObject() => null;
+
+    public override string GetEncodingName() => "built-in (Type 1)";
 }

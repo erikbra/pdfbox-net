@@ -27,6 +27,8 @@
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
+using PdfBox.Net.COS;
+
 public sealed class MacExpertEncoding : Encoding
 {
     private static readonly (int Code, string Name)[] Entries =
@@ -73,11 +75,15 @@ public sealed class MacExpertEncoding : Encoding
 
     public static readonly MacExpertEncoding INSTANCE = new();
 
-    private MacExpertEncoding()
+    public MacExpertEncoding()
     {
         foreach ((int code, string name) in Entries)
         {
             AddCharacterEncoding(code, name);
         }
     }
+
+    public override COSBase GetCOSObject() => COSName.GetPDFName("MacExpertEncoding");
+
+    public override string GetEncodingName() => "MacExpertEncoding";
 }

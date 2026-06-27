@@ -27,6 +27,8 @@
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
+using PdfBox.Net.COS;
+
 public sealed class ZapfDingbatsEncoding : Encoding
 {
     public static readonly ZapfDingbatsEncoding INSTANCE = new();
@@ -67,4 +69,8 @@ public sealed class ZapfDingbatsEncoding : Encoding
         AddCharacterEncoding(62, "a7");
         AddCharacterEncoding(63, "a8");
     }
+
+    public override COSBase GetCOSObject() => COSName.GetPDFName("ZapfDingbatsEncoding");
+
+    public override string GetEncodingName() => "ZapfDingbatsEncoding";
 }

@@ -29,25 +29,31 @@ namespace PdfBox.Net.PDModel.Font;
 
 public sealed class PDPanose
 {
-    public const int PanoseLength = 10;
+    public const int LENGTH = 12;
+    public const int PanoseLength = LENGTH;
 
     private readonly byte[] _bytes;
 
     public PDPanose(byte[] bytes)
     {
-        _bytes = bytes is { Length: PanoseLength } ? (byte[])bytes.Clone() : throw new ArgumentException($"PANOSE requires exactly {PanoseLength} bytes.", nameof(bytes));
+        ArgumentNullException.ThrowIfNull(bytes);
+        _bytes = bytes.Length >= LENGTH ? bytes[..LENGTH] : throw new ArgumentException($"PANOSE requires at least {LENGTH} bytes.", nameof(bytes));
     }
 
-    public byte FamilyKind => _bytes[0];
-    public byte SerifStyle => _bytes[1];
-    public byte Weight => _bytes[2];
-    public byte Proportion => _bytes[3];
-    public byte Contrast => _bytes[4];
-    public byte StrokeVariation => _bytes[5];
-    public byte ArmStyle => _bytes[6];
-    public byte Letterform => _bytes[7];
-    public byte Midline => _bytes[8];
-    public byte XHeight => _bytes[9];
+    public int GetFamilyClass() => ((sbyte)_bytes[0] << 8) | _bytes[1];
+
+    public PDPanoseClassification GetPanose() => new(_bytes[2..LENGTH]);
+
+    public byte FamilyKind => GetPanose().GetBytes()[0];
+    public byte SerifStyle => GetPanose().GetBytes()[1];
+    public byte Weight => GetPanose().GetBytes()[2];
+    public byte Proportion => GetPanose().GetBytes()[3];
+    public byte Contrast => GetPanose().GetBytes()[4];
+    public byte StrokeVariation => GetPanose().GetBytes()[5];
+    public byte ArmStyle => GetPanose().GetBytes()[6];
+    public byte Letterform => GetPanose().GetBytes()[7];
+    public byte Midline => GetPanose().GetBytes()[8];
+    public byte XHeight => GetPanose().GetBytes()[9];
 
     public byte[] GetBytes() => (byte[])_bytes.Clone();
 }

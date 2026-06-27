@@ -27,6 +27,8 @@
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
+using PdfBox.Net.COS;
+
 public sealed class SymbolEncoding : Encoding
 {
     public static readonly SymbolEncoding INSTANCE = new();
@@ -113,4 +115,8 @@ public sealed class SymbolEncoding : Encoding
         AddCharacterEncoding(121, "psi");
         AddCharacterEncoding(122, "zeta");
     }
+
+    public override COSBase GetCOSObject() => COSName.GetPDFName("SymbolEncoding");
+
+    public override string GetEncodingName() => "SymbolEncoding";
 }

@@ -27,6 +27,8 @@
 
 namespace PdfBox.Net.PDModel.Font.Encoding;
 
+using PdfBox.Net.COS;
+
 public sealed class BuiltInEncoding : Encoding
 {
     public BuiltInEncoding(IDictionary<int, string> codeToName)
@@ -37,4 +39,11 @@ public sealed class BuiltInEncoding : Encoding
             AddCharacterEncoding(code, name);
         }
     }
+
+    public override COSBase? GetCOSObject()
+    {
+        throw new NotSupportedException("Built-in encodings cannot be serialized.");
+    }
+
+    public override string GetEncodingName() => "built-in (TTF)";
 }

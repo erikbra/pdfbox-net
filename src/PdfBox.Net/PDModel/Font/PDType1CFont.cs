@@ -29,6 +29,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.FontBox;
 using PdfBox.Net.FontBox.CFF;
 using PdfBox.Net.PDModel.Font.Encoding;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.PDModel.Font;
 
@@ -76,6 +77,10 @@ public sealed class PDType1CFont : PDSimpleFont
 
     public override bool IsStandard14() => false;
     public override bool IsEmbedded() => true;
+    public override bool IsDamaged() => false;
+    public string GetBaseFont() => GetName();
+    public override GeneralPath GetPath(int code) => base.GetPath(code);
+    public override GeneralPath GetPath(string name) => base.GetPath(name);
 
     private static PdfBox.Net.PDModel.Font.Encoding.Encoding ResolveEncoding(COSDictionary dictionary, CFFType1Font cffFont)
     {

@@ -79,6 +79,8 @@ public abstract class PDFont : PDFontLike
 
     public virtual bool IsEmbedded() => false;
 
+    public virtual bool IsDamaged() => false;
+
     public virtual bool IsStandard14() => false;
 
     public virtual float GetWidth(int code)
@@ -311,6 +313,16 @@ public abstract class PDFont : PDFontLike
         }
 
         return _fontDescriptor;
+    }
+
+    public virtual float GetHeight(int code)
+    {
+        return GetBoundingBox().GetHeight();
+    }
+
+    public virtual string? ToUnicode(int code)
+    {
+        return ToUnicode(code, GlyphList.GetAdobeGlyphList());
     }
 
     protected virtual string? ToUnicodeFallback(int code, GlyphList glyphList)

@@ -193,11 +193,14 @@ public sealed class PDType3Font : PDSimpleFont
     }
 
     public override GeneralPath GetNormalizedPath(int code) => new();
+    public override GeneralPath GetPath(int code) => GetNormalizedPath(code);
+    public override GeneralPath GetPath(string name) => new();
 
     public override FontBoxFont? GetFontBoxFont() => throw new NotSupportedException("Type 3 fonts do not use FontBox fonts.");
 
     public override bool IsStandard14() => false;
     public override bool IsEmbedded() => true;
+    public override bool IsDamaged() => false;
 
     public override float GetWidthFromFont(int code)
     {

@@ -27,7 +27,21 @@
 
 namespace PdfBox.Net.PDModel.Font;
 
+using PdfBox.Net.FontBox.Util;
+using PdfBox.Net.Util;
+
 public partial interface PDFontLike
 {
     string GetName();
+    PDFontDescriptor? GetFontDescriptor();
+    Matrix GetFontMatrix();
+    BoundingBox GetBoundingBox();
+    Vector GetPositionVector(int code);
+    float GetHeight(int code);
+    float GetWidth(int code);
+    bool HasExplicitWidth(int code);
+    float GetWidthFromFont(int code);
+    bool IsEmbedded();
+    bool IsDamaged();
+    float GetAverageFontWidth();
 }
