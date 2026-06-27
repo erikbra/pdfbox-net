@@ -25,6 +25,7 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.Util;
@@ -73,6 +74,13 @@ public class PDGraphicsState
     private float _nonStrokeAlphaConstant;
     private bool _alphaSource;
     private bool _strokeAdjustment;
+    private bool _overprint;
+    private bool _nonStrokingOverprint;
+    private int _overprintMode;
+    private COSBase? _transfer;
+    private double _smoothness;
+    private Matrix? _textLineMatrix;
+    private Matrix? _textMatrix;
     private BlendMode _blendMode;
     private PDSoftMask? _softMask;
 
@@ -98,6 +106,13 @@ public class PDGraphicsState
         _nonStrokeAlphaConstant = 1f;
         _alphaSource = false;
         _strokeAdjustment = false;
+        _overprint = false;
+        _nonStrokingOverprint = false;
+        _overprintMode = 0;
+        _transfer = null;
+        _smoothness = 0d;
+        _textLineMatrix = null;
+        _textMatrix = null;
         _blendMode = BlendMode.NORMAL;
         _softMask = null;
     }
@@ -129,6 +144,13 @@ public class PDGraphicsState
         float nonStrokeAlphaConstant,
         bool alphaSource,
         bool strokeAdjustment,
+        bool overprint,
+        bool nonStrokingOverprint,
+        int overprintMode,
+        COSBase? transfer,
+        double smoothness,
+        Matrix? textLineMatrix,
+        Matrix? textMatrix,
         BlendMode blendMode,
         PDSoftMask? softMask)
     {
@@ -151,6 +173,13 @@ public class PDGraphicsState
         _nonStrokeAlphaConstant = nonStrokeAlphaConstant;
         _alphaSource = alphaSource;
         _strokeAdjustment = strokeAdjustment;
+        _overprint = overprint;
+        _nonStrokingOverprint = nonStrokingOverprint;
+        _overprintMode = overprintMode;
+        _transfer = transfer;
+        _smoothness = smoothness;
+        _textLineMatrix = textLineMatrix;
+        _textMatrix = textMatrix;
         _blendMode = blendMode;
         _softMask = softMask;
     }
@@ -225,6 +254,23 @@ public class PDGraphicsState
     public void SetAlphaSource(bool value) => _alphaSource = value;
     public bool GetStrokeAdjustment() => _strokeAdjustment;
     public void SetStrokeAdjustment(bool value) => _strokeAdjustment = value;
+    public bool IsStrokeAdjustment() => GetStrokeAdjustment();
+    public bool IsAlphaSource() => GetAlphaSource();
+    public bool IsOverprint() => _overprint;
+    public void SetOverprint(bool value) => _overprint = value;
+    public bool IsNonStrokingOverprint() => _nonStrokingOverprint;
+    public void SetNonStrokingOverprint(bool value) => _nonStrokingOverprint = value;
+    public int GetOverprintMode() => _overprintMode;
+    public void SetOverprintMode(int value) => _overprintMode = value;
+    public double GetSmoothness() => _smoothness;
+    public void SetSmoothness(double value) => _smoothness = value;
+    public void SetTextState(PDTextState value) => _textState = value ?? new PDTextState();
+    public COSBase? GetTransfer() => _transfer;
+    public void SetTransfer(COSBase? transfer) => _transfer = transfer;
+    public Matrix? GetTextLineMatrix() => _textLineMatrix;
+    public void SetTextLineMatrix(Matrix? value) => _textLineMatrix = value;
+    public Matrix? GetTextMatrix() => _textMatrix;
+    public void SetTextMatrix(Matrix? value) => _textMatrix = value;
     public BlendMode GetBlendMode() => _blendMode;
     public void SetBlendMode(BlendMode value) => _blendMode = value;
     public PDSoftMask? GetSoftMask() => _softMask;
@@ -254,6 +300,13 @@ public class PDGraphicsState
             _nonStrokeAlphaConstant,
             _alphaSource,
             _strokeAdjustment,
+            _overprint,
+            _nonStrokingOverprint,
+            _overprintMode,
+            _transfer,
+            _smoothness,
+            _textLineMatrix,
+            _textMatrix,
             _blendMode,
             _softMask);
 

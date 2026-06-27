@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
 
@@ -35,6 +36,11 @@ public sealed class PDCalRGB : PDColorSpace
 
     private readonly float[] _gamma;
     private readonly PDColor _initialColor;
+
+    public PDCalRGB()
+        : this(new COSArray { CalRGB })
+    {
+    }
 
     public PDCalRGB(COSArray array) : base(array)
     {
@@ -63,6 +69,54 @@ public sealed class PDCalRGB : PDColorSpace
 
     public override PDColor GetInitialColor() => _initialColor;
 
+    public PDGamma GetGamma()
+    {
+        COSDictionary dictionary = GetDictionary();
+        COSArray? gammaArray = dictionary.GetCOSArray(COSName.GetPDFName("Gamma"));
+        if (gammaArray is null)
+        {
+            gammaArray = new COSArray();
+            gammaArray.Add(COSFloat.ONE);
+            gammaArray.Add(COSFloat.ONE);
+            gammaArray.Add(COSFloat.ONE);
+            dictionary.SetItem(COSName.GetPDFName("Gamma"), gammaArray);
+        }
+
+        return new PDGamma(gammaArray);
+    }
+
+    public float[] GetMatrix()
+    {
+        COSArray? matrix = GetDictionary().GetCOSArray(COSName.MATRIX);
+        return matrix is null ? [1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f] : matrix.ToFloatArray();
+    }
+
+    public void SetGamma(PDGamma? gamma)
+    {
+        GetDictionary().SetItem(COSName.GetPDFName("Gamma"), gamma?.GetCOSArray());
+        _gamma[0] = gamma?.GetR() ?? 1f;
+        _gamma[1] = gamma?.GetG() ?? 1f;
+        _gamma[2] = gamma?.GetB() ?? 1f;
+    }
+
+    public void SetMatrix(Matrix? matrix)
+    {
+        COSArray? matrixArray = null;
+        if (matrix is not null)
+        {
+            matrixArray = new COSArray();
+            for (int row = 0; row < 3; row++)
+            {
+                for (int column = 0; column < 3; column++)
+                {
+                    matrixArray.Add(new COSFloat(matrix.GetValue(row, column)));
+                }
+            }
+        }
+
+        GetDictionary().SetItem(COSName.MATRIX, matrixArray);
+    }
+
     public override float[] ToRGB(float[] value)
     {
         return
@@ -71,5 +125,24 @@ public sealed class PDCalRGB : PDColorSpace
             Clamp(MathF.Pow(Clamp(value.Length > 1 ? value[1] : 0f), _gamma[1])),
             Clamp(MathF.Pow(Clamp(value.Length > 2 ? value[2] : 0f), _gamma[2]))
         ];
+    }
+
+    private COSDictionary GetDictionary()
+    {
+        COSArray array = (COSArray)GetCOSObject();
+        if (array.Size() <= 1 || array.GetObject(1) is not COSDictionary dictionary)
+        {
+            dictionary = new COSDictionary();
+            if (array.Size() <= 1)
+            {
+                array.Add(dictionary);
+            }
+            else
+            {
+                array.Set(1, dictionary);
+            }
+        }
+
+        return dictionary;
     }
 }

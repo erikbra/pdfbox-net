@@ -38,9 +38,14 @@ public sealed class PDSeparation : PDColorSpace
     private const int AlternateColorSpaceIndex = 2;
     private const int TintTransformIndex = 3;
 
-    private readonly PDColorSpace _alternateColorSpace;
-    private readonly PDFunction _tintTransform;
+    private PDColorSpace _alternateColorSpace;
+    private PDFunction _tintTransform;
     private readonly PDColor _initialColor;
+
+    public PDSeparation()
+        : this(CreatePlaceholderArray(), null)
+    {
+    }
 
     public PDSeparation(string name, PDColorSpace alternateCS, PDFunction tintTransform)
         : this(CreateSeparationArray(name, alternateCS, tintTransform), null)
@@ -49,8 +54,14 @@ public sealed class PDSeparation : PDColorSpace
 
     public PDSeparation(COSArray array, PDResources? resources) : base(array)
     {
-        _alternateColorSpace = Create(array.GetObject(AlternateColorSpaceIndex), resources);
-        _tintTransform = PDFunction.Create(array.GetObject(TintTransformIndex)!);
+        COSBase? alternateColorSpace = array.GetObject(AlternateColorSpaceIndex);
+        _alternateColorSpace = alternateColorSpace is null or COSNull
+            ? PDDeviceGray.Instance
+            : Create(alternateColorSpace, resources);
+        COSBase? tintTransform = array.GetObject(TintTransformIndex);
+        _tintTransform = tintTransform is null or COSNull
+            ? new PDFunctionTypeIdentity(COSName.IDENTITY)
+            : PDFunction.Create(tintTransform);
         int numberOfOutputParameters = _tintTransform.GetNumberOfOutputParameters();
         if (numberOfOutputParameters > 0 && numberOfOutputParameters < _alternateColorSpace.GetNumberOfComponents())
         {
@@ -63,6 +74,30 @@ public sealed class PDSeparation : PDColorSpace
     public override string GetName() => Separation.GetName();
 
     public string GetColorSpaceName() => ((COSArray)_cosObject).GetName(ColorSpaceNameIndex, string.Empty)!;
+
+    public PDColorSpace GetAlternateColorSpace() => _alternateColorSpace;
+
+    public void SetAlternateColorSpace(PDColorSpace? colorSpace)
+    {
+        _alternateColorSpace = colorSpace ?? PDDeviceGray.Instance;
+        ((COSArray)GetCOSObject()).Set(AlternateColorSpaceIndex, colorSpace?.GetCOSObject());
+    }
+
+    public string GetColorantName()
+    {
+        return ((COSArray)GetCOSObject()).GetObject(ColorSpaceNameIndex) is COSName name ? name.GetName() : string.Empty;
+    }
+
+    public void SetColorantName(string name)
+    {
+        ((COSArray)GetCOSObject()).Set(ColorSpaceNameIndex, COSName.GetPDFName(name));
+    }
+
+    public void SetTintTransform(PDFunction? tint)
+    {
+        _tintTransform = tint ?? new PDFunctionTypeIdentity(COSName.IDENTITY);
+        ((COSArray)GetCOSObject()).Set(TintTransformIndex, tint?.GetCOSObject());
+    }
 
     public override int GetNumberOfComponents() => 1;
 
@@ -87,6 +122,21 @@ public sealed class PDSeparation : PDColorSpace
         array.Add(COSName.GetPDFName(name));
         array.Add(alternateCS.GetCOSObject());
         array.Add(tintTransform.GetCOSObject());
+        return array;
+    }
+
+    public override string ToString()
+    {
+        return $"{GetName()}{{\"{GetColorantName()}\" {_alternateColorSpace.GetName()} {_tintTransform}}}";
+    }
+
+    private static COSArray CreatePlaceholderArray()
+    {
+        COSArray array = new();
+        array.Add(Separation);
+        array.Add(COSName.GetPDFName(string.Empty));
+        array.Add(COSNull.NULL);
+        array.Add(COSNull.NULL);
         return array;
     }
 }

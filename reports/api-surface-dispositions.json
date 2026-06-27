@@ -5049,6 +5049,526 @@
       "issue": 508,
       "reviewed_at_utc": "2026-06-27T02:17:45Z",
       "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDXObject.java|org.apache.pdfbox.pdmodel.graphics.PDXObject|constructor|PDXObject|2|arity-drift",
+      "disposition": "behavior-covered",
+      "note": "The .NET PDXObject constructors accept the stream wrapper directly and derived form/image constructors set the subtype; the Java protected subtype constructor overloads are constructor-shape drift only.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java|org.apache.pdfbox.pdmodel.graphics.blend.BlendMode|constructor|BlendMode|3|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "BlendMode is represented as a C# enum with extension methods for COS conversion, separable-mode checks, and blend functions; Java enum constructors/fields/method bodies are implementation artifacts not expressible as C# enum members.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java|org.apache.pdfbox.pdmodel.graphics.blend.BlendMode|field|COMPATIBLE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "BlendMode is represented as a C# enum with extension methods for COS conversion, separable-mode checks, and blend functions; Java enum constructors/fields/method bodies are implementation artifacts not expressible as C# enum members.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java|org.apache.pdfbox.pdmodel.graphics.blend.BlendMode|method|getCOSName|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "BlendMode is represented as a C# enum with extension methods for COS conversion, separable-mode checks, and blend functions; Java enum constructors/fields/method bodies are implementation artifacts not expressible as C# enum members.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java|org.apache.pdfbox.pdmodel.graphics.blend.BlendMode|method|isSeparableBlendMode|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "BlendMode is represented as a C# enum with extension methods for COS conversion, separable-mode checks, and blend functions; Java enum constructors/fields/method bodies are implementation artifacts not expressible as C# enum members.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java|org.apache.pdfbox.pdmodel.graphics.blend.BlendMode|method|getBlendChannelFunction|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "BlendMode is represented as a C# enum with extension methods for COS conversion, separable-mode checks, and blend functions; Java enum constructors/fields/method bodies are implementation artifacts not expressible as C# enum members.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java|org.apache.pdfbox.pdmodel.graphics.blend.BlendMode|method|getBlendFunction|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "BlendMode is represented as a C# enum with extension methods for COS conversion, separable-mode checks, and blend functions; Java enum constructors/fields/method bodies are implementation artifacts not expressible as C# enum members.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java|org.apache.pdfbox.pdmodel.graphics.blend.BlendMode|method|getInstance|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "BlendMode is represented as a C# enum with extension methods for COS conversion, separable-mode checks, and blend functions; Java enum constructors/fields/method bodies are implementation artifacts not expressible as C# enum members.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java|org.apache.pdfbox.pdmodel.graphics.blend.BlendMode|method|toString|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "BlendMode is represented as a C# enum with extension methods for COS conversion, separable-mode checks, and blend functions; Java enum constructors/fields/method bodies are implementation artifacts not expressible as C# enum members.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java|org.apache.pdfbox.pdmodel.graphics.color.PDDeviceCMYK|constructor|PDDeviceCMYK|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java CMYK raster conversion and ICC loading APIs depend on AWT BufferedImage/WritableRaster/ICC_Profile; the .NET surface exposes component-level ToRGB conversion without Java2D raster APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java|org.apache.pdfbox.pdmodel.graphics.color.PDDeviceCMYK|method|init|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java CMYK raster conversion and ICC loading APIs depend on AWT BufferedImage/WritableRaster/ICC_Profile; the .NET surface exposes component-level ToRGB conversion without Java2D raster APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java|org.apache.pdfbox.pdmodel.graphics.color.PDDeviceCMYK|method|getICCProfile|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java CMYK raster conversion and ICC loading APIs depend on AWT BufferedImage/WritableRaster/ICC_Profile; the .NET surface exposes component-level ToRGB conversion without Java2D raster APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java|org.apache.pdfbox.pdmodel.graphics.color.PDDeviceCMYK|method|toRawImage|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java CMYK raster conversion and ICC loading APIs depend on AWT BufferedImage/WritableRaster/ICC_Profile; the .NET surface exposes component-level ToRGB conversion without Java2D raster APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java|org.apache.pdfbox.pdmodel.graphics.color.PDDeviceCMYK|method|toRGBImage|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java CMYK raster conversion and ICC loading APIs depend on AWT BufferedImage/WritableRaster/ICC_Profile; the .NET surface exposes component-level ToRGB conversion without Java2D raster APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java|org.apache.pdfbox.pdmodel.graphics.color.PDDeviceCMYK|method|toRGBImageAWT|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java CMYK raster conversion and ICC loading APIs depend on AWT BufferedImage/WritableRaster/ICC_Profile; the .NET surface exposes component-level ToRGB conversion without Java2D raster APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceN.java|org.apache.pdfbox.pdmodel.graphics.color.PDDeviceN|method|toRGBImage|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "DeviceN metadata and tint-transform APIs are exposed; Java raster conversion methods depend on AWT WritableRaster/BufferedImage and are not part of the .NET image pipeline.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceN.java|org.apache.pdfbox.pdmodel.graphics.color.PDDeviceN|method|toRawImage|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "DeviceN metadata and tint-transform APIs are exposed; Java raster conversion methods depend on AWT WritableRaster/BufferedImage and are not part of the .NET image pipeline.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java|org.apache.pdfbox.pdmodel.graphics.color.PDSeparation|method|toRGBImage|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Separation metadata and tint-transform APIs are exposed; Java raster conversion helpers depend on AWT WritableRaster/BufferedImage and are not part of the .NET image pipeline.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java|org.apache.pdfbox.pdmodel.graphics.color.PDSeparation|method|tintTransform|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Separation metadata and tint-transform APIs are exposed; Java raster conversion helpers depend on AWT WritableRaster/BufferedImage and are not part of the .NET image pipeline.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java|org.apache.pdfbox.pdmodel.graphics.color.PDSeparation|method|toRawImage|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Separation metadata and tint-transform APIs are exposed; Java raster conversion helpers depend on AWT WritableRaster/BufferedImage and are not part of the .NET image pipeline.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDFormXObject.java|org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject|constructor|PDFormXObject|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The ResourceCache constructor overload is collapsed in .NET; form resources are resolved through PDResources without exposing Java cache-specific constructor shape.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDTransparencyGroup.java|org.apache.pdfbox.pdmodel.graphics.form.PDTransparencyGroup|constructor|PDTransparencyGroup|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The ResourceCache constructor overload is collapsed in .NET; transparency groups keep the stream constructor surface and resource caching remains an internal resource concern.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CustomFactory.java|org.apache.pdfbox.pdmodel.graphics.image.CustomFactory|method|createFromByteArray|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java createFromByteArray probes image file types through ImageIO-style readers; .NET exposes explicit raw/lossless/JPEG/CCITT factory paths instead of a byte-array auto-detection entry point.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java|org.apache.pdfbox.pdmodel.graphics.image.PDImage|method|getImage|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDImage Java image extraction APIs return AWT BufferedImage/WritableRaster/Paint types; the .NET port exposes decoded streams, raw data, and Skia-backed concrete image factories instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java|org.apache.pdfbox.pdmodel.graphics.image.PDImage|method|getRawRaster|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDImage Java image extraction APIs return AWT BufferedImage/WritableRaster/Paint types; the .NET port exposes decoded streams, raw data, and Skia-backed concrete image factories instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java|org.apache.pdfbox.pdmodel.graphics.image.PDImage|method|getRawImage|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDImage Java image extraction APIs return AWT BufferedImage/WritableRaster/Paint types; the .NET port exposes decoded streams, raw data, and Skia-backed concrete image factories instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java|org.apache.pdfbox.pdmodel.graphics.image.PDImage|method|getImage|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDImage Java image extraction APIs return AWT BufferedImage/WritableRaster/Paint types; the .NET port exposes decoded streams, raw data, and Skia-backed concrete image factories instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java|org.apache.pdfbox.pdmodel.graphics.image.PDImage|method|getStencilImage|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDImage Java image extraction APIs return AWT BufferedImage/WritableRaster/Paint types; the .NET port exposes decoded streams, raw data, and Skia-backed concrete image factories instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java|org.apache.pdfbox.pdmodel.graphics.image.PDImage|method|getSuffix|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDImage Java image extraction APIs return AWT BufferedImage/WritableRaster/Paint types; the .NET port exposes decoded streams, raw data, and Skia-backed concrete image factories instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/pattern/PDTilingPattern.java|org.apache.pdfbox.pdmodel.graphics.pattern.PDTilingPattern|constructor|PDTilingPattern|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The ResourceCache constructor overload is collapsed in .NET; tiling pattern resources are resolved through PDResources without exposing Java cache-specific constructor shape.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingContext|constructor|AxialShadingContext|5|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Axial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingContext|method|dispose|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Axial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingContext|method|getRaster|4|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Axial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingContext|method|getCoords|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Axial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingContext|method|getDomain|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Axial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingContext|method|getExtend|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Axial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingContext|method|getFunction|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Axial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingPaint.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingPaint|method|getTransparency|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Axial shading paint rows are Java2D Paint/PaintContext implementation details; .NET rendering uses Skia-compatible rendering internals instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingPaint.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingPaint|method|createContext|5|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Axial shading paint rows are Java2D Paint/PaintContext implementation details; .NET rendering uses Skia-compatible rendering internals instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType6.java|org.apache.pdfbox.pdmodel.graphics.shading.PDShadingType6|method|generatePatch|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Patch generation and Java2D bounds helpers are protected Java rendering internals; the .NET shading model keeps these implementation details internal to its renderer.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType6.java|org.apache.pdfbox.pdmodel.graphics.shading.PDShadingType6|method|getBounds|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Patch generation and Java2D bounds helpers are protected Java rendering internals; the .NET shading model keeps these implementation details internal to its renderer.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType7.java|org.apache.pdfbox.pdmodel.graphics.shading.PDShadingType7|method|generatePatch|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Patch generation and Java2D bounds helpers are protected Java rendering internals; the .NET shading model keeps these implementation details internal to its renderer.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType7.java|org.apache.pdfbox.pdmodel.graphics.shading.PDShadingType7|method|getBounds|2|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Patch generation and Java2D bounds helpers are protected Java rendering internals; the .NET shading model keeps these implementation details internal to its renderer.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingContext|constructor|RadialShadingContext|5|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Radial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingContext|method|dispose|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Radial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingContext|method|getRaster|4|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Radial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingContext|method|getCoords|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Radial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingContext|method|getDomain|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Radial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingContext|method|getExtend|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Radial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingContext|method|getFunction|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Radial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingPaint.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingPaint|method|getTransparency|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Radial shading paint rows are Java2D Paint/PaintContext implementation details; .NET rendering uses Skia-compatible rendering internals instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingPaint.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingPaint|method|createContext|5|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Radial shading paint rows are Java2D Paint/PaintContext implementation details; .NET rendering uses Skia-compatible rendering internals instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java|org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState|method|intersectClippingPath|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The remaining graphics-state rows use Java AWT Area/GeneralPath/Composite types; .NET exposes clipping segments and blend-state data through renderer-native structures instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java|org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState|method|getCurrentClippingPath|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The remaining graphics-state rows use Java AWT Area/GeneralPath/Composite types; .NET exposes clipping segments and blend-state data through renderer-native structures instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java|org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState|method|getStrokingJavaComposite|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The remaining graphics-state rows use Java AWT Area/GeneralPath/Composite types; .NET exposes clipping segments and blend-state data through renderer-native structures instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java|org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState|method|getNonStrokingJavaComposite|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The remaining graphics-state rows use Java AWT Area/GeneralPath/Composite types; .NET exposes clipping segments and blend-state data through renderer-native structures instead.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingIntent.java|org.apache.pdfbox.pdmodel.graphics.state.RenderingIntent|method|fromString|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "RenderingIntent is represented as a C# enum with extension methods FromString/StringValue; extension methods are the idiomatic .NET replacement for Java enum methods.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingIntent.java|org.apache.pdfbox.pdmodel.graphics.state.RenderingIntent|method|stringValue|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "RenderingIntent is represented as a C# enum with extension methods FromString/StringValue; extension methods are the idiomatic .NET replacement for Java enum methods.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingMode.java|org.apache.pdfbox.pdmodel.graphics.state.RenderingMode|method|fromInt|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "RenderingMode is represented as a C# enum with extension methods FromInt/IntValue/IsFill/IsStroke/IsClip; extension methods are the idiomatic .NET replacement for Java enum methods.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingMode.java|org.apache.pdfbox.pdmodel.graphics.state.RenderingMode|method|intValue|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "RenderingMode is represented as a C# enum with extension methods FromInt/IntValue/IsFill/IsStroke/IsClip; extension methods are the idiomatic .NET replacement for Java enum methods.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingMode.java|org.apache.pdfbox.pdmodel.graphics.state.RenderingMode|method|isFill|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "RenderingMode is represented as a C# enum with extension methods FromInt/IntValue/IsFill/IsStroke/IsClip; extension methods are the idiomatic .NET replacement for Java enum methods.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingMode.java|org.apache.pdfbox.pdmodel.graphics.state.RenderingMode|method|isStroke|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "RenderingMode is represented as a C# enum with extension methods FromInt/IntValue/IsFill/IsStroke/IsClip; extension methods are the idiomatic .NET replacement for Java enum methods.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingMode.java|org.apache.pdfbox.pdmodel.graphics.state.RenderingMode|method|isClip|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "RenderingMode is represented as a C# enum with extension methods FromInt/IntValue/IsFill/IsStroke/IsClip; extension methods are the idiomatic .NET replacement for Java enum methods.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/rendering/ImageType.java|org.apache.pdfbox.rendering.ImageType|enum-value|abstract|0|missing",
+      "disposition": "not-applicable",
+      "note": "Parser artifact for Java enum abstract method implementation; the .NET ImageType enum has no abstract enum-value member to mirror.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripper.java|org.apache.pdfbox.text.PDFTextStripper|method|lineSeparator|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java LINE_SEPARATOR is a protected static final field lowered as a parser artifact; .NET text output uses Environment.NewLine/string writer behavior instead of exposing the Java constant shape.",
+      "issue": 509,
+      "reviewed_at_utc": "2026-06-27T03:22:00Z",
+      "reviewed_by": "Codex"
     }
   ]
 }

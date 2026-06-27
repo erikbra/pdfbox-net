@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics;
+using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics.State;
 
@@ -41,6 +42,7 @@ public class PDExtendedGraphicsState : COSObjectable
     private static readonly COSName DName = COSName.GetPDFName("D");
     private static readonly COSName RiName = COSName.GetPDFName("RI");
     private static readonly COSName FlName = COSName.GetPDFName("FL");
+    private static readonly COSName SmName = COSName.GetPDFName("SM");
     private static readonly COSName SaName = COSName.GetPDFName("SA");
     private static readonly COSName CaName = COSName.GetPDFName("CA");
     private static readonly COSName CaNsName = COSName.GetPDFName("ca");
@@ -48,8 +50,15 @@ public class PDExtendedGraphicsState : COSObjectable
     private static readonly COSName TkName = COSName.GetPDFName("TK");
     private static readonly COSName SmaskName = COSName.GetPDFName("SMask");
     private static readonly COSName BmName = COSName.GetPDFName("BM");
+    private static readonly COSName OpName = COSName.GetPDFName("OP");
+    private static readonly COSName OpNsName = COSName.GetPDFName("op");
+    private static readonly COSName OpmName = COSName.GetPDFName("OPM");
+    private static readonly COSName FontName = COSName.GetPDFName("Font");
+    private static readonly COSName TransferName = COSName.GetPDFName("TR");
+    private static readonly COSName Transfer2Name = COSName.GetPDFName("TR2");
 
     private readonly COSDictionary _dictionary;
+    private readonly ResourceCache? _resourceCache;
 
     public PDExtendedGraphicsState()
         : this(new COSDictionary())
@@ -58,8 +67,14 @@ public class PDExtendedGraphicsState : COSObjectable
     }
 
     public PDExtendedGraphicsState(COSDictionary dictionary)
+        : this(dictionary, null)
+    {
+    }
+
+    public PDExtendedGraphicsState(COSDictionary dictionary, ResourceCache? resourceCache)
     {
         _dictionary = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
+        _resourceCache = resourceCache;
     }
 
     public COSDictionary GetCOSObject() => _dictionary;
@@ -75,6 +90,33 @@ public class PDExtendedGraphicsState : COSObjectable
     public void SetMiterLimit(float? value) => SetFloatItem(MlName, value);
     public float? GetFlatnessTolerance() => GetFloatItem(FlName);
     public void SetFlatnessTolerance(float? value) => SetFloatItem(FlName, value);
+    public bool GetStrokingOverprintControl() => _dictionary.GetBoolean(OpName, false);
+    public void SetStrokingOverprintControl(bool value) => _dictionary.SetBoolean(OpName, value);
+    public bool GetNonStrokingOverprintControl() => _dictionary.GetBoolean(OpNsName, GetStrokingOverprintControl());
+    public void SetNonStrokingOverprintControl(bool value) => _dictionary.SetBoolean(OpNsName, value);
+    public int? GetOverprintMode() => _dictionary.GetDictionaryObject(OpmName) is COSNumber number ? number.IntValue() : null;
+
+    public void SetOverprintMode(int? overprintMode)
+    {
+        if (overprintMode is null)
+        {
+            _dictionary.RemoveItem(OpmName);
+        }
+        else
+        {
+            _dictionary.SetInt(OpmName, overprintMode.Value);
+        }
+    }
+
+    public PDFontSetting? GetFontSetting()
+    {
+        COSArray? font = _dictionary.GetCOSArray(FontName);
+        return font is null ? null : new PDFontSetting(font);
+    }
+
+    public void SetFontSetting(PDFontSetting? fontSetting) => _dictionary.SetItem(FontName, fontSetting);
+    public float? GetSmoothnessTolerance() => GetFloatItem(SmName);
+    public void SetSmoothnessTolerance(float? smoothness) => SetFloatItem(SmName, smoothness);
 
     public PDLineDashPattern? GetLineDashPattern()
     {
@@ -162,9 +204,36 @@ public class PDExtendedGraphicsState : COSObjectable
             graphicsState.SetRenderingIntent(GetRenderingIntent() ?? string.Empty);
         }
 
+        if (_dictionary.ContainsKey(OpmName))
+        {
+            graphicsState.SetOverprintMode(GetOverprintMode() ?? 0);
+        }
+
+        if (_dictionary.ContainsKey(OpName))
+        {
+            graphicsState.SetOverprint(GetStrokingOverprintControl());
+        }
+
+        if (_dictionary.ContainsKey(OpNsName))
+        {
+            graphicsState.SetNonStrokingOverprint(GetNonStrokingOverprintControl());
+        }
+
+        if (_dictionary.ContainsKey(FontName) && GetFontSetting() is PDFontSetting setting)
+        {
+            PDTextState textState = graphicsState.GetTextState();
+            textState.Font = setting.GetFont();
+            textState.FontSize = setting.GetFontSize();
+        }
+
         if (_dictionary.ContainsKey(FlName))
         {
             graphicsState.SetFlatness(GetFlatnessTolerance() ?? 1f);
+        }
+
+        if (_dictionary.ContainsKey(SmName))
+        {
+            graphicsState.SetSmoothness(GetSmoothnessTolerance() ?? 0f);
         }
 
         if (_dictionary.ContainsKey(SaName))
@@ -207,6 +276,27 @@ public class PDExtendedGraphicsState : COSObjectable
         {
             graphicsState.SetBlendMode(GetBlendMode());
         }
+
+        if (_dictionary.ContainsKey(TransferName) && !_dictionary.ContainsKey(Transfer2Name))
+        {
+            graphicsState.SetTransfer(GetTransfer());
+        }
+
+        if (_dictionary.ContainsKey(Transfer2Name))
+        {
+            graphicsState.SetTransfer(GetTransfer2());
+        }
+    }
+
+    public COSBase? GetTransfer() => GetValidTransfer(TransferName);
+    public void SetTransfer(COSBase? transfer) => _dictionary.SetItem(TransferName, transfer);
+    public COSBase? GetTransfer2() => GetValidTransfer(Transfer2Name);
+    public void SetTransfer2(COSBase? transfer2) => _dictionary.SetItem(Transfer2Name, transfer2);
+
+    private COSBase? GetValidTransfer(COSName key)
+    {
+        COSBase? value = _dictionary.GetDictionaryObject(key);
+        return value is COSArray array && array.Size() != 4 ? null : value;
     }
 
     private float? GetFloatItem(COSName key)
