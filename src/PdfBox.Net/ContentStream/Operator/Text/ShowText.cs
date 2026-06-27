@@ -39,6 +39,11 @@ public sealed class ShowText : OperatorProcessor
     {
     }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 1 || operands[0] is not COSString s) return;

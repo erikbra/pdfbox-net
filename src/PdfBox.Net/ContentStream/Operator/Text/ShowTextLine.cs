@@ -40,6 +40,11 @@ public sealed class ShowTextLine : OperatorProcessor
     {
     }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         new NextLine(Context).Process(op, new List<COSBase>());

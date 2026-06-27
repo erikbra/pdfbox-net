@@ -14,7 +14,25 @@ namespace PdfBox.Net.ContentStream.Operator.Graphics;
 
 public sealed class FillNonZeroRule : OperatorProcessor
 {
-    public FillNonZeroRule(PDFStreamEngine context, string? name = null) : base(name ?? OperatorName.FILL_NON_ZERO, context) { }
+    public FillNonZeroRule(PDFStreamEngine context)
+        : this(context, OperatorName.FILL_NON_ZERO)
+    {
+    }
+
+    public FillNonZeroRule(PDFGraphicsStreamEngine context)
+        : this((PDFStreamEngine)context, OperatorName.FILL_NON_ZERO)
+    {
+    }
+
+    public FillNonZeroRule(PDFStreamEngine context, string name)
+        : base(name, context)
+    {
+    }
+
+    public override string GetName()
+    {
+        return Name;
+    }
 
     public override void Process(Operator op, IList<COSBase> operands)
     {

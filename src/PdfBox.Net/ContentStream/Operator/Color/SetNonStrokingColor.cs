@@ -29,8 +29,23 @@ public class SetNonStrokingColor : SetColor
         return Context.GetGraphicsState().GetNonStrokingColorSpace();
     }
 
-    protected override void SetColorValue(PDColor color)
+    protected override PDColor GetColor()
+    {
+        return Context.GetGraphicsState().GetNonStrokingColor();
+    }
+
+    protected virtual void SetColor(PDColor color)
     {
         Context.SetNonStrokingColor(color);
+    }
+
+    protected override void SetColorValue(PDColor color)
+    {
+        SetColor(color);
+    }
+
+    public override string GetName()
+    {
+        return Name;
     }
 }

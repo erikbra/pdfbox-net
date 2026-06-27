@@ -44,6 +44,11 @@ public sealed class SetGraphicsStateParameters : OperatorProcessor
     {
     }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count == 0 || operands[0] is not COSName graphicsName)

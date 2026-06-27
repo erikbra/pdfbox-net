@@ -18,6 +18,11 @@ public sealed class SetStrokingColorSpace : OperatorProcessor
 {
     public SetStrokingColorSpace(PDFStreamEngine context) : base(OperatorName.STROKING_COLORSPACE, context) { }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 1) return;

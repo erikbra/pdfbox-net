@@ -16,4 +16,9 @@ public sealed class SetStrokingColorN : SetStrokingColor
         : base(OperatorName.STROKING_COLOR_N, context)
     {
     }
+    public override string GetName()
+    {
+        return Name;
+    }
+
 }
