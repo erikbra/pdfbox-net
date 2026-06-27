@@ -5569,6 +5569,54 @@
       "issue": 509,
       "reviewed_at_utc": "2026-06-27T03:22:00Z",
       "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSignature.java|org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature|method|getPDFName|0|missing",
+      "disposition": "not-applicable",
+      "note": "Parser artifact from the SUBFILTER_ETSI_CADES_DETACHED constant initializer `COSName.getPDFName(...)`; the C# constant is already exposed as SUBFILTER_ETSI_CADES_DETACHED.",
+      "issue": 510,
+      "reviewed_at_utc": "2026-06-27T03:38:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PublicKeyDecryptionMaterial.java|org.apache.pdfbox.pdmodel.encryption.PublicKeyDecryptionMaterial|constructor|PublicKeyDecryptionMaterial|3|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java public-key decryption material is constructed from KeyStore/alias/password; the .NET port accepts X509Certificate2 plus optional password because .NET has no Java KeyStore equivalent in the public API.",
+      "issue": 510,
+      "reviewed_at_utc": "2026-06-27T03:38:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/COSFilterInputStream.java|org.apache.pdfbox.pdmodel.interactive.digitalsignature.COSFilterInputStream|method|read|0|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java InputStream exposes read() as a public single-byte method; the .NET Stream override is ReadByte(), preserving behavior with idiomatic .NET method shape.",
+      "issue": 510,
+      "reviewed_at_utc": "2026-06-27T03:38:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/COSFilterInputStream.java|org.apache.pdfbox.pdmodel.interactive.digitalsignature.COSFilterInputStream|method|read|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java InputStream read(byte[]) maps to the .NET Stream Read(byte[], int, int) override; byte-range filtering behavior is covered by the stream implementation.",
+      "issue": 510,
+      "reviewed_at_utc": "2026-06-27T03:38:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSeedValueCertificate.java|org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSeedValueCertificate|method|addKeyUsage|9|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The Java nine-char key-usage convenience overload is represented by the C# string-based AddKeyUsage API, which stores the same PDF KeyUsage string and validates 0/1/X characters.",
+      "issue": 510,
+      "reviewed_at_utc": "2026-06-27T03:38:00Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/SigningSupport.java|org.apache.pdfbox.pdmodel.interactive.digitalsignature.SigningSupport|constructor|SigningSupport|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java SigningSupport is wired directly to COSWriter; the .NET API takes content and signature-writer delegates to avoid exposing writer internals while preserving external-signing behavior.",
+      "issue": 510,
+      "reviewed_at_utc": "2026-06-27T03:38:00Z",
+      "reviewed_by": "Codex"
     }
   ]
 }
