@@ -38,6 +38,7 @@ public class PDPageFitRectangleDestination : PDPageDestination
 {
     /// <summary>The type of this destination.</summary>
     internal const string Type = "FitR";
+    protected const string TYPE = Type;
 
     /// <summary>
     /// Default constructor.

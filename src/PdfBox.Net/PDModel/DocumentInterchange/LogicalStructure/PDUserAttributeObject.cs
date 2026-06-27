@@ -36,6 +36,7 @@ public class PDUserAttributeObject : PDAttributeObject
 {
     /// <summary>The owner value used for user-properties attribute objects.</summary>
     public const string OwnerUserProperties = "UserProperties";
+    public const string OWNER_USER_PROPERTIES = OwnerUserProperties;
 
     /// <summary>
     /// Default constructor. Sets the owner to <see cref="OwnerUserProperties"/>.

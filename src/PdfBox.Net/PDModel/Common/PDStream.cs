@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.Filter;
+using PdfBox.Net.PDModel.Common.FileSpecification;
 using FilterBase = PdfBox.Net.Filter.Filter;
 
 namespace PdfBox.Net.PDModel.Common;
@@ -176,6 +177,88 @@ public class PDStream : COSObjectable
         _stream.SetItem(COSName.FILTER, cosArray);
     }
 
+    public IList<object>? GetDecodeParms()
+    {
+        return InternalGetDecodeParams(COSName.DECODE_PARMS, COSName.DP);
+    }
+
+    public IList<object>? GetFileDecodeParams()
+    {
+        return InternalGetDecodeParams(COSName.F_DECODE_PARMS, null);
+    }
+
+    private IList<object>? InternalGetDecodeParams(COSName name1, COSName? name2)
+    {
+        COSBase? decodeParams = _stream.GetDictionaryObject(name1, name2);
+
+        if (decodeParams is COSDictionary dictionary)
+        {
+            COSDictionaryMap<string, object>? map = COSDictionaryMap<string, object>.ConvertBasicTypesToMap(dictionary);
+            return map is null ? null : new COSArrayList<object>(map, dictionary, _stream, name1);
+        }
+
+        if (decodeParams is COSArray array)
+        {
+            List<object> actuals = new(array.Size());
+            for (int i = 0; i < array.Size(); i++)
+            {
+                if (array.GetObject(i) is COSDictionary itemDictionary)
+                {
+                    COSDictionaryMap<string, object>? map = COSDictionaryMap<string, object>.ConvertBasicTypesToMap(itemDictionary);
+                    if (map is not null)
+                    {
+                        actuals.Add(map);
+                    }
+                }
+            }
+
+            return new COSArrayList<object>(actuals, array);
+        }
+
+        return null;
+    }
+
+    public void SetDecodeParms(IList<object>? decodeParams)
+    {
+        _stream.SetItem(COSName.DECODE_PARMS, ConvertDecodeParams(decodeParams));
+    }
+
+    public PDFileSpecification? GetFile()
+    {
+        return PDFileSpecification.CreateFS(_stream.GetDictionaryObject(COSName.F));
+    }
+
+    public void SetFile(PDFileSpecification? file)
+    {
+        _stream.SetItem(COSName.F, file);
+    }
+
+    public IList<string> GetFileFilters()
+    {
+        COSBase? filters = _stream.GetDictionaryObject(COSName.F_FILTER);
+        if (filters is COSName name)
+        {
+            return new[] { name.GetName() };
+        }
+
+        if (filters is COSArray array)
+        {
+            return array.ToCOSNameStringList();
+        }
+
+        return Array.Empty<string>();
+    }
+
+    public void SetFileFilters(IList<string>? filters)
+    {
+        _stream.SetItem(COSName.F_FILTER, filters is null ? null : COSArray.OfCOSNames(filters.ToList()));
+    }
+
+    public void SetFileDecodeParams(IList<object>? decodeParams)
+    {
+        _stream.SetItem(COSName.F_DECODE_PARMS, ConvertDecodeParams(decodeParams));
+    }
+
     public byte[] ToByteArray()
     {
         using COSInputStream input = CreateInputStream();
@@ -198,6 +281,51 @@ public class PDStream : COSObjectable
     public int GetDecodedStreamLength() => _stream.GetInt(DlName);
 
     public void SetDecodedStreamLength(int decodedLength) => _stream.SetInt(DlName, decodedLength);
+
+    private static COSArray? ConvertDecodeParams(IList<object>? decodeParams)
+    {
+        if (decodeParams is null)
+        {
+            return null;
+        }
+
+        COSArray array = new();
+        foreach (object? decodeParam in decodeParams)
+        {
+            array.Add(ConvertDecodeParam(decodeParam));
+        }
+
+        return array;
+    }
+
+    private static COSBase? ConvertDecodeParam(object? decodeParam)
+    {
+        return decodeParam switch
+        {
+            null => COSNull.NULL,
+            COSBase cosBase => cosBase,
+            COSObjectable objectable => objectable.GetCOSObject(),
+            IDictionary<string, object> map => ConvertBasicDictionary(map),
+            string value => new COSString(value),
+            int value => COSInteger.Get(value),
+            long value => COSInteger.Get(value),
+            float value => new COSFloat(value),
+            double value => new COSFloat((float)value),
+            bool value => COSBoolean.GetBoolean(value),
+            _ => throw new ArgumentException($"Error: Don't know how to convert type to COSBase '{decodeParam.GetType().Name}'")
+        };
+    }
+
+    private static COSDictionary ConvertBasicDictionary(IDictionary<string, object> map)
+    {
+        COSDictionary dictionary = new();
+        foreach ((string key, object value) in map)
+        {
+            dictionary.SetItem(COSName.GetPDFName(key), ConvertDecodeParam(value));
+        }
+
+        return dictionary;
+    }
 
     private sealed class FilteredOutputStream : Stream
     {

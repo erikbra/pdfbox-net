@@ -75,4 +75,9 @@ public class PDFunctionType2 : PDFunction
     public COSArray GetC1() => _c1;
 
     public float GetN() => _exponent;
+
+    public override string ToString()
+    {
+        return $"FunctionType2{{C0: {GetC0()} C1: {GetC1()} N: {GetN()}}}";
+    }
 }

@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.ContentStream;
+using PdfBox.Net.FontBox.TTF;
+using PdfBox.Net.IO;
 using PdfBox.Net.PDModel.Encryption;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Annotation;
@@ -34,6 +36,7 @@ using PdfBox.Net.PDModel.Interactive.DigitalSignature;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PdfParser;
 using PdfBox.Net.PdfWriter;
+using PdfBox.Net.PdfWriter.Compress;
 using System.Globalization;
 using System.Text;
 
@@ -59,6 +62,9 @@ public sealed class PDDocument : IDisposable
     private ResourceCache? _resourceCache = ResourceCacheFactory.CreateResourceCache();
     private byte[]? _sourceBytes;
     private HashSet<COSObjectKey>? _originalXrefKeys;
+    private AccessPermission? _accessPermission;
+    private long? _documentId;
+    private readonly HashSet<TrueTypeFont> _fontsToClose = [];
     private bool _signatureAdded;
     private SignatureInterface? _signInterface;
     private PDSignature? _pendingSignature;
@@ -70,11 +76,28 @@ public sealed class PDDocument : IDisposable
     {
     }
 
-    private PDDocument(COSDocument document)
+    public PDDocument(RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
+        : this(CreateNewDocument(streamCacheCreateFunction))
+    {
+    }
+
+    public PDDocument(COSDocument document)
+        : this(document, null, null)
+    {
+    }
+
+    public PDDocument(COSDocument document, RandomAccessRead? source)
+        : this(document, source, null)
+    {
+    }
+
+    public PDDocument(COSDocument document, RandomAccessRead? source, AccessPermission? permission)
     {
         _document = document ?? throw new ArgumentNullException(nameof(document));
         _trailer = _document.GetTrailer() ?? throw new IOException("Document trailer dictionary is missing.");
         _nextObjectNumber = GetNextObjectNumber(_trailer);
+        _accessPermission = permission;
+        _sourceBytes = source is null ? null : CopyRandomAccessRead(source);
         EnsureIndirectRootObjects();
     }
 
@@ -773,6 +796,18 @@ public sealed class PDDocument : IDisposable
         Save(output);
     }
 
+    public void Save(Stream output, CompressParameters compressParameters)
+    {
+        ArgumentNullException.ThrowIfNull(compressParameters);
+        Save(output);
+    }
+
+    public void Save(string filePath, CompressParameters compressParameters)
+    {
+        ArgumentNullException.ThrowIfNull(compressParameters);
+        Save(filePath);
+    }
+
 
     /// <summary>
     /// Adds a signature to the document for incremental save.
@@ -1042,6 +1077,12 @@ public sealed class PDDocument : IDisposable
 
         buffer.Position = 0;
         buffer.CopyTo(output);
+    }
+
+    public void SaveIncremental(Stream output, ISet<COSDictionary> objectsToWrite)
+    {
+        ArgumentNullException.ThrowIfNull(objectsToWrite);
+        SaveIncremental(output);
     }
 
     /// <summary>
@@ -1438,6 +1479,12 @@ public sealed class PDDocument : IDisposable
         }
 
         _disposed = true;
+        foreach (TrueTypeFont font in _fontsToClose)
+        {
+            font.Dispose();
+        }
+
+        _fontsToClose.Clear();
         _document.Dispose();
     }
 
@@ -1589,6 +1636,31 @@ public sealed class PDDocument : IDisposable
         _resourceCache = resourceCache;
     }
 
+    public AccessPermission GetCurrentAccessPermission()
+    {
+        EnsureNotDisposed();
+        return _accessPermission ??= AccessPermission.GetOwnerAccessPermission();
+    }
+
+    public long? GetDocumentId()
+    {
+        EnsureNotDisposed();
+        return _documentId;
+    }
+
+    public void SetDocumentId(long? docId)
+    {
+        EnsureNotDisposed();
+        _documentId = docId;
+    }
+
+    public void RegisterTrueTypeFontForClosing(TrueTypeFont ttf)
+    {
+        ArgumentNullException.ThrowIfNull(ttf);
+        EnsureNotDisposed();
+        _fontsToClose.Add(ttf);
+    }
+
     private void EnsureNotDisposed()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -1619,6 +1691,7 @@ public sealed class PDDocument : IDisposable
 
         DecryptionMaterial material = CreateDecryptionMaterialForLoad(handler, password);
         handler.PrepareForDecryption(encryption, idArray, material);
+        _accessPermission = handler.GetCurrentAccessPermission();
 
         // Walk the object graph starting from the trailer, but only decrypt strings and
         // streams that belong to an indirect object (i.e., are inside a COSObject wrapper).
@@ -1756,13 +1829,57 @@ public sealed class PDDocument : IDisposable
         throw new IOException($"Unsupported security handler type '{handler.GetType().FullName}'.");
     }
 
-    private static COSDocument CreateNewDocument()
+    private static COSDocument CreateNewDocument(RandomAccessStreamCache.StreamCacheCreateFunction? streamCacheCreateFunction = null)
     {
-        COSDocument document = new();
+        COSDocument document = streamCacheCreateFunction is null
+            ? new COSDocument()
+            : new COSDocument(streamCacheCreateFunction);
         document.SetVersion(ParseVersion(DefaultVersion));
         document.SetTrailer(CreateEmptyTrailer());
         document.GetDocumentState().SetParsing(false);
         return document;
+    }
+
+    private static byte[] CopyRandomAccessRead(RandomAccessRead source)
+    {
+        long originalPosition = source.GetPosition();
+        try
+        {
+            long length = source.Length();
+            if (length > int.MaxValue)
+            {
+                throw new IOException("Random access source is too large to buffer in memory.");
+            }
+
+            source.Seek(0);
+            byte[] bytes = new byte[checked((int)length)];
+            int totalRead = 0;
+            while (totalRead < bytes.Length)
+            {
+                int read = source.Read(bytes, totalRead, bytes.Length - totalRead);
+                if (read <= 0)
+                {
+                    break;
+                }
+
+                totalRead += read;
+            }
+
+            if (totalRead == bytes.Length)
+            {
+                return bytes;
+            }
+
+            Array.Resize(ref bytes, totalRead);
+            return bytes;
+        }
+        finally
+        {
+            if (!source.IsClosed())
+            {
+                source.Seek(originalPosition);
+            }
+        }
     }
 
     private static COSDictionary CreateEmptyTrailer()

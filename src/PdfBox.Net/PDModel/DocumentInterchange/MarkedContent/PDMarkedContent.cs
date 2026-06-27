@@ -47,6 +47,7 @@ public class PDMarkedContent
     private readonly List<PDMarkedContent> _markedContents = new();
     private readonly List<TextPosition> _texts = new();
     private readonly List<PDXObject> _xobjects = new();
+    private readonly List<object> _contents = new();
 
     protected PDMarkedContent(COSName tag, COSDictionary? properties)
     {
@@ -78,13 +79,25 @@ public class PDMarkedContent
     }
 
     /// <summary>Adds a nested marked-content sequence.</summary>
-    public void AddMarkedContent(PDMarkedContent markedContent) => _markedContents.Add(markedContent);
+    public void AddMarkedContent(PDMarkedContent markedContent)
+    {
+        _markedContents.Add(markedContent);
+        _contents.Add(markedContent);
+    }
 
     /// <summary>Adds a text position collected inside this sequence.</summary>
-    public void AddText(TextPosition text) => _texts.Add(text);
+    public void AddText(TextPosition text)
+    {
+        _texts.Add(text);
+        _contents.Add(text);
+    }
 
     /// <summary>Adds an XObject reference collected inside this sequence.</summary>
-    public void AddXObject(PDXObject xobject) => _xobjects.Add(xobject);
+    public void AddXObject(PDXObject xobject)
+    {
+        _xobjects.Add(xobject);
+        _contents.Add(xobject);
+    }
 
     /// <summary>Returns the ActualText override from the properties dictionary, if present.</summary>
     public string? GetActualText() => Properties?.GetString(ActualTextName);
@@ -103,4 +116,12 @@ public class PDMarkedContent
 
     /// <summary>Returns all XObject references collected within this sequence.</summary>
     public IReadOnlyList<PDXObject> GetXObjects() => _xobjects;
+
+    /// <summary>Returns all content objects collected within this sequence.</summary>
+    public List<object> GetContents() => _contents;
+
+    public override string ToString()
+    {
+        return $"tag={Tag}, properties={Properties}, contents={string.Join(", ", _contents)}";
+    }
 }

@@ -38,8 +38,10 @@ public class PDPageFitDestination : PDPageDestination
 {
     /// <summary>The type of this destination.</summary>
     internal const string Type = "Fit";
+    protected const string TYPE = Type;
     /// <summary>The bounded type of this destination.</summary>
     internal const string TypeBounded = "FitB";
+    protected const string TYPE_BOUNDED = TypeBounded;
 
     /// <summary>
     /// Default constructor.

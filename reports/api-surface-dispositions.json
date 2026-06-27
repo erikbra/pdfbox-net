@@ -3801,6 +3801,486 @@
       "issue": 504,
       "reviewed_at_utc": "2026-06-26T23:49:03Z",
       "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java|org.apache.pdfbox.pdmodel.PDDocumentCatalog|constructor|PDDocumentCatalog|1|missing",
+      "disposition": "internal-by-design",
+      "note": "PDDocumentCatalog constructors remain internal/sealed around validated catalog dictionaries; public access flows through PDDocument.GetDocumentCatalog().",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java|org.apache.pdfbox.pdmodel.PDDocumentCatalog|constructor|PDDocumentCatalog|2|missing",
+      "disposition": "internal-by-design",
+      "note": "PDDocumentCatalog constructors remain internal/sealed around validated catalog dictionaries; public access flows through PDDocument.GetDocumentCatalog().",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|SINGLE_PAGE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|ONE_COLUMN|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_COLUMN_LEFT|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_COLUMN_RIGHT|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_PAGE_LEFT|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_PAGE_RIGHT|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|method|fromString|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|method|stringValue|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_NONE|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_OUTLINES|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_THUMBS|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|FULL_SCREEN|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_OPTIONAL_CONTENT|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_ATTACHMENTS|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|method|fromString|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|method|stringValue|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheCreateFunction.java|org.apache.pdfbox.pdmodel.ResourceCacheCreateFunction|method|create|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java functional interface create() is represented as a C# delegate; invoking the delegate is the create operation.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|size|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|isEmpty|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|contains|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|iterator|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|toArray|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|toArray|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|add|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|remove|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|containsAll|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|addAll|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|addAll|2|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|removeAll|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|retainAll|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|clear|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|equals|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|hashCode|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|get|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|set|2|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|add|2|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|indexOf|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|lastIndexOf|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|listIterator|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|listIterator|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|subList|2|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|toString|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java|org.apache.pdfbox.pdmodel.common.COSArrayList|method|toList|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSArrayList inherits .NET Collection<T>/IList<T> members for Java List behavior; the report uses declared members and does not count inherited framework collection APIs.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java|org.apache.pdfbox.pdmodel.common.COSDictionaryMap|method|size|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSDictionaryMap implements IDictionary<K,V>; .NET dictionary members/properties cover Java Map behavior while the report uses declared Java method names.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java|org.apache.pdfbox.pdmodel.common.COSDictionaryMap|method|isEmpty|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSDictionaryMap implements IDictionary<K,V>; .NET dictionary members/properties cover Java Map behavior while the report uses declared Java method names.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java|org.apache.pdfbox.pdmodel.common.COSDictionaryMap|method|containsValue|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSDictionaryMap implements IDictionary<K,V>; .NET dictionary members/properties cover Java Map behavior while the report uses declared Java method names.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java|org.apache.pdfbox.pdmodel.common.COSDictionaryMap|method|get|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSDictionaryMap implements IDictionary<K,V>; .NET dictionary members/properties cover Java Map behavior while the report uses declared Java method names.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java|org.apache.pdfbox.pdmodel.common.COSDictionaryMap|method|put|2|missing",
+      "disposition": "behavior-covered",
+      "note": "COSDictionaryMap implements IDictionary<K,V>; .NET dictionary members/properties cover Java Map behavior while the report uses declared Java method names.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java|org.apache.pdfbox.pdmodel.common.COSDictionaryMap|method|putAll|1|missing",
+      "disposition": "behavior-covered",
+      "note": "COSDictionaryMap implements IDictionary<K,V>; .NET dictionary members/properties cover Java Map behavior while the report uses declared Java method names.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java|org.apache.pdfbox.pdmodel.common.COSDictionaryMap|method|keySet|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSDictionaryMap implements IDictionary<K,V>; .NET dictionary members/properties cover Java Map behavior while the report uses declared Java method names.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java|org.apache.pdfbox.pdmodel.common.COSDictionaryMap|method|values|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSDictionaryMap implements IDictionary<K,V>; .NET dictionary members/properties cover Java Map behavior while the report uses declared Java method names.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java|org.apache.pdfbox.pdmodel.common.COSDictionaryMap|method|entrySet|0|missing",
+      "disposition": "behavior-covered",
+      "note": "COSDictionaryMap implements IDictionary<K,V>; .NET dictionary members/properties cover Java Map behavior while the report uses declared Java method names.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDObjectStream.java|org.apache.pdfbox.pdmodel.common.PDObjectStream|method|getType|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes GetTypeName() for the PDF Type entry to avoid hiding object.GetType().",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java|org.apache.pdfbox.pdmodel.common.PDRectangle|method|PDImmutableRectangle|2|missing",
+      "disposition": "behavior-covered",
+      "note": "The Java static rectangle field initializers are parsed as PDImmutableRectangle method rows; C# already exposes the corresponding static PDRectangle constants.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDTypedDictionaryWrapper.java|org.apache.pdfbox.pdmodel.common.PDTypedDictionaryWrapper|method|getType|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# exposes GetTypeName() for the PDF Type entry to avoid hiding object.GetType().",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/Operator.java|org.apache.pdfbox.pdmodel.common.function.type4.Operator|method|execute|1|missing",
+      "disposition": "behavior-covered",
+      "note": "The Type4 operator contract is implemented as PdfBox.Net.PDModel.Common.Function.Type4.Operator.Execute; this row is caused by simple-name matching against another Operator type.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDTransitionDirection.java|org.apache.pdfbox.pdmodel.interactive.pagenavigation.PDTransitionDirection|enum-value|private|0|missing",
+      "disposition": "not-applicable",
+      "note": "This is a parser artifact from the Java enum private constructor and is not an externally callable API surface.",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDTransitionDirection.java|org.apache.pdfbox.pdmodel.interactive.pagenavigation.PDTransitionDirection|method|getCOSBase|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "C# enums cannot declare Java-style instance methods; the COS conversion is provided by PDTransitionDirectionExtensions.GetCOSBase().",
+      "issue": 506,
+      "reviewed_at_utc": "2026-06-27T00:59:27Z",
+      "reviewed_by": "Codex"
     }
   ]
 }

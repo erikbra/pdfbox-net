@@ -29,6 +29,7 @@ using System.Globalization;
 using System.Text;
 using System.Xml;
 using PdfBox.Net.COS;
+using PdfBox.Net.IO;
 using PdfBox.Net.PdfParser;
 using PdfBox.Net.PdfWriter;
 using PdfBox.Net.Util;
@@ -45,6 +46,7 @@ public sealed class FDFDocument : IDisposable
     private readonly COSDocument _document;
     private readonly COSDictionary _trailer;
     private readonly float _headerVersion;
+    private readonly RandomAccessRead? _source;
 
     private bool _disposed;
 
@@ -69,10 +71,17 @@ public sealed class FDFDocument : IDisposable
     }
 
     private FDFDocument(COSDocument document)
+        : this(document, null)
+    {
+    }
+
+    public FDFDocument(COSDocument document, RandomAccessRead? source)
     {
         _document = document ?? throw new ArgumentNullException(nameof(document));
         _trailer = _document.GetTrailer() ?? throw new IOException("Document trailer dictionary is missing.");
         _headerVersion = _document.GetVersion();
+        _source = source;
+        _document.GetDocumentState().SetParsing(false);
     }
 
     public static FDFDocument Load(byte[] input)
@@ -244,6 +253,7 @@ public sealed class FDFDocument : IDisposable
         }
 
         _disposed = true;
+        _source?.Dispose();
         _document.Dispose();
     }
 
