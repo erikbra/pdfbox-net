@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents a named action in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionNamed</c>.</remarks>
-public class PDActionNamed : PDAction
+public partial class PDActionNamed : PDAction
 {
     /// <summary>
     /// This type of action this object represents.

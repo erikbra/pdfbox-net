@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFIconFit : COSObjectable
+public partial class FDFIconFit : COSObjectable
 {
     public const string SCALE_OPTION_ALWAYS = "A";
     public const string SCALE_OPTION_ONLY_WHEN_ICON_IS_BIGGER = "B";

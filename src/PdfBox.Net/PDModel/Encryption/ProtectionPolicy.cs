@@ -27,7 +27,7 @@
 
 namespace PdfBox.Net.PDModel.Encryption;
 
-public abstract class ProtectionPolicy
+public abstract partial class ProtectionPolicy
 {
     private const short DefaultKeyLength = 40;
 

@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents a sound action that can be executed in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionSound</c>.</remarks>
-public class PDActionSound : PDAction
+public partial class PDActionSound : PDAction
 {
     private static readonly COSName SoundName = COSName.GetPDFName("Sound");
     private static readonly COSName VolumeName = COSName.GetPDFName("Volume");

@@ -35,7 +35,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents an action that can be executed in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDAction</c>.</remarks>
-public abstract class PDAction : PDDestinationOrAction
+public abstract partial class PDAction : PDDestinationOrAction
 {
     /// <summary>
     /// The type of PDF object.

@@ -30,7 +30,7 @@ namespace PdfBox.Net.FontBox.Util;
 /// <summary>
 /// This is an implementation of a bounding box. This was originally written for the AMF parser.
 /// </summary>
-public class BoundingBox
+public partial class BoundingBox
 {
     private float _lowerLeftX;
     private float _lowerLeftY;

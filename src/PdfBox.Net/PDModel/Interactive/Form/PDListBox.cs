@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public sealed class PDListBox : PDChoice
+public sealed partial class PDListBox : PDChoice
 {
     public PDListBox(PDAcroForm acroForm)
         : base(acroForm)

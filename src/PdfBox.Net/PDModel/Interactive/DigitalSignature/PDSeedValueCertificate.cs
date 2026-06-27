@@ -13,7 +13,7 @@ using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
-public class PDSeedValueCertificate : COSObjectable
+public partial class PDSeedValueCertificate : COSObjectable
 {
     public const int FLAG_SUBJECT = 1;
     public const int FLAG_ISSUER = 1 << 1;

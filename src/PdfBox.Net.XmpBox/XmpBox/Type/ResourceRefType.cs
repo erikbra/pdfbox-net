@@ -28,7 +28,7 @@
 namespace PdfBox.Net.XmpBox.Type;
 
 [StructuredType("http://ns.adobe.com/xap/1.0/sType/ResourceRef#", "stRef")]
-public class ResourceRefType : AbstractStructuredType
+public partial class ResourceRefType : AbstractStructuredType
 {
     [PropertyType(XmpTypeName.URI)]
     public static readonly string DOCUMENT_ID = "documentID";

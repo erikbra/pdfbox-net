@@ -38,7 +38,7 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 /// those of a target output device or production environment in which the document will be printed.
 /// </summary>
 /// <remarks>Author: Guillaume Bailleul</remarks>
-public sealed class PDOutputIntent : COSObjectable
+public sealed partial class PDOutputIntent : COSObjectable
 {
     private static readonly COSName DestOutputProfileKey = COSName.GetPDFName("DestOutputProfile");
     private static readonly COSName InfoKey = COSName.GetPDFName("Info");

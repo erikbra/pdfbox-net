@@ -32,7 +32,7 @@ namespace PdfBox.Net.Util;
 /// <see cref="DateConverter"/>. Stores year, month (0-based), day, hour, minute, second,
 /// millisecond, and a raw timezone offset in milliseconds (no DST).
 /// </summary>
-public class GregorianCalendar
+public partial class GregorianCalendar
 {
     // Calendar field constants (matching Java Calendar constants)
     /// <summary>Field constant for the year.</summary>

@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This class represents an annotation's dictionary of actions that occur due to events.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotationAdditionalActions</c>.</remarks>
-public class PDAnnotationAdditionalActions : COSObjectable
+public partial class PDAnnotationAdditionalActions : COSObjectable
 {
     private static readonly COSName EName = COSName.GetPDFName("E");
     private static readonly COSName XName = COSName.GetPDFName("X");

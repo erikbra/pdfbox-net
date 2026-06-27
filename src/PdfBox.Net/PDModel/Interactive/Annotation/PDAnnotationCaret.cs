@@ -13,7 +13,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationCaret : PDAnnotationMarkup
+public sealed partial class PDAnnotationCaret : PDAnnotationMarkup
 {
     private PDAppearanceHandler? customAppearanceHandler;
 

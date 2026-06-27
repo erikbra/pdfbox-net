@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf;
 /// <summary>
 /// Four-edge color wrapper used by tagged-PDF standard attribute objects.
 /// </summary>
-public class PDFourColours : COSObjectable
+public partial class PDFourColours : COSObjectable
 {
     private readonly COSArray _array;
 

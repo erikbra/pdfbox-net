@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents a JavaScript action.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionJavaScript</c>.</remarks>
-public class PDActionJavaScript : PDAction
+public partial class PDActionJavaScript : PDAction
 {
     /// <summary>
     /// This type of action this object represents.

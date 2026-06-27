@@ -35,7 +35,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// <summary>
 /// An object reference dictionary.
 /// </summary>
-public class PDObjectReference : COSObjectable
+public partial class PDObjectReference : COSObjectable
 {
     public const string TYPE = "OBJR";
 

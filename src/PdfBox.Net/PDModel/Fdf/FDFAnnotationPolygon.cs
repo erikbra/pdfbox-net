@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFAnnotationPolygon : FDFAnnotation
+public partial class FDFAnnotationPolygon : FDFAnnotation
 {
     private static readonly COSName VerticesName = COSName.GetPDFName("Vertices");
     private static readonly COSName IcName = COSName.GetPDFName("IC");

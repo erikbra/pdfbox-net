@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents a thread action that can be executed in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionThread</c>.</remarks>
-public class PDActionThread : PDAction
+public partial class PDActionThread : PDAction
 {
     /// <summary>
     /// This type of action this object represents.

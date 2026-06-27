@@ -29,7 +29,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace PdfBox.Net.PDModel.Encryption;
 
-public class PublicKeyRecipient
+public partial class PublicKeyRecipient
 {
     private X509Certificate2? _x509;
     private AccessPermission? _permission;

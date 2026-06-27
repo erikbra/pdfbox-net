@@ -35,7 +35,7 @@ using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFField : COSObjectable
+public partial class FDFField : COSObjectable
 {
     private static readonly COSName SetFfName = COSName.GetPDFName("SetFf");
     private static readonly COSName ClrFfName = COSName.GetPDFName("ClrFf");

@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDBorderStyleDictionary : COSObjectable
+public sealed partial class PDBorderStyleDictionary : COSObjectable
 {
     private static readonly COSName WidthName = COSName.GetPDFName("W");
     private static readonly COSName StyleName = COSName.GetPDFName("S");

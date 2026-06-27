@@ -35,7 +35,7 @@ using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Form;
 
-public class PDFormXObject : PDXObject, PDContentStream
+public partial class PDFormXObject : PDXObject, PDContentStream
 {
     private static readonly COSName FormTypeName = COSName.GetPDFName("FormType");
     private static readonly COSName BboxName = COSName.GetPDFName("BBox");

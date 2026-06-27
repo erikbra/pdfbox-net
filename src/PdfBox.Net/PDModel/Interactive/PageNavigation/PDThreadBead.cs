@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.PageNavigation;
 /// This a single bead in a thread in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDThreadBead</c>.</remarks>
-public class PDThreadBead : COSObjectable
+public partial class PDThreadBead : COSObjectable
 {
     private readonly COSDictionary _bead;
 

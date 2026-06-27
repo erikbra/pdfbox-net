@@ -27,7 +27,7 @@
 
 namespace PdfBox.Net.PDModel.Encryption;
 
-public sealed class StandardProtectionPolicy : ProtectionPolicy
+public sealed partial class StandardProtectionPolicy : ProtectionPolicy
 {
     private AccessPermission _permissions;
     private string _ownerPassword;

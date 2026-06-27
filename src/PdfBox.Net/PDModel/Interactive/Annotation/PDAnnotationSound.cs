@@ -13,7 +13,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationSound : PDAnnotationMarkup
+public sealed partial class PDAnnotationSound : PDAnnotationMarkup
 {
     private PDAppearanceHandler? customAppearanceHandler;
 

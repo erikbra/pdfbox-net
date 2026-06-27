@@ -34,7 +34,7 @@ namespace PdfBox.Net.Filter;
 /// Filters may not honor some or all of the specified options, and so callers should check the honored flag if
 /// further processing relies on the options being used.
 /// </summary>
-public class DecodeOptions
+public partial class DecodeOptions
 {
     /// <summary>
     /// Default decode options. The honored flag for this instance is always true, as it represents

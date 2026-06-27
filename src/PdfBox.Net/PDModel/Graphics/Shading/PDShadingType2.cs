@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 /// <summary>
 /// Resources for an axial shading.
 /// </summary>
-public class PDShadingType2 : PDShading
+public partial class PDShadingType2 : PDShading
 {
     private COSArray? _coords;
     private COSArray? _domain;

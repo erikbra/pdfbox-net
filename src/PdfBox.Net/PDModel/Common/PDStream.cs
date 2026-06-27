@@ -32,7 +32,7 @@ using FilterBase = PdfBox.Net.Filter.Filter;
 
 namespace PdfBox.Net.PDModel.Common;
 
-public class PDStream : COSObjectable
+public partial class PDStream : COSObjectable
 {
     private readonly COSStream _stream;
     private static readonly COSName DlName = COSName.GetPDFName("DL");

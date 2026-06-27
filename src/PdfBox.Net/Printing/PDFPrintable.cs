@@ -56,7 +56,7 @@ namespace PdfBox.Net.Printing;
 /// </para>
 /// </summary>
 /// <remarks>Author: John Hewson</remarks>
-public sealed class PDFPrintable
+public sealed partial class PDFPrintable
 {
     /// <summary>DPI value indicating rasterization is disabled.</summary>
     public const float RasterizeOff = 0f;

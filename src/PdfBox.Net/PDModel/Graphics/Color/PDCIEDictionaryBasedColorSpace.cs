@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 /// <remarks>
 /// Authors: Ben Litchfield, John Hewson
 /// </remarks>
-public abstract class PDCIEDictionaryBasedColorSpace : PDCIEBasedColorSpace
+public abstract partial class PDCIEDictionaryBasedColorSpace : PDCIEBasedColorSpace
 {
     /// <summary>
     /// The dictionary embedded in the colour space array.

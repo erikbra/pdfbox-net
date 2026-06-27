@@ -28,7 +28,7 @@
 namespace PdfBox.Net.XmpBox.Type;
 
 [StructuredType("http://ns.adobe.com/xap/1.0/sType/Job#", "stJob")]
-public class JobType : AbstractStructuredType
+public partial class JobType : AbstractStructuredType
 {
     [PropertyType(XmpTypeName.Text)]
     public static readonly string ID = "id";

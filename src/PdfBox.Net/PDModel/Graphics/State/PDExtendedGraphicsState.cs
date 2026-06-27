@@ -31,7 +31,7 @@ using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics.State;
 
-public class PDExtendedGraphicsState : COSObjectable
+public partial class PDExtendedGraphicsState : COSObjectable
 {
     private static readonly COSName TypeName = COSName.GetPDFName("Type");
     private static readonly COSName ExtGStateName = COSName.GetPDFName("ExtGState");

@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// <summary>
 /// A root of a structure tree.
 /// </summary>
-public class PDStructureTreeRoot : PDStructureNode
+public partial class PDStructureTreeRoot : PDStructureNode
 {
     /// <summary>Struct tree root type value.</summary>
     public const string TYPE = "StructTreeRoot";

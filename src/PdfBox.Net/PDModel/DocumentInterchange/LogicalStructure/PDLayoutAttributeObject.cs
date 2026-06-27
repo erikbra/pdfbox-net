@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// Provides typed accessors for the standard layout attributes defined in PDF 32000-1:2008
 /// Table 343–344.
 /// </summary>
-public class PDLayoutAttributeObject : PDDefaultAttributeObject
+public partial class PDLayoutAttributeObject : PDDefaultAttributeObject
 {
     /// <summary>Owner name for layout attributes.</summary>
     public const string Owner = "Layout";

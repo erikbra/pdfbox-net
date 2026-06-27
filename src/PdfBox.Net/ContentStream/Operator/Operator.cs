@@ -33,7 +33,7 @@ namespace PdfBox.Net.ContentStream.Operator;
 /// <summary>
 /// An Operator in a PDF content stream.
 /// </summary>
-public sealed class Operator
+public sealed partial class Operator
 {
     private static readonly ConcurrentDictionary<string, Operator> operators = new();
 

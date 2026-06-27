@@ -73,7 +73,7 @@ public sealed class PdfPageFormat
 /// </para>
 /// </summary>
 /// <remarks>Author: John Hewson</remarks>
-public sealed class PDFPageable
+public sealed partial class PDFPageable
 {
     private readonly PDDocument _document;
     private readonly int _numberOfPages;

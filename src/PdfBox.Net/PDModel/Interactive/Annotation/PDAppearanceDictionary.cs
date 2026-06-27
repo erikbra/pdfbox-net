@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAppearanceDictionary : COSObjectable
+public sealed partial class PDAppearanceDictionary : COSObjectable
 {
     private static readonly COSName NormalName = COSName.N;
     private static readonly COSName RolloverName = COSName.GetPDFName("R");

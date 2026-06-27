@@ -32,7 +32,7 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// <summary>
 /// Shared implementation for text-markup annotations.
 /// </summary>
-public abstract class PDAnnotationTextMarkup : PDAnnotationMarkup
+public abstract partial class PDAnnotationTextMarkup : PDAnnotationMarkup
 {
     protected PDAnnotationTextMarkup(string subType)
     {

@@ -35,7 +35,7 @@ namespace PdfBox.Net.Text;
 /// <summary>
 /// This represents a string and a position on the screen of those characters.
 /// </summary>
-public sealed class TextPosition
+public sealed partial class TextPosition
 {
     private const float Tolerance = 1E-07f;
     private static readonly Dictionary<int, string> Diacritics = CreateDiacritics();

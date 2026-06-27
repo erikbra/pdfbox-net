@@ -14,7 +14,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationPolygon : PDAnnotationMarkup
+public sealed partial class PDAnnotationPolygon : PDAnnotationMarkup
 {
     private PDAppearanceHandler? customAppearanceHandler;
 

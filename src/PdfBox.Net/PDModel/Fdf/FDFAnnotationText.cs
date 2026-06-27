@@ -30,7 +30,7 @@ using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFAnnotationText : FDFAnnotation
+public partial class FDFAnnotationText : FDFAnnotation
 {
     private static readonly COSName StateName = COSName.GetPDFName("State");
     private static readonly COSName StateModelName = COSName.GetPDFName("StateModel");

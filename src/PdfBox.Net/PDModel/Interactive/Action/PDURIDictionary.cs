@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This is the implementation of a URI dictionary.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDURIDictionary</c>.</remarks>
-public class PDURIDictionary : COSObjectable
+public partial class PDURIDictionary : COSObjectable
 {
     private static readonly COSName BaseName = COSName.GetPDFName("Base");
     private readonly COSDictionary _uriDictionary;

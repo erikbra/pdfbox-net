@@ -28,7 +28,7 @@
 
 namespace PdfBox.Net.XmpBox.Type;
 
-public abstract class AbstractField
+public abstract partial class AbstractField
 {
     private readonly XMPMetadata metadata;
     private readonly Dictionary<string, XmpAttribute> attributes = new(StringComparer.Ordinal);

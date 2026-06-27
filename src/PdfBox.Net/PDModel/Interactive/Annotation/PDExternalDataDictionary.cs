@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDExternalDataDictionary : COSObjectable
+public sealed partial class PDExternalDataDictionary : COSObjectable
 {
     private readonly COSDictionary dictionary;
 

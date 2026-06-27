@@ -13,7 +13,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public abstract class PDTerminalField : PDField
+public abstract partial class PDTerminalField : PDField
 {
     protected PDTerminalField(PDAcroForm acroForm)
         : base(acroForm)

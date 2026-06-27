@@ -35,7 +35,7 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// See section 12.5.6 of ISO32000-1:2008 for details on annotation types.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotationMarkup</c>.</remarks>
-public abstract class PDAnnotationMarkup : PDAnnotation
+public abstract partial class PDAnnotationMarkup : PDAnnotation
 {
     private static readonly COSName InteriorColorName = COSName.GetPDFName("IC");
     private static readonly COSName InReplyToName = COSName.GetPDFName("IRT");

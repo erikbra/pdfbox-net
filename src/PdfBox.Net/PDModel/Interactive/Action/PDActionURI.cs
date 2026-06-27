@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents a URI action that can be executed in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionURI</c>.</remarks>
-public class PDActionURI : PDAction
+public partial class PDActionURI : PDAction
 {
     /// <summary>
     /// This type of action this object represents.

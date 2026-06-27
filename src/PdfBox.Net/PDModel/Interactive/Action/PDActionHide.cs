@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents a hide action that can be executed in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionHide</c>.</remarks>
-public class PDActionHide : PDAction
+public partial class PDActionHide : PDAction
 {
     /// <summary>
     /// This type of action this object represents.

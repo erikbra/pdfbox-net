@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// <summary>
 /// A single user property entry within a <see cref="PDUserAttributeObject"/>.
 /// </summary>
-public class PDUserProperty : PDDictionaryWrapper
+public partial class PDUserProperty : PDDictionaryWrapper
 {
     private readonly PDUserAttributeObject _userAttributeObject;
 

@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 /// A gamma array, or collection of three floating point parameters used for color operations.
 /// </summary>
 /// <remarks>Author: Ben Litchfield</remarks>
-public sealed class PDGamma : COSObjectable
+public sealed partial class PDGamma : COSObjectable
 {
     private readonly COSArray _values;
 

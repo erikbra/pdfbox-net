@@ -32,7 +32,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationLine : PDAnnotationMarkup
+public sealed partial class PDAnnotationLine : PDAnnotationMarkup
 {
     private PDAppearanceHandler? customAppearanceHandler;
     private static readonly COSName LineName = COSName.GetPDFName("L");

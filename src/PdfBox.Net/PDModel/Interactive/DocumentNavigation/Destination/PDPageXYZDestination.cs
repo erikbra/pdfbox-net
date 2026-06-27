@@ -35,7 +35,7 @@ namespace PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 /// are not required.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDPageXYZDestination</c>.</remarks>
-public class PDPageXYZDestination : PDPageDestination
+public partial class PDPageXYZDestination : PDPageDestination
 {
     /// <summary>
     /// The type of this destination.

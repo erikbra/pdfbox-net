@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Common;
 
-public class PDNumberTreeNode : COSObjectable
+public partial class PDNumberTreeNode : COSObjectable
 {
     private readonly COSDictionary _node;
     private readonly Type _valueType;

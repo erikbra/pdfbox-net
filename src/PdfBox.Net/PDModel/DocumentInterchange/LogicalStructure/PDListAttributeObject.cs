@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// A list attribute object (owner <c>List</c>) for tagged PDF structure elements.
 /// Provides typed accessors for the standard list attributes defined in PDF 32000-1:2008 Table 346.
 /// </summary>
-public class PDListAttributeObject : PDDefaultAttributeObject
+public partial class PDListAttributeObject : PDDefaultAttributeObject
 {
     /// <summary>Owner name for list attributes.</summary>
     public const string Owner = "List";

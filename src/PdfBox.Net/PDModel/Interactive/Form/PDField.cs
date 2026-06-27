@@ -32,7 +32,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public abstract class PDField : COSObjectable
+public abstract partial class PDField : COSObjectable
 {
     private const int FlagReadOnly = 1;
     private const int FlagRequired = 1 << 1;

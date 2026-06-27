@@ -39,7 +39,7 @@ namespace PdfBox.Net.Rendering;
 /// <summary>
 /// Renders a PDF document to a <see cref="BufferedImage"/>.
 /// </summary>
-public class PDFRenderer
+public partial class PDFRenderer
 {
     protected readonly PDDocument document;
 

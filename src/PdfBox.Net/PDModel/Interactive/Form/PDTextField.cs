@@ -30,7 +30,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public sealed class PDTextField : PDVariableText
+public sealed partial class PDTextField : PDVariableText
 {
     public PDTextField(PDAcroForm acroForm)
         : base(acroForm)

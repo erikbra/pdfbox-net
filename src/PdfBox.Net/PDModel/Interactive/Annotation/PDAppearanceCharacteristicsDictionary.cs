@@ -14,7 +14,7 @@ using PdfBox.Net.PDModel.Graphics.Form;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAppearanceCharacteristicsDictionary : COSObjectable
+public sealed partial class PDAppearanceCharacteristicsDictionary : COSObjectable
 {
     private static readonly COSName BorderColorName = COSName.GetPDFName("BC");
     private static readonly COSName BackgroundColorName = COSName.GetPDFName("BG");

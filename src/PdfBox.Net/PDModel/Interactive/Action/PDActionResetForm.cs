@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents a reset-form action that can be executed in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionResetForm</c>.</remarks>
-public class PDActionResetForm : PDAction
+public partial class PDActionResetForm : PDAction
 {
     private static readonly COSName FieldsName = COSName.GetPDFName("Fields");
     private static readonly COSName FlagsName = COSName.GetPDFName("Flags");

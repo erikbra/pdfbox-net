@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 
 namespace PdfBox.Net.PDModel.Graphics.OptionalContent;
 
-public class PDOptionalContentMembershipDictionary : PDPropertyList
+public partial class PDOptionalContentMembershipDictionary : PDPropertyList
 {
     public PDOptionalContentMembershipDictionary()
         : base()

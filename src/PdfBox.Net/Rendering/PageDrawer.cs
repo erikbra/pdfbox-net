@@ -53,7 +53,7 @@ namespace PdfBox.Net.Rendering;
 /// Path fill/stroke, images, text, form XObjects, annotation appearances,
 /// and conservative shading/pattern fallbacks are implemented.
 /// </summary>
-public class PageDrawer : PDFGraphicsStreamEngine
+public partial class PageDrawer : PDFGraphicsStreamEngine
 {
     private readonly PageDrawerParameters _parameters;
     private readonly Dictionary<PDVectorFont, GlyphCache> _glyphCaches = new();

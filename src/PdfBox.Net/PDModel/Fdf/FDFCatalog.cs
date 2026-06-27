@@ -31,7 +31,7 @@ using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFCatalog : COSObjectable
+public partial class FDFCatalog : COSObjectable
 {
     private static readonly COSName FdfName = COSName.GetPDFName("FDF");
     private static readonly COSName SigName = COSName.GetPDFName("Sig");

@@ -32,7 +32,7 @@ namespace PdfBox.Net.FontBox.CFF;
 /// <summary>
 /// This class implements the DataInput interface using a RandomAccessRead as source.
 /// </summary>
-public class DataInputRandomAccessRead : DataInput
+public partial class DataInputRandomAccessRead : DataInput
 {
     private readonly RandomAccessRead _randomAccessRead;
 

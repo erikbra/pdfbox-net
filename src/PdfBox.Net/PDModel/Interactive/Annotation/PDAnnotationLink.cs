@@ -36,7 +36,7 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// This is the class that represents a link annotation.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotationLink</c>.</remarks>
-public class PDAnnotationLink : PDAnnotation
+public partial class PDAnnotationLink : PDAnnotation
 {
     private PDAppearanceHandler? customAppearanceHandler;
 

@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// <summary>
 /// A marked-content reference.
 /// </summary>
-public class PDMarkedContentReference : COSObjectable
+public partial class PDMarkedContentReference : COSObjectable
 {
     public const string TYPE = "MCR";
 

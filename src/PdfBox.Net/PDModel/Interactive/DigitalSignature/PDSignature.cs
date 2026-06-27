@@ -14,7 +14,7 @@ using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
-public class PDSignature : COSObjectable
+public partial class PDSignature : COSObjectable
 {
     public static readonly COSName FILTER_ADOBE_PPKLITE = COSName.GetPDFName("Adobe.PPKLite");
     public static readonly COSName FILTER_ENTRUST_PPKEF = COSName.GetPDFName("Entrust.PPKEF");

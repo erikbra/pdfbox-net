@@ -32,7 +32,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationFileAttachment : PDAnnotationMarkup
+public sealed partial class PDAnnotationFileAttachment : PDAnnotationMarkup
 {
     private PDAppearanceHandler? customAppearanceHandler;
 

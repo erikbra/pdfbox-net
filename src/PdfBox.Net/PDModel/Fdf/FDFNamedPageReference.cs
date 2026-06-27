@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Common.FileSpecification;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFNamedPageReference : COSObjectable
+public partial class FDFNamedPageReference : COSObjectable
 {
     private readonly COSDictionary _reference;
 

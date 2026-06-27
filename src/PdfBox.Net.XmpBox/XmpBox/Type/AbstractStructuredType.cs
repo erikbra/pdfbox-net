@@ -28,7 +28,7 @@
 
 namespace PdfBox.Net.XmpBox.Type;
 
-public abstract class AbstractStructuredType : AbstractComplexProperty
+public abstract partial class AbstractStructuredType : AbstractComplexProperty
 {
     protected const string StructureArrayName = XmpConstants.ListName;
 

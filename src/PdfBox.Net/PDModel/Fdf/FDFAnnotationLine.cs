@@ -31,7 +31,7 @@ using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFAnnotationLine : FDFAnnotation
+public partial class FDFAnnotationLine : FDFAnnotation
 {
     private const string LineEndingNone = "None";
     private static readonly COSName LName = COSName.GetPDFName("L");

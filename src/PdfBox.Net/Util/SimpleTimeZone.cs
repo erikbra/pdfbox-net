@@ -32,7 +32,7 @@ namespace PdfBox.Net.Util;
 /// <see cref="DateConverter"/> and <see cref="GregorianCalendar"/>. Stores only a raw UTC
 /// offset in milliseconds with no daylight saving time rules.
 /// </summary>
-public class SimpleTimeZone
+public partial class SimpleTimeZone
 {
     private int _rawOffsetMillis;
     private string _id;

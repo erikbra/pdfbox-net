@@ -28,7 +28,7 @@
 namespace PdfBox.Net.XmpBox.Type;
 
 [StructuredType("http://ns.adobe.com/photoshop/1.0/", "photoshop")]
-public class LayerType : AbstractStructuredType
+public partial class LayerType : AbstractStructuredType
 {
     [PropertyType(XmpTypeName.Text)]
     public static readonly string LAYER_NAME = "LayerName";

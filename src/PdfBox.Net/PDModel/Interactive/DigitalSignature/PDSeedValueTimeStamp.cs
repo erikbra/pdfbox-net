@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
-public class PDSeedValueTimeStamp
+public partial class PDSeedValueTimeStamp
 {
     private readonly COSDictionary _dictionary;
 

@@ -34,7 +34,7 @@ namespace PdfBox.Net.COS;
 /// <see cref="Dispose"/> on this object when you are done using it!
 /// </summary>
 /// <remarks>Author: Ben Litchfield</remarks>
-public class COSDocument : COSBase, IDisposable
+public partial class COSDocument : COSBase, IDisposable
 {
     private float _version = 1.4f;
 

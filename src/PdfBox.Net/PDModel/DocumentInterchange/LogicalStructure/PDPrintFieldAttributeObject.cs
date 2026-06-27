@@ -32,7 +32,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// <summary>
 /// PrintField attribute object.
 /// </summary>
-public class PDPrintFieldAttributeObject : PDDefaultAttributeObject
+public partial class PDPrintFieldAttributeObject : PDDefaultAttributeObject
 {
     public const string OwnerPrintField = "PrintField";
     public const string RoleRb = "rb";

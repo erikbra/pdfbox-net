@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Common;
 
-public class PDPageLabelRange : COSObjectable
+public partial class PDPageLabelRange : COSObjectable
 {
     private static readonly COSName KeyStart = COSName.GetPDFName("St");
     private static readonly COSName KeyPrefix = COSName.P;

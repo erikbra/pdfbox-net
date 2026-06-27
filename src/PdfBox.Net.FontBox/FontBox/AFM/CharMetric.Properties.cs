@@ -65,28 +65,28 @@ public partial class CharMetric
     public float[]? W
     {
         get => GetW();
-        set => SetW(value);
+        set => SetW(value!);
     }
 
     /// <summary>Gets or sets the writing direction 0 advance vector.</summary>
     public float[]? W0
     {
         get => GetW0();
-        set => SetW0(value);
+        set => SetW0(value!);
     }
 
     /// <summary>Gets or sets the writing direction 1 advance vector.</summary>
     public float[]? W1
     {
         get => GetW1();
-        set => SetW1(value);
+        set => SetW1(value!);
     }
 
     /// <summary>Gets or sets the vertical vector.</summary>
     public float[]? Vv
     {
         get => GetVv();
-        set => SetVv(value);
+        set => SetVv(value!);
     }
 
     /// <summary>Gets or sets the glyph name.</summary>
@@ -100,7 +100,7 @@ public partial class CharMetric
     public BoundingBox? BoundingBox
     {
         get => GetBoundingBox();
-        set => SetBoundingBox(value);
+        set => SetBoundingBox(value!);
     }
 
     /// <summary>Gets the list of ligature substitutions for this character.</summary>

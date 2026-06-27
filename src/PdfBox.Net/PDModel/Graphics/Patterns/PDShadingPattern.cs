@@ -31,7 +31,7 @@ using PdfBox.Net.PDModel.Graphics.State;
 
 namespace PdfBox.Net.PDModel.Graphics.Patterns;
 
-public class PDShadingPattern : PDAbstractPattern
+public partial class PDShadingPattern : PDAbstractPattern
 {
     private PDExtendedGraphicsState? _extendedGraphicsState;
     private PDShading? _shading;

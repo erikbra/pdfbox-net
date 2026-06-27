@@ -30,7 +30,7 @@ namespace PdfBox.Net.COS;
 /// <summary>
 /// The base object that all objects in the PDF document will extend.
 /// </summary>
-public abstract class COSBase : COSObjectable
+public abstract partial class COSBase : COSObjectable
 {
     private bool _direct;
     private COSObjectKey? _key;

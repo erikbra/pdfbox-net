@@ -34,7 +34,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public abstract class FDFAnnotation : COSObjectable
+public abstract partial class FDFAnnotation : COSObjectable
 {
     private const int FlagInvisible = 1;
     private const int FlagHidden = 1 << 1;

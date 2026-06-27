@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Common;
 
-public class PDRange : COSObjectable
+public partial class PDRange : COSObjectable
 {
     private readonly COSArray _rangeArray;
     private readonly int _startingIndex;

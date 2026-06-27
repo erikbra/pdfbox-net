@@ -10,7 +10,7 @@
 
 namespace PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible;
 
-public class PDVisibleSigProperties
+public partial class PDVisibleSigProperties
 {
     private string? _signerName;
     private string? _signerLocation;

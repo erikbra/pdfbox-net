@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents a go-to action that can be executed in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionGoTo</c>.</remarks>
-public class PDActionGoTo : PDAction
+public partial class PDActionGoTo : PDAction
 {
     /// <summary>
     /// This type of action this object represents.

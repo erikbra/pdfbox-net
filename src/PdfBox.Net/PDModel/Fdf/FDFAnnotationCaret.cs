@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFAnnotationCaret : FDFAnnotation
+public partial class FDFAnnotationCaret : FDFAnnotation
 {
     private static readonly COSName RdName = COSName.GetPDFName("RD");
     private static readonly COSName SyName = COSName.GetPDFName("Sy");

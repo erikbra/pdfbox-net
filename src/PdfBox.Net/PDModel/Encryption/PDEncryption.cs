@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Encryption;
 
-public class PDEncryption : COSObjectable
+public partial class PDEncryption : COSObjectable
 {
     public const int VERSION0_UNDOCUMENTED_UNSUPPORTED = 0;
     public const int VERSION1_40_BIT_ALGORITHM = 1;

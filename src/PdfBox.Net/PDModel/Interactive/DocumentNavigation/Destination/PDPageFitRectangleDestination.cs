@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 /// to just fit on the screen.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDPageFitRectangleDestination</c>.</remarks>
-public class PDPageFitRectangleDestination : PDPageDestination
+public partial class PDPageFitRectangleDestination : PDPageDestination
 {
     /// <summary>The type of this destination.</summary>
     internal const string Type = "FitR";

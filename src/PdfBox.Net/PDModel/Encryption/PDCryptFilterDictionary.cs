@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Encryption;
 
-public class PDCryptFilterDictionary : COSObjectable
+public partial class PDCryptFilterDictionary : COSObjectable
 {
     private static readonly COSName CfmName = COSName.GetPDFName("CFM");
     private static readonly COSName EncryptMetaDataName = COSName.GetPDFName("EncryptMetadata");

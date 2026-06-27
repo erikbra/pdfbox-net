@@ -31,7 +31,7 @@ using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFAnnotationLink : FDFAnnotation
+public partial class FDFAnnotationLink : FDFAnnotation
 {
     public const string Subtype = "Link";
 

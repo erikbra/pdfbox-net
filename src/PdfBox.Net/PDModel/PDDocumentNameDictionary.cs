@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel;
 
-public class PDDocumentNameDictionary : COSObjectable
+public partial class PDDocumentNameDictionary : COSObjectable
 {
     private readonly COSDictionary _nameDictionary;
     private readonly PDDocumentCatalog _catalog;

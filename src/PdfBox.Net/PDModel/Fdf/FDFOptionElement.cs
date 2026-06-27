@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFOptionElement : COSObjectable
+public partial class FDFOptionElement : COSObjectable
 {
     private readonly COSArray _option;
 

@@ -28,25 +28,22 @@
 namespace PdfBox.Net.Debugger.Ui;
 
 /// <summary>Represents an abstract view of a dictionary item in the tree view.</summary>
-public class MapEntry
+public partial class MapEntry
 {
-    public PdfBox.Net.COS.COSName? Key { get; set; }
+    private PdfBox.Net.COS.COSName? _key;
+private PdfBox.Net.COS.COSBase? _value;
+private PdfBox.Net.COS.COSBase? _item;
+public PdfBox.Net.COS.COSName? GetKey() => _key;
 
-    public PdfBox.Net.COS.COSBase? Value { get; set; }
+    public void SetKey(PdfBox.Net.COS.COSName? key) => _key = key;
 
-    public PdfBox.Net.COS.COSBase? Item { get; set; }
+    public PdfBox.Net.COS.COSBase? GetValue() => _value;
 
-    public PdfBox.Net.COS.COSName? GetKey() => Key;
+    public void SetValue(PdfBox.Net.COS.COSBase? value) => _value = value;
 
-    public void SetKey(PdfBox.Net.COS.COSName? key) => Key = key;
+    public PdfBox.Net.COS.COSBase? GetItem() => _item;
 
-    public PdfBox.Net.COS.COSBase? GetValue() => Value;
-
-    public void SetValue(PdfBox.Net.COS.COSBase? value) => Value = value;
-
-    public PdfBox.Net.COS.COSBase? GetItem() => Item;
-
-    public void SetItem(PdfBox.Net.COS.COSBase? item) => Item = item;
+    public void SetItem(PdfBox.Net.COS.COSBase? item) => _item = item;
 
     public override string ToString() => Key?.GetName() ?? "(null)";
 }

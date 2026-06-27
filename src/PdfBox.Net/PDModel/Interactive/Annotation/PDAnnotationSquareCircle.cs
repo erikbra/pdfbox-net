@@ -14,7 +14,7 @@ using PdfBox.Net.PDModel.Graphics.Color;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public abstract class PDAnnotationSquareCircle : PDAnnotationMarkup
+public abstract partial class PDAnnotationSquareCircle : PDAnnotationMarkup
 {
     protected PDAnnotationSquareCircle()
     {

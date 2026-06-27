@@ -37,7 +37,7 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 /// <summary>
 /// A Shading Resource.
 /// </summary>
-public abstract class PDShading : COSObjectable
+public abstract partial class PDShading : COSObjectable
 {
     private readonly COSDictionary _dictionary;
     private COSArray? _background;

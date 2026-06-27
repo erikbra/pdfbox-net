@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Common;
 
-public abstract class PDNameTreeNode<T> : COSObjectable where T : COSObjectable
+public abstract partial class PDNameTreeNode<T> : COSObjectable where T : COSObjectable
 {
     private readonly COSDictionary _node;
     private PDNameTreeNode<T>? _parent;

@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents a submit-form action that can be executed in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionSubmitForm</c>.</remarks>
-public class PDActionSubmitForm : PDAction
+public partial class PDActionSubmitForm : PDAction
 {
     private static readonly COSName FieldsName = COSName.GetPDFName("Fields");
     private static readonly COSName FlagsName = COSName.GetPDFName("Flags");

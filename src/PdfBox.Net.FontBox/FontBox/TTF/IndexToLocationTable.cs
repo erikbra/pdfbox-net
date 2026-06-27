@@ -29,7 +29,7 @@ using System.IO;
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public sealed class IndexToLocationTable() : TTFTable(TAG)
+public sealed partial class IndexToLocationTable() : TTFTable(TAG)
 {
     public const string TAG = "loca";
     private long[] _offsets = [];

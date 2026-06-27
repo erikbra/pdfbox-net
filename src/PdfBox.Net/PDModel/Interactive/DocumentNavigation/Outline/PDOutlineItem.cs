@@ -37,7 +37,7 @@ namespace PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
 /// form an iterable linked list, chained together through their Prev and Next entries.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDOutlineItem</c>.</remarks>
-public sealed class PDOutlineItem : PDOutlineNode
+public sealed partial class PDOutlineItem : PDOutlineNode
 {
     private const int ItalicFlag = 1;
     private const int BoldFlag = 2;

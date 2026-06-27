@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public abstract class PDVariableText : PDField
+public abstract partial class PDVariableText : PDField
 {
     protected PDVariableText(PDAcroForm acroForm)
         : base(acroForm)

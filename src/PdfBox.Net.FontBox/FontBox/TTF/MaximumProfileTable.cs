@@ -30,7 +30,7 @@ namespace PdfBox.Net.FontBox.TTF;
 /// <summary>
 /// This 'maxp'-table is a required table in a TrueType font.
 /// </summary>
-public sealed class MaximumProfileTable : TTFTable
+public sealed partial class MaximumProfileTable : TTFTable
 {
     public const string TAG = "maxp";
 
@@ -38,23 +38,22 @@ public sealed class MaximumProfileTable : TTFTable
     {
     }
 
-    public float Version { get; set; }
-    public int NumGlyphs { get; set; }
-    public int MaxPoints { get; set; }
-    public int MaxContours { get; set; }
-    public int MaxCompositePoints { get; set; }
-    public int MaxCompositeContours { get; set; }
-    public int MaxZones { get; set; }
-    public int MaxTwilightPoints { get; set; }
-    public int MaxStorage { get; set; }
-    public int MaxFunctionDefs { get; set; }
-    public int MaxInstructionDefs { get; set; }
-    public int MaxStackElements { get; set; }
-    public int MaxSizeOfInstructions { get; set; }
-    public int MaxComponentElements { get; set; }
-    public int MaxComponentDepth { get; set; }
-
-    internal override void Read(TrueTypeFont ttf, TTFDataStream data)
+    private float _version;
+private int _numGlyphs;
+private int _maxPoints;
+private int _maxContours;
+private int _maxCompositePoints;
+private int _maxCompositeContours;
+private int _maxZones;
+private int _maxTwilightPoints;
+private int _maxStorage;
+private int _maxFunctionDefs;
+private int _maxInstructionDefs;
+private int _maxStackElements;
+private int _maxSizeOfInstructions;
+private int _maxComponentElements;
+private int _maxComponentDepth;
+internal override void Read(TrueTypeFont ttf, TTFDataStream data)
     {
         Version = data.Read32Fixed();
         NumGlyphs = data.ReadUnsignedShort();
@@ -82,34 +81,34 @@ public sealed class MaximumProfileTable : TTFTable
         initialized = true;
     }
 
-    public int GetMaxComponentDepth() => MaxComponentDepth;
-    public void SetMaxComponentDepth(int value) => MaxComponentDepth = value;
-    public int GetMaxComponentElements() => MaxComponentElements;
-    public void SetMaxComponentElements(int value) => MaxComponentElements = value;
-    public int GetMaxCompositeContours() => MaxCompositeContours;
-    public void SetMaxCompositeContours(int value) => MaxCompositeContours = value;
-    public int GetMaxCompositePoints() => MaxCompositePoints;
-    public void SetMaxCompositePoints(int value) => MaxCompositePoints = value;
-    public int GetMaxContours() => MaxContours;
-    public void SetMaxContours(int value) => MaxContours = value;
-    public int GetMaxFunctionDefs() => MaxFunctionDefs;
-    public void SetMaxFunctionDefs(int value) => MaxFunctionDefs = value;
-    public int GetMaxInstructionDefs() => MaxInstructionDefs;
-    public void SetMaxInstructionDefs(int value) => MaxInstructionDefs = value;
-    public int GetMaxPoints() => MaxPoints;
-    public void SetMaxPoints(int value) => MaxPoints = value;
-    public int GetMaxSizeOfInstructions() => MaxSizeOfInstructions;
-    public void SetMaxSizeOfInstructions(int value) => MaxSizeOfInstructions = value;
-    public int GetMaxStackElements() => MaxStackElements;
-    public void SetMaxStackElements(int value) => MaxStackElements = value;
-    public int GetMaxStorage() => MaxStorage;
-    public void SetMaxStorage(int value) => MaxStorage = value;
-    public int GetMaxTwilightPoints() => MaxTwilightPoints;
-    public void SetMaxTwilightPoints(int value) => MaxTwilightPoints = value;
-    public int GetMaxZones() => MaxZones;
-    public void SetMaxZones(int value) => MaxZones = value;
-    public int GetNumGlyphs() => NumGlyphs;
-    public void SetNumGlyphs(int value) => NumGlyphs = value;
-    public float GetVersion() => Version;
-    public void SetVersion(float value) => Version = value;
+    public int GetMaxComponentDepth() => _maxComponentDepth;
+    public void SetMaxComponentDepth(int value) => _maxComponentDepth = value;
+    public int GetMaxComponentElements() => _maxComponentElements;
+    public void SetMaxComponentElements(int value) => _maxComponentElements = value;
+    public int GetMaxCompositeContours() => _maxCompositeContours;
+    public void SetMaxCompositeContours(int value) => _maxCompositeContours = value;
+    public int GetMaxCompositePoints() => _maxCompositePoints;
+    public void SetMaxCompositePoints(int value) => _maxCompositePoints = value;
+    public int GetMaxContours() => _maxContours;
+    public void SetMaxContours(int value) => _maxContours = value;
+    public int GetMaxFunctionDefs() => _maxFunctionDefs;
+    public void SetMaxFunctionDefs(int value) => _maxFunctionDefs = value;
+    public int GetMaxInstructionDefs() => _maxInstructionDefs;
+    public void SetMaxInstructionDefs(int value) => _maxInstructionDefs = value;
+    public int GetMaxPoints() => _maxPoints;
+    public void SetMaxPoints(int value) => _maxPoints = value;
+    public int GetMaxSizeOfInstructions() => _maxSizeOfInstructions;
+    public void SetMaxSizeOfInstructions(int value) => _maxSizeOfInstructions = value;
+    public int GetMaxStackElements() => _maxStackElements;
+    public void SetMaxStackElements(int value) => _maxStackElements = value;
+    public int GetMaxStorage() => _maxStorage;
+    public void SetMaxStorage(int value) => _maxStorage = value;
+    public int GetMaxTwilightPoints() => _maxTwilightPoints;
+    public void SetMaxTwilightPoints(int value) => _maxTwilightPoints = value;
+    public int GetMaxZones() => _maxZones;
+    public void SetMaxZones(int value) => _maxZones = value;
+    public int GetNumGlyphs() => _numGlyphs;
+    public void SetNumGlyphs(int value) => _numGlyphs = value;
+    public float GetVersion() => _version;
+    public void SetVersion(float value) => _version = value;
 }
