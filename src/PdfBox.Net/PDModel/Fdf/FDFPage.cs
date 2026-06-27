@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFPage : COSObjectable
+public partial class FDFPage : COSObjectable
 {
     private static readonly COSName InfoName = COSName.GetPDFName("Info");
 

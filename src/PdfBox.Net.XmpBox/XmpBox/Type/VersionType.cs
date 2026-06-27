@@ -28,7 +28,7 @@
 namespace PdfBox.Net.XmpBox.Type;
 
 [StructuredType("http://ns.adobe.com/xap/1.0/sType/Version#", "stVer")]
-public class VersionType : AbstractStructuredType
+public partial class VersionType : AbstractStructuredType
 {
     [PropertyType(XmpTypeName.Text)]
     public static readonly string COMMENTS = "comments";

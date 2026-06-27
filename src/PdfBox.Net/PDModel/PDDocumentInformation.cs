@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel;
 /// or <see langword="null"/> if it does not exist.  If <see langword="null"/> is passed to
 /// a <c>Set*</c> method, the value is cleared.
 /// </summary>
-public class PDDocumentInformation : COSObjectable
+public partial class PDDocumentInformation : COSObjectable
 {
     private readonly COSDictionary _info;
 

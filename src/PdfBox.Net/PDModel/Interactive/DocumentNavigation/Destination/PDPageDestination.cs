@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 /// This represents a destination to a page, see subclasses for specific parameters.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDPageDestination</c>.</remarks>
-public abstract class PDPageDestination : PDDestination
+public abstract partial class PDPageDestination : PDDestination
 {
     /// <summary>
     /// Storage for the page destination.

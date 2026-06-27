@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This class represents a page object's dictionary of actions that occur due to events.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDPageAdditionalActions</c>.</remarks>
-public class PDPageAdditionalActions : COSObjectable
+public partial class PDPageAdditionalActions : COSObjectable
 {
     private static readonly COSName OName = COSName.GetPDFName("O");
     private readonly COSDictionary _actions;

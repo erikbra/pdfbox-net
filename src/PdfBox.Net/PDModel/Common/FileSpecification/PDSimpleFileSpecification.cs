@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Common.FileSpecification;
 
-public class PDSimpleFileSpecification : PDFileSpecification
+public partial class PDSimpleFileSpecification : PDFileSpecification
 {
     private COSString _file;
 

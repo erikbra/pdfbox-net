@@ -30,7 +30,7 @@ namespace PdfBox.Net.FontBox.CFF;
 /// <summary>
 /// This class implements the DataInput interface using a byte buffer as source.
 /// </summary>
-public class DataInputByteArray : DataInput
+public partial class DataInputByteArray : DataInput
 {
     private readonly byte[] _inputBuffer;
     private int _bufferPosition;

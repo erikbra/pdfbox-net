@@ -38,7 +38,7 @@ namespace PdfBox.Net.PDModel.Common;
 /// <remarks>
 /// Ported from Apache PDFBox <c>PDRectangle</c>.
 /// </remarks>
-public class PDRectangle : COSObjectable
+public partial class PDRectangle : COSObjectable
 {
     /// <summary>User space units per inch.</summary>
     private const float PointsPerInch = 72;

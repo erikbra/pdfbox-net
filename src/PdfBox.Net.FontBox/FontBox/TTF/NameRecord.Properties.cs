@@ -49,7 +49,7 @@ public sealed partial class NameRecord
     public string? String
     {
         get => GetString();
-        set => SetString(value);
+        set => SetString(value!);
     }
 
     public string Value

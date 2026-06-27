@@ -45,7 +45,7 @@ namespace PdfBox.Net.PDModel;
 /// <remarks>
 /// Ported from Apache PDFBox <c>PDPage</c>.
 /// </remarks>
-public sealed class PDPage : COSObjectable, PDContentStream
+public sealed partial class PDPage : COSObjectable, PDContentStream
 {
     private readonly COSDictionary _page;
     private readonly ResourceCache? _resourceCache;

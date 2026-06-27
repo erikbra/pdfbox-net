@@ -30,7 +30,7 @@ using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
 
-public sealed class PDCalRGB : PDColorSpace
+public sealed partial class PDCalRGB : PDColorSpace
 {
     private static readonly COSName CalRGB = COSName.GetPDFName("CalRGB");
 

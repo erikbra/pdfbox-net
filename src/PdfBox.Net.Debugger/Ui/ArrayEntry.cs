@@ -28,25 +28,22 @@
 namespace PdfBox.Net.Debugger.Ui;
 
 /// <summary>Represents an abstract view of an array item in the tree view.</summary>
-public class ArrayEntry
+public partial class ArrayEntry
 {
-    public int Index { get; set; }
+    private int _index;
+private PdfBox.Net.COS.COSBase? _value;
+private PdfBox.Net.COS.COSBase? _item;
+public int GetIndex() => _index;
 
-    public PdfBox.Net.COS.COSBase? Value { get; set; }
+    public void SetIndex(int index) => _index = index;
 
-    public PdfBox.Net.COS.COSBase? Item { get; set; }
+    public PdfBox.Net.COS.COSBase? GetValue() => _value;
 
-    public int GetIndex() => Index;
+    public void SetValue(PdfBox.Net.COS.COSBase? value) => _value = value;
 
-    public void SetIndex(int index) => Index = index;
+    public PdfBox.Net.COS.COSBase? GetItem() => _item;
 
-    public PdfBox.Net.COS.COSBase? GetValue() => Value;
-
-    public void SetValue(PdfBox.Net.COS.COSBase? value) => Value = value;
-
-    public PdfBox.Net.COS.COSBase? GetItem() => Item;
-
-    public void SetItem(PdfBox.Net.COS.COSBase? item) => Item = item;
+    public void SetItem(PdfBox.Net.COS.COSBase? item) => _item = item;
 
     public override string ToString() => $"[{Index}]";
 }

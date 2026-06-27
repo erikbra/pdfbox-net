@@ -32,7 +32,7 @@ using PdfBox.Net.PDModel.Graphics.Color;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
-public sealed class PDInlineImage : PDImage
+public sealed partial class PDInlineImage : PDImage
 {
     private readonly COSDictionary _parameters;
     private readonly PDResources? _resources;

@@ -32,7 +32,7 @@ using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.State;
 
-public sealed class PDSoftMask : COSObjectable
+public sealed partial class PDSoftMask : COSObjectable
 {
     private static readonly COSName NoneName = COSName.GetPDFName("None");
     private static readonly COSName SName = COSName.GetPDFName("S");

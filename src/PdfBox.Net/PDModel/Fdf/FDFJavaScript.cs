@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Interactive.Action;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFJavaScript : COSObjectable
+public partial class FDFJavaScript : COSObjectable
 {
     private static readonly COSName BeforeName = COSName.GetPDFName("Before");
     private static readonly COSName AfterName = COSName.GetPDFName("After");

@@ -32,7 +32,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// <summary>
 /// Export-format attribute object (owners such as HTML-4.01, XML-1.00, CSS-2.00).
 /// </summary>
-public class PDExportFormatAttributeObject : PDLayoutAttributeObject
+public partial class PDExportFormatAttributeObject : PDLayoutAttributeObject
 {
     public const string OwnerXml1_00 = "XML-1.00";
     public const string OwnerHtml3_20 = "HTML-3.2";

@@ -31,7 +31,7 @@ namespace PdfBox.Net.PDModel.Graphics.State;
 /// The text state parameters of the current graphics state.
 /// Corresponds to the PDF specification text state parameters (Tc, Tw, Th, Tl, Tr, Ts, Tf/Tfs).
 /// </summary>
-public class PDTextState
+public partial class PDTextState
 {
     /// <summary>Font size (PDF Tfs).</summary>
     public float FontSize { get; set; } = 0f;
@@ -57,8 +57,8 @@ public class PDTextState
     /// <summary>Current font (PDF Tf).</summary>
     public PdfBox.Net.PDModel.Font.PDFont? Font { get; set; } = null;
 
-    /// <summary>Text knockout flag (PDF TK), default true.</summary>
-    public bool KnockoutFlag { get; set; } = true;
+    private bool _knockoutFlag = true;
+
 
     public float GetFontSize() => FontSize;
     public float GetHorizontalScaling() => HorizontalScaling;
@@ -69,9 +69,9 @@ public class PDTextState
     public global::PdfBox.Net.PDModel.Graphics.State.RenderingMode GetRenderingModeInstance() => RenderingModeExtensions.FromInt(RenderingMode);
     public float GetRise() => Rise;
     public PdfBox.Net.PDModel.Font.PDFont? GetFont() => Font;
-    public bool GetKnockoutFlag() => KnockoutFlag;
+    public bool GetKnockoutFlag() => _knockoutFlag;
     public void SetRenderingMode(global::PdfBox.Net.PDModel.Graphics.State.RenderingMode renderingMode) => RenderingMode = renderingMode.IntValue();
-    public void SetKnockoutFlag(bool knockoutFlag) => KnockoutFlag = knockoutFlag;
+    public void SetKnockoutFlag(bool knockoutFlag) => _knockoutFlag = knockoutFlag;
 
     /// <summary>Creates a shallow copy of this text state (fonts are shared references).</summary>
     public PDTextState Clone() =>

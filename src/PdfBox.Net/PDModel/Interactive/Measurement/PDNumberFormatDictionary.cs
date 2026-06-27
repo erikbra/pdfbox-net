@@ -13,7 +13,7 @@ using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.Interactive.Measurement;
 
-public class PDNumberFormatDictionary : COSObjectable
+public partial class PDNumberFormatDictionary : COSObjectable
 {
     public const string TYPE = "NumberFormat";
     public const string LABEL_SUFFIX_TO_VALUE = "S";

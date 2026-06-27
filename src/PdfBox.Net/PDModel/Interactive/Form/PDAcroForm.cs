@@ -35,7 +35,7 @@ using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public sealed class PDAcroForm : COSObjectable
+public sealed partial class PDAcroForm : COSObjectable
 {
     private readonly PDDocument _document;
     private readonly COSDictionary _dictionary;

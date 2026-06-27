@@ -13,7 +13,7 @@ using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.Interactive.Measurement;
 
-public class PDViewportDictionary : COSObjectable
+public partial class PDViewportDictionary : COSObjectable
 {
     public const string TYPE = "Viewport";
 

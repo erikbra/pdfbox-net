@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
-public class PDSeedValueMDP
+public partial class PDSeedValueMDP
 {
     private readonly COSDictionary _dictionary;
 

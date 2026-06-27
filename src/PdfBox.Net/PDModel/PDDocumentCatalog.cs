@@ -46,7 +46,7 @@ namespace PdfBox.Net.PDModel;
 /// <remarks>
 /// Ported from Apache PDFBox <c>PDDocumentCatalog</c>.
 /// </remarks>
-public sealed class PDDocumentCatalog : COSObjectable
+public sealed partial class PDDocumentCatalog : COSObjectable
 {
     private readonly COSDictionary _root;
     private readonly PDDocument _document;

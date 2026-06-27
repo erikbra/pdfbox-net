@@ -14,7 +14,7 @@ using PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible;
 
 namespace PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
-public sealed class SignatureOptions : IDisposable
+public sealed partial class SignatureOptions : IDisposable
 {
     public const int DEFAULT_SIGNATURE_SIZE = 0x2500;
 

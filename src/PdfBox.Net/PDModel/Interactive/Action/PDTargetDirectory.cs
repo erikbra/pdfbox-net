@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// A target dictionary specifying path information to the target document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDTargetDirectory</c>.</remarks>
-public class PDTargetDirectory : COSObjectable
+public partial class PDTargetDirectory : COSObjectable
 {
     private static readonly COSName RName = COSName.GetPDFName("R");
     private readonly COSDictionary _dict;

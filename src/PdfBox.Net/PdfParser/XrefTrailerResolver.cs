@@ -32,7 +32,7 @@ namespace PdfBox.Net.PdfParser;
 /// <summary>
 /// Collects xref/trailer sections and resolves the active chain based on startxref/Prev pointers.
 /// </summary>
-public class XrefTrailerResolver
+public partial class XrefTrailerResolver
 {
     /// <summary>
     /// The XRefType of a trailer.

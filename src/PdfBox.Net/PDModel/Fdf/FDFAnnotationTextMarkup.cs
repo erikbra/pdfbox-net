@@ -30,7 +30,7 @@ using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public abstract class FDFAnnotationTextMarkup : FDFAnnotation
+public abstract partial class FDFAnnotationTextMarkup : FDFAnnotation
 {
     private static readonly COSName QuadPointsName = COSName.GetPDFName("QuadPoints");
     protected FDFAnnotationTextMarkup()

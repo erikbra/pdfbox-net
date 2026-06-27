@@ -36,7 +36,7 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 /// deferred to a future rendering-integration issue and are not included in this port.
 /// </para>
 /// </summary>
-public abstract class PDTriangleBasedShadingType : PDShading
+public abstract partial class PDTriangleBasedShadingType : PDShading
 {
     // an array of 2^n numbers specifying the linear mapping of sample values
     // into the range appropriate for the function's output values. Default

@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Common.FileSpecification;
 
-public class PDEmbeddedFile : PDStream
+public partial class PDEmbeddedFile : PDStream
 {
     public PDEmbeddedFile(PDDocument document)
         : base(document)

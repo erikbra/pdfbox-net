@@ -32,7 +32,7 @@ namespace PdfBox.Net.COS;
 /// Such states are used to create a <see cref="COSIncrement"/> for the incremental saving of a <see cref="COSDocument"/>.
 /// </summary>
 /// <remarks>@author Christian Appl.</remarks>
-public class COSUpdateState(COSUpdateInfo updateInfo)
+public partial class COSUpdateState(COSUpdateInfo updateInfo)
 {
     private readonly COSUpdateInfo _updateInfo = updateInfo;
     private COSDocumentState? _originDocumentState;

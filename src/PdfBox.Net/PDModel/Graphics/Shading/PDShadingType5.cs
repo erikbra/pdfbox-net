@@ -38,7 +38,7 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 /// rendering-integration issue and is not included in this port.
 /// </para>
 /// </summary>
-public class PDShadingType5 : PDTriangleBasedShadingType
+public partial class PDShadingType5 : PDTriangleBasedShadingType
 {
     /// <summary>Constructor using the given shading dictionary.</summary>
     /// <param name="shadingDictionary">the dictionary for this shading</param>

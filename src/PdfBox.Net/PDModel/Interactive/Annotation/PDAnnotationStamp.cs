@@ -30,7 +30,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public class PDAnnotationStamp : PDAnnotationMarkup
+public partial class PDAnnotationStamp : PDAnnotationMarkup
 {
     public const string NAME_APPROVED = "Approved";
     public const string NAME_EXPERIMENTAL = "Experimental";

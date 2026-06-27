@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// <summary>
 /// A structure element.
 /// </summary>
-public class PDStructureElement : PDStructureNode
+public partial class PDStructureElement : PDStructureNode
 {
     /// <summary>Structure element type value.</summary>
     public const string TYPE = "StructElem";

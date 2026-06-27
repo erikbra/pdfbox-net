@@ -13,7 +13,7 @@ using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
-public class PDSeedValue : COSObjectable
+public partial class PDSeedValue : COSObjectable
 {
     private static readonly HashSet<string> AllowedDigestNames = ["SHA1", "SHA256", "SHA384", "SHA512", "RIPEMD160"];
 

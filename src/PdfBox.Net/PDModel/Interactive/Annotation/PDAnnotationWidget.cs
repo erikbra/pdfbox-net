@@ -32,7 +32,7 @@ using PdfBox.Net.PDModel.Interactive.Form;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationWidget : PDAnnotation
+public sealed partial class PDAnnotationWidget : PDAnnotation
 {
     public const string SUB_TYPE = "Widget";
 

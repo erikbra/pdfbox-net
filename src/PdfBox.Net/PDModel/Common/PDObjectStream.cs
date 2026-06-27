@@ -32,7 +32,7 @@ namespace PdfBox.Net.PDModel.Common;
 /// <summary>
 /// Wrapper for object streams.
 /// </summary>
-public class PDObjectStream : PDStream
+public partial class PDObjectStream : PDStream
 {
     private static readonly COSName ObjStmName = COSName.GetPDFName("ObjStm");
     private static readonly COSName ExtendsName = COSName.GetPDFName("Extends");

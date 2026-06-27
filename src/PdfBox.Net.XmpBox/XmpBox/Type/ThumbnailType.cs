@@ -28,7 +28,7 @@
 namespace PdfBox.Net.XmpBox.Type;
 
 [StructuredType("http://ns.adobe.com/xap/1.0/g/img/", "xmpGImg")]
-public class ThumbnailType : AbstractStructuredType
+public partial class ThumbnailType : AbstractStructuredType
 {
     [PropertyType(XmpTypeName.Choice)]
     public static readonly string FORMAT = "format";

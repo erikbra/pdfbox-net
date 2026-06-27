@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// This is the class that represents a text annotation.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotationText</c>.</remarks>
-public class PDAnnotationText : PDAnnotationMarkup
+public partial class PDAnnotationText : PDAnnotationMarkup
 {
     private PDAppearanceHandler? customAppearanceHandler;
 

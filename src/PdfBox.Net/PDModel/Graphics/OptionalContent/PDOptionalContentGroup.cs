@@ -31,7 +31,7 @@ using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.PDModel.Graphics.OptionalContent;
 
-public class PDOptionalContentGroup : PDPropertyList
+public partial class PDOptionalContentGroup : PDPropertyList
 {
     public enum RenderState
     {

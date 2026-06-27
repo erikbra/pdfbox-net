@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationPopup : PDAnnotation
+public sealed partial class PDAnnotationPopup : PDAnnotation
 {
     public const string SUB_TYPE = "Popup";
 

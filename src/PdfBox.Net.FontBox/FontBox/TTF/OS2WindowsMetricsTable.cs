@@ -29,7 +29,7 @@ using System.IO;
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public class OS2WindowsMetricsTable() : TTFTable(TAG)
+public partial class OS2WindowsMetricsTable() : TTFTable(TAG)
 {
     public const int WEIGHT_CLASS_THIN = 100;
     public const int WEIGHT_CLASS_ULTRA_LIGHT = 200;
@@ -71,108 +71,110 @@ public class OS2WindowsMetricsTable() : TTFTable(TAG)
 
     public const string TAG = "OS/2";
 
-    public int Version { get; set; }
-    public short AverageCharWidth { get; set; }
-    public int WeightClass { get; set; }
-    public int WidthClass { get; set; }
-    public short FsType { get; set; }
-    public short SubscriptXSize { get; set; }
-    public short SubscriptYSize { get; set; }
-    public short SubscriptXOffset { get; set; }
-    public short SubscriptYOffset { get; set; }
-    public short SuperscriptXSize { get; set; }
-    public short SuperscriptYSize { get; set; }
-    public short SuperscriptXOffset { get; set; }
-    public short SuperscriptYOffset { get; set; }
-    public short StrikeoutSize { get; set; }
-    public short StrikeoutPosition { get; set; }
-    public int FamilyClass { get; set; }
-    public byte[] Panose { get; set; } = new byte[10];
-    public long UnicodeRange1 { get; set; }
-    public long UnicodeRange2 { get; set; }
-    public long UnicodeRange3 { get; set; }
-    public long UnicodeRange4 { get; set; }
-    public string AchVendId { get; set; } = "XXXX";
-    public int FsSelection { get; set; }
-    public int FirstCharIndex { get; set; }
-    public int LastCharIndex { get; set; }
-    public int TypoAscender { get; set; }
-    public int TypoDescender { get; set; }
-    public int TypoLineGap { get; set; }
-    public int WinAscent { get; set; }
-    public int WinDescent { get; set; }
-    public long CodePageRange1 { get; set; }
-    public long CodePageRange2 { get; set; }
-    public int SxHeight { get; set; }
+    private int _version;
+private short _averageCharWidth;
+private int _weightClass;
+private int _widthClass;
+private short _fsType;
+private short _subscriptXSize;
+private short _subscriptYSize;
+private short _subscriptXOffset;
+private short _subscriptYOffset;
+private short _superscriptXSize;
+private short _superscriptYSize;
+private short _superscriptXOffset;
+private short _superscriptYOffset;
+private short _strikeoutSize;
+private short _strikeoutPosition;
+private int _familyClass;
+private byte[] _panose = new byte[10];
+
+    private long _unicodeRange1;
+private long _unicodeRange2;
+private long _unicodeRange3;
+private long _unicodeRange4;
+private string _achVendId = "XXXX";
+
+    private int _fsSelection;
+private int _firstCharIndex;
+private int _lastCharIndex;
+private int _typoAscender;
+private int _typoDescender;
+private int _typoLineGap;
+private int _winAscent;
+private int _winDescent;
+private long _codePageRange1;
+private long _codePageRange2;
+public int SxHeight { get; set; }
     public int SCapHeight { get; set; }
     public int UsDefaultChar { get; set; }
     public int UsBreakChar { get; set; }
     public int UsMaxContext { get; set; }
 
-    public string GetAchVendId() => AchVendId;
-    public void SetAchVendId(string achVendIdValue) => AchVendId = achVendIdValue;
-    public short GetAverageCharWidth() => AverageCharWidth;
-    public void SetAverageCharWidth(short averageCharWidthValue) => AverageCharWidth = averageCharWidthValue;
-    public long GetCodePageRange1() => CodePageRange1;
-    public void SetCodePageRange1(long codePageRange1Value) => CodePageRange1 = codePageRange1Value;
-    public long GetCodePageRange2() => CodePageRange2;
-    public void SetCodePageRange2(long codePageRange2Value) => CodePageRange2 = codePageRange2Value;
-    public int GetFamilyClass() => FamilyClass;
-    public void SetFamilyClass(int familyClassValue) => FamilyClass = familyClassValue;
-    public int GetFirstCharIndex() => FirstCharIndex;
-    public void SetFirstCharIndex(int firstCharIndexValue) => FirstCharIndex = firstCharIndexValue;
-    public int GetFsSelection() => FsSelection;
-    public void SetFsSelection(int fsSelectionValue) => FsSelection = fsSelectionValue;
-    public short GetFsType() => FsType;
-    public void SetFsType(short fsTypeValue) => FsType = fsTypeValue;
-    public int GetLastCharIndex() => LastCharIndex;
-    public void SetLastCharIndex(int lastCharIndexValue) => LastCharIndex = lastCharIndexValue;
-    public byte[] GetPanose() => Panose;
-    public void SetPanose(byte[] panoseValue) => Panose = panoseValue;
-    public short GetStrikeoutPosition() => StrikeoutPosition;
-    public void SetStrikeoutPosition(short strikeoutPositionValue) => StrikeoutPosition = strikeoutPositionValue;
-    public short GetStrikeoutSize() => StrikeoutSize;
-    public void SetStrikeoutSize(short strikeoutSizeValue) => StrikeoutSize = strikeoutSizeValue;
-    public short GetSubscriptXOffset() => SubscriptXOffset;
-    public void SetSubscriptXOffset(short subscriptXOffsetValue) => SubscriptXOffset = subscriptXOffsetValue;
-    public short GetSubscriptXSize() => SubscriptXSize;
-    public void SetSubscriptXSize(short subscriptXSizeValue) => SubscriptXSize = subscriptXSizeValue;
-    public short GetSubscriptYOffset() => SubscriptYOffset;
-    public void SetSubscriptYOffset(short subscriptYOffsetValue) => SubscriptYOffset = subscriptYOffsetValue;
-    public short GetSubscriptYSize() => SubscriptYSize;
-    public void SetSubscriptYSize(short subscriptYSizeValue) => SubscriptYSize = subscriptYSizeValue;
-    public short GetSuperscriptXOffset() => SuperscriptXOffset;
-    public void SetSuperscriptXOffset(short superscriptXOffsetValue) => SuperscriptXOffset = superscriptXOffsetValue;
-    public short GetSuperscriptXSize() => SuperscriptXSize;
-    public void SetSuperscriptXSize(short superscriptXSizeValue) => SuperscriptXSize = superscriptXSizeValue;
-    public short GetSuperscriptYOffset() => SuperscriptYOffset;
-    public void SetSuperscriptYOffset(short superscriptYOffsetValue) => SuperscriptYOffset = superscriptYOffsetValue;
-    public short GetSuperscriptYSize() => SuperscriptYSize;
-    public void SetSuperscriptYSize(short superscriptYSizeValue) => SuperscriptYSize = superscriptYSizeValue;
-    public int GetTypoLineGap() => TypoLineGap;
-    public void SetTypoLineGap(int typeLineGapValue) => TypoLineGap = typeLineGapValue;
-    public int GetTypoAscender() => TypoAscender;
-    public void SetTypoAscender(int typoAscenderValue) => TypoAscender = typoAscenderValue;
-    public int GetTypoDescender() => TypoDescender;
-    public void SetTypoDescender(int typoDescenderValue) => TypoDescender = typoDescenderValue;
-    public long GetUnicodeRange1() => UnicodeRange1;
-    public void SetUnicodeRange1(long unicodeRange1Value) => UnicodeRange1 = unicodeRange1Value;
-    public long GetUnicodeRange2() => UnicodeRange2;
-    public void SetUnicodeRange2(long unicodeRange2Value) => UnicodeRange2 = unicodeRange2Value;
-    public long GetUnicodeRange3() => UnicodeRange3;
-    public void SetUnicodeRange3(long unicodeRange3Value) => UnicodeRange3 = unicodeRange3Value;
-    public long GetUnicodeRange4() => UnicodeRange4;
-    public void SetUnicodeRange4(long unicodeRange4Value) => UnicodeRange4 = unicodeRange4Value;
-    public int GetVersion() => Version;
-    public void SetVersion(int versionValue) => Version = versionValue;
-    public int GetWeightClass() => WeightClass;
-    public void SetWeightClass(int weightClassValue) => WeightClass = weightClassValue;
-    public int GetWidthClass() => WidthClass;
-    public void SetWidthClass(int widthClassValue) => WidthClass = widthClassValue;
-    public int GetWinAscent() => WinAscent;
-    public void SetWinAscent(int winAscentValue) => WinAscent = winAscentValue;
-    public int GetWinDescent() => WinDescent;
-    public void SetWinDescent(int winDescentValue) => WinDescent = winDescentValue;
+    public string GetAchVendId() => _achVendId;
+    public void SetAchVendId(string achVendIdValue) => _achVendId = achVendIdValue;
+    public short GetAverageCharWidth() => _averageCharWidth;
+    public void SetAverageCharWidth(short averageCharWidthValue) => _averageCharWidth = averageCharWidthValue;
+    public long GetCodePageRange1() => _codePageRange1;
+    public void SetCodePageRange1(long codePageRange1Value) => _codePageRange1 = codePageRange1Value;
+    public long GetCodePageRange2() => _codePageRange2;
+    public void SetCodePageRange2(long codePageRange2Value) => _codePageRange2 = codePageRange2Value;
+    public int GetFamilyClass() => _familyClass;
+    public void SetFamilyClass(int familyClassValue) => _familyClass = familyClassValue;
+    public int GetFirstCharIndex() => _firstCharIndex;
+    public void SetFirstCharIndex(int firstCharIndexValue) => _firstCharIndex = firstCharIndexValue;
+    public int GetFsSelection() => _fsSelection;
+    public void SetFsSelection(int fsSelectionValue) => _fsSelection = fsSelectionValue;
+    public short GetFsType() => _fsType;
+    public void SetFsType(short fsTypeValue) => _fsType = fsTypeValue;
+    public int GetLastCharIndex() => _lastCharIndex;
+    public void SetLastCharIndex(int lastCharIndexValue) => _lastCharIndex = lastCharIndexValue;
+    public byte[] GetPanose() => _panose;
+    public void SetPanose(byte[] panoseValue) => _panose = panoseValue;
+    public short GetStrikeoutPosition() => _strikeoutPosition;
+    public void SetStrikeoutPosition(short strikeoutPositionValue) => _strikeoutPosition = strikeoutPositionValue;
+    public short GetStrikeoutSize() => _strikeoutSize;
+    public void SetStrikeoutSize(short strikeoutSizeValue) => _strikeoutSize = strikeoutSizeValue;
+    public short GetSubscriptXOffset() => _subscriptXOffset;
+    public void SetSubscriptXOffset(short subscriptXOffsetValue) => _subscriptXOffset = subscriptXOffsetValue;
+    public short GetSubscriptXSize() => _subscriptXSize;
+    public void SetSubscriptXSize(short subscriptXSizeValue) => _subscriptXSize = subscriptXSizeValue;
+    public short GetSubscriptYOffset() => _subscriptYOffset;
+    public void SetSubscriptYOffset(short subscriptYOffsetValue) => _subscriptYOffset = subscriptYOffsetValue;
+    public short GetSubscriptYSize() => _subscriptYSize;
+    public void SetSubscriptYSize(short subscriptYSizeValue) => _subscriptYSize = subscriptYSizeValue;
+    public short GetSuperscriptXOffset() => _superscriptXOffset;
+    public void SetSuperscriptXOffset(short superscriptXOffsetValue) => _superscriptXOffset = superscriptXOffsetValue;
+    public short GetSuperscriptXSize() => _superscriptXSize;
+    public void SetSuperscriptXSize(short superscriptXSizeValue) => _superscriptXSize = superscriptXSizeValue;
+    public short GetSuperscriptYOffset() => _superscriptYOffset;
+    public void SetSuperscriptYOffset(short superscriptYOffsetValue) => _superscriptYOffset = superscriptYOffsetValue;
+    public short GetSuperscriptYSize() => _superscriptYSize;
+    public void SetSuperscriptYSize(short superscriptYSizeValue) => _superscriptYSize = superscriptYSizeValue;
+    public int GetTypoLineGap() => _typoLineGap;
+    public void SetTypoLineGap(int typeLineGapValue) => _typoLineGap = typeLineGapValue;
+    public int GetTypoAscender() => _typoAscender;
+    public void SetTypoAscender(int typoAscenderValue) => _typoAscender = typoAscenderValue;
+    public int GetTypoDescender() => _typoDescender;
+    public void SetTypoDescender(int typoDescenderValue) => _typoDescender = typoDescenderValue;
+    public long GetUnicodeRange1() => _unicodeRange1;
+    public void SetUnicodeRange1(long unicodeRange1Value) => _unicodeRange1 = unicodeRange1Value;
+    public long GetUnicodeRange2() => _unicodeRange2;
+    public void SetUnicodeRange2(long unicodeRange2Value) => _unicodeRange2 = unicodeRange2Value;
+    public long GetUnicodeRange3() => _unicodeRange3;
+    public void SetUnicodeRange3(long unicodeRange3Value) => _unicodeRange3 = unicodeRange3Value;
+    public long GetUnicodeRange4() => _unicodeRange4;
+    public void SetUnicodeRange4(long unicodeRange4Value) => _unicodeRange4 = unicodeRange4Value;
+    public int GetVersion() => _version;
+    public void SetVersion(int versionValue) => _version = versionValue;
+    public int GetWeightClass() => _weightClass;
+    public void SetWeightClass(int weightClassValue) => _weightClass = weightClassValue;
+    public int GetWidthClass() => _widthClass;
+    public void SetWidthClass(int widthClassValue) => _widthClass = widthClassValue;
+    public int GetWinAscent() => _winAscent;
+    public void SetWinAscent(int winAscentValue) => _winAscent = winAscentValue;
+    public int GetWinDescent() => _winDescent;
+    public void SetWinDescent(int winDescentValue) => _winDescent = winDescentValue;
     public int GetHeight() => SxHeight;
     public int GetCapHeight() => SCapHeight;
     public int GetDefaultChar() => UsDefaultChar;

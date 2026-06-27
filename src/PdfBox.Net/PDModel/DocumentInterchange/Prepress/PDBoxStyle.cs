@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.Prepress;
 /// <summary>
 /// Box-style dictionary used by prepress box-color metadata.
 /// </summary>
-public class PDBoxStyle : COSObjectable
+public partial class PDBoxStyle : COSObjectable
 {
     public const string GuidelineStyleSolid = "S";
     public const string GuidelineStyleDashed = "D";

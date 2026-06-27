@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 /// This represents a destination to a page by referencing it with a name.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDNamedDestination</c>.</remarks>
-public class PDNamedDestination : PDDestination
+public partial class PDNamedDestination : PDDestination
 {
     private COSBase? _namedDestination;
 

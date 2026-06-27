@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDBorderEffectDictionary : COSObjectable
+public sealed partial class PDBorderEffectDictionary : COSObjectable
 {
     public const string STYLE_SOLID = "S";
     public const string STYLE_CLOUDY = "C";

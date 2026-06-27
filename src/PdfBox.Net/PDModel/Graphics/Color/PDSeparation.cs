@@ -31,7 +31,7 @@ using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
 
-public sealed class PDSeparation : PDColorSpace
+public sealed partial class PDSeparation : PDColorSpace
 {
     private static readonly COSName Separation = COSName.GetPDFName("Separation");
     private const int ColorSpaceNameIndex = 1;

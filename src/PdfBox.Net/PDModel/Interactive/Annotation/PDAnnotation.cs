@@ -37,7 +37,7 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// A PDF annotation.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotation</c>.</remarks>
-public abstract class PDAnnotation : COSObjectable
+public abstract partial class PDAnnotation : COSObjectable
 {
     private static readonly COSName AppearanceName = COSName.GetPDFName("AP");
     private static readonly COSName BorderName = COSName.GetPDFName("Border");

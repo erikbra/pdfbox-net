@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Font;
 
 namespace PdfBox.Net.PDModel.Graphics;
 
-public sealed class PDFontSetting : COSObjectable
+public sealed partial class PDFontSetting : COSObjectable
 {
     private readonly COSArray _fontSetting;
 

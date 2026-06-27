@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.PageNavigation;
 /// This a single thread in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDThread</c>.</remarks>
-public class PDThread : COSObjectable
+public partial class PDThread : COSObjectable
 {
     private readonly COSDictionary _thread;
 

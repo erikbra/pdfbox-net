@@ -35,7 +35,7 @@ using SkiaSharp;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
-public sealed class PDImageXObject : PDXObject
+public sealed partial class PDImageXObject : PDXObject
 {
     private readonly PDResources? _resources;
 

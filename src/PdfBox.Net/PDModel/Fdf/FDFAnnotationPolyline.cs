@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFAnnotationPolyline : FDFAnnotation
+public partial class FDFAnnotationPolyline : FDFAnnotation
 {
     private const string LineEndingNone = "None";
     private static readonly COSName VerticesName = COSName.GetPDFName("Vertices");

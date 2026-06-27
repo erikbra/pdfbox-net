@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.PageNavigation;
 /// Represents a page transition.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDTransition</c>.</remarks>
-public sealed class PDTransition : PDDictionaryWrapper
+public sealed partial class PDTransition : PDDictionaryWrapper
 {
     /// <summary>
     /// Creates a new transition with default replace style.

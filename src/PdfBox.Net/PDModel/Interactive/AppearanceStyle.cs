@@ -29,7 +29,7 @@ using PdfBox.Net.PDModel.Font;
 
 namespace PdfBox.Net.PDModel.Interactive;
 
-public class AppearanceStyle
+public partial class AppearanceStyle
 {
     private PDFont? _font;
     private float _fontSize = 12f;

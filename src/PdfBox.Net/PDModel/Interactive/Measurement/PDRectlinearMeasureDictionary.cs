@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Measurement;
 
-public class PDRectlinearMeasureDictionary : PDMeasureDictionary
+public partial class PDRectlinearMeasureDictionary : PDMeasureDictionary
 {
     public const string SUBTYPE = "RL";
 

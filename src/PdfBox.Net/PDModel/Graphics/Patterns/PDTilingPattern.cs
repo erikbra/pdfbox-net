@@ -33,7 +33,7 @@ using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics.Patterns;
 
-public class PDTilingPattern : PDAbstractPattern, PDContentStream
+public partial class PDTilingPattern : PDAbstractPattern, PDContentStream
 {
     public const int PAINT_COLORED = 1;
     public const int PAINT_UNCOLORED = 2;

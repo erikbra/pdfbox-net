@@ -27,7 +27,7 @@
 
 namespace PdfBox.Net.FontBox.TTF;
 
-public sealed class CmapTable() : TTFTable(Tag)
+public sealed partial class CmapTable() : TTFTable(Tag)
 {
     public new const string Tag = "cmap";
     public const int PlatformUnicode = 0;

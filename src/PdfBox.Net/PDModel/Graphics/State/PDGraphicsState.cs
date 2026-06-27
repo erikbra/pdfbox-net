@@ -39,7 +39,7 @@ namespace PdfBox.Net.PDModel.Graphics.State;
 /// Holds the current transformation matrix, text state, and other rendering
 /// parameters that are pushed/popped by the PDF q/Q operators.
 /// </summary>
-public class PDGraphicsState
+public partial class PDGraphicsState
 {
     public sealed class ClippingPath
     {

@@ -34,7 +34,7 @@ namespace PdfBox.Net.XmpBox;
 /// <summary>
 /// Object representation of XMP metadata packet-level and schema-level state.
 /// </summary>
-public class XMPMetadata
+public partial class XMPMetadata
 {
     private const string XmlnsNamespace = "http://www.w3.org/2000/xmlns/";
 

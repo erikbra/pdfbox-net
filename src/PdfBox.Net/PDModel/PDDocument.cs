@@ -47,7 +47,7 @@ namespace PdfBox.Net.PDModel;
 /// The only way to get a PDF document object is to load it from a file or
 /// to create it with the empty constructor.
 /// </summary>
-public sealed class PDDocument : IDisposable
+public sealed partial class PDDocument : IDisposable
 {
     private const string DefaultVersion = "1.4";
 

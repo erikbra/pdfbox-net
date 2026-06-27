@@ -30,12 +30,12 @@ namespace PdfBox.Net.FontBox.TTF;
 /// <summary>
 /// To improve performance of font scanning, this class is used both as a marker and as a storage for collected data.
 /// </summary>
-public sealed class FontHeaders
+public sealed partial class FontHeaders
 {
     internal const int BYTES_GCID = 142;
 
-    public string? Error { get; private set; }
-    public string? Name { get; private set; }
+    private string? _error;
+public string? Name { get; private set; }
     public int? HeaderMacStyle { get; private set; }
     public OS2WindowsMetricsTable? OS2Windows { get; private set; }
     public string? FontFamily { get; private set; }
@@ -46,7 +46,7 @@ public sealed class FontHeaders
     public string? OtfOrdering { get; private set; }
     public int OtfSupplement { get; private set; }
 
-    public string? GetError() => Error;
+    public string? GetError() => _error;
     public string? GetName() => Name;
     public int? GetHeaderMacStyle() => HeaderMacStyle;
     public OS2WindowsMetricsTable? GetOS2Windows() => OS2Windows;
@@ -58,7 +58,7 @@ public sealed class FontHeaders
     public string? GetOtfOrdering() => OtfOrdering;
     public int GetOtfSupplement() => OtfSupplement;
 
-    public void SetError(string exception) => Error = exception;
+    public void SetError(string exception) => _error = exception;
     internal void SetName(string? name) => Name = name;
     internal void SetHeaderMacStyle(int? headerMacStyle) => HeaderMacStyle = headerMacStyle;
     internal void SetOs2Windows(OS2WindowsMetricsTable? os2Windows) => OS2Windows = os2Windows;

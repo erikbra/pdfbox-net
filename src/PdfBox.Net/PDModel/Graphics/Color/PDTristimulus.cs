@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 /// A tristimulus, or collection of three floating point parameters used for color operations.
 /// </summary>
 /// <remarks>Author: Ben Litchfield</remarks>
-public sealed class PDTristimulus : COSObjectable
+public sealed partial class PDTristimulus : COSObjectable
 {
     private readonly COSArray _values;
 

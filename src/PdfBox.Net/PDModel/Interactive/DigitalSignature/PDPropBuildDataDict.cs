@@ -13,7 +13,7 @@ using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
-public class PDPropBuildDataDict : COSObjectable
+public partial class PDPropBuildDataDict : COSObjectable
 {
     private readonly COSDictionary _dictionary;
 

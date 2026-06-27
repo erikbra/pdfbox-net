@@ -36,7 +36,7 @@ using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public sealed class FDFDocument : IDisposable
+public sealed partial class FDFDocument : IDisposable
 {
     private const string DefaultVersion = "1.2";
 

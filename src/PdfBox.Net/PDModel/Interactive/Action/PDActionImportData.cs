@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents an import-data action that can be executed in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionImportData</c>.</remarks>
-public class PDActionImportData : PDAction
+public partial class PDActionImportData : PDAction
 {
     /// <summary>
     /// This type of action this object represents.

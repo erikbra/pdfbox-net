@@ -12,7 +12,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
-public sealed class PDAnnotationRubberStamp : PDAnnotationStamp
+public sealed partial class PDAnnotationRubberStamp : PDAnnotationStamp
 {
     public new const string NAME_APPROVED = PDAnnotationStamp.NAME_APPROVED;
     public new const string NAME_EXPERIMENTAL = PDAnnotationStamp.NAME_EXPERIMENTAL;

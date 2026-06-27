@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public class PDNonTerminalField : PDField
+public partial class PDNonTerminalField : PDField
 {
     public PDNonTerminalField(PDAcroForm acroForm)
         : base(acroForm)

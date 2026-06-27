@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Common.Function;
 
-public class PDFunctionType0 : PDFunction
+public partial class PDFunctionType0 : PDFunction
 {
     private COSArray? _encode;
     private COSArray? _decode;

@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Interactive.ViewerPreferences;
 
-public class PDViewerPreferences : COSObjectable
+public partial class PDViewerPreferences : COSObjectable
 {
     public enum NonFullScreenPageMode
     {

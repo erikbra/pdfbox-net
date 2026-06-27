@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// Launch parameters for the Windows OS.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDWindowsLaunchParams</c>.</remarks>
-public class PDWindowsLaunchParams : COSObjectable
+public partial class PDWindowsLaunchParams : COSObjectable
 {
     private static readonly COSName OName = COSName.GetPDFName("O");
 

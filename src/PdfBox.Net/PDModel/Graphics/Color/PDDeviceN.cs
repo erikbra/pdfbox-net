@@ -31,7 +31,7 @@ using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
 
-public sealed class PDDeviceN : PDColorSpace
+public sealed partial class PDDeviceN : PDColorSpace
 {
     private static readonly COSName DeviceN = COSName.GetPDFName("DeviceN");
     private const int ColorantNamesIndex = 1;

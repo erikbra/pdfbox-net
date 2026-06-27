@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This class represents a document catalog's dictionary of actions that occur due to events.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDDocumentCatalogAdditionalActions</c>.</remarks>
-public class PDDocumentCatalogAdditionalActions : COSObjectable
+public partial class PDDocumentCatalogAdditionalActions : COSObjectable
 {
     private static readonly COSName WCName = COSName.GetPDFName("WC");
     private static readonly COSName WSName = COSName.GetPDFName("WS");

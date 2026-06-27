@@ -28,7 +28,7 @@
 namespace PdfBox.Net.XmpBox.Type;
 
 [StructuredType("http://ns.adobe.com/xap/1.0/sType/ResourceEvent#", "stEvt")]
-public class ResourceEventType : AbstractStructuredType
+public partial class ResourceEventType : AbstractStructuredType
 {
     [PropertyType(XmpTypeName.Choice)]
     public static readonly string ACTION = "action";

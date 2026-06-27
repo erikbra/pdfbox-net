@@ -30,7 +30,7 @@ using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public abstract class PDButton : PDField
+public abstract partial class PDButton : PDField
 {
     internal const int FlagRadio = 1 << 15;
     internal const int FlagPushButton = 1 << 16;

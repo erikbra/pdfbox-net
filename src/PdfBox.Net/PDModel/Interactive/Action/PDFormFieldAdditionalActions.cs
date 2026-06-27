@@ -33,7 +33,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This class represents a form field's dictionary of actions that occur due to events.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDFormFieldAdditionalActions</c>.</remarks>
-public class PDFormFieldAdditionalActions : COSObjectable
+public partial class PDFormFieldAdditionalActions : COSObjectable
 {
     private readonly COSDictionary _actions;
 

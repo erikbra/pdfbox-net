@@ -33,7 +33,7 @@ namespace PdfBox.Net.COS;
 /// This class represents a PDF object.
 /// </summary>
 /// <remarks>Author: Ben Litchfield</remarks>
-public class COSObject : COSBase, COSUpdateInfo
+public partial class COSObject : COSBase, COSUpdateInfo
 {
     private COSBase? _baseObject;
     private ICOSParser? _parser;

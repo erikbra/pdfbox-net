@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Interactive.Action;
 /// This represents a launch action that can be executed in a PDF document.
 /// </summary>
 /// <remarks>Ported from Apache PDFBox <c>PDActionLaunch</c>.</remarks>
-public class PDActionLaunch : PDAction
+public partial class PDActionLaunch : PDAction
 {
     /// <summary>
     /// This type of action this object represents.

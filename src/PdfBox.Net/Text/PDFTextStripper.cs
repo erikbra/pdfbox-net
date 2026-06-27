@@ -40,7 +40,7 @@ using System.Text.RegularExpressions;
 
 namespace PdfBox.Net.Text;
 
-public class PDFTextStripper : LegacyPDFStreamEngine
+public partial class PDFTextStripper : LegacyPDFStreamEngine
 {
     private static float _defaultIndentThreshold = 2.0f;
     private static float _defaultDropThreshold = 2.5f;

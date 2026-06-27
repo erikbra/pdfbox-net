@@ -32,7 +32,7 @@ using System.Xml;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFDictionary : COSObjectable
+public partial class FDFDictionary : COSObjectable
 {
     private static readonly COSName IdName = COSName.GetPDFName("ID");
     private static readonly COSName FieldsName = COSName.GetPDFName("Fields");

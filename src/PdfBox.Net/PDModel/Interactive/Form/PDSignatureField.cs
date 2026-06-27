@@ -15,7 +15,7 @@ using PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
 namespace PdfBox.Net.PDModel.Interactive.Form;
 
-public class PDSignatureField : PDTerminalField
+public partial class PDSignatureField : PDTerminalField
 {
     public PDSignatureField(PDAcroForm acroForm)
         : base(acroForm)

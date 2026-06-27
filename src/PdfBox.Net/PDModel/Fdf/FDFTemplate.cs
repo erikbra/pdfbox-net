@@ -29,7 +29,7 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Fdf;
 
-public class FDFTemplate : COSObjectable
+public partial class FDFTemplate : COSObjectable
 {
     private static readonly COSName FieldsName = COSName.GetPDFName("Fields");
 

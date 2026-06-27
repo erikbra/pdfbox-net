@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 /// <summary>
 /// Resources for a function based shading.
 /// </summary>
-public class PDShadingType1 : PDShading
+public partial class PDShadingType1 : PDShading
 {
     private COSArray? _domain;
 

@@ -34,7 +34,7 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// Provides typed accessors for the standard table attributes defined in PDF 32000-1:2008
 /// Table 348.
 /// </summary>
-public class PDTableAttributeObject : PDDefaultAttributeObject
+public partial class PDTableAttributeObject : PDDefaultAttributeObject
 {
     /// <summary>Owner name for table attributes.</summary>
     public const string Owner = "Table";
