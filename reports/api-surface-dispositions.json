@@ -6947,14 +6947,6 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|HEADERS|0|missing",
-      "disposition": "internal-by-design",
-      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
-      "issue": 511,
-      "reviewed_at_utc": "2026-06-27T03:47:07Z",
-      "reviewed_by": "Codex"
-    },
-    {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|OWNER_TABLE|0|missing",
       "disposition": "intentional-dotnet-adaptation",
       "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
@@ -6964,14 +6956,6 @@
     },
     {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|ROW_SPAN|0|missing",
-      "disposition": "internal-by-design",
-      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
-      "issue": 511,
-      "reviewed_at_utc": "2026-06-27T03:47:07Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SCOPE|0|missing",
       "disposition": "internal-by-design",
       "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
       "issue": 511,
@@ -6997,14 +6981,6 @@
     {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SCOPE_ROW|0|missing",
       "disposition": "intentional-dotnet-adaptation",
-      "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
-      "issue": 511,
-      "reviewed_at_utc": "2026-06-27T03:47:07Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SUMMARY|0|missing",
-      "disposition": "internal-by-design",
       "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
       "issue": 511,
       "reviewed_at_utc": "2026-06-27T03:47:07Z",

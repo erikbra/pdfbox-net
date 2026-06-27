@@ -324,3 +324,35 @@ Rules:
   PDFBox methods rather than JavaBean accessors (for example `GetCOSObject()`).
 - Do not rename Java-origin interfaces just to add an `I` prefix; preserve upstream
   names unless there is a specific compatibility reason to add an adapter.
+
+---
+
+## 18. Java AWT/ImageIO dependencies and optional rendering backends
+
+When upstream PDFBox uses `java.awt`, `java.awt.image`, `java.awt.geom`, or
+`javax.imageio`, preserve Java-source comparability by porting the Java-shaped type
+names into core proxy classes first. Do not replace direct Java concepts with a broad
+new .NET rendering abstraction unless the Java concept has no useful proxy shape.
+
+Preferred structure:
+
+| Java concept | Core C# proxy | Backend package responsibility |
+|---|---|---|
+| `BufferedImage` | `BufferedImage` | allocate/read/write pixels in the concrete image backend |
+| `Graphics2D` | `Graphics2D` | draw paths, images, clips, transforms, and text in the backend |
+| `ImageIO`/image readers/writers | `ImageIO`-style helpers or codec peers | decode/encode PNG/JPEG/TIFF/etc. |
+| `Color`, `Shape`, `Stroke`, `TexturePaint`, `Raster` | Java-shaped core value/proxy types | map to backend-native colors, paths, paints, rasters |
+
+Rules:
+- Keep core `PdfBox.Net` free of backend-native public types such as `SKBitmap`,
+  `SKCanvas`, `System.Drawing.Image`, or ImageSharp image types.
+- Put backend-native APIs in optional packages, e.g. `PdfBox.Net.SkiaSharp` or
+  `PdfBox.Net.SystemDrawing`, as extension methods or backend-specific helpers.
+- Use a small peer/SPI boundary from core to backend implementation, such as
+  image peer, graphics peer, and image codec peer interfaces. Avoid multiplying
+  generic rendering interfaces when a Java-shaped proxy can remain the public API.
+- Register a default backend from the optional package. Core should throw a clear
+  `InvalidOperationException` when rendering or image decoding is requested without
+  any backend registered.
+- Preserve existing Java-shaped methods in mechanical files. Put backend-specific
+  convenience APIs in adapter files or optional packages.

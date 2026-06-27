@@ -12,7 +12,6 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Resources;
-using SkiaSharp;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 

@@ -34,10 +34,10 @@ namespace PdfBox.Net.Rendering;
 
 internal class TilingPaintFactory
 {
-    private readonly PageDrawer _drawer;
+    private readonly SkiaPageDrawerPeer _drawer;
     private readonly Dictionary<TilingPaintParameter, WeakReference<IPaint>> _weakCache = [];
 
-    internal TilingPaintFactory(PageDrawer drawer)
+    internal TilingPaintFactory(SkiaPageDrawerPeer drawer)
     {
         _drawer = drawer;
     }

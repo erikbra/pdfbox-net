@@ -12,8 +12,6 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="SkiaSharp" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
@@ -24,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PdfBox.Net\PdfBox.Net.csproj" />
+    <ProjectReference Include="..\..\src\PdfBox.Net.SkiaSharp\PdfBox.Net.SkiaSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup>

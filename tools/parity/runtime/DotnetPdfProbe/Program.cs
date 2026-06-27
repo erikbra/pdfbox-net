@@ -9,7 +9,6 @@ using PdfBox.Net.Rendering;
 using PdfBox.Net.Text;
 using PdfBox.Net.Tools.ImageIO;
 using PdfBox.Net.Util;
-using SkiaSharp;
 using GlyphList = PdfBox.Net.PDModel.Font.Encoding.GlyphList;
 
 internal static class DotnetPdfProbe
@@ -161,19 +160,18 @@ internal static class DotnetPdfProbe
 
     private static string ImageMetrics(BufferedImage image)
     {
-        SKBitmap bitmap = image.Bitmap;
-        int total = bitmap.Width * bitmap.Height;
-        SKColor background = bitmap.GetPixel(0, 0);
+        int total = image.Width * image.Height;
+        int background = image.GetRgb(0, 0);
         Dictionary<uint, int> histogram = [];
         int nonBackground = 0;
         int transparent = 0;
         int dominant = 0;
-        for (int y = 0; y < bitmap.Height; y++)
+        for (int y = 0; y < image.Height; y++)
         {
-            for (int x = 0; x < bitmap.Width; x++)
+            for (int x = 0; x < image.Width; x++)
             {
-                SKColor color = bitmap.GetPixel(x, y);
-                if (color.Alpha < 8)
+                int color = image.GetRgb(x, y);
+                if (Alpha(color) < 8)
                 {
                     transparent++;
                 }
@@ -183,7 +181,7 @@ internal static class DotnetPdfProbe
                     nonBackground++;
                 }
 
-                uint argb = ((uint)color.Alpha << 24) | ((uint)color.Red << 16) | ((uint)color.Green << 8) | color.Blue;
+                uint argb = unchecked((uint)color);
                 histogram.TryGetValue(argb, out int count);
                 count++;
                 histogram[argb] = count;
@@ -202,16 +200,15 @@ internal static class DotnetPdfProbe
     {
         using SHA256 digest = SHA256.Create();
         byte[] argb = new byte[4];
-        SKBitmap bitmap = image.Bitmap;
-        for (int y = 0; y < bitmap.Height; y++)
+        for (int y = 0; y < image.Height; y++)
         {
-            for (int x = 0; x < bitmap.Width; x++)
+            for (int x = 0; x < image.Width; x++)
             {
-                SKColor color = bitmap.GetPixel(x, y);
-                argb[0] = color.Alpha;
-                argb[1] = color.Red;
-                argb[2] = color.Green;
-                argb[3] = color.Blue;
+                int color = image.GetRgb(x, y);
+                argb[0] = (byte)Alpha(color);
+                argb[1] = (byte)Red(color);
+                argb[2] = (byte)Green(color);
+                argb[3] = (byte)Blue(color);
                 digest.TransformBlock(argb, 0, argb.Length, null, 0);
             }
         }
@@ -220,10 +217,18 @@ internal static class DotnetPdfProbe
         return Convert.ToHexString(digest.Hash!)[..16].ToLowerInvariant();
     }
 
-    private static int ColorDistance(SKColor a, SKColor b)
+    private static int ColorDistance(int a, int b)
     {
-        return Math.Abs(a.Alpha - b.Alpha) + Math.Abs(a.Red - b.Red) + Math.Abs(a.Green - b.Green) + Math.Abs(a.Blue - b.Blue);
+        return Math.Abs(Alpha(a) - Alpha(b)) + Math.Abs(Red(a) - Red(b)) + Math.Abs(Green(a) - Green(b)) + Math.Abs(Blue(a) - Blue(b));
     }
+
+    private static int Alpha(int argb) => (argb >> 24) & 0xFF;
+
+    private static int Red(int argb) => (argb >> 16) & 0xFF;
+
+    private static int Green(int argb) => (argb >> 8) & 0xFF;
+
+    private static int Blue(int argb) => argb & 0xFF;
 
     private static void WriteGlyphProbe(string outDir, string name, PDDocument document)
     {

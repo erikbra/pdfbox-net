@@ -8,9 +8,9 @@
  * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  */
 
-using System.Drawing;
 using PdfBox.Net.COS;
-using SkiaSharp;
+using PdfBox.Net.Rendering;
+using DrawingRectangle = System.Drawing.Rectangle;
 
 namespace PdfBox.Net.Filter;
 
@@ -47,11 +47,11 @@ public sealed class DCTFilter : Filter
             throw new IOException("Unsupported number of JPEG color components: " + jpegInfo.Components);
         }
 
-        using SKBitmap bitmap = SKBitmap.Decode(jpegBytes)
+        using BufferedImage bitmap = RenderingBackend.Current.ImageCodec.Decode(jpegBytes)
             ?? throw new IOException("DCTDecode failed to decode JPEG data.");
 
-        Rectangle region = options.GetSourceRegion() ?? new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-        region.Intersect(new Rectangle(0, 0, bitmap.Width, bitmap.Height));
+        DrawingRectangle region = options.GetSourceRegion() ?? new DrawingRectangle(0, 0, bitmap.Width, bitmap.Height);
+        region.Intersect(new DrawingRectangle(0, 0, bitmap.Width, bitmap.Height));
         int subsamplingX = Math.Max(1, options.GetSubsamplingX());
         int subsamplingY = Math.Max(1, options.GetSubsamplingY());
         int offsetX = Math.Clamp(options.GetSubsamplingOffsetX(), 0, subsamplingX - 1);
@@ -61,16 +61,16 @@ public sealed class DCTFilter : Filter
         {
             for (int x = region.Left + offsetX; x < region.Right; x += subsamplingX)
             {
-                SKColor color = bitmap.GetPixel(x, y);
+                int color = bitmap.GetRgb(x, y);
                 if (jpegInfo.Components == 1)
                 {
-                    output.WriteByte(color.Red);
+                    output.WriteByte((byte)((color >> 16) & 0xFF));
                 }
                 else
                 {
-                    output.WriteByte(color.Red);
-                    output.WriteByte(color.Green);
-                    output.WriteByte(color.Blue);
+                    output.WriteByte((byte)((color >> 16) & 0xFF));
+                    output.WriteByte((byte)((color >> 8) & 0xFF));
+                    output.WriteByte((byte)(color & 0xFF));
                 }
             }
         }
@@ -101,8 +101,8 @@ public sealed class DCTFilter : Filter
 
     private static void DecodeRaster(DecodedJpegRaster raster, Stream output, DecodeOptions options)
     {
-        Rectangle region = options.GetSourceRegion() ?? new Rectangle(0, 0, raster.Width, raster.Height);
-        region.Intersect(new Rectangle(0, 0, raster.Width, raster.Height));
+        DrawingRectangle region = options.GetSourceRegion() ?? new DrawingRectangle(0, 0, raster.Width, raster.Height);
+        region.Intersect(new DrawingRectangle(0, 0, raster.Width, raster.Height));
         int subsamplingX = Math.Max(1, options.GetSubsamplingX());
         int subsamplingY = Math.Max(1, options.GetSubsamplingY());
         int offsetX = Math.Clamp(options.GetSubsamplingOffsetX(), 0, subsamplingX - 1);

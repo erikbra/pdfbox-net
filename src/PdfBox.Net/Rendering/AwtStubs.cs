@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Real .NET graphics implementations backed by SkiaSharp, replacing the
- * previous empty stub placeholders for Java AWT types.
+ * Java AWT-style proxy classes backed by a pluggable .NET rendering backend.
  *
  * PORT_MODE: adapted
  */
@@ -23,13 +22,12 @@
  * limitations under the License.
  */
 
-using SkiaSharp;
 using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Rendering;
 
 /// <summary>
-/// Raster image backed by an <see cref="SKBitmap"/>.
+/// Java-shaped raster image proxy backed by the registered rendering backend.
 /// Replaces the Java AWT <c>BufferedImage</c> stub.
 /// </summary>
 public class BufferedImage : Image, IDisposable
@@ -41,17 +39,23 @@ public class BufferedImage : Image, IDisposable
     public const int TYPE_BYTE_GRAY = 10;
     public const int TYPE_BYTE_BINARY = 12;
 
-    private readonly SKBitmap _bitmap;
+    private readonly IBufferedImagePeer _peer;
     private bool _disposed;
 
     public BufferedImage(int width, int height, int type)
     {
-        Width = width;
-        Height = height;
-        Type = type;
-        SKColorType colorType = type == TYPE_INT_ARGB ? SKColorType.Bgra8888 : SKColorType.Bgra8888;
-        SKAlphaType alphaType = type == TYPE_INT_ARGB ? SKAlphaType.Premul : SKAlphaType.Opaque;
-        _bitmap = new SKBitmap(width, height, colorType, alphaType);
+        _peer = RenderingBackend.Current.CreateBufferedImage(width, height, type);
+        Width = _peer.Width;
+        Height = _peer.Height;
+        Type = _peer.Type;
+    }
+
+    internal BufferedImage(IBufferedImagePeer peer)
+    {
+        _peer = peer ?? throw new ArgumentNullException(nameof(peer));
+        Width = _peer.Width;
+        Height = _peer.Height;
+        Type = _peer.Type;
     }
 
     public int Width { get; }
@@ -60,12 +64,11 @@ public class BufferedImage : Image, IDisposable
 
     public int Type { get; }
 
-    /// <summary>Returns the underlying SkiaSharp bitmap for direct pixel access.</summary>
-    public SKBitmap Bitmap => _bitmap;
+    internal IBufferedImagePeer Peer => _peer;
 
     public Graphics2D CreateGraphics()
     {
-        return new Graphics2D(_bitmap);
+        return new Graphics2D(_peer.CreateGraphics());
     }
 
     public ColorModel GetColorModel()
@@ -75,21 +78,36 @@ public class BufferedImage : Image, IDisposable
 
     public WritableRaster GetRaster()
     {
-        return new BitmapWritableRaster(_bitmap);
+        return new BitmapWritableRaster(this);
     }
 
     /// <summary>Returns the ARGB value of the pixel at (<paramref name="x"/>, <paramref name="y"/>).</summary>
     public int GetRgb(int x, int y)
     {
-        SKColor c = _bitmap.GetPixel(x, y);
-        return (c.Alpha << 24) | (c.Red << 16) | (c.Green << 8) | c.Blue;
+        return _peer.GetRgb(x, y);
+    }
+
+    public void SetRgb(int x, int y, int argb)
+    {
+        _peer.SetPixel(
+            x,
+            y,
+            (argb >> 16) & 0xFF,
+            (argb >> 8) & 0xFF,
+            argb & 0xFF,
+            (argb >> 24) & 0xFF);
+    }
+
+    public void Clear(Color color)
+    {
+        _peer.Clear(color);
     }
 
     public void Dispose()
     {
         if (!_disposed)
         {
-            _bitmap.Dispose();
+            _peer.Dispose();
             _disposed = true;
         }
         GC.SuppressFinalize(this);
@@ -106,14 +124,12 @@ public class Graphics
 }
 
 /// <summary>
-/// 2-D drawing context backed by an <see cref="SKCanvas"/>.
+/// 2-D drawing context proxy backed by the registered rendering backend.
 /// Replaces the Java AWT <c>Graphics2D</c> stub.
 /// </summary>
 public class Graphics2D : Graphics, IDisposable
 {
-    private readonly SKBitmap? _bitmap;
-    private SKCanvas? _canvas;
-    private bool _ownsCanvas;
+    private readonly IGraphics2DPeer _peer;
     private Color _background = Color.White;
     private Shape? _clip;
     private Stroke _stroke = new();
@@ -122,43 +138,32 @@ public class Graphics2D : Graphics, IDisposable
 
     public Graphics2D()
     {
+        _peer = NullGraphics2DPeer.Instance;
     }
 
-    public Graphics2D(SKBitmap bitmap)
+    internal Graphics2D(IGraphics2DPeer peer)
     {
-        _bitmap = bitmap;
-        _canvas = new SKCanvas(bitmap);
-        _ownsCanvas = true;
+        _peer = peer;
     }
 
-    internal Graphics2D(SKBitmap? bitmap, SKCanvas canvas, bool ownsCanvas = false, AffineTransform? transform = null)
+    private Graphics2D(IGraphics2DPeer peer, AffineTransform? transform)
     {
-        _bitmap = bitmap;
-        _canvas = canvas;
-        _ownsCanvas = ownsCanvas;
+        _peer = peer;
         _transform = transform?.Clone() ?? new AffineTransform();
     }
 
-    /// <summary>Returns the underlying SkiaSharp canvas (may be null for a default-constructed instance).</summary>
-    public SKCanvas? Canvas => _canvas;
+    internal IGraphics2DPeer Peer => _peer;
 
-    internal int? BitmapHeight => _bitmap?.Height;
+    internal int? BitmapHeight => _peer.BitmapHeight;
 
     public override Graphics Create()
     {
-        if (_canvas is null)
-        {
-            return new Graphics2D();
-        }
-        // Return a wrapper sharing the same canvas (the canvas is not owned by the copy).
-        return new Graphics2D(_bitmap, _canvas, ownsCanvas: false, transform: _transform);
+        return new Graphics2D(_peer.Create(), _transform);
     }
 
     public virtual void ClearRect(int x, int y, int width, int height)
     {
-        if (_canvas is null) return;
-        using var paint = new SKPaint { Color = ToSkColor(_background), BlendMode = SKBlendMode.Src };
-        _canvas.DrawRect(x, y, width, height, paint);
+        _peer.ClearRect(x, y, width, height, _background);
     }
 
     public virtual void Clip(Shape shape)
@@ -168,8 +173,7 @@ public class Graphics2D : Graphics, IDisposable
 
     public virtual void DrawImage(BufferedImage image, int x, int y, object? observer = null)
     {
-        if (_canvas is null) return;
-        _canvas.DrawBitmap(image.Bitmap, x, y);
+        _peer.DrawImage(image, x, y);
     }
 
     public virtual Color GetBackground() => _background;
@@ -187,13 +191,13 @@ public class Graphics2D : Graphics, IDisposable
     public virtual void Rotate(double theta)
     {
         _transform.Rotate(theta);
-        _canvas?.RotateRadians((float)theta);
+        _peer.Rotate(theta);
     }
 
     public virtual void Scale(double scaleX, double scaleY)
     {
         _transform.Scale(scaleX, scaleY);
-        _canvas?.Scale((float)scaleX, (float)scaleY);
+        _peer.Scale(scaleX, scaleY);
     }
 
     public virtual void SetBackground(Color color)
@@ -219,21 +223,12 @@ public class Graphics2D : Graphics, IDisposable
     public virtual void Translate(double tx, double ty)
     {
         _transform.Translate(tx, ty);
-        _canvas?.Translate((float)tx, (float)ty);
+        _peer.Translate(tx, ty);
     }
 
     public override void Dispose()
     {
-        if (_ownsCanvas)
-        {
-            _canvas?.Dispose();
-            _canvas = null;
-        }
-    }
-
-    internal static SKColor ToSkColor(Color color)
-    {
-        return new SKColor((byte)color.Red, (byte)color.Green, (byte)color.Blue, (byte)color.Alpha);
+        _peer.Dispose();
     }
 }
 
@@ -659,12 +654,12 @@ internal sealed class TexturePaintContext : PaintContext
 
 internal sealed class BitmapWritableRaster : WritableRaster
 {
-    private readonly SKBitmap _bitmap;
+    private readonly BufferedImage _image;
 
-    internal BitmapWritableRaster(SKBitmap bitmap)
-        : base(bitmap.Width, bitmap.Height, allocatePixels: false)
+    internal BitmapWritableRaster(BufferedImage image)
+        : base(image.Width, image.Height, allocatePixels: false)
     {
-        _bitmap = bitmap;
+        _image = image;
     }
 
     protected override void ReadPixel(int x, int y, int[] pixel)
@@ -675,11 +670,11 @@ internal sealed class BitmapWritableRaster : WritableRaster
             return;
         }
 
-        SKColor color = _bitmap.GetPixel(x, y);
-        pixel[0] = color.Red;
-        pixel[1] = color.Green;
-        pixel[2] = color.Blue;
-        pixel[3] = color.Alpha;
+        int argb = _image.GetRgb(x, y);
+        pixel[0] = (argb >> 16) & 0xFF;
+        pixel[1] = (argb >> 8) & 0xFF;
+        pixel[2] = argb & 0xFF;
+        pixel[3] = (argb >> 24) & 0xFF;
     }
 
     public override void SetPixel(int x, int y, int[] pixel)
@@ -690,11 +685,11 @@ internal sealed class BitmapWritableRaster : WritableRaster
             return;
         }
 
-        byte r = (byte)Math.Clamp(pixel.Length > 0 ? pixel[0] : 0, 0, 255);
-        byte g = (byte)Math.Clamp(pixel.Length > 1 ? pixel[1] : 0, 0, 255);
-        byte b = (byte)Math.Clamp(pixel.Length > 2 ? pixel[2] : 0, 0, 255);
-        byte a = (byte)Math.Clamp(pixel.Length > 3 ? pixel[3] : 255, 0, 255);
-        _bitmap.SetPixel(x, y, new SKColor(r, g, b, a));
+        int r = Math.Clamp(pixel.Length > 0 ? pixel[0] : 0, 0, 255);
+        int g = Math.Clamp(pixel.Length > 1 ? pixel[1] : 0, 0, 255);
+        int b = Math.Clamp(pixel.Length > 2 ? pixel[2] : 0, 0, 255);
+        int a = Math.Clamp(pixel.Length > 3 ? pixel[3] : 255, 0, 255);
+        _image.Peer.SetPixel(x, y, r, g, b, a);
     }
 }
 

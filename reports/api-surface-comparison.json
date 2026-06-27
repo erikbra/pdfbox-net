@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-06-27T03:49:27Z",
+  "generated_at_utc": "2026-06-27T15:04:08Z",
   "upstream_root": "/Users/erik/src/Repos/apache/pdfbox",
   "upstream_commit": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
-  "pdfbox_net_commit": "d88a042b0b1a179afdcf45b7a0f0724291254077",
+  "pdfbox_net_commit": "c824ed1cfdbe5e414850c5cdde955577c4a8a770",
   "scope": {
     "modules": [
       "io",
@@ -20,10 +20,10 @@
     "matched_types": 579,
     "same_name_matched_types": 573,
     "java_members": 6305,
-    "matched_members": 5366,
+    "matched_members": 5369,
     "arity_drift_members": 42,
-    "missing_members": 897,
-    "csharp_extra_members": 1027,
+    "missing_members": 894,
+    "csharp_extra_members": 1637,
     "nonpublic_or_replacement_types": 2,
     "renamed_public_types": 6,
     "missing_types": 0
@@ -37,7 +37,7 @@
       "matched_members": 1005,
       "arity_drift_members": 4,
       "missing_members": 19,
-      "csharp_extra_members": 275,
+      "csharp_extra_members": 304,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 4,
       "missing_types": 0
@@ -60,10 +60,10 @@
       "same_name_matched_types": 390,
       "matched_types": 390,
       "java_members": 4204,
-      "matched_members": 3657,
+      "matched_members": 3660,
       "arity_drift_members": 33,
-      "missing_members": 514,
-      "csharp_extra_members": 612,
+      "missing_members": 511,
+      "csharp_extra_members": 1162,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
       "missing_types": 0
@@ -76,7 +76,7 @@
       "matched_members": 578,
       "arity_drift_members": 5,
       "missing_members": 359,
-      "csharp_extra_members": 103,
+      "csharp_extra_members": 134,
       "renamed_public_types": 2,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -104,7 +104,7 @@
       "matched_members": 189,
       "arity_drift_members": 0,
       "missing_members": 0,
-      "csharp_extra_members": 27,
+      "csharp_extra_members": 48,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -117,7 +117,7 @@
       "matched_members": 131,
       "arity_drift_members": 4,
       "missing_members": 13,
-      "csharp_extra_members": 16,
+      "csharp_extra_members": 18,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -169,7 +169,7 @@
       "matched_members": 604,
       "arity_drift_members": 0,
       "missing_members": 5,
-      "csharp_extra_members": 215,
+      "csharp_extra_members": 217,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 4,
       "missing_types": 0
@@ -195,7 +195,7 @@
       "matched_members": 23,
       "arity_drift_members": 0,
       "missing_members": 0,
-      "csharp_extra_members": 10,
+      "csharp_extra_members": 14,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -247,7 +247,7 @@
       "matched_members": 244,
       "arity_drift_members": 0,
       "missing_members": 0,
-      "csharp_extra_members": 42,
+      "csharp_extra_members": 50,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -260,7 +260,7 @@
       "matched_members": 20,
       "arity_drift_members": 0,
       "missing_members": 1,
-      "csharp_extra_members": 6,
+      "csharp_extra_members": 11,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -286,7 +286,7 @@
       "matched_members": 56,
       "arity_drift_members": 8,
       "missing_members": 50,
-      "csharp_extra_members": 27,
+      "csharp_extra_members": 28,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -309,10 +309,10 @@
       "same_name_matched_types": 279,
       "matched_types": 279,
       "java_members": 3305,
-      "matched_members": 2872,
+      "matched_members": 2875,
       "arity_drift_members": 19,
-      "missing_members": 414,
-      "csharp_extra_members": 435,
+      "missing_members": 411,
+      "csharp_extra_members": 953,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
       "missing_types": 0
@@ -351,7 +351,7 @@
       "matched_members": 96,
       "arity_drift_members": 0,
       "missing_members": 1,
-      "csharp_extra_members": 6,
+      "csharp_extra_members": 24,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -377,7 +377,7 @@
       "matched_members": 40,
       "arity_drift_members": 0,
       "missing_members": 0,
-      "csharp_extra_members": 2,
+      "csharp_extra_members": 3,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -403,7 +403,7 @@
       "matched_members": 272,
       "arity_drift_members": 0,
       "missing_members": 14,
-      "csharp_extra_members": 67,
+      "csharp_extra_members": 97,
       "renamed_public_types": 2,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -1165,8 +1165,8 @@
       "matched_member_count": 28,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.AFM.CharMetric",
-      "csharp_member_count": 17,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 44,
+      "csharp_extra_member_count": 16,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/afm/CharMetric.java",
@@ -1183,7 +1183,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public BoundingBox getBoundingBox()"
         },
         {
@@ -1192,7 +1192,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setBoundingBox(BoundingBox bBox)"
         },
         {
@@ -1201,7 +1201,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public int getCharacterCode()"
         },
         {
@@ -1210,7 +1210,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setCharacterCode(int cCode)"
         },
         {
@@ -1228,7 +1228,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public List<Ligature> getLigatures()"
         },
         {
@@ -1237,7 +1237,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public String getName()"
         },
         {
@@ -1246,7 +1246,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setName(String n)"
         },
         {
@@ -1255,7 +1255,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float[] getVv()"
         },
         {
@@ -1264,7 +1264,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setVv(float[] vvValue)"
         },
         {
@@ -1273,7 +1273,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float[] getW()"
         },
         {
@@ -1282,7 +1282,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setW(float[] wValue)"
         },
         {
@@ -1291,7 +1291,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float[] getW0()"
         },
         {
@@ -1300,7 +1300,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setW0(float[] w0Value)"
         },
         {
@@ -1309,7 +1309,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float getW0x()"
         },
         {
@@ -1318,7 +1318,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setW0x(float w0xValue)"
         },
         {
@@ -1327,7 +1327,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float getW0y()"
         },
         {
@@ -1336,7 +1336,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setW0y(float w0yValue)"
         },
         {
@@ -1345,7 +1345,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float[] getW1()"
         },
         {
@@ -1354,7 +1354,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setW1(float[] w1Value)"
         },
         {
@@ -1363,7 +1363,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float getW1x()"
         },
         {
@@ -1372,7 +1372,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setW1x(float w1xValue)"
         },
         {
@@ -1381,7 +1381,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float getW1y()"
         },
         {
@@ -1390,7 +1390,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setW1y(float w1yValue)"
         },
         {
@@ -1399,7 +1399,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float getWx()"
         },
         {
@@ -1408,7 +1408,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setWx(float wxValue)"
         },
         {
@@ -1417,7 +1417,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float getWy()"
         },
         {
@@ -1426,7 +1426,7 @@
           "java_arity": 1,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public void setWy(float wyValue)"
         }
       ]
@@ -1507,8 +1507,8 @@
       "matched_member_count": 4,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.AFM.CompositePart",
-      "csharp_member_count": 8,
-      "csharp_extra_member_count": 4,
+      "csharp_member_count": 11,
+      "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/afm/CompositePart.java",
@@ -1534,7 +1534,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public String getName()"
         },
         {
@@ -1543,7 +1543,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public int getXDisplacement()"
         },
         {
@@ -1552,7 +1552,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public int getYDisplacement()"
         }
       ]
@@ -2263,8 +2263,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.AFM.KernPair",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 6,
+      "csharp_member_count": 15,
+      "csharp_extra_member_count": 10,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/afm/KernPair.java",
@@ -2290,7 +2290,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public String getFirstKernCharacter()"
         },
         {
@@ -2299,7 +2299,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public String getSecondKernCharacter()"
         },
         {
@@ -2308,7 +2308,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float getX()"
         },
         {
@@ -2317,7 +2317,7 @@
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
-          "matched_via": "accessor-property",
+          "matched_via": "method",
           "signature": "public float getY()"
         }
       ]
@@ -3841,8 +3841,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.CFF.DataInputByteArray",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 10,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/DataInputByteArray.java",
@@ -3949,8 +3949,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.CFF.DataInputRandomAccessRead",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 10,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/DataInputRandomAccessRead.java",
@@ -5300,8 +5300,8 @@
       "matched_member_count": 20,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.TTF.CmapTable",
-      "csharp_member_count": 37,
-      "csharp_extra_member_count": 17,
+      "csharp_member_count": 38,
+      "csharp_extra_member_count": 18,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapTable.java",
@@ -7082,8 +7082,8 @@
       "matched_member_count": 3,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.TTF.IndexToLocationTable",
-      "csharp_member_count": 4,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 5,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/IndexToLocationTable.java",
@@ -12666,8 +12666,8 @@
       "matched_member_count": 15,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.Util.BoundingBox",
-      "csharp_member_count": 15,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 19,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/util/BoundingBox.java",
@@ -19282,8 +19282,8 @@
       "matched_member_count": 35,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.COS.COSDocument",
-      "csharp_member_count": 35,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 41,
+      "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocument.java",
@@ -19876,8 +19876,8 @@
       "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.COS.COSObject",
-      "csharp_member_count": 13,
-      "csharp_extra_member_count": 4,
+      "csharp_member_count": 14,
+      "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObject.java",
@@ -20257,8 +20257,8 @@
       "matched_member_count": 4,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.COS.COSUpdateState",
-      "csharp_member_count": 4,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 5,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateState.java",
@@ -20491,8 +20491,8 @@
       "matched_member_count": 15,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.Filter.DecodeOptions",
-      "csharp_member_count": 16,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 21,
+      "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/DecodeOptions.java",
@@ -23185,8 +23185,8 @@
       "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PdfParser.XrefTrailerResolver",
-      "csharp_member_count": 14,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 15,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefTrailerResolver.java",
@@ -25539,8 +25539,8 @@
       "matched_member_count": 47,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.PDDocument",
-      "csharp_member_count": 48,
-      "csharp_extra_member_count": 8,
+      "csharp_member_count": 52,
+      "csharp_extra_member_count": 12,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
@@ -25996,8 +25996,8 @@
       "matched_member_count": 42,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.PDDocumentCatalog",
-      "csharp_member_count": 44,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 60,
+      "csharp_extra_member_count": 18,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -26437,8 +26437,8 @@
       "matched_member_count": 25,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.PDDocumentInformation",
-      "csharp_member_count": 25,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 34,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentInformation.java",
@@ -26743,8 +26743,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.PDDocumentNameDictionary",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 11,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDictionary.java",
@@ -26977,8 +26977,8 @@
       "matched_member_count": 49,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.PDPage",
-      "csharp_member_count": 49,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 62,
+      "csharp_extra_member_count": 15,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
@@ -29410,8 +29410,8 @@
       "matched_member_count": 12,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.PDNumberTreeNode",
-      "csharp_member_count": 12,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 13,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNumberTreeNode.java",
@@ -29545,8 +29545,8 @@
       "matched_member_count": 8,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.PDObjectStream",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDObjectStream.java",
@@ -29662,8 +29662,8 @@
       "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.PDPageLabelRange",
-      "csharp_member_count": 14,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 17,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabelRange.java",
@@ -29930,8 +29930,8 @@
       "matched_member_count": 10,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.PDRange",
-      "csharp_member_count": 10,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRange.java",
@@ -30047,8 +30047,8 @@
       "matched_member_count": 22,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.PDRectangle",
-      "csharp_member_count": 32,
-      "csharp_extra_member_count": 11,
+      "csharp_member_count": 36,
+      "csharp_extra_member_count": 15,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java",
@@ -30452,8 +30452,8 @@
       "matched_member_count": 28,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.PDStream",
-      "csharp_member_count": 28,
-      "csharp_extra_member_count": 4,
+      "csharp_member_count": 35,
+      "csharp_extra_member_count": 11,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDStream.java",
@@ -30801,8 +30801,8 @@
       "matched_member_count": 22,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.FileSpecification.PDComplexFileSpecification",
-      "csharp_member_count": 22,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 27,
+      "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDComplexFileSpecification.java",
@@ -31026,8 +31026,8 @@
       "matched_member_count": 20,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.FileSpecification.PDEmbeddedFile",
-      "csharp_member_count": 20,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 28,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDEmbeddedFile.java",
@@ -31233,8 +31233,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.FileSpecification.PDSimpleFileSpecification",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 6,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDSimpleFileSpecification.java",
@@ -31305,8 +31305,8 @@
       "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.Function.PDFunctionType0",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType0.java",
@@ -31911,8 +31911,8 @@
       "matched_member_count": 0,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.ContentStream.Operator.Operator",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 7,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/Operator.java",
@@ -32199,8 +32199,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDMarkedContentReference",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 11,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDMarkedContentReference.java",
@@ -32307,8 +32307,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDObjectReference",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 10,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDObjectReference.java",
@@ -32478,8 +32478,8 @@
       "matched_member_count": 44,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDStructureElement",
-      "csharp_member_count": 44,
-      "csharp_extra_member_count": 7,
+      "csharp_member_count": 56,
+      "csharp_extra_member_count": 19,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureElement.java",
@@ -32901,8 +32901,8 @@
       "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDStructureTreeRoot",
-      "csharp_member_count": 16,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 19,
+      "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureTreeRoot.java",
@@ -33169,8 +33169,8 @@
       "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDUserProperty",
-      "csharp_member_count": 13,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 16,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDUserProperty.java",
@@ -33628,8 +33628,8 @@
       "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.Prepress.PDBoxStyle",
-      "csharp_member_count": 15,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 17,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/prepress/PDBoxStyle.java",
@@ -33880,8 +33880,8 @@
       "matched_member_count": 4,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDExportFormatAttributeObject",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 8,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java",
@@ -34267,8 +34267,8 @@
       "matched_member_count": 3,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf.PDFourColours",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 8,
+      "csharp_member_count": 15,
+      "csharp_extra_member_count": 12,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java",
@@ -34465,8 +34465,8 @@
       "matched_member_count": 41,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDLayoutAttributeObject",
-      "csharp_member_count": 41,
-      "csharp_extra_member_count": 9,
+      "csharp_member_count": 53,
+      "csharp_extra_member_count": 21,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDLayoutAttributeObject.java",
@@ -36805,8 +36805,8 @@
       "matched_member_count": 4,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDListAttributeObject",
-      "csharp_member_count": 14,
-      "csharp_extra_member_count": 10,
+      "csharp_member_count": 15,
+      "csharp_extra_member_count": 11,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java",
@@ -37084,8 +37084,8 @@
       "matched_member_count": 8,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDPrintFieldAttributeObject",
-      "csharp_member_count": 16,
-      "csharp_extra_member_count": 8,
+      "csharp_member_count": 19,
+      "csharp_extra_member_count": 11,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java",
@@ -37341,12 +37341,12 @@
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
       "java_member_count": 22,
-      "missing_member_count": 10,
-      "matched_member_count": 12,
+      "missing_member_count": 7,
+      "matched_member_count": 15,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDTableAttributeObject",
-      "csharp_member_count": 18,
-      "csharp_extra_member_count": 6,
+      "csharp_member_count": 24,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java",
@@ -37416,54 +37416,27 @@
           "java_name": "HEADERS",
           "java_arity": 0,
           "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected static final String HEADERS =",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|HEADERS|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
-            "issue": 511,
-            "reviewed_at_utc": "2026-06-27T03:47:07Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "field-property",
+          "signature": "protected static final String HEADERS ="
         },
         {
           "java_kind": "field",
           "java_name": "SCOPE",
           "java_arity": 0,
           "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected static final String SCOPE =",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SCOPE|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
-            "issue": 511,
-            "reviewed_at_utc": "2026-06-27T03:47:07Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "field-property",
+          "signature": "protected static final String SCOPE ="
         },
         {
           "java_kind": "field",
           "java_name": "SUMMARY",
           "java_arity": 0,
           "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected static final String SUMMARY =",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SUMMARY|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
-            "issue": 511,
-            "reviewed_at_utc": "2026-06-27T03:47:07Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "field-property",
+          "signature": "protected static final String SUMMARY ="
         },
         {
           "java_kind": "field",
@@ -38478,8 +38451,8 @@
       "matched_member_count": 10,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Encryption.PDCryptFilterDictionary",
-      "csharp_member_count": 10,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PDCryptFilterDictionary.java",
@@ -38595,8 +38568,8 @@
       "matched_member_count": 51,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Encryption.PDEncryption",
-      "csharp_member_count": 51,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 67,
+      "csharp_extra_member_count": 16,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PDEncryption.java",
@@ -39153,8 +39126,8 @@
       "matched_member_count": 4,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Encryption.PublicKeyRecipient",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 7,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PublicKeyRecipient.java",
@@ -39306,8 +39279,8 @@
       "matched_member_count": 8,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFAnnotationCaret",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCaret.java",
@@ -39405,8 +39378,8 @@
       "matched_member_count": 8,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFAnnotationCircle",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCircle.java",
@@ -39567,8 +39540,8 @@
       "matched_member_count": 18,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFAnnotationFreeText",
-      "csharp_member_count": 18,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 24,
+      "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFreeText.java",
@@ -39900,8 +39873,8 @@
       "matched_member_count": 26,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFAnnotationLine",
-      "csharp_member_count": 26,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 37,
+      "csharp_extra_member_count": 12,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLine.java",
@@ -40161,8 +40134,8 @@
       "matched_member_count": 4,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFAnnotationLink",
-      "csharp_member_count": 6,
-      "csharp_extra_member_count": 3,
+      "csharp_member_count": 7,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLink.java",
@@ -40224,8 +40197,8 @@
       "matched_member_count": 8,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFAnnotationPolygon",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolygon.java",
@@ -40323,8 +40296,8 @@
       "matched_member_count": 12,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFAnnotationPolyline",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 15,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolyline.java",
@@ -40521,8 +40494,8 @@
       "matched_member_count": 8,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFAnnotationSquare",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSquare.java",
@@ -40809,8 +40782,8 @@
       "matched_member_count": 10,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFAnnotationText",
-      "csharp_member_count": 10,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 13,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationText.java",
@@ -40989,8 +40962,8 @@
       "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFCatalog",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 14,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFCatalog.java",
@@ -41115,8 +41088,8 @@
       "matched_member_count": 27,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFDictionary",
-      "csharp_member_count": 27,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 35,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDictionary.java",
@@ -41385,8 +41358,8 @@
       "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFDocument",
-      "csharp_member_count": 18,
-      "csharp_extra_member_count": 8,
+      "csharp_member_count": 19,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDocument.java",
@@ -41538,8 +41511,8 @@
       "matched_member_count": 46,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFField",
-      "csharp_member_count": 46,
-      "csharp_extra_member_count": 9,
+      "csharp_member_count": 56,
+      "csharp_extra_member_count": 19,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFField.java",
@@ -41979,8 +41952,8 @@
       "matched_member_count": 17,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFIconFit",
-      "csharp_member_count": 17,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 20,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFIconFit.java",
@@ -42159,8 +42132,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFJavaScript",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFJavaScript.java",
@@ -42267,8 +42240,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFNamedPageReference",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFNamedPageReference.java",
@@ -42357,8 +42330,8 @@
       "matched_member_count": 8,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFOptionElement",
-      "csharp_member_count": 8,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 10,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFOptionElement.java",
@@ -42456,8 +42429,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFPage",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 8,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPage.java",
@@ -42600,8 +42573,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFTemplate",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 10,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFTemplate.java",
@@ -46787,8 +46760,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.PDFontSetting",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDFontSetting.java",
@@ -47469,8 +47442,8 @@
       "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Color.PDCalRGB",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalRGB.java",
@@ -47784,8 +47757,8 @@
       "matched_member_count": 17,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Color.PDDeviceN",
-      "csharp_member_count": 18,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 22,
+      "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceN.java",
@@ -48081,8 +48054,8 @@
       "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Color.PDSeparation",
-      "csharp_member_count": 15,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 17,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java",
@@ -48279,8 +48252,8 @@
       "matched_member_count": 20,
       "arity_drift_count": 1,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Form.PDFormXObject",
-      "csharp_member_count": 20,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 26,
+      "csharp_extra_member_count": 8,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDFormXObject.java",
@@ -48918,8 +48891,8 @@
       "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.OptionalContent.PDOptionalContentGroup",
-      "csharp_member_count": 6,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 7,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/optionalcontent/PDOptionalContentGroup.java",
@@ -49006,8 +48979,8 @@
       "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.OptionalContent.PDOptionalContentMembershipDictionary",
-      "csharp_member_count": 8,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 10,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/optionalcontent/PDOptionalContentMembershipDictionary.java",
@@ -49247,8 +49220,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Patterns.PDShadingPattern",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/pattern/PDShadingPattern.java",
@@ -49337,8 +49310,8 @@
       "matched_member_count": 23,
       "arity_drift_count": 1,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Patterns.PDTilingPattern",
-      "csharp_member_count": 23,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 29,
+      "csharp_extra_member_count": 6,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/pattern/PDTilingPattern.java",
@@ -49805,8 +49778,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Shading.PDShadingType1",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType1.java",
@@ -49895,8 +49868,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Shading.PDShadingType2",
-      "csharp_member_count": 10,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 13,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType2.java",
@@ -50057,8 +50030,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Shading.PDShadingType4",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 6,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType4.java",
@@ -50129,8 +50102,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Shading.PDShadingType5",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 6,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType5.java",
@@ -50597,8 +50570,8 @@
       "matched_member_count": 46,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.State.PDExtendedGraphicsState",
-      "csharp_member_count": 49,
-      "csharp_extra_member_count": 3,
+      "csharp_member_count": 69,
+      "csharp_extra_member_count": 23,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDExtendedGraphicsState.java",
@@ -51038,8 +51011,8 @@
       "matched_member_count": 55,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.State.PDGraphicsState",
-      "csharp_member_count": 62,
-      "csharp_extra_member_count": 7,
+      "csharp_member_count": 86,
+      "csharp_extra_member_count": 31,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java",
@@ -52157,8 +52130,8 @@
       "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.AppearanceStyle",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 10,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/AppearanceStyle.java",
@@ -52470,8 +52443,8 @@
       "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionEmbeddedGoTo",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 15,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionEmbeddedGoTo.java",
@@ -52596,8 +52569,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionGoTo",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 6,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionGoTo.java",
@@ -52668,8 +52641,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionHide",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionHide.java",
@@ -52758,8 +52731,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionImportData",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 6,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionImportData.java",
@@ -52830,8 +52803,8 @@
       "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionJavaScript",
-      "csharp_member_count": 6,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 7,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionJavaScript.java",
@@ -52911,8 +52884,8 @@
       "matched_member_count": 17,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionLaunch",
-      "csharp_member_count": 17,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 24,
+      "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionLaunch.java",
@@ -53145,8 +53118,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionNamed",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 6,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionNamed.java",
@@ -53217,8 +53190,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionRemoteGoTo",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionRemoteGoTo.java",
@@ -53325,8 +53298,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionResetForm",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionResetForm.java",
@@ -53415,8 +53388,8 @@
       "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionSound",
-      "csharp_member_count": 13,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 18,
+      "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionSound.java",
@@ -53559,8 +53532,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionSubmitForm",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionSubmitForm.java",
@@ -53667,8 +53640,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionThread",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionThread.java",
@@ -53775,8 +53748,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDActionURI",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 8,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionURI.java",
@@ -53865,8 +53838,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDAdditionalActions",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 6,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDAdditionalActions.java",
@@ -53937,8 +53910,8 @@
       "matched_member_count": 23,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDAnnotationAdditionalActions",
-      "csharp_member_count": 23,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 33,
+      "csharp_extra_member_count": 10,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDAnnotationAdditionalActions.java",
@@ -54171,8 +54144,8 @@
       "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDDocumentCatalogAdditionalActions",
-      "csharp_member_count": 13,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 18,
+      "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDDocumentCatalogAdditionalActions.java",
@@ -54315,8 +54288,8 @@
       "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDFormFieldAdditionalActions",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 15,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDFormFieldAdditionalActions.java",
@@ -54441,8 +54414,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDPageAdditionalActions",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDPageAdditionalActions.java",
@@ -54531,8 +54504,8 @@
       "matched_member_count": 17,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDTargetDirectory",
-      "csharp_member_count": 17,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 24,
+      "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDTargetDirectory.java",
@@ -54711,8 +54684,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDURIDictionary",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 6,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDURIDictionary.java",
@@ -54783,8 +54756,8 @@
       "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Action.PDWindowsLaunchParams",
-      "csharp_member_count": 14,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 18,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDWindowsLaunchParams.java",
@@ -54973,8 +54946,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationCaret",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationCaret.java",
@@ -55162,8 +55135,8 @@
       "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationFileAttachment",
-      "csharp_member_count": 14,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 16,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationFileAttachment.java",
@@ -55315,8 +55288,8 @@
       "matched_member_count": 26,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationFreeText",
-      "csharp_member_count": 26,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 33,
+      "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationFreeText.java",
@@ -55657,8 +55630,8 @@
       "matched_member_count": 8,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationInk",
-      "csharp_member_count": 8,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationInk.java",
@@ -55756,8 +55729,8 @@
       "matched_member_count": 40,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationLine",
-      "csharp_member_count": 40,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 50,
+      "csharp_extra_member_count": 10,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationLine.java",
@@ -56143,8 +56116,8 @@
       "matched_member_count": 22,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationLink",
-      "csharp_member_count": 26,
-      "csharp_extra_member_count": 4,
+      "csharp_member_count": 32,
+      "csharp_extra_member_count": 10,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationLink.java",
@@ -56368,8 +56341,8 @@
       "matched_member_count": 26,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationMarkup",
-      "csharp_member_count": 29,
-      "csharp_extra_member_count": 3,
+      "csharp_member_count": 41,
+      "csharp_extra_member_count": 15,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationMarkup.java",
@@ -56629,8 +56602,8 @@
       "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationPolygon",
-      "csharp_member_count": 13,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 16,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPolygon.java",
@@ -56773,8 +56746,8 @@
       "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationPolyline",
-      "csharp_member_count": 14,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 18,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPolyline.java",
@@ -56926,8 +56899,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationPopup",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPopup.java",
@@ -57023,8 +56996,8 @@
       "matched_member_count": 19,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationRubberStamp",
-      "csharp_member_count": 19,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 20,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationRubberStamp.java",
@@ -57228,8 +57201,8 @@
       "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationSound",
-      "csharp_member_count": 10,
-      "csharp_extra_member_count": 4,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 6,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationSound.java",
@@ -57559,8 +57532,8 @@
       "matched_member_count": 30,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationText",
-      "csharp_member_count": 46,
-      "csharp_extra_member_count": 16,
+      "csharp_member_count": 50,
+      "csharp_extra_member_count": 20,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationText.java",
@@ -57856,8 +57829,8 @@
       "matched_member_count": 4,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationTextMarkup",
-      "csharp_member_count": 4,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 5,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationTextMarkup.java",
@@ -58049,8 +58022,8 @@
       "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAnnotationWidget",
-      "csharp_member_count": 14,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 19,
+      "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationWidget.java",
@@ -58202,8 +58175,8 @@
       "matched_member_count": 17,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAppearanceCharacteristicsDictionary",
-      "csharp_member_count": 18,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 24,
+      "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceCharacteristicsDictionary.java",
@@ -58382,8 +58355,8 @@
       "matched_member_count": 12,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDAppearanceDictionary",
-      "csharp_member_count": 10,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceDictionary.java",
@@ -58643,8 +58616,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDBorderEffectDictionary",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 11,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDBorderEffectDictionary.java",
@@ -58751,8 +58724,8 @@
       "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDBorderStyleDictionary",
-      "csharp_member_count": 15,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 18,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDBorderStyleDictionary.java",
@@ -58904,8 +58877,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.PDExternalDataDictionary",
-      "csharp_member_count": 6,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 7,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDExternalDataDictionary.java",
@@ -60461,8 +60434,8 @@
       "matched_member_count": 21,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DigitalSignature.PDPropBuildDataDict",
-      "csharp_member_count": 21,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 30,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDPropBuildDataDict.java",
@@ -60677,8 +60650,8 @@
       "matched_member_count": 42,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DigitalSignature.PDSeedValue",
-      "csharp_member_count": 42,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 49,
+      "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSeedValue.java",
@@ -61082,8 +61055,8 @@
       "matched_member_count": 43,
       "arity_drift_count": 1,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DigitalSignature.PDSeedValueCertificate",
-      "csharp_member_count": 43,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 50,
+      "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSeedValueCertificate.java",
@@ -61514,8 +61487,8 @@
       "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DigitalSignature.PDSeedValueMDP",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 6,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSeedValueMDP.java",
@@ -61586,8 +61559,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DigitalSignature.PDSeedValueTimeStamp",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 8,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSeedValueTimeStamp.java",
@@ -61676,8 +61649,8 @@
       "matched_member_count": 35,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DigitalSignature.PDSignature",
-      "csharp_member_count": 36,
-      "csharp_extra_member_count": 3,
+      "csharp_member_count": 43,
+      "csharp_extra_member_count": 10,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSignature.java",
@@ -62072,8 +62045,8 @@
       "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DigitalSignature.SignatureOptions",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 13,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/SignatureOptions.java",
@@ -62612,8 +62585,8 @@
       "matched_member_count": 54,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible.PDFTemplateStructure",
-      "csharp_member_count": 83,
-      "csharp_extra_member_count": 29,
+      "csharp_member_count": 84,
+      "csharp_extra_member_count": 30,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDFTemplateStructure.java",
@@ -63431,8 +63404,8 @@
       "matched_member_count": 17,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible.PDVisibleSigProperties",
-      "csharp_member_count": 18,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 19,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigProperties.java",
@@ -63944,8 +63917,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination.PDNamedDestination",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 8,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDNamedDestination.java",
@@ -64115,8 +64088,8 @@
       "matched_member_count": 8,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination.PDPageFitHeightDestination",
-      "csharp_member_count": 8,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageFitHeightDestination.java",
@@ -64214,8 +64187,8 @@
       "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination.PDPageFitRectangleDestination",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 15,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageFitRectangleDestination.java",
@@ -64340,8 +64313,8 @@
       "matched_member_count": 8,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination.PDPageFitWidthDestination",
-      "csharp_member_count": 8,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageFitWidthDestination.java",
@@ -64439,8 +64412,8 @@
       "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination.PDPageXYZDestination",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 12,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageXYZDestination.java",
@@ -64592,8 +64565,8 @@
       "matched_member_count": 12,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Form.PDNonTerminalField",
-      "csharp_member_count": 12,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 13,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDNonTerminalField.java",
@@ -64817,8 +64790,8 @@
       "matched_member_count": 10,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Form.PDSignatureField",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 13,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDSignatureField.java",
@@ -65096,8 +65069,8 @@
       "matched_member_count": 30,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Measurement.PDNumberFormatDictionary",
-      "csharp_member_count": 31,
-      "csharp_extra_member_count": 1,
+      "csharp_member_count": 40,
+      "csharp_extra_member_count": 10,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDNumberFormatDictionary.java",
@@ -65411,8 +65384,8 @@
       "matched_member_count": 21,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Measurement.PDRectlinearMeasureDictionary",
-      "csharp_member_count": 23,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 33,
+      "csharp_extra_member_count": 12,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDRectlinearMeasureDictionary.java",
@@ -65627,8 +65600,8 @@
       "matched_member_count": 10,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.Measurement.PDViewportDictionary",
-      "csharp_member_count": 12,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 15,
+      "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDViewportDictionary.java",
@@ -65762,8 +65735,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.PageNavigation.PDThread",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDThread.java",
@@ -65852,8 +65825,8 @@
       "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.PageNavigation.PDThreadBead",
-      "csharp_member_count": 14,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 17,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/pagenavigation/PDThreadBead.java",
@@ -66207,8 +66180,8 @@
       "matched_member_count": 31,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Interactive.ViewerPreferences.PDViewerPreferences",
-      "csharp_member_count": 31,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 35,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/viewerpreferences/PDViewerPreferences.java",
@@ -66697,8 +66670,8 @@
       "matched_member_count": 24,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.Rendering.PDFRenderer",
-      "csharp_member_count": 24,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 27,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PDFRenderer.java",
@@ -66940,21 +66913,14 @@
       "matched_member_count": 35,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.Rendering.PageDrawer",
-      "csharp_member_count": 41,
-      "csharp_extra_member_count": 6,
+      "csharp_member_count": 38,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java",
           "target_path": "src/PdfBox.Net/Rendering/PageDrawer.cs",
           "namespace": "PdfBox.Net.Rendering",
           "name": "PageDrawer",
-          "kind": "class"
-        },
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java",
-          "target_path": "src/PdfBox.Net/Rendering/PageDrawer.cs",
-          "namespace": "PdfBox.Net.Rendering",
-          "name": "TransparencyGroup",
           "kind": "class"
         }
       ],
@@ -67432,8 +67398,8 @@
       "matched_member_count": 76,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.Text.PDFTextStripper",
-      "csharp_member_count": 81,
-      "csharp_extra_member_count": 5,
+      "csharp_member_count": 99,
+      "csharp_extra_member_count": 23,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripper.java",
@@ -68388,8 +68354,8 @@
       "matched_member_count": 40,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.XmpBox.XMPMetadata",
-      "csharp_member_count": 41,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 42,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XMPMetadata.java",
@@ -79103,8 +79069,8 @@
       "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.XmpBox.Type.JobType",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 14,
+      "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
           "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/JobType.java",
@@ -79229,8 +79195,8 @@
       "matched_member_count": 7,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.XmpBox.Type.LayerType",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 9,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/LayerType.java",
@@ -80269,8 +80235,8 @@
       "matched_member_count": 19,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.XmpBox.Type.ResourceEventType",
-      "csharp_member_count": 19,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 24,
+      "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
           "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ResourceEventType.java",
@@ -80467,8 +80433,8 @@
       "matched_member_count": 50,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.XmpBox.Type.ResourceRefType",
-      "csharp_member_count": 50,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 64,
+      "csharp_extra_member_count": 14,
       "csharp_targets": [
         {
           "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ResourceRefType.java",
@@ -81086,8 +81052,8 @@
       "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.XmpBox.Type.ThumbnailType",
-      "csharp_member_count": 13,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 15,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ThumbnailType.java",
@@ -81428,8 +81394,8 @@
       "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.XmpBox.Type.VersionType",
-      "csharp_member_count": 16,
-      "csharp_extra_member_count": 2,
+      "csharp_member_count": 20,
+      "csharp_extra_member_count": 6,
       "csharp_targets": [
         {
           "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/VersionType.java",
@@ -82178,17 +82144,6 @@
       "arity_drift_count": 0
     },
     {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject",
-      "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDTableAttributeObject",
-      "java_member_count": 22,
-      "missing_member_count": 10,
-      "matched_member_count": 12,
-      "arity_drift_count": 0
-    },
-    {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java",
       "module": "pdfbox",
       "family": "pdmodel",
@@ -82285,6 +82240,17 @@
       "java_member_count": 49,
       "missing_member_count": 7,
       "matched_member_count": 42,
+      "arity_drift_count": 0
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject",
+      "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDTableAttributeObject",
+      "java_member_count": 22,
+      "missing_member_count": 7,
+      "matched_member_count": 15,
       "arity_drift_count": 0
     },
     {
@@ -90072,28 +90038,6 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject",
       "java_kind": "field",
-      "java_name": "HEADERS",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected static final String HEADERS =",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|HEADERS|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
-        "issue": 511,
-        "reviewed_at_utc": "2026-06-27T03:47:07Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject",
-      "java_kind": "field",
       "java_name": "OWNER_TABLE",
       "java_arity": 0,
       "java_visibility": "public",
@@ -90124,28 +90068,6 @@
       "signature": "protected static final String ROW_SPAN =",
       "api_review": {
         "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|ROW_SPAN|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
-        "issue": 511,
-        "reviewed_at_utc": "2026-06-27T03:47:07Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject",
-      "java_kind": "field",
-      "java_name": "SCOPE",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected static final String SCOPE =",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SCOPE|0|missing",
         "state": "reviewed",
         "disposition": "internal-by-design",
         "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
@@ -90214,28 +90136,6 @@
         "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SCOPE_ROW|0|missing",
         "state": "reviewed",
         "disposition": "intentional-dotnet-adaptation",
-        "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
-        "issue": 511,
-        "reviewed_at_utc": "2026-06-27T03:47:07Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject",
-      "java_kind": "field",
-      "java_name": "SUMMARY",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected static final String SUMMARY =",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject|field|SUMMARY|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
         "note": "Table attributes keep .NET PascalCase constants and IList-based typed helpers; protected Java key constants and lower-case toString are reviewed naming-shape/internalization adaptations.",
         "issue": 511,
         "reviewed_at_utc": "2026-06-27T03:47:07Z",
@@ -102157,16 +102057,16 @@
       "not-applicable"
     ],
     "raw": {
-      "missing_members": 897,
+      "missing_members": 894,
       "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 947
+      "total": 944
     },
     "reviewed": {
-      "missing_members": 897,
+      "missing_members": 894,
       "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 947
+      "total": 944
     },
     "unreviewed": {
       "missing_members": 0,
@@ -102177,7 +102077,7 @@
     "disposition_counts": {
       "behavior-covered": 109,
       "intentional-dotnet-adaptation": 734,
-      "internal-by-design": 79,
+      "internal-by-design": 76,
       "not-applicable": 25
     },
     "invalid_entries": [],

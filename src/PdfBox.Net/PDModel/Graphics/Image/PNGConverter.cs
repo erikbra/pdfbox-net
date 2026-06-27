@@ -26,7 +26,7 @@
  */
 
 using PdfBox.Net.PDModel;
-using SkiaSharp;
+using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
@@ -34,8 +34,9 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 /// Converts a PNG image to a PDImageXObject, preserving the PNG colour space and metadata.
 /// </summary>
 /// <remarks>
-/// The .NET port decodes PNG input with SkiaSharp and writes a lossless image XObject through
-/// <see cref="LosslessFactory"/> when direct PNG embedding is not available.
+/// The .NET port decodes PNG input through the registered rendering backend and writes a
+/// lossless image XObject through <see cref="LosslessFactory"/> when direct PNG embedding
+/// is not available.
 /// </remarks>
 public static class PNGConverter
 {
@@ -58,7 +59,7 @@ public static class PNGConverter
 
         try
         {
-            using SKBitmap? bitmap = SKBitmap.Decode(pngBytes);
+            using BufferedImage? bitmap = RenderingBackend.Current.ImageCodec.Decode(pngBytes);
             return bitmap is null ? null : LosslessFactory.CreateFromImage(document, bitmap);
         }
         catch (ArgumentException)
