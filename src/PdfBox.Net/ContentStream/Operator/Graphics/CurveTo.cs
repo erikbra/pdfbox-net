@@ -16,6 +16,11 @@ public sealed class CurveTo : OperatorProcessor
 {
     public CurveTo(PDFStreamEngine context) : base(OperatorName.CURVE_TO, context) { }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 6 ||

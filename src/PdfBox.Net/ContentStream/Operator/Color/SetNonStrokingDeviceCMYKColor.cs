@@ -17,6 +17,11 @@ public sealed class SetNonStrokingDeviceCMYKColor : OperatorProcessor
 {
     public SetNonStrokingDeviceCMYKColor(PDFStreamEngine context) : base(OperatorName.NON_STROKING_CMYK, context) { }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 4 || operands[0] is not COSNumber c || operands[1] is not COSNumber m || operands[2] is not COSNumber y || operands[3] is not COSNumber k) return;

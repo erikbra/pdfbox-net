@@ -29,8 +29,23 @@ public class SetStrokingColor : SetColor
         return Context.GetGraphicsState().GetStrokingColorSpace();
     }
 
-    protected override void SetColorValue(PDColor color)
+    protected override PDColor GetColor()
+    {
+        return Context.GetGraphicsState().GetStrokingColor();
+    }
+
+    protected virtual void SetColor(PDColor color)
     {
         Context.SetStrokingColor(color);
+    }
+
+    protected override void SetColorValue(PDColor color)
+    {
+        SetColor(color);
+    }
+
+    public override string GetName()
+    {
+        return Name;
     }
 }

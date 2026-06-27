@@ -17,6 +17,11 @@ public sealed class SetStrokingDeviceGrayColor : OperatorProcessor
 {
     public SetStrokingDeviceGrayColor(PDFStreamEngine context) : base(OperatorName.STROKING_COLOR_GRAY, context) { }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 1 || operands[0] is not COSNumber g) return;

@@ -16,6 +16,11 @@ public sealed class ClipNonZeroRule : OperatorProcessor
 {
     public ClipNonZeroRule(PDFStreamEngine context) : base(OperatorName.CLIP_NON_ZERO, context) { }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         Context.Clip(1);

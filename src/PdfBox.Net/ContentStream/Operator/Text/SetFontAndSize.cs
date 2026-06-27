@@ -43,6 +43,11 @@ public sealed class SetFontAndSize : OperatorProcessor
     {
     }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 2) return;

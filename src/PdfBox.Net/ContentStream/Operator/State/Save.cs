@@ -39,6 +39,11 @@ public sealed class Save : OperatorProcessor
     {
     }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         Context.SaveGraphicsState();

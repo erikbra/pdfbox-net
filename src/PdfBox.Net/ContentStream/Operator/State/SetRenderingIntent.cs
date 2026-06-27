@@ -16,6 +16,11 @@ public sealed class SetRenderingIntent : OperatorProcessor
 {
     public SetRenderingIntent(PDFStreamEngine context) : base(OperatorName.SET_RENDERINGINTENT, context) { }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 1 || operands[0] is not COSName renderingIntent) return;

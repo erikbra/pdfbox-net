@@ -46,6 +46,11 @@ public abstract class OperatorProcessor
 
     protected PDFStreamEngine Context { get; }
 
+    public virtual string GetName()
+    {
+        return Name;
+    }
+
     /// <summary>Execute this operator with the given stack of operands.</summary>
     public virtual void Process(Operator op, IList<COSBase> operands) { }
 }

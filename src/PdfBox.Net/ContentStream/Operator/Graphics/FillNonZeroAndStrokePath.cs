@@ -16,6 +16,11 @@ public sealed class FillNonZeroAndStrokePath : OperatorProcessor
 {
     public FillNonZeroAndStrokePath(PDFStreamEngine context) : base(OperatorName.FILL_NON_ZERO_AND_STROKE, context) { }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         Context.FillAndStrokePath(1);

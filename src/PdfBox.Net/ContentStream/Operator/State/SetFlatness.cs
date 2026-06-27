@@ -16,6 +16,11 @@ public sealed class SetFlatness : OperatorProcessor
 {
     public SetFlatness(PDFStreamEngine context) : base(OperatorName.SET_FLATNESS, context) { }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 1 || operands[0] is not COSNumber flatness) return;

@@ -16,6 +16,11 @@ public sealed class CloseAndStrokePath : OperatorProcessor
 {
     public CloseAndStrokePath(PDFStreamEngine context) : base(OperatorName.CLOSE_AND_STROKE, context) { }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         Context.ClosePath();

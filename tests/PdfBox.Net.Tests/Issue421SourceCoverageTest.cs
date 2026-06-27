@@ -8,9 +8,13 @@
 using System.Text;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.ContentStream.Operator;
+using PdfBox.Net.ContentStream.Operator.Color;
+using PdfBox.Net.ContentStream.Operator.Graphics;
 using PdfBox.Net.ContentStream.Operator.State;
+using PdfBox.Net.ContentStream.Operator.Text;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PdfParser;
@@ -33,6 +37,29 @@ public class Issue421SourceCoverageTest
         Assert.Equal(1, graphicsState.GetLineCap());
         Assert.Equal(2, graphicsState.GetLineJoin());
         Assert.Equal(6.5f, graphicsState.GetMiterLimit(), precision: 3);
+    }
+
+    [Fact]
+    public void ContentStreamOperatorsExposeJavaGetName()
+    {
+        ProbeEngine engine = new();
+
+        Assert.Equal(OperatorName.BEGIN_TEXT, new BeginText(engine).GetName());
+        Assert.Equal(OperatorName.LINE_TO, new LineTo(engine).GetName());
+        Assert.Equal(OperatorName.SET_LINE_CAPSTYLE, new SetLineCapStyle(engine).GetName());
+        Assert.Equal(OperatorName.NON_STROKING_COLOR, new SetNonStrokingColor(engine).GetName());
+    }
+
+    [Fact]
+    public void ColorOperatorsExposeProtectedColorHelpers()
+    {
+        ProbeEngine engine = new();
+        NonStrokingColorProbe op = new(engine);
+        PDColor color = new([0.1f, 0.2f, 0.3f], PDDeviceRGB.Instance);
+
+        op.Apply(color);
+
+        Assert.Same(color, op.Current());
     }
 
     [Fact]
@@ -93,6 +120,18 @@ public class Issue421SourceCoverageTest
         }
 
         public new PDGraphicsState GetGraphicsState() => base.GetGraphicsState();
+    }
+
+    private sealed class NonStrokingColorProbe : SetNonStrokingColor
+    {
+        public NonStrokingColorProbe(PDFStreamEngine context)
+            : base(context)
+        {
+        }
+
+        public PDColor Current() => GetColor();
+
+        public void Apply(PDColor color) => SetColor(color);
     }
 
     private sealed class ParserProbe : BaseParser

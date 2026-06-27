@@ -16,6 +16,11 @@ public sealed class CurveToReplicateInitialPoint : OperatorProcessor
 {
     public CurveToReplicateInitialPoint(PDFStreamEngine context) : base(OperatorName.CURVE_TO_REPLICATE_INITIAL_POINT, context) { }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 4 ||

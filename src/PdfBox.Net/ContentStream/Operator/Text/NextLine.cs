@@ -40,6 +40,11 @@ public sealed class NextLine : OperatorProcessor
     {
     }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         float leading = Context.GetGraphicsState().GetTextState().GetLeading();

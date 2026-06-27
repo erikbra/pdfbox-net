@@ -40,6 +40,11 @@ public sealed class BeginMarkedContentSequence : OperatorProcessor
     {
     }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         COSName tag = operands.Count > 0 && operands[0] is COSName n

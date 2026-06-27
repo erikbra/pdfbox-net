@@ -42,6 +42,11 @@ public sealed class ShowTextLineAndSpace : OperatorProcessor
     {
     }
 
+    public override string GetName()
+    {
+        return Name;
+    }
+
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 3) return;

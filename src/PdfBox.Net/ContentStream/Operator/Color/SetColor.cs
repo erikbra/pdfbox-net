@@ -75,6 +75,8 @@ public abstract class SetColor : OperatorProcessor
             : new PDColor(components, patternName, colorSpace));
     }
 
+    protected abstract PDColor GetColor();
+
     protected abstract PDColorSpace GetColorSpace();
 
     protected abstract void SetColorValue(PDColor color);
