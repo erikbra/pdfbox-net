@@ -78,6 +78,12 @@ class PairAnalysis:
     startxref_count_delta: int
     startxref_values_differ: bool
     last_startxref_delta: int | None
+    java_eof_count: int
+    dotnet_eof_count: int
+    java_prev_count: int
+    dotnet_prev_count: int
+    java_has_incremental_markers: bool
+    dotnet_has_incremental_markers: bool
     xref_table_count_delta: int
     xref_stream_count_delta: int
     prev_count_delta: int
@@ -249,6 +255,12 @@ def has_incremental_markers(data: bytes) -> bool:
     return data.count(b"%%EOF") > 1 or b"/Prev" in data
 
 
+def incremental_marker_signature(data: bytes) -> tuple[int, int, bool]:
+    eof_count = data.count(b"%%EOF")
+    prev_count = data.count(b"/Prev")
+    return eof_count, prev_count, eof_count > 1 or prev_count > 0
+
+
 def causes_for(java_data: bytes, dotnet_data: bytes) -> tuple[str, ...]:
     if java_data == dotnet_data:
         return ()
@@ -331,6 +343,8 @@ def analyze_row(out_dir: Path, row: dict) -> PairAnalysis | None:
         prev_count_delta,
         xref_style_differ,
     ) = object_xref_diagnostics(java_data, dotnet_data)
+    java_eof_count, java_prev_count, java_has_incremental_markers = incremental_marker_signature(java_data)
+    dotnet_eof_count, dotnet_prev_count, dotnet_has_incremental_markers = incremental_marker_signature(dotnet_data)
     return PairAnalysis(
         file=str(row.get("file", "")),
         op=op,
@@ -362,6 +376,12 @@ def analyze_row(out_dir: Path, row: dict) -> PairAnalysis | None:
         startxref_count_delta=startxref_count_delta,
         startxref_values_differ=startxref_values_differ,
         last_startxref_delta=last_startxref_delta,
+        java_eof_count=java_eof_count,
+        dotnet_eof_count=dotnet_eof_count,
+        java_prev_count=java_prev_count,
+        dotnet_prev_count=dotnet_prev_count,
+        java_has_incremental_markers=java_has_incremental_markers,
+        dotnet_has_incremental_markers=dotnet_has_incremental_markers,
         xref_table_count_delta=xref_table_count_delta,
         xref_stream_count_delta=xref_stream_count_delta,
         prev_count_delta=prev_count_delta,
@@ -513,6 +533,41 @@ def object_xref_comparison_counts(analyses: Iterable[PairAnalysis]) -> dict[str,
     return counts
 
 
+def incremental_marker_comparison_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
+    counts: dict[str, dict[str, int]] = {}
+    for op in sorted(SAVE_MERGE_OPS):
+        rows = [row for row in analyses if row.op == op]
+        incremental_rows = [row for row in rows if "incremental-save behavior" in row.causes]
+        counts[op] = {
+            "rowsWithIncrementalSaveCause": len(incremental_rows),
+            "rowsWhereJavaHasMarkers": sum(1 for row in incremental_rows if row.java_has_incremental_markers),
+            "rowsWhereDotnetHasMarkers": sum(1 for row in incremental_rows if row.dotnet_has_incremental_markers),
+            "rowsWhereBothHaveMarkers": sum(
+                1 for row in incremental_rows if row.java_has_incremental_markers and row.dotnet_has_incremental_markers
+            ),
+            "rowsWhereMarkerPresenceDiffers": sum(
+                1
+                for row in incremental_rows
+                if row.java_has_incremental_markers != row.dotnet_has_incremental_markers
+            ),
+            "rowsWithEofCountDifference": sum(
+                1 for row in incremental_rows if row.java_eof_count != row.dotnet_eof_count
+            ),
+            "rowsWithPrevCountDifference": sum(
+                1 for row in incremental_rows if row.java_prev_count != row.dotnet_prev_count
+            ),
+            "maxEofCountDelta": max(
+                (abs(row.java_eof_count - row.dotnet_eof_count) for row in incremental_rows),
+                default=0,
+            ),
+            "maxPrevCountDelta": max(
+                (abs(row.java_prev_count - row.dotnet_prev_count) for row in incremental_rows),
+                default=0,
+            ),
+        }
+    return counts
+
+
 def primary_cause_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
     by_op: dict[str, Counter] = defaultdict(Counter)
     for row in analyses:
@@ -531,10 +586,17 @@ def examples_by_cause(analyses: Iterable[PairAnalysis], limit: int = 5) -> dict[
     return dict(sorted(examples.items()))
 
 
-def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAnalysis], source_label: str | None) -> dict:
+def json_payload(
+    out_dir: Path,
+    comparison_payload: dict,
+    analyses: list[PairAnalysis],
+    source_label: str | None,
+    issue: str,
+) -> dict:
     return {
         "schema": 1,
         "source": {
+            "issue": issue,
             "label": source_label,
             "outDir": out_dir.as_posix(),
             "comparisonGeneratedAtUtc": comparison_payload.get("summary", {}).get("generatedAtUtc"),
@@ -550,6 +612,7 @@ def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAna
             "dictionaryComparison": dictionary_comparison_counts(analyses),
             "streamCompressionComparison": stream_compression_comparison_counts(analyses),
             "objectXrefComparison": object_xref_comparison_counts(analyses),
+            "incrementalMarkerComparison": incremental_marker_comparison_counts(analyses),
             "primaryCauseCounts": primary_cause_counts(analyses),
         },
         "rows": [
@@ -584,6 +647,12 @@ def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAna
                 "startxrefCountDelta": row.startxref_count_delta,
                 "startxrefValuesDiffer": row.startxref_values_differ,
                 "lastStartxrefDelta": row.last_startxref_delta,
+                "javaEofCount": row.java_eof_count,
+                "dotnetEofCount": row.dotnet_eof_count,
+                "javaPrevCount": row.java_prev_count,
+                "dotnetPrevCount": row.dotnet_prev_count,
+                "javaHasIncrementalMarkers": row.java_has_incremental_markers,
+                "dotnetHasIncrementalMarkers": row.dotnet_has_incremental_markers,
                 "xrefTableCountDelta": row.xref_table_count_delta,
                 "xrefStreamCountDelta": row.xref_stream_count_delta,
                 "prevCountDelta": row.prev_count_delta,
@@ -602,7 +671,7 @@ def markdown_report(payload: dict, analyses: list[PairAnalysis]) -> str:
     lines = [
         "# Save/Merge Byte Identity Measurement",
         "",
-        "Issue: #539",
+        f"Issue: {source.get('issue')}",
         "",
     ]
     if source.get("label"):
@@ -739,6 +808,25 @@ def markdown_report(payload: dict, analyses: list[PairAnalysis]) -> str:
 
     lines.extend(
         [
+            "## Incremental Marker Breakdown",
+            "",
+            "The `incremental-save behavior` label is driven by serialized `%%EOF` and `/Prev` markers. These counts explain whether the strict byte mismatch is marker presence, marker count, or both-side incremental history rather than a missing ability to load, modify, save, and reload the document.",
+            "",
+            "| Operation | Rows with incremental label | Java has markers | .NET has markers | Both have markers | Marker presence differs | EOF-count differences | /Prev-count differences | Max EOF delta | Max /Prev delta |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for op, counts in summary["incrementalMarkerComparison"].items():
+        lines.append(
+            f"| `{op}` | {counts['rowsWithIncrementalSaveCause']} | {counts['rowsWhereJavaHasMarkers']} | "
+            f"{counts['rowsWhereDotnetHasMarkers']} | {counts['rowsWhereBothHaveMarkers']} | "
+            f"{counts['rowsWhereMarkerPresenceDiffers']} | {counts['rowsWithEofCountDifference']} | "
+            f"{counts['rowsWithPrevCountDifference']} | {counts['maxEofCountDelta']} | {counts['maxPrevCountDelta']} |"
+        )
+    lines.append("")
+
+    lines.extend(
+        [
             "## Feasibility Assessment",
             "",
             "| Cause | Judgment | Follow-up |",
@@ -791,11 +879,12 @@ def main() -> int:
     parser.add_argument("--report", required=True, type=Path, help="Markdown report path to write.")
     parser.add_argument("--json", dest="json_path", type=Path, help="Optional machine-readable JSON report path.")
     parser.add_argument("--source-label", help="Human-readable source label to include in the report, such as a CI run or PR number.")
+    parser.add_argument("--issue", default="#539", help="Issue label to include in the Markdown and JSON reports.")
     args = parser.parse_args()
 
     out_dir = args.out_dir.resolve()
     comparison_payload, analyses = load_analyses(out_dir)
-    payload = json_payload(Path(args.out_dir), comparison_payload, analyses, args.source_label)
+    payload = json_payload(Path(args.out_dir), comparison_payload, analyses, args.source_label, args.issue)
 
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(markdown_report(payload, analyses), encoding="utf-8")
