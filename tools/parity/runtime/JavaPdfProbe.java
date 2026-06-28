@@ -30,6 +30,8 @@ import org.apache.pdfbox.util.Matrix;
 import org.apache.pdfbox.util.Vector;
 
 public final class JavaPdfProbe {
+    private static final long DETERMINISTIC_TRAILER_ID_SEED = 1719000000000L;
+
     private static final Set<String> GLYPH_PROBE_FILES = Set.of(
         "AlignmentTests.pdf",
         "ControlCharacters.pdf",
@@ -88,6 +90,7 @@ public final class JavaPdfProbe {
             started = System.nanoTime();
             try {
                 File saved = new File(outDir, stripExt(name) + "-java-copy.pdf");
+                document.setDocumentId(DETERMINISTIC_TRAILER_ID_SEED);
                 document.save(saved);
                 emit(name, "save", true, pages, fileSignature(saved), elapsed(started));
             } catch (Throwable t) {

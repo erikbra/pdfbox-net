@@ -29,12 +29,19 @@ OBJECT_RE = re.compile(rb"(?m)(\d+)\s+(\d+)\s+obj\b")
 STARTXREF_RE = re.compile(rb"startxref\s+(\d+)")
 DICT_RE = re.compile(rb"<<(.*?)>>", re.DOTALL)
 NAME_RE = re.compile(rb"/([A-Za-z0-9_.+-]+)")
-DATE_RE = re.compile(rb"/(?:CreationDate|ModDate)\s*(?:\((.*?)\)|<([0-9A-Fa-f]+)>)")
-INFO_RE = re.compile(rb"/(?:Producer|Creator|Author|Title|Subject|Keywords)\s*(?:\((.*?)\)|<([0-9A-Fa-f]+)>|/([A-Za-z0-9_.+-]+))")
+DATE_RE = re.compile(rb"/(?:CreationDate|ModDate)\s*(?:\((?:\\.|[^\\)])*\)|<[0-9A-Fa-f]+>)")
+INFO_RE = re.compile(
+    rb"/(?:Producer|Creator|Author|Title|Subject|Keywords)\s*(?:\((?:\\.|[^\\)])*\)|<[0-9A-Fa-f]+>|/[A-Za-z0-9_.+-]+)"
+)
 ID_RE = re.compile(rb"/ID\s*\[(.*?)\]", re.DOTALL)
 FILTER_RE = re.compile(rb"/Filter\s*(?:/([A-Za-z0-9_.+-]+)|\[(.*?)\])", re.DOTALL)
 LENGTH_RE = re.compile(rb"/Length\s+(\d+)\b")
 STREAM_RE = re.compile(rb"(?:^|\r?\n)stream\r?\n")
+METADATA_NORMALIZATION_PATTERNS = (
+    (DATE_RE, b"/PdfBoxNetNormalizedDate (D:00000000000000+00'00')"),
+    (INFO_RE, b"/PdfBoxNetNormalizedInfo (pdfbox-net-normalized-info)"),
+    (ID_RE, b"/ID [<pdfbox-net-normalized-id> <pdfbox-net-normalized-id>]"),
+)
 
 
 @dataclass(frozen=True)
@@ -49,6 +56,9 @@ class PairAnalysis:
     dotnet_sha256: str
     first_diff_offset: int | None
     causes: tuple[str, ...]
+    metadata_differences: tuple[str, ...]
+    metadata_normalized_byte_identical: bool
+    metadata_normalized_first_diff_offset: int | None
     java_artifact: str
     dotnet_artifact: str
 
@@ -89,17 +99,33 @@ def dictionary_key_sequences(data: bytes) -> list[tuple[str, ...]]:
     return sequences
 
 
+def pattern_tokens(data: bytes, pattern: re.Pattern[bytes]) -> set[bytes]:
+    return {match.group(0) for match in pattern.finditer(data)}
+
+
 def metadata_tokens(data: bytes) -> set[bytes]:
     tokens: set[bytes] = set()
     for pattern in (DATE_RE, INFO_RE, ID_RE):
-        for match in pattern.findall(data):
-            if isinstance(match, bytes):
-                tokens.add(match)
-                continue
-            for part in match:
-                if part:
-                    tokens.add(part)
+        tokens.update(pattern_tokens(data, pattern))
     return tokens
+
+
+def metadata_differences(java_data: bytes, dotnet_data: bytes) -> tuple[str, ...]:
+    differences: list[str] = []
+    if pattern_tokens(java_data, DATE_RE) != pattern_tokens(dotnet_data, DATE_RE):
+        differences.append("dates")
+    if pattern_tokens(java_data, INFO_RE) != pattern_tokens(dotnet_data, INFO_RE):
+        differences.append("info fields")
+    if pattern_tokens(java_data, ID_RE) != pattern_tokens(dotnet_data, ID_RE):
+        differences.append("trailer IDs")
+    return tuple(differences)
+
+
+def normalize_metadata_tokens(data: bytes) -> bytes:
+    normalized = data
+    for pattern, replacement in METADATA_NORMALIZATION_PATTERNS:
+        normalized = pattern.sub(replacement, normalized)
+    return normalized
 
 
 def filter_tokens(data: bytes) -> Counter:
@@ -181,6 +207,8 @@ def analyze_row(out_dir: Path, row: dict) -> PairAnalysis | None:
     java_data = java_path.read_bytes()
     dotnet_data = dotnet_path.read_bytes()
     byte_identical = java_data == dotnet_data
+    java_metadata_normalized = normalize_metadata_tokens(java_data)
+    dotnet_metadata_normalized = normalize_metadata_tokens(dotnet_data)
     return PairAnalysis(
         file=str(row.get("file", "")),
         op=op,
@@ -192,6 +220,9 @@ def analyze_row(out_dir: Path, row: dict) -> PairAnalysis | None:
         dotnet_sha256=sha256_hex(dotnet_data),
         first_diff_offset=first_diff_offset(java_data, dotnet_data),
         causes=causes_for(java_data, dotnet_data),
+        metadata_differences=metadata_differences(java_data, dotnet_data),
+        metadata_normalized_byte_identical=java_metadata_normalized == dotnet_metadata_normalized,
+        metadata_normalized_first_diff_offset=first_diff_offset(java_metadata_normalized, dotnet_metadata_normalized),
         java_artifact=java_path.relative_to(out_dir).as_posix(),
         dotnet_artifact=dotnet_path.relative_to(out_dir).as_posix(),
     )
@@ -230,6 +261,37 @@ def cause_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
     return {op: dict(counter) for op, counter in sorted(by_op.items())}
 
 
+def metadata_difference_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
+    by_op: dict[str, Counter] = defaultdict(Counter)
+    for row in analyses:
+        if row.byte_identical:
+            by_op[row.op]["byte-identical"] += 1
+            continue
+        if not row.metadata_differences:
+            by_op[row.op]["none"] += 1
+            continue
+        for difference in row.metadata_differences:
+            by_op[row.op][difference] += 1
+    return {op: dict(counter) for op, counter in sorted(by_op.items())}
+
+
+def metadata_normalization_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
+    counts: dict[str, dict[str, int]] = {}
+    for op in sorted(SAVE_MERGE_OPS):
+        rows = [row for row in analyses if row.op == op]
+        normalized_identical = sum(1 for row in rows if row.metadata_normalized_byte_identical)
+        counts[op] = {
+            "total": len(rows),
+            "byteIdentical": sum(1 for row in rows if row.byte_identical),
+            "metadataNormalizedByteIdentical": normalized_identical,
+            "madeIdenticalByMetadataNormalization": sum(
+                1 for row in rows if not row.byte_identical and row.metadata_normalized_byte_identical
+            ),
+            "stillDifferentAfterMetadataNormalization": len(rows) - normalized_identical,
+        }
+    return counts
+
+
 def primary_cause_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
     by_op: dict[str, Counter] = defaultdict(Counter)
     for row in analyses:
@@ -262,6 +324,8 @@ def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAna
         "summary": {
             "byOperation": count_by_op(analyses),
             "causeCounts": cause_counts(analyses),
+            "metadataDifferenceCounts": metadata_difference_counts(analyses),
+            "metadataNormalization": metadata_normalization_counts(analyses),
             "primaryCauseCounts": primary_cause_counts(analyses),
         },
         "rows": [
@@ -276,6 +340,9 @@ def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAna
                 "dotnetSha256": row.dotnet_sha256,
                 "firstDiffOffset": row.first_diff_offset,
                 "causes": list(row.causes),
+                "metadataDifferences": list(row.metadata_differences),
+                "metadataNormalizedByteIdentical": row.metadata_normalized_byte_identical,
+                "metadataNormalizedFirstDiffOffset": row.metadata_normalized_first_diff_offset,
                 "primaryCause": row.primary_cause,
                 "artifacts": {"java": row.java_artifact, "dotnet": row.dotnet_artifact},
             }
@@ -327,6 +394,40 @@ def markdown_report(payload: dict, analyses: list[PairAnalysis]) -> str:
         for cause, count in sorted(counts.items(), key=lambda item: (-item[1], item[0])):
             lines.append(f"| {cause} | {count} |")
         lines.append("")
+
+    lines.extend(
+        [
+            "## Metadata and Trailer-ID Breakdown",
+            "",
+            "The broad `metadata/timestamps` label is split into serialized document-info date fields, serialized document-info string/name fields, and trailer `/ID` arrays.",
+            "",
+        ]
+    )
+    for op, counts in summary["metadataDifferenceCounts"].items():
+        lines.append(f"### `{op}` Metadata Differences")
+        lines.append("")
+        lines.append("| Difference | Rows |")
+        lines.append("|---|---:|")
+        for difference, count in sorted(counts.items(), key=lambda item: (-item[1], item[0])):
+            lines.append(f"| {difference} | {count} |")
+        lines.append("")
+
+    lines.extend(
+        [
+            "### Metadata-Normalized Identity",
+            "",
+            "This replaces only `/CreationDate`, `/ModDate`, document-info text/name fields, and trailer `/ID` payloads with stable placeholders before comparing bytes.",
+            "",
+            "| Operation | Total rows | Original byte-identical | Metadata-normalized byte-identical | Made identical by normalization | Still different after normalization |",
+            "|---|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for op, counts in summary["metadataNormalization"].items():
+        lines.append(
+            f"| `{op}` | {counts['total']} | {counts['byteIdentical']} | "
+            f"{counts['metadataNormalizedByteIdentical']} | {counts['madeIdenticalByMetadataNormalization']} | "
+            f"{counts['stillDifferentAfterMetadataNormalization']} |"
+        )
 
     lines.extend(
         [

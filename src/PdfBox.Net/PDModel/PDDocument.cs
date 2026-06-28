@@ -39,6 +39,7 @@ using PdfBox.Net.PdfParser;
 using PdfBox.Net.PdfWriter;
 using PdfBox.Net.PdfWriter.Compress;
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace PdfBox.Net.PDModel;
@@ -359,6 +360,7 @@ public sealed partial class PDDocument : IDisposable
 
         // Update /Size and strip entries that only make sense for incremental or xref-stream trailers.
         PrepareClassicTrailer(maxObjectNumber + 1);
+        PrepareTrailerDocumentId();
 
         output.Write(Encoding.ASCII.GetBytes("trailer\n"));
         output.Write(COSWriter.Serialize(_trailer));
@@ -610,6 +612,51 @@ public sealed partial class PDDocument : IDisposable
             _trailer.RemoveItem(COSName.GetPDFName("Index"));
             _trailer.RemoveItem(COSName.GetPDFName("W"));
         }
+    }
+
+    private void PrepareTrailerDocumentId()
+    {
+        COSName idName = COSName.GetPDFName("ID");
+        COSArray? idArray = _trailer.GetCOSArray(idName);
+        if (idArray is not null && idArray.Size() == 2)
+        {
+            return;
+        }
+
+        byte[] id = ComputeTrailerDocumentId();
+        COSString idString = new(id);
+        COSArray replacement = new();
+        replacement.Add(idString);
+        replacement.Add(idString);
+        _trailer.SetItem(idName, replacement);
+    }
+
+    private byte[] ComputeTrailerDocumentId()
+    {
+        using MemoryStream input = new();
+        WriteLatin1(input, GetTrailerDocumentIdSeed().ToString(CultureInfo.InvariantCulture));
+
+        COSDictionary? info = _trailer.GetCOSDictionary(COSName.GetPDFName("Info"));
+        if (info is not null)
+        {
+            foreach (COSBase value in info.GetValues())
+            {
+                WriteLatin1(input, value.ToString() ?? string.Empty);
+            }
+        }
+
+        return SHA256.HashData(input.ToArray());
+    }
+
+    private long GetTrailerDocumentIdSeed()
+    {
+        return _documentId ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+    }
+
+    private static void WriteLatin1(Stream output, string value)
+    {
+        byte[] bytes = Encoding.Latin1.GetBytes(value);
+        output.Write(bytes, 0, bytes.Length);
     }
 
     private static void WriteIndirectReference(Stream output, COSObjectKey key)

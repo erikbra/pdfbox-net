@@ -10,6 +10,7 @@ using PdfBox.Net.PDModel.DocumentInterchange.Prepress;
 using PdfBox.Net.PDModel.Fdf;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.Measurement;
+using PdfBox.Net.PdfWriter;
 using PdfBox.Net.PdfWriter.Compress;
 
 namespace PdfBox.Net.Tests;
@@ -28,7 +29,19 @@ public class Issue506PDModelApiParityTest
 
         Assert.Equal(1234, document.GetDocumentId());
         Assert.True(document.GetCurrentAccessPermission().IsOwnerPermission());
+        Assert.Equal(2, document.GetDocument().GetDocumentID()!.Size());
         Assert.NotEmpty(output.ToArray());
+    }
+
+    [Fact]
+    public void PDDocumentSaveCreatesDeterministicTrailerIdFromDocumentIdSeed()
+    {
+        byte[] first = SaveAndReadFirstTrailerId(1234, "deterministic trailer id");
+        byte[] second = SaveAndReadFirstTrailerId(1234, "deterministic trailer id");
+        byte[] differentSeed = SaveAndReadFirstTrailerId(5678, "deterministic trailer id");
+
+        Assert.Equal(first, second);
+        Assert.NotEqual(first, differentSeed);
     }
 
     [Fact]
@@ -126,6 +139,27 @@ public class Issue506PDModelApiParityTest
         Assert.Contains("contents=", parent.ToString(), StringComparison.Ordinal);
         Assert.Equal(PDBoxStyle.GuidelineStyleSolid, PDBoxStyle.GUIDELINE_STYLE_SOLID);
         Assert.Equal(PDBoxStyle.GuidelineStyleDashed, PDBoxStyle.GUIDELINE_STYLE_DASHED);
+    }
+
+    private static byte[] SaveAndReadFirstTrailerId(long documentId, string title)
+    {
+        using PDDocument document = new();
+        document.AddPage(new PDPage());
+        document.SetDocumentId(documentId);
+        document.GetDocumentInformation().SetTitle(title);
+
+        using MemoryStream output = new();
+        document.Save(output);
+
+        COSArray idArray = document.GetDocument().GetDocumentID()!;
+        Assert.NotNull(idArray);
+        Assert.Equal(2, idArray.Size());
+
+        COSString first = Assert.IsType<COSString>(idArray.Get(0));
+        COSString second = Assert.IsType<COSString>(idArray.Get(1));
+        Assert.Equal(first.GetBytes(), second.GetBytes());
+        Assert.Contains("/ID", COSWriter.SerializeToString(document.GetDocument().GetTrailer()));
+        return first.GetBytes();
     }
 
     [Fact]
