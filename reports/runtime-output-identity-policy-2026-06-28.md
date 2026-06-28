@@ -40,8 +40,8 @@ allowing these reviewed non-identical match categories:
 |---|---:|---|---|
 | `save-structural-match` | 148 | Accepted adaptation; track strict mode separately. | COS object numbers, xref layout, dictionary ordering, compression, timestamps, and writer implementation choices can differ while the resulting PDF structure remains equivalent. |
 | `merge-structural-match` | 72 | Accepted adaptation; track strict mode separately. | Same rationale as save output; merged documents should be structurally equivalent rather than byte-cloned from Java internals. |
-| `text-semantic-math-linewrap-match` | 1 | Ratchet toward zero when touched. | This is close to user-visible text extraction behavior and should not grow. A focused fixture can decide whether Java-compatible line wrapping is worth tightening. |
-| `text-semantic-punctuation-spacing-match` | 1 | Ratchet toward zero when touched. | Punctuation spacing can affect downstream text consumers. Keep the current allowance but treat new rows as regressions. |
+| `text-semantic-math-linewrap-match` | 1 | Accepted semantic equivalence; ratchet toward zero only with a targeted text-stripper fix. | Reviewed in #540 with an explicit `arxiv-sample.pdf` fixture. The row is a line-grouping difference around formula text; new rows should still fail ratchet until reviewed. |
+| `text-semantic-punctuation-spacing-match` | 1 | Accepted semantic equivalence; ratchet toward zero only with a targeted text-stripper fix. | Reviewed in #540 with an explicit `cweb.pdf` fixture. The row is a punctuation word-separator heuristic difference; new rows should still fail ratchet until reviewed. |
 | `render-visual-equivalence-match` | 68 | Accepted adaptation with strict bounds. | Java2D and SkiaSharp rasterization differ in antialiasing/color-management details. The classifier requires same dimensions and low bounded pixel drift. |
 | `render-lossy-jpeg-decoder-equivalence-match` | 2 | Accepted adaptation. | JPEG decoding and color conversion are lossy and backend-dependent; exact pixels are not a stable cross-runtime promise. |
 | `render-foreground-shape-equivalence-match` | 48 | Accepted adaptation with root-cause follow-up. | Foreground shape matching proves the same visible marks exist while tolerating backend raster drift. Broad counts should not grow. |
@@ -82,7 +82,7 @@ The review splits exact-identity hardening into targeted tasks:
 | Area | Follow-up issue | Goal |
 |---|---|---|
 | Save/merge byte identity | #539 | Add a strict measurement report for PDF writer byte drift and identify which writer differences are feasible to tighten. Follow-up implementation work is split into #551, #552, #553, #554, and #555. |
-| Text semantic drift | #540 | Reduce or eliminate the current text semantic allowances with targeted fixtures. |
+| Text semantic drift | #540 | Add reviewed fixtures and root-cause notes for the two current text semantic rows; keep the 1/1 ratchet ceilings until a targeted text-stripper fix removes either row. |
 | Render visual equivalence buckets | #541 | Add per-bucket reports and lower raster-equivalence ceilings where renderer fixes make rows byte/pixel-identical. |
 | Optional JPX/JPEG 2000 rendering | #542 | Decide whether to keep the optional Java-provider classification or add an optional Java CI provider for strict raster comparison. |
 
