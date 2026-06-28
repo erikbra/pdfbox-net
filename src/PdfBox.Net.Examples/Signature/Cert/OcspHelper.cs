@@ -25,8 +25,8 @@
  * limitations under the License.
  */
 
-using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
+using PdfBox.Net.Cryptography.Signature.Cert;
 
 namespace PdfBox.Net.Examples.Signature.Cert;
 
@@ -37,25 +37,16 @@ namespace PdfBox.Net.Examples.Signature.Cert;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The Java original used BouncyCastle <c>OCSPReqBuilder</c> / <c>OCSPResp</c> to construct
-/// and send a custom OCSP request.  The .NET BCL does not expose a managed API for building
-/// raw OCSP requests; <see cref="X509Chain"/> with
-/// <see cref="X509RevocationMode.Online"/> performs OCSP/CRL checking transparently via the
-/// platform's certificate store, which satisfies the majority of real-world use-cases.
-/// </para>
-/// <para>
-/// For scenarios that require constructing explicit OCSP requests (e.g. to embed the stapled
-/// response into a PDF for LTV), use the BouncyCastle.NET package
-/// (<c>Org.BouncyCastle.Ocsp</c>).
+/// Uses the optional PdfBox.Net.Cryptography BouncyCastle backend to construct explicit OCSP
+/// requests and preserve raw OCSP response bytes for DSS/LTV embedding.
 /// </para>
 /// </remarks>
 public sealed class OcspHelper
 {
-    private static readonly HttpClient _http = new();
-
     private readonly X509Certificate2 _certToCheck;
     private readonly DateTime _signDate;
     private readonly X509Certificate2 _issuerCert;
+    private readonly string? _ocspUrl;
 
     /// <summary>
     /// Creates an OCSP helper for the given certificate.
@@ -73,11 +64,16 @@ public sealed class OcspHelper
         _certToCheck = certToCheck ?? throw new ArgumentNullException(nameof(certToCheck));
         _signDate = signDate;
         _issuerCert = issuerCert ?? throw new ArgumentNullException(nameof(issuerCert));
+        _ocspUrl = ocspUrl;
     }
 
+    public string? ResponseSignatureHashHex { get; private set; }
+
+    public X509Certificate2? ResponderCertificate { get; private set; }
+
     /// <summary>
-    /// Checks the revocation status of the configured certificate via the platform OCSP/CRL
-    /// infrastructure and throws if the certificate is revoked.
+    /// Checks the revocation status of the configured certificate via OCSP and returns the raw
+    /// encoded OCSP response for DSS embedding.
     /// </summary>
     /// <exception cref="RevokedCertificateException">
     /// Thrown when the certificate is reported as revoked.
@@ -85,34 +81,26 @@ public sealed class OcspHelper
     /// <exception cref="CertificateVerificationException">
     /// Thrown when the revocation status could not be determined.
     /// </exception>
-    public void GetResponseOcsp()
+    public byte[] GetResponseOcsp()
     {
-        using X509Chain chain = new();
-        chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
-        chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EndCertificateOnly;
-        chain.ChainPolicy.VerificationTime = _signDate;
-        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
-        chain.ChainPolicy.ExtraStore.Add(_issuerCert);
-
-        bool built = chain.Build(_certToCheck);
-
-        foreach (X509ChainStatus status in chain.ChainStatus)
+        if (string.IsNullOrWhiteSpace(_ocspUrl))
         {
-            if (status.Status == X509ChainStatusFlags.Revoked)
-            {
-                throw new RevokedCertificateException(
-                    $"Certificate {_certToCheck.Subject} is revoked.", _signDate);
-            }
+            throw new CertificateVerificationException(
+                $"Could not verify certificate {_certToCheck.Subject}: no OCSP responder URL was supplied.");
         }
 
-        if (!built)
+        try
         {
-            var statuses = chain.ChainStatus
-                .Select(s => s.StatusInformation?.Trim())
-                .Where(s => !string.IsNullOrEmpty(s));
-            string summary = string.Join("; ", statuses);
+            BouncyCastleOcspResponse response = new BouncyCastleOcspClient()
+                .FetchAndValidateResponse(_certToCheck, _issuerCert, _ocspUrl, _signDate);
+            ResponseSignatureHashHex = response.SignatureHashHex;
+            ResponderCertificate = response.ResponderCertificate;
+            return response.EncodedResponse;
+        }
+        catch (System.Security.Cryptography.CryptographicException ex)
+        {
             throw new CertificateVerificationException(
-                $"Could not verify certificate {_certToCheck.Subject}: {summary}");
+                $"Could not verify certificate {_certToCheck.Subject}: {ex.Message}", ex);
         }
     }
 

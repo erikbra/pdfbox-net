@@ -42,14 +42,8 @@ namespace PdfBox.Net.Examples.Signature.Validation;
 /// <para>
 /// Inspired by ETSI TS 102 778-4 V1.1.2 (2009-12) – PAdES Long Term – PAdES-LTV Profile.
 /// The DSS dictionary contains CRL data downloaded from each certificate's CRL Distribution
-/// Points extension and all chain certificates.
-/// </para>
-/// <para>
-/// <b>.NET limitation:</b> The Java original uses BouncyCastle to obtain raw OCSP response
-/// bytes for DSS embedding.  The .NET BCL (<see cref="X509Chain"/> with
-/// <see cref="X509RevocationMode.Online"/>) performs OCSP/CRL checking internally but does
-/// not expose raw OCSP response bytes.  Consequently this port embeds only CRL data in the
-/// DSS; OCSP revocation data cannot be embedded without BouncyCastle.
+/// Points extension, OCSP responses obtained through the optional BouncyCastle backend, and
+/// all chain certificates.
 /// </para>
 /// </remarks>
 public class AddValidationInformation
@@ -57,6 +51,7 @@ public class AddValidationInformation
     private CertInformationCollector? _certInformationCollector;
 
     // DSS arrays / dicts
+    private COSArray? _correspondingOCSPs;
     private COSArray? _correspondingCRLs;
     private COSDictionary? _vriBase;
     private COSArray? _ocsps;
@@ -189,12 +184,13 @@ public class AddValidationInformation
         if (certInfo.TsaCerts != null)
         {
             // Don't add TSA revocation info to VRI entries
+            _correspondingOCSPs = null;
             _correspondingCRLs = null;
             AddRevocationDataRecursive(certInfo.TsaCerts);
         }
     }
 
-    // Recursively fetches revocation data (CRL-only; OCSP bytes cannot be embedded in .NET BCL).
+    // Recursively fetches revocation data, preferring OCSP and falling back to CRL like Java PDFBox.
     private void AddRevocationDataRecursive(
         CertInformationCollector.CertSignatureInformation certInfo)
     {
@@ -203,10 +199,10 @@ public class AddValidationInformation
         bool revocationFound = _foundRevocationInformation.Contains(certInfo.Certificate!);
         if (!revocationFound)
         {
-            // Try OCSP first (just validate — we cannot embed raw OCSP bytes in .NET BCL).
+            // Try OCSP first so raw OCSP bytes can be embedded in the DSS.
             if (certInfo.OcspUrl != null && certInfo.IssuerCertificates.Count > 0)
             {
-                revocationFound = FetchOcspValidation(certInfo);
+                revocationFound = FetchOcspData(certInfo);
             }
 
             // Try CRL (we can download and embed the bytes).
@@ -239,9 +235,8 @@ public class AddValidationInformation
         }
     }
 
-    // Performs an OCSP revocation check. Raw OCSP bytes are NOT available via .NET BCL,
-    // so nothing is added to the DSS OCSPs array. Returns true if check succeeded (cert not revoked).
-    private bool FetchOcspValidation(CertInformationCollector.CertSignatureInformation certInfo)
+    // Performs an OCSP revocation check and embeds the raw OCSP response bytes in the DSS.
+    private bool FetchOcspData(CertInformationCollector.CertSignatureInformation certInfo)
     {
         try
         {
@@ -252,9 +247,12 @@ public class AddValidationInformation
                     _signDate.UtcDateTime,
                     issuer,
                     certInfo.OcspUrl);
-                helper.GetResponseOcsp();
-                // OCSP check passed — mark as found but don't embed (no raw bytes available).
-                _foundRevocationInformation.Add(certInfo.Certificate!);
+                byte[] ocspBytes = helper.GetResponseOcsp();
+                AddOcspRevocationInfo(
+                    certInfo,
+                    ocspBytes,
+                    helper.ResponseSignatureHashHex,
+                    helper.ResponderCertificate);
                 return true;
             }
         }
@@ -268,6 +266,45 @@ public class AddValidationInformation
                 $"[AddValidationInformation] OCSP check failed for {certInfo.Certificate?.Subject}: {ex.Message}");
         }
         return false;
+    }
+
+    private void AddOcspRevocationInfo(
+        CertInformationCollector.CertSignatureInformation certInfo,
+        byte[] ocspBytes,
+        string? signatureHashHex,
+        X509Certificate2? responderCertificate)
+    {
+        COSStream ocspStream = WriteDataToStream(ocspBytes);
+        _ocsps!.Add(ocspStream);
+        _correspondingOCSPs?.Add(ocspStream);
+
+        if (responderCertificate != null && !_certMap.ContainsKey(responderCertificate))
+        {
+            COSStream certStream = WriteDataToStream(responderCertificate.RawData);
+            _certMap[responderCertificate] = certStream;
+        }
+
+        if (!string.IsNullOrWhiteSpace(signatureHashHex) && !_vriBase!.ContainsKey(signatureHashHex))
+        {
+            COSDictionary ocspVri = new();
+            _vriBase.SetItem(COSName.GetPDFName(signatureHashHex), ocspVri);
+
+            if (responderCertificate != null)
+            {
+                COSArray responderCerts = new();
+                if (!_certMap.TryGetValue(responderCertificate, out COSStream? responderCertStream))
+                {
+                    responderCertStream = WriteDataToStream(responderCertificate.RawData);
+                    _certMap[responderCertificate] = responderCertStream;
+                }
+                responderCerts.Add(responderCertStream);
+                ocspVri.SetItem(COSName.GetPDFName("Cert"), responderCerts);
+            }
+
+            ocspVri.SetDate(COSName.GetPDFName("TU"), DateTimeOffset.Now);
+        }
+
+        _foundRevocationInformation.Add(certInfo.Certificate!);
     }
 
     // Downloads a CRL and embeds its bytes in the DSS.
@@ -335,8 +372,13 @@ public class AddValidationInformation
 
         if (!hasNoCheck)
         {
+            _correspondingOCSPs = new COSArray();
             _correspondingCRLs = new COSArray();
             AddRevocationDataRecursive(certInfo);
+            if (!_correspondingOCSPs.IsEmpty())
+            {
+                vri.SetItem(COSName.GetPDFName("OCSP"), _correspondingOCSPs);
+            }
             if (!_correspondingCRLs.IsEmpty())
             {
                 vri.SetItem(COSName.GetPDFName("CRL"), _correspondingCRLs);
