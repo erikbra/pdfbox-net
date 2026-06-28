@@ -42,17 +42,17 @@ allowing these reviewed non-identical match categories:
 | `merge-structural-match` | 72 | Accepted adaptation; track strict mode separately. | Same rationale as save output; merged documents should be structurally equivalent rather than byte-cloned from Java internals. |
 | `text-semantic-math-linewrap-match` | 1 | Accepted semantic equivalence; ratchet toward zero only with a targeted text-stripper fix. | Reviewed in #540 with an explicit `arxiv-sample.pdf` fixture. The row is a line-grouping difference around formula text; new rows should still fail ratchet until reviewed. |
 | `text-semantic-punctuation-spacing-match` | 1 | Accepted semantic equivalence; ratchet toward zero only with a targeted text-stripper fix. | Reviewed in #540 with an explicit `cweb.pdf` fixture. The row is a punctuation word-separator heuristic difference; new rows should still fail ratchet until reviewed. |
-| `render-visual-equivalence-match` | 68 | Accepted adaptation with strict bounds. | Java2D and SkiaSharp rasterization differ in antialiasing/color-management details. The classifier requires same dimensions and low bounded pixel drift. |
+| `render-visual-equivalence-match` | 62 | Accepted adaptation with strict bounds; lowered by #541. | Java2D and SkiaSharp rasterization differ in antialiasing/color-management details. The classifier requires same dimensions and low bounded pixel drift. |
 | `render-lossy-jpeg-decoder-equivalence-match` | 2 | Accepted adaptation. | JPEG decoding and color conversion are lossy and backend-dependent; exact pixels are not a stable cross-runtime promise. |
-| `render-foreground-shape-equivalence-match` | 48 | Accepted adaptation with root-cause follow-up. | Foreground shape matching proves the same visible marks exist while tolerating backend raster drift. Broad counts should not grow. |
-| `render-image-mask-shape-equivalence-match` | 4 | Accepted adaptation; tighten with image work. | Fixture-scoped mask/stencil equivalence is acceptable until image decoding/mask rendering hardening reduces it. |
-| `render-pattern-transparency-raster-equivalence-match` | 6 | Accepted adaptation; tighten with renderer work. | Transparency and blend behavior is visually bounded but backend raster output is not pixel-identical. |
-| `render-form-widget-raster-equivalence-match` | 5 | Accepted adaptation; tighten with forms work. | Form appearances can be behaviorally equivalent while text raster placement differs slightly by backend. |
-| `render-glyph-layout-equivalence-match` | 10 | Accepted adaptation with strong semantic proof. | The classifier checks glyph rows for matching page/index/unicode/codes/font/embedded flags and bounded glyph geometry. |
-| `render-low-ink-equivalence-match` | 1 | Accepted adaptation. | Near-blank documents are sensitive to tiny antialiasing differences; bounded low-ink drift is acceptable. |
-| `render-sparse-equivalence-match` | 9 | Accepted adaptation. | Sparse documents amplify small raster differences; bounds keep this from hiding visible defects. |
-| `render-near-blank-threshold-equivalence-match` | 1 | Accepted adaptation. | One runtime crossing the near-blank threshold is acceptable only under sparse-drift limits. |
-| `render-low-mean-raster-drift-equivalence-match` | 7 | Accepted adaptation. | Low average channel error with bounded large/moderate pixel differences is acceptable backend drift. |
+| `render-foreground-shape-equivalence-match` | 47 | Accepted adaptation with root-cause follow-up; lowered by #541. | Foreground shape matching proves the same visible marks exist while tolerating backend raster drift. Geometry/clipping implementation slices are tracked in #562. |
+| `render-image-mask-shape-equivalence-match` | 3 | Accepted adaptation; tighten with image work; lowered by #541. | Fixture-scoped mask/stencil equivalence is acceptable until image decoding/mask rendering hardening reduces it. Implementation work is tracked in #559. |
+| `render-pattern-transparency-raster-equivalence-match` | 5 | Accepted adaptation; tighten with renderer work; lowered by #541. | Transparency and blend behavior is visually bounded but backend raster output is not pixel-identical. Implementation work is tracked in #560. |
+| `render-form-widget-raster-equivalence-match` | 3 | Accepted adaptation; tighten with forms work; lowered by #541. | Form appearances can be behaviorally equivalent while text raster placement differs slightly by backend. Implementation work is tracked in #558. |
+| `render-glyph-layout-equivalence-match` | 7 | Accepted adaptation with strong semantic proof; lowered by #541. | The classifier checks glyph rows for matching page/index/unicode/codes/font/embedded flags and bounded glyph geometry. Implementation work is tracked in #561. |
+| `render-low-ink-equivalence-match` | 0 | Ratcheted to zero by #541. | Near-blank raster drift is no longer present in the current corpus and should fail if it reappears unreviewed. |
+| `render-sparse-equivalence-match` | 1 | Accepted adaptation; lowered by #541. | Sparse documents amplify small raster differences; bounds keep this from hiding visible defects. |
+| `render-near-blank-threshold-equivalence-match` | 0 | Ratcheted to zero by #541. | The near-blank threshold bucket is no longer present in the current corpus and should fail if it reappears unreviewed. |
+| `render-low-mean-raster-drift-equivalence-match` | 0 | Ratcheted to zero by #541. | The low-mean raster drift bucket is no longer present in the current corpus and should fail if it reappears unreviewed. |
 | `render-java-optional-jpx-reader-missing-match` | 3 | Accepted optional-runtime difference. | Java PDFBox depends on an optional JPEG 2000 reader; a blank Java render with a visible .NET render is not a .NET feature gap. |
 
 ## Policy
@@ -83,7 +83,7 @@ The review splits exact-identity hardening into targeted tasks:
 |---|---|---|
 | Save/merge byte identity | #539 | Add a strict measurement report for PDF writer byte drift and identify which writer differences are feasible to tighten. Follow-up implementation work is split into #551, #552, #553, #554, and #555. |
 | Text semantic drift | #540 | Add reviewed fixtures and root-cause notes for the two current text semantic rows; keep the 1/1 ratchet ceilings until a targeted text-stripper fix removes either row. |
-| Render visual equivalence buckets | #541 | Add per-bucket reports and lower raster-equivalence ceilings where renderer fixes make rows byte/pixel-identical. |
+| Render visual equivalence buckets | #541 | Add per-bucket reports, lower raster-equivalence ceilings to the latest green artifact, and split real renderer gaps into #558, #559, #560, #561, and #562. |
 | Optional JPX/JPEG 2000 rendering | #542 | Decide whether to keep the optional Java-provider classification or add an optional Java CI provider for strict raster comparison. |
 
 ## Practical Judgment
