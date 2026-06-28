@@ -102,8 +102,8 @@ BUCKETS: dict[str, BucketInfo] = {
         "render-java-optional-jpx-reader-missing-match",
         "optional Java JPEG 2000 provider",
         "Java renders blank because its optional JPX reader is unavailable while .NET renders visible pixels.",
-        "Accepted optional-runtime difference for now.",
-        "#542",
+        "Accepted optional-runtime difference for the fixture-scoped JPX policy.",
+        "No default CI provider; see #542.",
     ),
 }
 

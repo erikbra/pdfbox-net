@@ -57,7 +57,11 @@ hashes differ.
 
 JPX/JPEG 2000 rows where the Java probe renders a blank page because its
 optional image reader is unavailable, while .NET renders visible pixels, are
-classified separately so they do not count as .NET render-quality gaps.
+classified separately so they do not count as .NET render-quality gaps. This
+classification is fixture-scoped to the reviewed `JPXTestCMYK.pdf`,
+`JPXTestGrey.pdf`, and `JPXTestRGB.pdf` files. The policy for issue #542 is
+recorded in `reports/jpx-provider-policy-2026-06-28.md`; default CI does not
+install an optional Java JPEG 2000 ImageIO provider.
 JPEG-named rows also have a narrow lossy-decoder equivalence classifier for
 small Java/.NET decoder and color-management drift.
 Near-blank render rows with less than 0.5% foreground coverage have a separate

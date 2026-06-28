@@ -53,7 +53,7 @@ allowing these reviewed non-identical match categories:
 | `render-sparse-equivalence-match` | 1 | Accepted adaptation; lowered by #541. | Sparse documents amplify small raster differences; bounds keep this from hiding visible defects. |
 | `render-near-blank-threshold-equivalence-match` | 0 | Ratcheted to zero by #541. | The near-blank threshold bucket is no longer present in the current corpus and should fail if it reappears unreviewed. |
 | `render-low-mean-raster-drift-equivalence-match` | 0 | Ratcheted to zero by #541. | The low-mean raster drift bucket is no longer present in the current corpus and should fail if it reappears unreviewed. |
-| `render-java-optional-jpx-reader-missing-match` | 3 | Accepted optional-runtime difference. | Java PDFBox depends on an optional JPEG 2000 reader; a blank Java render with a visible .NET render is not a .NET feature gap. |
+| `render-java-optional-jpx-reader-missing-match` | 3 | Accepted optional-runtime difference; fixture-scoped by #542. | Java PDFBox depends on an optional JPEG 2000 reader; a blank Java render with a visible .NET render is not a .NET feature gap for the reviewed `JPXTestCMYK.pdf`, `JPXTestGrey.pdf`, and `JPXTestRGB.pdf` files. |
 
 ## Policy
 
@@ -84,7 +84,7 @@ The review splits exact-identity hardening into targeted tasks:
 | Save/merge byte identity | #539 | Add a strict measurement report for PDF writer byte drift and identify which writer differences are feasible to tighten. Follow-up implementation work is split into #551, #552, #553, #554, and #555. |
 | Text semantic drift | #540 | Add reviewed fixtures and root-cause notes for the two current text semantic rows; keep the 1/1 ratchet ceilings until a targeted text-stripper fix removes either row. |
 | Render visual equivalence buckets | #541 | Add per-bucket reports, lower raster-equivalence ceilings to the latest green artifact, and split real renderer gaps into #558, #559, #560, #561, and #562. |
-| Optional JPX/JPEG 2000 rendering | #542 | Decide whether to keep the optional Java-provider classification or add an optional Java CI provider for strict raster comparison. |
+| Optional JPX/JPEG 2000 rendering | #542 | Keep default CI provider-free, document the optional-runtime policy, and keep the JPX category fixture-scoped to the three reviewed JPX fixtures. |
 
 ## Practical Judgment
 
