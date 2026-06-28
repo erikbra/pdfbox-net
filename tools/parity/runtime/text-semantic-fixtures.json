@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "description": "Reviewed text semantic parity fixtures. Each entry records the exact Java/.NET text extraction drift accepted by the runtime ratchet.",
+  "fixtures": [
+    {
+      "issue": 540,
+      "file": "arxiv-sample.pdf",
+      "category": "text-semantic-math-linewrap-match",
+      "decision": "keep accepted semantic equivalence",
+      "rootCause": "PDFTextStripper line grouping differs around math formula fragments with superscript/subscript-style positioning. Java emits a line break between the exponent and the following model label; PdfBox.Net keeps the same text on one line. The stripped text content is identical after the reviewed math-linewrap whitespace normalization.",
+      "javaSnippet": "lrate = d\u22120.5\nmodel \u00b7min(step_num\u22120.5, step_num \u00b7 warmup_steps\u22121.5) (3)",
+      "dotnetSnippet": "lrate = d\u22120.5model \u00b7min(step_num\u22120.5, step_num \u00b7 warmup_steps\u22121.5) (3)"
+    },
+    {
+      "issue": 540,
+      "file": "cweb.pdf",
+      "category": "text-semantic-punctuation-spacing-match",
+      "decision": "keep accepted semantic equivalence",
+      "rootCause": "PDFTextStripper word-separator heuristics differ at a punctuation operator boundary in typeset C code. Java inserts a separator before the increment operator while PdfBox.Net keeps the operator adjacent. The stripped text content is identical after the reviewed punctuation-spacing normalization.",
+      "javaSnippet": "change line ++;",
+      "dotnetSnippet": "change line++;"
+    }
+  ]
+}

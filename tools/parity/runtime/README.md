@@ -144,3 +144,24 @@ numbering, xref layout, dictionary key sequences, and incremental-save
 markers. These labels guide targeted writer hardening; they do not replace the
 default `save-structural-match` and `merge-structural-match` compatibility
 contract.
+
+## Text Semantic Fixture Review
+
+Use `analyze_text_semantic_parity.py` to verify that every
+`text-semantic-*-match` row in a runtime parity artifact has an explicit
+reviewed fixture in `text-semantic-fixtures.json`.
+
+```bash
+python3 tools/parity/runtime/analyze_text_semantic_parity.py \
+  --out-dir artifacts/runtime-parity \
+  --fixtures tools/parity/runtime/text-semantic-fixtures.json \
+  --report reports/text-semantic-parity-$(date +%F).md \
+  --json reports/text-semantic-parity-$(date +%F).json \
+  --source-label "local runtime parity run" \
+  --fail-on-unreviewed
+```
+
+The ratchet baseline keeps the current reviewed text semantic ceilings at one
+row each. Additional rows in those categories fail ratchet by exceeding the
+ceiling, and new text semantic categories fail because unknown categories
+default to zero until reviewed.

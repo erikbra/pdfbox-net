@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "source": {
+    "label": "GitHub Actions runtime-parity artifact from PR #556 run 28329962771",
+    "outDir": "artifacts/runtime-parity-issue-540-download/runtime-parity-28329962771-1",
+    "comparisonGeneratedAtUtc": "2026-06-28T17:35:20Z",
+    "manifest": "tools/parity/runtime/corpus-manifest.txt"
+  },
+  "summary": {
+    "totalTextSemanticRows": 2,
+    "reviewedRows": 2,
+    "unreviewedRows": 0,
+    "categories": {
+      "text-semantic-math-linewrap-match": 1,
+      "text-semantic-punctuation-spacing-match": 1
+    }
+  },
+  "rows": [
+    {
+      "file": "arxiv-sample.pdf",
+      "category": "text-semantic-math-linewrap-match",
+      "status": "match",
+      "reviewed": true,
+      "javaSnippetFound": true,
+      "dotnetSnippetFound": true,
+      "decision": "keep accepted semantic equivalence",
+      "rootCause": "PDFTextStripper line grouping differs around math formula fragments with superscript/subscript-style positioning. Java emits a line break between the exponent and the following model label; PdfBox.Net keeps the same text on one line. The stripped text content is identical after the reviewed math-linewrap whitespace normalization.",
+      "artifacts": {
+        "java": "java/arxiv-sample-java-text.txt",
+        "dotnet": "dotnet/arxiv-sample-dotnet-text.txt"
+      }
+    },
+    {
+      "file": "cweb.pdf",
+      "category": "text-semantic-punctuation-spacing-match",
+      "status": "match",
+      "reviewed": true,
+      "javaSnippetFound": true,
+      "dotnetSnippetFound": true,
+      "decision": "keep accepted semantic equivalence",
+      "rootCause": "PDFTextStripper word-separator heuristics differ at a punctuation operator boundary in typeset C code. Java inserts a separator before the increment operator while PdfBox.Net keeps the operator adjacent. The stripped text content is identical after the reviewed punctuation-spacing normalization.",
+      "artifacts": {
+        "java": "java/cweb-java-text.txt",
+        "dotnet": "dotnet/cweb-dotnet-text.txt"
+      }
+    }
+  ]
+}
