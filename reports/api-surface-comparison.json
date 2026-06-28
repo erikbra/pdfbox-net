@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-06-28T19:20:29Z",
+  "generated_at_utc": "2026-06-28T19:44:28Z",
   "upstream_root": "/Users/erik/src/Repos/apache/pdfbox",
   "upstream_commit": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
-  "pdfbox_net_commit": "4dfe1021304c5c7b87ce1ca6daf0de3b68fef0a4",
+  "pdfbox_net_commit": "015d3924465a3c455b07626c514ef384e86dce6f",
   "scope": {
     "modules": [
       "io",
@@ -20,9 +20,9 @@
     "matched_types": 579,
     "same_name_matched_types": 573,
     "java_members": 6305,
-    "matched_members": 5378,
+    "matched_members": 5390,
     "arity_drift_members": 42,
-    "missing_members": 885,
+    "missing_members": 873,
     "csharp_extra_members": 1640,
     "nonpublic_or_replacement_types": 2,
     "renamed_public_types": 6,
@@ -60,9 +60,9 @@
       "same_name_matched_types": 390,
       "matched_types": 390,
       "java_members": 4204,
-      "matched_members": 3659,
+      "matched_members": 3671,
       "arity_drift_members": 34,
-      "missing_members": 511,
+      "missing_members": 499,
       "csharp_extra_members": 1162,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
@@ -309,9 +309,9 @@
       "same_name_matched_types": 279,
       "matched_types": 279,
       "java_members": 3305,
-      "matched_members": 2875,
+      "matched_members": 2887,
       "arity_drift_members": 19,
-      "missing_members": 411,
+      "missing_members": 399,
       "csharp_extra_members": 953,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
@@ -27664,11 +27664,11 @@
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
       "java_member_count": 8,
-      "missing_member_count": 8,
-      "matched_member_count": 0,
+      "missing_member_count": 2,
+      "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.PageLayout",
-      "csharp_member_count": 7,
+      "csharp_member_count": 13,
       "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
@@ -27692,108 +27692,54 @@
           "java_name": "SINGLE_PAGE",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "SINGLE_PAGE",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|SINGLE_PAGE|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "SINGLE_PAGE"
         },
         {
           "java_kind": "enum-value",
           "java_name": "ONE_COLUMN",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "ONE_COLUMN",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|ONE_COLUMN|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "ONE_COLUMN"
         },
         {
           "java_kind": "enum-value",
           "java_name": "TWO_COLUMN_LEFT",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "TWO_COLUMN_LEFT",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_COLUMN_LEFT|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "TWO_COLUMN_LEFT"
         },
         {
           "java_kind": "enum-value",
           "java_name": "TWO_COLUMN_RIGHT",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "TWO_COLUMN_RIGHT",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_COLUMN_RIGHT|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "TWO_COLUMN_RIGHT"
         },
         {
           "java_kind": "enum-value",
           "java_name": "TWO_PAGE_LEFT",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "TWO_PAGE_LEFT",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_PAGE_LEFT|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "TWO_PAGE_LEFT"
         },
         {
           "java_kind": "enum-value",
           "java_name": "TWO_PAGE_RIGHT",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "TWO_PAGE_RIGHT",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_PAGE_RIGHT|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "TWO_PAGE_RIGHT"
         },
         {
           "java_kind": "method",
@@ -27842,11 +27788,11 @@
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
       "java_member_count": 8,
-      "missing_member_count": 8,
-      "matched_member_count": 0,
+      "missing_member_count": 2,
+      "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.PageMode",
-      "csharp_member_count": 7,
+      "csharp_member_count": 13,
       "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
@@ -27870,108 +27816,54 @@
           "java_name": "USE_NONE",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "USE_NONE",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_NONE|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "USE_NONE"
         },
         {
           "java_kind": "enum-value",
           "java_name": "USE_OUTLINES",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "USE_OUTLINES",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_OUTLINES|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "USE_OUTLINES"
         },
         {
           "java_kind": "enum-value",
           "java_name": "USE_THUMBS",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "USE_THUMBS",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_THUMBS|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "USE_THUMBS"
         },
         {
           "java_kind": "enum-value",
           "java_name": "FULL_SCREEN",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "FULL_SCREEN",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|FULL_SCREEN|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "FULL_SCREEN"
         },
         {
           "java_kind": "enum-value",
           "java_name": "USE_OPTIONAL_CONTENT",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "USE_OPTIONAL_CONTENT",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_OPTIONAL_CONTENT|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "USE_OPTIONAL_CONTENT"
         },
         {
           "java_kind": "enum-value",
           "java_name": "USE_ATTACHMENTS",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "USE_ATTACHMENTS",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_ATTACHMENTS|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-            "issue": 506,
-            "reviewed_at_utc": "2026-06-27T00:59:27Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "enum-value",
+          "signature": "USE_ATTACHMENTS"
         },
         {
           "java_kind": "method",
@@ -82107,28 +81999,6 @@
       "arity_drift_count": 0
     },
     {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageLayout",
-      "csharp_type": "PdfBox.Net.PDModel.PageLayout",
-      "java_member_count": 8,
-      "missing_member_count": 8,
-      "matched_member_count": 0,
-      "arity_drift_count": 0
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageMode",
-      "csharp_type": "PdfBox.Net.PDModel.PageMode",
-      "java_member_count": 8,
-      "missing_member_count": 8,
-      "matched_member_count": 0,
-      "arity_drift_count": 0
-    },
-    {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
       "module": "fontbox",
       "family": "cff",
@@ -82379,6 +82249,28 @@
       "java_member_count": 5,
       "missing_member_count": 3,
       "matched_member_count": 2,
+      "arity_drift_count": 0
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFObjectStreamParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "java_type": "org.apache.pdfbox.pdfparser.PDFObjectStreamParser",
+      "csharp_type": "PdfBox.Net.PdfParser.PDFObjectStreamParser",
+      "java_member_count": 4,
+      "missing_member_count": 3,
+      "matched_member_count": 1,
+      "arity_drift_count": 0
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "java_type": "org.apache.pdfbox.pdmodel.font.FontMapper",
+      "csharp_type": "PdfBox.Net.PDModel.Font.FontMapper",
+      "java_member_count": 3,
+      "missing_member_count": 3,
+      "matched_member_count": 0,
       "arity_drift_count": 0
     }
   ],
@@ -85050,138 +84942,6 @@
       "module": "pdfbox",
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.PageLayout",
-      "java_kind": "enum-value",
-      "java_name": "ONE_COLUMN",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "ONE_COLUMN",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|ONE_COLUMN|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageLayout",
-      "java_kind": "enum-value",
-      "java_name": "SINGLE_PAGE",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "SINGLE_PAGE",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|SINGLE_PAGE|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageLayout",
-      "java_kind": "enum-value",
-      "java_name": "TWO_COLUMN_LEFT",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "TWO_COLUMN_LEFT",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_COLUMN_LEFT|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageLayout",
-      "java_kind": "enum-value",
-      "java_name": "TWO_COLUMN_RIGHT",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "TWO_COLUMN_RIGHT",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_COLUMN_RIGHT|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageLayout",
-      "java_kind": "enum-value",
-      "java_name": "TWO_PAGE_LEFT",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "TWO_PAGE_LEFT",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_PAGE_LEFT|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageLayout",
-      "java_kind": "enum-value",
-      "java_name": "TWO_PAGE_RIGHT",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "TWO_PAGE_RIGHT",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_PAGE_RIGHT|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageLayout",
       "java_kind": "method",
       "java_name": "fromString",
       "java_arity": 1,
@@ -85213,138 +84973,6 @@
       "signature": "public String stringValue()",
       "api_review": {
         "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|method|stringValue|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageMode",
-      "java_kind": "enum-value",
-      "java_name": "FULL_SCREEN",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "FULL_SCREEN",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|FULL_SCREEN|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageMode",
-      "java_kind": "enum-value",
-      "java_name": "USE_ATTACHMENTS",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "USE_ATTACHMENTS",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_ATTACHMENTS|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageMode",
-      "java_kind": "enum-value",
-      "java_name": "USE_NONE",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "USE_NONE",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_NONE|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageMode",
-      "java_kind": "enum-value",
-      "java_name": "USE_OPTIONAL_CONTENT",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "USE_OPTIONAL_CONTENT",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_OPTIONAL_CONTENT|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageMode",
-      "java_kind": "enum-value",
-      "java_name": "USE_OUTLINES",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "USE_OUTLINES",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_OUTLINES|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-        "issue": 506,
-        "reviewed_at_utc": "2026-06-27T00:59:27Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.PageMode",
-      "java_kind": "enum-value",
-      "java_name": "USE_THUMBS",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "USE_THUMBS",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_THUMBS|0|missing",
         "state": "reviewed",
         "disposition": "intentional-dotnet-adaptation",
         "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
@@ -101778,16 +101406,16 @@
       "not-applicable"
     ],
     "raw": {
-      "missing_members": 885,
+      "missing_members": 873,
       "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 935
+      "total": 923
     },
     "reviewed": {
-      "missing_members": 885,
+      "missing_members": 873,
       "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 935
+      "total": 923
     },
     "unreviewed": {
       "missing_members": 0,
@@ -101797,7 +101425,7 @@
     },
     "disposition_counts": {
       "behavior-covered": 109,
-      "intentional-dotnet-adaptation": 725,
+      "intentional-dotnet-adaptation": 713,
       "internal-by-design": 76,
       "not-applicable": 25
     },
