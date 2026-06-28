@@ -41,6 +41,21 @@ The solution (`PdfBoxNet.slnx`) contains four library projects, two test project
 - .NET 10.0 SDK or later
 - [SkiaSharp](https://github.com/mono/SkiaSharp) (used for rendering, replaces Java AWT/ImageIO)
 
+## Optional Backends
+
+Rendering, public-key cryptography, and printer submission are isolated behind
+small backend/provider contracts so the mechanical Java port stays portable.
+
+- `PdfBox.Net.SkiaSharp` is the complete rendering backend today.
+- `PdfBox.Net.Cryptography` provides BouncyCastle-backed public-key encryption
+  support.
+- `PdfBox.Net.SystemDrawing` provides Windows `System.Drawing` image helpers and
+  a Windows print-spooler backend. Register a complete rendering backend before
+  printing real pages.
+
+See [`reports/printing-backend-policy-2026-06-28.md`](reports/printing-backend-policy-2026-06-28.md)
+for the printing support matrix and platform limitations.
+
 ## Build and test
 
 ```sh

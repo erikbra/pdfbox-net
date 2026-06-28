@@ -28,15 +28,13 @@
 /*
  * Adaptation notes:
  * Java's java.awt.print.Printable + PageFormat use the AWT print subsystem.
- * In .NET, System.Drawing.Printing is the nearest equivalent but is Windows-only
- * and not available on .NET 10 Linux targets. This class exposes the same public
+ * In .NET, concrete printer submission is delegated to optional backends because
+ * platform print APIs are not uniformly available. This class exposes the same public
  * API surface (constructor overloads, scaling/subsampling/renderingHints properties)
  * but the actual page-rendering entry point is RenderPage(int pageIndex,
  * IPrintGraphics graphics, IPrintPageFormat pageFormat) rather than the Java
- * Printable.print(Graphics, PageFormat, int) signature.  A concrete Windows-only
- * implementation connecting this to System.Drawing.Printing can be layered on top
- * in a future PR.  The static helpers GetRotatedCropBox / GetRotatedMediaBox are
- * unchanged from Java and fully functional.
+ * Printable.print(Graphics, PageFormat, int) signature.  The static helpers
+ * GetRotatedCropBox / GetRotatedMediaBox are unchanged from Java and fully functional.
  */
 
 using PdfBox.Net.PDModel;
@@ -50,9 +48,8 @@ namespace PdfBox.Net.Printing;
 /// <para>
 /// Adaptation: Java's <c>Printable</c> interface is not available on cross-platform .NET.
 /// The rendering entry-point is <see cref="RenderPage"/> rather than
-/// <c>Printable.print(Graphics, PageFormat, int)</c>.  Connect to
-/// <c>System.Drawing.Printing.PrintDocument</c> (Windows-only) or another print
-/// back-end in a platform-specific layer.
+/// <c>Printable.print(Graphics, PageFormat, int)</c>.  Platform printer submission
+/// is handled by optional <see cref="IPDFPrintBackend"/> implementations.
 /// </para>
 /// </summary>
 /// <remarks>Author: John Hewson</remarks>

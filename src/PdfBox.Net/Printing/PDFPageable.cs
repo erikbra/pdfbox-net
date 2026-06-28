@@ -31,8 +31,8 @@
  * .NET equivalent.  This class provides the same public API surface as the Java
  * original (constructor overloads, GetNumberOfPages, GetPageFormat, GetPrintable)
  * using .NET-native types for page geometry (<see cref="PdfPageFormat"/>).
- * A concrete Windows-only implementation that connects this to
- * System.Drawing.Printing can be layered on top in a future PR.
+ * Concrete printer submission is delegated to optional IPDFPrintBackend
+ * implementations.
  */
 
 using PdfBox.Net.PDModel;
@@ -68,8 +68,8 @@ public sealed class PdfPageFormat
 /// <para>
 /// Adaptation: Java's <c>PDFPageable</c> extends <c>java.awt.print.Book</c>.  There is no
 /// cross-platform .NET equivalent for <c>Book</c>/<c>Pageable</c>. This class provides the same
-/// constructor API and helper methods; connect it to <c>System.Drawing.Printing.PrintDocument</c>
-/// (Windows-only) or another print back-end in a platform-specific layer.
+/// constructor API and helper methods; platform printer submission is handled by
+/// optional <see cref="IPDFPrintBackend"/> implementations.
 /// </para>
 /// </summary>
 /// <remarks>Author: John Hewson</remarks>

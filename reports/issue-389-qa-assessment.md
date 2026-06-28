@@ -7,8 +7,8 @@
 | `Interactive/Form/FieldRemover.cs` | converted | `TestFieldRemover` creates a fixture, removes the requested field, and verifies that the remaining field persists. |
 | `Lucene/IndexPDFFiles.cs` | converted | `TestLuceneIntegration` covers index creation and searchable content. |
 | `Lucene/LucenePDFDocument.cs` | converted | `TestLuceneIntegration` verifies indexed document conversion. |
-| `Printing/Printing.cs` | converted | `PrintingTest` covers configured print-to-file behavior on supported platforms. |
-| `Printing/OpaquePDFRenderer.cs` | converted | `PrintingTest` covers renderer integration on supported platforms. |
+| `Printing/Printing.cs` | converted | `PrintingTest` covers deterministic `PDFPrinter` backend delegation; platform print submission is documented in `reports/printing-backend-policy-2026-06-28.md`. |
+| `Printing/OpaquePDFRenderer.cs` | converted | `PrintingTest` covers the shared printer configuration path; real renderer-to-printer submission remains backend/environment dependent. |
 
 ## Port assessment
 
