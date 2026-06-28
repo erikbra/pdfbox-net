@@ -13,6 +13,8 @@ using GlyphList = PdfBox.Net.PDModel.Font.Encoding.GlyphList;
 
 internal static class DotnetPdfProbe
 {
+    private const long DeterministicTrailerIdSeed = 1719000000000L;
+
     private static readonly UTF8Encoding Utf8NoBom = new(false);
     private static readonly HashSet<string> GlyphProbeFiles =
     [
@@ -84,6 +86,7 @@ internal static class DotnetPdfProbe
             try
             {
                 string saved = Path.Combine(outDir, StripExt(name) + "-dotnet-copy.pdf");
+                document.SetDocumentId(DeterministicTrailerIdSeed);
                 document.Save(saved);
                 Emit(name, "save", true, pages, FileSignature(saved), Elapsed(started));
             }
