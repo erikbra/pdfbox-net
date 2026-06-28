@@ -30,6 +30,19 @@ public class CFFParserTest
     }
 
     [Fact]
+    public void TestParserToStringTracksLastParsedFontName()
+    {
+        byte[] bytes = FontBoxTestFixtures.CreateMinimalOpenTypeCff();
+        CFFParser parser = new();
+
+        Assert.Equal("CFFParser[null]", parser.ToString());
+
+        parser.Parse(bytes);
+
+        Assert.Equal("CFFParser[MiniCFF]", parser.ToString());
+    }
+
+    [Fact]
     public void TestType1CffWithExpertCharsetAndEncodingParses()
     {
         byte[] bytes = FontBoxTestFixtures.CreateMinimalCffWithExpertCharsetEncoding();
