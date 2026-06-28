@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-06-28T20:11:33Z",
+  "generated_at_utc": "2026-06-28T20:35:51Z",
   "upstream_root": "/Users/erik/src/Repos/apache/pdfbox",
   "upstream_commit": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
-  "pdfbox_net_commit": "c489c9088c93c26af20ae766604d3e3ec77335ce",
+  "pdfbox_net_commit": "6b384373339ec1704e54b2b0d07e3cf8450ffd93",
   "scope": {
     "modules": [
       "io",
@@ -20,9 +20,9 @@
     "matched_types": 579,
     "same_name_matched_types": 573,
     "java_members": 6305,
-    "matched_members": 5394,
+    "matched_members": 5395,
     "arity_drift_members": 42,
-    "missing_members": 869,
+    "missing_members": 868,
     "csharp_extra_members": 1640,
     "nonpublic_or_replacement_types": 2,
     "renamed_public_types": 6,
@@ -34,9 +34,9 @@
       "same_name_matched_types": 105,
       "matched_types": 109,
       "java_members": 1028,
-      "matched_members": 1005,
+      "matched_members": 1006,
       "arity_drift_members": 4,
-      "missing_members": 19,
+      "missing_members": 18,
       "csharp_extra_members": 304,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 4,
@@ -114,9 +114,9 @@
       "same_name_matched_types": 14,
       "matched_types": 14,
       "java_members": 148,
-      "matched_members": 131,
+      "matched_members": 132,
       "arity_drift_members": 4,
-      "missing_members": 13,
+      "missing_members": 12,
       "csharp_extra_members": 18,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
@@ -2689,13 +2689,13 @@
       "java_type": "org.apache.fontbox.cff.CFFParser",
       "java_type_name": "CFFParser",
       "type_name_status": "same-name",
-      "status": "same-name-type/partial-member-match",
+      "status": "same-name-type/full-member-match",
       "java_member_count": 4,
-      "missing_member_count": 1,
-      "matched_member_count": 2,
+      "missing_member_count": 0,
+      "matched_member_count": 3,
       "arity_drift_count": 1,
       "csharp_type": "PdfBox.Net.FontBox.CFF.CFFParser",
-      "csharp_member_count": 4,
+      "csharp_member_count": 5,
       "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
@@ -2811,18 +2811,9 @@
           "java_name": "toString",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public String toString()",
-          "api_review": {
-            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CFFParser.java|org.apache.fontbox.cff.CFFParser|method|toString|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "Java diagnostic toString() is not preserved as a dedicated C# override; parser functionality is exposed through Parse methods.",
-            "issue": 503,
-            "reviewed_at_utc": "2026-06-26T23:22:00Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public String toString()"
         }
       ]
     },
@@ -82240,28 +82231,6 @@
   ],
   "missing_members": [
     {
-      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFParser.java",
-      "module": "fontbox",
-      "family": "cff",
-      "java_type": "org.apache.fontbox.cff.CFFParser",
-      "java_kind": "method",
-      "java_name": "toString",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public String toString()",
-      "api_review": {
-        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CFFParser.java|org.apache.fontbox.cff.CFFParser|method|toString|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "Java diagnostic toString() is not preserved as a dedicated C# override; parser functionality is exposed through Parse methods.",
-        "issue": 503,
-        "reviewed_at_utc": "2026-06-26T23:22:00Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
       "module": "fontbox",
       "family": "cff",
@@ -101282,16 +101251,16 @@
       "not-applicable"
     ],
     "raw": {
-      "missing_members": 869,
+      "missing_members": 868,
       "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 919
+      "total": 918
     },
     "reviewed": {
-      "missing_members": 869,
+      "missing_members": 868,
       "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 919
+      "total": 918
     },
     "unreviewed": {
       "missing_members": 0,
@@ -101301,7 +101270,7 @@
     },
     "disposition_counts": {
       "behavior-covered": 109,
-      "intentional-dotnet-adaptation": 709,
+      "intentional-dotnet-adaptation": 708,
       "internal-by-design": 76,
       "not-applicable": 25
     },

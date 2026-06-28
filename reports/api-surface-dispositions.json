@@ -2843,14 +2843,6 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CFFParser.java|org.apache.fontbox.cff.CFFParser|method|toString|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "Java diagnostic toString() is not preserved as a dedicated C# override; parser functionality is exposed through Parse methods.",
-      "issue": 503,
-      "reviewed_at_utc": "2026-06-26T23:22:00Z",
-      "reviewed_by": "Codex"
-    },
-    {
       "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CIDKeyedType2CharString.java|org.apache.fontbox.cff.CIDKeyedType2CharString|constructor|CIDKeyedType2CharString|7|arity-drift",
       "disposition": "intentional-dotnet-adaptation",
       "note": "Java Type1CharStringReader constructor shape is collapsed into parsed-sequence constructors in the .NET charstring model.",

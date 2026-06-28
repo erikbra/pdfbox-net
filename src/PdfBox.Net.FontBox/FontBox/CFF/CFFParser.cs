@@ -38,6 +38,7 @@ public sealed class CFFParser
     private const string TagTtcf = "ttcf";
     private static readonly byte[] TtfOnlyTag = [0x00, 0x01, 0x00, 0x00];
     private static readonly HashSet<string> DeltaKeys = ["BlueValues", "OtherBlues", "FamilyBlues", "FamilyOtherBlues", "StemSnapH", "StemSnapV"];
+    private string? _debugFontName;
 
     public void ParseFirstSubFontROS(RandomAccessRead randomAccessRead, FontHeaders outHeaders)
     {
@@ -91,10 +92,16 @@ public sealed class CFFParser
         return fonts;
     }
 
-    private static CFFFont ParseFont(string name, byte[] cffBytes, Dict topDict, byte[][] globalSubrs, string[] strings)
+    public override string ToString()
+    {
+        return $"{nameof(CFFParser)}[{_debugFontName ?? "null"}]";
+    }
+
+    private CFFFont ParseFont(string name, byte[] cffBytes, Dict topDict, byte[][] globalSubrs, string[] strings)
     {
         bool isCid = topDict.TryGetArray("ROS", out List<float>? ros);
         CFFFont font = isCid ? new CFFCIDFont() : new CFFType1Font();
+        _debugFontName = name;
         font.SetName(name);
         font.SetData(cffBytes);
         font.SetGlobalSubrIndex(globalSubrs);
