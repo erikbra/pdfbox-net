@@ -27,6 +27,8 @@ CAUSE_ORDER = [
 
 OBJECT_RE = re.compile(rb"(?m)(\d+)\s+(\d+)\s+obj\b")
 STARTXREF_RE = re.compile(rb"startxref\s+(\d+)")
+XREF_TABLE_RE = re.compile(rb"(?m)^xref\s*$")
+XREF_STREAM_RE = re.compile(rb"/Type\s*/XRef\b")
 DICT_RE = re.compile(rb"<<(.*?)>>", re.DOTALL)
 NAME_RE = re.compile(rb"/([A-Za-z0-9_.+-]+)")
 DATE_RE = re.compile(rb"/(?:CreationDate|ModDate)\s*(?:\((?:\\.|[^\\)])*\)|<[0-9A-Fa-f]+>)")
@@ -68,6 +70,18 @@ class PairAnalysis:
     objstm_count_delta: int
     filter_tokens_differ: bool
     length_sequence_differ: bool
+    object_count_delta: int
+    object_id_sequence_differ: bool
+    object_id_set_differ: bool
+    generation_sequence_differ: bool
+    nonzero_generation_count_delta: int
+    startxref_count_delta: int
+    startxref_values_differ: bool
+    last_startxref_delta: int | None
+    xref_table_count_delta: int
+    xref_stream_count_delta: int
+    prev_count_delta: int
+    xref_style_differ: bool
     java_artifact: str
     dotnet_artifact: str
 
@@ -193,6 +207,44 @@ def stream_compression_diagnostics(java_data: bytes, dotnet_data: bytes) -> tupl
     )
 
 
+def object_xref_diagnostics(
+    java_data: bytes,
+    dotnet_data: bytes,
+) -> tuple[int, bool, bool, bool, int, int, bool, int | None, int, int, int, bool]:
+    java_ids = object_ids(java_data)
+    dotnet_ids = object_ids(dotnet_data)
+    java_startxrefs = startxref_offsets(java_data)
+    dotnet_startxrefs = startxref_offsets(dotnet_data)
+    java_xref_table_count = len(XREF_TABLE_RE.findall(java_data))
+    dotnet_xref_table_count = len(XREF_TABLE_RE.findall(dotnet_data))
+    java_xref_stream_count = len(XREF_STREAM_RE.findall(java_data))
+    dotnet_xref_stream_count = len(XREF_STREAM_RE.findall(dotnet_data))
+    java_has_xref_stream = java_xref_stream_count > 0
+    dotnet_has_xref_stream = dotnet_xref_stream_count > 0
+    java_has_xref_table = java_xref_table_count > 0
+    dotnet_has_xref_table = dotnet_xref_table_count > 0
+    last_startxref_delta = (
+        abs(java_startxrefs[-1] - dotnet_startxrefs[-1])
+        if java_startxrefs and dotnet_startxrefs
+        else None
+    )
+
+    return (
+        abs(len(java_ids) - len(dotnet_ids)),
+        java_ids != dotnet_ids,
+        Counter(java_ids) != Counter(dotnet_ids),
+        tuple(generation for _, generation in java_ids) != tuple(generation for _, generation in dotnet_ids),
+        abs(sum(1 for _, generation in java_ids if generation != 0) - sum(1 for _, generation in dotnet_ids if generation != 0)),
+        abs(len(java_startxrefs) - len(dotnet_startxrefs)),
+        java_startxrefs != dotnet_startxrefs,
+        last_startxref_delta,
+        abs(java_xref_table_count - dotnet_xref_table_count),
+        abs(java_xref_stream_count - dotnet_xref_stream_count),
+        abs(java_data.count(b"/Prev") - dotnet_data.count(b"/Prev")),
+        (java_has_xref_stream, java_has_xref_table) != (dotnet_has_xref_stream, dotnet_has_xref_table),
+    )
+
+
 def has_incremental_markers(data: bytes) -> bool:
     return data.count(b"%%EOF") > 1 or b"/Prev" in data
 
@@ -265,6 +317,20 @@ def analyze_row(out_dir: Path, row: dict) -> PairAnalysis | None:
         filter_tokens_differ,
         length_sequence_differ,
     ) = stream_compression_diagnostics(java_data, dotnet_data)
+    (
+        object_count_delta,
+        object_id_sequence_differ,
+        object_id_set_differ,
+        generation_sequence_differ,
+        nonzero_generation_count_delta,
+        startxref_count_delta,
+        startxref_values_differ,
+        last_startxref_delta,
+        xref_table_count_delta,
+        xref_stream_count_delta,
+        prev_count_delta,
+        xref_style_differ,
+    ) = object_xref_diagnostics(java_data, dotnet_data)
     return PairAnalysis(
         file=str(row.get("file", "")),
         op=op,
@@ -288,6 +354,18 @@ def analyze_row(out_dir: Path, row: dict) -> PairAnalysis | None:
         objstm_count_delta=objstm_count_delta,
         filter_tokens_differ=filter_tokens_differ,
         length_sequence_differ=length_sequence_differ,
+        object_count_delta=object_count_delta,
+        object_id_sequence_differ=object_id_sequence_differ,
+        object_id_set_differ=object_id_set_differ,
+        generation_sequence_differ=generation_sequence_differ,
+        nonzero_generation_count_delta=nonzero_generation_count_delta,
+        startxref_count_delta=startxref_count_delta,
+        startxref_values_differ=startxref_values_differ,
+        last_startxref_delta=last_startxref_delta,
+        xref_table_count_delta=xref_table_count_delta,
+        xref_stream_count_delta=xref_stream_count_delta,
+        prev_count_delta=prev_count_delta,
+        xref_style_differ=xref_style_differ,
         java_artifact=java_path.relative_to(out_dir).as_posix(),
         dotnet_artifact=dotnet_path.relative_to(out_dir).as_posix(),
     )
@@ -402,6 +480,39 @@ def stream_compression_comparison_counts(analyses: Iterable[PairAnalysis]) -> di
     return counts
 
 
+def object_xref_comparison_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
+    counts: dict[str, dict[str, int]] = {}
+    for op in sorted(SAVE_MERGE_OPS):
+        rows = [row for row in analyses if row.op == op]
+        object_xref_rows = [
+            row for row in rows if "COS object numbering" in row.causes or "xref layout" in row.causes
+        ]
+        startxref_deltas = [
+            row.last_startxref_delta for row in object_xref_rows if row.last_startxref_delta is not None
+        ]
+        counts[op] = {
+            "rowsWithObjectNumberingCause": sum(1 for row in rows if "COS object numbering" in row.causes),
+            "rowsWithXrefLayoutCause": sum(1 for row in rows if "xref layout" in row.causes),
+            "rowsWithObjectIdSequenceDifference": sum(1 for row in object_xref_rows if row.object_id_sequence_differ),
+            "rowsWithObjectIdSetDifference": sum(1 for row in object_xref_rows if row.object_id_set_differ),
+            "rowsWithObjectCountDifference": sum(1 for row in object_xref_rows if row.object_count_delta > 0),
+            "rowsWithGenerationSequenceDifference": sum(1 for row in object_xref_rows if row.generation_sequence_differ),
+            "rowsWithNonzeroGenerationCountDifference": sum(
+                1 for row in object_xref_rows if row.nonzero_generation_count_delta > 0
+            ),
+            "rowsWithStartxrefCountDifference": sum(1 for row in object_xref_rows if row.startxref_count_delta > 0),
+            "rowsWithStartxrefValueDifference": sum(1 for row in object_xref_rows if row.startxref_values_differ),
+            "rowsWithXrefTableCountDifference": sum(1 for row in object_xref_rows if row.xref_table_count_delta > 0),
+            "rowsWithXrefStreamCountDifference": sum(1 for row in object_xref_rows if row.xref_stream_count_delta > 0),
+            "rowsWithPrevCountDifference": sum(1 for row in object_xref_rows if row.prev_count_delta > 0),
+            "rowsWithXrefStyleDifference": sum(1 for row in object_xref_rows if row.xref_style_differ),
+            "maxObjectCountDelta": max((row.object_count_delta for row in object_xref_rows), default=0),
+            "maxLastStartxrefDelta": max(startxref_deltas, default=0),
+            "maxXrefStreamCountDelta": max((row.xref_stream_count_delta for row in object_xref_rows), default=0),
+        }
+    return counts
+
+
 def primary_cause_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
     by_op: dict[str, Counter] = defaultdict(Counter)
     for row in analyses:
@@ -438,6 +549,7 @@ def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAna
             "metadataNormalization": metadata_normalization_counts(analyses),
             "dictionaryComparison": dictionary_comparison_counts(analyses),
             "streamCompressionComparison": stream_compression_comparison_counts(analyses),
+            "objectXrefComparison": object_xref_comparison_counts(analyses),
             "primaryCauseCounts": primary_cause_counts(analyses),
         },
         "rows": [
@@ -464,6 +576,18 @@ def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAna
                 "objStmCountDelta": row.objstm_count_delta,
                 "filterTokensDiffer": row.filter_tokens_differ,
                 "lengthSequenceDiffer": row.length_sequence_differ,
+                "objectCountDelta": row.object_count_delta,
+                "objectIdSequenceDiffer": row.object_id_sequence_differ,
+                "objectIdSetDiffer": row.object_id_set_differ,
+                "generationSequenceDiffer": row.generation_sequence_differ,
+                "nonzeroGenerationCountDelta": row.nonzero_generation_count_delta,
+                "startxrefCountDelta": row.startxref_count_delta,
+                "startxrefValuesDiffer": row.startxref_values_differ,
+                "lastStartxrefDelta": row.last_startxref_delta,
+                "xrefTableCountDelta": row.xref_table_count_delta,
+                "xrefStreamCountDelta": row.xref_stream_count_delta,
+                "prevCountDelta": row.prev_count_delta,
+                "xrefStyleDiffer": row.xref_style_differ,
                 "primaryCause": row.primary_cause,
                 "artifacts": {"java": row.java_artifact, "dotnet": row.dotnet_artifact},
             }
@@ -588,6 +712,28 @@ def markdown_report(payload: dict, analyses: list[PairAnalysis]) -> str:
             f"{counts['rowsWithFlateCountDifference']} | {counts['rowsWithObjStmCountDifference']} | "
             f"{counts['maxStreamCountDelta']} | {counts['maxLengthCountDelta']} | "
             f"{counts['maxFlateCountDelta']} | {counts['maxObjStmCountDelta']} |"
+        )
+    lines.append("")
+
+    lines.extend(
+        [
+            "## COS Object and XRef Breakdown",
+            "",
+            "The `COS object numbering` and `xref layout` labels are split into object-id sequence/set differences, generation-number sequence differences, `startxref` count/value differences, xref table/stream count differences, `/Prev` count differences, and overall xref style differences. A style difference means one artifact uses an xref stream and/or classic xref table differently from the other.",
+            "",
+            "| Operation | Rows with object-numbering label | Rows with xref-layout label | Object-id sequence differences | Object-id set differences | Object-count differences | Generation sequence differences | Startxref value differences | XRef table-count differences | XRef stream-count differences | XRef style differences | Max object-count delta | Max last-startxref delta | Max xref-stream delta |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for op, counts in summary["objectXrefComparison"].items():
+        lines.append(
+            f"| `{op}` | {counts['rowsWithObjectNumberingCause']} | {counts['rowsWithXrefLayoutCause']} | "
+            f"{counts['rowsWithObjectIdSequenceDifference']} | {counts['rowsWithObjectIdSetDifference']} | "
+            f"{counts['rowsWithObjectCountDifference']} | {counts['rowsWithGenerationSequenceDifference']} | "
+            f"{counts['rowsWithStartxrefValueDifference']} | {counts['rowsWithXrefTableCountDifference']} | "
+            f"{counts['rowsWithXrefStreamCountDifference']} | {counts['rowsWithXrefStyleDifference']} | "
+            f"{counts['maxObjectCountDelta']} | {counts['maxLastStartxrefDelta']} | "
+            f"{counts['maxXrefStreamCountDelta']} |"
         )
     lines.append("")
 
