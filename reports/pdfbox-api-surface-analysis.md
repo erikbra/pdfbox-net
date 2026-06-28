@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-06-28T14:55:14Z
+Generated (UTC): 2026-06-28T19:20:29Z
 Apache PDFBox source commit: `833ed8f378f00838fd8df8c01bfc4b915b4c350b`
-PdfBox.Net commit: `d244ae19f55eb359fdce51b4b813ee3133e6e66c`
+PdfBox.Net commit: `4dfe1021304c5c7b87ce1ca6daf0de3b68fef0a4`
 
 ## Scope
 
@@ -23,12 +23,12 @@ PdfBox.Net commit: `d244ae19f55eb359fdce51b4b813ee3133e6e66c`
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
 | Java public/protected members | 6305 |
-| Matched members | 5368 |
-| Arity-drift members | 43 |
-| Missing members | 894 |
-| Reflected .NET extra members on matched types | 1637 |
+| Matched members | 5378 |
+| Arity-drift members | 42 |
+| Missing members | 885 |
+| Reflected .NET extra members on matched types | 1640 |
 
-Member coverage by name/signature heuristic: **5411 / 6305 = 85.8%**.
+Member coverage by name/signature heuristic: **5420 / 6305 = 86.0%**.
 
 ## Review Disposition Backlog
 
@@ -36,15 +36,15 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 
 | Delta kind | Raw | Reviewed | Unreviewed |
 |---|---:|---:|---:|
-| Missing members | 894 | 894 | 0 |
-| Arity-drift members | 43 | 43 | 0 |
+| Missing members | 885 | 885 | 0 |
+| Arity-drift members | 42 | 42 | 0 |
 | Type-name/visibility gaps | 8 | 8 | 0 |
-| Total reviewable deltas | 945 | 945 | 0 |
+| Total reviewable deltas | 935 | 935 | 0 |
 
 | Disposition | Reviewed rows |
 |---|---:|
 | `behavior-covered` | 109 |
-| `intentional-dotnet-adaptation` | 735 |
+| `intentional-dotnet-adaptation` | 725 |
 | `internal-by-design` | 76 |
 | `not-applicable` | 25 |
 
@@ -63,7 +63,7 @@ Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
 | `fontbox` | 110 | 105 | 4 | 1 | 0 | 1028 | 1009 | 19 | 98.2% |
 | `io` | 15 | 15 | 0 | 0 | 0 | 131 | 126 | 5 | 96.2% |
 | `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3693 | 511 | 87.8% |
-| `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 583 | 359 | 61.9% |
+| `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 592 | 350 | 62.8% |
 
 ## Highest Missing-Member Types
 
@@ -92,13 +92,13 @@ Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
 | 10 | 32 | `pdfbox` | `org.apache.pdfbox.pdmodel.common.PDRectangle` | `PdfBox.Net.PDModel.Common.PDRectangle` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java` |
 | 9 | 18 | `pdfbox` | `org.apache.pdfbox.pdmodel.common.COSDictionaryMap` | `PdfBox.Net.PDModel.Common.COSDictionaryMap` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java` |
 | 9 | 17 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDPrintFieldAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java` |
-| 9 | 17 | `xmpbox` | `org.apache.xmpbox.schema.AdobePDFSchema` | `PdfBox.Net.XmpBox.Schema.AdobePDFSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java` |
 | 8 | 22 | `pdfbox` | `org.apache.pdfbox.multipdf.PDFMergerUtility` | `PdfBox.Net.MultiPdf.PDFMergerUtility` | `pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java` |
 | 8 | 11 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours` | `PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf.PDFourColours` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java` |
 | 8 | 8 | `pdfbox` | `org.apache.pdfbox.pdmodel.PageLayout` | `PdfBox.Net.PDModel.PageLayout` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java` |
 | 8 | 8 | `pdfbox` | `org.apache.pdfbox.pdmodel.PageMode` | `PdfBox.Net.PDModel.PageMode` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java` |
 | 7 | 67 | `fontbox` | `org.apache.fontbox.cff.CharStringCommand` | `PdfBox.Net.FontBox.CFF.CharStringCommand` | `fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java` |
 | 7 | 49 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes` | `PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf.StandardStructureTypes` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java` |
+| 7 | 22 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDTableAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDTableAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java` |
 
 ## Java-Named Public API Type Gaps
 

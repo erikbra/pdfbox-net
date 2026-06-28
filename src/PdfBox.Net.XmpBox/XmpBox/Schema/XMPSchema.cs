@@ -26,6 +26,7 @@
  */
 
 using System.Xml;
+using PdfBox.Net.XmpBox.Type;
 
 namespace PdfBox.Net.XmpBox.Schema;
 
@@ -178,6 +179,28 @@ public class XMPSchema
         property.InnerText = value;
     }
 
+    public void SetTextProperty(TextType prop)
+    {
+        ArgumentNullException.ThrowIfNull(prop);
+        string? propertyName = prop.GetPropertyName();
+        ArgumentException.ThrowIfNullOrEmpty(propertyName);
+
+        SetTextProperty(propertyName, prop.GetStringValue());
+    }
+
+    protected TextType? GetTextProperty(string propertyName)
+    {
+        XmlElement? property = GetSimplePropertyElement(propertyName);
+        return property is null
+            ? null
+            : metadata.GetTypeMapping().CreateText(namespaceUri, prefix, propertyName, property.InnerText);
+    }
+
+    protected string? GetTextPropertyValue(string propertyName)
+    {
+        return GetTextProperty(propertyName)?.GetStringValue();
+    }
+
     protected void AddBagValue(string propertyName, string value)
     {
         ArgumentException.ThrowIfNullOrEmpty(propertyName);
@@ -270,6 +293,28 @@ public class XMPSchema
         XmlElement created = parent.OwnerDocument!.CreateElement(qualifiedName, childNamespace);
         parent.AppendChild(created);
         return created;
+    }
+
+    private XmlElement? GetSimplePropertyElement(string propertyName)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(propertyName);
+        if (descriptionElement is null)
+        {
+            return null;
+        }
+
+        foreach (XmlNode child in descriptionElement.ChildNodes)
+        {
+            if (child is XmlElement existing &&
+                existing.NamespaceURI == namespaceUri &&
+                string.Equals(existing.LocalName, propertyName, StringComparison.Ordinal) &&
+                GetFirstChildElement(existing) is null)
+            {
+                return existing;
+            }
+        }
+
+        return null;
     }
 
     private static XmlElement? GetFirstChildElement(XmlElement parent)

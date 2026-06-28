@@ -11,78 +11,6 @@
   ],
   "entries": [
     {
-      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getKeywordsProperty|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-      "issue": 502,
-      "reviewed_at_utc": "2026-06-26T22:54:12Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getKeywords|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-      "issue": 502,
-      "reviewed_at_utc": "2026-06-26T22:54:12Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getPDFVersionProperty|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-      "issue": 502,
-      "reviewed_at_utc": "2026-06-26T22:54:12Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getPDFVersion|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-      "issue": 502,
-      "reviewed_at_utc": "2026-06-26T22:54:12Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getProducerProperty|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-      "issue": 502,
-      "reviewed_at_utc": "2026-06-26T22:54:12Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getProducer|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-      "issue": 502,
-      "reviewed_at_utc": "2026-06-26T22:54:12Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setKeywordsProperty|1|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-      "issue": 502,
-      "reviewed_at_utc": "2026-06-26T22:54:12Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setPDFVersionProperty|1|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-      "issue": 502,
-      "reviewed_at_utc": "2026-06-26T22:54:12Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setProducerProperty|1|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-      "issue": 502,
-      "reviewed_at_utc": "2026-06-26T22:54:12Z",
-      "reviewed_by": "Codex"
-    },
-    {
       "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java|org.apache.xmpbox.schema.DublinCoreSchema|method|addDate|1|missing",
       "disposition": "intentional-dotnet-adaptation",
       "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
@@ -2724,14 +2652,6 @@
     },
     {
       "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setTextPropertyValue|2|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
-      "issue": 502,
-      "reviewed_at_utc": "2026-06-26T22:54:12Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setTextProperty|1|arity-drift",
       "disposition": "intentional-dotnet-adaptation",
       "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
       "issue": 502,

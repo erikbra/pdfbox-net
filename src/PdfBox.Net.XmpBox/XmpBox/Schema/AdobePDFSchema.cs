@@ -44,7 +44,7 @@ public class AdobePDFSchema : XMPSchema
     [PropertyType(XmpTypeName.Text)]
     public static readonly string PRODUCER = "Producer";
 
-public AdobePDFSchema(XMPMetadata metadata)
+    public AdobePDFSchema(XMPMetadata metadata)
         : this(metadata, PreferredPrefix)
     {
     }
@@ -56,7 +56,25 @@ public AdobePDFSchema(XMPMetadata metadata)
 
     public void SetKeywords(string value) => SetTextProperty(KEYWORDS, value);
 
+    public void SetKeywordsProperty(TextType keywords) => SetTextProperty(keywords);
+
+    public TextType? GetKeywordsProperty() => GetTextProperty(KEYWORDS);
+
+    public string? GetKeywords() => GetTextPropertyValue(KEYWORDS);
+
     public void SetPDFVersion(string value) => SetTextProperty(PDF_VERSION, value);
 
+    public void SetPDFVersionProperty(TextType version) => SetTextProperty(version);
+
+    public TextType? GetPDFVersionProperty() => GetTextProperty(PDF_VERSION);
+
+    public string? GetPDFVersion() => GetTextPropertyValue(PDF_VERSION);
+
     public void SetProducer(string value) => SetTextProperty(PRODUCER, value);
+
+    public void SetProducerProperty(TextType producer) => SetTextProperty(producer);
+
+    public TextType? GetProducerProperty() => GetTextProperty(PRODUCER);
+
+    public string? GetProducer() => GetTextPropertyValue(PRODUCER);
 }
