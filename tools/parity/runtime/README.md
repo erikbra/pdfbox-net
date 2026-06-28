@@ -29,6 +29,22 @@ groups known rows by root cause and lists known render detail rows with the
 same metrics and artifact paths so CI/local 51-vs-52 variance can be compared
 directly from uploaded artifacts.
 
+## Output Identity Policy
+
+The runtime gate targets behavioral parity with Java PDFBox, not unconditional
+byte-for-byte or pixel-for-pixel identity. Exact identity is preferred when it
+is stable, but generated PDFs may be accepted as `save-structural-match` or
+`merge-structural-match` when Java-observable document structure matches even
+though bytes differ. Rendered pages may be accepted by bounded visual,
+foreground-shape, glyph-layout, or fixture-scoped raster classifiers when the
+remaining difference is attributable to Java2D/.NET backend rasterization or
+optional runtime providers.
+
+The policy and category review for issue #532 is recorded in
+`reports/runtime-output-identity-policy-2026-06-28.md`. New equivalence
+categories must be documented there or in a successor report before their
+ratchet ceiling is raised.
+
 The broad render-quality known-failure allowance has been removed. The ratchet
 baseline now accepts zero known and zero unexpected rows.
 
