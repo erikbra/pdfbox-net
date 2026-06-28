@@ -5,6 +5,7 @@
 
 using PdfBox.Net.XmpBox;
 using PdfBox.Net.XmpBox.Schema;
+using PdfBox.Net.XmpBox.Type;
 using PdfBox.Net.XmpBox.Xml;
 using System.Text;
 using System.Xml;
@@ -208,6 +209,68 @@ public class XmpCoreTest
         Assert.Same(dc, metadata.GetSchema(DublinCoreSchema.NamespaceUri));
         Assert.Same(pdf, metadata.GetSchema(AdobePDFSchema.PreferredPrefix, AdobePDFSchema.NamespaceUri));
         Assert.Equal(string.Empty, dc.GetAboutValue());
+    }
+
+    [Fact]
+    public void AdobePdfSchemaJavaAccessorsExposeTextValuesAndProperties()
+    {
+        XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();
+        AdobePDFSchema pdf = metadata.CreateAndAddAdobePDFSchema();
+
+        pdf.SetKeywords("alpha beta");
+        pdf.SetPDFVersion("1.7");
+        TextType producer = metadata.GetTypeMapping().CreateText(
+            AdobePDFSchema.NamespaceUri,
+            AdobePDFSchema.PreferredPrefix,
+            AdobePDFSchema.PRODUCER,
+            "PdfBox.Net");
+        pdf.SetProducerProperty(producer);
+
+        Assert.Equal("alpha beta", pdf.GetKeywords());
+        Assert.Equal("1.7", pdf.GetPDFVersion());
+        Assert.Equal("PdfBox.Net", pdf.GetProducer());
+
+        TextType keywordsProperty = Assert.IsType<TextType>(pdf.GetKeywordsProperty());
+        Assert.Equal(AdobePDFSchema.KEYWORDS, keywordsProperty.GetPropertyName());
+        Assert.Equal(AdobePDFSchema.NamespaceUri, keywordsProperty.GetNamespace());
+        Assert.Equal(AdobePDFSchema.PreferredPrefix, keywordsProperty.GetPrefix());
+        Assert.Equal("alpha beta", keywordsProperty.GetStringValue());
+
+        TextType versionProperty = Assert.IsType<TextType>(pdf.GetPDFVersionProperty());
+        Assert.Equal("1.7", versionProperty.GetStringValue());
+
+        TextType producerProperty = Assert.IsType<TextType>(pdf.GetProducerProperty());
+        Assert.Equal("PdfBox.Net", producerProperty.GetStringValue());
+    }
+
+    [Fact]
+    public void AdobePdfSchemaJavaAccessorsReadParsedPacketValues()
+    {
+        const string packet = """
+            <?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+            <x:xmpmeta xmlns:x="adobe:ns:meta/">
+              <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
+                  <pdf:Keywords>parsed keywords</pdf:Keywords>
+                  <pdf:PDFVersion>2.0</pdf:PDFVersion>
+                  <pdf:Producer>Parsed producer</pdf:Producer>
+                </rdf:Description>
+              </rdf:RDF>
+            </x:xmpmeta>
+            <?xpacket end="w"?>
+            """;
+
+        DomXmpParser parser = new();
+        XMPMetadata metadata = parser.Parse(Encoding.UTF8.GetBytes(packet));
+
+        AdobePDFSchema pdf = Assert.IsType<AdobePDFSchema>(metadata.GetAdobePDFSchema());
+
+        Assert.Equal("parsed keywords", pdf.GetKeywords());
+        Assert.Equal("2.0", pdf.GetPDFVersion());
+        Assert.Equal("Parsed producer", pdf.GetProducer());
+        Assert.Equal("parsed keywords", pdf.GetKeywordsProperty()?.GetStringValue());
+        Assert.Equal("2.0", pdf.GetPDFVersionProperty()?.GetStringValue());
+        Assert.Equal("Parsed producer", pdf.GetProducerProperty()?.GetStringValue());
     }
 
     [Fact]

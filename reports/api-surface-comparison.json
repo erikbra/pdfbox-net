@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-06-28T14:55:14Z",
+  "generated_at_utc": "2026-06-28T19:20:29Z",
   "upstream_root": "/Users/erik/src/Repos/apache/pdfbox",
   "upstream_commit": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
-  "pdfbox_net_commit": "d244ae19f55eb359fdce51b4b813ee3133e6e66c",
+  "pdfbox_net_commit": "4dfe1021304c5c7b87ce1ca6daf0de3b68fef0a4",
   "scope": {
     "modules": [
       "io",
@@ -20,10 +20,10 @@
     "matched_types": 579,
     "same_name_matched_types": 573,
     "java_members": 6305,
-    "matched_members": 5368,
-    "arity_drift_members": 43,
-    "missing_members": 894,
-    "csharp_extra_members": 1637,
+    "matched_members": 5378,
+    "arity_drift_members": 42,
+    "missing_members": 885,
+    "csharp_extra_members": 1640,
     "nonpublic_or_replacement_types": 2,
     "renamed_public_types": 6,
     "missing_types": 0
@@ -73,10 +73,10 @@
       "same_name_matched_types": 63,
       "matched_types": 65,
       "java_members": 942,
-      "matched_members": 578,
-      "arity_drift_members": 5,
-      "missing_members": 359,
-      "csharp_extra_members": 134,
+      "matched_members": 588,
+      "arity_drift_members": 4,
+      "missing_members": 350,
+      "csharp_extra_members": 137,
       "renamed_public_types": 2,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -387,10 +387,10 @@
       "same_name_matched_types": 15,
       "matched_types": 15,
       "java_members": 600,
-      "matched_members": 255,
-      "arity_drift_members": 4,
-      "missing_members": 341,
-      "csharp_extra_members": 32,
+      "matched_members": 265,
+      "arity_drift_members": 3,
+      "missing_members": 332,
+      "csharp_extra_members": 35,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -68744,13 +68744,13 @@
       "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
       "java_type_name": "AdobePDFSchema",
       "type_name_status": "same-name",
-      "status": "same-name-type/partial-member-match",
+      "status": "same-name-type/full-member-match",
       "java_member_count": 17,
-      "missing_member_count": 9,
-      "matched_member_count": 8,
+      "missing_member_count": 0,
+      "matched_member_count": 17,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.XmpBox.Schema.AdobePDFSchema",
-      "csharp_member_count": 10,
+      "csharp_member_count": 19,
       "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
@@ -68821,18 +68821,9 @@
           "java_name": "setKeywordsProperty",
           "java_arity": 1,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public void setKeywordsProperty(TextType keywords)",
-          "api_review": {
-            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setKeywordsProperty|1|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-            "issue": 502,
-            "reviewed_at_utc": "2026-06-26T22:54:12Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void setKeywordsProperty(TextType keywords)"
         },
         {
           "java_kind": "method",
@@ -68848,18 +68839,9 @@
           "java_name": "setPDFVersionProperty",
           "java_arity": 1,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public void setPDFVersionProperty(TextType version)",
-          "api_review": {
-            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setPDFVersionProperty|1|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-            "issue": 502,
-            "reviewed_at_utc": "2026-06-26T22:54:12Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void setPDFVersionProperty(TextType version)"
         },
         {
           "java_kind": "method",
@@ -68875,126 +68857,63 @@
           "java_name": "setProducerProperty",
           "java_arity": 1,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public void setProducerProperty(TextType producer)",
-          "api_review": {
-            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setProducerProperty|1|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-            "issue": 502,
-            "reviewed_at_utc": "2026-06-26T22:54:12Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void setProducerProperty(TextType producer)"
         },
         {
           "java_kind": "method",
           "java_name": "getKeywordsProperty",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public TextType getKeywordsProperty()",
-          "api_review": {
-            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getKeywordsProperty|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-            "issue": 502,
-            "reviewed_at_utc": "2026-06-26T22:54:12Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public TextType getKeywordsProperty()"
         },
         {
           "java_kind": "method",
           "java_name": "getKeywords",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public String getKeywords()",
-          "api_review": {
-            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getKeywords|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-            "issue": 502,
-            "reviewed_at_utc": "2026-06-26T22:54:12Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public String getKeywords()"
         },
         {
           "java_kind": "method",
           "java_name": "getPDFVersionProperty",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public TextType getPDFVersionProperty()",
-          "api_review": {
-            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getPDFVersionProperty|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-            "issue": 502,
-            "reviewed_at_utc": "2026-06-26T22:54:12Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public TextType getPDFVersionProperty()"
         },
         {
           "java_kind": "method",
           "java_name": "getPDFVersion",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public String getPDFVersion()",
-          "api_review": {
-            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getPDFVersion|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-            "issue": 502,
-            "reviewed_at_utc": "2026-06-26T22:54:12Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public String getPDFVersion()"
         },
         {
           "java_kind": "method",
           "java_name": "getProducerProperty",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public TextType getProducerProperty()",
-          "api_review": {
-            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getProducerProperty|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-            "issue": 502,
-            "reviewed_at_utc": "2026-06-26T22:54:12Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public TextType getProducerProperty()"
         },
         {
           "java_kind": "method",
           "java_name": "getProducer",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public String getProducer()",
-          "api_review": {
-            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getProducer|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-            "issue": 502,
-            "reviewed_at_utc": "2026-06-26T22:54:12Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public String getProducer()"
         }
       ]
     },
@@ -76577,11 +76496,11 @@
       "status": "same-name-type/partial-member-match",
       "java_member_count": 54,
       "missing_member_count": 46,
-      "matched_member_count": 4,
-      "arity_drift_count": 4,
+      "matched_member_count": 5,
+      "arity_drift_count": 3,
       "csharp_type": "PdfBox.Net.XmpBox.Schema.XMPSchema",
-      "csharp_member_count": 11,
-      "csharp_extra_member_count": 6,
+      "csharp_member_count": 14,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
@@ -76732,18 +76651,9 @@
           "java_name": "setTextProperty",
           "java_arity": 1,
           "java_visibility": "public",
-          "status": "arity-drift",
+          "status": "matched",
           "matched_via": "method",
-          "signature": "public void setTextProperty(TextType prop)",
-          "api_review": {
-            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java|org.apache.xmpbox.schema.XMPSchema|method|setTextProperty|1|arity-drift",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "Base schema constructors and property helpers are intentionally consolidated around C# XML helpers and derived schema factories; XMP storage behavior is covered without preserving every Java overload name.",
-            "issue": 502,
-            "reviewed_at_utc": "2026-06-26T22:54:12Z",
-            "reviewed_by": "Codex"
-          }
+          "signature": "public void setTextProperty(TextType prop)"
         },
         {
           "java_kind": "method",
@@ -81973,8 +81883,8 @@
       "csharp_type": "PdfBox.Net.XmpBox.Schema.XMPSchema",
       "java_member_count": 54,
       "missing_member_count": 46,
-      "matched_member_count": 4,
-      "arity_drift_count": 4
+      "matched_member_count": 5,
+      "arity_drift_count": 3
     },
     {
       "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java",
@@ -82169,17 +82079,6 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject",
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDPrintFieldAttributeObject",
-      "java_member_count": 17,
-      "missing_member_count": 9,
-      "matched_member_count": 8,
-      "arity_drift_count": 0
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
-      "csharp_type": "PdfBox.Net.XmpBox.Schema.AdobePDFSchema",
       "java_member_count": 17,
       "missing_member_count": 9,
       "matched_member_count": 8,
@@ -82470,6 +82369,17 @@
       "missing_member_count": 3,
       "matched_member_count": 2,
       "arity_drift_count": 1
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXRefStream.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "java_type": "org.apache.pdfbox.pdfparser.PDFXRefStream",
+      "csharp_type": "PdfBox.Net.PdfParser.PDFXRefStream",
+      "java_member_count": 5,
+      "missing_member_count": 3,
+      "matched_member_count": 2,
+      "arity_drift_count": 0
     }
   ],
   "missing_members": [
@@ -94156,204 +94066,6 @@
       }
     },
     {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
-      "java_kind": "method",
-      "java_name": "getKeywords",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public String getKeywords()",
-      "api_review": {
-        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getKeywords|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-        "issue": 502,
-        "reviewed_at_utc": "2026-06-26T22:54:12Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
-      "java_kind": "method",
-      "java_name": "getKeywordsProperty",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public TextType getKeywordsProperty()",
-      "api_review": {
-        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getKeywordsProperty|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-        "issue": 502,
-        "reviewed_at_utc": "2026-06-26T22:54:12Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
-      "java_kind": "method",
-      "java_name": "getPDFVersion",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public String getPDFVersion()",
-      "api_review": {
-        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getPDFVersion|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-        "issue": 502,
-        "reviewed_at_utc": "2026-06-26T22:54:12Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
-      "java_kind": "method",
-      "java_name": "getPDFVersionProperty",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public TextType getPDFVersionProperty()",
-      "api_review": {
-        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getPDFVersionProperty|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-        "issue": 502,
-        "reviewed_at_utc": "2026-06-26T22:54:12Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
-      "java_kind": "method",
-      "java_name": "getProducer",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public String getProducer()",
-      "api_review": {
-        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getProducer|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-        "issue": 502,
-        "reviewed_at_utc": "2026-06-26T22:54:12Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
-      "java_kind": "method",
-      "java_name": "getProducerProperty",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public TextType getProducerProperty()",
-      "api_review": {
-        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|getProducerProperty|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-        "issue": 502,
-        "reviewed_at_utc": "2026-06-26T22:54:12Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
-      "java_kind": "method",
-      "java_name": "setKeywordsProperty",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public void setKeywordsProperty(TextType keywords)",
-      "api_review": {
-        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setKeywordsProperty|1|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-        "issue": 502,
-        "reviewed_at_utc": "2026-06-26T22:54:12Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
-      "java_kind": "method",
-      "java_name": "setPDFVersionProperty",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public void setPDFVersionProperty(TextType version)",
-      "api_review": {
-        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setPDFVersionProperty|1|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-        "issue": 502,
-        "reviewed_at_utc": "2026-06-26T22:54:12Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.AdobePDFSchema",
-      "java_kind": "method",
-      "java_name": "setProducerProperty",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public void setProducerProperty(TextType producer)",
-      "api_review": {
-        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/AdobePDFSchema.java|org.apache.xmpbox.schema.AdobePDFSchema|method|setProducerProperty|1|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
-        "issue": 502,
-        "reviewed_at_utc": "2026-06-26T22:54:12Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
       "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java",
       "module": "xmpbox",
       "family": "schema",
@@ -102066,16 +101778,16 @@
       "not-applicable"
     ],
     "raw": {
-      "missing_members": 894,
-      "arity_drift_members": 43,
+      "missing_members": 885,
+      "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 945
+      "total": 935
     },
     "reviewed": {
-      "missing_members": 894,
-      "arity_drift_members": 43,
+      "missing_members": 885,
+      "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 945
+      "total": 935
     },
     "unreviewed": {
       "missing_members": 0,
@@ -102085,7 +101797,7 @@
     },
     "disposition_counts": {
       "behavior-covered": 109,
-      "intentional-dotnet-adaptation": 735,
+      "intentional-dotnet-adaptation": 725,
       "internal-by-design": 76,
       "not-applicable": 25
     },
