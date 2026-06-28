@@ -34,7 +34,7 @@ internal static class DotnetPdfProbe
     {
         if (args.Length < 2)
         {
-            Console.Error.WriteLine("usage: DotnetPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b>");
+            Console.Error.WriteLine("usage: DotnetPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b> | --incremental <out-dir> <pdf> [<pdf>...]");
             return 2;
         }
 
@@ -47,6 +47,23 @@ internal static class DotnetPdfProbe
             }
 
             Merge(args[1], args[2], args[3]);
+            return 0;
+        }
+
+        if (args[0] == "--incremental")
+        {
+            if (args.Length < 3)
+            {
+                Console.Error.WriteLine("usage: DotnetPdfProbe --incremental <out-dir> <pdf> [<pdf>...]");
+                return 2;
+            }
+
+            Directory.CreateDirectory(args[1]);
+            for (int i = 2; i < args.Length; i++)
+            {
+                Incremental(args[1], args[i]);
+            }
+
             return 0;
         }
 
@@ -123,6 +140,32 @@ internal static class DotnetPdfProbe
         }
     }
 
+    private static void Incremental(string outDir, string input)
+    {
+        string name = Path.GetFileName(input);
+        long started = Environment.TickCount64;
+        int pages = -1;
+        try
+        {
+            byte[] original = File.ReadAllBytes(input);
+            string dest = Path.Combine(outDir, StripExt(name) + "-dotnet-incremental.pdf");
+            using (PDDocument document = Loader.LoadPDF(input))
+            {
+                pages = document.GetNumberOfPages();
+                document.GetDocumentInformation().SetCustomMetadataValue("PdfBoxNetIncrementalProbe", "updated");
+                using FileStream output = File.Create(dest);
+                document.SaveIncremental(output);
+            }
+
+            byte[] saved = File.ReadAllBytes(dest);
+            Emit(name, "incremental", true, pages, IncrementalSignature(original, saved, dest), Elapsed(started));
+        }
+        catch (Exception ex)
+        {
+            Emit(name, "incremental", false, pages, Message(ex), Elapsed(started));
+        }
+    }
+
     private static void Merge(string outDir, string a, string b)
     {
         Directory.CreateDirectory(outDir);
@@ -159,6 +202,60 @@ internal static class DotnetPdfProbe
         using FileStream stream = File.OpenRead(path);
         byte[] digest = SHA256.HashData(stream);
         return $"{new FileInfo(path).Length}:{Convert.ToHexString(digest)[..16].ToLowerInvariant()}";
+    }
+
+    private static string IncrementalSignature(byte[] original, byte[] saved, string path)
+    {
+        string text = Encoding.Latin1.GetString(saved);
+        bool preservesPrefix = saved.Length >= original.Length
+            && saved.AsSpan(0, original.Length).SequenceEqual(original);
+        long lastStartxref = LastStartxref(text);
+        return string.Join(
+            ":",
+            FileSignature(path),
+            $"prefix={preservesPrefix.ToString().ToLowerInvariant()}",
+            $"eof={CountOccurrences(text, "%%EOF")}",
+            $"prev={CountOccurrences(text, "/Prev")}",
+            $"startxref={CountOccurrences(text, "startxref")}",
+            $"lastStartxref={lastStartxref}");
+    }
+
+    private static int CountOccurrences(string text, string value)
+    {
+        int count = 0;
+        int index = 0;
+        while ((index = text.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            index += value.Length;
+        }
+
+        return count;
+    }
+
+    private static long LastStartxref(string text)
+    {
+        int index = text.LastIndexOf("startxref", StringComparison.Ordinal);
+        if (index < 0)
+        {
+            return -1;
+        }
+
+        index += "startxref".Length;
+        while (index < text.Length && char.IsWhiteSpace(text[index]))
+        {
+            index++;
+        }
+
+        int start = index;
+        while (index < text.Length && char.IsDigit(text[index]))
+        {
+            index++;
+        }
+
+        return long.TryParse(text.AsSpan(start, index - start), CultureInfo.InvariantCulture, out long value)
+            ? value
+            : -1;
     }
 
     private static string ImageMetrics(BufferedImage image)

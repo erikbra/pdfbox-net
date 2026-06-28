@@ -1,8 +1,10 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public final class JavaPdfProbe {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            System.err.println("usage: JavaPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b> | --structure <pdf> [<pdf>...]");
+            System.err.println("usage: JavaPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b> | --structure <pdf> [<pdf>...] | --incremental <out-dir> <pdf> [<pdf>...]");
             System.exit(2);
         }
         if ("--merge".equals(args[0])) {
@@ -60,6 +62,18 @@ public final class JavaPdfProbe {
         if ("--structure".equals(args[0])) {
             for (int i = 1; i < args.length; i++) {
                 structure(new File(args[i]));
+            }
+            return;
+        }
+        if ("--incremental".equals(args[0])) {
+            if (args.length < 3) {
+                System.err.println("usage: JavaPdfProbe --incremental <out-dir> <pdf> [<pdf>...]");
+                System.exit(2);
+            }
+            File outDir = new File(args[1]);
+            outDir.mkdirs();
+            for (int i = 2; i < args.length; i++) {
+                incremental(outDir, new File(args[i]));
             }
             return;
         }
@@ -117,6 +131,27 @@ public final class JavaPdfProbe {
         }
     }
 
+    private static void incremental(File outDir, File input) {
+        String name = input.getName();
+        long started = System.nanoTime();
+        int pages = -1;
+        try {
+            byte[] original = Files.readAllBytes(input.toPath());
+            File saved = new File(outDir, stripExt(name) + "-java-incremental.pdf");
+            try (PDDocument document = Loader.loadPDF(input)) {
+                pages = document.getNumberOfPages();
+                document.getDocumentInformation().setCustomMetadataValue("PdfBoxNetIncrementalProbe", "updated");
+                try (FileOutputStream output = new FileOutputStream(saved)) {
+                    document.saveIncremental(output);
+                }
+            }
+            byte[] incremental = Files.readAllBytes(saved.toPath());
+            emit(name, "incremental", true, pages, incrementalSignature(original, incremental, saved), elapsed(started));
+        } catch (Throwable t) {
+            emit(name, "incremental", false, pages, message(t), elapsed(started));
+        }
+    }
+
     private static void structure(File input) {
         long started = System.nanoTime();
         int pages = -1;
@@ -168,6 +203,48 @@ public final class JavaPdfProbe {
             }
         }
         return file.length() + ":" + HexFormat.of().formatHex(digest.digest()).substring(0, 16);
+    }
+
+    private static String incrementalSignature(byte[] original, byte[] saved, File file) throws Exception {
+        String text = new String(saved, StandardCharsets.ISO_8859_1);
+        boolean preservesPrefix = saved.length >= original.length && java.util.Arrays.equals(
+            java.util.Arrays.copyOfRange(saved, 0, original.length),
+            original);
+        return fileSignature(file)
+            + ":prefix=" + preservesPrefix
+            + ":eof=" + countOccurrences(text, "%%EOF")
+            + ":prev=" + countOccurrences(text, "/Prev")
+            + ":startxref=" + countOccurrences(text, "startxref")
+            + ":lastStartxref=" + lastStartxref(text);
+    }
+
+    private static int countOccurrences(String text, String value) {
+        int count = 0;
+        int index = 0;
+        while ((index = text.indexOf(value, index)) >= 0) {
+            count++;
+            index += value.length();
+        }
+        return count;
+    }
+
+    private static long lastStartxref(String text) {
+        int index = text.lastIndexOf("startxref");
+        if (index < 0) {
+            return -1;
+        }
+        index += "startxref".length();
+        while (index < text.length() && Character.isWhitespace(text.charAt(index))) {
+            index++;
+        }
+        int start = index;
+        while (index < text.length() && Character.isDigit(text.charAt(index))) {
+            index++;
+        }
+        if (start == index) {
+            return -1;
+        }
+        return Long.parseLong(text.substring(start, index));
     }
 
     private static String structuralSignature(PDDocument document) throws Exception {
