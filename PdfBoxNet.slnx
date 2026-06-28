@@ -6,6 +6,7 @@
   </Configurations>
   <Folder Name="/src/">
     <Project Path="src/PdfBox.Net.Benchmark/PdfBox.Net.Benchmark.csproj" />
+    <Project Path="src/PdfBox.Net.Cryptography/PdfBox.Net.Cryptography.csproj" />
     <Project Path="src/PdfBox.Net.Debugger/PdfBox.Net.Debugger.csproj" />
     <Project Path="src/PdfBox.Net.Examples/PdfBox.Net.Examples.csproj" />
     <Project Path="src/PdfBox.Net.FontBox/PdfBox.Net.FontBox.csproj" />

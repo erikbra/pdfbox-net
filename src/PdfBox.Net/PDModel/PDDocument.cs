@@ -119,6 +119,17 @@ public sealed partial class PDDocument : IDisposable
     /// <returns>The loaded document.</returns>
     public static PDDocument Load(Stream input, string? password)
     {
+        return Load(input, password, decryptionMaterial: null);
+    }
+
+    internal static PDDocument Load(Stream input, DecryptionMaterial decryptionMaterial)
+    {
+        ArgumentNullException.ThrowIfNull(decryptionMaterial);
+        return Load(input, password: null, decryptionMaterial);
+    }
+
+    private static PDDocument Load(Stream input, string? password, DecryptionMaterial? decryptionMaterial)
+    {
         ArgumentNullException.ThrowIfNull(input);
         // Buffer the entire input so we can store source bytes for incremental updates.
         using var buffer = new MemoryStream();
@@ -126,9 +137,10 @@ public sealed partial class PDDocument : IDisposable
         byte[] sourceBytes = buffer.ToArray();
 
         using var parsedStream = new MemoryStream(sourceBytes);
-        PDFParser parser = new(parsedStream, password);
+        PDFParser parser = new(parsedStream, password, decryptionMaterial);
         ParsedPDFDocument parsed = parser.Parse();
         PDDocument doc = new(parsed.Document);
+        doc._accessPermission = parsed.AccessPermission;
         doc._sourceBytes = sourceBytes;
         doc._originalXrefKeys = new HashSet<COSObjectKey>(parsed.Document.GetXrefTable().Keys);
         doc.DecryptIfNeeded(password);

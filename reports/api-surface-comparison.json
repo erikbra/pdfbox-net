@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-06-27T15:04:08Z",
+  "generated_at_utc": "2026-06-28T10:15:19Z",
   "upstream_root": "/Users/erik/src/Repos/apache/pdfbox",
   "upstream_commit": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
-  "pdfbox_net_commit": "c824ed1cfdbe5e414850c5cdde955577c4a8a770",
+  "pdfbox_net_commit": "ba71c8ea2842629a66cb49ec9245aac63afd5fc5",
   "scope": {
     "modules": [
       "io",
@@ -20,8 +20,8 @@
     "matched_types": 579,
     "same_name_matched_types": 573,
     "java_members": 6305,
-    "matched_members": 5369,
-    "arity_drift_members": 42,
+    "matched_members": 5368,
+    "arity_drift_members": 43,
     "missing_members": 894,
     "csharp_extra_members": 1637,
     "nonpublic_or_replacement_types": 2,
@@ -60,8 +60,8 @@
       "same_name_matched_types": 390,
       "matched_types": 390,
       "java_members": 4204,
-      "matched_members": 3660,
-      "arity_drift_members": 33,
+      "matched_members": 3659,
+      "arity_drift_members": 34,
       "missing_members": 511,
       "csharp_extra_members": 1162,
       "nonpublic_or_replacement_types": 1,
@@ -283,8 +283,8 @@
       "same_name_matched_types": 15,
       "matched_types": 15,
       "java_members": 114,
-      "matched_members": 56,
-      "arity_drift_members": 8,
+      "matched_members": 55,
+      "arity_drift_members": 9,
       "missing_members": 50,
       "csharp_extra_members": 28,
       "renamed_public_types": 0,
@@ -22661,8 +22661,8 @@
       "status": "same-name-type/partial-member-match",
       "java_member_count": 10,
       "missing_member_count": 4,
-      "matched_member_count": 2,
-      "arity_drift_count": 4,
+      "matched_member_count": 1,
+      "arity_drift_count": 5,
       "csharp_type": "PdfBox.Net.PdfParser.PDFParser",
       "csharp_member_count": 2,
       "csharp_extra_member_count": 0,
@@ -22734,9 +22734,18 @@
           "java_name": "PDFParser",
           "java_arity": 2,
           "java_visibility": "public",
-          "status": "matched",
+          "status": "arity-drift",
           "matched_via": "constructor",
-          "signature": "public PDFParser(RandomAccessRead source, String decryptionPassword) throws IOException"
+          "signature": "public PDFParser(RandomAccessRead source, String decryptionPassword) throws IOException",
+          "api_review": {
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|constructor|PDFParser|2|arity-drift",
+            "state": "reviewed",
+            "disposition": "intentional-dotnet-adaptation",
+            "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
+            "issue": 504,
+            "reviewed_at_utc": "2026-06-28T10:16:00Z",
+            "reviewed_by": "Codex"
+          }
         },
         {
           "java_kind": "constructor",
@@ -82404,8 +82413,8 @@
       "csharp_type": "PdfBox.Net.PdfParser.PDFParser",
       "java_member_count": 10,
       "missing_member_count": 4,
-      "matched_member_count": 2,
-      "arity_drift_count": 4
+      "matched_member_count": 1,
+      "arity_drift_count": 5
     },
     {
       "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java",
@@ -102058,15 +102067,15 @@
     ],
     "raw": {
       "missing_members": 894,
-      "arity_drift_members": 42,
+      "arity_drift_members": 43,
       "type_name_or_visibility_gaps": 8,
-      "total": 944
+      "total": 945
     },
     "reviewed": {
       "missing_members": 894,
-      "arity_drift_members": 42,
+      "arity_drift_members": 43,
       "type_name_or_visibility_gaps": 8,
-      "total": 944
+      "total": 945
     },
     "unreviewed": {
       "missing_members": 0,
@@ -102076,7 +102085,7 @@
     },
     "disposition_counts": {
       "behavior-covered": 109,
-      "intentional-dotnet-adaptation": 734,
+      "intentional-dotnet-adaptation": 735,
       "internal-by-design": 76,
       "not-applicable": 25
     },

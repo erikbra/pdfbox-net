@@ -27,6 +27,7 @@
 
 using PdfBox.Net.IO;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Encryption;
 using PdfBox.Net.PDModel.Fdf;
 
 namespace PdfBox.Net;
@@ -68,13 +69,9 @@ public static class Loader
     /// <param name="keyStore">Key store to be used for decryption when using public key security.</param>
     /// <param name="alias">Alias to be used for decryption when using public key security.</param>
     /// <returns>Loaded document.</returns>
-    /// <remarks>
-    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
-    /// not applied — public-key security is not yet supported in this .NET port.
-    /// </remarks>
     public static PDDocument LoadPDF(byte[] input, string? password, Stream? keyStore, string? alias)
     {
-        return LoadPDF(input, password);
+        return LoadPDFWithKeyStore(input, password, keyStore, alias);
     }
 
     /// <summary>
@@ -86,15 +83,11 @@ public static class Loader
     /// <param name="alias">Alias to be used for decryption when using public key security.</param>
     /// <param name="streamCacheCreateFunction">A function to create an instance of a stream cache.</param>
     /// <returns>Loaded document.</returns>
-    /// <remarks>
-    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
-    /// not applied — public-key security is not yet supported in this .NET port.
-    /// </remarks>
     public static PDDocument LoadPDF(byte[] input, string? password, Stream? keyStore, string? alias,
         RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
     {
         _ = streamCacheCreateFunction ?? throw new ArgumentNullException(nameof(streamCacheCreateFunction));
-        return LoadPDF(input, password);
+        return LoadPDFWithKeyStore(input, password, keyStore, alias);
     }
 
     /// <summary>
@@ -141,13 +134,10 @@ public static class Loader
     /// <param name="keyStore">Key store to be used for decryption when using public key security.</param>
     /// <param name="alias">Alias to be used for decryption when using public key security.</param>
     /// <returns>Loaded document.</returns>
-    /// <remarks>
-    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
-    /// not applied — public-key security is not yet supported in this .NET port.
-    /// </remarks>
     public static PDDocument LoadPDF(string filePath, string? password, Stream? keyStore, string? alias)
     {
-        return LoadPDF(filePath, password);
+        ArgumentNullException.ThrowIfNull(filePath);
+        return LoadPDFWithKeyStore(File.ReadAllBytes(filePath), password, keyStore, alias);
     }
 
     /// <summary>
@@ -173,15 +163,12 @@ public static class Loader
     /// <param name="alias">Alias to be used for decryption when using public key security.</param>
     /// <param name="streamCacheCreateFunction">A function to create an instance of a stream cache.</param>
     /// <returns>Loaded document.</returns>
-    /// <remarks>
-    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
-    /// not applied — public-key security is not yet supported in this .NET port.
-    /// </remarks>
     public static PDDocument LoadPDF(string filePath, string? password, Stream? keyStore, string? alias,
         RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
     {
         _ = streamCacheCreateFunction ?? throw new ArgumentNullException(nameof(streamCacheCreateFunction));
-        return LoadPDF(filePath, password);
+        ArgumentNullException.ThrowIfNull(filePath);
+        return LoadPDFWithKeyStore(File.ReadAllBytes(filePath), password, keyStore, alias);
     }
 
     /// <summary>
@@ -242,14 +229,11 @@ public static class Loader
     /// <param name="keyStore">Key store to be used for decryption when using public key security.</param>
     /// <param name="alias">Alias to be used for decryption when using public key security.</param>
     /// <returns>Loaded document.</returns>
-    /// <remarks>
-    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
-    /// not applied — public-key security is not yet supported in this .NET port.
-    /// </remarks>
     public static PDDocument LoadPDF(RandomAccessRead randomAccessRead, string? password,
         Stream? keyStore, string? alias)
     {
-        return LoadPDF(randomAccessRead, password);
+        ArgumentNullException.ThrowIfNull(randomAccessRead);
+        return LoadPDFWithKeyStore(ReadAllBytes(randomAccessRead), password, keyStore, alias);
     }
 
     /// <summary>
@@ -261,15 +245,13 @@ public static class Loader
     /// <param name="alias">Alias to be used for decryption when using public key security.</param>
     /// <param name="streamCacheCreateFunction">A function to create an instance of a stream cache.</param>
     /// <returns>Loaded document.</returns>
-    /// <remarks>
-    /// Adapted port: public-key encryption parameters are accepted for API compatibility but are
-    /// not applied — public-key security is not yet supported in this .NET port.
-    /// </remarks>
     public static PDDocument LoadPDF(RandomAccessRead randomAccessRead, string? password,
         Stream? keyStore, string? alias,
         RandomAccessStreamCache.StreamCacheCreateFunction streamCacheCreateFunction)
     {
-        return LoadPDF(randomAccessRead, password);
+        _ = streamCacheCreateFunction ?? throw new ArgumentNullException(nameof(streamCacheCreateFunction));
+        ArgumentNullException.ThrowIfNull(randomAccessRead);
+        return LoadPDFWithKeyStore(ReadAllBytes(randomAccessRead), password, keyStore, alias);
     }
 
     /// <summary>
@@ -370,5 +352,19 @@ public static class Loader
                 randomAccessRead.Seek(originalPosition);
             }
         }
+    }
+
+    private static PDDocument LoadPDFWithKeyStore(byte[] input, string? password, Stream? keyStore, string? alias)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        if (keyStore is null)
+        {
+            return LoadPDF(input, password);
+        }
+
+        PublicKeyDecryptionMaterial material =
+            PublicKeySecurityProvider.Current.LoadDecryptionMaterial(keyStore, password, alias);
+        using MemoryStream stream = new(input, writable: false);
+        return PDDocument.Load(stream, material);
     }
 }

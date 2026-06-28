@@ -31,6 +31,7 @@ The solution (`PdfBoxNet.slnx`) contains four library projects, two test project
 | `PdfBox.Net.FontBox` | Font handling — AFM, CFF, CMap, TTF, Type1 (ported from `fontbox` module) |
 | `PdfBox.Net.XmpBox` | XMP metadata reading/writing (ported from `xmpbox` module) |
 | `PdfBox.Net` | Core PDF library — COS, filters, parser, writer, pdmodel, text, rendering, tools (ported from `pdfbox` module) |
+| `PdfBox.Net.Cryptography` | Optional BouncyCastle-backed public-key security provider |
 | `PdfBox.Net.Tests` | xUnit v3 tests for all non-XmpBox modules |
 | `PdfBox.Net.XmpBox.Tests` | xUnit v3 tests for `PdfBox.Net.XmpBox` |
 | `PdfBox.Net.Benchmark` | BenchmarkDotNet benchmarks (ported from `benchmark` module, located under `src/PdfBox.Net.Benchmark/`) |
