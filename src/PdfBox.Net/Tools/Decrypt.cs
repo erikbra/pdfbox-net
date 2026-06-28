@@ -24,11 +24,123 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+using PdfBox.Net.PDModel;
 
 namespace PdfBox.Net.Tools;
 
 public static class Decrypt
 {
+    public static int Run(string[] args, TextWriter? error = null)
+    {
+        error ??= Console.Error;
+        try
+        {
+            DecryptOptions options = ParseOptions(args);
+            DecryptFile(
+                options.InputFile,
+                options.OutputFile,
+                options.Password,
+                options.KeyStore,
+                options.Alias);
+            return 0;
+        }
+        catch (ArgumentException ex)
+        {
+            error.WriteLine(ex.Message);
+            return 1;
+        }
+        catch (IOException ex)
+        {
+            error.WriteLine($"Error decrypting document [{ex.GetType().Name}]: {ex.Message}");
+            return 4;
+        }
+    }
+
     public static void Run() => throw ToolSupport.NotSupported(nameof(Decrypt));
+
+    public static void DecryptFile(
+        string inputFile,
+        string? outputFile = null,
+        string? password = null,
+        string? keyStore = null,
+        string? alias = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(inputFile);
+
+        using Stream? keyStoreStream = keyStore is null ? null : File.OpenRead(keyStore);
+        using PDDocument document = Loader.LoadPDF(inputFile, password, keyStoreStream, alias);
+        if (!document.IsEncrypted())
+        {
+            throw new IOException("Document is not encrypted.");
+        }
+
+        if (!document.GetCurrentAccessPermission().IsOwnerPermission())
+        {
+            throw new IOException("You are only allowed to decrypt a document with the owner password.");
+        }
+
+        document.SetAllSecurityToBeRemoved(true);
+        document.Save(outputFile ?? inputFile);
+    }
+
+    private static DecryptOptions ParseOptions(string[]? args)
+    {
+        args ??= [];
+        string? input = null;
+        string? output = null;
+        string? password = null;
+        string? keyStore = null;
+        string? alias = null;
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            string arg = args[i];
+            switch (arg)
+            {
+                case "-i":
+                case "--input":
+                    input = ReadOptionValue(args, ref i, arg);
+                    break;
+                case "-o":
+                case "--output":
+                    output = ReadOptionValue(args, ref i, arg);
+                    break;
+                case "-password":
+                    password = ReadOptionValue(args, ref i, arg);
+                    break;
+                case "-keyStore":
+                    keyStore = ReadOptionValue(args, ref i, arg);
+                    break;
+                case "-alias":
+                    alias = ReadOptionValue(args, ref i, arg);
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown option: {arg}");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            throw new ArgumentException("Missing required option -i/--input.");
+        }
+
+        return new DecryptOptions(input, output, password, keyStore, alias);
+    }
+
+    private static string ReadOptionValue(string[] args, ref int index, string optionName)
+    {
+        if (index + 1 >= args.Length)
+        {
+            throw new ArgumentException($"Missing value for {optionName}.");
+        }
+
+        return args[++index];
+    }
+
+    private sealed record DecryptOptions(
+        string InputFile,
+        string? OutputFile,
+        string? Password,
+        string? KeyStore,
+        string? Alias);
 }
