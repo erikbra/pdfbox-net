@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Resources;
 
@@ -38,6 +39,8 @@ namespace PdfBox.Net.MultiPdf;
 public class PDFMergerUtility
 {
     private readonly List<object> _sources = [];
+    private PDDocumentInformation? _destinationDocumentInformation;
+    private PDMetadata? _destinationMetadata;
     private int _nextFieldNum = 1;
 
     /// <summary>
@@ -54,6 +57,42 @@ public class PDFMergerUtility
     /// Gets or sets whether AcroForm merge errors should be ignored.
     /// </summary>
     public bool IgnoreAcroFormErrors { get; set; }
+
+    /// <summary>
+    /// Gets the destination document information dictionary to apply after merging.
+    /// </summary>
+    /// <returns>The destination document information dictionary.</returns>
+    public PDDocumentInformation? GetDestinationDocumentInformation()
+    {
+        return _destinationDocumentInformation;
+    }
+
+    /// <summary>
+    /// Sets the destination document information dictionary to apply after merging.
+    /// </summary>
+    /// <param name="info">The destination document information dictionary.</param>
+    public void SetDestinationDocumentInformation(PDDocumentInformation? info)
+    {
+        _destinationDocumentInformation = info;
+    }
+
+    /// <summary>
+    /// Gets the destination XMP metadata stream to apply after merging.
+    /// </summary>
+    /// <returns>The destination XMP metadata stream.</returns>
+    public PDMetadata? GetDestinationMetadata()
+    {
+        return _destinationMetadata;
+    }
+
+    /// <summary>
+    /// Sets the destination XMP metadata stream to apply after merging.
+    /// </summary>
+    /// <param name="metadata">The destination XMP metadata stream.</param>
+    public void SetDestinationMetadata(PDMetadata? metadata)
+    {
+        _destinationMetadata = metadata;
+    }
 
     /// <summary>
     /// Adds a source PDF file path to the merge list.
@@ -112,6 +151,8 @@ public class PDFMergerUtility
             AppendDocument(destination, sourceDocument);
         }
 
+        ApplyDestinationOverrides(destination);
+
         if (DestinationStream is not null)
         {
             destination.Save(DestinationStream);
@@ -119,6 +160,19 @@ public class PDFMergerUtility
         else
         {
             destination.Save(DestinationFileName!);
+        }
+    }
+
+    private void ApplyDestinationOverrides(PDDocument destination)
+    {
+        if (_destinationDocumentInformation is not null)
+        {
+            destination.SetDocumentInformation(_destinationDocumentInformation);
+        }
+
+        if (_destinationMetadata is not null)
+        {
+            destination.GetDocumentCatalog().SetMetadata(_destinationMetadata);
         }
     }
 

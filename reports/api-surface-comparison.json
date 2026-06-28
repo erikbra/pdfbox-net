@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-06-28T19:44:28Z",
+  "generated_at_utc": "2026-06-28T20:11:33Z",
   "upstream_root": "/Users/erik/src/Repos/apache/pdfbox",
   "upstream_commit": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
-  "pdfbox_net_commit": "015d3924465a3c455b07626c514ef384e86dce6f",
+  "pdfbox_net_commit": "c489c9088c93c26af20ae766604d3e3ec77335ce",
   "scope": {
     "modules": [
       "io",
@@ -20,9 +20,9 @@
     "matched_types": 579,
     "same_name_matched_types": 573,
     "java_members": 6305,
-    "matched_members": 5390,
+    "matched_members": 5394,
     "arity_drift_members": 42,
-    "missing_members": 873,
+    "missing_members": 869,
     "csharp_extra_members": 1640,
     "nonpublic_or_replacement_types": 2,
     "renamed_public_types": 6,
@@ -60,9 +60,9 @@
       "same_name_matched_types": 390,
       "matched_types": 390,
       "java_members": 4204,
-      "matched_members": 3671,
+      "matched_members": 3675,
       "arity_drift_members": 34,
-      "missing_members": 499,
+      "missing_members": 495,
       "csharp_extra_members": 1162,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
@@ -270,9 +270,9 @@
       "same_name_matched_types": 6,
       "matched_types": 6,
       "java_members": 70,
-      "matched_members": 53,
+      "matched_members": 57,
       "arity_drift_members": 2,
-      "missing_members": 15,
+      "missing_members": 11,
       "csharp_extra_members": 7,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
@@ -21161,11 +21161,11 @@
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
       "java_member_count": 22,
-      "missing_member_count": 8,
-      "matched_member_count": 12,
+      "missing_member_count": 4,
+      "matched_member_count": 16,
       "arity_drift_count": 2,
       "csharp_type": "PdfBox.Net.MultiPdf.PDFMergerUtility",
-      "csharp_member_count": 9,
+      "csharp_member_count": 13,
       "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
@@ -21306,72 +21306,36 @@
           "java_name": "getDestinationDocumentInformation",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public PDDocumentInformation getDestinationDocumentInformation()",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getDestinationDocumentInformation|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-            "issue": 511,
-            "reviewed_at_utc": "2026-06-27T03:47:07Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public PDDocumentInformation getDestinationDocumentInformation()"
         },
         {
           "java_kind": "method",
           "java_name": "setDestinationDocumentInformation",
           "java_arity": 1,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public void setDestinationDocumentInformation(PDDocumentInformation info)",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setDestinationDocumentInformation|1|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-            "issue": 511,
-            "reviewed_at_utc": "2026-06-27T03:47:07Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void setDestinationDocumentInformation(PDDocumentInformation info)"
         },
         {
           "java_kind": "method",
           "java_name": "getDestinationMetadata",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public PDMetadata getDestinationMetadata()",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getDestinationMetadata|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-            "issue": 511,
-            "reviewed_at_utc": "2026-06-27T03:47:07Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public PDMetadata getDestinationMetadata()"
         },
         {
           "java_kind": "method",
           "java_name": "setDestinationMetadata",
           "java_arity": 1,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public void setDestinationMetadata(PDMetadata meta)",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setDestinationMetadata|1|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-            "issue": 511,
-            "reviewed_at_utc": "2026-06-27T03:47:07Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void setDestinationMetadata(PDMetadata meta)"
         },
         {
           "java_kind": "method",
@@ -81977,17 +81941,6 @@
       "arity_drift_count": 0
     },
     {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
-      "module": "pdfbox",
-      "family": "multipdf",
-      "java_type": "org.apache.pdfbox.multipdf.PDFMergerUtility",
-      "csharp_type": "PdfBox.Net.MultiPdf.PDFMergerUtility",
-      "java_member_count": 22,
-      "missing_member_count": 8,
-      "matched_member_count": 12,
-      "arity_drift_count": 2
-    },
-    {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java",
       "module": "pdfbox",
       "family": "pdmodel",
@@ -82162,6 +82115,17 @@
       "missing_member_count": 4,
       "matched_member_count": 81,
       "arity_drift_count": 0
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
+      "module": "pdfbox",
+      "family": "multipdf",
+      "java_type": "org.apache.pdfbox.multipdf.PDFMergerUtility",
+      "csharp_type": "PdfBox.Net.MultiPdf.PDFMergerUtility",
+      "java_member_count": 22,
+      "missing_member_count": 4,
+      "matched_member_count": 16,
+      "arity_drift_count": 2
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
@@ -82809,50 +82773,6 @@
       "family": "multipdf",
       "java_type": "org.apache.pdfbox.multipdf.PDFMergerUtility",
       "java_kind": "method",
-      "java_name": "getDestinationDocumentInformation",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public PDDocumentInformation getDestinationDocumentInformation()",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getDestinationDocumentInformation|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-        "issue": 511,
-        "reviewed_at_utc": "2026-06-27T03:47:07Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
-      "module": "pdfbox",
-      "family": "multipdf",
-      "java_type": "org.apache.pdfbox.multipdf.PDFMergerUtility",
-      "java_kind": "method",
-      "java_name": "getDestinationMetadata",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public PDMetadata getDestinationMetadata()",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getDestinationMetadata|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-        "issue": 511,
-        "reviewed_at_utc": "2026-06-27T03:47:07Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
-      "module": "pdfbox",
-      "family": "multipdf",
-      "java_type": "org.apache.pdfbox.multipdf.PDFMergerUtility",
-      "java_kind": "method",
       "java_name": "getDocumentMergeMode",
       "java_arity": 0,
       "java_visibility": "public",
@@ -82883,50 +82803,6 @@
       "signature": "public void setAcroFormMergeMode(AcroFormMergeMode theAcroFormMergeMode)",
       "api_review": {
         "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setAcroFormMergeMode|1|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-        "issue": 511,
-        "reviewed_at_utc": "2026-06-27T03:47:07Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
-      "module": "pdfbox",
-      "family": "multipdf",
-      "java_type": "org.apache.pdfbox.multipdf.PDFMergerUtility",
-      "java_kind": "method",
-      "java_name": "setDestinationDocumentInformation",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public void setDestinationDocumentInformation(PDDocumentInformation info)",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setDestinationDocumentInformation|1|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-        "issue": 511,
-        "reviewed_at_utc": "2026-06-27T03:47:07Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
-      "module": "pdfbox",
-      "family": "multipdf",
-      "java_type": "org.apache.pdfbox.multipdf.PDFMergerUtility",
-      "java_kind": "method",
-      "java_name": "setDestinationMetadata",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public void setDestinationMetadata(PDMetadata meta)",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setDestinationMetadata|1|missing",
         "state": "reviewed",
         "disposition": "intentional-dotnet-adaptation",
         "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
@@ -101406,16 +101282,16 @@
       "not-applicable"
     ],
     "raw": {
-      "missing_members": 873,
+      "missing_members": 869,
       "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 923
+      "total": 919
     },
     "reviewed": {
-      "missing_members": 873,
+      "missing_members": 869,
       "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 923
+      "total": 919
     },
     "unreviewed": {
       "missing_members": 0,
@@ -101425,7 +101301,7 @@
     },
     "disposition_counts": {
       "behavior-covered": 109,
-      "intentional-dotnet-adaptation": 713,
+      "intentional-dotnet-adaptation": 709,
       "internal-by-design": 76,
       "not-applicable": 25
     },

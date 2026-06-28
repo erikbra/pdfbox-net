@@ -5467,22 +5467,6 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getDestinationDocumentInformation|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-      "issue": 511,
-      "reviewed_at_utc": "2026-06-27T03:47:07Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getDestinationMetadata|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-      "issue": 511,
-      "reviewed_at_utc": "2026-06-27T03:47:07Z",
-      "reviewed_by": "Codex"
-    },
-    {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|getDocumentMergeMode|0|missing",
       "disposition": "intentional-dotnet-adaptation",
       "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
@@ -5492,22 +5476,6 @@
     },
     {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setAcroFormMergeMode|1|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-      "issue": 511,
-      "reviewed_at_utc": "2026-06-27T03:47:07Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setDestinationDocumentInformation|1|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
-      "issue": 511,
-      "reviewed_at_utc": "2026-06-27T03:47:07Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java|org.apache.pdfbox.multipdf.PDFMergerUtility|method|setDestinationMetadata|1|missing",
       "disposition": "intentional-dotnet-adaptation",
       "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
       "issue": 511,
