@@ -8,6 +8,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PdfWriter;
 using Xunit;
 
 namespace PdfBox.Net.Tests;
@@ -94,6 +95,28 @@ public class COSDictionaryTest
         Assert.Contains(first, keys);
         Assert.Contains(second, keys);
         Assert.Contains(flag, keys);
+    }
+
+    [Fact]
+    public void EntrySetAndSerializationPreserveInsertionOrder()
+    {
+        COSDictionary dictionary = new();
+        COSName second = COSName.GetPDFName("Second");
+        COSName first = COSName.GetPDFName("First");
+        COSName third = COSName.GetPDFName("Third");
+
+        dictionary.SetInt(second, 2);
+        dictionary.SetInt(first, 1);
+        dictionary.SetInt(third, 3);
+        dictionary.SetInt(first, 11);
+
+        Assert.Equal(
+            ["Second", "First", "Third"],
+            dictionary.EntrySet().Select(entry => entry.Key.GetName()).ToArray());
+
+        string serialized = COSWriter.SerializeToString(dictionary);
+        Assert.True(serialized.IndexOf("/Second", StringComparison.Ordinal) < serialized.IndexOf("/First", StringComparison.Ordinal));
+        Assert.True(serialized.IndexOf("/First", StringComparison.Ordinal) < serialized.IndexOf("/Third", StringComparison.Ordinal));
     }
 
     [Fact]

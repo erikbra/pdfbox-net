@@ -30,7 +30,11 @@ namespace PdfBox.Net.COS;
 public class COSDictionary : COSBase, COSUpdateInfo
 {
     private const string PathSeparator = "/";
-    protected readonly Dictionary<COSName, COSBase> items = [];
+    /// <summary>
+    /// The name-value pairs of this dictionary. Like Java PDFBox's LinkedHashMap, entries are
+    /// kept in insertion order so serialization is stable.
+    /// </summary>
+    protected readonly OrderedDictionary<COSName, COSBase> items = [];
     private readonly COSUpdateState _updateState;
 
     public COSDictionary()

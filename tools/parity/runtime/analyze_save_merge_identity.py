@@ -59,6 +59,9 @@ class PairAnalysis:
     metadata_differences: tuple[str, ...]
     metadata_normalized_byte_identical: bool
     metadata_normalized_first_diff_offset: int | None
+    dictionary_count_delta: int
+    dictionary_order_only_mismatches: int
+    dictionary_key_set_mismatches: int
     java_artifact: str
     dotnet_artifact: str
 
@@ -97,6 +100,24 @@ def dictionary_key_sequences(data: bytes) -> list[tuple[str, ...]]:
         if names:
             sequences.append(tuple(names))
     return sequences
+
+
+def dictionary_sequence_diagnostics(java_data: bytes, dotnet_data: bytes) -> tuple[int, int, int]:
+    java_sequences = dictionary_key_sequences(java_data)
+    dotnet_sequences = dictionary_key_sequences(dotnet_data)
+    dictionary_count_delta = abs(len(java_sequences) - len(dotnet_sequences))
+    order_only_mismatches = 0
+    key_set_mismatches = 0
+
+    for java_sequence, dotnet_sequence in zip(java_sequences, dotnet_sequences):
+        if java_sequence == dotnet_sequence:
+            continue
+        if Counter(java_sequence) == Counter(dotnet_sequence):
+            order_only_mismatches += 1
+        else:
+            key_set_mismatches += 1
+
+    return dictionary_count_delta, order_only_mismatches, key_set_mismatches
 
 
 def pattern_tokens(data: bytes, pattern: re.Pattern[bytes]) -> set[bytes]:
@@ -209,6 +230,9 @@ def analyze_row(out_dir: Path, row: dict) -> PairAnalysis | None:
     byte_identical = java_data == dotnet_data
     java_metadata_normalized = normalize_metadata_tokens(java_data)
     dotnet_metadata_normalized = normalize_metadata_tokens(dotnet_data)
+    dictionary_count_delta, dictionary_order_only_mismatches, dictionary_key_set_mismatches = dictionary_sequence_diagnostics(
+        java_data, dotnet_data
+    )
     return PairAnalysis(
         file=str(row.get("file", "")),
         op=op,
@@ -223,6 +247,9 @@ def analyze_row(out_dir: Path, row: dict) -> PairAnalysis | None:
         metadata_differences=metadata_differences(java_data, dotnet_data),
         metadata_normalized_byte_identical=java_metadata_normalized == dotnet_metadata_normalized,
         metadata_normalized_first_diff_offset=first_diff_offset(java_metadata_normalized, dotnet_metadata_normalized),
+        dictionary_count_delta=dictionary_count_delta,
+        dictionary_order_only_mismatches=dictionary_order_only_mismatches,
+        dictionary_key_set_mismatches=dictionary_key_set_mismatches,
         java_artifact=java_path.relative_to(out_dir).as_posix(),
         dotnet_artifact=dotnet_path.relative_to(out_dir).as_posix(),
     )
@@ -292,6 +319,29 @@ def metadata_normalization_counts(analyses: Iterable[PairAnalysis]) -> dict[str,
     return counts
 
 
+def dictionary_comparison_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
+    counts: dict[str, dict[str, int]] = {}
+    for op in sorted(SAVE_MERGE_OPS):
+        rows = [row for row in analyses if row.op == op]
+        dictionary_rows = [row for row in rows if "dictionary ordering" in row.causes]
+        counts[op] = {
+            "rowsWithDictionaryOrderingCause": len(dictionary_rows),
+            "rowsWithOnlyOrderPermutation": sum(
+                1
+                for row in dictionary_rows
+                if row.dictionary_count_delta == 0
+                and row.dictionary_key_set_mismatches == 0
+                and row.dictionary_order_only_mismatches > 0
+            ),
+            "rowsWithDictionaryCountDifference": sum(1 for row in dictionary_rows if row.dictionary_count_delta > 0),
+            "rowsWithDictionaryKeySetDifference": sum(1 for row in dictionary_rows if row.dictionary_key_set_mismatches > 0),
+            "orderOnlyDictionaryPairMismatches": sum(row.dictionary_order_only_mismatches for row in dictionary_rows),
+            "keySetDictionaryPairMismatches": sum(row.dictionary_key_set_mismatches for row in dictionary_rows),
+            "maxDictionaryCountDelta": max((row.dictionary_count_delta for row in dictionary_rows), default=0),
+        }
+    return counts
+
+
 def primary_cause_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
     by_op: dict[str, Counter] = defaultdict(Counter)
     for row in analyses:
@@ -326,6 +376,7 @@ def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAna
             "causeCounts": cause_counts(analyses),
             "metadataDifferenceCounts": metadata_difference_counts(analyses),
             "metadataNormalization": metadata_normalization_counts(analyses),
+            "dictionaryComparison": dictionary_comparison_counts(analyses),
             "primaryCauseCounts": primary_cause_counts(analyses),
         },
         "rows": [
@@ -343,6 +394,9 @@ def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAna
                 "metadataDifferences": list(row.metadata_differences),
                 "metadataNormalizedByteIdentical": row.metadata_normalized_byte_identical,
                 "metadataNormalizedFirstDiffOffset": row.metadata_normalized_first_diff_offset,
+                "dictionaryCountDelta": row.dictionary_count_delta,
+                "dictionaryOrderOnlyMismatches": row.dictionary_order_only_mismatches,
+                "dictionaryKeySetMismatches": row.dictionary_key_set_mismatches,
                 "primaryCause": row.primary_cause,
                 "artifacts": {"java": row.java_artifact, "dotnet": row.dotnet_artifact},
             }
@@ -428,6 +482,26 @@ def markdown_report(payload: dict, analyses: list[PairAnalysis]) -> str:
             f"{counts['metadataNormalizedByteIdentical']} | {counts['madeIdenticalByMetadataNormalization']} | "
             f"{counts['stillDifferentAfterMetadataNormalization']} |"
         )
+    lines.append("")
+
+    lines.extend(
+        [
+            "## Dictionary Sequence Breakdown",
+            "",
+            "The `dictionary ordering` label compares serialized dictionary key sequences. This breakdown separates pure order permutations from rows where dictionary counts or key sets differ, which usually means earlier writer decisions changed content or object layout.",
+            "",
+            "| Operation | Rows with dictionary label | Rows with only order permutations | Rows with dictionary-count differences | Rows with key-set differences | Order-only pair mismatches | Key-set pair mismatches | Max dictionary-count delta |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for op, counts in summary["dictionaryComparison"].items():
+        lines.append(
+            f"| `{op}` | {counts['rowsWithDictionaryOrderingCause']} | "
+            f"{counts['rowsWithOnlyOrderPermutation']} | {counts['rowsWithDictionaryCountDifference']} | "
+            f"{counts['rowsWithDictionaryKeySetDifference']} | {counts['orderOnlyDictionaryPairMismatches']} | "
+            f"{counts['keySetDictionaryPairMismatches']} | {counts['maxDictionaryCountDelta']} |"
+        )
+    lines.append("")
 
     lines.extend(
         [
