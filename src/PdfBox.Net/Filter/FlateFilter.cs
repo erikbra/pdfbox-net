@@ -44,17 +44,16 @@ public sealed class FlateFilter : Filter
 
     public override void Encode(Stream input, Stream output, COSDictionary parameters, int index)
     {
-        CompressionLevel level = GetCompressionLevel() switch
+        ZLibCompressionOptions options = new()
         {
-            0 => CompressionLevel.NoCompression,
-            >= 1 and <= 5 => CompressionLevel.Fastest,
-            >= 6 and <= 9 => CompressionLevel.SmallestSize,
-            _ => CompressionLevel.Optimal
+            CompressionLevel = GetCompressionLevel()
         };
 
-        using ZLibStream zlib = new(output, level, leaveOpen: true);
-        input.CopyTo(zlib);
-        zlib.Flush();
+        using (ZLibStream zlib = new(output, options, leaveOpen: true))
+        {
+            input.CopyTo(zlib);
+        }
+
         output.Flush();
     }
 

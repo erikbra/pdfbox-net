@@ -62,6 +62,12 @@ class PairAnalysis:
     dictionary_count_delta: int
     dictionary_order_only_mismatches: int
     dictionary_key_set_mismatches: int
+    stream_count_delta: int
+    length_count_delta: int
+    flate_count_delta: int
+    objstm_count_delta: int
+    filter_tokens_differ: bool
+    length_sequence_differ: bool
     java_artifact: str
     dotnet_artifact: str
 
@@ -169,6 +175,24 @@ def compression_signature(data: bytes) -> dict[str, object]:
     }
 
 
+def stream_compression_diagnostics(java_data: bytes, dotnet_data: bytes) -> tuple[int, int, int, int, bool, bool]:
+    java_signature = compression_signature(java_data)
+    dotnet_signature = compression_signature(dotnet_data)
+    java_lengths = java_signature["lengths"]
+    dotnet_lengths = dotnet_signature["lengths"]
+    if not isinstance(java_lengths, tuple) or not isinstance(dotnet_lengths, tuple):
+        raise TypeError("compression_signature lengths must be tuples")
+
+    return (
+        abs(int(java_signature["stream_count"]) - int(dotnet_signature["stream_count"])),
+        abs(len(java_lengths) - len(dotnet_lengths)),
+        abs(int(java_signature["flate_count"]) - int(dotnet_signature["flate_count"])),
+        abs(int(java_signature["objstm_count"]) - int(dotnet_signature["objstm_count"])),
+        filter_tokens(java_data) != filter_tokens(dotnet_data),
+        java_lengths != dotnet_lengths,
+    )
+
+
 def has_incremental_markers(data: bytes) -> bool:
     return data.count(b"%%EOF") > 1 or b"/Prev" in data
 
@@ -233,6 +257,14 @@ def analyze_row(out_dir: Path, row: dict) -> PairAnalysis | None:
     dictionary_count_delta, dictionary_order_only_mismatches, dictionary_key_set_mismatches = dictionary_sequence_diagnostics(
         java_data, dotnet_data
     )
+    (
+        stream_count_delta,
+        length_count_delta,
+        flate_count_delta,
+        objstm_count_delta,
+        filter_tokens_differ,
+        length_sequence_differ,
+    ) = stream_compression_diagnostics(java_data, dotnet_data)
     return PairAnalysis(
         file=str(row.get("file", "")),
         op=op,
@@ -250,6 +282,12 @@ def analyze_row(out_dir: Path, row: dict) -> PairAnalysis | None:
         dictionary_count_delta=dictionary_count_delta,
         dictionary_order_only_mismatches=dictionary_order_only_mismatches,
         dictionary_key_set_mismatches=dictionary_key_set_mismatches,
+        stream_count_delta=stream_count_delta,
+        length_count_delta=length_count_delta,
+        flate_count_delta=flate_count_delta,
+        objstm_count_delta=objstm_count_delta,
+        filter_tokens_differ=filter_tokens_differ,
+        length_sequence_differ=length_sequence_differ,
         java_artifact=java_path.relative_to(out_dir).as_posix(),
         dotnet_artifact=dotnet_path.relative_to(out_dir).as_posix(),
     )
@@ -342,6 +380,28 @@ def dictionary_comparison_counts(analyses: Iterable[PairAnalysis]) -> dict[str, 
     return counts
 
 
+def stream_compression_comparison_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
+    counts: dict[str, dict[str, int]] = {}
+    for op in sorted(SAVE_MERGE_OPS):
+        rows = [row for row in analyses if row.op == op]
+        stream_rows = [row for row in rows if "stream filters" in row.causes or "compression" in row.causes]
+        counts[op] = {
+            "rowsWithStreamFilterCause": sum(1 for row in rows if "stream filters" in row.causes),
+            "rowsWithCompressionCause": sum(1 for row in rows if "compression" in row.causes),
+            "rowsWithFilterTokenDifference": sum(1 for row in stream_rows if row.filter_tokens_differ),
+            "rowsWithStreamCountDifference": sum(1 for row in stream_rows if row.stream_count_delta > 0),
+            "rowsWithLengthCountDifference": sum(1 for row in stream_rows if row.length_count_delta > 0),
+            "rowsWithLengthSequenceDifference": sum(1 for row in stream_rows if row.length_sequence_differ),
+            "rowsWithFlateCountDifference": sum(1 for row in stream_rows if row.flate_count_delta > 0),
+            "rowsWithObjStmCountDifference": sum(1 for row in stream_rows if row.objstm_count_delta > 0),
+            "maxStreamCountDelta": max((row.stream_count_delta for row in stream_rows), default=0),
+            "maxLengthCountDelta": max((row.length_count_delta for row in stream_rows), default=0),
+            "maxFlateCountDelta": max((row.flate_count_delta for row in stream_rows), default=0),
+            "maxObjStmCountDelta": max((row.objstm_count_delta for row in stream_rows), default=0),
+        }
+    return counts
+
+
 def primary_cause_counts(analyses: Iterable[PairAnalysis]) -> dict[str, dict[str, int]]:
     by_op: dict[str, Counter] = defaultdict(Counter)
     for row in analyses:
@@ -377,6 +437,7 @@ def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAna
             "metadataDifferenceCounts": metadata_difference_counts(analyses),
             "metadataNormalization": metadata_normalization_counts(analyses),
             "dictionaryComparison": dictionary_comparison_counts(analyses),
+            "streamCompressionComparison": stream_compression_comparison_counts(analyses),
             "primaryCauseCounts": primary_cause_counts(analyses),
         },
         "rows": [
@@ -397,6 +458,12 @@ def json_payload(out_dir: Path, comparison_payload: dict, analyses: list[PairAna
                 "dictionaryCountDelta": row.dictionary_count_delta,
                 "dictionaryOrderOnlyMismatches": row.dictionary_order_only_mismatches,
                 "dictionaryKeySetMismatches": row.dictionary_key_set_mismatches,
+                "streamCountDelta": row.stream_count_delta,
+                "lengthCountDelta": row.length_count_delta,
+                "flateCountDelta": row.flate_count_delta,
+                "objStmCountDelta": row.objstm_count_delta,
+                "filterTokensDiffer": row.filter_tokens_differ,
+                "lengthSequenceDiffer": row.length_sequence_differ,
                 "primaryCause": row.primary_cause,
                 "artifacts": {"java": row.java_artifact, "dotnet": row.dotnet_artifact},
             }
@@ -500,6 +567,27 @@ def markdown_report(payload: dict, analyses: list[PairAnalysis]) -> str:
             f"{counts['rowsWithOnlyOrderPermutation']} | {counts['rowsWithDictionaryCountDifference']} | "
             f"{counts['rowsWithDictionaryKeySetDifference']} | {counts['orderOnlyDictionaryPairMismatches']} | "
             f"{counts['keySetDictionaryPairMismatches']} | {counts['maxDictionaryCountDelta']} |"
+        )
+    lines.append("")
+
+    lines.extend(
+        [
+            "## Stream and Compression Breakdown",
+            "",
+            "The `stream filters` and `compression` labels are split into serialized `/Filter` token differences, stream marker counts, `/Length` counts and sequences, `/FlateDecode` token counts, and `/ObjStm` token counts. Length-sequence differences can be downstream symptoms of object layout or deflater output, not necessarily independent stream-ownership bugs.",
+            "",
+            "| Operation | Rows with stream-filter label | Rows with compression label | Filter token differences | Stream-count differences | Length-count differences | Length-sequence differences | Flate-count differences | ObjStm-count differences | Max stream delta | Max length-count delta | Max Flate delta | Max ObjStm delta |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for op, counts in summary["streamCompressionComparison"].items():
+        lines.append(
+            f"| `{op}` | {counts['rowsWithStreamFilterCause']} | {counts['rowsWithCompressionCause']} | "
+            f"{counts['rowsWithFilterTokenDifference']} | {counts['rowsWithStreamCountDifference']} | "
+            f"{counts['rowsWithLengthCountDifference']} | {counts['rowsWithLengthSequenceDifference']} | "
+            f"{counts['rowsWithFlateCountDifference']} | {counts['rowsWithObjStmCountDifference']} | "
+            f"{counts['maxStreamCountDelta']} | {counts['maxLengthCountDelta']} | "
+            f"{counts['maxFlateCountDelta']} | {counts['maxObjStmCountDelta']} |"
         )
     lines.append("")
 

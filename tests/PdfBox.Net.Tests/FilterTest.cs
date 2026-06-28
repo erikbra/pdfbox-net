@@ -41,6 +41,30 @@ public class FilterTest
     }
 
     [Fact]
+    public void FlateFilterHonorsPdfBoxDeflateLevelSetting()
+    {
+        byte[] source = Encoding.ASCII.GetBytes(string.Concat(Enumerable.Repeat(
+            "BT /F1 10 Tf 72 720 Td (deflate level fixture) Tj ET\n",
+            64)));
+        string? previousLevel = Environment.GetEnvironmentVariable(FilterBase.SyspropDeflateLevel);
+
+        try
+        {
+            Environment.SetEnvironmentVariable(FilterBase.SyspropDeflateLevel, "5");
+
+            byte[] encoded = Encode(new FlateFilter(), source);
+
+            Assert.Equal(CompressWithZlib(source, 5), encoded);
+            Assert.NotEqual(CompressWithZlib(source, 1), encoded);
+            Assert.Equal(source, Decode(new FlateFilter(), encoded, new COSDictionary()));
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(FilterBase.SyspropDeflateLevel, previousLevel);
+        }
+    }
+
+    [Fact]
     public void ASCIIHexRoundTrip()
     {
         ASCIIHexFilter filter = new();
@@ -432,8 +456,17 @@ public class FilterTest
 
     private static byte[] CompressWithZlib(byte[] source)
     {
+        return CompressWithZlib(source, 9);
+    }
+
+    private static byte[] CompressWithZlib(byte[] source, int compressionLevel)
+    {
         using MemoryStream encoded = new();
-        using (ZLibStream zlib = new(encoded, CompressionLevel.SmallestSize, leaveOpen: true))
+        ZLibCompressionOptions options = new()
+        {
+            CompressionLevel = compressionLevel
+        };
+        using (ZLibStream zlib = new(encoded, options, leaveOpen: true))
         {
             zlib.Write(source, 0, source.Length);
         }
