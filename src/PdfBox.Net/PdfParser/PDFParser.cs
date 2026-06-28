@@ -42,10 +42,11 @@ public sealed class PDFParser
     private readonly Dictionary<COSObjectKey, COSObject> _objectPool;
     private readonly Dictionary<COSObjectKey, long> _resolvedXrefTable = [];
     private readonly string? _password;
+    private readonly DecryptionMaterial? _decryptionMaterial;
     private SecurityHandler<ProtectionPolicy>? _securityHandler;
     private COSDictionary? _encryptionDictionary;
 
-    public PDFParser(Stream input, string? password = null)
+    public PDFParser(Stream input, string? password = null, DecryptionMaterial? decryptionMaterial = null)
     {
         ArgumentNullException.ThrowIfNull(input);
         using MemoryStream buffer = new();
@@ -53,6 +54,7 @@ public sealed class PDFParser
         _data = buffer.ToArray();
         _objectPool = _document.GetObjectPool();
         _password = password;
+        _decryptionMaterial = decryptionMaterial;
     }
 
     public ParsedPDFDocument Parse()
@@ -93,7 +95,7 @@ public sealed class PDFParser
 
         _document.GetDocumentState().SetParsing(false);
 
-        return new ParsedPDFDocument(_document, trailer, headerVersion);
+        return new ParsedPDFDocument(_document, trailer, headerVersion, _securityHandler?.GetCurrentAccessPermission());
     }
 
     private void PrepareDecryption(COSDictionary trailer)
@@ -109,12 +111,12 @@ public sealed class PDFParser
         _securityHandler = SecurityHandlerFactory.INSTANCE.NewSecurityHandlerForFilter(filter)
             ?? throw new IOException($"No security handler available for filter '{filter}'.");
 
-        DecryptionMaterial material = _securityHandler switch
+        DecryptionMaterial material = _decryptionMaterial ?? (_securityHandler switch
         {
             StandardSecurityHandler => new StandardDecryptionMaterial(_password ?? string.Empty),
             PublicKeySecurityHandler => throw new IOException("Public-key encrypted documents require PublicKeyDecryptionMaterial and are not supported by this Load overload."),
             _ => throw new IOException($"Unsupported security handler type '{_securityHandler.GetType().FullName}'.")
-        };
+        });
 
         _securityHandler.PrepareForDecryption(encryption, trailer.GetCOSArray(COSName.GetPDFName("ID")), material);
     }
@@ -1420,4 +1422,8 @@ public sealed class PDFParser
     }
 }
 
-public sealed record ParsedPDFDocument(COSDocument Document, COSDictionary Trailer, float HeaderVersion);
+public sealed record ParsedPDFDocument(
+    COSDocument Document,
+    COSDictionary Trailer,
+    float HeaderVersion,
+    AccessPermission? AccessPermission = null);

@@ -1,3 +1,5 @@
+using PdfBox.Net.Cryptography.Certificates;
+using PdfBox.Net.Cryptography.PDModel.Encryption;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
@@ -135,6 +137,27 @@ public class EncryptionTest
     }
 
     [Fact]
+    public void BouncyCastlePkcs12CertificateLoader_LoadsCertificateWithUsablePrivateKey()
+    {
+        const string keyStorePassword = "secret";
+        using X509Certificate2 original = CreatePublicKeyCertificate();
+        byte[] keyStore = original.Export(X509ContentType.Pkcs12, keyStorePassword);
+
+        X509Certificate2Collection collection =
+            BouncyCastlePkcs12CertificateLoader.LoadPkcs12Collection(keyStore, keyStorePassword);
+        X509Certificate2 certificate = Assert.Single(
+            collection.OfType<X509Certificate2>(),
+            cert => cert.HasPrivateKey);
+
+        byte[] payload = Encoding.ASCII.GetBytes("pkcs12 fallback signing material");
+        using RSA privateKey = Assert.IsAssignableFrom<RSA>(certificate.GetRSAPrivateKey());
+        using RSA publicKey = Assert.IsAssignableFrom<RSA>(certificate.GetRSAPublicKey());
+        byte[] signature = privateKey.SignData(payload, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+
+        Assert.True(publicKey.VerifyData(payload, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1));
+    }
+
+    [Fact]
     public void SecurityProvider_RoundTripsConfiguredProvider()
     {
         object provider = new();
@@ -230,8 +253,9 @@ public class EncryptionTest
     }
 
     [Fact]
-    public void Protect_PublicKeyPolicy_ReportsCmsBoundaryOnSave()
+    public void Protect_PublicKeyPolicy_RequiresProviderOnSave()
     {
+        PublicKeySecurityProvider.ResetForTesting();
         using PDDocument document = new();
         document.AddPage(new PDPage());
         document.Protect(new PublicKeyProtectionPolicy());
@@ -239,7 +263,52 @@ public class EncryptionTest
         using MemoryStream output = new();
         NotSupportedException exception = Assert.Throws<NotSupportedException>(() => document.Save(output));
 
-        Assert.Contains("CMS recipient support", exception.Message, StringComparison.Ordinal);
+        Assert.Contains("public-key security provider", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Protect_PublicKeyPolicy_WithBouncyCastleProvider_RoundTrips()
+    {
+        PublicKeySecurityProvider.ResetForTesting();
+        BouncyCastlePublicKeySecurityProvider.Register();
+        try
+        {
+            const string keyStorePassword = "secret";
+            const string title = "public key title";
+            using X509Certificate2 certificate = CreatePublicKeyCertificate();
+            byte[] keyStore = certificate.Export(X509ContentType.Pkcs12, keyStorePassword);
+
+            using PDDocument document = new();
+            document.AddPage(new PDPage());
+            document.GetDocumentInformation().SetTitle(title);
+
+            PublicKeyRecipient recipient = new();
+            recipient.SetX509(certificate);
+            recipient.SetPermission(AccessPermission.GetOwnerAccessPermission());
+
+            PublicKeyProtectionPolicy policy = new();
+            policy.AddRecipient(recipient);
+            document.Protect(policy);
+
+            using MemoryStream output = new();
+            document.Save(output);
+            byte[] saved = output.ToArray();
+            string raw = Encoding.Latin1.GetString(saved);
+            Assert.Contains("/Filter /Adobe.PubSec", raw, StringComparison.Ordinal);
+            Assert.Contains("/SubFilter /adbe.pkcs7.s4", raw, StringComparison.Ordinal);
+            Assert.DoesNotContain(title, raw, StringComparison.Ordinal);
+
+            using MemoryStream keyStoreStream = new(keyStore);
+            using PDDocument loaded = Loader.LoadPDF(saved, keyStorePassword, keyStoreStream, alias: null);
+
+            Assert.Equal(1, loaded.GetNumberOfPages());
+            Assert.Equal(title, loaded.GetDocumentInformation().GetTitle());
+            Assert.True(loaded.GetCurrentAccessPermission().IsOwnerPermission());
+        }
+        finally
+        {
+            PublicKeySecurityProvider.ResetForTesting();
+        }
     }
 
     [Fact]
@@ -260,14 +329,16 @@ public class EncryptionTest
     }
 
     [Fact]
-    public void Load_PublicKeyEncryptedPdf_WithKeyStoreOverload_ThrowsSemanticIOException()
+    public void Load_PublicKeyEncryptedPdf_WithKeyStoreOverload_RequiresProvider()
     {
+        PublicKeySecurityProvider.ResetForTesting();
         byte[] pdf = CreatePublicKeyEncryptedPdf();
         using MemoryStream keyStore = new();
 
-        IOException exception = Assert.Throws<IOException>(() => PdfBox.Net.Loader.LoadPDF(pdf, null, keyStore, "alias"));
+        NotSupportedException exception =
+            Assert.Throws<NotSupportedException>(() => PdfBox.Net.Loader.LoadPDF(pdf, null, keyStore, "alias"));
 
-        Assert.Contains("Public-key encrypted", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("public-key security provider", exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("compression", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -324,6 +395,22 @@ public class EncryptionTest
 
     private sealed class TestProtectionPolicy : ProtectionPolicy
     {
+    }
+
+    private static X509Certificate2 CreatePublicKeyCertificate()
+    {
+        using RSA rsa = RSA.Create(2048);
+        CertificateRequest request = new(
+            "CN=pdfbox-net-public-key",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+        request.CertificateExtensions.Add(new X509KeyUsageExtension(
+            X509KeyUsageFlags.KeyEncipherment,
+            critical: true));
+        return request.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1),
+            DateTimeOffset.UtcNow.AddDays(1));
     }
 
     private static byte[] ReadPageContent(PDDocument document)

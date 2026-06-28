@@ -28,6 +28,7 @@
 using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
+using PdfBox.Net.Cryptography.Certificates;
 using PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
 namespace PdfBox.Net.Examples.Signature;
@@ -50,10 +51,18 @@ public class CreateSignatureBase : SignatureInterface
     public void SetKeystore(string keystorePath, string password)
     {
         ArgumentNullException.ThrowIfNull(keystorePath);
-        X509Certificate2Collection col =
-            X509CertificateLoader.LoadPkcs12CollectionFromFile(
-                keystorePath, password, X509KeyStorageFlags.EphemeralKeySet);
-        InitFromCollection(col);
+        try
+        {
+            X509Certificate2Collection col =
+                X509CertificateLoader.LoadPkcs12CollectionFromFile(
+                    keystorePath, password, X509KeyStorageFlags.EphemeralKeySet);
+            InitFromCollection(col);
+        }
+        catch (PlatformNotSupportedException)
+        {
+            InitFromCollection(BouncyCastlePkcs12CertificateLoader.LoadPkcs12CollectionFromFile(
+                keystorePath, password));
+        }
     }
 
     /// <summary>
@@ -62,10 +71,18 @@ public class CreateSignatureBase : SignatureInterface
     public void SetKeystore(byte[] pfxData, string password)
     {
         ArgumentNullException.ThrowIfNull(pfxData);
-        X509Certificate2Collection col =
-            X509CertificateLoader.LoadPkcs12Collection(
-                pfxData, password, X509KeyStorageFlags.EphemeralKeySet);
-        InitFromCollection(col);
+        try
+        {
+            X509Certificate2Collection col =
+                X509CertificateLoader.LoadPkcs12Collection(
+                    pfxData, password, X509KeyStorageFlags.EphemeralKeySet);
+            InitFromCollection(col);
+        }
+        catch (PlatformNotSupportedException)
+        {
+            InitFromCollection(BouncyCastlePkcs12CertificateLoader.LoadPkcs12Collection(
+                pfxData, password));
+        }
     }
 
     private void InitFromCollection(X509Certificate2Collection col)
