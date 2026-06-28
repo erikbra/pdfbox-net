@@ -26,6 +26,7 @@ public class PDVisibleSignDesigner
     private float _imageSizeInPercents = 100;
     private int _rotation;
     private byte[]? _image;
+    private string _signatureText = string.Empty;
     private AffineTransform _affineTransform = new();
 
     public PDVisibleSignDesigner(Stream imageStream)
@@ -159,14 +160,12 @@ public class PDVisibleSignDesigner
     public float GetImageSizeInPercents() => _imageSizeInPercents;
     public void ImageSizeInPercents(float imageSizeInPercents) => _imageSizeInPercents = imageSizeInPercents;
 
-    public string GetSignatureText()
-    {
-        throw new NotSupportedException("Visible signature text rendering is not yet implemented.");
-    }
+    public string GetSignatureText() => _signatureText;
 
     public PDVisibleSignDesigner SignatureText(string signatureText)
     {
-        throw new NotSupportedException("Visible signature text rendering is not yet implemented.");
+        _signatureText = signatureText ?? string.Empty;
+        return this;
     }
 
     public PDVisibleSignDesigner Zoom(float percent)

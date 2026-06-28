@@ -11,6 +11,7 @@
 using System.Text;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Interactive.Annotation;
@@ -357,6 +358,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         PDAnnotationWidget widget = signatureField.GetWidgets().First();
         widget.SetRectangle(rectangle);
         page.GetAnnotations().Add(widget);
+        CreateTextAppearance(document, widget, properties);
 
         List<PDField> fields = acroForm.GetFields().ToList();
         fields.Add(signatureField);
@@ -372,5 +374,50 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         _structure.SignatureField = signatureField;
         _structure.SignatureRectangle = rectangle;
         return output;
+    }
+
+    private static void CreateTextAppearance(PDDocument document, PDAnnotationWidget widget, PDVisibleSignDesigner properties)
+    {
+        PDAppearanceStream appearanceStream = new(document);
+        appearanceStream.SetBBox(new PDRectangle(properties.GetWidth(), properties.GetHeight()));
+        appearanceStream.SetFormType(1);
+        appearanceStream.SetResources(new PDResources());
+
+        string signatureText = properties.GetSignatureText();
+        using (PDPageContentStream contentStream = new(document, appearanceStream))
+        {
+            contentStream.SaveGraphicsState();
+            if (!string.IsNullOrWhiteSpace(signatureText))
+            {
+                float fontSize = Math.Max(6, Math.Min(12, properties.GetHeight() / 5));
+                float leading = fontSize + 2;
+                float y = Math.Max(4, properties.GetHeight() - fontSize - 4);
+
+                contentStream.BeginText();
+                contentStream.SetFont(new PDType1Font(PDType1Font.FontName.HELVETICA), fontSize);
+                contentStream.SetLeading(leading);
+                contentStream.NewLineAtOffset(4, y);
+                foreach (string line in SplitSignatureText(signatureText))
+                {
+                    contentStream.ShowText(line);
+                    contentStream.NewLine();
+                }
+                contentStream.EndText();
+            }
+            contentStream.RestoreGraphicsState();
+        }
+
+        PDAppearanceDictionary appearance = new();
+        appearance.GetCOSObject().SetDirect(true);
+        appearance.SetNormalAppearance(appearanceStream);
+        widget.SetAppearance(appearance);
+    }
+
+    private static IEnumerable<string> SplitSignatureText(string signatureText)
+    {
+        return signatureText
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace('\r', '\n')
+            .Split('\n');
     }
 }
