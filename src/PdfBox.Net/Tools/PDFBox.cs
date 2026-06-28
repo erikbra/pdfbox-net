@@ -42,7 +42,27 @@ public static class PDFBox
             return 0;
         }
 
-        error.WriteLine($"Unknown command: {args[0]}");
+        string[] commandArgs = args.Skip(1).ToArray();
+        return args[0].ToLowerInvariant() switch
+        {
+            "decrypt" => Decrypt.Run(commandArgs, error),
+            "encrypt" => Encrypt.Run(commandArgs, error),
+            "exportfdf" => ExportFDF.Run(commandArgs, error),
+            "exportxfdf" => ExportXFDF.Run(commandArgs, error),
+            "extractimages" => ExtractImages.Run(commandArgs, error),
+            "extractxmp" => ExtractXMP.Run(commandArgs, output, error),
+            "imagetopdf" => ImageToPDF.Run(commandArgs, error),
+            "importfdf" => ImportFDF.Run(commandArgs, error),
+            "importxfdf" => ImportXFDF.Run(commandArgs, error),
+            "printpdf" => PrintPDF.Run(commandArgs, error),
+            "texttopdf" => TextToPDF.Run(commandArgs, error),
+            _ => UnknownCommand(args[0], error)
+        };
+    }
+
+    private static int UnknownCommand(string command, TextWriter error)
+    {
+        error.WriteLine($"Unknown command: {command}");
         return 1;
     }
 }

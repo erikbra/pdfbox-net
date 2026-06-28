@@ -25,10 +25,99 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Graphics.Image;
 
 namespace PdfBox.Net.Tools;
 
 public static class ImageToPDF
 {
     public static void Run() => throw ToolSupport.NotSupported(nameof(ImageToPDF));
+
+    public static int Run(string[] args, TextWriter? error = null)
+    {
+        error ??= Console.Error;
+        try
+        {
+            ImageToPDFOptions options = ParseOptions(args);
+            Convert(options.InputFile, options.OutputFile);
+            return 0;
+        }
+        catch (ArgumentException ex)
+        {
+            error.WriteLine(ex.Message);
+            return 1;
+        }
+        catch (IOException ex)
+        {
+            error.WriteLine($"Error creating PDF from image [{ex.GetType().Name}]: {ex.Message}");
+            return 4;
+        }
+    }
+
+    public static void Convert(string imageFile, string outputFile)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(imageFile);
+        ArgumentException.ThrowIfNullOrWhiteSpace(outputFile);
+
+        using PDDocument document = new();
+        PDImageXObject image = PDImageXObject.CreateFromFile(imageFile, document);
+        PDPage page = new();
+        document.AddPage(page);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.DrawImage(image, 20, 20, image.GetWidth(), image.GetHeight());
+        }
+
+        document.Save(outputFile);
+    }
+
+    private static ImageToPDFOptions ParseOptions(string[]? args)
+    {
+        args ??= [];
+        string? input = null;
+        string? output = null;
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            string arg = args[i];
+            switch (arg)
+            {
+                case "-i":
+                case "--input":
+                    input = ReadOptionValue(args, ref i, arg);
+                    break;
+                case "-o":
+                case "--output":
+                    output = ReadOptionValue(args, ref i, arg);
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown option: {arg}");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            throw new ArgumentException("Missing required option -i/--input.");
+        }
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            throw new ArgumentException("Missing required option -o/--output.");
+        }
+
+        return new ImageToPDFOptions(input, output);
+    }
+
+    private static string ReadOptionValue(string[] args, ref int index, string optionName)
+    {
+        if (index + 1 >= args.Length)
+        {
+            throw new ArgumentException($"Missing value for {optionName}.");
+        }
+
+        return args[++index];
+    }
+
+    private sealed record ImageToPDFOptions(string InputFile, string OutputFile);
 }

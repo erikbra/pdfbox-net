@@ -25,10 +25,94 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Fdf;
+using PdfBox.Net.PDModel.Interactive.Form;
 
 namespace PdfBox.Net.Tools;
 
 public static class ExportXFDF
 {
     public static void Run() => throw ToolSupport.NotSupported(nameof(ExportXFDF));
+
+    public static int Run(string[] args, TextWriter? error = null)
+    {
+        error ??= Console.Error;
+        try
+        {
+            ExportXFDFOptions options = ParseOptions(args);
+            Export(options.InputFile, options.OutputFile);
+            return 0;
+        }
+        catch (ArgumentException ex)
+        {
+            error.WriteLine(ex.Message);
+            return 1;
+        }
+        catch (IOException ex)
+        {
+            error.WriteLine($"Error exporting XFDF data [{ex.GetType().Name}]: {ex.Message}");
+            return 4;
+        }
+    }
+
+    public static void Export(string inputFile, string outputFile)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(inputFile);
+        ArgumentException.ThrowIfNullOrWhiteSpace(outputFile);
+
+        using PDDocument document = Loader.LoadPDF(inputFile);
+        PDAcroForm form = document.GetDocumentCatalog().GetAcroForm()
+            ?? throw new ArgumentException("Error: This PDF does not contain a form.");
+        using FDFDocument fdf = form.ExportFDF();
+        fdf.SaveXFDF(outputFile);
+    }
+
+    private static ExportXFDFOptions ParseOptions(string[]? args)
+    {
+        args ??= [];
+        string? input = null;
+        string? output = null;
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            string arg = args[i];
+            switch (arg)
+            {
+                case "-i":
+                case "--input":
+                    input = ReadOptionValue(args, ref i, arg);
+                    break;
+                case "-o":
+                case "--output":
+                    output = ReadOptionValue(args, ref i, arg);
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown option: {arg}");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            throw new ArgumentException("Missing required option -i/--input.");
+        }
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            throw new ArgumentException("Missing required option -o/--output.");
+        }
+
+        return new ExportXFDFOptions(input, output);
+    }
+
+    private static string ReadOptionValue(string[] args, ref int index, string optionName)
+    {
+        if (index + 1 >= args.Length)
+        {
+            throw new ArgumentException($"Missing value for {optionName}.");
+        }
+
+        return args[++index];
+    }
+
+    private sealed record ExportXFDFOptions(string InputFile, string OutputFile);
 }
