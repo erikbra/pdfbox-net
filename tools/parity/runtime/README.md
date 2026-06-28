@@ -122,3 +122,25 @@ python3 tools/parity/runtime/run_runtime_parity.py \
 
 Strict mode passes only when both `known` and `unexpected` counts are zero. CI
 can be switched to strict mode by setting `PDFBOX_PARITY_GATE_MODE=strict`.
+
+## Save/Merge Byte Identity Measurement
+
+Use `analyze_save_merge_identity.py` when a ratchet or strict runtime parity
+run has uploaded/generated save and merge artifacts and you want to measure
+strict PDF byte identity without changing the default structural-equivalence
+gate.
+
+```bash
+python3 tools/parity/runtime/analyze_save_merge_identity.py \
+  --out-dir artifacts/runtime-parity \
+  --report reports/save-merge-byte-identity-$(date +%F).md \
+  --json reports/save-merge-byte-identity-$(date +%F).json \
+  --source-label "local runtime parity run"
+```
+
+The report records strict byte-identity counts plus heuristic writer-area
+labels such as metadata/trailer IDs, stream filters/compression, COS object
+numbering, xref layout, dictionary key sequences, and incremental-save
+markers. These labels guide targeted writer hardening; they do not replace the
+default `save-structural-match` and `merge-structural-match` compatibility
+contract.

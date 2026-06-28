@@ -81,7 +81,7 @@ The review splits exact-identity hardening into targeted tasks:
 
 | Area | Follow-up issue | Goal |
 |---|---|---|
-| Save/merge byte identity | #539 | Add a strict measurement report for PDF writer byte drift and identify which writer differences are feasible to tighten. |
+| Save/merge byte identity | #539 | Add a strict measurement report for PDF writer byte drift and identify which writer differences are feasible to tighten. Follow-up implementation work is split into #551, #552, #553, #554, and #555. |
 | Text semantic drift | #540 | Reduce or eliminate the current text semantic allowances with targeted fixtures. |
 | Render visual equivalence buckets | #541 | Add per-bucket reports and lower raster-equivalence ceilings where renderer fixes make rows byte/pixel-identical. |
 | Optional JPX/JPEG 2000 rendering | #542 | Decide whether to keep the optional Java-provider classification or add an optional Java CI provider for strict raster comparison. |
