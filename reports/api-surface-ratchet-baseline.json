@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "description": "Maximum accepted reviewed Java-vs-.NET API-surface gaps for the pinned Apache PDFBox API surface comparison. Lower these values intentionally as compatibility overloads are added.",
+  "source": {
+    "generatedFrom": "Issue #533 reviewed API entry-point coverage closeout",
+    "apiReport": "reports/api-surface-comparison.json",
+    "dispositions": "reports/api-surface-dispositions.json"
+  },
+  "maxTotals": {
+    "missing_members": 894,
+    "arity_drift_members": 43,
+    "type_name_or_visibility_gaps": 8,
+    "missing_types": 0,
+    "nonpublic_or_replacement_types": 2,
+    "renamed_public_types": 6
+  },
+  "maxReview": {
+    "unreviewed_total": 0,
+    "invalid_entries": 0
+  },
+  "maxDispositionCounts": {
+    "behavior-covered": 109,
+    "intentional-dotnet-adaptation": 735,
+    "internal-by-design": 76,
+    "not-applicable": 25
+  },
+  "minCoverage": {
+    "matched_or_arity_members": 5411,
+    "member_coverage_percent": 85.8
+  }
+}

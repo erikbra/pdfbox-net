@@ -46,6 +46,7 @@ jobs:
           python3 tools/parity/generate_api_surface_report.py
           --upstream-root apache-pdfbox-api
           --no-build
+          --ratchet-baseline reports/api-surface-ratchet-baseline.json
           --fail-on-unreviewed
 
       - name: Runtime parity harness smoke

@@ -1014,6 +1014,14 @@ def build_markdown(payload: dict) -> str:
         if review["unused_disposition_keys"]:
             lines.append(f"Unused disposition keys: **{len(review['unused_disposition_keys'])}**. See `review.unused_disposition_keys` in the JSON report.")
             lines.append("")
+        lines.append("## API Ratchet")
+        lines.append("")
+        lines.append("Ratchet baseline: `reports/api-surface-ratchet-baseline.json`")
+        lines.append("")
+        lines.append("- CI fails when new API deltas are unreviewed or when reviewed gap counts exceed the ratchet baseline.")
+        lines.append("- Lower the ratchet baseline whenever compatibility overloads reduce missing, arity-drift, or type-name/visibility gaps.")
+        lines.append("- Use `reports/api-compatibility-backlog-2026-06-28.md` as the family-level backlog for issue #533 follow-up work.")
+        lines.append("")
     lines.append("## Module Breakdown")
     lines.append("")
     lines.append("| Module | Java types | Same-name types | Renamed public types | Non-public/replacement types | Missing types | Java members | Matched/arity-drift members | Missing members | Member coverage |")
@@ -1072,10 +1080,10 @@ def build_markdown(payload: dict) -> str:
     lines.append("")
     lines.append("## Next API-Parity Work")
     lines.append("")
-    lines.append("1. Review the top missing-member types and decide which Java overloads should be preserved versus documented as intentional .NET adaptations.")
+    lines.append("1. Use `reports/api-compatibility-backlog-2026-06-28.md` to work API compatibility by module/family.")
     lines.append("2. Add compatibility overloads for stable, low-risk entry points such as `Loader`, `PDDocument`, `PDFMergerUtility`, `PDFTextStripper`, font loaders, image factories, and annotation/form models.")
-    lines.append("3. Split high-risk areas into feature issues where API shape and behavior must land together: encryption/public-key loading, external signing, image factories, rendering extension points, and font embedding/subsetting.")
-    lines.append("4. Add an API parity gate that fails only on newly introduced missing Java API rows, then ratchet reviewed gaps downward.")
+    lines.append("3. Keep harmful or misleading Java-shape APIs documented as accepted .NET adaptations in `reports/api-surface-dispositions.json`.")
+    lines.append("4. Lower `reports/api-surface-ratchet-baseline.json` after each compatibility PR that reduces reviewed gaps.")
     lines.append("")
     return "\n".join(lines) + "\n"
 
@@ -1083,6 +1091,16 @@ def build_markdown(payload: dict) -> str:
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
+def read_json_object(path: Path) -> dict:
+    if not path.exists():
+        raise FileNotFoundError(path)
+    with path.open("r", encoding="utf-8") as f:
+        payload = json.load(f)
+    if not isinstance(payload, dict):
+        raise ValueError(f"{path} must contain a JSON object")
+    return payload
 
 
 def read_dispositions(path: Path) -> dict:
@@ -1254,6 +1272,78 @@ def apply_dispositions(payload: dict, dispositions: dict, disposition_path: Path
     }
 
 
+def member_coverage(payload: dict) -> tuple[int, float]:
+    totals = payload["totals"]
+    matched_or_arity = totals["matched_members"] + totals["arity_drift_members"]
+    java_members = totals["java_members"]
+    return matched_or_arity, 0.0 if java_members == 0 else matched_or_arity / java_members * 100.0
+
+
+def api_ratchet_failures(payload: dict, baseline_path: Path) -> list[str]:
+    baseline = read_json_object(baseline_path)
+    failures: list[str] = []
+
+    max_totals = baseline.get("maxTotals", {})
+    if not isinstance(max_totals, dict):
+        failures.append("baseline maxTotals must be an object")
+    else:
+        totals = payload["totals"]
+        review_raw = payload["review"]["raw"]
+        type_gap_total = review_raw["type_name_or_visibility_gaps"]
+        values = {
+            "missing_members": totals["missing_members"],
+            "arity_drift_members": totals["arity_drift_members"],
+            "type_name_or_visibility_gaps": type_gap_total,
+            "missing_types": totals["missing_types"],
+            "nonpublic_or_replacement_types": totals["nonpublic_or_replacement_types"],
+            "renamed_public_types": totals["renamed_public_types"],
+        }
+        for key, actual in values.items():
+            allowed = max_totals.get(key)
+            if isinstance(allowed, int) and actual > allowed:
+                failures.append(f"API `{key}` increased from allowed {allowed} to {actual}")
+
+    max_review = baseline.get("maxReview", {})
+    if not isinstance(max_review, dict):
+        failures.append("baseline maxReview must be an object")
+    else:
+        values = {
+            "unreviewed_total": payload["review"]["unreviewed"]["total"],
+            "invalid_entries": len(payload["review"]["invalid_entries"]),
+        }
+        for key, actual in values.items():
+            allowed = max_review.get(key)
+            if isinstance(allowed, int) and actual > allowed:
+                failures.append(f"API review `{key}` increased from allowed {allowed} to {actual}")
+
+    max_dispositions = baseline.get("maxDispositionCounts", {})
+    if not isinstance(max_dispositions, dict):
+        failures.append("baseline maxDispositionCounts must be an object")
+    else:
+        for key, actual in payload["review"]["disposition_counts"].items():
+            allowed = max_dispositions.get(key, 0)
+            if actual > allowed:
+                failures.append(f"API disposition `{key}` increased from allowed {allowed} to {actual}")
+
+    min_coverage = baseline.get("minCoverage", {})
+    if not isinstance(min_coverage, dict):
+        failures.append("baseline minCoverage must be an object")
+    else:
+        matched_or_arity, coverage = member_coverage(payload)
+        min_members = min_coverage.get("matched_or_arity_members")
+        if isinstance(min_members, int) and matched_or_arity < min_members:
+            failures.append(
+                f"API matched-or-arity members decreased from required {min_members} to {matched_or_arity}"
+            )
+        min_percent = min_coverage.get("member_coverage_percent")
+        if isinstance(min_percent, (int, float)) and coverage + 0.0001 < float(min_percent):
+            failures.append(
+                f"API member coverage decreased from required {float(min_percent):.4f}% to {coverage:.4f}%"
+            )
+
+    return failures
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate Java-vs-.NET API surface parity reports.")
     parser.add_argument(
@@ -1274,6 +1364,11 @@ def main() -> None:
         "--fail-on-unreviewed",
         action="store_true",
         help="Exit non-zero after writing reports if any reviewable API deltas remain unreviewed.",
+    )
+    parser.add_argument(
+        "--ratchet-baseline",
+        type=Path,
+        help="Fail when reviewed API gap counts exceed this ratchet baseline.",
     )
     args = parser.parse_args()
 
@@ -1318,6 +1413,16 @@ def main() -> None:
         raise SystemExit(
             f"API surface review gate failed: {unreviewed} unreviewed deltas, {invalid} invalid disposition entries"
         )
+    if args.ratchet_baseline is not None:
+        baseline_path = args.ratchet_baseline.expanduser()
+        if not baseline_path.is_absolute():
+            baseline_path = repo_root / baseline_path
+        failures = api_ratchet_failures(payload, baseline_path)
+        if failures:
+            print("API surface ratchet failed:", file=sys.stderr)
+            for failure in failures:
+                print(f"- {failure}", file=sys.stderr)
+            raise SystemExit(1)
 
 
 if __name__ == "__main__":

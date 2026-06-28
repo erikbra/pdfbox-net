@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-06-28T10:15:19Z
+Generated (UTC): 2026-06-28T14:55:14Z
 Apache PDFBox source commit: `833ed8f378f00838fd8df8c01bfc4b915b4c350b`
-PdfBox.Net commit: `ba71c8ea2842629a66cb49ec9245aac63afd5fc5`
+PdfBox.Net commit: `d244ae19f55eb359fdce51b4b813ee3133e6e66c`
 
 ## Scope
 
@@ -47,6 +47,14 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 | `intentional-dotnet-adaptation` | 735 |
 | `internal-by-design` | 76 |
 | `not-applicable` | 25 |
+
+## API Ratchet
+
+Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
+
+- CI fails when new API deltas are unreviewed or when reviewed gap counts exceed the ratchet baseline.
+- Lower the ratchet baseline whenever compatibility overloads reduce missing, arity-drift, or type-name/visibility gaps.
+- Use `reports/api-compatibility-backlog-2026-06-28.md` as the family-level backlog for issue #533 follow-up work.
 
 ## Module Breakdown
 
@@ -116,8 +124,8 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 
 ## Next API-Parity Work
 
-1. Review the top missing-member types and decide which Java overloads should be preserved versus documented as intentional .NET adaptations.
+1. Use `reports/api-compatibility-backlog-2026-06-28.md` to work API compatibility by module/family.
 2. Add compatibility overloads for stable, low-risk entry points such as `Loader`, `PDDocument`, `PDFMergerUtility`, `PDFTextStripper`, font loaders, image factories, and annotation/form models.
-3. Split high-risk areas into feature issues where API shape and behavior must land together: encryption/public-key loading, external signing, image factories, rendering extension points, and font embedding/subsetting.
-4. Add an API parity gate that fails only on newly introduced missing Java API rows, then ratchet reviewed gaps downward.
+3. Keep harmful or misleading Java-shape APIs documented as accepted .NET adaptations in `reports/api-surface-dispositions.json`.
+4. Lower `reports/api-surface-ratchet-baseline.json` after each compatibility PR that reduces reviewed gaps.
 
