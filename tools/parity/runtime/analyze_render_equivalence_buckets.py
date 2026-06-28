@@ -49,6 +49,13 @@ BUCKETS: dict[str, BucketInfo] = {
         "Real renderer gap; reduce fixture by fixture.",
         "#560",
     ),
+    "render-form-widget-bbox-clipping-equivalence-match": BucketInfo(
+        "render-form-widget-bbox-clipping-equivalence-match",
+        "forms and widget appearance BBox clipping",
+        "Widget appearance BBox-edge strokes and clipping preserve semantics while right/bottom edge pixels differ.",
+        "Reviewed fixture-scoped form/widget clipping bucket; keep separate from broad text placement/raster rows.",
+        "#558",
+    ),
     "render-form-widget-raster-equivalence-match": BucketInfo(
         "render-form-widget-raster-equivalence-match",
         "forms and widget appearance rendering",
@@ -132,7 +139,10 @@ def diff_metric(row: dict, name: str) -> object:
 def likely_source_area(row: dict) -> str:
     category = str(row.get("category", ""))
     file_name = Path(str(row.get("file", ""))).name.lower()
-    if category == "render-form-widget-raster-equivalence-match":
+    if category in {
+        "render-form-widget-bbox-clipping-equivalence-match",
+        "render-form-widget-raster-equivalence-match",
+    }:
         return "forms"
     if category == "render-glyph-layout-equivalence-match":
         return "fonts/glyphs"
@@ -214,11 +224,13 @@ def json_payload(
     rows: list[dict],
     baseline: dict[str, int],
     source_label: str | None,
+    issue: str,
 ) -> dict:
     counts = count_rows(rows)
     return {
         "schema": 1,
         "source": {
+            "issue": issue,
             "label": source_label,
             "outDir": out_dir.as_posix(),
             "comparisonGeneratedAtUtc": comparison_payload.get("summary", {}).get("generatedAtUtc"),
@@ -265,7 +277,7 @@ def markdown_report(payload: dict) -> str:
     lines = [
         "# Render Equivalence Bucket Review",
         "",
-        "Issue: #541",
+        f"Issue: {source.get('issue')}",
         "",
     ]
     if source.get("label"):
@@ -353,10 +365,11 @@ def main() -> int:
     parser.add_argument("--report", required=True, type=Path, help="Markdown report path to write.")
     parser.add_argument("--json", dest="json_path", type=Path, help="Optional machine-readable JSON report path.")
     parser.add_argument("--source-label", help="Human-readable source label to include in the report, such as a CI run or PR number.")
+    parser.add_argument("--issue", default="#541", help="Issue label to include in the Markdown and JSON reports.")
     args = parser.parse_args()
 
     comparison_payload, rows = load_rows(args.out_dir.resolve())
-    payload = json_payload(Path(args.out_dir), comparison_payload, rows, baseline_counts(args.baseline), args.source_label)
+    payload = json_payload(Path(args.out_dir), comparison_payload, rows, baseline_counts(args.baseline), args.source_label, args.issue)
 
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(markdown_report(payload), encoding="utf-8")
