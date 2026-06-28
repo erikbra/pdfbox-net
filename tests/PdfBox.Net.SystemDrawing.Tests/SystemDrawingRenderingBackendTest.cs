@@ -1,9 +1,26 @@
 using PdfBox.Net.Rendering;
+using PdfBox.Net.Printing;
 
 namespace PdfBox.Net.SystemDrawing.Tests;
 
 public class SystemDrawingRenderingBackendTest
 {
+    [Fact]
+    public void PrintBackendRegistersWindowsSpoolerAdapter()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.Skip("System.Drawing.Printing is supported only on Windows.");
+        }
+
+        SystemDrawingPrintBackend.Register();
+
+        Assert.True(PrintingBackend.IsRegistered);
+        Assert.Same(SystemDrawingPrintBackend.Instance, PrintingBackend.Current);
+        Assert.Equal("System.Drawing.Printing", PrintingBackend.Current.Name);
+        Assert.True(PrintingBackend.Current.IsSupported);
+    }
+
     [Fact]
     public void BufferedImageRoundTripsPixelsAndPngEncoding()
     {

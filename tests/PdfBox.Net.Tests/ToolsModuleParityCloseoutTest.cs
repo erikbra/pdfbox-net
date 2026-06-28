@@ -212,13 +212,8 @@ public class ToolsModuleParityCloseoutTest
     }
 
     [Fact]
-    public void PrintPDF_Run_ReturnsFailureOnUnsupportedPlatform()
+    public void PrintPDF_Run_ReturnsFailureWhenNoPrintBackendIsRegistered()
     {
-        if (OperatingSystem.IsWindows())
-        {
-            return;
-        }
-
         string tempDir = Path.Combine(Path.GetTempPath(), "pdfbox-net-tools-test", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
         string sourcePath = Path.Combine(tempDir, "plain.pdf");
@@ -228,7 +223,7 @@ public class ToolsModuleParityCloseoutTest
         int exitCode = PrintPDF.Run(["-i", sourcePath], error);
 
         Assert.Equal(4, exitCode);
-        Assert.Contains("Windows", error.ToString());
+        Assert.Contains("No PdfBox.Net print backend is registered", error.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]

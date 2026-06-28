@@ -78,21 +78,20 @@ public class PrintingTest
     }
 
     [Fact]
-    public void TestPdfPrinterDefaultsAndPlatformStub()
+    public void TestPdfPrinterDefaultsAndUnsupportedBackend()
     {
         using PDDocument document = new();
         PDFPrinter printer = new(document);
 
+        Assert.Null(printer.PrintBackend);
         Assert.Equal(Scaling.ShrinkToFit, printer.Scaling);
         Assert.True(printer.Center);
         Assert.Equal(PDFPrintable.RasterizeOff, printer.Dpi);
         Assert.False(printer.PrintToFile);
         Assert.Null(printer.PrintFileName);
 
-        if (!OperatingSystem.IsWindows())
-        {
-            Assert.Throws<PlatformNotSupportedException>(() => printer.Print());
-        }
+        PlatformNotSupportedException ex = Assert.Throws<PlatformNotSupportedException>(() => printer.Print());
+        Assert.Contains("No PdfBox.Net print backend is registered", ex.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -112,39 +111,58 @@ public class PrintingTest
     }
 
     [Fact]
-    public void TestPdfPrinterPrintsToFileWithConfiguredWindowsBackend()
+    public void TestPdfPrinterDelegatesToConfiguredBackendForDeterministicPrintToFile()
     {
-        if (!OperatingSystem.IsWindows())
-        {
-            Assert.Skip("Print-to-file requires a Windows PDF or XPS printer backend.");
-        }
-
-        string? printerName = Environment.GetEnvironmentVariable("PDFBOX_NET_TEST_PRINTER");
-        if (string.IsNullOrWhiteSpace(printerName))
-        {
-            Assert.Skip("Set PDFBOX_NET_TEST_PRINTER to a configured Windows PDF or XPS printer to run this integration test.");
-        }
-
         string outputPath = Path.Combine(Path.GetTempPath(), $"pdfbox-net-{Guid.NewGuid():N}.pdf");
+        RecordingPrintBackend backend = new();
         try
         {
             using PDDocument document = new();
             document.AddPage(new PDPage());
             PDFPrinter printer = new(document)
             {
-                PrinterName = printerName,
+                PrintBackend = backend,
+                PrinterName = "deterministic-test-printer",
                 PrintToFile = true,
-                PrintFileName = outputPath
+                PrintFileName = outputPath,
+                Scaling = Scaling.ScaleToFit,
+                ShowPageBorder = true
             };
 
             printer.Print();
 
+            Assert.NotNull(backend.LastJob);
+            Assert.Equal("deterministic-test-printer", backend.LastJob.PrinterName);
+            Assert.Equal(1, backend.LastJob.NumberOfPages);
+            Assert.Equal(Scaling.ScaleToFit, backend.LastJob.Scaling);
+            Assert.True(backend.LastJob.ShowPageBorder);
             Assert.True(File.Exists(outputPath));
             Assert.NotEqual(0, new FileInfo(outputPath).Length);
+            Assert.Contains("pages=1", File.ReadAllText(outputPath), StringComparison.Ordinal);
         }
         finally
         {
             File.Delete(outputPath);
+        }
+    }
+
+    private sealed class RecordingPrintBackend : IPDFPrintBackend
+    {
+        public string Name => "Recording";
+
+        public bool IsSupported => true;
+
+        public PDFPrintJob? LastJob { get; private set; }
+
+        public void Print(PDFPrintJob job)
+        {
+            LastJob = job;
+            if (job.PrintToFile)
+            {
+                File.WriteAllText(
+                    job.PrintFileName!,
+                    $"backend={Name};pages={job.NumberOfPages};scaling={job.Scaling};center={job.Center}");
+            }
         }
     }
 }

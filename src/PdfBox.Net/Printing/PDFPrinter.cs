@@ -26,18 +26,16 @@
  */
 
 using PdfBox.Net.PDModel;
-using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.Rendering;
-using System.Drawing.Printing;
 
 namespace PdfBox.Net.Printing;
 
 /// <summary>
 /// High-level printer helper for PDF documents.
 /// <para>
-/// Uses <see cref="PrintDocument"/> on Windows. On non-Windows platforms, methods throw
-/// <see cref="PlatformNotSupportedException"/> to keep the API available while preserving
-/// cross-platform behavior.
+/// Printing is delegated to a registered <see cref="IPDFPrintBackend"/> so the core package does
+/// not depend on platform-specific print APIs. Reference and register an optional backend package,
+/// such as <c>PdfBox.Net.SystemDrawing</c>, before calling <see cref="Print"/>.
 /// </para>
 /// </summary>
 public sealed class PDFPrinter
@@ -56,10 +54,16 @@ public sealed class PDFPrinter
         _renderer = renderer;
     }
 
+    /// <summary>
+    /// Gets or sets a per-printer backend override. If unset, <see cref="PrintingBackend.Current"/>
+    /// is used.
+    /// </summary>
+    public IPDFPrintBackend? PrintBackend { get; set; }
+
     public string? PrinterName { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the selected Windows printer should write its output to a file.
+    /// Gets or sets whether the selected backend should write its output to a file.
     /// The configured printer must support print-to-file (for example, a PDF or XPS driver).
     /// </summary>
     public bool PrintToFile { get; set; }
@@ -79,113 +83,21 @@ public sealed class PDFPrinter
 
     public void Print()
     {
-        if (!OperatingSystem.IsWindows())
-        {
-            throw new PlatformNotSupportedException("PDFPrinter.Print() is currently supported on Windows only.");
-        }
-
         if (PrintToFile && string.IsNullOrWhiteSpace(PrintFileName))
         {
             throw new InvalidOperationException("PrintFileName must be set when PrintToFile is enabled.");
         }
 
-        using PrintDocument printDocument = new();
-        if (!string.IsNullOrWhiteSpace(PrinterName))
-        {
-            printDocument.PrinterSettings.PrinterName = PrinterName;
-        }
-
-        if (PrintToFile)
-        {
-            printDocument.PrinterSettings.PrintToFile = true;
-            printDocument.PrinterSettings.PrintFileName = PrintFileName!;
-        }
-
-        if (!printDocument.PrinterSettings.IsValid)
-        {
-            throw new InvalidOperationException($"Printer '{printDocument.PrinterSettings.PrinterName}' is not available.");
-        }
-
-        int pageIndex = 0;
-        printDocument.PrintPage += (_, e) =>
-        {
-            if (e.Graphics is null)
-            {
-                throw new InvalidOperationException("Print page graphics context was not provided by the platform.");
-            }
-
-            RenderPage(e.Graphics, e.MarginBounds, pageIndex);
-            pageIndex++;
-            e.HasMorePages = pageIndex < _document.GetNumberOfPages();
-        };
-
-        printDocument.Print();
-    }
-
-    private void RenderPage(System.Drawing.Graphics graphics, System.Drawing.Rectangle imageableBounds, int pageIndex)
-    {
-        PDPage page = _document.GetPage(pageIndex);
-        PDRectangle cropBox = PDFPrintable.GetRotatedCropBox(page);
-
-        double scale = 1;
-        if (Scaling != Scaling.ActualSize)
-        {
-            double scaleX = imageableBounds.Width / cropBox.GetWidth();
-            double scaleY = imageableBounds.Height / cropBox.GetHeight();
-            scale = Math.Min(scaleX, scaleY);
-
-            if (scale > 1 && Scaling == Scaling.ShrinkToFit)
-            {
-                scale = 1;
-            }
-            if (scale < 1 && Scaling == Scaling.StretchToFit)
-            {
-                scale = 1;
-            }
-        }
-
-        float rasterDpi = Dpi;
-        if (rasterDpi == PDFPrintable.RasterizeDpiAuto)
-        {
-            rasterDpi = graphics.DpiX;
-        }
-
-        float rasterScale = rasterDpi > 0 ? rasterDpi / 72f : 1f;
-        float renderScale = Math.Max((float)(scale * rasterScale), 0.01f);
-
-        using BufferedImage image = _renderer.RenderImage(pageIndex, renderScale, ImageType.RGB, RenderDestination.PRINT);
-        using System.Drawing.Image drawingImage = ToDrawingImage(image);
-
-        float drawWidth = (float)(cropBox.GetWidth() * scale);
-        float drawHeight = (float)(cropBox.GetHeight() * scale);
-        float x = imageableBounds.Left;
-        float y = imageableBounds.Top;
-
-        if (Center)
-        {
-            float dx = (imageableBounds.Width - drawWidth) / 2f;
-            float dy = (imageableBounds.Height - drawHeight) / 2f;
-            if (dx >= 0 && dy >= 0)
-            {
-                x += dx;
-                y += dy;
-            }
-        }
-
-        graphics.FillRectangle(System.Drawing.Brushes.White, imageableBounds);
-        graphics.DrawImage(drawingImage, x, y, drawWidth, drawHeight);
-
-        if (ShowPageBorder)
-        {
-            graphics.DrawRectangle(System.Drawing.Pens.Gray, x, y, drawWidth, drawHeight);
-        }
-    }
-
-    private static System.Drawing.Image ToDrawingImage(BufferedImage image)
-    {
-        byte[] data = RenderingBackend.Current.ImageCodec.Encode(image, EncodedImageFormat.Png, 100);
-        using MemoryStream pngStream = new(data.ToArray());
-        using System.Drawing.Image decoded = System.Drawing.Image.FromStream(pngStream);
-        return new System.Drawing.Bitmap(decoded);
+        IPDFPrintBackend backend = PrintBackend ?? PrintingBackend.Current;
+        backend.Print(new PDFPrintJob(
+            _document,
+            _renderer,
+            PrinterName,
+            PrintToFile,
+            PrintFileName,
+            Scaling,
+            ShowPageBorder,
+            Dpi,
+            Center));
     }
 }
