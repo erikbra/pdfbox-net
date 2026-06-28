@@ -1,4 +1,5 @@
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Encryption;
 using PdfBox.Net.Tools;
 using PdfBoxToolsVersion = PdfBox.Net.Tools.Version;
 
@@ -60,6 +61,36 @@ public class ToolsModuleParityCloseoutTest
     public void Decrypt_Run_ThrowsNotSupported()
     {
         Assert.Throws<NotSupportedException>(() => Decrypt.Run());
+    }
+
+    [Fact]
+    public void Decrypt_Run_DecryptsStandardEncryptedPdf()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), "pdfbox-net-tools-test", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        string encryptedPath = Path.Combine(tempDir, "encrypted.pdf");
+        string decryptedPath = Path.Combine(tempDir, "decrypted.pdf");
+
+        using (PDDocument document = new())
+        {
+            document.AddPage(new PDPage());
+            document.Protect(new StandardProtectionPolicy(
+                "secret",
+                "secret",
+                AccessPermission.GetOwnerAccessPermission()));
+            document.Save(encryptedPath);
+        }
+
+        StringWriter error = new();
+        int exitCode = Decrypt.Run(
+            ["-i", encryptedPath, "-o", decryptedPath, "-password", "secret"],
+            error);
+
+        Assert.Equal(0, exitCode);
+        Assert.Equal(string.Empty, error.ToString());
+        using PDDocument decrypted = Loader.LoadPDF(decryptedPath);
+        Assert.False(decrypted.IsEncrypted());
+        Assert.Equal(1, decrypted.GetNumberOfPages());
     }
 
     private static void CreateSinglePagePdf(string filePath)
