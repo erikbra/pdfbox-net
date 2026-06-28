@@ -14,6 +14,8 @@ Currently covered:
   `X509KeyStorageFlags.EphemeralKeySet` loading is unavailable
 - CMS EnvelopedData recipient creation for `PublicKeyProtectionPolicy`
 - CMS EnvelopedData recipient decryption for public-key encrypted PDFs
+- OCSP request/response helpers that preserve raw OCSP response bytes for
+  DSS/LTV embedding
 
 Usage:
 
