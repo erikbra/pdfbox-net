@@ -93,6 +93,28 @@ public class ToolsModuleParityCloseoutTest
         Assert.Equal(1, decrypted.GetNumberOfPages());
     }
 
+    [Fact]
+    public void Encrypt_Run_EncryptsStandardPasswordPdf()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), "pdfbox-net-tools-test", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        string sourcePath = Path.Combine(tempDir, "plain.pdf");
+        string encryptedPath = Path.Combine(tempDir, "encrypted.pdf");
+        CreateSinglePagePdf(sourcePath);
+
+        StringWriter error = new();
+        int exitCode = Encrypt.Run(
+            ["-i", sourcePath, "-o", encryptedPath, "-O", "owner-secret", "-U", "user-secret", "-keyLength", "128"],
+            error);
+
+        Assert.Equal(0, exitCode);
+        Assert.Equal(string.Empty, error.ToString());
+        Assert.Throws<InvalidPasswordException>(() => Loader.LoadPDF(encryptedPath));
+        using PDDocument encrypted = Loader.LoadPDF(encryptedPath, "user-secret");
+        Assert.True(encrypted.IsEncrypted());
+        Assert.Equal(1, encrypted.GetNumberOfPages());
+    }
+
     private static void CreateSinglePagePdf(string filePath)
     {
         using PDDocument document = new();
