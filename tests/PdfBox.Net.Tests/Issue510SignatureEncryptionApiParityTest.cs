@@ -178,7 +178,7 @@ public class Issue510SignatureEncryptionApiParityTest
     }
 
     [Fact]
-    public void VisibleSignDesigner_ExposesImageTransformRotationAndUnsupportedText()
+    public void VisibleSignDesigner_ExposesImageTransformRotationAndText()
     {
         using PDDocument document = new();
         PDPage page = new(new PDRectangle(200, 100));
@@ -219,7 +219,8 @@ public class Issue510SignatureEncryptionApiParityTest
             }
         }
 
-        Assert.Throws<NotSupportedException>(() => designer.GetSignatureText());
-        Assert.Throws<NotSupportedException>(() => designer.SignatureText("text"));
+        Assert.Equal(string.Empty, designer.GetSignatureText());
+        Assert.Same(designer, designer.SignatureText("Signed by PdfBox.Net"));
+        Assert.Equal("Signed by PdfBox.Net", designer.GetSignatureText());
     }
 }

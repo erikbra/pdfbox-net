@@ -29,6 +29,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.IO;
+using PdfBox.Net.MultiPdf;
 using PdfBox.Net.PDModel.Encryption;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Annotation;
@@ -978,8 +979,28 @@ public sealed partial class PDDocument : IDisposable
         PDAcroForm acroForm,
         COSDocument visualSignatureCosDoc)
     {
-        // Minimal visual signature: set a small default rectangle.
-        // Full XObject appearance transfer is beyond scope for now.
+        PDDocument visualSignature = new(visualSignatureCosDoc);
+        PDSignatureField? templateField = visualSignature.GetSignatureFields().FirstOrDefault();
+        PDAnnotationWidget? templateWidget = templateField?.GetWidgets().FirstOrDefault();
+
+        if (templateWidget != null)
+        {
+            PDFCloneUtility cloner = new(this);
+            COSDictionary sourceWidget = templateWidget.GetCOSDictionary();
+            COSDictionary targetWidget = firstWidget.GetCOSDictionary();
+
+            if (sourceWidget.GetDictionaryObject(COSName.RECT) is COSBase rect)
+            {
+                targetWidget.SetItem(COSName.RECT, cloner.CloneForNewDocument(rect));
+            }
+
+            COSName appearanceName = COSName.GetPDFName("AP");
+            if (sourceWidget.GetDictionaryObject(appearanceName) is COSBase appearance)
+            {
+                targetWidget.SetItem(appearanceName, cloner.CloneForNewDocument(appearance));
+            }
+        }
+
         if (firstWidget.GetRectangle() == null)
         {
             firstWidget.SetRectangle(new PDRectangle(0, 0, 200, 50));

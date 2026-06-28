@@ -111,6 +111,7 @@ public class PDModelInteractiveSliceGTest
         using MemoryStream imageStream = new([1, 2, 3, 4]);
         PDVisibleSignDesigner designer = new PDVisibleSignDesigner(document, imageStream, 1)
             .SignatureFieldName("sigVisible")
+            .SignatureText("Signed by PdfBox.Net")
             .Coordinates(10, 20)
             .Width(120)
             .Height(60);
@@ -129,6 +130,18 @@ public class PDModelInteractiveSliceGTest
         using SignatureOptions options = new();
         options.SetVisualSignature(properties);
         Assert.NotNull(options.GetVisualSignature());
+
+        PDSignature signature = new();
+        document.AddSignature(signature, options);
+
+        PDSignatureField signatureField = Assert.Single(document.GetSignatureFields());
+        PDAnnotationWidget widget = Assert.Single(signatureField.GetWidgets());
+        PDAppearanceStream? appearanceStream = widget.GetNormalAppearanceStream();
+        Assert.NotNull(appearanceStream);
+        using Stream appearanceInput = appearanceStream.GetStream().CreateInputStream();
+        using StreamReader reader = new(appearanceInput);
+        string appearanceContent = reader.ReadToEnd();
+        Assert.Contains("Signed by PdfBox.Net", appearanceContent);
     }
 
 }
