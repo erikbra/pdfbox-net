@@ -75,6 +75,48 @@ public class TestPDDocumentCatalog
     }
 
     [Fact]
+    public void PageLayoutJavaEnumAliasesMatchPdfValues()
+    {
+        Assert.Contains(nameof(PageLayout.SINGLE_PAGE), Enum.GetNames<PageLayout>());
+        Assert.Contains(nameof(PageLayout.ONE_COLUMN), Enum.GetNames<PageLayout>());
+        Assert.Contains(nameof(PageLayout.TWO_COLUMN_LEFT), Enum.GetNames<PageLayout>());
+        Assert.Contains(nameof(PageLayout.TWO_COLUMN_RIGHT), Enum.GetNames<PageLayout>());
+        Assert.Contains(nameof(PageLayout.TWO_PAGE_LEFT), Enum.GetNames<PageLayout>());
+        Assert.Contains(nameof(PageLayout.TWO_PAGE_RIGHT), Enum.GetNames<PageLayout>());
+
+        Assert.Equal(PageLayout.SinglePage, PageLayout.SINGLE_PAGE);
+        Assert.Equal(PageLayout.OneColumn, PageLayout.ONE_COLUMN);
+        Assert.Equal(PageLayout.TwoColumnLeft, PageLayout.TWO_COLUMN_LEFT);
+        Assert.Equal(PageLayout.TwoColumnRight, PageLayout.TWO_COLUMN_RIGHT);
+        Assert.Equal(PageLayout.TwoPageLeft, PageLayout.TWO_PAGE_LEFT);
+        Assert.Equal(PageLayout.TwoPageRight, PageLayout.TWO_PAGE_RIGHT);
+
+        Assert.Equal("SinglePage", PageLayout.SINGLE_PAGE.StringValue());
+        Assert.Equal("TwoPageRight", PageLayout.TWO_PAGE_RIGHT.StringValue());
+    }
+
+    [Fact]
+    public void PageModeJavaEnumAliasesMatchPdfValues()
+    {
+        Assert.Contains(nameof(PageMode.USE_NONE), Enum.GetNames<PageMode>());
+        Assert.Contains(nameof(PageMode.USE_OUTLINES), Enum.GetNames<PageMode>());
+        Assert.Contains(nameof(PageMode.USE_THUMBS), Enum.GetNames<PageMode>());
+        Assert.Contains(nameof(PageMode.FULL_SCREEN), Enum.GetNames<PageMode>());
+        Assert.Contains(nameof(PageMode.USE_OPTIONAL_CONTENT), Enum.GetNames<PageMode>());
+        Assert.Contains(nameof(PageMode.USE_ATTACHMENTS), Enum.GetNames<PageMode>());
+
+        Assert.Equal(PageMode.UseNone, PageMode.USE_NONE);
+        Assert.Equal(PageMode.UseOutlines, PageMode.USE_OUTLINES);
+        Assert.Equal(PageMode.UseThumbs, PageMode.USE_THUMBS);
+        Assert.Equal(PageMode.FullScreen, PageMode.FULL_SCREEN);
+        Assert.Equal(PageMode.UseOptionalContent, PageMode.USE_OPTIONAL_CONTENT);
+        Assert.Equal(PageMode.UseAttachments, PageMode.USE_ATTACHMENTS);
+
+        Assert.Equal("UseNone", PageMode.USE_NONE.StringValue());
+        Assert.Equal("UseOC", PageMode.USE_OPTIONAL_CONTENT.StringValue());
+    }
+
+    [Fact]
     public void LanguageRoundtrip()
     {
         using PDDocument document = new();

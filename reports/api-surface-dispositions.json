@@ -3747,54 +3747,6 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|SINGLE_PAGE|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|ONE_COLUMN|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_COLUMN_LEFT|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_COLUMN_RIGHT|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_PAGE_LEFT|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|enum-value|TWO_PAGE_RIGHT|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|method|fromString|1|missing",
       "disposition": "intentional-dotnet-adaptation",
       "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
@@ -3804,54 +3756,6 @@
     },
     {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageLayout.java|org.apache.pdfbox.pdmodel.PageLayout|method|stringValue|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_NONE|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_OUTLINES|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_THUMBS|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|FULL_SCREEN|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_OPTIONAL_CONTENT|0|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
-      "issue": 506,
-      "reviewed_at_utc": "2026-06-27T00:59:27Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PageMode.java|org.apache.pdfbox.pdmodel.PageMode|enum-value|USE_ATTACHMENTS|0|missing",
       "disposition": "intentional-dotnet-adaptation",
       "note": "C# exposes idiomatic enum names plus PageLayoutExtensions/PageModeExtensions for PDF string conversion instead of Java uppercase enum constants and instance/static enum methods.",
       "issue": 506,

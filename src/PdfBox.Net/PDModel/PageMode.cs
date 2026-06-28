@@ -36,22 +36,34 @@ namespace PdfBox.Net.PDModel;
 public enum PageMode
 {
     /// <summary>Neither the outline nor the thumbnails are displayed.</summary>
-    UseNone,
+    UseNone = 0,
+    /// <summary>Java-compatible alias for <see cref="UseNone"/>.</summary>
+    USE_NONE = UseNone,
 
     /// <summary>Show bookmarks when the PDF is opened.</summary>
-    UseOutlines,
+    UseOutlines = 1,
+    /// <summary>Java-compatible alias for <see cref="UseOutlines"/>.</summary>
+    USE_OUTLINES = UseOutlines,
 
     /// <summary>Show thumbnails when the PDF is opened.</summary>
-    UseThumbs,
+    UseThumbs = 2,
+    /// <summary>Java-compatible alias for <see cref="UseThumbs"/>.</summary>
+    USE_THUMBS = UseThumbs,
 
     /// <summary>Full screen mode with no menu bar, window controls.</summary>
-    FullScreen,
+    FullScreen = 3,
+    /// <summary>Java-compatible alias for <see cref="FullScreen"/>.</summary>
+    FULL_SCREEN = FullScreen,
 
     /// <summary>Optional content group panel is visible when opened.</summary>
-    UseOptionalContent,
+    UseOptionalContent = 4,
+    /// <summary>Java-compatible alias for <see cref="UseOptionalContent"/>.</summary>
+    USE_OPTIONAL_CONTENT = UseOptionalContent,
 
     /// <summary>Attachments panel is visible.</summary>
-    UseAttachments,
+    UseAttachments = 5,
+    /// <summary>Java-compatible alias for <see cref="UseAttachments"/>.</summary>
+    USE_ATTACHMENTS = UseAttachments,
 }
 
 /// <summary>

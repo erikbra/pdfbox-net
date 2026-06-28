@@ -36,22 +36,34 @@ namespace PdfBox.Net.PDModel;
 public enum PageLayout
 {
     /// <summary>Display one page at a time.</summary>
-    SinglePage,
+    SinglePage = 0,
+    /// <summary>Java-compatible alias for <see cref="SinglePage"/>.</summary>
+    SINGLE_PAGE = SinglePage,
 
     /// <summary>Display the pages in one column.</summary>
-    OneColumn,
+    OneColumn = 1,
+    /// <summary>Java-compatible alias for <see cref="OneColumn"/>.</summary>
+    ONE_COLUMN = OneColumn,
 
     /// <summary>Display the pages in two columns, with odd-numbered pages on the left.</summary>
-    TwoColumnLeft,
+    TwoColumnLeft = 2,
+    /// <summary>Java-compatible alias for <see cref="TwoColumnLeft"/>.</summary>
+    TWO_COLUMN_LEFT = TwoColumnLeft,
 
     /// <summary>Display the pages in two columns, with odd-numbered pages on the right.</summary>
-    TwoColumnRight,
+    TwoColumnRight = 3,
+    /// <summary>Java-compatible alias for <see cref="TwoColumnRight"/>.</summary>
+    TWO_COLUMN_RIGHT = TwoColumnRight,
 
     /// <summary>Display the pages two at a time, with odd-numbered pages on the left.</summary>
-    TwoPageLeft,
+    TwoPageLeft = 4,
+    /// <summary>Java-compatible alias for <see cref="TwoPageLeft"/>.</summary>
+    TWO_PAGE_LEFT = TwoPageLeft,
 
     /// <summary>Display the pages two at a time, with odd-numbered pages on the right.</summary>
-    TwoPageRight,
+    TwoPageRight = 5,
+    /// <summary>Java-compatible alias for <see cref="TwoPageRight"/>.</summary>
+    TWO_PAGE_RIGHT = TwoPageRight,
 }
 
 /// <summary>
