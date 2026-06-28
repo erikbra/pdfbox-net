@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-06-28T20:35:51Z",
+  "generated_at_utc": "2026-06-28T20:57:27Z",
   "upstream_root": "/Users/erik/src/Repos/apache/pdfbox",
   "upstream_commit": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
-  "pdfbox_net_commit": "6b384373339ec1704e54b2b0d07e3cf8450ffd93",
+  "pdfbox_net_commit": "afac4125c15c75b7c10f00b7ce6d7e6653f6dd1d",
   "scope": {
     "modules": [
       "io",
@@ -20,9 +20,9 @@
     "matched_types": 579,
     "same_name_matched_types": 573,
     "java_members": 6305,
-    "matched_members": 5395,
+    "matched_members": 5397,
     "arity_drift_members": 42,
-    "missing_members": 868,
+    "missing_members": 866,
     "csharp_extra_members": 1640,
     "nonpublic_or_replacement_types": 2,
     "renamed_public_types": 6,
@@ -60,9 +60,9 @@
       "same_name_matched_types": 390,
       "matched_types": 390,
       "java_members": 4204,
-      "matched_members": 3675,
+      "matched_members": 3677,
       "arity_drift_members": 34,
-      "missing_members": 495,
+      "missing_members": 493,
       "csharp_extra_members": 1162,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
@@ -283,9 +283,9 @@
       "same_name_matched_types": 15,
       "matched_types": 15,
       "java_members": 114,
-      "matched_members": 55,
+      "matched_members": 57,
       "arity_drift_members": 9,
-      "missing_members": 50,
+      "missing_members": 48,
       "csharp_extra_members": 28,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
@@ -22615,11 +22615,11 @@
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
       "java_member_count": 10,
-      "missing_member_count": 4,
-      "matched_member_count": 1,
+      "missing_member_count": 2,
+      "matched_member_count": 3,
       "arity_drift_count": 5,
       "csharp_type": "PdfBox.Net.PdfParser.PDFParser",
-      "csharp_member_count": 2,
+      "csharp_member_count": 4,
       "csharp_extra_member_count": 0,
       "csharp_targets": [
         {
@@ -22806,36 +22806,18 @@
           "java_name": "load",
           "java_arity": 1,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public static PDDocument load(File file) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|load|1|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public static PDDocument load(File file) throws IOException"
         },
         {
           "java_kind": "method",
           "java_name": "load",
           "java_arity": 2,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public static PDDocument load(File file, String password) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|load|2|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public static PDDocument load(File file, String password) throws IOException"
         }
       ]
     },
@@ -82130,17 +82112,6 @@
       "arity_drift_count": 1
     },
     {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.PDFParser",
-      "csharp_type": "PdfBox.Net.PdfParser.PDFParser",
-      "java_member_count": 10,
-      "missing_member_count": 4,
-      "matched_member_count": 1,
-      "arity_drift_count": 5
-    },
-    {
       "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicJobTicketSchema.java",
       "module": "xmpbox",
       "family": "schema",
@@ -82226,6 +82197,17 @@
       "java_member_count": 3,
       "missing_member_count": 3,
       "matched_member_count": 0,
+      "arity_drift_count": 0
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "java_type": "org.apache.pdfbox.pdmodel.PDDocumentCatalog",
+      "csharp_type": "PdfBox.Net.PDModel.PDDocumentCatalog",
+      "java_member_count": 44,
+      "missing_member_count": 2,
+      "matched_member_count": 42,
       "arity_drift_count": 0
     }
   ],
@@ -83831,50 +83813,6 @@
         "state": "reviewed",
         "disposition": "internal-by-design",
         "note": "PDFParser document creation and initial parse hooks remain internal to the adapted parser lifecycle.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.PDFParser",
-      "java_kind": "method",
-      "java_name": "load",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public static PDDocument load(File file) throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|load|1|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.PDFParser",
-      "java_kind": "method",
-      "java_name": "load",
-      "java_arity": 2,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public static PDDocument load(File file, String password) throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|load|2|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
         "issue": 504,
         "reviewed_at_utc": "2026-06-26T23:49:03Z",
         "reviewed_by": "Codex"
@@ -101251,16 +101189,16 @@
       "not-applicable"
     ],
     "raw": {
-      "missing_members": 868,
+      "missing_members": 866,
       "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 918
+      "total": 916
     },
     "reviewed": {
-      "missing_members": 868,
+      "missing_members": 866,
       "arity_drift_members": 42,
       "type_name_or_visibility_gaps": 8,
-      "total": 918
+      "total": 916
     },
     "unreviewed": {
       "missing_members": 0,
@@ -101270,7 +101208,7 @@
     },
     "disposition_counts": {
       "behavior-covered": 109,
-      "intentional-dotnet-adaptation": 708,
+      "intentional-dotnet-adaptation": 706,
       "internal-by-design": 76,
       "not-applicable": 25
     },

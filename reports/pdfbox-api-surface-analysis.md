@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-06-28T20:35:51Z
+Generated (UTC): 2026-06-28T20:57:27Z
 Apache PDFBox source commit: `833ed8f378f00838fd8df8c01bfc4b915b4c350b`
-PdfBox.Net commit: `6b384373339ec1704e54b2b0d07e3cf8450ffd93`
+PdfBox.Net commit: `afac4125c15c75b7c10f00b7ce6d7e6653f6dd1d`
 
 ## Scope
 
@@ -23,12 +23,12 @@ PdfBox.Net commit: `6b384373339ec1704e54b2b0d07e3cf8450ffd93`
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
 | Java public/protected members | 6305 |
-| Matched members | 5395 |
+| Matched members | 5397 |
 | Arity-drift members | 42 |
-| Missing members | 868 |
+| Missing members | 866 |
 | Reflected .NET extra members on matched types | 1640 |
 
-Member coverage by name/signature heuristic: **5437 / 6305 = 86.2%**.
+Member coverage by name/signature heuristic: **5439 / 6305 = 86.3%**.
 
 ## Review Disposition Backlog
 
@@ -36,15 +36,15 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 
 | Delta kind | Raw | Reviewed | Unreviewed |
 |---|---:|---:|---:|
-| Missing members | 868 | 868 | 0 |
+| Missing members | 866 | 866 | 0 |
 | Arity-drift members | 42 | 42 | 0 |
 | Type-name/visibility gaps | 8 | 8 | 0 |
-| Total reviewable deltas | 918 | 918 | 0 |
+| Total reviewable deltas | 916 | 916 | 0 |
 
 | Disposition | Reviewed rows |
 |---|---:|
 | `behavior-covered` | 109 |
-| `intentional-dotnet-adaptation` | 708 |
+| `intentional-dotnet-adaptation` | 706 |
 | `internal-by-design` | 76 |
 | `not-applicable` | 25 |
 
@@ -62,7 +62,7 @@ Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | `fontbox` | 110 | 105 | 4 | 1 | 0 | 1028 | 1010 | 18 | 98.2% |
 | `io` | 15 | 15 | 0 | 0 | 0 | 131 | 126 | 5 | 96.2% |
-| `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3709 | 495 | 88.2% |
+| `pdfbox` | 391 | 390 | 0 | 1 | 0 | 4204 | 3711 | 493 | 88.3% |
 | `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 592 | 350 | 62.8% |
 
 ## Highest Missing-Member Types

@@ -7,7 +7,7 @@
     "dispositions": "reports/api-surface-dispositions.json"
   },
   "maxTotals": {
-    "missing_members": 868,
+    "missing_members": 866,
     "arity_drift_members": 42,
     "type_name_or_visibility_gaps": 8,
     "missing_types": 0,
@@ -20,12 +20,12 @@
   },
   "maxDispositionCounts": {
     "behavior-covered": 109,
-    "intentional-dotnet-adaptation": 708,
+    "intentional-dotnet-adaptation": 706,
     "internal-by-design": 76,
     "not-applicable": 25
   },
   "minCoverage": {
-    "matched_or_arity_members": 5437,
-    "member_coverage_percent": 86.2331
+    "matched_or_arity_members": 5439,
+    "member_coverage_percent": 86.2649
   }
 }

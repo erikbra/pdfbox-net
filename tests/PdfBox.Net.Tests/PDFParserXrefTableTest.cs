@@ -6,6 +6,7 @@
 
 using System.Text;
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PdfParser;
 
 namespace PdfBox.Net.Tests;
@@ -32,6 +33,18 @@ public class PDFParserXrefTableTest
         COSDictionary info = Assert.IsType<COSDictionary>(infoRef.GetObject());
         Assert.Equal("Classic Fixture", info.GetString(COSName.GetPDFName("Title")));
         Assert.Equal("pdfbox-net", info.GetString(COSName.GetPDFName("Author")));
+    }
+
+    [Fact]
+    public void Load_FilePathOverloads_ReturnDocument()
+    {
+        string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "classic-xref-fixture.pdf");
+
+        using PDDocument document = PDFParser.Load(fixturePath);
+        using PDDocument documentWithPassword = PDFParser.Load(fixturePath, null);
+
+        Assert.Equal("Classic Fixture", document.GetDocumentInformation().GetTitle());
+        Assert.Equal("Classic Fixture", documentWithPassword.GetDocumentInformation().GetTitle());
     }
 
     [Fact]
