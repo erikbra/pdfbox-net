@@ -165,3 +165,23 @@ The ratchet baseline keeps the current reviewed text semantic ceilings at one
 row each. Additional rows in those categories fail ratchet by exceeding the
 ceiling, and new text semantic categories fail because unknown categories
 default to zero until reviewed.
+
+## Render Equivalence Bucket Review
+
+Use `analyze_render_equivalence_buckets.py` when reviewing render
+`*-equivalence-match` categories and deciding whether the render ratchet
+ceilings can be lowered from the latest green runtime artifact.
+
+```bash
+python3 tools/parity/runtime/analyze_render_equivalence_buckets.py \
+  --out-dir artifacts/runtime-parity \
+  --baseline tools/parity/runtime/ratchet-baseline.json \
+  --report reports/render-equivalence-buckets-$(date +%F).md \
+  --json reports/render-equivalence-buckets-$(date +%F).json \
+  --source-label "local runtime parity run"
+```
+
+The report groups render equivalence rows by bucket, likely source area, and
+artifact paths. Lower `ratchet-baseline.json` whenever a green artifact shows a
+lower count for an accepted bucket, and split real renderer gaps into focused
+implementation issues instead of broadening the raster allowance.
