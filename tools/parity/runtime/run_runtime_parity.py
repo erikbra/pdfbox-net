@@ -125,6 +125,11 @@ RENDER_GLYPH_LAYOUT_EQUIVALENCE_FILES = {
     "PDFBOX-5811-362972.pdf",
     "arxiv-sample.pdf",
 }
+RENDER_JAVA_OPTIONAL_JPX_READER_MISSING_FILES = {
+    "JPXTestCMYK.pdf",
+    "JPXTestGrey.pdf",
+    "JPXTestRGB.pdf",
+}
 RENDER_HIGH_DRIFT_FOREGROUND_SHAPE_FILES = {
     "AcroFormsBasicFields.pdf",
     "OverlayTestBaseRot0.pdf",
@@ -1383,7 +1388,7 @@ def is_low_mean_raster_drift(java: Result, dotnet: Result, java_png: Path, dotne
 
 
 def is_java_optional_jpx_reader_gap(file: str, java: Result, dotnet: Result) -> bool:
-    if "JPX" not in Path(file).name:
+    if Path(file).name not in RENDER_JAVA_OPTIONAL_JPX_READER_MISSING_FILES:
         return False
     if not is_near_blank_render(java) or is_near_blank_render(dotnet):
         return False
