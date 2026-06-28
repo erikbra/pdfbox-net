@@ -3475,22 +3475,6 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|load|1|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
-      "issue": 504,
-      "reviewed_at_utc": "2026-06-26T23:49:03Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|load|2|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",
-      "issue": 504,
-      "reviewed_at_utc": "2026-06-26T23:49:03Z",
-      "reviewed_by": "Codex"
-    },
-    {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java|org.apache.pdfbox.pdfparser.PDFParser|method|parse|1|arity-drift",
       "disposition": "intentional-dotnet-adaptation",
       "note": "PDFParser uses .NET stream/password constructors and a parameterless Parse() result; Java RandomAccessRead/stream-cache constructors, lenient parse overloads, and static load helpers are represented by the adapted loader surface.",

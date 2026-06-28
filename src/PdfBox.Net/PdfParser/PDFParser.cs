@@ -28,6 +28,7 @@
 using System.Globalization;
 using System.Text;
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Encryption;
 
 namespace PdfBox.Net.PdfParser;
@@ -55,6 +56,27 @@ public sealed class PDFParser
         _objectPool = _document.GetObjectPool();
         _password = password;
         _decryptionMaterial = decryptionMaterial;
+    }
+
+    /// <summary>
+    /// Parses a PDF file and returns a document.
+    /// </summary>
+    /// <param name="filePath">The file path to load.</param>
+    /// <returns>The loaded document.</returns>
+    public static PDDocument Load(string filePath)
+    {
+        return Load(filePath, password: null);
+    }
+
+    /// <summary>
+    /// Parses a password-protected PDF file and returns a document.
+    /// </summary>
+    /// <param name="filePath">The file path to load.</param>
+    /// <param name="password">The user or owner password used to decrypt the document.</param>
+    /// <returns>The loaded document.</returns>
+    public static PDDocument Load(string filePath, string? password)
+    {
+        return PDDocument.Load(filePath, password);
     }
 
     public ParsedPDFDocument Parse()
