@@ -42,6 +42,13 @@ BUCKETS: dict[str, BucketInfo] = {
         "Real renderer gap; reduce fixture by fixture.",
         "#559",
     ),
+    "render-jbig2-decoder-raster-equivalence-match": BucketInfo(
+        "render-jbig2-decoder-raster-equivalence-match",
+        "JBIG2 decoder and bitonal image rasterization",
+        "JBIG2 decoded foreground shape is preserved while decoder/backend raster pixels differ.",
+        "Reviewed JBIG2 decoder raster bucket; keep separate from broader sampled-image and mask rows.",
+        "#559",
+    ),
     "render-pattern-transparency-raster-equivalence-match": BucketInfo(
         "render-pattern-transparency-raster-equivalence-match",
         "patterns, transparency groups, and form XObjects",
@@ -146,7 +153,11 @@ def likely_source_area(row: dict) -> str:
         return "forms"
     if category == "render-glyph-layout-equivalence-match":
         return "fonts/glyphs"
-    if category in {"render-image-mask-shape-equivalence-match", "render-lossy-jpeg-decoder-equivalence-match"}:
+    if category in {
+        "render-image-mask-shape-equivalence-match",
+        "render-jbig2-decoder-raster-equivalence-match",
+        "render-lossy-jpeg-decoder-equivalence-match",
+    }:
         return "sampled images/masks"
     if category == "render-pattern-transparency-raster-equivalence-match":
         return "PageDrawer patterns/transparency"
