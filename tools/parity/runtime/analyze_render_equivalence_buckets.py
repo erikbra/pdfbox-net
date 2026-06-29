@@ -35,6 +35,13 @@ BUCKETS: dict[str, BucketInfo] = {
         "Accepted shape-equivalence bucket with real geometry/clipping slices split out.",
         "#562",
     ),
+    "render-rotation-overlay-shape-equivalence-match": BucketInfo(
+        "render-rotation-overlay-shape-equivalence-match",
+        "page rotation, overlay placement, and page-boundary strokes",
+        "Rotation and overlay fixtures preserve page geometry and foreground shape while Java2D vs .NET line rasterization differs.",
+        "Reviewed rotation/overlay shape bucket; keep separate from generic foreground-shape rows.",
+        "#562",
+    ),
     "render-image-mask-shape-equivalence-match": BucketInfo(
         "render-image-mask-shape-equivalence-match",
         "sampled images, stencil masks, and image masks",
@@ -241,6 +248,8 @@ def likely_source_area(row: dict) -> str:
         "render-form-widget-raster-equivalence-match",
     }:
         return "forms"
+    if category == "render-rotation-overlay-shape-equivalence-match":
+        return "geometry/clipping"
     if category in GLYPH_PROBE_CATEGORIES:
         return "fonts/glyphs"
     if category in {

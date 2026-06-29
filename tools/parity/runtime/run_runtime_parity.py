@@ -144,6 +144,17 @@ RENDER_FORM_WIDGET_EQUIVALENCE_FILES = {
 RENDER_FORM_WIDGET_BBOX_CLIPPING_EQUIVALENCE_FILES = {
     "PDFBOX3812-acrobat-multiline-auto.pdf",
 }
+RENDER_ROTATION_OVERLAY_SHAPE_EQUIVALENCE_FILES = {
+    "OverlayTestBaseRot0.pdf",
+    "Overlayed-with-rot0.pdf",
+    "Overlayed-with-rot180.pdf",
+    "Overlayed-with-rot270.pdf",
+    "Overlayed-with-rot90.pdf",
+    "rot0.pdf",
+    "rot180.pdf",
+    "rot270.pdf",
+    "rot90.pdf",
+}
 RENDER_GLYPH_RASTER_EQUIVALENCE_FILES = {
     "AlignmentTests.pdf",
     "PDFBOX-3038-001033-p2.pdf",
@@ -1108,6 +1119,8 @@ def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: 
         return "render-lossy-jpeg-decoder-equivalence-match"
     if is_form_widget_bbox_clipping_render_drift(file, java_png, dotnet_png):
         return "render-form-widget-bbox-clipping-equivalence-match"
+    if is_rotation_overlay_shape_render_drift(file, java_png, dotnet_png):
+        return "render-rotation-overlay-shape-equivalence-match"
     if is_foreground_shape_render_drift(file, java_png, dotnet_png):
         return "render-foreground-shape-equivalence-match"
     if is_jbig2_decoder_render_drift(file, java_png, dotnet_png):
@@ -1202,6 +1215,50 @@ def load_glyph_rows(path: Path) -> list[dict[str, object]] | None:
     return rows
 
 
+def is_rotation_overlay_shape_render_drift(file: str, java_png: Path, dotnet_png: Path) -> bool:
+    return high_drift_foreground_shape_matches(
+        file,
+        java_png,
+        dotnet_png,
+        RENDER_ROTATION_OVERLAY_SHAPE_EQUIVALENCE_FILES,
+    )
+
+
+def high_drift_foreground_shape_matches(
+    file: str,
+    java_png: Path,
+    dotnet_png: Path,
+    file_names: set[str],
+) -> bool:
+    if Path(file).name not in file_names:
+        return False
+
+    stats = render_image_diff_stats(java_png, dotnet_png)
+    if stats is None or stats.total_pixels <= 0:
+        return False
+
+    shape = foreground_shape_stats(
+        java_png,
+        dotnet_png,
+        RENDER_FOREGROUND_SHAPE_THRESHOLD,
+        RENDER_FOREGROUND_SHAPE_DILATION_RADIUS,
+    )
+    if shape is None:
+        return False
+
+    primary_miss = min(shape.java_miss_ratio, shape.dotnet_miss_ratio)
+    secondary_miss = max(shape.java_miss_ratio, shape.dotnet_miss_ratio)
+    return (
+        shape.foreground_ratio <= RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_RATIO
+        and stats.mean <= RENDER_HIGH_DRIFT_SHAPE_MAX_MEAN
+        and stats.rms <= RENDER_HIGH_DRIFT_SHAPE_MAX_RMS
+        and stats.large_diff_ratio <= RENDER_HIGH_DRIFT_SHAPE_MAX_LARGE_DIFF_RATIO
+        and shape.foreground_delta_ratio <= RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_DELTA_RATIO
+        and primary_miss <= RENDER_HIGH_DRIFT_SHAPE_MAX_PRIMARY_MISS_RATIO
+        and secondary_miss <= RENDER_HIGH_DRIFT_SHAPE_MAX_SECONDARY_MISS_RATIO
+    )
+
+
 def is_foreground_shape_render_drift(file: str, java_png: Path, dotnet_png: Path) -> bool:
     stats = render_image_diff_stats(java_png, dotnet_png)
     if stats is None or stats.total_pixels <= 0:
@@ -1241,15 +1298,11 @@ def is_foreground_shape_render_drift(file: str, java_png: Path, dotnet_png: Path
 
     # These closed-bucket fixtures are shape-identical across Java2D and Skia,
     # but hosted Linux rasterization can exceed the generic antialias limits.
-    return (
-        Path(file).name in RENDER_HIGH_DRIFT_FOREGROUND_SHAPE_FILES
-        and shape.foreground_ratio <= RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_RATIO
-        and stats.mean <= RENDER_HIGH_DRIFT_SHAPE_MAX_MEAN
-        and stats.rms <= RENDER_HIGH_DRIFT_SHAPE_MAX_RMS
-        and stats.large_diff_ratio <= RENDER_HIGH_DRIFT_SHAPE_MAX_LARGE_DIFF_RATIO
-        and shape.foreground_delta_ratio <= RENDER_HIGH_DRIFT_SHAPE_MAX_FOREGROUND_DELTA_RATIO
-        and primary_miss <= RENDER_HIGH_DRIFT_SHAPE_MAX_PRIMARY_MISS_RATIO
-        and secondary_miss <= RENDER_HIGH_DRIFT_SHAPE_MAX_SECONDARY_MISS_RATIO
+    return high_drift_foreground_shape_matches(
+        file,
+        java_png,
+        dotnet_png,
+        RENDER_HIGH_DRIFT_FOREGROUND_SHAPE_FILES,
     )
 
 
