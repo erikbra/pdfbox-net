@@ -2,8 +2,8 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "Issue #559 JBIG2 image/mask bucket split",
-    "generatedAtUtc": "2026-06-29T00:05:13Z",
+    "generatedFrom": "Issue #560 GlobalResource text raster bucket split",
+    "generatedAtUtc": "2026-06-29T00:31:41Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
@@ -16,6 +16,7 @@
     "render-form-widget-bbox-clipping-equivalence-match": 1,
     "render-form-widget-raster-equivalence-match": 2,
     "render-foreground-shape-equivalence-match": 47,
+    "render-global-resource-text-raster-equivalence-match": 4,
     "render-glyph-layout-equivalence-match": 7,
     "render-image-mask-shape-equivalence-match": 2,
     "render-java-optional-jpx-reader-missing-match": 3,
@@ -24,7 +25,7 @@
     "render-low-ink-equivalence-match": 0,
     "render-low-mean-raster-drift-equivalence-match": 0,
     "render-near-blank-threshold-equivalence-match": 0,
-    "render-pattern-transparency-raster-equivalence-match": 5,
+    "render-pattern-transparency-raster-equivalence-match": 1,
     "render-sparse-equivalence-match": 1,
     "render-visual-equivalence-match": 62,
     "save-structural-match": 148,
