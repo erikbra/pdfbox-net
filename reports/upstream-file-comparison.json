@@ -1,9 +1,9 @@
 {
-  "generated_at_utc": "2026-06-24T12:24:57.865Z",
+  "generated_at_utc": "2026-06-29T13:52:20.062Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
-  "upstream_head": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
-  "tracked_parity_baseline_commit": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
+  "upstream_head": "ed358c48dc5ab3f20687cc4a6bf9529436641ecd",
+  "tracked_parity_baseline_commit": "ed358c48dc5ab3f20687cc4a6bf9529436641ecd",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1067,
   "mapped": 1067,
@@ -12769,14 +12769,16 @@
         "traceability"
       ],
       "provenance_target_paths": [
-        "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs"
+        "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
+        "src/PdfBox.Net/PDModel/Font/TrueTypePathNormalizer.cs"
       ],
       "traceability_target_paths": [
         "src/PdfBox.Net/PDModel/Font/FontStubs.cs"
       ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-        "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs"
+        "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
+        "src/PdfBox.Net/PDModel/Font/TrueTypePathNormalizer.cs"
       ],
       "gap_category": "none"
     },
@@ -17480,12 +17482,14 @@
         "traceability"
       ],
       "provenance_target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.Fdf.cs",
         "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.cs"
       ],
       "traceability_target_paths": [
         "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.cs"
       ],
       "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.Fdf.cs",
         "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.cs"
       ],
       "gap_category": "none"
@@ -18238,10 +18242,12 @@
         "provenance"
       ],
       "provenance_target_paths": [
+        "src/PdfBox.Net.SkiaSharp/Rendering/SkiaPageDrawerPeer.cs",
         "src/PdfBox.Net/Rendering/PageDrawer.cs"
       ],
       "traceability_target_paths": [],
       "target_paths": [
+        "src/PdfBox.Net.SkiaSharp/Rendering/SkiaPageDrawerPeer.cs",
         "src/PdfBox.Net/Rendering/PageDrawer.cs"
       ],
       "gap_category": "missing-traceability-row"
@@ -18306,11 +18312,11 @@
         "provenance"
       ],
       "provenance_target_paths": [
-        "src/PdfBox.Net/Rendering/TilingPaint.cs"
+        "src/PdfBox.Net.SkiaSharp/Rendering/TilingPaint.cs"
       ],
       "traceability_target_paths": [],
       "target_paths": [
-        "src/PdfBox.Net/Rendering/TilingPaint.cs"
+        "src/PdfBox.Net.SkiaSharp/Rendering/TilingPaint.cs"
       ],
       "gap_category": "missing-traceability-row"
     },
@@ -18323,11 +18329,11 @@
         "provenance"
       ],
       "provenance_target_paths": [
-        "src/PdfBox.Net/Rendering/TilingPaintFactory.cs"
+        "src/PdfBox.Net.SkiaSharp/Rendering/TilingPaintFactory.cs"
       ],
       "traceability_target_paths": [],
       "target_paths": [
-        "src/PdfBox.Net/Rendering/TilingPaintFactory.cs"
+        "src/PdfBox.Net.SkiaSharp/Rendering/TilingPaintFactory.cs"
       ],
       "gap_category": "missing-traceability-row"
     },
