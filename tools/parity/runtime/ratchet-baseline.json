@@ -2,8 +2,8 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "Issue #560 GlobalResource text raster bucket split",
-    "generatedAtUtc": "2026-06-29T00:31:41Z",
+    "generatedFrom": "Issue #561 glyph raster bucket split",
+    "generatedAtUtc": "2026-06-29T13:00:41Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
@@ -17,7 +17,8 @@
     "render-form-widget-raster-equivalence-match": 2,
     "render-foreground-shape-equivalence-match": 47,
     "render-global-resource-text-raster-equivalence-match": 4,
-    "render-glyph-layout-equivalence-match": 7,
+    "render-glyph-layout-equivalence-match": 2,
+    "render-glyph-raster-equivalence-match": 5,
     "render-image-mask-shape-equivalence-match": 2,
     "render-java-optional-jpx-reader-missing-match": 3,
     "render-jbig2-decoder-raster-equivalence-match": 1,

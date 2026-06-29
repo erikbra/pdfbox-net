@@ -116,6 +116,7 @@ RENDER_FORM_WIDGET_BBOX_CLIPPING_MAX_FOREGROUND_DELTA_RATIO = 0.34
 RENDER_FORM_WIDGET_BBOX_CLIPPING_MAX_PRIMARY_MISS_RATIO = 0.001
 RENDER_FORM_WIDGET_BBOX_CLIPPING_MAX_SECONDARY_MISS_RATIO = 0.22
 RENDER_GLYPH_LAYOUT_MAX_POSITION_DELTA = 0.01
+RENDER_GLYPH_RASTER_MAX_POSITION_DELTA = 0.0
 RENDER_IMAGE_MASK_SHAPE_EQUIVALENCE_FILES = {
     "PDFBOX-5840-410609.pdf",
     "data-000001.pdf",
@@ -142,6 +143,13 @@ RENDER_FORM_WIDGET_EQUIVALENCE_FILES = {
 }
 RENDER_FORM_WIDGET_BBOX_CLIPPING_EQUIVALENCE_FILES = {
     "PDFBOX3812-acrobat-multiline-auto.pdf",
+}
+RENDER_GLYPH_RASTER_EQUIVALENCE_FILES = {
+    "AlignmentTests.pdf",
+    "PDFBOX-3038-001033-p2.pdf",
+    "PDFBOX-3062-002207-p1.pdf",
+    "PDFBOX-3656-SF1199AEG (Complete).pdf",
+    "arxiv-sample.pdf",
 }
 RENDER_GLYPH_LAYOUT_EQUIVALENCE_FILES = {
     "AlignmentTests.pdf",
@@ -1112,6 +1120,8 @@ def classify_render_mismatch(file: str, java: Result, dotnet: Result, java_out: 
         return "render-pattern-transparency-raster-equivalence-match"
     if is_form_widget_render_drift(file, java_png, dotnet_png):
         return "render-form-widget-raster-equivalence-match"
+    if is_glyph_raster_render_drift(file, java_out, dotnet_out):
+        return "render-glyph-raster-equivalence-match"
     if is_glyph_layout_render_drift(file, java_out, dotnet_out):
         return "render-glyph-layout-equivalence-match"
     if is_low_ink_render_drift(java, dotnet, java_png, dotnet_png):
@@ -1137,7 +1147,16 @@ def is_lossy_jpeg_decoder_drift(file: str, java_png: Path, dotnet_png: Path) -> 
 def is_glyph_layout_render_drift(file: str, java_out: Path, dotnet_out: Path) -> bool:
     if Path(file).name not in RENDER_GLYPH_LAYOUT_EQUIVALENCE_FILES:
         return False
+    return glyph_rows_match_with_geometry_delta(file, java_out, dotnet_out, RENDER_GLYPH_LAYOUT_MAX_POSITION_DELTA)
 
+
+def is_glyph_raster_render_drift(file: str, java_out: Path, dotnet_out: Path) -> bool:
+    if Path(file).name not in RENDER_GLYPH_RASTER_EQUIVALENCE_FILES:
+        return False
+    return glyph_rows_match_with_geometry_delta(file, java_out, dotnet_out, RENDER_GLYPH_RASTER_MAX_POSITION_DELTA)
+
+
+def glyph_rows_match_with_geometry_delta(file: str, java_out: Path, dotnet_out: Path, max_position_delta: float) -> bool:
     java_rows = load_glyph_rows(glyph_artifact_path(java_out, file, "java"))
     dotnet_rows = load_glyph_rows(glyph_artifact_path(dotnet_out, file, "dotnet"))
     if not java_rows or not dotnet_rows:
@@ -1157,7 +1176,7 @@ def is_glyph_layout_render_drift(file: str, java_out: Path, dotnet_out: Path) ->
                 dotnet_value = float(dotnet_row[field])
             except (KeyError, TypeError, ValueError):
                 return False
-            if abs(java_value - dotnet_value) > RENDER_GLYPH_LAYOUT_MAX_POSITION_DELTA:
+            if abs(java_value - dotnet_value) > max_position_delta:
                 return False
 
     return True

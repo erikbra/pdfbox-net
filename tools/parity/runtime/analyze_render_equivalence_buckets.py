@@ -77,6 +77,13 @@ BUCKETS: dict[str, BucketInfo] = {
         "Real form/widget renderer gap; reduce fixture by fixture.",
         "#558",
     ),
+    "render-glyph-raster-equivalence-match": BucketInfo(
+        "render-glyph-raster-equivalence-match",
+        "fonts, glyph rasterization, and backend antialiasing",
+        "Glyph probe rows match identity and exact geometry; only Java2D vs .NET raster pixels differ.",
+        "Reviewed glyph raster bucket; keep separate from rows with measurable glyph geometry drift.",
+        "#561",
+    ),
     "render-glyph-layout-equivalence-match": BucketInfo(
         "render-glyph-layout-equivalence-match",
         "fonts, glyph layout, and fallback rendering",
@@ -129,6 +136,12 @@ BUCKETS: dict[str, BucketInfo] = {
 }
 
 
+GLYPH_PROBE_CATEGORIES = {
+    "render-glyph-raster-equivalence-match",
+    "render-glyph-layout-equivalence-match",
+}
+
+
 def is_render_equivalence_category(category: str) -> bool:
     return category in BUCKETS
 
@@ -150,6 +163,76 @@ def diff_metric(row: dict, name: str) -> object:
     return render_diff.get(name, "")
 
 
+def glyph_artifact_name(file: str, runtime: str) -> str:
+    return f"{Path(file).stem}-{runtime}-glyphs.jsonl"
+
+
+def glyph_artifact_path(out_dir: Path, file: str, runtime: str) -> Path:
+    return out_dir / runtime / glyph_artifact_name(file, runtime)
+
+
+def load_glyph_rows(path: Path) -> list[dict[str, object]] | None:
+    if not path.exists():
+        return None
+
+    rows: list[dict[str, object]] = []
+    try:
+        with path.open(encoding="utf-8") as handle:
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                row = json.loads(line)
+                if not isinstance(row, dict):
+                    return None
+                rows.append(row)
+    except (OSError, json.JSONDecodeError):
+        return None
+    return rows
+
+
+def glyph_probe_payload(out_dir: Path, row: dict) -> dict[str, object] | None:
+    category = str(row.get("category", ""))
+    if category not in GLYPH_PROBE_CATEGORIES:
+        return None
+
+    file = str(row.get("file", ""))
+    java_rows = load_glyph_rows(glyph_artifact_path(out_dir, file, "java"))
+    dotnet_rows = load_glyph_rows(glyph_artifact_path(out_dir, file, "dotnet"))
+    if not java_rows or not dotnet_rows:
+        return None
+
+    exact_fields = ("page", "index", "unicode", "codes", "font", "embedded")
+    numeric_fields = ("x", "y", "w", "h")
+    identity_mismatches = 0
+    max_delta = {field: 0.0 for field in numeric_fields}
+    total_delta = {field: 0.0 for field in numeric_fields}
+    compared = min(len(java_rows), len(dotnet_rows))
+    for java_row, dotnet_row in zip(java_rows, dotnet_rows):
+        if any(java_row.get(field) != dotnet_row.get(field) for field in exact_fields):
+            identity_mismatches += 1
+        for field in numeric_fields:
+            try:
+                delta = abs(float(java_row[field]) - float(dotnet_row[field]))
+            except (KeyError, TypeError, ValueError):
+                continue
+            max_delta[field] = max(max_delta[field], delta)
+            total_delta[field] += delta
+
+    average_delta = {
+        field: (total_delta[field] / compared if compared else 0.0)
+        for field in numeric_fields
+    }
+    return {
+        "javaRows": len(java_rows),
+        "dotnetRows": len(dotnet_rows),
+        "comparedRows": compared,
+        "identityMismatches": identity_mismatches,
+        "maxDelta": max_delta,
+        "averageDelta": average_delta,
+    }
+
+
 def likely_source_area(row: dict) -> str:
     category = str(row.get("category", ""))
     file_name = Path(str(row.get("file", ""))).name.lower()
@@ -158,7 +241,7 @@ def likely_source_area(row: dict) -> str:
         "render-form-widget-raster-equivalence-match",
     }:
         return "forms"
-    if category == "render-glyph-layout-equivalence-match":
+    if category in GLYPH_PROBE_CATEGORIES:
         return "fonts/glyphs"
     if category in {
         "render-image-mask-shape-equivalence-match",
@@ -220,8 +303,8 @@ def baseline_counts(path: Path | None) -> dict[str, int]:
     return {category: int(categories.get(category, 0)) for category in BUCKETS}
 
 
-def row_payload(row: dict) -> dict:
-    return {
+def row_payload(out_dir: Path, row: dict) -> dict:
+    payload = {
         "file": row.get("file"),
         "corpusCategory": row.get("corpusCategory"),
         "category": row.get("category"),
@@ -236,6 +319,10 @@ def row_payload(row: dict) -> dict:
         "largeDiffRatio": diff_metric(row, "largeDiffRatio"),
         "artifacts": row.get("artifacts", {}),
     }
+    glyph_probe = glyph_probe_payload(out_dir, row)
+    if glyph_probe is not None:
+        payload["glyphProbe"] = glyph_probe
+    return payload
 
 
 def json_payload(
@@ -278,7 +365,7 @@ def json_payload(
                 "followUp": info.follow_up,
                 "count": counts.get(category, 0),
                 "previousCeiling": baseline.get(category, 0),
-                "examples": [row_payload(row) for row in rows if row.get("category") == category][:8],
+                "examples": [row_payload(out_dir, row) for row in rows if row.get("category") == category][:8],
             }
             for category, info in BUCKETS.items()
         ],
@@ -308,9 +395,9 @@ def markdown_report(payload: dict) -> str:
             f"Runtime comparison generated UTC: `{source.get('comparisonGeneratedAtUtc')}`",
             f"Manifest: `{source.get('manifest')}`",
             "",
-            "## Ratchet Lowering",
+            "## Ratchet Changes",
             "",
-            "| Category | Previous ceiling | Current count | New ceiling |",
+            "| Category | Previous ceiling | Current count | Updated ceiling |",
             "|---|---:|---:|---:|",
         ]
     )
@@ -373,6 +460,38 @@ def markdown_report(payload: dict) -> str:
             )
         if len(examples) == 8:
             lines.append("| ... | Additional rows omitted from Markdown; see JSON report. | | | | | |")
+        lines.append("")
+
+    glyph_examples = [
+        row
+        for bucket in payload["buckets"]
+        for row in bucket["examples"]
+        if isinstance(row.get("glyphProbe"), dict)
+    ]
+    if glyph_examples:
+        lines.extend(
+            [
+                "## Glyph Probe Evidence",
+                "",
+                "| File | Category | Rows | Identity mismatches | Max x | Max y | Max w | Max h |",
+                "|---|---|---:|---:|---:|---:|---:|---:|",
+            ]
+        )
+        for row in glyph_examples:
+            probe = row["glyphProbe"]
+            max_delta = probe.get("maxDelta", {}) if isinstance(probe.get("maxDelta"), dict) else {}
+            lines.append(
+                "| `{file}` | `{category}` | {rows} | {mismatches} | {x} | {y} | {w} | {h} |".format(
+                    file=row.get("file", ""),
+                    category=row.get("category", ""),
+                    rows=probe.get("comparedRows", ""),
+                    mismatches=probe.get("identityMismatches", ""),
+                    x=format_number(max_delta.get("x", "")),
+                    y=format_number(max_delta.get("y", "")),
+                    w=format_number(max_delta.get("w", "")),
+                    h=format_number(max_delta.get("h", "")),
+                )
+            )
         lines.append("")
 
     return "\n".join(lines) + "\n"
