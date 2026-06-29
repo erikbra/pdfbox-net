@@ -56,6 +56,13 @@ BUCKETS: dict[str, BucketInfo] = {
         "Real renderer gap; reduce fixture by fixture.",
         "#560",
     ),
+    "render-global-resource-text-raster-equivalence-match": BucketInfo(
+        "render-global-resource-text-raster-equivalence-match",
+        "LiveCycle global-resource text rendering",
+        "GlobalResource merge fixtures preserve text content and foreground shape while text raster density differs.",
+        "Reviewed fixture-family text raster bucket; keep separate from true pattern/transparency rows.",
+        "#560",
+    ),
     "render-form-widget-bbox-clipping-equivalence-match": BucketInfo(
         "render-form-widget-bbox-clipping-equivalence-match",
         "forms and widget appearance BBox clipping",
@@ -159,6 +166,8 @@ def likely_source_area(row: dict) -> str:
         "render-lossy-jpeg-decoder-equivalence-match",
     }:
         return "sampled images/masks"
+    if category == "render-global-resource-text-raster-equivalence-match":
+        return "fonts/glyphs"
     if category == "render-pattern-transparency-raster-equivalence-match":
         return "PageDrawer patterns/transparency"
     if category == "render-java-optional-jpx-reader-missing-match":
