@@ -1,0 +1,1113 @@
+{
+  "schema": 1,
+  "source": {
+    "issue": "#561",
+    "label": "GitHub Actions runtime-parity run 28341456054 reclassified for #561",
+    "outDir": "artifacts/runtime-parity-issue-561-download/runtime-parity-28341456054-2",
+    "comparisonGeneratedAtUtc": "2026-06-29T13:03:50Z",
+    "manifest": "tools/parity/runtime/corpus-manifest.txt"
+  },
+  "summary": {
+    "counts": {
+      "render-visual-equivalence-match": 62,
+      "render-foreground-shape-equivalence-match": 47,
+      "render-image-mask-shape-equivalence-match": 2,
+      "render-jbig2-decoder-raster-equivalence-match": 1,
+      "render-pattern-transparency-raster-equivalence-match": 1,
+      "render-global-resource-text-raster-equivalence-match": 4,
+      "render-form-widget-bbox-clipping-equivalence-match": 1,
+      "render-form-widget-raster-equivalence-match": 2,
+      "render-glyph-raster-equivalence-match": 5,
+      "render-glyph-layout-equivalence-match": 2,
+      "render-sparse-equivalence-match": 1,
+      "render-low-ink-equivalence-match": 0,
+      "render-near-blank-threshold-equivalence-match": 0,
+      "render-low-mean-raster-drift-equivalence-match": 0,
+      "render-lossy-jpeg-decoder-equivalence-match": 2,
+      "render-java-optional-jpx-reader-missing-match": 3
+    },
+    "sourceAreaCounts": {
+      "render-foreground-shape-equivalence-match": {
+        "backend antialiasing": 22,
+        "forms": 3,
+        "geometry/clipping": 14,
+        "fonts/glyphs": 4,
+        "sampled images/masks": 2,
+        "PageDrawer patterns/transparency": 2
+      },
+      "render-form-widget-bbox-clipping-equivalence-match": {
+        "forms": 1
+      },
+      "render-form-widget-raster-equivalence-match": {
+        "forms": 2
+      },
+      "render-global-resource-text-raster-equivalence-match": {
+        "fonts/glyphs": 4
+      },
+      "render-glyph-layout-equivalence-match": {
+        "fonts/glyphs": 2
+      },
+      "render-glyph-raster-equivalence-match": {
+        "fonts/glyphs": 5
+      },
+      "render-image-mask-shape-equivalence-match": {
+        "sampled images/masks": 2
+      },
+      "render-java-optional-jpx-reader-missing-match": {
+        "optional runtime provider": 3
+      },
+      "render-jbig2-decoder-raster-equivalence-match": {
+        "sampled images/masks": 1
+      },
+      "render-lossy-jpeg-decoder-equivalence-match": {
+        "sampled images/masks": 2
+      },
+      "render-pattern-transparency-raster-equivalence-match": {
+        "PageDrawer patterns/transparency": 1
+      },
+      "render-sparse-equivalence-match": {
+        "backend antialiasing": 1
+      },
+      "render-visual-equivalence-match": {
+        "forms": 9,
+        "backend antialiasing": 47,
+        "fonts/glyphs": 2,
+        "geometry/clipping": 2,
+        "sampled images/masks": 2
+      }
+    },
+    "ratchetLowering": {
+      "render-glyph-raster-equivalence-match": {
+        "previousCeiling": 0,
+        "currentCount": 5,
+        "recommendedCeiling": 5
+      },
+      "render-glyph-layout-equivalence-match": {
+        "previousCeiling": 7,
+        "currentCount": 2,
+        "recommendedCeiling": 2
+      }
+    }
+  },
+  "buckets": [
+    {
+      "category": "render-visual-equivalence-match",
+      "owner": "backend antialiasing / PageDrawer",
+      "summary": "Same dimensions and bounded pixel drift under the generic visual-equivalence thresholds.",
+      "decision": "Accepted backend raster adaptation; lower the ceiling to the current corpus count.",
+      "followUp": "No implementation issue unless a fixture shows semantic drift beyond antialiasing.",
+      "count": 62,
+      "previousCeiling": 62,
+      "examples": [
+        {
+          "file": "AcroFormForMerge-DifferentExportValues.pdf",
+          "corpusCategory": "forms",
+          "category": "render-visual-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 298,
+          "dotnetNonBg": 466,
+          "javaNearBlank": true,
+          "dotnetNearBlank": true,
+          "mean": 0.11255941770647653,
+          "rms": 2.5073470966860674,
+          "moderateDiffRatio": 0.003573314847824652,
+          "largeDiffRatio": 0.0012626262626262627,
+          "artifacts": {
+            "java": "java/AcroFormForMerge-DifferentExportValues-java-p1.png",
+            "dotnet": "dotnet/AcroFormForMerge-DifferentExportValues-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AcroFormForMerge-DifferentFieldType.pdf",
+          "corpusCategory": "forms",
+          "category": "render-visual-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 279,
+          "dotnetNonBg": 449,
+          "javaNearBlank": true,
+          "dotnetNearBlank": true,
+          "mean": 0.10791122004357298,
+          "rms": 2.4511959946764126,
+          "moderateDiffRatio": 0.0034412755000990296,
+          "largeDiffRatio": 0.0012048590479963029,
+          "artifacts": {
+            "java": "java/AcroFormForMerge-DifferentFieldType-java-p1.png",
+            "dotnet": "dotnet/AcroFormForMerge-DifferentFieldType-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AcroFormForMerge-DifferentOptions.pdf",
+          "corpusCategory": "forms",
+          "category": "render-visual-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 294,
+          "dotnetNonBg": 465,
+          "javaNearBlank": true,
+          "dotnetNearBlank": true,
+          "mean": 0.11265844721727075,
+          "rms": 2.513540278103662,
+          "moderateDiffRatio": 0.003573314847824652,
+          "largeDiffRatio": 0.0012626262626262627,
+          "artifacts": {
+            "java": "java/AcroFormForMerge-DifferentOptions-java-p1.png",
+            "dotnet": "dotnet/AcroFormForMerge-DifferentOptions-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AcroFormForMerge-SameNameNode.pdf",
+          "corpusCategory": "forms",
+          "category": "render-visual-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 154,
+          "dotnetNonBg": 243,
+          "javaNearBlank": true,
+          "dotnetNearBlank": true,
+          "mean": 0.054924242424242424,
+          "rms": 1.6517604357581843,
+          "moderateDiffRatio": 0.0018485508681587114,
+          "largeDiffRatio": 0.0006189344424638542,
+          "artifacts": {
+            "java": "java/AcroFormForMerge-SameNameNode-java-p1.png",
+            "dotnet": "dotnet/AcroFormForMerge-SameNameNode-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AcroFormForMerge.pdf",
+          "corpusCategory": "forms",
+          "category": "render-visual-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 297,
+          "dotnetNonBg": 466,
+          "javaNearBlank": true,
+          "dotnetNearBlank": true,
+          "mean": 0.11315359477124183,
+          "rms": 2.519561025248737,
+          "moderateDiffRatio": 0.003573314847824652,
+          "largeDiffRatio": 0.0012873836403248168,
+          "artifacts": {
+            "java": "java/AcroFormForMerge-java-p1.png",
+            "dotnet": "dotnet/AcroFormForMerge-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AcrobatMerge-DifferentExportValues-WasMaster.pdf",
+          "corpusCategory": "forms",
+          "category": "render-visual-equivalence-match",
+          "sourceArea": "backend antialiasing",
+          "javaNonBg": 298,
+          "dotnetNonBg": 466,
+          "javaNearBlank": true,
+          "dotnetNearBlank": true,
+          "mean": 0.11255941770647653,
+          "rms": 2.5073470966860674,
+          "moderateDiffRatio": 0.003573314847824652,
+          "largeDiffRatio": 0.0012626262626262627,
+          "artifacts": {
+            "java": "java/AcrobatMerge-DifferentExportValues-WasMaster-java-p1.png",
+            "dotnet": "dotnet/AcrobatMerge-DifferentExportValues-WasMaster-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AcrobatMerge-DifferentExportValues.pdf",
+          "corpusCategory": "forms",
+          "category": "render-visual-equivalence-match",
+          "sourceArea": "backend antialiasing",
+          "javaNonBg": 297,
+          "dotnetNonBg": 466,
+          "javaNearBlank": true,
+          "dotnetNearBlank": true,
+          "mean": 0.11315359477124183,
+          "rms": 2.519561025248737,
+          "moderateDiffRatio": 0.003573314847824652,
+          "largeDiffRatio": 0.0012873836403248168,
+          "artifacts": {
+            "java": "java/AcrobatMerge-DifferentExportValues-java-p1.png",
+            "dotnet": "dotnet/AcrobatMerge-DifferentExportValues-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AcrobatMerge-DifferentFieldType-WasMaster.pdf",
+          "corpusCategory": "forms",
+          "category": "render-visual-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 279,
+          "dotnetNonBg": 449,
+          "javaNearBlank": true,
+          "dotnetNearBlank": true,
+          "mean": 0.10791122004357298,
+          "rms": 2.4511959946764126,
+          "moderateDiffRatio": 0.0034412755000990296,
+          "largeDiffRatio": 0.0012048590479963029,
+          "artifacts": {
+            "java": "java/AcrobatMerge-DifferentFieldType-WasMaster-java-p1.png",
+            "dotnet": "dotnet/AcrobatMerge-DifferentFieldType-WasMaster-dotnet-p1.png"
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-foreground-shape-equivalence-match",
+      "owner": "PageDrawer geometry, clipping, and backend rasterization",
+      "summary": "Foreground masks overlap after dilation, but raster/color drift is larger than the generic visual threshold.",
+      "decision": "Accepted shape-equivalence bucket with real geometry/clipping slices split out.",
+      "followUp": "#562",
+      "count": 47,
+      "previousCeiling": 47,
+      "examples": [
+        {
+          "file": "4PP-Highlighting.pdf",
+          "corpusCategory": "text extraction",
+          "category": "render-foreground-shape-equivalence-match",
+          "sourceArea": "backend antialiasing",
+          "javaNonBg": 3732,
+          "dotnetNonBg": 3512,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 0.49818445896877267,
+          "rms": 4.42495541318348,
+          "moderateDiffRatio": 0.02459232851389714,
+          "largeDiffRatio": 0.002838845976100878,
+          "artifacts": {
+            "java": "java/4PP-Highlighting-java-p1.png",
+            "dotnet": "dotnet/4PP-Highlighting-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AcroFormsBasicFields.pdf",
+          "corpusCategory": "forms",
+          "category": "render-foreground-shape-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 23286,
+          "dotnetNonBg": 18339,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 8.976107067406087,
+          "rms": 29.33551228847565,
+          "moderateDiffRatio": 0.18599392619000463,
+          "largeDiffRatio": 0.10808245857265465,
+          "artifacts": {
+            "java": "java/AcroFormsBasicFields-java-p1.png",
+            "dotnet": "dotnet/AcroFormsBasicFields-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AcroFormsRotation.pdf",
+          "corpusCategory": "forms",
+          "category": "render-foreground-shape-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 7361,
+          "dotnetNonBg": 9938,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 2.226127698554169,
+          "rms": 10.616994963074518,
+          "moderateDiffRatio": 0.07626922823001255,
+          "largeDiffRatio": 0.02767874826698356,
+          "artifacts": {
+            "java": "java/AcroFormsRotation-java-p1.png",
+            "dotnet": "dotnet/AcroFormsRotation-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AngledExample.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-foreground-shape-equivalence-match",
+          "sourceArea": "backend antialiasing",
+          "javaNonBg": 1745,
+          "dotnetNonBg": 2194,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 0.24264670514670514,
+          "rms": 2.623185600296459,
+          "moderateDiffRatio": 0.012658329324995991,
+          "largeDiffRatio": 0.0017235850569183903,
+          "artifacts": {
+            "java": "java/AngledExample-java-p1.png",
+            "dotnet": "dotnet/AngledExample-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "AnnotationTypes.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-foreground-shape-equivalence-match",
+          "sourceArea": "backend antialiasing",
+          "javaNonBg": 3068,
+          "dotnetNonBg": 3828,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 0.4853209381395656,
+          "rms": 5.167824742911362,
+          "moderateDiffRatio": 0.019863669373473294,
+          "largeDiffRatio": 0.003391760744701921,
+          "artifacts": {
+            "java": "java/AnnotationTypes-java-p1.png",
+            "dotnet": "dotnet/AnnotationTypes-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "OverlayTestBaseRot0.pdf",
+          "corpusCategory": "rendering",
+          "category": "render-foreground-shape-equivalence-match",
+          "sourceArea": "geometry/clipping",
+          "javaNonBg": 31506,
+          "dotnetNonBg": 31837,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 7.042440334719746,
+          "rms": 19.08443943712866,
+          "moderateDiffRatio": 0.23237274707862943,
+          "largeDiffRatio": 0.0839687726942629,
+          "artifacts": {
+            "java": "java/OverlayTestBaseRot0-java-p1.png",
+            "dotnet": "dotnet/OverlayTestBaseRot0-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "Overlayed-with-rot0.pdf",
+          "corpusCategory": "rendering",
+          "category": "render-foreground-shape-equivalence-match",
+          "sourceArea": "geometry/clipping",
+          "javaNonBg": 32474,
+          "dotnetNonBg": 32809,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 7.814164933650228,
+          "rms": 21.410016544304945,
+          "moderateDiffRatio": 0.24225094078035256,
+          "largeDiffRatio": 0.0932032745758236,
+          "artifacts": {
+            "java": "java/Overlayed-with-rot0-java-p1.png",
+            "dotnet": "dotnet/Overlayed-with-rot0-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "Overlayed-with-rot180.pdf",
+          "corpusCategory": "rendering",
+          "category": "render-foreground-shape-equivalence-match",
+          "sourceArea": "geometry/clipping",
+          "javaNonBg": 32494,
+          "dotnetNonBg": 32834,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 7.819760101010101,
+          "rms": 21.41709423290806,
+          "moderateDiffRatio": 0.24239948504654388,
+          "largeDiffRatio": 0.093236284412755,
+          "artifacts": {
+            "java": "java/Overlayed-with-rot180-java-p1.png",
+            "dotnet": "dotnet/Overlayed-with-rot180-dotnet-p1.png"
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-image-mask-shape-equivalence-match",
+      "owner": "sampled images, stencil masks, and image masks",
+      "summary": "Fixture-scoped image/mask rows preserve foreground shape while sampled-image raster details differ.",
+      "decision": "Real renderer gap; reduce fixture by fixture.",
+      "followUp": "#559",
+      "count": 2,
+      "previousCeiling": 2,
+      "examples": [
+        {
+          "file": "PDFBOX-5840-410609.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-image-mask-shape-equivalence-match",
+          "sourceArea": "sampled images/masks",
+          "javaNonBg": 21566,
+          "dotnetNonBg": 21787,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 4.646305786624414,
+          "rms": 16.37083906647056,
+          "moderateDiffRatio": 0.15792731233907706,
+          "largeDiffRatio": 0.0498613586848881,
+          "artifacts": {
+            "java": "java/PDFBOX-5840-410609-java-p1.png",
+            "dotnet": "dotnet/PDFBOX-5840-410609-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "data-000001.pdf",
+          "corpusCategory": "malformed PDFs",
+          "category": "render-image-mask-shape-equivalence-match",
+          "sourceArea": "sampled images/masks",
+          "javaNonBg": 29487,
+          "dotnetNonBg": 29078,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 1.9510237175678353,
+          "rms": 13.422870338531967,
+          "moderateDiffRatio": 0.04273948636693735,
+          "largeDiffRatio": 0.023469994058229353,
+          "artifacts": {
+            "java": "java/data-000001-java-p1.png",
+            "dotnet": "dotnet/data-000001-dotnet-p1.png"
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-jbig2-decoder-raster-equivalence-match",
+      "owner": "JBIG2 decoder and bitonal image rasterization",
+      "summary": "JBIG2 decoded foreground shape is preserved while decoder/backend raster pixels differ.",
+      "decision": "Reviewed JBIG2 decoder raster bucket; keep separate from broader sampled-image and mask rows.",
+      "followUp": "#559",
+      "count": 1,
+      "previousCeiling": 1,
+      "examples": [
+        {
+          "file": "JBIG2Image.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-jbig2-decoder-raster-equivalence-match",
+          "sourceArea": "sampled images/masks",
+          "javaNonBg": 8784,
+          "dotnetNonBg": 8779,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 8.580548656581621,
+          "rms": 16.65802628443517,
+          "moderateDiffRatio": 0.3915104989839693,
+          "largeDiffRatio": 0.06242944231203432,
+          "artifacts": {
+            "java": "java/JBIG2Image-java-p1.png",
+            "dotnet": "dotnet/JBIG2Image-dotnet-p1.png"
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-pattern-transparency-raster-equivalence-match",
+      "owner": "patterns, transparency groups, and form XObjects",
+      "summary": "Fixture-scoped pattern/transparency rows remain visually bounded but not pixel-identical.",
+      "decision": "Real renderer gap; reduce fixture by fixture.",
+      "followUp": "#560",
+      "count": 1,
+      "previousCeiling": 1,
+      "examples": [
+        {
+          "file": "survey.pdf",
+          "corpusCategory": "rendering",
+          "category": "render-pattern-transparency-raster-equivalence-match",
+          "sourceArea": "PageDrawer patterns/transparency",
+          "javaNonBg": 22281,
+          "dotnetNonBg": 20746,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 1.713552788374641,
+          "rms": 11.353454334523192,
+          "moderateDiffRatio": 0.06382110895175028,
+          "largeDiffRatio": 0.010548877532250454,
+          "artifacts": {
+            "java": "java/survey-java-p1.png",
+            "dotnet": "dotnet/survey-dotnet-p1.png"
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-global-resource-text-raster-equivalence-match",
+      "owner": "LiveCycle global-resource text rendering",
+      "summary": "GlobalResource merge fixtures preserve text content and foreground shape while text raster density differs.",
+      "decision": "Reviewed fixture-family text raster bucket; keep separate from true pattern/transparency rows.",
+      "followUp": "#560",
+      "count": 4,
+      "previousCeiling": 4,
+      "examples": [
+        {
+          "file": "PDFBox.GlobalResourceMergeTest.Doc01.decoded.pdf",
+          "corpusCategory": "merge/split/save",
+          "category": "render-global-resource-text-raster-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 38646,
+          "dotnetNonBg": 31779,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 4.3820286195286196,
+          "rms": 13.144795935013985,
+          "moderateDiffRatio": 0.20208433541766876,
+          "largeDiffRatio": 0.03641173641173641,
+          "artifacts": {
+            "java": "java/PDFBox.GlobalResourceMergeTest.Doc01.decoded-java-p1.png",
+            "dotnet": "dotnet/PDFBox.GlobalResourceMergeTest.Doc01.decoded-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "PDFBox.GlobalResourceMergeTest.Doc01.pdf",
+          "corpusCategory": "merge/split/save",
+          "category": "render-global-resource-text-raster-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 38646,
+          "dotnetNonBg": 31779,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 4.3820286195286196,
+          "rms": 13.144795935013985,
+          "moderateDiffRatio": 0.20208433541766876,
+          "largeDiffRatio": 0.03641173641173641,
+          "artifacts": {
+            "java": "java/PDFBox.GlobalResourceMergeTest.Doc01-java-p1.png",
+            "dotnet": "dotnet/PDFBox.GlobalResourceMergeTest.Doc01-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "PDFBox.GlobalResourceMergeTest.Doc02.decoded.pdf",
+          "corpusCategory": "merge/split/save",
+          "category": "render-global-resource-text-raster-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 38646,
+          "dotnetNonBg": 31779,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 4.3820286195286196,
+          "rms": 13.144795935013985,
+          "moderateDiffRatio": 0.20208433541766876,
+          "largeDiffRatio": 0.03641173641173641,
+          "artifacts": {
+            "java": "java/PDFBox.GlobalResourceMergeTest.Doc02.decoded-java-p1.png",
+            "dotnet": "dotnet/PDFBox.GlobalResourceMergeTest.Doc02.decoded-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "PDFBox.GlobalResourceMergeTest.Doc02.pdf",
+          "corpusCategory": "merge/split/save",
+          "category": "render-global-resource-text-raster-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 38646,
+          "dotnetNonBg": 31779,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 4.3820286195286196,
+          "rms": 13.144795935013985,
+          "moderateDiffRatio": 0.20208433541766876,
+          "largeDiffRatio": 0.03641173641173641,
+          "artifacts": {
+            "java": "java/PDFBox.GlobalResourceMergeTest.Doc02-java-p1.png",
+            "dotnet": "dotnet/PDFBox.GlobalResourceMergeTest.Doc02-dotnet-p1.png"
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-form-widget-bbox-clipping-equivalence-match",
+      "owner": "forms and widget appearance BBox clipping",
+      "summary": "Widget appearance BBox-edge strokes and clipping preserve semantics while right/bottom edge pixels differ.",
+      "decision": "Reviewed fixture-scoped form/widget clipping bucket; keep separate from broad text placement/raster rows.",
+      "followUp": "#558",
+      "count": 1,
+      "previousCeiling": 1,
+      "examples": [
+        {
+          "file": "PDFBOX3812-acrobat-multiline-auto.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-form-widget-bbox-clipping-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 2290,
+          "dotnetNonBg": 3787,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 0.9841862249950485,
+          "rms": 8.36544429774492,
+          "moderateDiffRatio": 0.028553508945665808,
+          "largeDiffRatio": 0.011470918333663432,
+          "artifacts": {
+            "java": "java/PDFBOX3812-acrobat-multiline-auto-java-p1.png",
+            "dotnet": "dotnet/PDFBOX3812-acrobat-multiline-auto-dotnet-p1.png"
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-form-widget-raster-equivalence-match",
+      "owner": "forms and widget appearance rendering",
+      "summary": "Widget appearance rows preserve semantics while text placement/raster details differ.",
+      "decision": "Real form/widget renderer gap; reduce fixture by fixture.",
+      "followUp": "#558",
+      "count": 2,
+      "previousCeiling": 2,
+      "examples": [
+        {
+          "file": "Acroform-PDFBOX-2333.pdf",
+          "corpusCategory": "text extraction",
+          "category": "render-form-widget-raster-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 19835,
+          "dotnetNonBg": 21561,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 3.7252611903347197,
+          "rms": 15.9572078672119,
+          "moderateDiffRatio": 0.11151548161352083,
+          "largeDiffRatio": 0.04416716181422064,
+          "artifacts": {
+            "java": "java/Acroform-PDFBOX-2333-java-p1.png",
+            "dotnet": "dotnet/Acroform-PDFBOX-2333-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "MultilineFields.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-form-widget-raster-equivalence-match",
+          "sourceArea": "forms",
+          "javaNonBg": 14023,
+          "dotnetNonBg": 15034,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 2.809430085165379,
+          "rms": 13.54363130773287,
+          "moderateDiffRatio": 0.0869891727734865,
+          "largeDiffRatio": 0.03160691886182082,
+          "artifacts": {
+            "java": "java/MultilineFields-java-p1.png",
+            "dotnet": "dotnet/MultilineFields-dotnet-p1.png"
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-glyph-raster-equivalence-match",
+      "owner": "fonts, glyph rasterization, and backend antialiasing",
+      "summary": "Glyph probe rows match identity and exact geometry; only Java2D vs .NET raster pixels differ.",
+      "decision": "Reviewed glyph raster bucket; keep separate from rows with measurable glyph geometry drift.",
+      "followUp": "#561",
+      "count": 5,
+      "previousCeiling": 0,
+      "examples": [
+        {
+          "file": "AlignmentTests.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-glyph-raster-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 15381,
+          "dotnetNonBg": 17546,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 3.4758120419885126,
+          "rms": 15.938230253096265,
+          "moderateDiffRatio": 0.09525813692480359,
+          "largeDiffRatio": 0.044158909354987785,
+          "artifacts": {
+            "java": "java/AlignmentTests-java-p1.png",
+            "dotnet": "dotnet/AlignmentTests-dotnet-p1.png"
+          },
+          "glyphProbe": {
+            "javaRows": 1316,
+            "dotnetRows": 1316,
+            "comparedRows": 1316,
+            "identityMismatches": 0,
+            "maxDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0,
+              "h": 0.0
+            },
+            "averageDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0,
+              "h": 0.0
+            }
+          }
+        },
+        {
+          "file": "PDFBOX-3038-001033-p2.pdf",
+          "corpusCategory": "malformed PDFs",
+          "category": "render-glyph-raster-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 13796,
+          "dotnetNonBg": 13175,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 2.238491945599789,
+          "rms": 9.24207134159002,
+          "moderateDiffRatio": 0.09463920248233974,
+          "largeDiffRatio": 0.01905492836865386,
+          "artifacts": {
+            "java": "java/PDFBOX-3038-001033-p2-java-p1.png",
+            "dotnet": "dotnet/PDFBOX-3038-001033-p2-dotnet-p1.png"
+          },
+          "glyphProbe": {
+            "javaRows": 1747,
+            "dotnetRows": 1747,
+            "comparedRows": 1747,
+            "identityMismatches": 0,
+            "maxDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0,
+              "h": 0.0
+            },
+            "averageDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0,
+              "h": 0.0
+            }
+          }
+        },
+        {
+          "file": "PDFBOX-3062-002207-p1.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-glyph-raster-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 14174,
+          "dotnetNonBg": 11587,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 3.8471293820558525,
+          "rms": 16.13349827340395,
+          "moderateDiffRatio": 0.10369215026077772,
+          "largeDiffRatio": 0.053055060408001585,
+          "artifacts": {
+            "java": "java/PDFBOX-3062-002207-p1-java-p1.png",
+            "dotnet": "dotnet/PDFBOX-3062-002207-p1-dotnet-p1.png"
+          },
+          "glyphProbe": {
+            "javaRows": 1329,
+            "dotnetRows": 1329,
+            "comparedRows": 1329,
+            "identityMismatches": 0,
+            "maxDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0,
+              "h": 0.0
+            },
+            "averageDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0,
+              "h": 0.0
+            }
+          }
+        },
+        {
+          "file": "PDFBOX-3656-SF1199AEG (Complete).pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-glyph-raster-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 29129,
+          "dotnetNonBg": 24851,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 5.6998229847494555,
+          "rms": 15.890148673511842,
+          "moderateDiffRatio": 0.20592361523734073,
+          "largeDiffRatio": 0.07041823463392091,
+          "artifacts": {
+            "java": "java/PDFBOX-3656-SF1199AEG (Complete)-java-p1.png",
+            "dotnet": "dotnet/PDFBOX-3656-SF1199AEG (Complete)-dotnet-p1.png"
+          },
+          "glyphProbe": {
+            "javaRows": 3089,
+            "dotnetRows": 3089,
+            "comparedRows": 3089,
+            "identityMismatches": 0,
+            "maxDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0,
+              "h": 0.0
+            },
+            "averageDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0,
+              "h": 0.0
+            }
+          }
+        },
+        {
+          "file": "arxiv-sample.pdf",
+          "corpusCategory": "text extraction",
+          "category": "render-glyph-raster-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 18788,
+          "dotnetNonBg": 17213,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 8.93561843929491,
+          "rms": 33.764614630733554,
+          "moderateDiffRatio": 0.1579355647983099,
+          "largeDiffRatio": 0.09283191391034529,
+          "artifacts": {
+            "java": "java/arxiv-sample-java-p1.png",
+            "dotnet": "dotnet/arxiv-sample-dotnet-p1.png"
+          },
+          "glyphProbe": {
+            "javaRows": 2464,
+            "dotnetRows": 2464,
+            "comparedRows": 2464,
+            "identityMismatches": 0,
+            "maxDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0,
+              "h": 0.0
+            },
+            "averageDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0,
+              "h": 0.0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-glyph-layout-equivalence-match",
+      "owner": "fonts, glyph layout, and fallback rendering",
+      "summary": "Glyph probe rows match identity with bounded glyph geometry, but rendered pixels still differ.",
+      "decision": "Real glyph/font render fidelity gap; reduce fixture by fixture.",
+      "followUp": "#561",
+      "count": 2,
+      "previousCeiling": 7,
+      "examples": [
+        {
+          "file": "ControlCharacters.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-glyph-layout-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 7314,
+          "dotnetNonBg": 13606,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 3.6177708457120223,
+          "rms": 14.693455286052238,
+          "moderateDiffRatio": 0.10736449461939658,
+          "largeDiffRatio": 0.04585066349772232,
+          "artifacts": {
+            "java": "java/ControlCharacters-java-p1.png",
+            "dotnet": "dotnet/ControlCharacters-dotnet-p1.png"
+          },
+          "glyphProbe": {
+            "javaRows": 343,
+            "dotnetRows": 343,
+            "comparedRows": 343,
+            "identityMismatches": 0,
+            "maxDelta": {
+              "x": 0.009000000000014552,
+              "y": 0.0,
+              "w": 0.001000000000000334,
+              "h": 0.0
+            },
+            "averageDelta": {
+              "x": 0.0016997084548082536,
+              "y": 0.0,
+              "w": 0.0006122448979593221,
+              "h": 0.0
+            }
+          }
+        },
+        {
+          "file": "PDFBOX-5784.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-glyph-layout-equivalence-match",
+          "sourceArea": "fonts/glyphs",
+          "javaNonBg": 8931,
+          "dotnetNonBg": 14927,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 4.418548581048581,
+          "rms": 18.18307984739914,
+          "moderateDiffRatio": 0.11022927689594356,
+          "largeDiffRatio": 0.060221260221260224,
+          "artifacts": {
+            "java": "java/PDFBOX-5784-java-p1.png",
+            "dotnet": "dotnet/PDFBOX-5784-dotnet-p1.png"
+          },
+          "glyphProbe": {
+            "javaRows": 220,
+            "dotnetRows": 220,
+            "comparedRows": 220,
+            "identityMismatches": 0,
+            "maxDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.001000000000000334,
+              "h": 0.0
+            },
+            "averageDelta": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.0004090909090910457,
+              "h": 0.0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-sparse-equivalence-match",
+      "owner": "backend antialiasing on sparse content",
+      "summary": "Sparse non-near-blank pages amplify tiny raster differences.",
+      "decision": "Accepted backend raster adaptation; lower the ceiling to the current corpus count.",
+      "followUp": "No implementation issue unless the sparse fixture shows semantic drift.",
+      "count": 1,
+      "previousCeiling": 1,
+      "examples": [
+        {
+          "file": "document.pdf",
+          "corpusCategory": "merge/split/save",
+          "category": "render-sparse-equivalence-match",
+          "sourceArea": "backend antialiasing",
+          "javaNonBg": 1624,
+          "dotnetNonBg": 2458,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 0.562363540392044,
+          "rms": 5.089592363900327,
+          "moderateDiffRatio": 0.018330574150051585,
+          "largeDiffRatio": 0.007549765269480234,
+          "artifacts": {
+            "java": "java/document-java-p1.png",
+            "dotnet": "dotnet/document-dotnet-p1.png"
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-low-ink-equivalence-match",
+      "owner": "backend antialiasing on near-blank content",
+      "summary": "Near-blank pages are sensitive to tiny antialiasing differences.",
+      "decision": "No current rows; lower the ceiling to zero.",
+      "followUp": "None.",
+      "count": 0,
+      "previousCeiling": 0,
+      "examples": []
+    },
+    {
+      "category": "render-near-blank-threshold-equivalence-match",
+      "owner": "backend near-blank threshold variance",
+      "summary": "One runtime may cross the near-blank metric boundary while the raster drift remains sparse and bounded.",
+      "decision": "No current rows; lower the ceiling to zero.",
+      "followUp": "None.",
+      "count": 0,
+      "previousCeiling": 0,
+      "examples": []
+    },
+    {
+      "category": "render-low-mean-raster-drift-equivalence-match",
+      "owner": "backend antialiasing / color-management drift",
+      "summary": "Low average channel error with bounded large/moderate pixel differences.",
+      "decision": "No current rows; lower the ceiling to zero.",
+      "followUp": "None.",
+      "count": 0,
+      "previousCeiling": 0,
+      "examples": []
+    },
+    {
+      "category": "render-lossy-jpeg-decoder-equivalence-match",
+      "owner": "JPEG decoder and color conversion",
+      "summary": "JPEG decoding is lossy and backend-dependent while remaining visually bounded.",
+      "decision": "Accepted decoder adaptation; keep the current ceiling.",
+      "followUp": "No implementation issue from #541.",
+      "count": 2,
+      "previousCeiling": 2,
+      "examples": [
+        {
+          "file": "jpeg_demo.pdf",
+          "corpusCategory": "uncategorized",
+          "category": "render-lossy-jpeg-decoder-equivalence-match",
+          "sourceArea": "sampled images/masks",
+          "javaNonBg": 38603,
+          "dotnetNonBg": 38633,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 0.774676923076923,
+          "rms": 3.9131313449815255,
+          "moderateDiffRatio": 0.013735384615384615,
+          "largeDiffRatio": 0.0030523076923076923,
+          "artifacts": {
+            "java": "java/jpeg_demo-java-p1.png",
+            "dotnet": "dotnet/jpeg_demo-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "jpegrgb.pdf",
+          "corpusCategory": "filters/images",
+          "category": "render-lossy-jpeg-decoder-equivalence-match",
+          "sourceArea": "sampled images/masks",
+          "javaNonBg": 26661,
+          "dotnetNonBg": 28789,
+          "javaNearBlank": false,
+          "dotnetNearBlank": false,
+          "mean": 1.334474235822275,
+          "rms": 5.589947949031879,
+          "moderateDiffRatio": 0.06483957219251336,
+          "largeDiffRatio": 0.0035650623885918,
+          "artifacts": {
+            "java": "java/jpegrgb-java-p1.png",
+            "dotnet": "dotnet/jpegrgb-dotnet-p1.png"
+          }
+        }
+      ]
+    },
+    {
+      "category": "render-java-optional-jpx-reader-missing-match",
+      "owner": "optional Java JPEG 2000 provider",
+      "summary": "Java renders blank because its optional JPX reader is unavailable while .NET renders visible pixels.",
+      "decision": "Accepted optional-runtime difference for the fixture-scoped JPX policy.",
+      "followUp": "No default CI provider; see #542.",
+      "count": 3,
+      "previousCeiling": 3,
+      "examples": [
+        {
+          "file": "JPXTestCMYK.pdf",
+          "corpusCategory": "filters/images",
+          "category": "render-java-optional-jpx-reader-missing-match",
+          "sourceArea": "optional runtime provider",
+          "javaNonBg": 0,
+          "dotnetNonBg": 7966,
+          "javaNearBlank": true,
+          "dotnetNearBlank": false,
+          "mean": 8.99741061407728,
+          "rms": 45.414888364247744,
+          "moderateDiffRatio": 0.06252204585537918,
+          "largeDiffRatio": 0.05947570947570947,
+          "artifacts": {
+            "java": "java/JPXTestCMYK-java-p1.png",
+            "dotnet": "dotnet/JPXTestCMYK-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "JPXTestGrey.pdf",
+          "corpusCategory": "filters/images",
+          "category": "render-java-optional-jpx-reader-missing-match",
+          "sourceArea": "optional runtime provider",
+          "javaNonBg": 0,
+          "dotnetNonBg": 7644,
+          "javaNearBlank": true,
+          "dotnetNearBlank": false,
+          "mean": 3.5582371332371334,
+          "rms": 21.292769821163397,
+          "moderateDiffRatio": 0.054176687510020846,
+          "largeDiffRatio": 0.0367003367003367,
+          "artifacts": {
+            "java": "java/JPXTestGrey-java-p1.png",
+            "dotnet": "dotnet/JPXTestGrey-dotnet-p1.png"
+          }
+        },
+        {
+          "file": "JPXTestRGB.pdf",
+          "corpusCategory": "filters/images",
+          "category": "render-java-optional-jpx-reader-missing-match",
+          "sourceArea": "optional runtime provider",
+          "javaNonBg": 0,
+          "dotnetNonBg": 7482,
+          "javaNearBlank": true,
+          "dotnetNearBlank": false,
+          "mean": 3.0610088985088986,
+          "rms": 20.57084407655957,
+          "moderateDiffRatio": 0.05497835497835498,
+          "largeDiffRatio": 0.03722142055475389,
+          "artifacts": {
+            "java": "java/JPXTestRGB-java-p1.png",
+            "dotnet": "dotnet/JPXTestRGB-dotnet-p1.png"
+          }
+        }
+      ]
+    }
+  ]
+}
