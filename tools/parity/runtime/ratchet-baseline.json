@@ -2,8 +2,8 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "Issue #558 form/widget BBox clipping bucket split",
-    "generatedAtUtc": "2026-06-28T23:40:34Z",
+    "generatedFrom": "Issue #559 JBIG2 image/mask bucket split",
+    "generatedAtUtc": "2026-06-29T00:05:13Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
@@ -17,8 +17,9 @@
     "render-form-widget-raster-equivalence-match": 2,
     "render-foreground-shape-equivalence-match": 47,
     "render-glyph-layout-equivalence-match": 7,
-    "render-image-mask-shape-equivalence-match": 3,
+    "render-image-mask-shape-equivalence-match": 2,
     "render-java-optional-jpx-reader-missing-match": 3,
+    "render-jbig2-decoder-raster-equivalence-match": 1,
     "render-lossy-jpeg-decoder-equivalence-match": 2,
     "render-low-ink-equivalence-match": 0,
     "render-low-mean-raster-drift-equivalence-match": 0,
