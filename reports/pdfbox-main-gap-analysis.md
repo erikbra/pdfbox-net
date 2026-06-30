@@ -1,6 +1,6 @@
 # PDFBox Upstream Java Gap Analysis (All Modules)
 
-Datetime (UTC): 2026-06-30T14:59:37.570Z
+Datetime (UTC): 2026-06-30T15:35:33.593Z
 Reference upstream Java repository: Apache PDFBox `origin/3.0`
 Tracked parity baseline commit: `ea68b6feae80e671b3d26565b12eccc79e74d967`
 Latest upstream head scanned: `ea68b6feae80e671b3d26565b12eccc79e74d967`
@@ -20,22 +20,22 @@ Excluded upstream modules:
 
 | Upstream module | Java files | Mapped C# ports | Missing | % Done |
 |---|---:|---:|---:|---:|
-| `benchmark` | 4 | 3 | 1 | 75.0% |
-| `debugger` | 91 | 90 | 1 | 98.9% |
+| `benchmark` | 4 | 4 | 0 | 100.0% |
+| `debugger` | 91 | 91 | 0 | 100.0% |
 | `examples` | 94 | 94 | 0 | 100.0% |
-| `fontbox` | 143 | 142 | 1 | 99.3% |
+| `fontbox` | 143 | 143 | 0 | 100.0% |
 | `io` | 18 | 18 | 0 | 100.0% |
-| `pdfbox` | 621 | 613 | 8 | 98.7% |
+| `pdfbox` | 621 | 621 | 0 | 100.0% |
 | `tools` | 26 | 26 | 0 | 100.0% |
-| `xmpbox` | 74 | 73 | 1 | 98.6% |
-| **TOTAL** | **1071** | **1059** | **12** | **98.9%** |
+| `xmpbox` | 74 | 74 | 0 | 100.0% |
+| **TOTAL** | **1071** | **1071** | **0** | **100.0%** |
 
-Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **846 / 856 = 98.8%**.
+Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **856 / 856 = 100.0%**.
 
 ## Traceability status for mapped upstream source rows
 
-Among **788** rows with scoped upstream `source_path`:
-- `in-sync`: **788**
+Among **800** rows with scoped upstream `source_path`:
+- `in-sync`: **800**
 - `partially-in-sync`: **0**
 - `partial`: **0**
 
@@ -51,18 +51,13 @@ The generated `reports/upstream-file-comparison.json` contains one row for each 
 
 | Gap category | Files |
 |---|---:|
-| `missing-port` | 12 |
+| `missing-port` | 0 |
 | `missing-provenance-marker` | 1 |
 | `missing-traceability-row` | 277 |
-| `none` | 781 |
+| `none` | 793 |
 
 | Gap category | Module | Files |
 |---|---|---:|
-| `missing-port` | `benchmark` | 1 |
-| `missing-port` | `debugger` | 1 |
-| `missing-port` | `fontbox` | 1 |
-| `missing-port` | `pdfbox` | 8 |
-| `missing-port` | `xmpbox` | 1 |
 | `missing-provenance-marker` | `pdfbox` | 1 |
 | `missing-traceability-row` | `benchmark` | 3 |
 | `missing-traceability-row` | `fontbox` | 99 |

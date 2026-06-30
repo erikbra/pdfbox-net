@@ -177,6 +177,17 @@ public class XmpCoreTest
     }
 
     [Fact]
+    public void PdfBox30PageTextSchemaNameAliasesCurrentPageTextSchema()
+    {
+        XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();
+        XMPageTextSchema schema = new(metadata);
+
+        Assert.IsAssignableFrom<XMPPageTextSchema>(schema);
+        Assert.Equal(XMPPageTextSchema.NamespaceUri, schema.GetNamespace());
+        Assert.Equal(XMPPageTextSchema.PreferredPrefix, schema.GetPrefix());
+    }
+
+    [Fact]
     public void SerializerCanWriteWithoutXpacketInstructions()
     {
         XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();

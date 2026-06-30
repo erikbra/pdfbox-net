@@ -1,4 +1,5 @@
 using PdfBox.Net.FontBox.Encoding;
+using PdfBox.Net.FontBox.CFF;
 using PdfBox.Net.FontBox.Pfb;
 using PdfBox.Net.FontBox.Type1;
 
@@ -48,4 +49,19 @@ public class PfbAndType1FontTest
     {
         Assert.Throws<IOException>(() => Type1Font.CreateWithPFB([]));
     }
+
+    [Fact]
+#pragma warning disable CS0618
+    public void Type1FontUtilHexAndEncryptionRoundTrip()
+    {
+        byte[] value = [0x00, 0x0f, 0xa5, 0xff];
+
+        Assert.Equal("000FA5FF", Type1FontUtil.HexEncode(value));
+        Assert.Equal(value, Type1FontUtil.HexDecode("000fa5ff"));
+
+        byte[] plain = [1, 2, 3, 4, 5, 6];
+        Assert.Equal(plain, Type1FontUtil.EexecDecrypt(Type1FontUtil.EexecEncrypt(plain)));
+        Assert.Equal(plain, Type1FontUtil.CharstringDecrypt(Type1FontUtil.CharstringEncrypt(plain, 4), 4));
+    }
+#pragma warning restore CS0618
 }

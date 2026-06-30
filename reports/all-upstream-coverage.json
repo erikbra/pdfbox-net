@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-06-30T14:59:37.570Z",
+  "generated_at_utc": "2026-06-30T15:35:33.593Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "origin/3.0",
   "excluded_upstream_modules": [
@@ -14,22 +14,22 @@
   "tracked_parity_baseline_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1071,
-  "mapped": 1059,
-  "missing": 12,
+  "mapped": 1071,
+  "missing": 0,
   "modules": [
     {
       "module": "benchmark",
       "java_files": 4,
-      "mapped": 3,
-      "missing": 1,
-      "pct": 75.0
+      "mapped": 4,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "debugger",
       "java_files": 91,
-      "mapped": 90,
-      "missing": 1,
-      "pct": 98.9
+      "mapped": 91,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "examples",
@@ -41,9 +41,9 @@
     {
       "module": "fontbox",
       "java_files": 143,
-      "mapped": 142,
-      "missing": 1,
-      "pct": 99.3
+      "mapped": 143,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "io",
@@ -55,9 +55,9 @@
     {
       "module": "pdfbox",
       "java_files": 621,
-      "mapped": 613,
-      "missing": 8,
-      "pct": 98.7
+      "mapped": 621,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "tools",
@@ -69,25 +69,25 @@
     {
       "module": "xmpbox",
       "java_files": 74,
-      "mapped": 73,
-      "missing": 1,
-      "pct": 98.6
+      "mapped": 74,
+      "missing": 0,
+      "pct": 100.0
     }
   ],
   "families": [
     {
       "family": "benchmark:benchmark",
       "java_files": 4,
-      "mapped": 3,
-      "missing": 1,
-      "pct": 75.0
+      "mapped": 4,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "debugger:debugger",
       "java_files": 91,
-      "mapped": 90,
-      "missing": 1,
-      "pct": 98.9
+      "mapped": 91,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "examples:examples",
@@ -113,9 +113,9 @@
     {
       "family": "fontbox:cff",
       "java_files": 27,
-      "mapped": 26,
-      "missing": 1,
-      "pct": 96.3
+      "mapped": 27,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "fontbox:cmap",
@@ -218,9 +218,9 @@
     {
       "family": "pdfbox:pdmodel",
       "java_files": 431,
-      "mapped": 424,
-      "missing": 7,
-      "pct": 98.4
+      "mapped": 431,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "pdfbox:printing",
@@ -246,9 +246,9 @@
     {
       "family": "pdfbox:util",
       "java_files": 13,
-      "mapped": 12,
-      "missing": 1,
-      "pct": 92.3
+      "mapped": 13,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "tools:tools",
@@ -267,9 +267,9 @@
     {
       "family": "xmpbox:schema",
       "java_files": 15,
-      "mapped": 14,
-      "missing": 1,
-      "pct": 93.3
+      "mapped": 15,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "xmpbox:type",
@@ -287,33 +287,10 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 788,
-    "in-sync": 788,
+    "total_rows": 800,
+    "in-sync": 800,
     "partially-in-sync": 0,
     "partial": 0
   },
-  "top_missing_modules": {
-    "pdfbox": [
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/IntPoint.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/AppearanceStyle.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceStyle.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainText.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainTextFormatter.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/util/SmallMap.java"
-    ],
-    "benchmark": [
-      "benchmark/src/main/java/org/apache/pdfbox/benchmark/NullOutputStream.java"
-    ],
-    "debugger": [
-      "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLog.java"
-    ],
-    "fontbox": [
-      "fontbox/src/main/java/org/apache/fontbox/cff/Type1FontUtil.java"
-    ],
-    "xmpbox": [
-      "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPageTextSchema.java"
-    ]
-  }
+  "top_missing_modules": {}
 }
