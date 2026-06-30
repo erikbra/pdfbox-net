@@ -1179,7 +1179,12 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
     private void DrawImage(PDImage image, Matrix matrix)
     {
-        DrawDecodedImage(SampledImageReader.GetRGBImage(image), image.GetWidth(), image.GetHeight(), matrix, image.GetInterpolate());
+        DrawDecodedImage(
+            SampledImageReader.GetRGBImage(image),
+            image.GetWidth(),
+            image.GetHeight(),
+            matrix,
+            image.GetInterpolate());
     }
 
     private void DrawImageXObject(PDImageXObject image)
@@ -1195,10 +1200,18 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             height,
             GetGraphicsState().GetCurrentTransformationMatrix(),
             image.GetInterpolate(),
-            alpha);
+            alpha,
+            preferDctSampling: IsDctDecodeImage(image));
     }
 
-    private void DrawDecodedImage(byte[] rgb, int width, int height, Matrix matrix, bool interpolate, byte[]? alpha = null)
+    private void DrawDecodedImage(
+        byte[] rgb,
+        int width,
+        int height,
+        Matrix matrix,
+        bool interpolate,
+        byte[]? alpha = null,
+        bool preferDctSampling = false)
     {
         if (_graphics?.GetSkiaCanvas() is null || !IsContentRendered())
         {
@@ -1212,7 +1225,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
         using SKBitmap bitmap = CreateBitmapFromRgb(rgb, width, height, alpha);
         using SKPaint paint = CreateImagePaint(GetGraphicsState());
-        DrawBitmap(bitmap, matrix, paint, GetImageSamplingOptions(width, height, matrix, interpolate));
+        DrawBitmap(bitmap, matrix, paint, GetImageSamplingOptions(width, height, matrix, interpolate, preferDctSampling));
     }
 
     private GlyphCache GetGlyphCache(PDVectorFont font)
@@ -1781,7 +1794,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
     private void DrawBitmap(SKBitmap bitmap, Matrix matrix, SKPaint paint)
     {
-        DrawBitmap(bitmap, matrix, paint, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
+        DrawBitmap(bitmap, matrix, paint, SkiaRenderingBackend.ImageSamplingOptions);
     }
 
     private void DrawBitmap(SKBitmap bitmap, Matrix matrix, SKPaint paint, SKSamplingOptions samplingOptions)
@@ -1814,14 +1827,26 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         };
     }
 
-    private SKSamplingOptions GetImageSamplingOptions(int imageWidth, int imageHeight, Matrix matrix, bool interpolate)
+    private SKSamplingOptions GetImageSamplingOptions(int imageWidth, int imageHeight, Matrix matrix, bool interpolate, bool preferDctSampling)
     {
         if (!interpolate && IsImageScaledUp(imageWidth, imageHeight, matrix))
         {
             return new SKSamplingOptions(SKFilterMode.Nearest, SKMipmapMode.None);
         }
 
-        return new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear);
+        return preferDctSampling
+            ? SkiaRenderingBackend.DctImageSamplingOptions
+            : SkiaRenderingBackend.ImageSamplingOptions;
+    }
+
+    private static bool IsDctDecodeImage(PDImageXObject image)
+    {
+        return image.GetStream()?.GetFilters().Any(IsDctDecodeFilter) == true;
+    }
+
+    private static bool IsDctDecodeFilter(COSName filter)
+    {
+        return filter.Equals(COSName.DCT_DECODE) || filter.Equals(COSName.DCT_DECODE_ABBREVIATION);
     }
 
     private bool IsImageScaledUp(int imageWidth, int imageHeight, Matrix matrix)

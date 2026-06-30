@@ -14,6 +14,7 @@ public sealed class SkiaRenderingBackend : IRenderingBackend
 {
     public static SkiaRenderingBackend Instance { get; } = new();
     internal static readonly SKSamplingOptions ImageSamplingOptions = new(SKFilterMode.Linear, SKMipmapMode.Linear);
+    internal static readonly SKSamplingOptions DctImageSamplingOptions = new(SKCubicResampler.Mitchell);
 
     private SkiaRenderingBackend()
     {
