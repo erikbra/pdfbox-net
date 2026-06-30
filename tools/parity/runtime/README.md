@@ -14,13 +14,18 @@ PDF corpus.
   identify an owning issue, root-cause category, expiry condition, and ratchet
   rule.
 - `ratchet-baseline.json` stores the maximum accepted known/unexpected and
-  category counts for ratchet mode.
+  category counts for trunk/main ratchet mode.
+- `ratchet-baseline-3.0.json` stores the same ceiling for the `release/3.0`
+  branch, generated against Apache PDFBox `origin/3.0`.
 
 The CI job checks out Apache PDFBox at the pinned
-`PDFBOX_PARITY_PDFBOX_REF` workflow variable, builds the app jar, runs the
-manifest, uploads `java-results.jsonl`, `dotnet-results.jsonl`,
-`comparison.json`, structure JSONL files, generated PDFs/images/text, and
-`summary.md` as a workflow artifact.
+`PDFBOX_PARITY_PDFBOX_REF` workflow variable, selects
+`PDFBOX_PARITY_RATCHET_BASELINE`, builds the app jar, runs the manifest,
+uploads `java-results.jsonl`, `dotnet-results.jsonl`, `comparison.json`,
+structure JSONL files, generated PDFs/images/text, and `summary.md` as a
+workflow artifact. Pull requests targeting `release/3.0`, pushes to
+`release/3.0`, and `codex/3-0-*` branches use Apache PDFBox `3.0` plus
+`ratchet-baseline-3.0.json`; other branches use the trunk/main baseline.
 
 `comparison.json` includes the matched known-failure id, owning issue,
 root-cause bucket, parsed render metrics, render pixel-diff statistics, and
@@ -113,6 +118,36 @@ python3 tools/parity/runtime/run_runtime_parity.py \
 
 Ratchet mode fails when an unexpected divergence appears or when known/category
 counts exceed `ratchet-baseline.json`.
+
+## PDFBox 3.0 ratchet run
+
+Use an Apache PDFBox `origin/3.0` worktree when validating the `release/3.0`
+branch. The 3.0 branch has its own ratchet file so trunk/main category
+ceilings do not mask 3.0-specific drift.
+
+```bash
+PDFBOX_SOURCE=/path/to/apache/pdfbox
+PDFBOX_30_ROOT="$(mktemp -d /tmp/pdfbox-3.0-runtime.XXXXXX)"
+git -C "$PDFBOX_SOURCE" worktree add --detach "$PDFBOX_30_ROOT" origin/3.0
+
+mvn -B -f "$PDFBOX_30_ROOT/pom.xml" -pl app -am -DskipTests package
+PDFBOX_APP_JAR="$(find "$PDFBOX_30_ROOT/app/target" -maxdepth 1 -type f -name 'pdfbox-app-*.jar' ! -name '*sources*' ! -name '*javadoc*' | sort | head -n 1)"
+
+python3 tools/parity/runtime/run_runtime_parity.py \
+  --manifest tools/parity/runtime/corpus-manifest.txt \
+  --pdfbox-root "$PDFBOX_30_ROOT" \
+  --java-classpath "$PDFBOX_APP_JAR" \
+  --out-dir artifacts/runtime-parity-3.0 \
+  --ratchet-baseline tools/parity/runtime/ratchet-baseline-3.0.json \
+  --gate-mode ratchet \
+  --fail-on-unexpected
+
+git -C "$PDFBOX_SOURCE" worktree remove "$PDFBOX_30_ROOT"
+```
+
+On macOS, `/usr/bin/java` and `/usr/bin/javac` may be launcher stubs. If the
+probe compile step cannot locate Java, set `JAVA_HOME` to the JDK used by Maven
+and add `--java-home "$JAVA_HOME"` to the parity command.
 
 ## Strict zero-known run
 
