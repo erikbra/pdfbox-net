@@ -22,6 +22,7 @@ namespace PdfBox.Net.Rendering;
 public sealed class MauiGraphicsRenderingBackend : IRenderingBackend
 {
     public static MauiGraphicsRenderingBackend Instance { get; } = new();
+    internal static readonly SKSamplingOptions ImageSamplingOptions = new(SKFilterMode.Linear, SKMipmapMode.Linear);
 
     private MauiGraphicsRenderingBackend()
     {
@@ -65,7 +66,7 @@ internal sealed class MauiGraphicsBufferedImagePeer : IBufferedImagePeer
         _context = CreateContext(Width, Height, Type);
         using var canvas = new SKCanvas(_context.Bitmap);
         canvas.Clear(Type == BufferedImage.TYPE_INT_ARGB ? SKColors.Transparent : SKColors.White);
-        canvas.DrawBitmap(bitmap, 0, 0);
+        canvas.DrawBitmap(bitmap, 0, 0, MauiGraphicsRenderingBackend.ImageSamplingOptions, paint: null);
     }
 
     internal SKBitmap Bitmap => _context.Bitmap;
@@ -216,7 +217,7 @@ internal sealed class MauiGraphicsGraphics2DPeer : IGraphics2DPeer
         }
 
         using SKBitmap bitmap = MauiGraphicsImageCodecPeer.ToBitmap(image);
-        _canvas.DrawBitmap(bitmap, x, y);
+        _canvas.DrawBitmap(bitmap, x, y, MauiGraphicsRenderingBackend.ImageSamplingOptions, paint: null);
     }
 
     public void Rotate(double theta)

@@ -2,8 +2,8 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "Issue #562 rotation overlay shape bucket split",
-    "generatedAtUtc": "2026-06-29T13:27:10Z",
+    "generatedFrom": "SkiaSharp 4.148.0 upgrade runtime parity review",
+    "generatedAtUtc": "2026-06-30T09:58:30Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
@@ -14,8 +14,8 @@
   "maxCategories": {
     "merge-structural-match": 72,
     "render-form-widget-bbox-clipping-equivalence-match": 1,
-    "render-form-widget-raster-equivalence-match": 2,
-    "render-foreground-shape-equivalence-match": 38,
+    "render-form-widget-raster-equivalence-match": 3,
+    "render-foreground-shape-equivalence-match": 37,
     "render-global-resource-text-raster-equivalence-match": 4,
     "render-glyph-layout-equivalence-match": 2,
     "render-glyph-raster-equivalence-match": 5,
@@ -29,7 +29,7 @@
     "render-pattern-transparency-raster-equivalence-match": 1,
     "render-rotation-overlay-shape-equivalence-match": 9,
     "render-sparse-equivalence-match": 1,
-    "render-visual-equivalence-match": 62,
+    "render-visual-equivalence-match": 71,
     "save-structural-match": 148,
     "text-semantic-math-linewrap-match": 1,
     "text-semantic-punctuation-spacing-match": 1

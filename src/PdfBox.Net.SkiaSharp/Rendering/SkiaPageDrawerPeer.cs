@@ -1079,7 +1079,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
     private SKPath BuildClipPath(PDGraphicsState.ClippingPath clip)
     {
-        var skPath = new SKPath();
+        using var builder = new SKPathBuilder();
         foreach (PDFStreamEngine.PathSegment segment in clip.Segments)
         {
             switch (segment.Type)
@@ -1087,13 +1087,13 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                 case PDFStreamEngine.PathSegmentType.MoveTo:
                 {
                     (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix);
-                    skPath.MoveTo(x, y);
+                    builder.MoveTo(x, y);
                     break;
                 }
                 case PDFStreamEngine.PathSegmentType.LineTo:
                 {
                     (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix);
-                    skPath.LineTo(x, y);
+                    builder.LineTo(x, y);
                     break;
                 }
                 case PDFStreamEngine.PathSegmentType.CurveTo:
@@ -1101,16 +1101,16 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                     (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, clip.CurrentTransformationMatrix);
                     (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, clip.CurrentTransformationMatrix);
                     (float x3, float y3) = PdfToCanvas(segment.X3, segment.Y3, clip.CurrentTransformationMatrix);
-                    skPath.CubicTo(x1, y1, x2, y2, x3, y3);
+                    builder.CubicTo(x1, y1, x2, y2, x3, y3);
                     break;
                 }
                 case PDFStreamEngine.PathSegmentType.Close:
-                    skPath.Close();
+                    builder.Close();
                     break;
             }
         }
 
-        return skPath;
+        return builder.Detach();
     }
 
     /// <summary>
@@ -1120,7 +1120,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     /// </summary>
     private SKPath BuildSkPath(IReadOnlyList<PDFStreamEngine.PathSegment> segments, PDGraphicsState graphicsState)
     {
-        var skPath = new SKPath();
+        using var builder = new SKPathBuilder();
         Matrix ctm = graphicsState.GetCurrentTransformationMatrix();
 
         foreach (PDFStreamEngine.PathSegment seg in segments)
@@ -1130,13 +1130,13 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                 case PDFStreamEngine.PathSegmentType.MoveTo:
                 {
                     (float cx, float cy) = PdfToCanvas(seg.X1, seg.Y1, ctm);
-                    skPath.MoveTo(cx, cy);
+                    builder.MoveTo(cx, cy);
                     break;
                 }
                 case PDFStreamEngine.PathSegmentType.LineTo:
                 {
                     (float cx, float cy) = PdfToCanvas(seg.X1, seg.Y1, ctm);
-                    skPath.LineTo(cx, cy);
+                    builder.LineTo(cx, cy);
                     break;
                 }
                 case PDFStreamEngine.PathSegmentType.CurveTo:
@@ -1144,16 +1144,16 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                     (float cx1, float cy1) = PdfToCanvas(seg.X1, seg.Y1, ctm);
                     (float cx2, float cy2) = PdfToCanvas(seg.X2, seg.Y2, ctm);
                     (float cx3, float cy3) = PdfToCanvas(seg.X3, seg.Y3, ctm);
-                    skPath.CubicTo(cx1, cy1, cx2, cy2, cx3, cy3);
+                    builder.CubicTo(cx1, cy1, cx2, cy2, cx3, cy3);
                     break;
                 }
                 case PDFStreamEngine.PathSegmentType.Close:
-                    skPath.Close();
+                    builder.Close();
                     break;
             }
         }
 
-        return skPath;
+        return builder.Detach();
     }
 
     /// <summary>
@@ -1228,7 +1228,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
     private SKPath BuildSkPath(GeneralPath path, Matrix matrix)
     {
-        var skPath = new SKPath();
+        using var builder = new SKPathBuilder();
         foreach (GeneralPath.Segment segment in path.Segments)
         {
             switch (segment.Type)
@@ -1236,20 +1236,20 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                 case GeneralPath.SegmentType.MoveTo:
                 {
                     (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, matrix);
-                    skPath.MoveTo(x, y);
+                    builder.MoveTo(x, y);
                     break;
                 }
                 case GeneralPath.SegmentType.LineTo:
                 {
                     (float x, float y) = PdfToCanvas(segment.X1, segment.Y1, matrix);
-                    skPath.LineTo(x, y);
+                    builder.LineTo(x, y);
                     break;
                 }
                 case GeneralPath.SegmentType.QuadTo:
                 {
                     (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, matrix);
                     (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, matrix);
-                    skPath.QuadTo(x1, y1, x2, y2);
+                    builder.QuadTo(x1, y1, x2, y2);
                     break;
                 }
                 case GeneralPath.SegmentType.CurveTo:
@@ -1257,16 +1257,16 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                     (float x1, float y1) = PdfToCanvas(segment.X1, segment.Y1, matrix);
                     (float x2, float y2) = PdfToCanvas(segment.X2, segment.Y2, matrix);
                     (float x3, float y3) = PdfToCanvas(segment.X3, segment.Y3, matrix);
-                    skPath.CubicTo(x1, y1, x2, y2, x3, y3);
+                    builder.CubicTo(x1, y1, x2, y2, x3, y3);
                     break;
                 }
                 case GeneralPath.SegmentType.Close:
-                    skPath.Close();
+                    builder.Close();
                     break;
             }
         }
 
-        return skPath;
+        return builder.Detach();
     }
 
     private void DrawUnicodeGlyphFallback(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
@@ -1312,13 +1312,13 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             if (renderingMode.IsFill())
             {
                 using SKPaint fillPaint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
-                canvas.DrawText(unicode, 0, 0, skFont, fillPaint);
+                canvas.DrawText(unicode, 0, 0, SKTextAlign.Left, skFont, fillPaint);
             }
 
             if (renderingMode.IsStroke())
             {
                 using SKPaint strokePaint = CreateSkiaPaint(GetGraphicsState(), stroke: true);
-                canvas.DrawText(unicode, 0, 0, skFont, strokePaint);
+                canvas.DrawText(unicode, 0, 0, SKTextAlign.Left, skFont, strokePaint);
             }
         });
     }
