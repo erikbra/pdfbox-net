@@ -2,28 +2,49 @@
 
 A mechanical port of [Apache PDFBox](https://pdfbox.apache.org/) to modern .NET.
 
-## Status: 100% parity achieved ✅
+## Status: Apache PDFBox 3.0 Core Parity
 
-All **1,067** upstream Java source files from Apache PDFBox have been ported to C#.
+This branch targets the Apache PDFBox `origin/3.0` line. It has reached core
+3.0 parity for the scoped non-Preflight modules: source coverage is complete,
+the generated public/protected API surface has no unreviewed deltas, and the
+runtime parity corpus is green against Apache PDFBox 3.0.
+
+Preflight and `preflight-app` are intentionally excluded from this branch's
+core parity claim. That means PDF/A validation is not included yet, even though
+ordinary PDF load, parse, text, render, save, merge, encryption, FontBox, IO,
+and XmpBox behavior are covered by the 3.0 parity reports.
 
 | Upstream module | Java files | Ported C# files | Missing | Coverage |
 |---|---:|---:|---:|---:|
-| `benchmark` | 3 | 3 | 0 | 100% |
+| `benchmark` | 4 | 4 | 0 | 100% |
 | `debugger` | 91 | 91 | 0 | 100% |
 | `examples` | 94 | 94 | 0 | 100% |
 | `fontbox` | 143 | 143 | 0 | 100% |
 | `io` | 18 | 18 | 0 | 100% |
-| `pdfbox` | 618 | 618 | 0 | 100% |
+| `pdfbox` | 621 | 621 | 0 | 100% |
 | `tools` | 26 | 26 | 0 | 100% |
 | `xmpbox` | 74 | 74 | 0 | 100% |
-| **TOTAL** | **1,067** | **1,067** | **0** | **100%** |
+| **TOTAL** | **1,071** | **1,071** | **0** | **100%** |
 
-Parity baseline commit: `eeb5d611e0cea8beac3d7025a4dbccbef51d5caf` (Apache PDFBox `trunk`).
-See [`reports/pdfbox-main-gap-analysis.md`](reports/pdfbox-main-gap-analysis.md) for the full gap analysis report.
+3.0 readiness summary:
+
+- Apache upstream ref: `origin/3.0` at
+  `ea68b6feae80e671b3d26565b12eccc79e74d967`
+- Source coverage: 1071 / 1071 scoped production Java files
+- API review: 0 unreviewed public/protected API deltas
+- Runtime parity: 1027 matches, 0 known gaps, 0 unexpected gaps
+- Package default: `3.0.8-preview`
+
+The remaining known 3.0 work is product-surface work rather than unreviewed
+core source/API/runtime parity: full `pdfbox-app` CLI option parity, debugger UI
+scope, and deterministic examples coverage for PDF/A and advanced signature
+flows. See [`reports/pdfbox-3.0-release-readiness.md`](reports/pdfbox-3.0-release-readiness.md)
+for the full gate decision.
 
 ## Projects
 
-The solution (`PdfBoxNet.slnx`) contains four library projects, two test projects, and one benchmark project:
+The solution (`PdfBoxNet.slnx`) contains the core port, optional backend
+packages, examples, tests, and development tools:
 
 | Project | Description |
 |---|---|
@@ -32,6 +53,12 @@ The solution (`PdfBoxNet.slnx`) contains four library projects, two test project
 | `PdfBox.Net.XmpBox` | XMP metadata reading/writing (ported from `xmpbox` module) |
 | `PdfBox.Net` | Core PDF library — COS, filters, parser, writer, pdmodel, text, rendering, tools (ported from `pdfbox` module) |
 | `PdfBox.Net.Cryptography` | Optional BouncyCastle-backed public-key security provider |
+| `PdfBox.Net.SkiaSharp` | Complete SkiaSharp rendering backend |
+| `PdfBox.Net.SystemDrawing` | Windows `System.Drawing` helpers and print-spooler backend |
+| `PdfBox.Net.ImageSharp` | ImageSharp backend experiment |
+| `PdfBox.Net.MauiGraphics` | Microsoft.Maui.Graphics backend experiment |
+| `PdfBox.Net.Examples` | Ported Apache PDFBox examples; non-packable by default |
+| `PdfBox.Net.Debugger` | Ported debugger inspection models; non-packable by default |
 | `PdfBox.Net.Tests` | xUnit v3 tests for all non-XmpBox modules |
 | `PdfBox.Net.XmpBox.Tests` | xUnit v3 tests for `PdfBox.Net.XmpBox` |
 | `PdfBox.Net.Benchmark` | BenchmarkDotNet benchmarks (ported from `benchmark` module, located under `src/PdfBox.Net.Benchmark/`) |
@@ -39,7 +66,8 @@ The solution (`PdfBoxNet.slnx`) contains four library projects, two test project
 ## Requirements
 
 - .NET 10.0 SDK or later
-- [SkiaSharp](https://github.com/mono/SkiaSharp) (used for rendering, replaces Java AWT/ImageIO)
+- Optional backend packages for rendering, cryptography, or platform printing.
+  `PdfBox.Net.SkiaSharp` is the complete rendering backend today.
 
 ## Optional Backends
 
@@ -141,6 +169,10 @@ Traceability records are maintained in:
 - `reports/upstream-sync-state.json` — latest upstream commit tracked and coverage counters
 - `reports/upstream-port-coverage-state.json` — canonical parity scan snapshot
 - `reports/pdfbox-main-gap-analysis.md` — human-readable gap analysis
+- `reports/pdfbox-3.0-source-coverage.md` — 3.0 source coverage excluding Preflight
+- `reports/pdfbox-3.0-api-review.md` — 3.0 API review and accepted adaptations
+- `reports/pdfbox-3.0-runtime-parity.md` — 3.0 runtime parity corpus result
+- `reports/pdfbox-3.0-release-readiness.md` — 3.0 release-readiness gate decision
 
 ## Upstream sync automation
 
