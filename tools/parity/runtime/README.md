@@ -99,11 +99,12 @@ entry after the #489 renderer fixes.
 ```bash
 PDFBOX_ROOT=/path/to/apache/pdfbox
 mvn -B -f "$PDFBOX_ROOT/pom.xml" -pl app -am -DskipTests package
+PDFBOX_APP_JAR="$(find "$PDFBOX_ROOT/app/target" -maxdepth 1 -type f -name 'pdfbox-app-*.jar' ! -name '*sources*' ! -name '*javadoc*' | sort | head -n 1)"
 
 python3 tools/parity/runtime/run_runtime_parity.py \
   --manifest tools/parity/runtime/corpus-manifest.txt \
   --pdfbox-root "$PDFBOX_ROOT" \
-  --java-classpath "$PDFBOX_ROOT/app/target/pdfbox-app-4.0.0-SNAPSHOT.jar" \
+  --java-classpath "$PDFBOX_APP_JAR" \
   --out-dir artifacts/runtime-parity \
   --ratchet-baseline tools/parity/runtime/ratchet-baseline.json \
   --gate-mode ratchet \
@@ -119,7 +120,7 @@ counts exceed `ratchet-baseline.json`.
 python3 tools/parity/runtime/run_runtime_parity.py \
   --manifest tools/parity/runtime/corpus-manifest.txt \
   --pdfbox-root "$PDFBOX_ROOT" \
-  --java-classpath "$PDFBOX_ROOT/app/target/pdfbox-app-4.0.0-SNAPSHOT.jar" \
+  --java-classpath "$PDFBOX_APP_JAR" \
   --out-dir artifacts/runtime-parity-strict \
   --gate-mode strict
 ```

@@ -386,7 +386,11 @@ public final class JavaPdfProbe {
 
         @Override
         protected PageDrawer createPageDrawer(PageDrawerParameters parameters) {
-            return new GlyphProbePageDrawer(parameters, recorder);
+            try {
+                return new GlyphProbePageDrawer(parameters, recorder);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         String toJsonLines() {
@@ -397,7 +401,7 @@ public final class JavaPdfProbe {
     private static final class GlyphProbePageDrawer extends PageDrawer {
         private final GlyphRecorder recorder;
 
-        GlyphProbePageDrawer(PageDrawerParameters parameters, GlyphRecorder recorder) {
+        GlyphProbePageDrawer(PageDrawerParameters parameters, GlyphRecorder recorder) throws IOException {
             super(parameters);
             this.recorder = recorder;
         }
