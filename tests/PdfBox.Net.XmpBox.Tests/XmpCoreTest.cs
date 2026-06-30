@@ -185,7 +185,23 @@ public class XmpCoreTest
         Assert.IsAssignableFrom<XMPPageTextSchema>(schema);
         Assert.Equal(XMPPageTextSchema.NamespaceUri, schema.GetNamespace());
         Assert.Equal(XMPPageTextSchema.PreferredPrefix, schema.GetPrefix());
+        Assert.Equal(XMPPageTextSchema.MAX_PAGE_SIZE, XMPageTextSchema.MAX_PAGE_SIZE);
+        Assert.Equal(XMPPageTextSchema.N_PAGES, XMPageTextSchema.N_PAGES);
+        Assert.Equal(XMPPageTextSchema.PLATENAMES, XMPageTextSchema.PLATENAMES);
+        Assert.Equal(XMPPageTextSchema.COLORANTS, XMPageTextSchema.COLORANTS);
+        Assert.Equal(XMPPageTextSchema.FONTS, XMPageTextSchema.FONTS);
     }
+
+    [Fact]
+#pragma warning disable CS0618
+    public void PropertiesDescriptionKeepsJava30SingularAlias()
+    {
+        PropertiesDescription description = new();
+        description.AddNewProperty("Title", new PropertyTypeAttribute(XmpTypeName.Text));
+
+        Assert.Equal(description.GetPropertiesNames(), description.GetPropertiesName());
+    }
+#pragma warning restore CS0618
 
     [Fact]
     public void SerializerCanWriteWithoutXpacketInstructions()

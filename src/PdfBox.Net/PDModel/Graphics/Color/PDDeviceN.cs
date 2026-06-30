@@ -53,6 +53,12 @@ public sealed partial class PDDeviceN : PDColorSpace
     {
     }
 
+    [Obsolete("Use PDDeviceN(COSArray, PDResources?) instead.")]
+    public PDDeviceN(COSArray array)
+        : this(array, null)
+    {
+    }
+
     public PDDeviceN(COSArray array, PDResources? resources) : base(array)
     {
         COSArray? names = array.Size() > ColorantNamesIndex ? array.GetObject(ColorantNamesIndex) as COSArray : null;

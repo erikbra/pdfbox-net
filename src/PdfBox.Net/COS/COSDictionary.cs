@@ -696,6 +696,78 @@ public class COSDictionary : COSBase, COSUpdateInfo
     /// Collects all indirect object numbers within this dictionary and included dictionaries/arrays.
     /// Expert use only; choosing a wrong starting point may create recursion through parent links.
     /// </summary>
+    /// <param name="indirectObjects">A list of already found indirect objects.</param>
+    [Obsolete("Use GetIndirectObjectKeys(ICollection<COSObjectKey>) instead.")]
+    public void GetIndirectObjectKeys(List<COSObjectKey>? indirectObjects)
+    {
+        GetIndirectObjectKeys((ICollection<COSObjectKey>?)indirectObjects);
+    }
+
+    /// <summary>
+    /// Collects all indirect object numbers within this dictionary and included dictionaries/arrays.
+    /// Expert use only; choosing a wrong starting point may create recursion through parent links.
+    /// </summary>
+    /// <param name="indirectObjects">A collection of already found indirect objects.</param>
+    public void GetIndirectObjectKeys(ICollection<COSObjectKey>? indirectObjects)
+    {
+        if (indirectObjects is null)
+        {
+            return;
+        }
+
+        COSObjectKey? key = GetKey();
+        if (key is not null)
+        {
+            if (indirectObjects.Contains(key))
+            {
+                return;
+            }
+
+            indirectObjects.Add(key);
+        }
+
+        foreach (KeyValuePair<COSName, COSBase> entry in items)
+        {
+            COSBase cosBase = entry.Value;
+            COSObjectKey? indirectObjectKey = cosBase is COSObject cosObject ? cosObject.GetKey() : null;
+            if (indirectObjectKey is not null)
+            {
+                if (indirectObjects.Contains(indirectObjectKey))
+                {
+                    continue;
+                }
+
+                COSBase? dereferencedObject = ((COSObject)cosBase).GetObject();
+                if (dereferencedObject is null)
+                {
+                    continue;
+                }
+
+                cosBase = dereferencedObject;
+            }
+
+            if (cosBase is COSDictionary dictionary)
+            {
+                if (!COSName.PARENT.Equals(entry.Key) && !COSName.P.Equals(entry.Key))
+                {
+                    dictionary.GetIndirectObjectKeys(indirectObjects);
+                }
+            }
+            else if (cosBase is COSArray array)
+            {
+                array.GetIndirectObjectKeys(indirectObjects);
+            }
+            else if (indirectObjectKey is not null)
+            {
+                indirectObjects.Add(indirectObjectKey);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Collects all indirect object numbers within this dictionary and included dictionaries/arrays.
+    /// Expert use only; choosing a wrong starting point may create recursion through parent links.
+    /// </summary>
     /// <param name="indirectObjects">A collection of already found indirect objects.</param>
     /// <returns>The collection of indirect objects.</returns>
     protected ICollection<COSObjectKey>? ResetObjectKeys(ICollection<COSObjectKey>? indirectObjects)

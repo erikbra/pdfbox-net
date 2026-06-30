@@ -54,6 +54,19 @@ public class Type2CharStringParser
         return glyphData.Sequence;
     }
 
+    /// <summary>
+    /// The given byte array will be parsed and converted to a Type 2 sequence.
+    /// </summary>
+    /// <param name="bytes">The given mapping as byte array.</param>
+    /// <param name="globalSubrIndex">Array containing all global subroutines.</param>
+    /// <param name="localSubrIndex">Array containing all local subroutines.</param>
+    /// <param name="glyphName">The name of the current glyph.</param>
+    /// <returns>The Type 2 sequence.</returns>
+    public List<object> Parse(byte[] bytes, byte[][]? globalSubrIndex, byte[][]? localSubrIndex, string? glyphName)
+    {
+        return Parse(bytes, globalSubrIndex, localSubrIndex);
+    }
+
     private void ParseSequence(byte[] bytes, byte[][]? globalSubrIndex, byte[][]? localSubrIndex, GlyphData glyphData)
     {
         DataInput input = new DataInputByteArray(bytes);

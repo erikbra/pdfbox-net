@@ -487,6 +487,84 @@ public class COSArray : COSBase, IEnumerable<COSBase?>, COSUpdateInfo
     ///
     /// Expert use only. You might run into an endless recursion if choosing a wrong starting point.
     /// </summary>
+    /// <param name="indirectObjects">A list of already found indirect objects.</param>
+    [Obsolete("Will be removed in 4.0.")]
+    public void GetIndirectObjectKeys(List<COSObjectKey>? indirectObjects)
+    {
+        GetIndirectObjectKeys((ICollection<COSObjectKey>?)indirectObjects);
+    }
+
+    /// <summary>
+    /// Collects all indirect objects numbers within this COSArray and all included dictionaries. It is used to avoid
+    /// overlapping object numbers when importing an existing page to another pdf.
+    ///
+    /// Expert use only. You might run into an endless recursion if choosing a wrong starting point.
+    /// </summary>
+    /// <param name="indirectObjects">A collection of already found indirect objects.</param>
+    public void GetIndirectObjectKeys(ICollection<COSObjectKey>? indirectObjects)
+    {
+        if (indirectObjects is null)
+        {
+            return;
+        }
+
+        COSObjectKey? key = GetKey();
+        if (key is not null)
+        {
+            if (indirectObjects.Contains(key))
+            {
+                return;
+            }
+
+            indirectObjects.Add(key);
+        }
+
+        foreach (COSBase? entry in _objects)
+        {
+            if (entry is null)
+            {
+                continue;
+            }
+
+            COSBase cosBase = entry;
+            COSObjectKey? indirectObjectKey = cosBase is COSObject cosObject ? cosObject.GetKey() : null;
+            if (indirectObjectKey is not null)
+            {
+                if (indirectObjects.Contains(indirectObjectKey))
+                {
+                    continue;
+                }
+
+                COSBase? dereferencedObject = ((COSObject)cosBase).GetObject();
+                if (dereferencedObject is null)
+                {
+                    continue;
+                }
+
+                cosBase = dereferencedObject;
+            }
+
+            if (cosBase is COSDictionary dictionary)
+            {
+                dictionary.GetIndirectObjectKeys(indirectObjects);
+            }
+            else if (cosBase is COSArray array)
+            {
+                array.GetIndirectObjectKeys(indirectObjects);
+            }
+            else if (indirectObjectKey is not null)
+            {
+                indirectObjects.Add(indirectObjectKey);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Collects all indirect objects numbers within this COSArray and all included dictionaries. It is used to avoid
+    /// overlapping object numbers when importing an existing page to another pdf.
+    ///
+    /// Expert use only. You might run into an endless recursion if choosing a wrong starting point.
+    /// </summary>
     /// <param name="indirectObjects">A collection of already found indirect objects.</param>
     /// <returns>The collection of indirect objects.</returns>
     protected internal ICollection<COSObjectKey>? ResetObjectKeys(ICollection<COSObjectKey>? indirectObjects)
