@@ -47,14 +47,23 @@ public static class PDFBox
         {
             "decrypt" => Decrypt.Run(commandArgs, error),
             "encrypt" => Encrypt.Run(commandArgs, error),
+            "export:fdf" => ExportFDF.Run(commandArgs, error),
             "exportfdf" => ExportFDF.Run(commandArgs, error),
+            "export:xfdf" => ExportXFDF.Run(commandArgs, error),
             "exportxfdf" => ExportXFDF.Run(commandArgs, error),
+            "export:images" => ExtractImages.Run(commandArgs, error),
             "extractimages" => ExtractImages.Run(commandArgs, error),
+            "export:xmp" => ExtractXMP.Run(commandArgs, output, error),
             "extractxmp" => ExtractXMP.Run(commandArgs, output, error),
+            "fromimage" => ImageToPDF.Run(commandArgs, error),
             "imagetopdf" => ImageToPDF.Run(commandArgs, error),
+            "import:fdf" => ImportFDF.Run(commandArgs, error),
             "importfdf" => ImportFDF.Run(commandArgs, error),
+            "import:xfdf" => ImportXFDF.Run(commandArgs, error),
             "importxfdf" => ImportXFDF.Run(commandArgs, error),
+            "print" => PrintPDF.Run(commandArgs, error),
             "printpdf" => PrintPDF.Run(commandArgs, error),
+            "fromtext" => TextToPDF.Run(commandArgs, error),
             "texttopdf" => TextToPDF.Run(commandArgs, error),
             _ => UnknownCommand(args[0], error)
         };
