@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>pdfdebugger</AssemblyName>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/PdfBox.Net.Debugger/PdfBox.Net.Debugger.csproj" />

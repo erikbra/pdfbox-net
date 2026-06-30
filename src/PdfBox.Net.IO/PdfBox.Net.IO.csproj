@@ -4,6 +4,14 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>PdfBox.Net.IO</Title>
+    <Description>Random-access IO primitives ported from Apache PDFBox's pdfbox-io module.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>pdf;pdfbox;apache;io;random-access</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
 
 </Project>

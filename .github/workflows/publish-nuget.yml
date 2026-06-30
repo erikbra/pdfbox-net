@@ -1,0 +1,181 @@
+name: Publish NuGet Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Full NuGet package version to produce, for example 4.0.0-preview.1"
+        required: true
+        type: string
+      publish:
+        description: "Push packages to the configured NuGet source"
+        required: true
+        default: false
+        type: boolean
+      nuget_source:
+        description: "NuGet v3 package source"
+        required: true
+        default: "https://api.nuget.org/v3/index.json"
+        type: string
+      skip_duplicate:
+        description: "Pass --skip-duplicate to dotnet nuget push"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-nuget-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  pack:
+    name: Pack all NuGet packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Validate requested version
+        shell: bash
+        env:
+          PACKAGE_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z][0-9A-Za-z.-]*)?(\+[0-9A-Za-z][0-9A-Za-z.-]*)?$ ]]; then
+            echo "Package version must be a SemVer value such as 3.0.8-preview.1 or 4.0.0-preview.1." >&2
+            exit 1
+          fi
+
+          case "$GITHUB_REF_NAME" in
+            release/3.0)
+              if [[ "$PACKAGE_VERSION" != 3.0.* ]]; then
+                echo "release/3.0 publishes the 3.0.x package line; got '$PACKAGE_VERSION'." >&2
+                exit 1
+              fi
+              ;;
+            main)
+              if [[ "$PACKAGE_VERSION" != 4.* ]]; then
+                echo "main publishes the 4.x package line; got '$PACKAGE_VERSION'." >&2
+                exit 1
+              fi
+              ;;
+          esac
+
+      - name: Restore
+        run: dotnet restore PdfBoxNet.slnx
+
+      - name: Build
+        run: dotnet build PdfBoxNet.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test PdfBoxNet.slnx --configuration Release --no-build --nologo
+
+      - name: Pack
+        shell: bash
+        env:
+          PACKAGE_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          rm -rf artifacts/packages
+          dotnet pack PdfBoxNet.slnx \
+            --configuration Release \
+            --no-build \
+            --output artifacts/packages \
+            -p:ContinuousIntegrationBuild=true \
+            -p:Version="$PACKAGE_VERSION"
+
+      - name: Verify package output
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          packages=(artifacts/packages/*.nupkg)
+
+          if [ "${#packages[@]}" -eq 0 ]; then
+            echo "No NuGet packages were produced." >&2
+            exit 1
+          fi
+
+          printf '%s\n' "${packages[@]}" | sort
+
+          {
+            echo "### NuGet packages"
+            echo
+            for package in "${packages[@]}"; do
+              echo "- `$(basename "$package")`"
+            done | sort
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages-${{ inputs.version }}
+          path: artifacts/packages/*.nupkg
+          if-no-files-found: error
+
+  publish:
+    name: Publish packages
+    runs-on: ubuntu-latest
+    needs: pack
+    if: ${{ inputs.publish }}
+    environment: nuget.org
+
+    steps:
+      - name: Ref safety check
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$GITHUB_REF_NAME" in
+            main|release/3.0)
+              ;;
+            *)
+              echo "Publishing is only allowed from main or release/3.0; current ref is '$GITHUB_REF_NAME'." >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages-${{ inputs.version }}
+          path: artifacts/packages
+
+      - name: Push packages
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_SOURCE: ${{ inputs.nuget_source }}
+          SKIP_DUPLICATE: ${{ inputs.skip_duplicate }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${NUGET_API_KEY:-}" ]; then
+            echo "The NUGET_API_KEY repository or environment secret is required to publish packages." >&2
+            exit 1
+          fi
+
+          args=(dotnet nuget push artifacts/packages/*.nupkg --source "$NUGET_SOURCE" --api-key "$NUGET_API_KEY")
+          if [ "$SKIP_DUPLICATE" = "true" ]; then
+            args+=(--skip-duplicate)
+          fi
+
+          "${args[@]}"

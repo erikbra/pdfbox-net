@@ -4,6 +4,14 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>PdfBox.Net.XmpBox</Title>
+    <Description>XMP metadata parsing and serialization ported from Apache XmpBox.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>pdf;pdfbox;apache;xmp;xmpbox;metadata</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
 
 </Project>

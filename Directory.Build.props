@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <PdfBoxNetPackageLine Condition="'$(PdfBoxNetPackageLine)' == ''">4.0</PdfBoxNetPackageLine>
+    <PdfBoxNetUpstreamRef Condition="'$(PdfBoxNetUpstreamRef)' == ''">apache/pdfbox trunk</PdfBoxNetUpstreamRef>
+    <PdfBoxNetUpstreamVersion Condition="'$(PdfBoxNetUpstreamVersion)' == ''">4.0.0-SNAPSHOT</PdfBoxNetUpstreamVersion>
+
+    <VersionPrefix Condition="'$(VersionPrefix)' == ''">4.0.0</VersionPrefix>
+    <VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
+    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">4.0.0.0</AssemblyVersion>
+    <FileVersion Condition="'$(FileVersion)' == ''">4.0.0.0</FileVersion>
+
+    <Authors>Apache PDFBox contributors; PdfBox.Net contributors</Authors>
+    <Company>PdfBox.Net contributors</Company>
+    <PackageProjectUrl>https://github.com/erikbra/pdfbox-net</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/erikbra/pdfbox-net</RepositoryUrl>
+    <PackageReleaseNotes>Tracks Apache PDFBox $(PdfBoxNetUpstreamRef) ($(PdfBoxNetUpstreamVersion)).</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RepositoryBranch)' == '' and '$(GITHUB_REF_NAME)' != ''">
+    <RepositoryBranch>$(GITHUB_REF_NAME)</RepositoryBranch>
+  </PropertyGroup>
+
+</Project>

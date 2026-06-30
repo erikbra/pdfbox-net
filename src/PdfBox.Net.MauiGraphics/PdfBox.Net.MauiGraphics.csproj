@@ -4,6 +4,10 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>PdfBox.Net.MauiGraphics</Title>
+    <Description>Experimental Microsoft.Maui.Graphics-backed Java AWT/ImageIO proxy backend for PdfBox.Net image operations.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>pdf;pdfbox;apache;maui-graphics;graphics;images;experimental</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +16,10 @@
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
     <ProjectReference Include="..\PdfBox.Net\PdfBox.Net.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
 
 </Project>
