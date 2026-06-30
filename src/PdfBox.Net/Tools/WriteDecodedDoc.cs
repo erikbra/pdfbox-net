@@ -30,8 +30,98 @@ namespace PdfBox.Net.Tools;
 
 public static class WriteDecodedDoc
 {
+    public static int Run(string[] args, TextWriter? error = null)
+    {
+        error ??= Console.Error;
+        try
+        {
+            DecodedDocOptions options = ParseOptions(args);
+            Rewrite(options.InputFile, options.OutputFile, options.Password);
+            return 0;
+        }
+        catch (ArgumentException ex)
+        {
+            return ToolSupport.Usage(error, ex.Message);
+        }
+        catch (IOException ex)
+        {
+            return ToolSupport.IoError(error, "writing decoded PDF document", ex);
+        }
+    }
+
     public static void Rewrite(string inputFile, string outputFile)
     {
         DecompressObjectstreams.Rewrite(inputFile, outputFile);
     }
+
+    public static void Rewrite(string inputFile, string outputFile, string? password)
+    {
+        DecompressObjectstreams.Rewrite(inputFile, outputFile, password);
+    }
+
+    private static DecodedDocOptions ParseOptions(string[]? args)
+    {
+        args ??= [];
+        string? input = null;
+        string? output = null;
+        string? password = null;
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            string arg = args[i];
+            switch (arg)
+            {
+                case "-password":
+                    password = ToolSupport.ReadOptionValue(args, ref i, arg);
+                    break;
+                case "-skipImages":
+                    break;
+                case "-i":
+                case "--input":
+                    input = ToolSupport.ReadOptionValue(args, ref i, arg);
+                    break;
+                case "-o":
+                case "--output":
+                    output = ToolSupport.ReadOptionValue(args, ref i, arg);
+                    break;
+                default:
+                    if (ToolSupport.IsOption(arg))
+                    {
+                        throw new ArgumentException($"Unknown option: {arg}");
+                    }
+
+                    if (input is null)
+                    {
+                        input = arg;
+                    }
+                    else if (output is null)
+                    {
+                        output = arg;
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Unexpected argument: {arg}");
+                    }
+                    break;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            throw new ArgumentException("Missing required input PDF.");
+        }
+
+        output ??= CalculateOutputFilename(input);
+        return new DecodedDocOptions(input, output, password);
+    }
+
+    private static string CalculateOutputFilename(string input)
+    {
+        string directory = Path.GetDirectoryName(input) ?? string.Empty;
+        string name = Path.GetFileNameWithoutExtension(input);
+        string outputName = $"{name}_unc.pdf";
+        return string.IsNullOrEmpty(directory) ? outputName : Path.Combine(directory, outputName);
+    }
+
+    private sealed record DecodedDocOptions(string InputFile, string OutputFile, string? Password);
 }

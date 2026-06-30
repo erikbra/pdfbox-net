@@ -20,6 +20,7 @@
   </Folder>
   <Folder Name="/apps/">
     <Project Path="apps/PdfBox.Net.Debugger.App/PdfBox.Net.Debugger.App.csproj" />
+    <Project Path="apps/PdfBox.Net.Tools.App/PdfBox.Net.Tools.App.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj" />

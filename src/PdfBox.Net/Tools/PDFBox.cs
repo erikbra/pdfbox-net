@@ -36,17 +36,41 @@ public static class PDFBox
         error ??= Console.Error;
         args ??= [];
 
-        if (args.Length == 0 || string.Equals(args[0], "version", StringComparison.OrdinalIgnoreCase))
+        if (args.Length == 0)
+        {
+            error.WriteLine("Error: Subcommand required");
+            WriteUsage(error);
+            return ToolSupport.UsageExitCode;
+        }
+
+        if (ToolSupport.IsHelpOption(args[0]))
+        {
+            return WriteHelp(args.Skip(1).ToArray(), output);
+        }
+
+        if (string.Equals(args[0], "version", StringComparison.OrdinalIgnoreCase))
         {
             output.WriteLine(Version.GetVersion() ?? "unknown");
             return 0;
         }
 
         string[] commandArgs = args.Skip(1).ToArray();
+        if (commandArgs.Length == 1 && ToolSupport.IsHelpOption(commandArgs[0]))
+        {
+            return WriteHelp([args[0]], output);
+        }
+
         return args[0].ToLowerInvariant() switch
         {
+            "debug" => UnsupportedCommand(
+                "debug",
+                "The Java Swing PDFDebugger UI is not part of the core PdfBox.Net dispatcher. Use the pdfdebugger app or follow issue #602.",
+                error),
             "decrypt" => Decrypt.Run(commandArgs, error),
             "encrypt" => Encrypt.Run(commandArgs, error),
+            "decode" => WriteDecodedDoc.Run(commandArgs, error),
+            "writedecodeddoc" => WriteDecodedDoc.Run(commandArgs, error),
+            "decompressobjectstreams" => DecompressObjectstreams.Run(commandArgs, error),
             "export:fdf" => ExportFDF.Run(commandArgs, error),
             "exportfdf" => ExportFDF.Run(commandArgs, error),
             "export:xfdf" => ExportXFDF.Run(commandArgs, error),
@@ -55,6 +79,16 @@ public static class PDFBox
             "extractimages" => ExtractImages.Run(commandArgs, error),
             "export:xmp" => ExtractXMP.Run(commandArgs, output, error),
             "extractxmp" => ExtractXMP.Run(commandArgs, output, error),
+            "export:text" => ExtractText.Run(commandArgs, output, error),
+            "extracttext" => ExtractText.Run(commandArgs, output, error),
+            "overlay" => OverlayPDF.Run(commandArgs, error),
+            "overlaypdf" => OverlayPDF.Run(commandArgs, error),
+            "render" => PDFToImage.Run(commandArgs, error),
+            "pdftoimage" => PDFToImage.Run(commandArgs, error),
+            "merge" => PDFMerger.Run(commandArgs, error),
+            "pdfmerger" => PDFMerger.Run(commandArgs, error),
+            "split" => PDFSplit.Run(commandArgs, error),
+            "pdfsplit" => PDFSplit.Run(commandArgs, error),
             "fromimage" => ImageToPDF.Run(commandArgs, error),
             "imagetopdf" => ImageToPDF.Run(commandArgs, error),
             "import:fdf" => ImportFDF.Run(commandArgs, error),
@@ -69,9 +103,57 @@ public static class PDFBox
         };
     }
 
+    private static int WriteHelp(string[] args, TextWriter output)
+    {
+        if (args.Length == 0)
+        {
+            WriteUsage(output);
+            return 0;
+        }
+
+        string command = args[0].ToLowerInvariant();
+        output.WriteLine(command switch
+        {
+            "decrypt" => "Usage: pdfbox decrypt -i <input.pdf> [-o <output.pdf>] [-password <password>] [-keyStore <file> -alias <alias>]",
+            "encrypt" => "Usage: pdfbox encrypt -i <input.pdf> [-o <output.pdf>] [-O <owner>] [-U <user>] [-keyLength <40|128|256>]",
+            "decode" or "writedecodeddoc" => "Usage: pdfbox decode [-password <password>] [-skipImages] <input.pdf> [output.pdf]",
+            "export:images" => "Usage: pdfbox export:images -i <input.pdf> -o <output-prefix>",
+            "export:xmp" => "Usage: pdfbox export:xmp -i <input.pdf> [-o <output.xml>]",
+            "export:text" => "Usage: pdfbox export:text -i <input.pdf> [-o <output.txt>] [-console] [-html|-md] [-startPage <n>] [-endPage <n>]",
+            "export:fdf" => "Usage: pdfbox export:fdf -i <input.pdf> -o <output.fdf>",
+            "export:xfdf" => "Usage: pdfbox export:xfdf -i <input.pdf> -o <output.xfdf>",
+            "import:fdf" => "Usage: pdfbox import:fdf -i <input.pdf> --data <input.fdf> -o <output.pdf>",
+            "import:xfdf" => "Usage: pdfbox import:xfdf -i <input.pdf> --data <input.xfdf> -o <output.pdf>",
+            "overlay" => "Usage: pdfbox overlay -i <input.pdf> -o <output.pdf> -default <overlay.pdf> [options]",
+            "print" => "Usage: pdfbox print -i <input.pdf> [options]",
+            "render" => "Usage: pdfbox render -i <input.pdf> [-prefix <output-prefix>] [-format jpg|png] [-startPage <n>] [-endPage <n>] [-dpi <n>]",
+            "merge" => "Usage: pdfbox merge -i <input1.pdf> <input2.pdf> [...] -o <output.pdf>",
+            "split" => "Usage: pdfbox split -i <input.pdf> [-outputPrefix <prefix>] [-split <pages>]",
+            "fromimage" => "Usage: pdfbox fromimage -i <input-image> -o <output.pdf>",
+            "fromtext" => "Usage: pdfbox fromtext -i <input.txt> -o <output.pdf>",
+            "debug" => "Usage: pdfbox debug <input.pdf> is not provided by the core dispatcher; use pdfdebugger or follow issue #602.",
+            "version" => "Usage: pdfbox version",
+            _ => $"No help available for command: {args[0]}"
+        });
+        return 0;
+    }
+
+    private static void WriteUsage(TextWriter writer)
+    {
+        writer.WriteLine("Usage: pdfbox [COMMAND] [OPTIONS]");
+        writer.WriteLine("Commands: debug, decrypt, encrypt, decode, export:images, export:xmp, export:text, export:fdf, export:xfdf, import:fdf, import:xfdf, overlay, print, render, merge, split, fromimage, fromtext, version, help");
+        writer.WriteLine("See 'pdfbox help <command>' to read about a specific subcommand.");
+    }
+
     private static int UnknownCommand(string command, TextWriter error)
     {
         error.WriteLine($"Unknown command: {command}");
-        return 1;
+        return ToolSupport.UsageExitCode;
+    }
+
+    private static int UnsupportedCommand(string command, string message, TextWriter error)
+    {
+        error.WriteLine($"Unsupported command: {command}. {message}");
+        return ToolSupport.UsageExitCode;
     }
 }
