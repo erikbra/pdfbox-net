@@ -29,19 +29,12 @@ namespace PdfBox.Net.Examples.Tests.Interactive.Form;
 
 /// <summary>
 /// Test of some the form examples.
-/// Ported from TestCreateSimpleForms.java — adapted because:
-/// <list type="bullet">
-///   <item>CreatePushButton requires AcroForm appearance-stream drawing operators not yet ported.</item>
-///   <item>CreateSimpleFormWithEmbeddedFont needs a TrueType font file at test runtime.</item>
-/// </list>
+/// Ported from TestCreateSimpleForms.java.
 /// Examples that save to a relative <c>target/</c> path are run from a temporary directory
 /// that contains a pre-created <c>target/</c> subdirectory, matching the Maven convention.
 /// </summary>
 public class TestCreateSimpleForms : IDisposable
 {
-    private static readonly string LiberationSansRegular =
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
-
     private readonly string _tempDir;
     private readonly string _originalDir;
 
@@ -78,10 +71,9 @@ public class TestCreateSimpleForms : IDisposable
     [Fact]
     public void TestCreateSimpleFormWithEmbeddedFont()
     {
-        if (!File.Exists(LiberationSansRegular))
-            Assert.Skip("LiberationSans-Regular.ttf not available on this system");
+        string fontPath = ExampleTestResources.WriteLiberationSansRegular(_tempDir);
 
-        CreateSimpleFormWithEmbeddedFont.Main(new string[] { LiberationSansRegular });
+        CreateSimpleFormWithEmbeddedFont.Main(new string[] { fontPath });
         Assert.True(File.Exists(Path.Combine(_tempDir, "target", "SimpleFormWithEmbeddedFont.pdf")));
     }
 

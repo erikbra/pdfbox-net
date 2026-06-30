@@ -25,15 +25,18 @@ using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 using PdfBox.Net.Examples.Signature;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.DigitalSignature;
 using PdfBox.Net.PDModel.Interactive.Form;
+using SkiaSharp;
 
 namespace PdfBox.Net.Examples.Tests.PDModel;
 
 /// <summary>
 /// Test for signature creation and validation examples.
 /// A self-signed, in-memory PKCS#12 keystore keeps the detached-signature test deterministic
-/// and suitable for CI. Tests which contact a TSA or revocation service remain skipped.
+/// and suitable for CI. Tests which contact a TSA or revocation service remain documented
+/// external-service adaptations.
 /// </summary>
 public class TestCreateSignature
 {
@@ -55,38 +58,75 @@ public class TestCreateSignature
         Assert.Equal("Adobe.PPKLite", signature.GetFilter());
         Assert.Equal("adbe.pkcs7.detached", signature.GetSubFilter());
         Assert.Equal(4, signature.GetByteRange().Length);
-
-        SignedCms cms = new(new ContentInfo(signature.GetSignedContent(signedPdfBytes)), detached: true);
-        cms.Decode(signature.GetContents(signedPdfBytes));
-        cms.CheckSignature(verifySignatureOnly: true);
+        AssertCmsSignatureVerifies(signature, signedPdfBytes);
     }
 
-    [Fact(Skip = "Requires an external TSA endpoint.")]
+    [Fact(Skip = "Accepted #603 external-service adaptation: requires a TSA endpoint or a cached RFC 3161 response fixture.")]
     public void TestDetachedSha256WithTSA()
     {
     }
 
-    [Fact(Skip = "Visible-signature appearance parity is not covered by this deterministic suite.")]
-    public void TestCreateVisibleSignature()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void TestCreateVisibleSignature(bool externalSigning)
     {
+        string outDir = ExampleTestResources.CreateTempDirectory("examples-tests-visible-signature");
+        string inputPath = Path.Combine(outDir, "sign-me-visible.pdf");
+        string imagePath = Path.Combine(outDir, "stamp.jpg");
+        string outputPath = Path.Combine(outDir, externalSigning
+            ? "signed-visible-external.pdf"
+            : "signed-visible.pdf");
+        File.WriteAllBytes(inputPath, CreateInputPdf());
+        CreateStampJpeg(imagePath);
+
+        CreateVisibleSignature signer = new();
+        signer.SetKeystore(CreateKeyStore("password"), "password");
+        signer.IsExternalSigning = externalSigning;
+        using FileStream imageStream = File.OpenRead(imagePath);
+        signer.SetVisibleSignDesigner(inputPath, 0, 0, -50, imageStream, 1);
+        signer.SetVisibleSignatureProperties("name", "location", "Security", 0, 1, true);
+        signer.SignPDF(inputPath, outputPath, tsaUrl: null);
+
+        AssertVisibleSignatureOutput(outputPath, expectedReason: "Security");
     }
 
-    [Fact(Skip = "Visible-signature appearance parity is not covered by this deterministic suite.")]
-    public void TestCreateVisibleSignature2()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void TestCreateVisibleSignature2(bool externalSigning)
     {
+        string outDir = ExampleTestResources.CreateTempDirectory("examples-tests-visible-signature2");
+        string inputPath = Path.Combine(outDir, "sign-me-visible2.pdf");
+        string imagePath = Path.Combine(outDir, "stamp.jpg");
+        string outputPath = Path.Combine(outDir, externalSigning
+            ? "signed-visible2-external.pdf"
+            : "signed-visible2.pdf");
+        File.WriteAllBytes(inputPath, CreateInputPdf());
+        CreateStampJpeg(imagePath);
+
+        CreateVisibleSignature2 signer = new()
+        {
+            ImageFile = imagePath,
+            IsExternalSigning = externalSigning
+        };
+        signer.SetKeystore(CreateKeyStore("password"), "password");
+        signer.SignPDF(inputPath, outputPath, 100, 200, 150, 50, tsaUrl: null);
+
+        AssertVisibleSignatureOutput(outputPath, expectedReason: "Reason");
     }
 
-    [Fact(Skip = "Requires online OCSP and CRL responders.")]
+    [Fact(Skip = "Accepted #603 external-service adaptation: requires online OCSP/CRL responders or a local revocation fixture.")]
     public void TestAddValidationInformation()
     {
     }
 
-    [Fact(Skip = "Requires an external TSA endpoint.")]
+    [Fact(Skip = "Accepted #603 external-service adaptation: requires a TSA endpoint.")]
     public void TestCreateEmbeddedTimeStamp()
     {
     }
 
-    [Fact(Skip = "Requires an external TSA endpoint.")]
+    [Fact(Skip = "Accepted #603 external-service adaptation: requires a TSA endpoint.")]
     public void TestCreateSignedTimeStamp()
     {
     }
@@ -117,6 +157,48 @@ public class TestCreateSignature
         using MemoryStream output = new();
         document.Save(output);
         return output.ToArray();
+    }
+
+    private static void AssertVisibleSignatureOutput(string signedPdfPath, string expectedReason)
+    {
+        byte[] signedPdfBytes = File.ReadAllBytes(signedPdfPath);
+        using PDDocument document = PDDocument.Load(new MemoryStream(signedPdfBytes));
+
+        PDSignature signature = Assert.Single(document.GetSignatureDictionaries());
+        Assert.Equal("Adobe.PPKLite", signature.GetFilter());
+        Assert.Equal("adbe.pkcs7.detached", signature.GetSubFilter());
+        Assert.Equal(expectedReason, signature.GetReason());
+        Assert.Equal(4, signature.GetByteRange().Length);
+        AssertCmsSignatureVerifies(signature, signedPdfBytes);
+
+        PDSignatureField signatureField = Assert.Single(document.GetSignatureFields());
+        Assert.NotNull(signatureField.GetSignature());
+        PDAnnotationWidget widget = Assert.Single(signatureField.GetWidgets());
+        Assert.NotNull(widget.GetRectangle());
+        Assert.NotNull(widget.GetNormalAppearanceStream());
+    }
+
+    private static void AssertCmsSignatureVerifies(PDSignature signature, byte[] signedPdfBytes)
+    {
+        SignedCms cms = new(new ContentInfo(signature.GetSignedContent(signedPdfBytes)), detached: true);
+        cms.Decode(signature.GetContents(signedPdfBytes));
+        cms.CheckSignature(verifySignatureOnly: true);
+    }
+
+    private static void CreateStampJpeg(string path)
+    {
+        using SKBitmap bitmap = new(16, 16);
+        using SKCanvas canvas = new(bitmap);
+        canvas.Clear(new SKColor(255, 255, 255));
+        using SKPaint paint = new()
+        {
+            Color = new SKColor(40, 90, 180),
+            IsAntialias = true
+        };
+        canvas.DrawCircle(8, 8, 6, paint);
+        using SKImage image = SKImage.FromBitmap(bitmap);
+        using SKData data = image.Encode(SKEncodedImageFormat.Jpeg, 90);
+        File.WriteAllBytes(path, data.ToArray());
     }
 
     private static byte[] CreateKeyStore(string password)

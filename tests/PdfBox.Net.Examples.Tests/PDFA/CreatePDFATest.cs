@@ -19,37 +19,93 @@
  * limitations under the License.
  */
 
+using System.Text;
+using System.Xml;
+using PdfBox.Net.COS;
 using PdfBox.Net.Examples.PDModel;
+using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics.Color;
 
 namespace PdfBox.Net.Examples.Tests.PDFA;
 
 /// <summary>
 /// Test of CreatePDFA example.
-/// Ported from CreatePDFATest.java — adapted because:
-/// <list type="bullet">
-///   <item>VeraPDF (used for PDF/A-1b compliance validation in the Java original)
-///         is a Java-only library with no .NET equivalent currently integrated.</item>
-///   <item>The signing step (<c>CreateSignature</c>) requires BouncyCastle cryptographic
-///         primitives not yet ported.</item>
-/// </list>
+/// Ported from CreatePDFATest.java. Preflight/VeraPDF compliance validation remains an
+/// accepted external-validation adaptation for the 3.0 branch; these tests cover deterministic
+/// structure that can be verified offline in .NET.
 /// </summary>
 public class CreatePDFATest
 {
-    private static readonly string LiberationSansRegular =
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
-
     [Fact]
     public void TestCreatePDFA()
     {
-        if (!File.Exists(LiberationSansRegular))
-            Assert.Skip("LiberationSans-Regular.ttf not available on this system");
-
-        string outDir = Path.Combine(Path.GetTempPath(), "pdfbox-examples-tests-pdfa");
-        Directory.CreateDirectory(outDir);
+        string outDir = ExampleTestResources.CreateTempDirectory("examples-tests-pdfa");
+        string fontPath = ExampleTestResources.WriteLiberationSansRegular(outDir);
         string pdfaFile = Path.Combine(outDir, "PDFA.pdf");
-        File.Delete(pdfaFile);
 
-        CreatePDFA.Main(new string[] { pdfaFile, "The quick brown fox", LiberationSansRegular });
+        CreatePDFA.Main(new string[] { pdfaFile, "The quick brown fox", fontPath });
+
         Assert.True(File.Exists(pdfaFile), "CreatePDFA should have created the PDF");
+
+        using PDDocument document = PDDocument.Load(pdfaFile);
+        Assert.Equal(1, document.GetNumberOfPages());
+
+        PDFont? font = Assert.Single(document.GetPage(0).GetResources()!.GetFontNames()
+            .Select(name => document.GetPage(0).GetResources()!.GetFont(name)));
+        Assert.NotNull(font);
+        Assert.True(font.IsEmbedded(), "CreatePDFA should embed the TrueType font it uses.");
+
+        PDMetadata metadata = Assert.IsType<PDMetadata>(
+            document.GetDocumentCatalog().GetMetadata());
+        XmlDocument xmp = LoadXmp(metadata);
+
+        Assert.Equal(pdfaFile, SelectText(xmp, "title"));
+        Assert.Equal("1", SelectText(xmp, "part"));
+        Assert.Equal("B", SelectText(xmp, "conformance"));
+    }
+
+    [Fact]
+    public void TestCreatePDFAAddsOutputIntentWhenProfileIsProvided()
+    {
+        string outDir = ExampleTestResources.CreateTempDirectory("examples-tests-pdfa-intent");
+        string fontPath = ExampleTestResources.WriteLiberationSansRegular(outDir);
+        string iccPath = Path.Combine(outDir, "srgb.icc");
+        byte[] profileBytes = Encoding.ASCII.GetBytes("deterministic-test-profile");
+        File.WriteAllBytes(iccPath, profileBytes);
+
+        string pdfaFile = Path.Combine(outDir, "PDFA-with-output-intent.pdf");
+        CreatePDFA.Main(new string[] { pdfaFile, "The quick brown fox", fontPath, iccPath });
+
+        using PDDocument document = PDDocument.Load(pdfaFile);
+        PDOutputIntent intent = Assert.Single(document.GetDocumentCatalog().GetOutputIntents());
+        Assert.Equal("sRGB IEC61966-2.1", intent.GetInfo());
+        Assert.Equal("sRGB IEC61966-2.1", intent.GetOutputCondition());
+        Assert.Equal("sRGB IEC61966-2.1", intent.GetOutputConditionIdentifier());
+        Assert.Equal("http://www.color.org", intent.GetRegistryName());
+
+        COSStream profileStream = Assert.IsType<COSStream>(intent.GetDestOutputIntent());
+        using Stream decodedProfile = profileStream.CreateInputStream();
+        using MemoryStream buffer = new();
+        decodedProfile.CopyTo(buffer);
+        Assert.Equal(profileBytes, buffer.ToArray());
+    }
+
+    private static XmlDocument LoadXmp(PDMetadata metadata)
+    {
+        XmlDocument document = new();
+        using Stream xmp = metadata.ExportXMPMetadata();
+        document.Load(xmp);
+        return document;
+    }
+
+    private static string SelectText(XmlDocument document, string localName)
+    {
+        XmlNode? direct = document.SelectSingleNode($"//*[local-name()='{localName}']");
+        Assert.NotNull(direct);
+
+        XmlNode? listValue = direct!.SelectSingleNode(".//*[local-name()='li']");
+        return (listValue ?? direct).InnerText;
     }
 }

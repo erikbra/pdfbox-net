@@ -42,8 +42,6 @@ namespace PdfBox.Net.Examples.PDModel;
 /// Adaptation notes:
 /// - Accepts an optional 4th argument for the sRGB ICC profile path (instead of embedded resource).
 ///   If not provided, the output intent section is skipped.
-/// - font.IsEmbedded() is not yet available in this .NET port; the check is omitted since
-///   PDType0Font.Load() always embeds the font.
 /// - PDDocument.Save(file, CompressParameters.NO_COMPRESSION) is not yet available;
 ///   uses the default Save() which produces a valid but potentially compressed output.
 /// </summary>
@@ -72,7 +70,10 @@ public static class CreatePDFA
 
             // A PDF/A file needs to have the font embedded if the font is used for text rendering
             // in rendering modes other than text rendering mode 3.
-            // PDType0Font.Load() always embeds the font, so this check is satisfied.
+            if (!font.IsEmbedded())
+            {
+                throw new InvalidOperationException("PDF/A requires the TrueType font to be embedded.");
+            }
 
             // create a page with the message
             using (PDPageContentStream contents = new PDPageContentStream(doc, page))

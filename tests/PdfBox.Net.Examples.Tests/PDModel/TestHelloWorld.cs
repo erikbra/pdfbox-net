@@ -56,9 +56,7 @@ public class TestHelloWorld
     [Fact]
     public void TestHelloWorldTTFCreatesFile()
     {
-        const string ttfFont = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
-        if (!File.Exists(ttfFont))
-            Assert.Skip("LiberationSans-Regular.ttf not available on this system");
+        string ttfFont = ExampleTestResources.WriteLiberationSansRegular(OutputDir);
 
         string outputFile = Path.Combine(OutputDir, "HelloWorldTTF.pdf");
         File.Delete(outputFile);

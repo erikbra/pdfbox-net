@@ -35,9 +35,10 @@ and XmpBox behavior are covered by the 3.0 parity reports.
 - Runtime parity: 1027 matches, 0 known gaps, 0 unexpected gaps
 - Package default: `3.0.8-preview`
 
-The remaining known 3.0 work is product-surface work rather than unreviewed
-core source/API/runtime parity: deterministic examples coverage for PDF/A and
-advanced signature flows. See
+The remaining 3.0 differences are accepted adaptations rather than unreviewed
+core source/API/runtime parity gaps. Preflight/PDF-A validation is excluded,
+and advanced example flows that require live TSA, OCSP/CRL, or external PDF/A
+validators are documented as external-service adaptations. See
 [`reports/pdfbox-3.0-release-readiness.md`](reports/pdfbox-3.0-release-readiness.md)
 for the full gate decision.
 
