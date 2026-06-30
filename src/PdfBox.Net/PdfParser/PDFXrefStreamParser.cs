@@ -37,6 +37,11 @@ public sealed class PDFXrefStreamParser
         _stream = stream ?? throw new ArgumentNullException(nameof(stream));
     }
 
+    public PDFXrefStreamParser(COSStream stream, COSDocument document)
+        : this(stream)
+    {
+    }
+
     public PDFXRefStream Parse()
     {
         return new PDFXRefStream(_stream);

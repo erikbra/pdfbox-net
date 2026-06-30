@@ -70,6 +70,18 @@ public class CharStringParserTest
     }
 
     [Fact]
+    public void Type2Parser_Java30GlyphNameOverloadReturnsSameSequence()
+    {
+        byte[] bytes = [14]; // ENDCHAR
+        var parser = new Type2CharStringParser("TestFont");
+
+        List<object> seq = parser.Parse(bytes, null, null, "glyph");
+
+        Assert.Single(seq);
+        Assert.Equal(CharStringCommand.ENDCHAR, Assert.IsType<CharStringCommand>(seq[0]));
+    }
+
+    [Fact]
     public void Type2Parser_ShortInt_DecodesCorrectly()
     {
         // b0=28 → read 2-byte signed short; 0x01 0x00 = 256

@@ -52,6 +52,12 @@ public sealed partial class PDSeparation : PDColorSpace
     {
     }
 
+    [Obsolete("Use PDSeparation(COSArray, PDResources?) instead.")]
+    public PDSeparation(COSArray array)
+        : this(array, null)
+    {
+    }
+
     public PDSeparation(COSArray array, PDResources? resources) : base(array)
     {
         COSBase? alternateColorSpace = array.GetObject(AlternateColorSpaceIndex);

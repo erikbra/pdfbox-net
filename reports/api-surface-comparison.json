@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-06-28T20:57:27Z",
-  "upstream_root": "/Users/erik/src/Repos/apache/pdfbox",
-  "upstream_commit": "833ed8f378f00838fd8df8c01bfc4b915b4c350b",
-  "pdfbox_net_commit": "afac4125c15c75b7c10f00b7ce6d7e6653f6dd1d",
+  "generated_at_utc": "2026-06-30T16:15:21Z",
+  "upstream_root": "/private/tmp/pdfbox-3.0-api.2hm5B5",
+  "upstream_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+  "pdfbox_net_commit": "07ab46a18c6329ac9dddb2d3610a4fc681066c28",
   "scope": {
     "modules": [
       "io",
@@ -16,28 +16,28 @@
     "matching": "case-normalized method matching, JavaBean accessor-to-property matching, arity drift tracked separately"
   },
   "totals": {
-    "java_types": 581,
-    "matched_types": 579,
-    "same_name_matched_types": 573,
-    "java_members": 6305,
-    "matched_members": 5397,
-    "arity_drift_members": 42,
-    "missing_members": 866,
-    "csharp_extra_members": 1640,
+    "java_types": 579,
+    "matched_types": 577,
+    "same_name_matched_types": 571,
+    "java_members": 6261,
+    "matched_members": 5349,
+    "arity_drift_members": 45,
+    "missing_members": 867,
+    "csharp_extra_members": 1700,
     "nonpublic_or_replacement_types": 2,
     "renamed_public_types": 6,
     "missing_types": 0
   },
   "by_module": {
     "fontbox": {
-      "java_types": 110,
-      "same_name_matched_types": 105,
-      "matched_types": 109,
-      "java_members": 1028,
-      "matched_members": 1006,
+      "java_types": 109,
+      "same_name_matched_types": 104,
+      "matched_types": 108,
+      "java_members": 976,
+      "matched_members": 945,
       "arity_drift_members": 4,
-      "missing_members": 18,
-      "csharp_extra_members": 304,
+      "missing_members": 27,
+      "csharp_extra_members": 366,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 4,
       "missing_types": 0
@@ -56,13 +56,13 @@
       "missing_types": 0
     },
     "pdfbox": {
-      "java_types": 391,
-      "same_name_matched_types": 390,
-      "matched_types": 390,
-      "java_members": 4204,
-      "matched_members": 3677,
-      "arity_drift_members": 34,
-      "missing_members": 493,
+      "java_types": 390,
+      "same_name_matched_types": 389,
+      "matched_types": 389,
+      "java_members": 4209,
+      "matched_members": 3689,
+      "arity_drift_members": 37,
+      "missing_members": 483,
       "csharp_extra_members": 1162,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
@@ -72,11 +72,11 @@
       "java_types": 65,
       "same_name_matched_types": 63,
       "matched_types": 65,
-      "java_members": 942,
-      "matched_members": 588,
+      "java_members": 945,
+      "matched_members": 589,
       "arity_drift_members": 4,
-      "missing_members": 350,
-      "csharp_extra_members": 137,
+      "missing_members": 352,
+      "csharp_extra_members": 135,
       "renamed_public_types": 2,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -113,11 +113,11 @@
       "java_types": 14,
       "same_name_matched_types": 14,
       "matched_types": 14,
-      "java_members": 148,
-      "matched_members": 132,
+      "java_members": 97,
+      "matched_members": 72,
       "arity_drift_members": 4,
-      "missing_members": 12,
-      "csharp_extra_members": 18,
+      "missing_members": 21,
+      "csharp_extra_members": 79,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -162,14 +162,14 @@
       "missing_types": 0
     },
     "fontbox:ttf": {
-      "java_types": 69,
-      "same_name_matched_types": 64,
-      "matched_types": 68,
-      "java_members": 609,
-      "matched_members": 604,
+      "java_types": 68,
+      "same_name_matched_types": 63,
+      "matched_types": 67,
+      "java_members": 608,
+      "matched_members": 603,
       "arity_drift_members": 0,
       "missing_members": 5,
-      "csharp_extra_members": 217,
+      "csharp_extra_members": 218,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 4,
       "missing_types": 0
@@ -243,11 +243,11 @@
       "java_types": 12,
       "same_name_matched_types": 12,
       "matched_types": 12,
-      "java_members": 244,
-      "matched_members": 244,
+      "java_members": 248,
+      "matched_members": 248,
       "arity_drift_members": 0,
       "missing_members": 0,
-      "csharp_extra_members": 50,
+      "csharp_extra_members": 54,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -279,13 +279,13 @@
       "missing_types": 0
     },
     "pdfbox:pdfparser": {
-      "java_types": 15,
-      "same_name_matched_types": 15,
-      "matched_types": 15,
-      "java_members": 114,
-      "matched_members": 57,
+      "java_types": 14,
+      "same_name_matched_types": 14,
+      "matched_types": 14,
+      "java_members": 104,
+      "matched_members": 56,
       "arity_drift_members": 9,
-      "missing_members": 48,
+      "missing_members": 39,
       "csharp_extra_members": 28,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
@@ -295,24 +295,24 @@
       "java_types": 7,
       "same_name_matched_types": 7,
       "matched_types": 7,
-      "java_members": 95,
-      "matched_members": 59,
+      "java_members": 94,
+      "matched_members": 58,
       "arity_drift_members": 4,
       "missing_members": 32,
-      "csharp_extra_members": 30,
+      "csharp_extra_members": 31,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
     },
     "pdfbox:pdmodel": {
-      "java_types": 280,
-      "same_name_matched_types": 279,
-      "matched_types": 279,
-      "java_members": 3305,
-      "matched_members": 2887,
-      "arity_drift_members": 19,
-      "missing_members": 399,
-      "csharp_extra_members": 953,
+      "java_types": 279,
+      "same_name_matched_types": 278,
+      "matched_types": 278,
+      "java_members": 3303,
+      "matched_members": 2883,
+      "arity_drift_members": 22,
+      "missing_members": 398,
+      "csharp_extra_members": 948,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
       "missing_types": 0
@@ -357,11 +357,11 @@
       "missing_types": 0
     },
     "pdfbox:util": {
-      "java_types": 2,
-      "same_name_matched_types": 2,
-      "matched_types": 2,
-      "java_members": 1,
-      "matched_members": 1,
+      "java_types": 3,
+      "same_name_matched_types": 3,
+      "matched_types": 3,
+      "java_members": 15,
+      "matched_members": 15,
       "arity_drift_members": 0,
       "missing_members": 0,
       "csharp_extra_members": 18,
@@ -386,11 +386,11 @@
       "java_types": 15,
       "same_name_matched_types": 15,
       "matched_types": 15,
-      "java_members": 600,
+      "java_members": 602,
       "matched_members": 265,
       "arity_drift_members": 3,
-      "missing_members": 332,
-      "csharp_extra_members": 35,
+      "missing_members": 334,
+      "csharp_extra_members": 33,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -399,8 +399,8 @@
       "java_types": 45,
       "same_name_matched_types": 43,
       "matched_types": 45,
-      "java_members": 286,
-      "matched_members": 272,
+      "java_members": 287,
+      "matched_members": 273,
       "arity_drift_members": 0,
       "missing_members": 14,
       "csharp_extra_members": 97,
@@ -2772,15 +2772,6 @@
       "members": [
         {
           "java_kind": "method",
-          "java_name": "parseFirstSubFontROS",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public void parseFirstSubFontROS(RandomAccessRead randomAccessRead, FontHeaders outHeaders) throws IOException"
-        },
-        {
-          "java_kind": "method",
           "java_name": "parse",
           "java_arity": 2,
           "java_visibility": "public",
@@ -2805,6 +2796,15 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "public List<CFFFont> parse(RandomAccessRead randomAccessRead) throws IOException"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "parseFirstSubFontROS",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void parseFirstSubFontROS(RandomAccessRead randomAccessRead, FontHeaders outHeaders) throws IOException"
         },
         {
           "java_kind": "method",
@@ -2978,13 +2978,13 @@
       "java_type_name": "CharStringCommand",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 67,
-      "missing_member_count": 7,
-      "matched_member_count": 60,
+      "java_member_count": 16,
+      "missing_member_count": 16,
+      "matched_member_count": 0,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.CFF.CharStringCommand",
       "csharp_member_count": 61,
-      "csharp_extra_member_count": 1,
+      "csharp_extra_member_count": 61,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
@@ -3017,555 +3017,141 @@
       ],
       "members": [
         {
-          "java_kind": "enum-value",
-          "java_name": "HSTEM",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HSTEM"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "VSTEM",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "VSTEM"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "VMOVETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "VMOVETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "RLINETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "RLINETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "HLINETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HLINETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "VLINETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "VLINETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "RRCURVETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "RRCURVETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "CLOSEPATH",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "CLOSEPATH"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "CALLSUBR",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "CALLSUBR"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "RET",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "RET"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "ESCAPE",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "ESCAPE"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "HSBW",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HSBW"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "ENDCHAR",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "ENDCHAR"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "HSTEMHM",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HSTEMHM"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "HINTMASK",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HINTMASK"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "CNTRMASK",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "CNTRMASK"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "RMOVETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "RMOVETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "HMOVETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HMOVETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "VSTEMHM",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "VSTEMHM"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "RCURVELINE",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "RCURVELINE"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "RLINECURVE",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "RLINECURVE"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "VVCURVETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "VVCURVETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "HHCURVETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HHCURVETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "SHORTINT",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "SHORTINT"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "CALLGSUBR",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "CALLGSUBR"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "VHCURVETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "VHCURVETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "HVCURVETO",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HVCURVETO"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "DOTSECTION",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "DOTSECTION"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "VSTEM3",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "VSTEM3"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "HSTEM3",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HSTEM3"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "AND",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "AND"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "OR",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "OR"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "NOT",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "NOT"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "SEAC",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "SEAC"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "SBW",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "SBW"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "ABS",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "ABS"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "ADD",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "ADD"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "SUB",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "SUB"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "DIV",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "DIV"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "NEG",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "NEG"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "EQ",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "EQ"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "CALLOTHERSUBR",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "CALLOTHERSUBR"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "POP",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "POP"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "DROP",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "DROP"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "PUT",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "PUT"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "GET",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "GET"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "IFELSE",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "IFELSE"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "RANDOM",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "RANDOM"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "MUL",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "MUL"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "SQRT",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "SQRT"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "DUP",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "DUP"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "EXCH",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "EXCH"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "INDEX",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "INDEX"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "ROLL",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "ROLL"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "SETCURRENTPOINT",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "SETCURRENTPOINT"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "HFLEX",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HFLEX"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "FLEX",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "FLEX"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "HFLEX1",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "HFLEX1"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "FLEX1",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "FLEX1"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "UNKNOWN",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "UNKNOWN"
-        },
-        {
           "java_kind": "method",
-          "java_name": "getValue",
-          "java_arity": 0,
+          "java_name": "getInstance",
+          "java_arity": 1,
           "java_visibility": "public",
           "status": "missing",
           "matched_via": null,
-          "signature": "public int getValue()",
+          "signature": "public static final CharStringCommand COMMAND_CLOSEPATH = CharStringCommand .getInstance(Key.CLOSEPATH.hashValue)",
           "api_review": {
-            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getValue|0|missing",
+            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+            "state": "reviewed",
+            "disposition": "behavior-covered",
+            "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+            "issue": 503,
+            "reviewed_at_utc": "2026-06-26T23:22:00Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getInstance",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public static final CharStringCommand COMMAND_RLINETO = CharStringCommand .getInstance(Key.RLINETO.hashValue)",
+          "api_review": {
+            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+            "state": "reviewed",
+            "disposition": "behavior-covered",
+            "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+            "issue": 503,
+            "reviewed_at_utc": "2026-06-26T23:22:00Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getInstance",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public static final CharStringCommand COMMAND_HLINETO = CharStringCommand .getInstance(Key.HLINETO.hashValue)",
+          "api_review": {
+            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+            "state": "reviewed",
+            "disposition": "behavior-covered",
+            "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+            "issue": 503,
+            "reviewed_at_utc": "2026-06-26T23:22:00Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getInstance",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public static final CharStringCommand COMMAND_VLINETO = CharStringCommand .getInstance(Key.VLINETO.hashValue)",
+          "api_review": {
+            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+            "state": "reviewed",
+            "disposition": "behavior-covered",
+            "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+            "issue": 503,
+            "reviewed_at_utc": "2026-06-26T23:22:00Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getInstance",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public static final CharStringCommand COMMAND_RRCURVETO = CharStringCommand .getInstance(Key.RRCURVETO.hashValue)",
+          "api_review": {
+            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+            "state": "reviewed",
+            "disposition": "behavior-covered",
+            "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+            "issue": 503,
+            "reviewed_at_utc": "2026-06-26T23:22:00Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getInstance",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public static final CharStringCommand COMMAND_HSBW = CharStringCommand .getInstance(Key.HSBW.hashValue)",
+          "api_review": {
+            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+            "state": "reviewed",
+            "disposition": "behavior-covered",
+            "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+            "issue": 503,
+            "reviewed_at_utc": "2026-06-26T23:22:00Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getInstance",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public static final CharStringCommand COMMAND_CALLOTHERSUBR = CharStringCommand .getInstance(Key.CALLOTHERSUBR.hashValue)",
+          "api_review": {
+            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+            "state": "reviewed",
+            "disposition": "behavior-covered",
+            "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+            "issue": 503,
+            "reviewed_at_utc": "2026-06-26T23:22:00Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getInstance",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public static final CharStringCommand COMMAND_DIV = CharStringCommand .getInstance(Key.DIV.hashValue)",
+          "api_review": {
+            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
             "state": "reviewed",
             "disposition": "behavior-covered",
             "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
@@ -3679,6 +3265,42 @@
             "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
             "issue": 503,
             "reviewed_at_utc": "2026-06-26T23:22:00Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "hashCode",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public int hashCode()",
+          "api_review": {
+            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|hashCode|0|missing",
+            "state": "reviewed",
+            "disposition": "intentional-dotnet-adaptation",
+            "note": "CharStringCommand is represented as a C# enum; value equality and hashing are supplied by the runtime enum semantics rather than Java object overrides.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "equals",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public boolean equals(Object object)",
+          "api_review": {
+            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|equals|1|missing",
+            "state": "reviewed",
+            "disposition": "intentional-dotnet-adaptation",
+            "note": "CharStringCommand is represented as a C# enum; value equality and hashing are supplied by the runtime enum semantics rather than Java object overrides.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
             "reviewed_by": "Codex"
           }
         }
@@ -4354,8 +3976,8 @@
       "matched_member_count": 3,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.CFF.Type2CharStringParser",
-      "csharp_member_count": 3,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 4,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type2CharStringParser.java",
@@ -4385,11 +4007,11 @@
         {
           "java_kind": "method",
           "java_name": "parse",
-          "java_arity": 3,
+          "java_arity": 4,
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public List<Object> parse(byte[] bytes, byte[][] globalSubrIndex, byte[][] localSubrIndex) throws IOException"
+          "signature": "public List<Object> parse(byte[] bytes, byte[][] globalSubrIndex, byte[][] localSubrIndex, String glyphName) throws IOException"
         },
         {
           "java_kind": "method",
@@ -10367,9 +9989,9 @@
       "java_type_name": "CompoundCharacterTokenizer",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 2,
+      "java_member_count": 3,
       "missing_member_count": 0,
-      "matched_member_count": 2,
+      "matched_member_count": 3,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.TTF.GSub.CompoundCharacterTokenizer",
       "csharp_member_count": 2,
@@ -10392,6 +10014,15 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public CompoundCharacterTokenizer(Set<String> compoundWords)"
+        },
+        {
+          "java_kind": "constructor",
+          "java_name": "CompoundCharacterTokenizer",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public CompoundCharacterTokenizer(Pattern pattern)"
         },
         {
           "java_kind": "method",
@@ -10815,42 +10446,6 @@
       ]
     },
     {
-      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForTamil.java",
-      "module": "fontbox",
-      "family": "ttf",
-      "java_type": "org.apache.fontbox.ttf.gsub.GsubWorkerForTamil",
-      "java_type_name": "GsubWorkerForTamil",
-      "type_name_status": "same-name",
-      "status": "same-name-type/full-member-match",
-      "java_member_count": 1,
-      "missing_member_count": 0,
-      "matched_member_count": 1,
-      "arity_drift_count": 0,
-      "csharp_type": "PdfBox.Net.FontBox.TTF.GSub.GsubWorkerForTamil",
-      "csharp_member_count": 1,
-      "csharp_extra_member_count": 0,
-      "csharp_targets": [
-        {
-          "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForTamil.java",
-          "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForTamil.cs",
-          "namespace": "PdfBox.Net.FontBox.TTF.GSub",
-          "name": "GsubWorkerForTamil",
-          "kind": "class"
-        }
-      ],
-      "members": [
-        {
-          "java_kind": "method",
-          "java_name": "applyTransforms",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public List<Integer> applyTransforms(List<Integer> originalGlyphIds)"
-        }
-      ]
-    },
-    {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/model/GsubData.java",
       "module": "fontbox",
       "family": "ttf",
@@ -10964,13 +10559,13 @@
       "java_type_name": "Language",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 8,
+      "java_member_count": 7,
       "missing_member_count": 1,
-      "matched_member_count": 7,
+      "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.TTF.Model.Language",
       "csharp_member_count": 8,
-      "csharp_extra_member_count": 1,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/model/Language.java",
@@ -11014,15 +10609,6 @@
           "status": "matched",
           "matched_via": "enum-value",
           "signature": "GUJARATI"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "TAMIL",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "TAMIL"
         },
         {
           "java_kind": "enum-value",
@@ -11103,7 +10689,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "constructor",
-          "signature": "public MapBackedGsubData(Language language, String activeScriptName, Map<String, Map<List<Integer>, List<Integer>>> glyphSubstitutionMap)"
+          "signature": "public MapBackedGsubData(Language language, String activeScriptName, Map<String, Map<List<Integer>, Integer>> glyphSubstitutionMap)"
         },
         {
           "java_kind": "method",
@@ -11191,7 +10777,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "constructor",
-          "signature": "public MapBackedScriptFeature(String name, Map<List<Integer>, List<Integer>> featureMap)"
+          "signature": "public MapBackedScriptFeature(String name, Map<List<Integer>, Integer> featureMap)"
         },
         {
           "java_kind": "method",
@@ -11227,7 +10813,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public List<Integer> getReplacementForGlyphs(List<Integer> glyphIds)"
+          "signature": "public Integer getReplacementForGlyphs(List<Integer> glyphIds)"
         },
         {
           "java_kind": "method",
@@ -11308,7 +10894,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "List<Integer> getReplacementForGlyphs(List<Integer> glyphIds)"
+          "signature": "Integer getReplacementForGlyphs(List<Integer> glyphIds)"
         }
       ],
       "api_review": {
@@ -17941,8 +17527,8 @@
       "matched_member_count": 50,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.COS.COSArray",
-      "csharp_member_count": 52,
-      "csharp_extra_member_count": 7,
+      "csharp_member_count": 54,
+      "csharp_extra_member_count": 10,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
@@ -17953,15 +17539,6 @@
         }
       ],
       "members": [
-        {
-          "java_kind": "method",
-          "java_name": "of",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public static COSArray of(float... floats)"
-        },
         {
           "java_kind": "constructor",
           "java_name": "COSArray",
@@ -18198,15 +17775,6 @@
         },
         {
           "java_kind": "method",
-          "java_name": "isEmpty",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public boolean isEmpty()"
-        },
-        {
-          "java_kind": "method",
           "java_name": "remove",
           "java_arity": 1,
           "java_visibility": "public",
@@ -18396,6 +17964,24 @@
         },
         {
           "java_kind": "method",
+          "java_name": "getIndirectObjectKeys",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void getIndirectObjectKeys(List<COSObjectKey> indirectObjects)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getIndirectObjectKeys",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void getIndirectObjectKeys(Collection<COSObjectKey> indirectObjects)"
+        },
+        {
+          "java_kind": "method",
           "java_name": "resetObjectKeys",
           "java_arity": 1,
           "java_visibility": "protected",
@@ -18413,13 +17999,13 @@
       "java_type_name": "COSDictionary",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 92,
+      "java_member_count": 94,
       "missing_member_count": 0,
-      "matched_member_count": 92,
+      "matched_member_count": 94,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.COS.COSDictionary",
-      "csharp_member_count": 91,
-      "csharp_extra_member_count": 26,
+      "csharp_member_count": 93,
+      "csharp_extra_member_count": 27,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
@@ -19242,6 +18828,24 @@
         },
         {
           "java_kind": "method",
+          "java_name": "getIndirectObjectKeys",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void getIndirectObjectKeys(List<COSObjectKey> indirectObjects)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getIndirectObjectKeys",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void getIndirectObjectKeys(Collection<COSObjectKey> indirectObjects)"
+        },
+        {
+          "java_kind": "method",
           "java_name": "resetImportedObjectKeys",
           "java_arity": 0,
           "java_visibility": "public",
@@ -19862,12 +19466,12 @@
       "java_type_name": "COSObject",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 11,
+      "java_member_count": 13,
       "missing_member_count": 0,
-      "matched_member_count": 11,
+      "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.COS.COSObject",
-      "csharp_member_count": 14,
+      "csharp_member_count": 16,
       "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
@@ -19950,6 +19554,24 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "public String toString()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getObjectNumber",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public long getObjectNumber()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getGenerationNumber",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public int getGenerationNumber()"
         },
         {
           "java_kind": "method",
@@ -20465,7 +20087,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "void visitFromObject(COSObject obj) throws IOException"
+          "signature": "default void visitFromObject(COSObject obj) throws IOException"
         }
       ]
     },
@@ -21731,7 +21353,7 @@
           "java_visibility": "public",
           "status": "arity-drift",
           "matched_via": "constructor",
-          "signature": "public BruteForceParser(COSDocument cosDocument, COSParser cosParser) throws IOException",
+          "signature": "public BruteForceParser(RandomAccessRead source, COSDocument document) throws IOException",
           "api_review": {
             "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|constructor|BruteForceParser|2|arity-drift",
             "state": "reviewed",
@@ -21799,36 +21421,36 @@
         {
           "java_kind": "method",
           "java_name": "bfSearchForObjStreams",
-          "java_arity": 1,
+          "java_arity": 2,
           "java_visibility": "protected",
           "status": "missing",
           "matched_via": null,
-          "signature": "protected void bfSearchForObjStreams(Map<COSObjectKey, Long> xrefTable) throws IOException",
+          "signature": "protected void bfSearchForObjStreams(XrefTrailerResolver trailerResolver, SecurityHandler<? extends ProtectionPolicy> securityHandler) throws IOException",
           "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|bfSearchForObjStreams|1|missing",
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|bfSearchForObjStreams|2|missing",
             "state": "reviewed",
             "disposition": "internal-by-design",
-            "note": "Brute-force xref recovery helpers remain parser implementation details in the adapted C# parser pipeline.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
+            "note": "The 3.0 BruteForceParser repair entry point is a parser-internal helper; the .NET parser keeps the repair behavior behind the parser pipeline rather than exposing this Java protected/internal method.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
             "reviewed_by": "Codex"
           }
         },
         {
           "java_kind": "method",
           "java_name": "rebuildTrailer",
-          "java_arity": 1,
+          "java_arity": 2,
           "java_visibility": "protected",
           "status": "missing",
           "matched_via": null,
-          "signature": "protected COSDictionary rebuildTrailer(Map<COSObjectKey, Long> xrefTable) throws IOException",
+          "signature": "protected COSDictionary rebuildTrailer(XrefTrailerResolver trailerResolver, SecurityHandler<? extends ProtectionPolicy> securityHandler) throws IOException",
           "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|rebuildTrailer|1|missing",
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|rebuildTrailer|2|missing",
             "state": "reviewed",
             "disposition": "internal-by-design",
-            "note": "Brute-force xref recovery helpers remain parser implementation details in the adapted C# parser pipeline.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
+            "note": "The 3.0 BruteForceParser repair entry point is a parser-internal helper; the .NET parser keeps the repair behavior behind the parser pipeline rather than exposing this Java protected/internal method.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
             "reviewed_by": "Codex"
           }
         }
@@ -21842,8 +21464,8 @@
       "java_type_name": "COSParser",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 34,
-      "missing_member_count": 31,
+      "java_member_count": 27,
+      "missing_member_count": 24,
       "matched_member_count": 1,
       "arity_drift_count": 2,
       "csharp_type": "PdfBox.Net.PdfParser.COSParser",
@@ -21879,6 +21501,24 @@
         },
         {
           "java_kind": "field",
+          "java_name": "fileLen",
+          "java_arity": 0,
+          "java_visibility": "protected",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "protected long fileLen",
+          "api_review": {
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|fileLen|0|missing",
+            "state": "reviewed",
+            "disposition": "internal-by-design",
+            "note": "COSParser state is intentionally encapsulated in the .NET parser implementation; Java protected fields are not exposed as public API because behavior is covered through load/repair parsing.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "field",
           "java_name": "initialParseDone",
           "java_arity": 0,
           "java_visibility": "protected",
@@ -21897,19 +21537,37 @@
         },
         {
           "java_kind": "field",
-          "java_name": "document",
+          "java_name": "securityHandler",
           "java_arity": 0,
           "java_visibility": "protected",
           "status": "missing",
           "matched_via": null,
-          "signature": "protected COSDocument document",
+          "signature": "protected SecurityHandler<? extends ProtectionPolicy> securityHandler = null",
           "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|document|0|missing",
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|securityHandler|0|missing",
             "state": "reviewed",
             "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
+            "note": "COSParser state is intentionally encapsulated in the .NET parser implementation; Java protected fields are not exposed as public API because behavior is covered through load/repair parsing.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "XrefTrailerResolver",
+          "java_arity": 0,
+          "java_visibility": "protected",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "protected XrefTrailerResolver xrefTrailerResolver = new XrefTrailerResolver()",
+          "api_review": {
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|XrefTrailerResolver|0|missing",
+            "state": "reviewed",
+            "disposition": "internal-by-design",
+            "note": "The Java 3.0 parser exposes protected xref/trailer resolver lifecycle hooks; the .NET parser keeps resolver state internal and validates it through parsing behavior.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
             "reviewed_by": "Codex"
           }
         },
@@ -21996,6 +21654,42 @@
         },
         {
           "java_kind": "method",
+          "java_name": "resetTrailerResolver",
+          "java_arity": 0,
+          "java_visibility": "protected",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "protected boolean resetTrailerResolver()",
+          "api_review": {
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|resetTrailerResolver|0|missing",
+            "state": "reviewed",
+            "disposition": "internal-by-design",
+            "note": "The Java 3.0 parser exposes protected xref/trailer resolver lifecycle hooks; the .NET parser keeps resolver state internal and validates it through parsing behavior.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "lastIndexOf",
+          "java_arity": 3,
+          "java_visibility": "protected",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "protected int lastIndexOf(final char[] pattern, final byte[] buf, final int endOff)",
+          "api_review": {
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|lastIndexOf|3|missing",
+            "state": "reviewed",
+            "disposition": "internal-by-design",
+            "note": "COSParser byte-search and dynamic-object parsing helpers are implementation details in the .NET parser; equivalent behavior remains exercised through document load and repair parsing.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
           "java_name": "isLenient",
           "java_arity": 0,
           "java_visibility": "public",
@@ -22068,6 +21762,24 @@
         },
         {
           "java_kind": "method",
+          "java_name": "parseObjectDynamically",
+          "java_arity": 2,
+          "java_visibility": "protected",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "protected synchronized COSBase parseObjectDynamically(COSObjectKey objKey, boolean requireExistingNotCompressedObj) throws IOException",
+          "api_review": {
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseObjectDynamically|2|missing",
+            "state": "reviewed",
+            "disposition": "internal-by-design",
+            "note": "COSParser byte-search and dynamic-object parsing helpers are implementation details in the .NET parser; equivalent behavior remains exercised through document load and repair parsing.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
           "java_name": "parseObjectStreamObject",
           "java_arity": 2,
           "java_visibility": "protected",
@@ -22086,60 +21798,6 @@
         },
         {
           "java_kind": "method",
-          "java_name": "parseCOSArray",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected COSArray parseCOSArray() throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSArray|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "parseCOSDictionary",
-          "java_arity": 1,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected COSDictionary parseCOSDictionary(boolean isDirect) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSDictionary|1|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "parseDirObject",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected COSBase parseDirObject() throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseDirObject|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
           "java_name": "parseCOSStream",
           "java_arity": 1,
           "java_visibility": "protected",
@@ -22148,24 +21806,6 @@
           "signature": "protected COSStream parseCOSStream(COSDictionary dic) throws IOException",
           "api_review": {
             "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSStream|1|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getBruteForceParser",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected BruteForceParser getBruteForceParser() throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getBruteForceParser|0|missing",
             "state": "reviewed",
             "disposition": "internal-by-design",
             "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
@@ -22212,78 +21852,6 @@
         },
         {
           "java_kind": "method",
-          "java_name": "readObjectMarker",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected void readObjectMarker() throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readObjectMarker|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "readObjectNumber",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected long readObjectNumber() throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readObjectNumber|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "readGenerationNumber",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected int readGenerationNumber() throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readGenerationNumber|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "readLine",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected String readLine() throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readLine|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
           "java_name": "parsePDFHeader",
           "java_arity": 0,
           "java_visibility": "protected",
@@ -22315,6 +21883,24 @@
             "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
             "issue": 504,
             "reviewed_at_utc": "2026-06-26T23:49:03Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "parseXrefTable",
+          "java_arity": 1,
+          "java_visibility": "protected",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "protected boolean parseXrefTable(long startByteOffset) throws IOException",
+          "api_review": {
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseXrefTable|1|missing",
+            "state": "reviewed",
+            "disposition": "internal-by-design",
+            "note": "COSParser byte-search and dynamic-object parsing helpers are implementation details in the .NET parser; equivalent behavior remains exercised through document load and repair parsing.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
             "reviewed_by": "Codex"
           }
         },
@@ -22364,96 +21950,6 @@
           "signature": "protected void prepareDecryption() throws IOException",
           "api_review": {
             "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|prepareDecryption|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getSecurityHandler",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected SecurityHandler<ProtectionPolicy> getSecurityHandler()",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getSecurityHandler|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "parseCOSName",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected COSName parseCOSName() throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSName|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "parseCOSLiteralString",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected COSString parseCOSLiteralString() throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSLiteralString|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "parseCOSHexString",
-          "java_arity": 0,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected COSString parseCOSHexString() throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSHexString|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getObjectKey",
-          "java_arity": 2,
-          "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected COSObjectKey getObjectKey(long num, int gen)",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getObjectKey|2|missing",
             "state": "reviewed",
             "disposition": "internal-by-design",
             "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
@@ -22862,7 +22358,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "constructor",
-          "signature": "public PDFStreamParser(byte[] bytes) throws IOException"
+          "signature": "public PDFStreamParser(byte[] bytes)"
         },
         {
           "java_kind": "method",
@@ -23005,8 +22501,8 @@
       "matched_member_count": 1,
       "arity_drift_count": 1,
       "csharp_type": "PdfBox.Net.PdfParser.PDFXrefStreamParser",
-      "csharp_member_count": 2,
-      "csharp_extra_member_count": 0,
+      "csharp_member_count": 3,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
@@ -23020,11 +22516,11 @@
         {
           "java_kind": "constructor",
           "java_name": "PDFXrefStreamParser",
-          "java_arity": 1,
+          "java_arity": 2,
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "constructor",
-          "signature": "public PDFXrefStreamParser(COSStream stream) throws IOException"
+          "signature": "public PDFXrefStreamParser(COSStream stream, COSDocument document) throws IOException"
         },
         {
           "java_kind": "method",
@@ -23039,78 +22535,6 @@
             "state": "reviewed",
             "disposition": "intentional-dotnet-adaptation",
             "note": "PDFXrefStreamParser returns the parsed wrapper directly; resolver population is handled by the surrounding C# parser flow instead of a Java parse(XrefTrailerResolver) overload.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        }
-      ]
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.XrefParser",
-      "java_type_name": "XrefParser",
-      "type_name_status": "same-name",
-      "status": "same-name-type/partial-member-match",
-      "java_member_count": 3,
-      "missing_member_count": 2,
-      "matched_member_count": 1,
-      "arity_drift_count": 0,
-      "csharp_type": "PdfBox.Net.PdfParser.XrefParser",
-      "csharp_member_count": 2,
-      "csharp_extra_member_count": 1,
-      "csharp_targets": [
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
-          "target_path": "src/PdfBox.Net/PdfParser/XrefParser.cs",
-          "namespace": "PdfBox.Net.PdfParser",
-          "name": "XrefParser",
-          "kind": "class"
-        }
-      ],
-      "members": [
-        {
-          "java_kind": "constructor",
-          "java_name": "XrefParser",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "constructor",
-          "signature": "public XrefParser(COSParser cosParser)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getXrefTable",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public Map<COSObjectKey, Long> getXrefTable()",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java|org.apache.pdfbox.pdfparser.XrefParser|method|getXrefTable|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XrefParser delegates to the adapted PDFParser flow; xref tables are exposed from COSDocument/XrefTrailerResolver rather than Java parseXref/getXrefTable methods.",
-            "issue": 504,
-            "reviewed_at_utc": "2026-06-26T23:49:03Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "parseXref",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public COSDictionary parseXref(COSDocument document, long startXRefOffset) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java|org.apache.pdfbox.pdfparser.XrefParser|method|parseXref|2|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "XrefParser delegates to the adapted PDFParser flow; xref tables are exposed from COSDocument/XrefTrailerResolver rather than Java parseXref/getXrefTable methods.",
             "issue": 504,
             "reviewed_at_utc": "2026-06-26T23:49:03Z",
             "reviewed_by": "Codex"
@@ -23824,13 +23248,13 @@
       "java_type_name": "COSWriter",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 53,
+      "java_member_count": 52,
       "missing_member_count": 32,
-      "matched_member_count": 17,
+      "matched_member_count": 16,
       "arity_drift_count": 4,
       "csharp_type": "PdfBox.Net.PdfWriter.COSWriter",
       "csharp_member_count": 22,
-      "csharp_extra_member_count": 8,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
@@ -24572,15 +23996,6 @@
         },
         {
           "java_kind": "method",
-          "java_name": "visitFromObject",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public void visitFromObject(COSObject obj) throws IOException"
-        },
-        {
-          "java_kind": "method",
           "java_name": "write",
           "java_arity": 1,
           "java_visibility": "public",
@@ -24847,7 +24262,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "constructor",
-          "signature": "public COSWriterCompressionPool(PDDocument document, CompressParameters parameters)"
+          "signature": "public COSWriterCompressionPool(PDDocument document, CompressParameters parameters) throws IOException"
         },
         {
           "java_kind": "method",
@@ -26996,7 +26411,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public InputStream getContents()"
+          "signature": "public InputStream getContents() throws IOException"
         },
         {
           "java_kind": "method",
@@ -27005,7 +26420,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public RandomAccessRead getContentsForStreamParsing()"
+          "signature": "public RandomAccessRead getContentsForStreamParsing() throws IOException"
         },
         {
           "java_kind": "method",
@@ -27014,7 +26429,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public RandomAccessRead getContentsForRandomAccess()"
+          "signature": "public RandomAccessRead getContentsForRandomAccess() throws IOException"
         },
         {
           "java_kind": "method",
@@ -27293,7 +26708,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public List<PDAnnotation> getAnnotations()"
+          "signature": "public List<PDAnnotation> getAnnotations() throws IOException"
         },
         {
           "java_kind": "method",
@@ -27302,7 +26717,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public List<PDAnnotation> getAnnotations(AnnotationFilter annotationFilter)"
+          "signature": "public List<PDAnnotation> getAnnotations(AnnotationFilter annotationFilter) throws IOException"
         },
         {
           "java_kind": "method",
@@ -27881,7 +27296,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDCIDFont getCIDFont(COSObject indirect)"
+          "signature": "default PDCIDFont getCIDFont(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -27890,7 +27305,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDFontDescriptor getFontDescriptor(COSObject indirect)"
+          "signature": "default PDFontDescriptor getFontDescriptor(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -27962,7 +27377,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "void put(COSObject indirect, PDCIDFont cidFont)"
+          "signature": "default void put(COSObject indirect, PDCIDFont cidFont)"
         },
         {
           "java_kind": "method",
@@ -27971,7 +27386,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "void put(COSObject indirect, PDFontDescriptor fontDescriptor)"
+          "signature": "default void put(COSObject indirect, PDFontDescriptor fontDescriptor)"
         },
         {
           "java_kind": "method",
@@ -28034,7 +27449,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDColorSpace removeColorSpace(COSObject indirect)"
+          "signature": "default PDColorSpace removeColorSpace(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -28043,7 +27458,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDExtendedGraphicsState removeExtState(COSObject indirect)"
+          "signature": "default PDExtendedGraphicsState removeExtState(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -28052,7 +27467,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDFont removeFont(COSObject indirect)"
+          "signature": "default PDFont removeFont(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -28061,7 +27476,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDCIDFont removeCIDFont(COSObject indirect)"
+          "signature": "default PDCIDFont removeCIDFont(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -28070,7 +27485,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDFontDescriptor removeFontDescriptor(COSObject indirect)"
+          "signature": "default PDFontDescriptor removeFontDescriptor(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -28079,7 +27494,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDShading removeShading(COSObject indirect)"
+          "signature": "default PDShading removeShading(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -28088,7 +27503,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDAbstractPattern removePattern(COSObject indirect)"
+          "signature": "default PDAbstractPattern removePattern(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -28097,7 +27512,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDPropertyList removeProperties(COSObject indirect)"
+          "signature": "default PDPropertyList removeProperties(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -28106,7 +27521,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "PDXObject removeXObject(COSObject indirect)"
+          "signature": "default PDXObject removeXObject(COSObject indirect)"
         }
       ]
     },
@@ -39046,7 +38461,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public static Provider getProvider()"
+          "signature": "public static Provider getProvider() throws IOException"
         },
         {
           "java_kind": "method",
@@ -41191,9 +40606,9 @@
       "java_type_name": "FDFDocument",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 14,
+      "java_member_count": 15,
       "missing_member_count": 0,
-      "matched_member_count": 14,
+      "matched_member_count": 15,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Fdf.FDFDocument",
       "csharp_member_count": 19,
@@ -41216,6 +40631,15 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public FDFDocument()"
+        },
+        {
+          "java_kind": "constructor",
+          "java_name": "FDFDocument",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public FDFDocument(COSDocument doc)"
         },
         {
           "java_kind": "constructor",
@@ -43636,10 +43060,10 @@
       "java_type_name": "PDMMType1Font",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 1,
+      "java_member_count": 2,
       "missing_member_count": 0,
       "matched_member_count": 1,
-      "arity_drift_count": 0,
+      "arity_drift_count": 1,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDMMType1Font",
       "csharp_member_count": 1,
       "csharp_extra_member_count": 0,
@@ -43661,6 +43085,24 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDMMType1Font(COSDictionary fontDictionary) throws IOException"
+        },
+        {
+          "java_kind": "constructor",
+          "java_name": "PDMMType1Font",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "arity-drift",
+          "matched_via": "constructor",
+          "signature": "public PDMMType1Font(COSDictionary fontDictionary, ResourceCache resourceCache) throws IOException",
+          "api_review": {
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDMMType1Font.java|org.apache.pdfbox.pdmodel.font.PDMMType1Font|constructor|PDMMType1Font|2|arity-drift",
+            "state": "reviewed",
+            "disposition": "intentional-dotnet-adaptation",
+            "note": "Java 3.0 ResourceCache constructor overloads are reviewed adaptations in the current .NET font stack; font resource caching is owned by PDResources/PDDocument rather than individual font constructors.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
+            "reviewed_by": "Codex"
+          }
         }
       ]
     },
@@ -43888,13 +43330,13 @@
       "java_type_name": "PDTrueTypeFont",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 24,
+      "java_member_count": 25,
       "missing_member_count": 11,
-      "matched_member_count": 13,
+      "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDTrueTypeFont",
       "csharp_member_count": 17,
-      "csharp_extra_member_count": 6,
+      "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
@@ -43905,6 +43347,15 @@
         }
       ],
       "members": [
+        {
+          "java_kind": "constructor",
+          "java_name": "PDTrueTypeFont",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public PDTrueTypeFont(COSDictionary fontDictionary) throws IOException"
+        },
         {
           "java_kind": "constructor",
           "java_name": "PDTrueTypeFont",
@@ -44230,10 +43681,10 @@
       "java_type_name": "PDType0Font",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 46,
+      "java_member_count": 47,
       "missing_member_count": 13,
       "matched_member_count": 32,
-      "arity_drift_count": 1,
+      "arity_drift_count": 2,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType0Font",
       "csharp_member_count": 33,
       "csharp_extra_member_count": 3,
@@ -44247,6 +43698,24 @@
         }
       ],
       "members": [
+        {
+          "java_kind": "constructor",
+          "java_name": "PDType0Font",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "arity-drift",
+          "matched_via": "constructor",
+          "signature": "public PDType0Font(COSDictionary fontDictionary) throws IOException",
+          "api_review": {
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|constructor|PDType0Font|1|arity-drift",
+            "state": "reviewed",
+            "disposition": "intentional-dotnet-adaptation",
+            "note": "The .NET Type 0 font constructor requires the resolved descendant font and exposes dictionary loading through the factory path, avoiding a partial Java compatibility constructor that would hide resource-resolution behavior.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
+            "reviewed_by": "Codex"
+          }
+        },
         {
           "java_kind": "constructor",
           "java_name": "PDType0Font",
@@ -44797,10 +44266,10 @@
       "java_type_name": "PDType1CFont",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 22,
+      "java_member_count": 23,
       "missing_member_count": 14,
       "matched_member_count": 8,
-      "arity_drift_count": 0,
+      "arity_drift_count": 1,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1CFont",
       "csharp_member_count": 9,
       "csharp_extra_member_count": 2,
@@ -44814,6 +44283,24 @@
         }
       ],
       "members": [
+        {
+          "java_kind": "constructor",
+          "java_name": "PDType1CFont",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "arity-drift",
+          "matched_via": "constructor",
+          "signature": "public PDType1CFont(COSDictionary fontDictionary) throws IOException",
+          "api_review": {
+            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|constructor|PDType1CFont|1|arity-drift",
+            "state": "reviewed",
+            "disposition": "intentional-dotnet-adaptation",
+            "note": "PDType1CFont construction remains factory/load driven so the embedded CFF font is parsed before the base font state is initialized; the Java dictionary-only constructor is recorded as an accepted constructor-shape adaptation.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
+            "reviewed_by": "Codex"
+          }
+        },
         {
           "java_kind": "constructor",
           "java_name": "PDType1CFont",
@@ -45148,9 +44635,9 @@
       "java_type_name": "PDType1Font",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 24,
+      "java_member_count": 25,
       "missing_member_count": 13,
-      "matched_member_count": 11,
+      "matched_member_count": 12,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1Font",
       "csharp_member_count": 11,
@@ -45205,6 +44692,15 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDType1Font(PDDocument doc, InputStream pfbIn, Encoding encoding) throws IOException"
+        },
+        {
+          "java_kind": "constructor",
+          "java_name": "PDType1Font",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public PDType1Font(COSDictionary fontDictionary) throws IOException"
         },
         {
           "java_kind": "constructor",
@@ -47590,12 +47086,12 @@
       "java_type_name": "PDDeviceN",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 19,
+      "java_member_count": 20,
       "missing_member_count": 2,
-      "matched_member_count": 17,
+      "matched_member_count": 18,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Color.PDDeviceN",
-      "csharp_member_count": 22,
+      "csharp_member_count": 23,
       "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
@@ -47624,6 +47120,15 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDDeviceN(COSArray deviceN, PDResources resources) throws IOException"
+        },
+        {
+          "java_kind": "constructor",
+          "java_name": "PDDeviceN",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public PDDeviceN(COSArray deviceN) throws IOException"
         },
         {
           "java_kind": "method",
@@ -47887,12 +47392,12 @@
       "java_type_name": "PDSeparation",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 16,
+      "java_member_count": 17,
       "missing_member_count": 3,
-      "matched_member_count": 13,
+      "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Color.PDSeparation",
-      "csharp_member_count": 17,
+      "csharp_member_count": 18,
       "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
@@ -47921,6 +47426,15 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDSeparation(COSArray separation, PDResources resources) throws IOException"
+        },
+        {
+          "java_kind": "constructor",
+          "java_name": "PDSeparation",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public PDSeparation(COSArray separation) throws IOException"
         },
         {
           "java_kind": "method",
@@ -51950,293 +51464,6 @@
             "note": "RenderingMode is represented as a C# enum with extension methods FromInt/IntValue/IsFill/IsStroke/IsClip; extension methods are the idiomatic .NET replacement for Java enum methods.",
             "issue": 509,
             "reviewed_at_utc": "2026-06-27T03:22:00Z",
-            "reviewed_by": "Codex"
-          }
-        }
-      ]
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/AppearanceStyle.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.interactive.AppearanceStyle",
-      "java_type_name": "AppearanceStyle",
-      "type_name_status": "same-name",
-      "status": "same-name-type/full-member-match",
-      "java_member_count": 6,
-      "missing_member_count": 0,
-      "matched_member_count": 6,
-      "arity_drift_count": 0,
-      "csharp_type": "PdfBox.Net.PDModel.Interactive.AppearanceStyle",
-      "csharp_member_count": 10,
-      "csharp_extra_member_count": 4,
-      "csharp_targets": [
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/AppearanceStyle.java",
-          "target_path": "src/PdfBox.Net/PDModel/Interactive/AppearanceStyle.cs",
-          "namespace": "PdfBox.Net.PDModel.Interactive",
-          "name": "AppearanceStyle",
-          "kind": "class"
-        }
-      ],
-      "members": [
-        {
-          "java_kind": "method",
-          "java_name": "getFont",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public PDFont getFont()"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "setFont",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public void setFont(PDFont font)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getFontSize",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public float getFontSize()"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "setFontSize",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public void setFontSize(float fontSize)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getLeading",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public float getLeading()"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "setLeading",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public void setLeading(float leading)"
-        }
-      ]
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainText.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.interactive.PlainText",
-      "java_type_name": "PlainText",
-      "type_name_status": "same-name",
-      "status": "same-name-type/full-member-match",
-      "java_member_count": 3,
-      "missing_member_count": 0,
-      "matched_member_count": 3,
-      "arity_drift_count": 0,
-      "csharp_type": "PdfBox.Net.PDModel.Interactive.PlainText",
-      "csharp_member_count": 3,
-      "csharp_extra_member_count": 1,
-      "csharp_targets": [
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainText.java",
-          "target_path": "src/PdfBox.Net/PDModel/Interactive/PlainText.cs",
-          "namespace": "PdfBox.Net.PDModel.Interactive",
-          "name": "PlainText",
-          "kind": "class"
-        },
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainText.java",
-          "target_path": "src/PdfBox.Net/PDModel/Interactive/PlainText.cs",
-          "namespace": "PdfBox.Net.PDModel.Interactive",
-          "name": "Paragraph",
-          "kind": "class"
-        },
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainText.java",
-          "target_path": "src/PdfBox.Net/PDModel/Interactive/PlainText.cs",
-          "namespace": "PdfBox.Net.PDModel.Interactive",
-          "name": "Line",
-          "kind": "class"
-        },
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainText.java",
-          "target_path": "src/PdfBox.Net/PDModel/Interactive/PlainText.cs",
-          "namespace": "PdfBox.Net.PDModel.Interactive",
-          "name": "Word",
-          "kind": "class"
-        }
-      ],
-      "members": [
-        {
-          "java_kind": "constructor",
-          "java_name": "PlainText",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "constructor",
-          "signature": "public PlainText(String textValue)"
-        },
-        {
-          "java_kind": "constructor",
-          "java_name": "PlainText",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "constructor",
-          "signature": "public PlainText(List<String> listValue)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getParagraphs",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public List<Paragraph> getParagraphs()"
-        }
-      ]
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainTextFormatter.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.interactive.PlainTextFormatter",
-      "java_type_name": "PlainTextFormatter",
-      "type_name_status": "same-name",
-      "status": "same-name-type/full-member-match",
-      "java_member_count": 1,
-      "missing_member_count": 0,
-      "matched_member_count": 1,
-      "arity_drift_count": 0,
-      "csharp_type": "PdfBox.Net.PDModel.Interactive.PlainTextFormatter",
-      "csharp_member_count": 1,
-      "csharp_extra_member_count": 0,
-      "csharp_targets": [
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainTextFormatter.java",
-          "target_path": "src/PdfBox.Net/PDModel/Interactive/PlainTextFormatter.cs",
-          "namespace": "PdfBox.Net.PDModel.Interactive",
-          "name": "PlainTextFormatter",
-          "kind": "class"
-        },
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainTextFormatter.java",
-          "target_path": "src/PdfBox.Net/PDModel/Interactive/PlainTextFormatter.cs",
-          "namespace": "PdfBox.Net.PDModel.Interactive",
-          "name": "Builder",
-          "kind": "class"
-        }
-      ],
-      "members": [
-        {
-          "java_kind": "method",
-          "java_name": "format",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public void format() throws IOException"
-        }
-      ]
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.interactive.TextAlign",
-      "java_type_name": "TextAlign",
-      "type_name_status": "same-name",
-      "status": "same-name-type/partial-member-match",
-      "java_member_count": 5,
-      "missing_member_count": 1,
-      "matched_member_count": 4,
-      "arity_drift_count": 0,
-      "csharp_type": "PdfBox.Net.PDModel.Interactive.TextAlign",
-      "csharp_member_count": 5,
-      "csharp_extra_member_count": 1,
-      "csharp_targets": [
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java",
-          "target_path": "src/PdfBox.Net/PDModel/Interactive/TextAlign.cs",
-          "namespace": "PdfBox.Net.PDModel.Interactive",
-          "name": "TextAlign",
-          "kind": "enum"
-        },
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java",
-          "target_path": "src/PdfBox.Net/PDModel/Interactive/TextAlign.cs",
-          "namespace": "PdfBox.Net.PDModel.Interactive",
-          "name": "TextAlignExtensions",
-          "kind": "class"
-        }
-      ],
-      "members": [
-        {
-          "java_kind": "enum-value",
-          "java_name": "LEFT",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "LEFT"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "CENTER",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "CENTER"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "RIGHT",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "RIGHT"
-        },
-        {
-          "java_kind": "enum-value",
-          "java_name": "JUSTIFY",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "enum-value",
-          "signature": "JUSTIFY"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "valueOf",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public static TextAlign valueOf(int alignment)",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java|org.apache.pdfbox.pdmodel.interactive.TextAlign|method|valueOf|1|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "C# enum parsing is provided by Enum.Parse/TryParse and TextAlignExtensions.FromInt; adding a Java valueOf method to an enum is not a valid C# enum member shape.",
-            "issue": 507,
-            "reviewed_at_utc": "2026-06-27T01:39:42Z",
             "reviewed_by": "Codex"
           }
         }
@@ -60008,6 +59235,167 @@
       ]
     },
     {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/AppearanceStyle.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "java_type": "org.apache.pdfbox.pdmodel.interactive.annotation.layout.AppearanceStyle",
+      "java_type_name": "AppearanceStyle",
+      "type_name_status": "same-name",
+      "status": "same-name-type/full-member-match",
+      "java_member_count": 2,
+      "missing_member_count": 0,
+      "matched_member_count": 2,
+      "arity_drift_count": 0,
+      "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.Layout.AppearanceStyle",
+      "csharp_member_count": 3,
+      "csharp_extra_member_count": 1,
+      "csharp_targets": [
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/AppearanceStyle.java",
+          "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/AppearanceStyle.cs",
+          "namespace": "PdfBox.Net.PDModel.Interactive.Annotation.Layout",
+          "name": "AppearanceStyle",
+          "kind": "class"
+        }
+      ],
+      "members": [
+        {
+          "java_kind": "method",
+          "java_name": "setFont",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void setFont(PDFont font)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "setFontSize",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void setFontSize(float fontSize)"
+        }
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "java_type": "org.apache.pdfbox.pdmodel.interactive.annotation.layout.PlainText",
+      "java_type_name": "PlainText",
+      "type_name_status": "same-name",
+      "status": "same-name-type/full-member-match",
+      "java_member_count": 2,
+      "missing_member_count": 0,
+      "matched_member_count": 2,
+      "arity_drift_count": 0,
+      "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.Layout.PlainText",
+      "csharp_member_count": 2,
+      "csharp_extra_member_count": 1,
+      "csharp_targets": [
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
+          "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainText.cs",
+          "namespace": "PdfBox.Net.PDModel.Interactive.Annotation.Layout",
+          "name": "PlainText",
+          "kind": "class"
+        },
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
+          "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainText.cs",
+          "namespace": "PdfBox.Net.PDModel.Interactive.Annotation.Layout",
+          "name": "Paragraph",
+          "kind": "class"
+        },
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
+          "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainText.cs",
+          "namespace": "PdfBox.Net.PDModel.Interactive.Annotation.Layout",
+          "name": "Line",
+          "kind": "class"
+        },
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
+          "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainText.cs",
+          "namespace": "PdfBox.Net.PDModel.Interactive.Annotation.Layout",
+          "name": "Word",
+          "kind": "class"
+        }
+      ],
+      "members": [
+        {
+          "java_kind": "constructor",
+          "java_name": "PlainText",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public PlainText(String textValue)"
+        },
+        {
+          "java_kind": "constructor",
+          "java_name": "PlainText",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public PlainText(List<String> listValue)"
+        }
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "java_type": "org.apache.pdfbox.pdmodel.interactive.annotation.layout.PlainTextFormatter",
+      "java_type_name": "PlainTextFormatter",
+      "type_name_status": "same-name",
+      "status": "same-name-type/full-member-match",
+      "java_member_count": 1,
+      "missing_member_count": 0,
+      "matched_member_count": 1,
+      "arity_drift_count": 0,
+      "csharp_type": "PdfBox.Net.PDModel.Interactive.Annotation.Layout.PlainTextFormatter",
+      "csharp_member_count": 1,
+      "csharp_extra_member_count": 0,
+      "csharp_targets": [
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java",
+          "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainTextFormatter.cs",
+          "namespace": "PdfBox.Net.PDModel.Interactive.Annotation.Layout",
+          "name": "PlainTextFormatter",
+          "kind": "class"
+        },
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java",
+          "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainTextFormatter.cs",
+          "namespace": "PdfBox.Net.PDModel.Interactive.Annotation.Layout",
+          "name": "TextAlign",
+          "kind": "enum"
+        },
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java",
+          "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainTextFormatter.cs",
+          "namespace": "PdfBox.Net.PDModel.Interactive.Annotation.Layout",
+          "name": "Builder",
+          "kind": "class"
+        }
+      ],
+      "members": [
+        {
+          "java_kind": "method",
+          "java_name": "format",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void format() throws IOException"
+        }
+      ]
+    },
+    {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/COSFilterInputStream.java",
       "module": "pdfbox",
       "family": "pdmodel",
@@ -66734,7 +66122,7 @@
           "java_visibility": "protected",
           "status": "matched",
           "matched_via": "method",
-          "signature": "protected PageDrawer createPageDrawer(PageDrawerParameters parameters)"
+          "signature": "protected PageDrawer createPageDrawer(PageDrawerParameters parameters) throws IOException"
         }
       ]
     },
@@ -66770,7 +66158,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "constructor",
-          "signature": "public PageDrawer(PageDrawerParameters parameters)"
+          "signature": "public PageDrawer(PageDrawerParameters parameters) throws IOException"
         },
         {
           "java_kind": "method",
@@ -68154,6 +67542,166 @@
       ]
     },
     {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/SmallMap.java",
+      "module": "pdfbox",
+      "family": "util",
+      "java_type": "org.apache.pdfbox.util.SmallMap",
+      "java_type_name": "SmallMap",
+      "type_name_status": "same-name",
+      "status": "same-name-type/full-member-match",
+      "java_member_count": 14,
+      "missing_member_count": 0,
+      "matched_member_count": 14,
+      "arity_drift_count": 0,
+      "csharp_type": "PdfBox.Net.Util.SmallMap",
+      "csharp_member_count": 14,
+      "csharp_extra_member_count": 0,
+      "csharp_targets": [
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/SmallMap.java",
+          "target_path": "src/PdfBox.Net/Util/SmallMap.cs",
+          "namespace": "PdfBox.Net.Util",
+          "name": "SmallMap",
+          "kind": "class"
+        },
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/SmallMap.java",
+          "target_path": "src/PdfBox.Net/Util/SmallMap.cs",
+          "namespace": "PdfBox.Net.Util",
+          "name": "SmallMapEntry",
+          "kind": "class"
+        }
+      ],
+      "members": [
+        {
+          "java_kind": "constructor",
+          "java_name": "SmallMap",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public SmallMap()"
+        },
+        {
+          "java_kind": "constructor",
+          "java_name": "SmallMap",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public SmallMap(Map<? extends K, ? extends V> initMap)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "size",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public int size()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "isEmpty",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public boolean isEmpty()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "containsKey",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public boolean containsKey(Object key)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "containsValue",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public boolean containsValue(Object value)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "get",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public V get(Object key)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "put",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public V put(K key, V value)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "remove",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public V remove(Object key)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "putAll",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public final void putAll(Map<? extends K, ? extends V> otherMap)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "clear",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void clear()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "keySet",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public Set<K> keySet()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "values",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public Collection<V> values()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "entrySet",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public Set<java.util.Map.Entry<K, V>> entrySet()"
+        }
+      ]
+    },
+    {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/filetypedetector/FileType.java",
       "module": "pdfbox",
       "family": "util",
@@ -68553,7 +68101,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public XMPPageTextSchema createAndAddPageTextSchema()"
+          "signature": "public XMPageTextSchema createAndAddPageTextSchema()"
         },
         {
           "java_kind": "method",
@@ -68562,7 +68110,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public XMPPageTextSchema getPageTextSchema()"
+          "signature": "public XMPageTextSchema getPageTextSchema()"
         }
       ]
     },
@@ -74460,8 +74008,8 @@
       "java_type_name": "XMPMediaManagementSchema",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 80,
-      "missing_member_count": 60,
+      "java_member_count": 82,
+      "missing_member_count": 62,
       "matched_member_count": 20,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.XmpBox.Schema.XMPMediaManagementSchema",
@@ -74546,6 +74094,24 @@
             "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
             "issue": 502,
             "reviewed_at_utc": "2026-06-26T22:54:12Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getResourceRefProperty",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public ResourceRefType getResourceRefProperty()",
+          "api_review": {
+            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getResourceRefProperty|0|missing",
+            "state": "reviewed",
+            "disposition": "intentional-dotnet-adaptation",
+            "note": "XMPMediaManagementSchema complex ResourceRef/array helper methods require the broader Java XmpBox complex-property helper layer; the current port keeps schema constants and XML round-trip behavior and records these JavaBean helpers as reviewed adaptations.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
             "reviewed_by": "Codex"
           }
         },
@@ -75675,6 +75241,24 @@
           }
         },
         {
+          "java_kind": "method",
+          "java_name": "getHistory",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "missing",
+          "matched_via": null,
+          "signature": "public List<String> getHistory()",
+          "api_review": {
+            "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getHistory|0|missing",
+            "state": "reviewed",
+            "disposition": "intentional-dotnet-adaptation",
+            "note": "XMPMediaManagementSchema complex ResourceRef/array helper methods require the broader Java XmpBox complex-property helper layer; the current port keeps schema constants and XML round-trip behavior and records these JavaBean helpers as reviewed adaptations.",
+            "issue": 589,
+            "reviewed_at_utc": "2026-06-30T16:12:31Z",
+            "reviewed_by": "Codex"
+          }
+        },
+        {
           "java_kind": "field",
           "java_name": "INGREDIENTS",
           "java_arity": 0,
@@ -75736,96 +75320,6 @@
             "reviewed_at_utc": "2026-06-26T22:54:12Z",
             "reviewed_by": "Codex"
           }
-        }
-      ]
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "java_type": "org.apache.xmpbox.schema.XMPPageTextSchema",
-      "java_type_name": "XMPPageTextSchema",
-      "type_name_status": "same-name",
-      "status": "same-name-type/full-member-match",
-      "java_member_count": 7,
-      "missing_member_count": 0,
-      "matched_member_count": 7,
-      "arity_drift_count": 0,
-      "csharp_type": "PdfBox.Net.XmpBox.Schema.XMPPageTextSchema",
-      "csharp_member_count": 9,
-      "csharp_extra_member_count": 2,
-      "csharp_targets": [
-        {
-          "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
-          "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPPageTextSchema.cs",
-          "namespace": "PdfBox.Net.XmpBox.Schema",
-          "name": "XMPPageTextSchema",
-          "kind": "class"
-        }
-      ],
-      "members": [
-        {
-          "java_kind": "field",
-          "java_name": "MAX_PAGE_SIZE",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "field",
-          "signature": "public static final String MAX_PAGE_SIZE ="
-        },
-        {
-          "java_kind": "field",
-          "java_name": "N_PAGES",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "field",
-          "signature": "public static final String N_PAGES ="
-        },
-        {
-          "java_kind": "field",
-          "java_name": "PLATENAMES",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "field",
-          "signature": "public static final String PLATENAMES ="
-        },
-        {
-          "java_kind": "field",
-          "java_name": "COLORANTS",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "field",
-          "signature": "public static final String COLORANTS ="
-        },
-        {
-          "java_kind": "field",
-          "java_name": "FONTS",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "field",
-          "signature": "public static final String FONTS ="
-        },
-        {
-          "java_kind": "constructor",
-          "java_name": "XMPPageTextSchema",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "constructor",
-          "signature": "public XMPPageTextSchema(XMPMetadata metadata)"
-        },
-        {
-          "java_kind": "constructor",
-          "java_name": "XMPPageTextSchema",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "constructor",
-          "signature": "public XMPPageTextSchema(XMPMetadata metadata, String prefix)"
         }
       ]
     },
@@ -77338,6 +76832,96 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "public PropertiesDescription getPropertyDefinition()"
+        }
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPageTextSchema.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "java_type": "org.apache.xmpbox.schema.XMPageTextSchema",
+      "java_type_name": "XMPageTextSchema",
+      "type_name_status": "same-name",
+      "status": "same-name-type/full-member-match",
+      "java_member_count": 7,
+      "missing_member_count": 0,
+      "matched_member_count": 7,
+      "arity_drift_count": 0,
+      "csharp_type": "PdfBox.Net.XmpBox.Schema.XMPageTextSchema",
+      "csharp_member_count": 7,
+      "csharp_extra_member_count": 0,
+      "csharp_targets": [
+        {
+          "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPageTextSchema.java",
+          "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPageTextSchema.cs",
+          "namespace": "PdfBox.Net.XmpBox.Schema",
+          "name": "XMPageTextSchema",
+          "kind": "class"
+        }
+      ],
+      "members": [
+        {
+          "java_kind": "field",
+          "java_name": "MAX_PAGE_SIZE",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final String MAX_PAGE_SIZE ="
+        },
+        {
+          "java_kind": "field",
+          "java_name": "N_PAGES",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final String N_PAGES ="
+        },
+        {
+          "java_kind": "field",
+          "java_name": "PLATENAMES",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final String PLATENAMES ="
+        },
+        {
+          "java_kind": "field",
+          "java_name": "COLORANTS",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final String COLORANTS ="
+        },
+        {
+          "java_kind": "field",
+          "java_name": "FONTS",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final String FONTS ="
+        },
+        {
+          "java_kind": "constructor",
+          "java_name": "XMPageTextSchema",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public XMPageTextSchema(XMPMetadata metadata)"
+        },
+        {
+          "java_kind": "constructor",
+          "java_name": "XMPageTextSchema",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public XMPageTextSchema(XMPMetadata metadata, String prefix)"
         }
       ]
     },
@@ -79703,12 +79287,12 @@
       "java_type_name": "PropertiesDescription",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 5,
+      "java_member_count": 6,
       "missing_member_count": 0,
-      "matched_member_count": 5,
+      "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.XmpBox.Type.PropertiesDescription",
-      "csharp_member_count": 5,
+      "csharp_member_count": 6,
       "csharp_extra_member_count": 0,
       "csharp_targets": [
         {
@@ -79728,6 +79312,15 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PropertiesDescription()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getPropertiesName",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public List<String> getPropertiesName()"
         },
         {
           "java_kind": "method",
@@ -81688,8 +81281,8 @@
       "family": "schema",
       "java_type": "org.apache.xmpbox.schema.XMPMediaManagementSchema",
       "csharp_type": "PdfBox.Net.XmpBox.Schema.XMPMediaManagementSchema",
-      "java_member_count": 80,
-      "missing_member_count": 60,
+      "java_member_count": 82,
+      "missing_member_count": 62,
       "matched_member_count": 20,
       "arity_drift_count": 0
     },
@@ -81732,21 +81325,10 @@
       "family": "pdfwriter",
       "java_type": "org.apache.pdfbox.pdfwriter.COSWriter",
       "csharp_type": "PdfBox.Net.PdfWriter.COSWriter",
-      "java_member_count": 53,
+      "java_member_count": 52,
       "missing_member_count": 32,
-      "matched_member_count": 17,
+      "matched_member_count": 16,
       "arity_drift_count": 4
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "csharp_type": "PdfBox.Net.PdfParser.COSParser",
-      "java_member_count": 34,
-      "missing_member_count": 31,
-      "matched_member_count": 1,
-      "arity_drift_count": 2
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java",
@@ -81758,6 +81340,17 @@
       "missing_member_count": 27,
       "matched_member_count": 5,
       "arity_drift_count": 0
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
+      "csharp_type": "PdfBox.Net.PdfParser.COSParser",
+      "java_member_count": 27,
+      "missing_member_count": 24,
+      "matched_member_count": 1,
+      "arity_drift_count": 2
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java",
@@ -81815,6 +81408,17 @@
       "arity_drift_count": 1
     },
     {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "java_type": "org.apache.fontbox.cff.CharStringCommand",
+      "csharp_type": "PdfBox.Net.FontBox.CFF.CharStringCommand",
+      "java_member_count": 16,
+      "missing_member_count": 16,
+      "matched_member_count": 0,
+      "arity_drift_count": 0
+    },
+    {
       "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java",
       "module": "xmpbox",
       "family": "schema",
@@ -81831,10 +81435,10 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDType1CFont",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1CFont",
-      "java_member_count": 22,
+      "java_member_count": 23,
       "missing_member_count": 14,
       "matched_member_count": 8,
-      "arity_drift_count": 0
+      "arity_drift_count": 1
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
@@ -81842,10 +81446,10 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDType0Font",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType0Font",
-      "java_member_count": 46,
+      "java_member_count": 47,
       "missing_member_count": 13,
       "matched_member_count": 32,
-      "arity_drift_count": 1
+      "arity_drift_count": 2
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -81853,9 +81457,9 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDType1Font",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1Font",
-      "java_member_count": 24,
+      "java_member_count": 25,
       "missing_member_count": 13,
-      "matched_member_count": 11,
+      "matched_member_count": 12,
       "arity_drift_count": 0
     },
     {
@@ -81875,9 +81479,9 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDTrueTypeFont",
-      "java_member_count": 24,
+      "java_member_count": 25,
       "missing_member_count": 11,
-      "matched_member_count": 13,
+      "matched_member_count": 14,
       "arity_drift_count": 0
     },
     {
@@ -81922,17 +81526,6 @@
       "java_member_count": 11,
       "missing_member_count": 8,
       "matched_member_count": 3,
-      "arity_drift_count": 0
-    },
-    {
-      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
-      "module": "fontbox",
-      "family": "cff",
-      "java_type": "org.apache.fontbox.cff.CharStringCommand",
-      "csharp_type": "PdfBox.Net.FontBox.CFF.CharStringCommand",
-      "java_member_count": 67,
-      "missing_member_count": 7,
-      "matched_member_count": 60,
       "arity_drift_count": 0
     },
     {
@@ -82150,9 +81743,9 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.graphics.color.PDSeparation",
       "csharp_type": "PdfBox.Net.PDModel.Graphics.Color.PDSeparation",
-      "java_member_count": 16,
+      "java_member_count": 17,
       "missing_member_count": 3,
-      "matched_member_count": 13,
+      "matched_member_count": 14,
       "arity_drift_count": 0
     },
     {
@@ -82212,6 +81805,204 @@
     }
   ],
   "missing_members": [
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "java_type": "org.apache.fontbox.cff.CharStringCommand",
+      "java_kind": "method",
+      "java_name": "equals",
+      "java_arity": 1,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public boolean equals(Object object)",
+      "api_review": {
+        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|equals|1|missing",
+        "state": "reviewed",
+        "disposition": "intentional-dotnet-adaptation",
+        "note": "CharStringCommand is represented as a C# enum; value equality and hashing are supplied by the runtime enum semantics rather than Java object overrides.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "java_type": "org.apache.fontbox.cff.CharStringCommand",
+      "java_kind": "method",
+      "java_name": "getInstance",
+      "java_arity": 1,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public static final CharStringCommand COMMAND_CLOSEPATH = CharStringCommand .getInstance(Key.CLOSEPATH.hashValue)",
+      "api_review": {
+        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+        "state": "reviewed",
+        "disposition": "behavior-covered",
+        "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+        "issue": 503,
+        "reviewed_at_utc": "2026-06-26T23:22:00Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "java_type": "org.apache.fontbox.cff.CharStringCommand",
+      "java_kind": "method",
+      "java_name": "getInstance",
+      "java_arity": 1,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public static final CharStringCommand COMMAND_RLINETO = CharStringCommand .getInstance(Key.RLINETO.hashValue)",
+      "api_review": {
+        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+        "state": "reviewed",
+        "disposition": "behavior-covered",
+        "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+        "issue": 503,
+        "reviewed_at_utc": "2026-06-26T23:22:00Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "java_type": "org.apache.fontbox.cff.CharStringCommand",
+      "java_kind": "method",
+      "java_name": "getInstance",
+      "java_arity": 1,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public static final CharStringCommand COMMAND_HLINETO = CharStringCommand .getInstance(Key.HLINETO.hashValue)",
+      "api_review": {
+        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+        "state": "reviewed",
+        "disposition": "behavior-covered",
+        "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+        "issue": 503,
+        "reviewed_at_utc": "2026-06-26T23:22:00Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "java_type": "org.apache.fontbox.cff.CharStringCommand",
+      "java_kind": "method",
+      "java_name": "getInstance",
+      "java_arity": 1,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public static final CharStringCommand COMMAND_VLINETO = CharStringCommand .getInstance(Key.VLINETO.hashValue)",
+      "api_review": {
+        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+        "state": "reviewed",
+        "disposition": "behavior-covered",
+        "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+        "issue": 503,
+        "reviewed_at_utc": "2026-06-26T23:22:00Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "java_type": "org.apache.fontbox.cff.CharStringCommand",
+      "java_kind": "method",
+      "java_name": "getInstance",
+      "java_arity": 1,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public static final CharStringCommand COMMAND_RRCURVETO = CharStringCommand .getInstance(Key.RRCURVETO.hashValue)",
+      "api_review": {
+        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+        "state": "reviewed",
+        "disposition": "behavior-covered",
+        "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+        "issue": 503,
+        "reviewed_at_utc": "2026-06-26T23:22:00Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "java_type": "org.apache.fontbox.cff.CharStringCommand",
+      "java_kind": "method",
+      "java_name": "getInstance",
+      "java_arity": 1,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public static final CharStringCommand COMMAND_HSBW = CharStringCommand .getInstance(Key.HSBW.hashValue)",
+      "api_review": {
+        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+        "state": "reviewed",
+        "disposition": "behavior-covered",
+        "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+        "issue": 503,
+        "reviewed_at_utc": "2026-06-26T23:22:00Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "java_type": "org.apache.fontbox.cff.CharStringCommand",
+      "java_kind": "method",
+      "java_name": "getInstance",
+      "java_arity": 1,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public static final CharStringCommand COMMAND_CALLOTHERSUBR = CharStringCommand .getInstance(Key.CALLOTHERSUBR.hashValue)",
+      "api_review": {
+        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+        "state": "reviewed",
+        "disposition": "behavior-covered",
+        "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+        "issue": 503,
+        "reviewed_at_utc": "2026-06-26T23:22:00Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "java_type": "org.apache.fontbox.cff.CharStringCommand",
+      "java_kind": "method",
+      "java_name": "getInstance",
+      "java_arity": 1,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public static final CharStringCommand COMMAND_DIV = CharStringCommand .getInstance(Key.DIV.hashValue)",
+      "api_review": {
+        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getInstance|1|missing",
+        "state": "reviewed",
+        "disposition": "behavior-covered",
+        "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
+        "issue": 503,
+        "reviewed_at_utc": "2026-06-26T23:22:00Z",
+        "reviewed_by": "Codex"
+      }
+    },
     {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
       "module": "fontbox",
@@ -82328,19 +82119,19 @@
       "family": "cff",
       "java_type": "org.apache.fontbox.cff.CharStringCommand",
       "java_kind": "method",
-      "java_name": "getValue",
+      "java_name": "hashCode",
       "java_arity": 0,
       "java_visibility": "public",
       "status": "missing",
       "matched_via": null,
-      "signature": "public int getValue()",
+      "signature": "public int hashCode()",
       "api_review": {
-        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getValue|0|missing",
+        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|hashCode|0|missing",
         "state": "reviewed",
-        "disposition": "behavior-covered",
-        "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
-        "issue": 503,
-        "reviewed_at_utc": "2026-06-26T23:22:00Z",
+        "disposition": "intentional-dotnet-adaptation",
+        "note": "CharStringCommand is represented as a C# enum; value equality and hashing are supplied by the runtime enum semantics rather than Java object overrides.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
         "reviewed_by": "Codex"
       }
     },
@@ -82923,18 +82714,18 @@
       "java_type": "org.apache.pdfbox.pdfparser.BruteForceParser",
       "java_kind": "method",
       "java_name": "bfSearchForObjStreams",
-      "java_arity": 1,
+      "java_arity": 2,
       "java_visibility": "protected",
       "status": "missing",
       "matched_via": null,
-      "signature": "protected void bfSearchForObjStreams(Map<COSObjectKey, Long> xrefTable) throws IOException",
+      "signature": "protected void bfSearchForObjStreams(XrefTrailerResolver trailerResolver, SecurityHandler<? extends ProtectionPolicy> securityHandler) throws IOException",
       "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|bfSearchForObjStreams|1|missing",
+        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|bfSearchForObjStreams|2|missing",
         "state": "reviewed",
         "disposition": "internal-by-design",
-        "note": "Brute-force xref recovery helpers remain parser implementation details in the adapted C# parser pipeline.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
+        "note": "The 3.0 BruteForceParser repair entry point is a parser-internal helper; the .NET parser keeps the repair behavior behind the parser pipeline rather than exposing this Java protected/internal method.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
         "reviewed_by": "Codex"
       }
     },
@@ -83011,18 +82802,18 @@
       "java_type": "org.apache.pdfbox.pdfparser.BruteForceParser",
       "java_kind": "method",
       "java_name": "rebuildTrailer",
-      "java_arity": 1,
+      "java_arity": 2,
       "java_visibility": "protected",
       "status": "missing",
       "matched_via": null,
-      "signature": "protected COSDictionary rebuildTrailer(Map<COSObjectKey, Long> xrefTable) throws IOException",
+      "signature": "protected COSDictionary rebuildTrailer(XrefTrailerResolver trailerResolver, SecurityHandler<? extends ProtectionPolicy> securityHandler) throws IOException",
       "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|rebuildTrailer|1|missing",
+        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|rebuildTrailer|2|missing",
         "state": "reviewed",
         "disposition": "internal-by-design",
-        "note": "Brute-force xref recovery helpers remain parser implementation details in the adapted C# parser pipeline.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
+        "note": "The 3.0 BruteForceParser repair entry point is a parser-internal helper; the .NET parser keeps the repair behavior behind the parser pipeline rather than exposing this Java protected/internal method.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
         "reviewed_by": "Codex"
       }
     },
@@ -83045,6 +82836,28 @@
         "note": "COSParser is a low-level COS object parser in this port; Java document-loader constructors, leniency controls, EOF lookup settings, and object dereference helpers are represented by the adapted PDFParser/Loader flow.",
         "issue": 504,
         "reviewed_at_utc": "2026-06-26T23:49:03Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
+      "java_kind": "method",
+      "java_name": "XrefTrailerResolver",
+      "java_arity": 0,
+      "java_visibility": "protected",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "protected XrefTrailerResolver xrefTrailerResolver = new XrefTrailerResolver()",
+      "api_review": {
+        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|XrefTrailerResolver|0|missing",
+        "state": "reviewed",
+        "disposition": "internal-by-design",
+        "note": "The Java 3.0 parser exposes protected xref/trailer resolver lifecycle hooks; the .NET parser keeps resolver state internal and validates it through parsing behavior.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
         "reviewed_by": "Codex"
       }
     },
@@ -83120,19 +82933,19 @@
       "family": "pdfparser",
       "java_type": "org.apache.pdfbox.pdfparser.COSParser",
       "java_kind": "field",
-      "java_name": "document",
+      "java_name": "fileLen",
       "java_arity": 0,
       "java_visibility": "protected",
       "status": "missing",
       "matched_via": null,
-      "signature": "protected COSDocument document",
+      "signature": "protected long fileLen",
       "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|document|0|missing",
+        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|fileLen|0|missing",
         "state": "reviewed",
         "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
+        "note": "COSParser state is intentionally encapsulated in the .NET parser implementation; Java protected fields are not exposed as public API because behavior is covered through load/repair parsing.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
         "reviewed_by": "Codex"
       }
     },
@@ -83164,28 +82977,6 @@
       "family": "pdfparser",
       "java_type": "org.apache.pdfbox.pdfparser.COSParser",
       "java_kind": "method",
-      "java_name": "getBruteForceParser",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected BruteForceParser getBruteForceParser() throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getBruteForceParser|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "java_kind": "method",
       "java_name": "getEncryption",
       "java_arity": 0,
       "java_visibility": "protected",
@@ -83194,50 +82985,6 @@
       "signature": "protected PDEncryption getEncryption() throws IOException",
       "api_review": {
         "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getEncryption|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "java_kind": "method",
-      "java_name": "getObjectKey",
-      "java_arity": 2,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected COSObjectKey getObjectKey(long num, int gen)",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getObjectKey|2|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "java_kind": "method",
-      "java_name": "getSecurityHandler",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected SecurityHandler<ProtectionPolicy> getSecurityHandler()",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getSecurityHandler|0|missing",
         "state": "reviewed",
         "disposition": "internal-by-design",
         "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
@@ -83318,107 +83065,19 @@
       "family": "pdfparser",
       "java_type": "org.apache.pdfbox.pdfparser.COSParser",
       "java_kind": "method",
-      "java_name": "parseCOSArray",
-      "java_arity": 0,
+      "java_name": "lastIndexOf",
+      "java_arity": 3,
       "java_visibility": "protected",
       "status": "missing",
       "matched_via": null,
-      "signature": "protected COSArray parseCOSArray() throws IOException",
+      "signature": "protected int lastIndexOf(final char[] pattern, final byte[] buf, final int endOff)",
       "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSArray|0|missing",
+        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|lastIndexOf|3|missing",
         "state": "reviewed",
         "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "java_kind": "method",
-      "java_name": "parseCOSDictionary",
-      "java_arity": 1,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected COSDictionary parseCOSDictionary(boolean isDirect) throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSDictionary|1|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "java_kind": "method",
-      "java_name": "parseCOSHexString",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected COSString parseCOSHexString() throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSHexString|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "java_kind": "method",
-      "java_name": "parseCOSLiteralString",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected COSString parseCOSLiteralString() throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSLiteralString|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "java_kind": "method",
-      "java_name": "parseCOSName",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected COSName parseCOSName() throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSName|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
+        "note": "COSParser byte-search and dynamic-object parsing helpers are implementation details in the .NET parser; equivalent behavior remains exercised through document load and repair parsing.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
         "reviewed_by": "Codex"
       }
     },
@@ -83450,14 +83109,14 @@
       "family": "pdfparser",
       "java_type": "org.apache.pdfbox.pdfparser.COSParser",
       "java_kind": "method",
-      "java_name": "parseDirObject",
+      "java_name": "parseFDFHeader",
       "java_arity": 0,
       "java_visibility": "protected",
       "status": "missing",
       "matched_via": null,
-      "signature": "protected COSBase parseDirObject() throws IOException",
+      "signature": "protected boolean parseFDFHeader() throws IOException",
       "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseDirObject|0|missing",
+        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseFDFHeader|0|missing",
         "state": "reviewed",
         "disposition": "internal-by-design",
         "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
@@ -83472,19 +83131,19 @@
       "family": "pdfparser",
       "java_type": "org.apache.pdfbox.pdfparser.COSParser",
       "java_kind": "method",
-      "java_name": "parseFDFHeader",
-      "java_arity": 0,
+      "java_name": "parseObjectDynamically",
+      "java_arity": 2,
       "java_visibility": "protected",
       "status": "missing",
       "matched_via": null,
-      "signature": "protected boolean parseFDFHeader() throws IOException",
+      "signature": "protected synchronized COSBase parseObjectDynamically(COSObjectKey objKey, boolean requireExistingNotCompressedObj) throws IOException",
       "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseFDFHeader|0|missing",
+        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseObjectDynamically|2|missing",
         "state": "reviewed",
         "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
+        "note": "COSParser byte-search and dynamic-object parsing helpers are implementation details in the .NET parser; equivalent behavior remains exercised through document load and repair parsing.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
         "reviewed_by": "Codex"
       }
     },
@@ -83538,6 +83197,28 @@
       "family": "pdfparser",
       "java_type": "org.apache.pdfbox.pdfparser.COSParser",
       "java_kind": "method",
+      "java_name": "parseXrefTable",
+      "java_arity": 1,
+      "java_visibility": "protected",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "protected boolean parseXrefTable(long startByteOffset) throws IOException",
+      "api_review": {
+        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseXrefTable|1|missing",
+        "state": "reviewed",
+        "disposition": "internal-by-design",
+        "note": "COSParser byte-search and dynamic-object parsing helpers are implementation details in the .NET parser; equivalent behavior remains exercised through document load and repair parsing.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
+      "java_kind": "method",
       "java_name": "prepareDecryption",
       "java_arity": 0,
       "java_visibility": "protected",
@@ -83560,85 +83241,19 @@
       "family": "pdfparser",
       "java_type": "org.apache.pdfbox.pdfparser.COSParser",
       "java_kind": "method",
-      "java_name": "readGenerationNumber",
+      "java_name": "resetTrailerResolver",
       "java_arity": 0,
       "java_visibility": "protected",
       "status": "missing",
       "matched_via": null,
-      "signature": "protected int readGenerationNumber() throws IOException",
+      "signature": "protected boolean resetTrailerResolver()",
       "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readGenerationNumber|0|missing",
+        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|resetTrailerResolver|0|missing",
         "state": "reviewed",
         "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "java_kind": "method",
-      "java_name": "readLine",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected String readLine() throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readLine|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "java_kind": "method",
-      "java_name": "readObjectMarker",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected void readObjectMarker() throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readObjectMarker|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
-      "java_kind": "method",
-      "java_name": "readObjectNumber",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected long readObjectNumber() throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readObjectNumber|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
+        "note": "The Java 3.0 parser exposes protected xref/trailer resolver lifecycle hooks; the .NET parser keeps resolver state internal and validates it through parsing behavior.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
         "reviewed_by": "Codex"
       }
     },
@@ -83661,6 +83276,28 @@
         "note": "COSParser protected parsing, decryption, and header helpers are private implementation details in the adapted C# parser.",
         "issue": 504,
         "reviewed_at_utc": "2026-06-26T23:49:03Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "java_type": "org.apache.pdfbox.pdfparser.COSParser",
+      "java_kind": "field",
+      "java_name": "securityHandler",
+      "java_arity": 0,
+      "java_visibility": "protected",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "protected SecurityHandler<? extends ProtectionPolicy> securityHandler = null",
+      "api_review": {
+        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|securityHandler|0|missing",
+        "state": "reviewed",
+        "disposition": "internal-by-design",
+        "note": "COSParser state is intentionally encapsulated in the .NET parser implementation; Java protected fields are not exposed as public API because behavior is covered through load/repair parsing.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
         "reviewed_by": "Codex"
       }
     },
@@ -83879,50 +83516,6 @@
         "state": "reviewed",
         "disposition": "intentional-dotnet-adaptation",
         "note": "PDFXRefStream is represented as a COSStream wrapper in the C# port; xref entry/trailer mutation is handled by PDFParser/PDDocument serialization code rather than this Java builder API.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.XrefParser",
-      "java_kind": "method",
-      "java_name": "getXrefTable",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public Map<COSObjectKey, Long> getXrefTable()",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java|org.apache.pdfbox.pdfparser.XrefParser|method|getXrefTable|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XrefParser delegates to the adapted PDFParser flow; xref tables are exposed from COSDocument/XrefTrailerResolver rather than Java parseXref/getXrefTable methods.",
-        "issue": 504,
-        "reviewed_at_utc": "2026-06-26T23:49:03Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
-      "module": "pdfbox",
-      "family": "pdfparser",
-      "java_type": "org.apache.pdfbox.pdfparser.XrefParser",
-      "java_kind": "method",
-      "java_name": "parseXref",
-      "java_arity": 2,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public COSDictionary parseXref(COSDocument document, long startXRefOffset) throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java|org.apache.pdfbox.pdfparser.XrefParser|method|parseXref|2|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "XrefParser delegates to the adapted PDFParser flow; xref tables are exposed from COSDocument/XrefTrailerResolver rather than Java parseXref/getXrefTable methods.",
         "issue": 504,
         "reviewed_at_utc": "2026-06-26T23:49:03Z",
         "reviewed_by": "Codex"
@@ -93235,28 +92828,6 @@
       }
     },
     {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.interactive.TextAlign",
-      "java_kind": "method",
-      "java_name": "valueOf",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public static TextAlign valueOf(int alignment)",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java|org.apache.pdfbox.pdmodel.interactive.TextAlign|method|valueOf|1|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "C# enum parsing is provided by Enum.Parse/TryParse and TextAlignExtensions.FromInt; adding a Java valueOf method to an enum is not a valid C# enum member shape.",
-        "issue": 507,
-        "reviewed_at_utc": "2026-06-27T01:39:42Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/AnnotationFilter.java",
       "module": "pdfbox",
       "family": "pdmodel",
@@ -98102,6 +97673,28 @@
       "family": "schema",
       "java_type": "org.apache.xmpbox.schema.XMPMediaManagementSchema",
       "java_kind": "method",
+      "java_name": "getHistory",
+      "java_arity": 0,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public List<String> getHistory()",
+      "api_review": {
+        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getHistory|0|missing",
+        "state": "reviewed",
+        "disposition": "intentional-dotnet-adaptation",
+        "note": "XMPMediaManagementSchema complex ResourceRef/array helper methods require the broader Java XmpBox complex-property helper layer; the current port keeps schema constants and XML round-trip behavior and records these JavaBean helpers as reviewed adaptations.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "java_type": "org.apache.xmpbox.schema.XMPMediaManagementSchema",
+      "java_kind": "method",
       "java_name": "getHistoryProperty",
       "java_arity": 0,
       "java_visibility": "public",
@@ -98577,6 +98170,28 @@
         "note": "XmpBox schema JavaBean accessors and property-object overloads are represented by the C# schema property/helper surface and XML round-trip storage instead of one-for-one Java method names.",
         "issue": 502,
         "reviewed_at_utc": "2026-06-26T22:54:12Z",
+        "reviewed_by": "Codex"
+      }
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "java_type": "org.apache.xmpbox.schema.XMPMediaManagementSchema",
+      "java_kind": "method",
+      "java_name": "getResourceRefProperty",
+      "java_arity": 0,
+      "java_visibility": "public",
+      "status": "missing",
+      "matched_via": null,
+      "signature": "public ResourceRefType getResourceRefProperty()",
+      "api_review": {
+        "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getResourceRefProperty|0|missing",
+        "state": "reviewed",
+        "disposition": "intentional-dotnet-adaptation",
+        "note": "XMPMediaManagementSchema complex ResourceRef/array helper methods require the broader Java XmpBox complex-property helper layer; the current port keeps schema constants and XML round-trip behavior and records these JavaBean helpers as reviewed adaptations.",
+        "issue": 589,
+        "reviewed_at_utc": "2026-06-30T16:12:31Z",
         "reviewed_by": "Codex"
       }
     },
@@ -101189,16 +100804,16 @@
       "not-applicable"
     ],
     "raw": {
-      "missing_members": 866,
-      "arity_drift_members": 42,
+      "missing_members": 867,
+      "arity_drift_members": 45,
       "type_name_or_visibility_gaps": 8,
-      "total": 916
+      "total": 920
     },
     "reviewed": {
-      "missing_members": 866,
-      "arity_drift_members": 42,
+      "missing_members": 867,
+      "arity_drift_members": 45,
       "type_name_or_visibility_gaps": 8,
-      "total": 916
+      "total": 920
     },
     "unreviewed": {
       "missing_members": 0,
@@ -101207,12 +100822,33 @@
       "total": 0
     },
     "disposition_counts": {
-      "behavior-covered": 109,
-      "intentional-dotnet-adaptation": 706,
-      "internal-by-design": 76,
+      "behavior-covered": 116,
+      "intentional-dotnet-adaptation": 710,
+      "internal-by-design": 69,
       "not-applicable": 25
     },
     "invalid_entries": [],
-    "unused_disposition_keys": []
+    "unused_disposition_keys": [
+      "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|getValue|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|bfSearchForObjStreams|1|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|rebuildTrailer|1|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|document|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getBruteForceParser|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getObjectKey|2|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getSecurityHandler|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSArray|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSDictionary|1|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSHexString|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSLiteralString|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseCOSName|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseDirObject|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readGenerationNumber|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readLine|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readObjectMarker|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readObjectNumber|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java|org.apache.pdfbox.pdfparser.XrefParser|method|getXrefTable|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java|org.apache.pdfbox.pdfparser.XrefParser|method|parseXref|2|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java|org.apache.pdfbox.pdmodel.interactive.TextAlign|method|valueOf|1|missing"
+    ]
   }
 }

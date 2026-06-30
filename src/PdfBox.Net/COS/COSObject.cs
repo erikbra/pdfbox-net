@@ -172,6 +172,26 @@ public partial class COSObject : COSBase, COSUpdateInfo
     }
 
     /// <summary>
+    /// Getter for property objectNumber.
+    /// </summary>
+    /// <returns>Value of property objectNumber.</returns>
+    [Obsolete("Will be removed in 4.0. Use GetKey().GetNumber() instead.")]
+    public long GetObjectNumber()
+    {
+        return GetKey()?.GetNumber() ?? 0;
+    }
+
+    /// <summary>
+    /// Getter for property generationNumber.
+    /// </summary>
+    /// <returns>Value of property generationNumber.</returns>
+    [Obsolete("Will be removed in 4.0. Use GetKey().GetGeneration() instead.")]
+    public int GetGenerationNumber()
+    {
+        return GetKey()?.GetGeneration() ?? 0;
+    }
+
+    /// <summary>
     /// Visitor pattern double dispatch method.
     /// </summary>
     /// <param name="visitor">The object to notify when visiting this object.</param>

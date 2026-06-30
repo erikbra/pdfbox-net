@@ -29,10 +29,27 @@
  *
  ****************************************************************************/
 
+using PdfBox.Net.XmpBox.Type;
+
 namespace PdfBox.Net.XmpBox.Schema;
 
 public class XMPageTextSchema : XMPPageTextSchema
 {
+    [PropertyType(XmpTypeName.Dimensions)]
+    public new static readonly string MAX_PAGE_SIZE = XMPPageTextSchema.MAX_PAGE_SIZE;
+
+    [PropertyType(XmpTypeName.Integer)]
+    public new static readonly string N_PAGES = XMPPageTextSchema.N_PAGES;
+
+    [PropertyType(XmpTypeName.Text, Cardinality.Seq)]
+    public new static readonly string PLATENAMES = XMPPageTextSchema.PLATENAMES;
+
+    [PropertyType(XmpTypeName.Colorant, Cardinality.Seq)]
+    public new static readonly string COLORANTS = XMPPageTextSchema.COLORANTS;
+
+    [PropertyType(XmpTypeName.Font, Cardinality.Bag)]
+    public new static readonly string FONTS = XMPPageTextSchema.FONTS;
+
     public XMPageTextSchema(XMPMetadata metadata)
         : base(metadata)
     {

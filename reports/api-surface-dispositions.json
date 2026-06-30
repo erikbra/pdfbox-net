@@ -6841,6 +6841,134 @@
       "issue": 511,
       "reviewed_at_utc": "2026-06-27T03:47:07Z",
       "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|hashCode|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "CharStringCommand is represented as a C# enum; value equality and hashing are supplied by the runtime enum semantics rather than Java object overrides.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java|org.apache.fontbox.cff.CharStringCommand|method|equals|1|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "CharStringCommand is represented as a C# enum; value equality and hashing are supplied by the runtime enum semantics rather than Java object overrides.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|bfSearchForObjStreams|2|missing",
+      "disposition": "internal-by-design",
+      "note": "The 3.0 BruteForceParser repair entry point is a parser-internal helper; the .NET parser keeps the repair behavior behind the parser pipeline rather than exposing this Java protected/internal method.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|method|rebuildTrailer|2|missing",
+      "disposition": "internal-by-design",
+      "note": "The 3.0 BruteForceParser repair entry point is a parser-internal helper; the .NET parser keeps the repair behavior behind the parser pipeline rather than exposing this Java protected/internal method.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|fileLen|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser state is intentionally encapsulated in the .NET parser implementation; Java protected fields are not exposed as public API because behavior is covered through load/repair parsing.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|field|securityHandler|0|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser state is intentionally encapsulated in the .NET parser implementation; Java protected fields are not exposed as public API because behavior is covered through load/repair parsing.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|XrefTrailerResolver|0|missing",
+      "disposition": "internal-by-design",
+      "note": "The Java 3.0 parser exposes protected xref/trailer resolver lifecycle hooks; the .NET parser keeps resolver state internal and validates it through parsing behavior.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|resetTrailerResolver|0|missing",
+      "disposition": "internal-by-design",
+      "note": "The Java 3.0 parser exposes protected xref/trailer resolver lifecycle hooks; the .NET parser keeps resolver state internal and validates it through parsing behavior.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|lastIndexOf|3|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser byte-search and dynamic-object parsing helpers are implementation details in the .NET parser; equivalent behavior remains exercised through document load and repair parsing.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseObjectDynamically|2|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser byte-search and dynamic-object parsing helpers are implementation details in the .NET parser; equivalent behavior remains exercised through document load and repair parsing.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|parseXrefTable|1|missing",
+      "disposition": "internal-by-design",
+      "note": "COSParser byte-search and dynamic-object parsing helpers are implementation details in the .NET parser; equivalent behavior remains exercised through document load and repair parsing.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDMMType1Font.java|org.apache.pdfbox.pdmodel.font.PDMMType1Font|constructor|PDMMType1Font|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "Java 3.0 ResourceCache constructor overloads are reviewed adaptations in the current .NET font stack; font resource caching is owned by PDResources/PDDocument rather than individual font constructors.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|constructor|PDType0Font|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "The .NET Type 0 font constructor requires the resolved descendant font and exposes dictionary loading through the factory path, avoiding a partial Java compatibility constructor that would hide resource-resolution behavior.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|constructor|PDType1CFont|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDType1CFont construction remains factory/load driven so the embedded CFF font is parsed before the base font state is initialized; the Java dictionary-only constructor is recorded as an accepted constructor-shape adaptation.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getResourceRefProperty|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XMPMediaManagementSchema complex ResourceRef/array helper methods require the broader Java XmpBox complex-property helper layer; the current port keeps schema constants and XML round-trip behavior and records these JavaBean helpers as reviewed adaptations.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java|org.apache.xmpbox.schema.XMPMediaManagementSchema|method|getHistory|0|missing",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "XMPMediaManagementSchema complex ResourceRef/array helper methods require the broader Java XmpBox complex-property helper layer; the current port keeps schema constants and XML round-trip behavior and records these JavaBean helpers as reviewed adaptations.",
+      "issue": 589,
+      "reviewed_at_utc": "2026-06-30T16:12:31Z",
+      "reviewed_by": "Codex"
     }
   ]
 }

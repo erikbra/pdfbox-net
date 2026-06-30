@@ -32,6 +32,12 @@ public class PropertiesDescription
 {
     private readonly Dictionary<string, PropertyTypeAttribute> types = new(StringComparer.Ordinal);
 
+    [Obsolete("Use GetPropertiesNames() instead.")]
+    public List<string> GetPropertiesName()
+    {
+        return GetPropertiesNames();
+    }
+
     public List<string> GetPropertiesNames()
     {
         return [.. types.Keys];
