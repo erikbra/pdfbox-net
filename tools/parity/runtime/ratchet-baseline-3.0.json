@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the PDFBox 3.0 release branch corpus. Update intentionally when the 3.0 corpus, accepted adaptation policy, upstream 3.0 source, or reviewed cross-platform classifier distribution changes.",
+  "source": {
+    "generatedFrom": "PDFBox 3.0 runtime parity local and CI runs for issue #590",
+    "generatedAtUtc": "2026-06-30T17:06:18Z",
+    "apachePdfBoxRef": "origin/3.0",
+    "apachePdfBoxCommit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "manifest": "tools/parity/runtime/corpus-manifest.txt",
+    "knownFailures": "tools/parity/runtime/known-failures.json",
+    "report": "reports/pdfbox-3.0-runtime-parity.json"
+  },
+  "maxStatus": {
+    "known": 0,
+    "unexpected": 0
+  },
+  "maxCategories": {
+    "merge-structural-match": 72,
+    "render-foreground-shape-equivalence-match": 37,
+    "render-form-widget-bbox-clipping-equivalence-match": 1,
+    "render-form-widget-raster-equivalence-match": 3,
+    "render-global-resource-text-raster-equivalence-match": 4,
+    "render-glyph-layout-equivalence-match": 2,
+    "render-glyph-raster-equivalence-match": 5,
+    "render-image-mask-shape-equivalence-match": 2,
+    "render-java-optional-jpx-reader-missing-match": 3,
+    "render-jbig2-decoder-raster-equivalence-match": 1,
+    "render-lossy-jpeg-decoder-equivalence-match": 1,
+    "render-pattern-transparency-raster-equivalence-match": 1,
+    "render-rotation-overlay-shape-equivalence-match": 9,
+    "render-sparse-equivalence-match": 1,
+    "render-visual-equivalence-match": 72,
+    "save-structural-match": 148,
+    "text-semantic-math-linewrap-match": 1,
+    "text-semantic-punctuation-spacing-match": 1
+  }
+}

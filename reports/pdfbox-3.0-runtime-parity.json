@@ -1,0 +1,226 @@
+{
+  "schema": 1,
+  "issue": 590,
+  "title": "PDFBox 3.0 runtime parity corpus retargeting",
+  "generatedAtUtc": "2026-06-30T17:06:18Z",
+  "branch": "release/3.0",
+  "upstream": {
+    "repository": "apache/pdfbox",
+    "ref": "origin/3.0",
+    "commit": "ea68b6feae80e671b3d26565b12eccc79e74d967"
+  },
+  "manifest": "tools/parity/runtime/corpus-manifest.txt",
+  "ratchetBaseline": "tools/parity/runtime/ratchet-baseline-3.0.json",
+  "localRun": {
+    "outDir": "artifacts/runtime-parity-3.0-local",
+    "javaHome": "/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home",
+    "command": "python3 tools/parity/runtime/run_runtime_parity.py --manifest tools/parity/runtime/corpus-manifest.txt --pdfbox-root <apache origin/3.0 worktree> --java-classpath <pdfbox-app jar> --java-home <jdk> --out-dir artifacts/runtime-parity-3.0-local --ratchet-baseline tools/parity/runtime/ratchet-baseline-3.0.json --gate-mode ratchet --fail-on-unexpected"
+  },
+  "summary": {
+    "generatedAtUtc": "2026-06-30T16:46:00Z",
+    "manifest": "tools/parity/runtime/corpus-manifest.txt",
+    "pdfCount": 161,
+    "mergePairCount": 80,
+    "counts": {
+      "match": 1027,
+      "known": 0,
+      "unexpected": 0
+    },
+    "categories": {
+      "render-foreground-shape-equivalence-match": 36,
+      "save-structural-match": 148,
+      "merge-structural-match": 72,
+      "render-visual-equivalence-match": 72,
+      "render-form-widget-raster-equivalence-match": 3,
+      "render-glyph-raster-equivalence-match": 4,
+      "render-glyph-layout-equivalence-match": 2,
+      "render-jbig2-decoder-raster-equivalence-match": 1,
+      "render-java-optional-jpx-reader-missing-match": 3,
+      "render-rotation-overlay-shape-equivalence-match": 9,
+      "render-form-widget-bbox-clipping-equivalence-match": 1,
+      "text-semantic-math-linewrap-match": 1,
+      "text-semantic-punctuation-spacing-match": 1,
+      "render-sparse-equivalence-match": 1,
+      "render-pattern-transparency-raster-equivalence-match": 1
+    },
+    "corpusCategories": {
+      "annotations": {
+        "match": 4,
+        "known": 0,
+        "unexpected": 0,
+        "total": 4
+      },
+      "encryption": {
+        "match": 20,
+        "known": 0,
+        "unexpected": 0,
+        "total": 20
+      },
+      "filters/images": {
+        "match": 26,
+        "known": 0,
+        "unexpected": 0,
+        "total": 26
+      },
+      "fonts and subsetting": {
+        "match": 26,
+        "known": 0,
+        "unexpected": 0,
+        "total": 26
+      },
+      "forms": {
+        "match": 84,
+        "known": 0,
+        "unexpected": 0,
+        "total": 84
+      },
+      "malformed PDFs": {
+        "match": 28,
+        "known": 0,
+        "unexpected": 0,
+        "total": 28
+      },
+      "merge/split/save": {
+        "match": 41,
+        "known": 0,
+        "unexpected": 0,
+        "total": 41
+      },
+      "rendering": {
+        "match": 43,
+        "known": 0,
+        "unexpected": 0,
+        "total": 43
+      },
+      "text extraction": {
+        "match": 32,
+        "known": 0,
+        "unexpected": 0,
+        "total": 32
+      },
+      "uncategorized": {
+        "match": 387,
+        "known": 0,
+        "unexpected": 0,
+        "total": 387
+      }
+    },
+    "knownFailureBuckets": [],
+    "operations": {
+      "load": {
+        "javaOk": 150,
+        "javaFail": 11,
+        "dotnetOk": 150,
+        "dotnetFail": 11
+      },
+      "merge": {
+        "javaOk": 72,
+        "javaFail": 8,
+        "dotnetOk": 72,
+        "dotnetFail": 8
+      },
+      "render": {
+        "javaOk": 150,
+        "javaFail": 0,
+        "dotnetOk": 150,
+        "dotnetFail": 0
+      },
+      "save": {
+        "javaOk": 148,
+        "javaFail": 2,
+        "dotnetOk": 148,
+        "dotnetFail": 2
+      },
+      "text": {
+        "javaOk": 150,
+        "javaFail": 0,
+        "dotnetOk": 150,
+        "dotnetFail": 0
+      }
+    }
+  },
+  "validation": [
+    {
+      "environment": "local macOS/Homebrew JDK",
+      "command": "python3 tools/parity/runtime/run_runtime_parity.py --manifest tools/parity/runtime/corpus-manifest.txt --pdfbox-root <apache origin/3.0 worktree> --java-classpath <pdfbox-app jar> --java-home <jdk> --out-dir artifacts/runtime-parity-3.0-local --ratchet-baseline tools/parity/runtime/ratchet-baseline-3.0.json --gate-mode ratchet --fail-on-unexpected",
+      "result": "passed",
+      "counts": {
+        "match": 1027,
+        "known": 0,
+        "unexpected": 0
+      }
+    },
+    {
+      "environment": "GitHub Actions ubuntu-latest, Temurin JDK 17",
+      "command": "GitHub Actions runtime-parity job on PR #599",
+      "result": "zero known and zero unexpected; first run failed only because accepted-equivalence category ceilings were local-environment-specific",
+      "counts": {
+        "match": 1027,
+        "known": 0,
+        "unexpected": 0
+      },
+      "runUrl": "https://github.com/erikbra/pdfbox-net/actions/runs/28461084821/job/84349319303"
+    }
+  ],
+  "ratchetBaselinePolicy": {
+    "statusCeilings": {
+      "known": 0,
+      "unexpected": 0
+    },
+    "categoryCeilings": "Maximum observed accepted-equivalence category count across the local macOS run and the GitHub Actions Ubuntu run."
+  },
+  "ciObservation": {
+    "generatedAtUtc": "2026-06-30T17:06:18Z",
+    "environment": "GitHub Actions ubuntu-latest, Temurin JDK 17",
+    "runUrl": "https://github.com/erikbra/pdfbox-net/actions/runs/28461084821/job/84349319303",
+    "artifactUrl": "https://github.com/erikbra/pdfbox-net/actions/runs/28461084821/artifacts/7988014804",
+    "manifest": "tools/parity/runtime/corpus-manifest.txt",
+    "pdfCount": 161,
+    "mergePairCount": 80,
+    "counts": {
+      "match": 1027,
+      "known": 0,
+      "unexpected": 0
+    },
+    "categories": {
+      "render-foreground-shape-equivalence-match": 37,
+      "save-structural-match": 148,
+      "merge-structural-match": 72,
+      "render-visual-equivalence-match": 64,
+      "render-form-widget-raster-equivalence-match": 2,
+      "render-glyph-raster-equivalence-match": 5,
+      "render-glyph-layout-equivalence-match": 2,
+      "render-jbig2-decoder-raster-equivalence-match": 1,
+      "render-java-optional-jpx-reader-missing-match": 3,
+      "render-rotation-overlay-shape-equivalence-match": 9,
+      "render-image-mask-shape-equivalence-match": 2,
+      "render-form-widget-bbox-clipping-equivalence-match": 1,
+      "render-global-resource-text-raster-equivalence-match": 4,
+      "text-semantic-math-linewrap-match": 1,
+      "text-semantic-punctuation-spacing-match": 1,
+      "render-sparse-equivalence-match": 1,
+      "render-lossy-jpeg-decoder-equivalence-match": 1,
+      "render-pattern-transparency-raster-equivalence-match": 1
+    }
+  },
+  "maxCategoryBaseline": {
+    "merge-structural-match": 72,
+    "render-foreground-shape-equivalence-match": 37,
+    "render-form-widget-bbox-clipping-equivalence-match": 1,
+    "render-form-widget-raster-equivalence-match": 3,
+    "render-global-resource-text-raster-equivalence-match": 4,
+    "render-glyph-layout-equivalence-match": 2,
+    "render-glyph-raster-equivalence-match": 5,
+    "render-image-mask-shape-equivalence-match": 2,
+    "render-java-optional-jpx-reader-missing-match": 3,
+    "render-jbig2-decoder-raster-equivalence-match": 1,
+    "render-lossy-jpeg-decoder-equivalence-match": 1,
+    "render-pattern-transparency-raster-equivalence-match": 1,
+    "render-rotation-overlay-shape-equivalence-match": 9,
+    "render-sparse-equivalence-match": 1,
+    "render-visual-equivalence-match": 72,
+    "save-structural-match": 148,
+    "text-semantic-math-linewrap-match": 1,
+    "text-semantic-punctuation-spacing-match": 1
+  }
+}
