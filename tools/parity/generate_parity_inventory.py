@@ -402,6 +402,10 @@ def main() -> None:
         upstream_paths = discover_upstream_paths(tree)
         print(f"- Upstream tree entries fetched: {len(tree)}")
     excluded_module_counts = Counter(p.module for p in upstream_paths if p.module in set(excluded_modules))
+    excluded_module_count_payload = {
+        module: excluded_module_counts.get(module, 0)
+        for module in excluded_modules
+    }
     if excluded_modules:
         upstream_paths = [p for p in upstream_paths if p.module not in set(excluded_modules)]
         print(f"- Upstream Java files after exclusions: {len(upstream_paths)}")
@@ -493,7 +497,7 @@ def main() -> None:
         "upstream_repository": upstream_repo,
         "upstream_branch": upstream_branch,
         "excluded_upstream_modules": excluded_modules,
-        "excluded_upstream_module_counts": dict(sorted(excluded_module_counts.items())),
+        "excluded_upstream_module_counts": excluded_module_count_payload,
         "upstream_head": upstream_head,
         "tracked_parity_baseline_commit": tracked_commit,
         "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
@@ -566,7 +570,7 @@ def main() -> None:
         "upstream_repository": upstream_repo,
         "upstream_branch": upstream_branch,
         "excluded_upstream_modules": excluded_modules,
-        "excluded_upstream_module_counts": dict(sorted(excluded_module_counts.items())),
+        "excluded_upstream_module_counts": excluded_module_count_payload,
         "upstream_head": upstream_head,
         "tracked_parity_baseline_commit": tracked_commit,
         "canonical_mapping_method": all_coverage["canonical_mapping_method"],
@@ -583,7 +587,7 @@ def main() -> None:
         "upstream_repository": upstream_repo,
         "upstream_branch": upstream_branch,
         "excluded_upstream_modules": excluded_modules,
-        "excluded_upstream_module_counts": dict(sorted(excluded_module_counts.items())),
+        "excluded_upstream_module_counts": excluded_module_count_payload,
         "upstream_head_commit": upstream_head,
         "tracked_parity_baseline_commit": tracked_commit,
         "last_scan_utc": generated_at,
@@ -623,7 +627,7 @@ def main() -> None:
             file_gap_module_rows=file_gap_module_rows,
             upstream_ref=upstream_branch,
             excluded_modules=excluded_modules,
-            excluded_module_counts=dict(excluded_module_counts),
+            excluded_module_counts=excluded_module_count_payload,
         ),
         encoding="utf-8",
     )
@@ -632,7 +636,7 @@ def main() -> None:
         sync_state["upstream_branch"] = upstream_branch
         if excluded_modules:
             sync_state["excluded_upstream_modules"] = excluded_modules
-            sync_state["excluded_upstream_module_counts"] = dict(sorted(excluded_module_counts.items()))
+            sync_state["excluded_upstream_module_counts"] = excluded_module_count_payload
         elif "excluded_upstream_modules" in sync_state:
             sync_state.pop("excluded_upstream_modules", None)
             sync_state.pop("excluded_upstream_module_counts", None)

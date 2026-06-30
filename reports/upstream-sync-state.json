@@ -1,19 +1,27 @@
 {
   "upstream_repository": "apache/pdfbox",
-  "upstream_branch": "trunk",
-  "tracked_commit": "ed358c48dc5ab3f20687cc4a6bf9529436641ecd",
-  "tracked_commit_updated_utc": "2026-06-29T13:52:20.062Z",
+  "upstream_branch": "origin/3.0",
+  "tracked_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+  "tracked_commit_updated_utc": "2026-06-30T14:59:37.570Z",
   "note": "Update tracked_commit whenever a sync batch lands so upstream-watch automation can detect new upstream commits.",
-  "latest_upstream_commit_seen": "ed358c48dc5ab3f20687cc4a6bf9529436641ecd",
-  "last_port_coverage_scan_utc": "2026-06-29T13:52:20.062Z",
-  "upstream_java_files_total": 1067,
-  "ported_java_files_total": 1067,
-  "missing_java_files_total": 0,
-  "missing_source_paths_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "latest_upstream_commit_seen": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+  "last_port_coverage_scan_utc": "2026-06-30T14:59:37.570Z",
+  "upstream_java_files_total": 1071,
+  "ported_java_files_total": 1059,
+  "missing_java_files_total": 12,
+  "missing_source_paths_sha256": "b002a832f7b6d78a9a2e591a6baf569504285f4420b71cb7414153533f95790f",
   "scan_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "parity_target": {
-    "mapped_java_files_total": 1067,
+    "mapped_java_files_total": 1071,
     "missing_java_files_total": 0,
     "traceability_status_required": "in-sync only"
+  },
+  "excluded_upstream_modules": [
+    "preflight",
+    "preflight-app"
+  ],
+  "excluded_upstream_module_counts": {
+    "preflight": 116,
+    "preflight-app": 0
   }
 }

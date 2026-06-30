@@ -1,0 +1,3818 @@
+{
+  "schema": 1,
+  "generated_at_utc": "2026-06-30T14:57:25.017Z",
+  "pdfbox_net_commit": "9159d9400a3b13d3357511352137110c421bbc7f",
+  "upstream": {
+    "repository": "apache/pdfbox",
+    "ref": "origin/3.0",
+    "commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "comparison_ref": "origin/trunk",
+    "comparison_commit": "ed358c48dc5ab3f20687cc4a6bf9529436641ecd"
+  },
+  "exclusions": {
+    "modules": [
+      "preflight",
+      "preflight-app"
+    ],
+    "reason": "Preflight/PDF-A validation is intentionally out of scope for the initial release/3.0 core parity branch.",
+    "java_file_counts": {
+      "preflight": 116,
+      "preflight-app": 0
+    }
+  },
+  "summary": {
+    "scoped_java_files": 1071,
+    "mapped_java_files": 1059,
+    "missing_java_files": 12,
+    "coverage_percent": 98.88,
+    "mapped_source_paths_not_in_3_0": 16,
+    "source_paths_added_in_3_0_vs_trunk": 12,
+    "source_paths_removed_from_3_0_vs_trunk": 8,
+    "common_source_paths_changed_vs_trunk": 367,
+    "mapped_common_source_paths_changed_vs_trunk": 367,
+    "unmapped_common_source_paths_changed_vs_trunk": 0
+  },
+  "module_coverage": [
+    {
+      "module": "benchmark",
+      "java_files": 4,
+      "mapped": 3,
+      "missing": 1,
+      "pct": 75.0
+    },
+    {
+      "module": "debugger",
+      "java_files": 91,
+      "mapped": 90,
+      "missing": 1,
+      "pct": 98.9
+    },
+    {
+      "module": "examples",
+      "java_files": 94,
+      "mapped": 94,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "module": "fontbox",
+      "java_files": 143,
+      "mapped": 142,
+      "missing": 1,
+      "pct": 99.3
+    },
+    {
+      "module": "io",
+      "java_files": 18,
+      "mapped": 18,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "module": "pdfbox",
+      "java_files": 621,
+      "mapped": 613,
+      "missing": 8,
+      "pct": 98.7
+    },
+    {
+      "module": "tools",
+      "java_files": 26,
+      "mapped": 26,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "module": "xmpbox",
+      "java_files": 74,
+      "mapped": 73,
+      "missing": 1,
+      "pct": 98.6
+    }
+  ],
+  "missing_non_preflight_source_paths": [
+    {
+      "source_path": "benchmark/src/main/java/org/apache/pdfbox/benchmark/NullOutputStream.java",
+      "module": "benchmark",
+      "family": "benchmark",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLog.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1FontUtil.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/IntPoint.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/AppearanceStyle.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceStyle.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainText.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainTextFormatter.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/SmallMap.java",
+      "module": "pdfbox",
+      "family": "util",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPageTextSchema.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "category": "missing-non-preflight",
+      "target_paths": []
+    }
+  ],
+  "mapped_source_paths_not_in_3_0": [
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLogAppender.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/DebugLogAppender.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateComboBox.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Interactive/Form/CreateComboBox.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/CreateListBox.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Interactive/Form/CreateListBox.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/interactive/form/FlattenAllFormFields.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Interactive/Form/FlattenAllFormFields.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/rendering/ConvertPDFPagesToImages.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Rendering/ConvertPDFPagesToImages.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/MemoryTTFDataStream.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/MemoryTTFDataStream.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForTamil.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForTamil.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/type3/SetType3GlyphWidth.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Graphics/SetType3GlyphWidth.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/type3/SetType3GlyphWidthAndBoundingBox.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Graphics/SetType3GlyphWidthAndBoundingBox.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/XrefParser.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/AppearanceStyle.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/AppearanceStyle.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainText.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/PlainText.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainTextFormatter.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/PlainTextFormatter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/TextAlign.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/PDFPrinter.java",
+      "module": "pdfbox",
+      "family": "printing",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/Printing/PDFPrinter.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "category": "mapped-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPPageTextSchema.cs"
+      ]
+    }
+  ],
+  "source_paths_added_in_3_0_vs_trunk": [
+    {
+      "source_path": "benchmark/src/main/java/org/apache/pdfbox/benchmark/NullOutputStream.java",
+      "module": "benchmark",
+      "family": "benchmark",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLog.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1FontUtil.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/IntPoint.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/AppearanceStyle.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceStyle.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainText.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainTextFormatter.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/SmallMap.java",
+      "module": "pdfbox",
+      "family": "util",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPageTextSchema.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "category": "3.0-source-not-in-trunk",
+      "target_paths": []
+    }
+  ],
+  "source_paths_removed_from_3_0_vs_trunk": [
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLogAppender.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "trunk-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/DebugLogAppender.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForTamil.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "trunk-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForTamil.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "category": "trunk-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/XrefParser.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/AppearanceStyle.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "trunk-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/AppearanceStyle.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainText.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "trunk-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/PlainText.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/PlainTextFormatter.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "trunk-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/PlainTextFormatter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "trunk-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/TextAlign.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "category": "trunk-source-not-in-3.0",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPPageTextSchema.cs"
+      ]
+    }
+  ],
+  "mapped_common_source_paths_changed_vs_trunk": [
+    {
+      "source_path": "benchmark/src/main/java/org/apache/pdfbox/benchmark/LoadAndSave.java",
+      "module": "benchmark",
+      "family": "benchmark",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Benchmark/LoadAndSave.cs",
+        "src/PdfBox.Net.Benchmark/LoadAndSaveBenchmarks.cs"
+      ]
+    },
+    {
+      "source_path": "benchmark/src/main/java/org/apache/pdfbox/benchmark/Rendering.java",
+      "module": "benchmark",
+      "family": "benchmark",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Benchmark/Rendering.cs",
+        "src/PdfBox.Net.Benchmark/RenderingBenchmarks.cs"
+      ]
+    },
+    {
+      "source_path": "benchmark/src/main/java/org/apache/pdfbox/benchmark/TextExtraction.java",
+      "module": "benchmark",
+      "family": "benchmark",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Benchmark/TextExtraction.cs",
+        "src/PdfBox.Net.Benchmark/TextExtractionBenchmarks.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/PDFDebugger.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/PDFDebugger.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/DeviceNTableModel.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Colorpane/DeviceNTableModel.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/IndexedTableModel.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Colorpane/IndexedTableModel.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontEncodingPaneController.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Fontencodingpane/FontEncodingPaneController.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontPane.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Fontencodingpane/FontPane.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/SimpleFont.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Fontencodingpane/SimpleFont.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type0Font.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Fontencodingpane/Type0Font.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/pagepane/DebugTextOverlay.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Pagepane/DebugTextOverlay.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/pagepane/PagePane.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Pagepane/PagePane.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/Stream.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Streampane/Stream.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamPane.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Streampane/StreamPane.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamTextView.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Streampane/StreamTextView.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/FontToolTip.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Streampane/Tooltip/FontToolTip.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/KToolTip.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Streampane/Tooltip/KToolTip.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/SCNToolTip.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Streampane/Tooltip/SCNToolTip.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/ToolTipController.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Streampane/Tooltip/ToolTipController.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/LogDialog.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/LogDialog.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/OSXAdapter.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/OSXAdapter.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/PDFTreeCellRenderer.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/PDFTreeCellRenderer.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/PrintDpiMenu.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/PrintDpiMenu.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ReaderBottomPanel.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/ReaderBottomPanel.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/RecentFiles.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/RecentFiles.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/TextDialog.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/TextDialog.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/Tree.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/Tree.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ZoomMenu.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/ZoomMenu.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/textsearcher/SearchEngine.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/Textsearcher/SearchEngine.cs"
+      ]
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/textsearcher/Searcher.java",
+      "module": "debugger",
+      "family": "debugger",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/Textsearcher/Searcher.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/lucene/IndexPDFFiles.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Lucene/IndexPDFFiles.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreatePDFA.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/PDModel/CreatePDFA.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/CreatePatternsPDF.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/PDModel/CreatePatternsPDF.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/EmbeddedMultipleFonts.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/PDModel/EmbeddedMultipleFonts.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ExtractTTFFonts.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/PDModel/ExtractTTFFonts.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/printing/OpaquePDFRenderer.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Printing/OpaquePDFRenderer.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/rendering/CustomPageDrawer.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Rendering/CustomPageDrawer.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CMSProcessableInputStream.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/CMSProcessableInputStream.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateEmbeddedTimeStamp.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignatureBase.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/CreateSignatureBase.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignedTimeStamp.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/CreateSignedTimeStamp.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/CreateVisibleSignature.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/ShowSignature.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/SigUtils.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/TSAClient.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/TSAClient.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CRLVerifier.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/Cert/CRLVerifier.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CertificateVerifier.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/Cert/CertificateVerifier.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/OcspHelper.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/Cert/OcspHelper.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/AddValidationInformation.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/Validation/AddValidationInformation.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/CertInformationCollector.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/Validation/CertInformationCollector.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/CertInformationHelper.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/Validation/CertInformationHelper.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/DrawPrintTextLocations.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Util/DrawPrintTextLocations.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/PDFHighlighter.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Util/PDFHighlighter.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/PDFMergerExample.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Util/PDFMergerExample.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/PrintTextColors.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Util/PrintTextColors.cs"
+      ]
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/PrintTextLocations.java",
+      "module": "examples",
+      "family": "examples",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Util/PrintTextLocations.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFCIDFont.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CFF/CFFCIDFont.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFParser.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CFF/CFFParser.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFType1Font.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CFF/CFFType1Font.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CFF/CharStringCommand.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/DataInputRandomAccessRead.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CFF/DataInputRandomAccessRead.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CFF/Type1CharString.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharStringParser.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CFF/Type1CharStringParser.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type2CharString.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CFF/Type2CharString.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type2CharStringParser.java",
+      "module": "fontbox",
+      "family": "cff",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CFF/Type2CharStringParser.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cmap/CMap.java",
+      "module": "fontbox",
+      "family": "cmap",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CMap/CMap.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cmap/CMapStrings.java",
+      "module": "fontbox",
+      "family": "cmap",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CMap/CMapStrings.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java",
+      "module": "fontbox",
+      "family": "pfb",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/Pfb/PfbParser.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CmapSubtable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/CmapSubtable.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeDescript.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeDescript.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfSimpleDescript.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfSimpleDescript.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphRenderer.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphRenderer.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphSubstitutionTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphSubstitutionTable.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/KerningSubtable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/KerningSubtable.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/KerningTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/KerningTable.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/NamingTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/NamingTable.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/OS2WindowsMetricsTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/OS2WindowsMetricsTable.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/OpenTypeScript.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/OpenTypeScript.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/PostScriptTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/PostScriptTable.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/RandomAccessReadDataStream.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/MemoryTTFDataStream.cs",
+        "src/PdfBox.Net.FontBox/FontBox/TTF/RandomAccessReadDataStream.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFDataStream.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/TTFDataStream.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
+        "src/PdfBox.Net.FontBox/FontBox/TTF/TTFSupportStubs.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFSubsetter.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/TTFSubsetter.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeFont.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeFont.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/WGL4Names.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/WGL4Names.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/CompoundCharacterTokenizer.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/CompoundCharacterTokenizer.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/DefaultGsubWorker.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/DefaultGsubWorker.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GlyphSubstitutionDataExtractor.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GlyphSubstitutionDataExtractor.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerFactory.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerFactory.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForBengali.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForBengali.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForDevanagari.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForDevanagari.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForDflt.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForDflt.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForGujarati.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForGujarati.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForLatin.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForLatin.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/model/Language.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Model/Language.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/model/MapBackedGsubData.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Model/MapBackedGsubData.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/model/MapBackedScriptFeature.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Model/GlyphIdListComparer.cs",
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Model/MapBackedScriptFeature.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/model/ScriptFeature.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Model/ScriptFeature.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/table/common/CoverageTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Table/Common/CoverageTable.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/table/common/LookupSubTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Table/Common/LookupSubTable.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Lexer.java",
+      "module": "fontbox",
+      "family": "type1",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Lexer.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/FontFileFinder.java",
+      "module": "fontbox",
+      "family": "util",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/FontFileFinder.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/NativeFontDirFinder.java",
+      "module": "fontbox",
+      "family": "util",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/NativeFontDirFinder.cs"
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/WindowsFontDirFinder.java",
+      "module": "fontbox",
+      "family": "util",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/Util/Autodetect/WindowsFontDirFinder.cs"
+      ]
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/IOUtils.java",
+      "module": "io",
+      "family": "io",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.IO/IO/IOUtils.cs"
+      ]
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/NonSeekableRandomAccessReadInputStream.java",
+      "module": "io",
+      "family": "io",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.IO/IO/NonSeekableRandomAccessReadInputStream.cs"
+      ]
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessInputStream.java",
+      "module": "io",
+      "family": "io",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.IO/IO/RandomAccessInputStream.cs"
+      ]
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java",
+      "module": "io",
+      "family": "io",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.IO/IO/RandomAccessReadBuffer.cs",
+        "src/PdfBox.Net/IO/RandomAccessReadBuffer.cs"
+      ]
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBufferedFile.java",
+      "module": "io",
+      "family": "io",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.IO/IO/RandomAccessReadBufferedFile.cs",
+        "src/PdfBox.Net/IO/RandomAccessReadBufferedFile.cs"
+      ]
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/ScratchFile.java",
+      "module": "io",
+      "family": "io",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.IO/IO/ScratchFile.cs",
+        "src/PdfBox.Net/IO/ScratchFile.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/Loader.java",
+      "module": "pdfbox",
+      "family": "(root)",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Loader.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/PDFStreamEngine.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/color/SetColor.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Color/SetColor.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/ClosePath.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Graphics/ClosePath.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CurveTo.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Graphics/CurveTo.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CurveToReplicateFinalPoint.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Graphics/CurveToReplicateFinalPoint.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/CurveToReplicateInitialPoint.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Graphics/CurveToReplicateInitialPoint.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/DrawObject.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/DrawObject.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/LineTo.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Graphics/LineTo.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/markedcontent/DrawObject.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/MarkedContent/DrawObject.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetGraphicsStateParameters.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/State/SetGraphicsStateParameters.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/SetLineDashPattern.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/State/SetLineDashPattern.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/MoveText.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Text/MoveText.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/SetFontAndSize.java",
+      "module": "pdfbox",
+      "family": "contentstream",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Text/SetFontAndSize.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSArray.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSArray.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBase.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSBase.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSBoolean.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSBoolean.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDictionary.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSDictionary.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocument.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSDocument.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSIncrement.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSIncrement.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSName.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSNull.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSObject.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSObject.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSStream.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSStream.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSString.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSString.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSVisitor.java",
+      "module": "pdfbox",
+      "family": "cos",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/COS/ICOSVisitor.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCII85Filter.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/ASCII85Filter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCIIHexFilter.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/ASCIIHexFilter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxDecoderStream.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/CCITTFaxDecoderStream.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxEncoderStream.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/CCITTFaxEncoderStream.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxFilter.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/CCITTFaxDecodeFilter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/DCTFilter.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/DCTFilter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Filter.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/Filter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FlateFilter.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/FlateFilter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FlateFilterDecoderStream.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/FlateFilterDecoderStream.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/IdentityFilter.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/IdentityFilter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JBIG2Filter.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/JBIG2Filter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/LZWFilter.java",
+      "module": "pdfbox",
+      "family": "filter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/LZWFilter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/LayerUtility.java",
+      "module": "pdfbox",
+      "family": "multipdf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/MultiPdf/LayerUtility.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Overlay.java",
+      "module": "pdfbox",
+      "family": "multipdf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/MultiPdf/Overlay.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFCloneUtility.java",
+      "module": "pdfbox",
+      "family": "multipdf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/MultiPdf/PDFCloneUtility.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
+      "module": "pdfbox",
+      "family": "multipdf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/MultiPdf/PDFMergerUtility.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
+      "module": "pdfbox",
+      "family": "multipdf",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/MultiPdf/Splitter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/BaseParser.cs",
+        "src/PdfBox.Net/PdfParser/COSParser.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/BruteForceParser.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/COSParser.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFObjectStreamParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/PDFObjectStreamParser.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/PDFDocumentParser.cs",
+        "src/PdfBox.Net/PdfParser/PDFParser.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFStreamParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/PDFStreamParser.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/PDFXrefStreamParser.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefTrailerResolver.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/XrefTrailerResolver.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+      "module": "pdfbox",
+      "family": "pdfwriter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfWriter/COSWriter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/ContentStreamWriter.java",
+      "module": "pdfbox",
+      "family": "pdfwriter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfWriter/ContentStreamWriter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterCompressionPool.java",
+      "module": "pdfbox",
+      "family": "pdfwriter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfWriter/Compress/COSWriterCompressionPool.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSWriterObjectStream.java",
+      "module": "pdfbox",
+      "family": "pdfwriter",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PdfWriter/Compress/COSWriterObjectStream.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DefaultResourceCache.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDDocument.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDDocumentCatalog.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDPage.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageContentStream.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDPageContentStream.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDPageTree.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/ResourceCache.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCacheFactory.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/ResourceCacheFactory.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSArrayList.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/COSArrayList.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNameTreeNode.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/PDNameTreeNode.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNumberTreeNode.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/PDNumberTreeNode.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/PDPageLabels.cs",
+        "tests/PdfBox.Net.Tests/PDPageLabelsTest.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRange.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/PDRange.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/PDRectangle.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDStream.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/PDStream.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDEmbeddedFile.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/FileSpecification/PDEmbeddedFile.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunction.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/PDFunction.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType0.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType0.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType2.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType2.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType3.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType3.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/InstructionSequenceBuilder.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/Type4/InstructionSequenceBuilder.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDAttributeObject.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDAttributeObject.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDObjectReference.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDObjectReference.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureElement.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureElement.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureNode.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureNode.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureTreeRoot.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDParentTreeNumberTreeNode.cs",
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureTreeRoot.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDUserAttributeObject.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDUserAttributeObject.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/Revisions.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/Revisions.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/prepress/PDBoxStyle.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/Prepress/PDBoxStyle.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/PDFourColours.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDStandardAttributeObject.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStandardAttributeObject.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/StandardStructureTypes.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PublicKeySecurityHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Encryption/PublicKeySecurityHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/RC4Cipher.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Encryption/RC4Cipher.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/SecurityHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Encryption/SecurityHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/SecurityProvider.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Encryption/SecurityProvider.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardSecurityHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Encryption/StandardSecurityHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCircle.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationCircle.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFreeText.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationFreeText.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationInk.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationInk.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLine.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationLine.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLink.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationLink.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolygon.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationPolygon.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolyline.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationPolyline.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationSquare.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationSquare.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationStamp.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationStamp.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationTextMarkup.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotationTextMarkup.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDictionary.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFDictionary.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDocument.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFDocument.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFField.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFField.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormDefaultsProcessor.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fixup/Processor/AcroFormDefaultsProcessor.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormGenerateAppearancesProcessor.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fixup/Processor/AcroFormGenerateAppearancesProcessor.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormOrphanWidgetsProcessor.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fixup/Processor/AcroFormOrphanWidgetsProcessor.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapperImpl.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/DefaultFontProvider.cs",
+        "src/PdfBox.Net/PDModel/Font/FontMapperImpl.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDCIDFontType0.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
+        "src/PdfBox.Net/PDModel/Font/TrueTypePathNormalizer.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDCIDFontType2Embedder.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDDictionaryFont.cs",
+        "src/PdfBox.Net/PDModel/Font/PDFont.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDMMType1Font.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDMMType1Font.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDSimpleFont.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDSimpleFont.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDTrueTypeFont.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDType0Font.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDType1CFont.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDType1Font.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1FontEmbedder.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDType1FontEmbedder.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3CharProc.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDType3CharProc.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDType3Font.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/Encoding/DictionaryEncoding.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/GlyphList.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/Encoding/GlyphList.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDLineDashPattern.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/State/PDLineDashPattern.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendComposite.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/BlendComposite.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/blend/BlendMode.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/BlendMode.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColor.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDColor.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColorSpace.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpace.cs",
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpaceFactory.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceCMYK.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceN.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceN.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNAttributes.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceNAttributes.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNProcess.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceNProcess.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDICCBased.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDICCBased.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDIndexed.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDIndexed.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDSeparation.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Image/CCITTFactory.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Image/JPEGFactory.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImageXObject.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Image/PDImageXObject.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PNGConverter.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Image/PNGConverter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/SampledImageReader.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Image/SampledImageReader.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/pattern/PDAbstractPattern.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Patterns/PDAbstractPattern.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/AxialShadingContext.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingPaint.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/AxialShadingPaint.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/GouraudShadingContext.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/GouraudShadingContext.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDMeshBasedShadingType.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/PDMeshBasedShadingType.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShading.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/PDShading.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType4.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/PDShadingType4.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDTriangleBasedShadingType.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/PDTriangleBasedShadingType.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Patch.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/Patch.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PatchMeshesShadingContext.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/PatchMeshesShadingContext.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/RadialShadingContext.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingPaint.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/RadialShadingPaint.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/ShadingContext.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/ShadingContext.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/TriangleBasedShadingContext.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/TriangleBasedShadingContext.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type1ShadingContext.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/Type1ShadingContext.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type1ShadingPaint.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/Type1ShadingPaint.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type4ShadingContext.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/Type4ShadingContext.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type4ShadingPaint.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/Type4ShadingPaint.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type5ShadingContext.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/Type5ShadingContext.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type5ShadingPaint.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/Type5ShadingPaint.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type6ShadingPaint.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/Type6ShadingPaint.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type7ShadingPaint.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/Type7ShadingPaint.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/State/PDGraphicsState.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDSoftMask.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/State/PDSoftMask.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDAction.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Action/PDAction.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionEmbeddedGoTo.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Action/PDActionEmbeddedGoTo.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/action/PDActionGoTo.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Action/PDActionGoTo.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotation.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotation.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationFreeText.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationFreeText.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationInk.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationInk.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationLine.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationLine.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationLink.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationLink.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPolygon.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationPolygon.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPolyline.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationPolyline.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPopup.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationPopup.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationTextMarkup.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationTextMarkup.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/CloudyBorder.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/CloudyBorder.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAbstractAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDAbstractAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDCaretAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDCaretAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDCircleAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDCircleAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDFileAttachmentAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDFileAttachmentAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDFreeTextAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDFreeTextAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDHighlightAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDHighlightAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDInkAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDInkAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDLineAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDLineAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDLinkAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDLinkAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDPolygonAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDPolygonAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDPolylineAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDPolylineAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDSquareAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDSquareAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDSquigglyAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDSquigglyAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDStrikeoutAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDStrikeoutAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDTextAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDTextAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDUnderlineAppearanceHandler.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDUnderlineAppearanceHandler.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/COSFilterInputStream.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/COSFilterInputStream.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/PDSignature.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/PDSignature.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDFTemplateCreator.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/Visible/PDFTemplateCreator.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigBuilder.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/Visible/PDVisibleSigBuilder.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageDestination.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDPageDestination.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/outline/PDOutlineNode.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Outline/PDOutlineNode.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/AppearanceGeneratorHelper.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDAcroForm.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.Fdf.cs",
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDButton.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDButton.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDChoice.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDChoice.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDFieldFactory.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDFieldFactory.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDFieldTree.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDFieldTree.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDNonTerminalField.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDNonTerminalField.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDSignatureField.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDSignatureField.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDTerminalField.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDTerminalField.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDXFAResource.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PDXFAResource.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/measurement/PDRectlinearMeasureDictionary.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Measurement/PDRectlinearMeasureDictionary.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/Orientation.java",
+      "module": "pdfbox",
+      "family": "printing",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Printing/Orientation.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/PDFPrintable.java",
+      "module": "pdfbox",
+      "family": "printing",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Printing/PDFPrintable.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/GlyphCache.java",
+      "module": "pdfbox",
+      "family": "rendering",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Rendering/GlyphCache.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PDFRenderer.java",
+      "module": "pdfbox",
+      "family": "rendering",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Rendering/PDFRenderer.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java",
+      "module": "pdfbox",
+      "family": "rendering",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.SkiaSharp/Rendering/SkiaPageDrawerPeer.cs",
+        "src/PdfBox.Net/Rendering/PageDrawer.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/SoftMask.java",
+      "module": "pdfbox",
+      "family": "rendering",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Rendering/SoftMask.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/TilingPaint.java",
+      "module": "pdfbox",
+      "family": "rendering",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.SkiaSharp/Rendering/TilingPaint.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/TilingPaintFactory.java",
+      "module": "pdfbox",
+      "family": "rendering",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.SkiaSharp/Rendering/TilingPaintFactory.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/LegacyPDFStreamEngine.java",
+      "module": "pdfbox",
+      "family": "text",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Text/LegacyPDFStreamEngine.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripper.java",
+      "module": "pdfbox",
+      "family": "text",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Text/PDFTextStripper.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/TextPosition.java",
+      "module": "pdfbox",
+      "family": "text",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Text/TextPosition.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/DateConverter.java",
+      "module": "pdfbox",
+      "family": "util",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Util/DateConverter.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Hex.java",
+      "module": "pdfbox",
+      "family": "util",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Util/Hex.cs"
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Version.java",
+      "module": "pdfbox",
+      "family": "util",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Util/Version.cs"
+      ]
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractImages.java",
+      "module": "tools",
+      "family": "tools",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ExtractImages.cs"
+      ]
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractText.java",
+      "module": "tools",
+      "family": "tools",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ExtractText.cs"
+      ]
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractXMP.java",
+      "module": "tools",
+      "family": "tools",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ExtractXMP.cs"
+      ]
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFText2HTML.java",
+      "module": "tools",
+      "family": "tools",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/PDFText2HTML.cs"
+      ]
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFToImage.java",
+      "module": "tools",
+      "family": "tools",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/PDFToImage.cs"
+      ]
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PrintPDF.java",
+      "module": "tools",
+      "family": "tools",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/PrintPDF.cs"
+      ]
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/TextToPDF.java",
+      "module": "tools",
+      "family": "tools",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/TextToPDF.cs"
+      ]
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/imageio/ImageIOUtil.java",
+      "module": "tools",
+      "family": "tools",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ImageIO/ImageIOUtil.cs"
+      ]
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/imageio/MetaUtil.java",
+      "module": "tools",
+      "family": "tools",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ImageIO/MetaUtil.cs"
+      ]
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/imageio/TIFFUtil.java",
+      "module": "tools",
+      "family": "tools",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ImageIO/TIFFUtil.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/DateConverter.java",
+      "module": "xmpbox",
+      "family": "(root)",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/DateConverter.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/XMPMetadata.java",
+      "module": "xmpbox",
+      "family": "(root)",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/XMPMetadata.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/PDFAIdentificationSchema.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPBasicSchema.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPMediaManagementSchema.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
+      "module": "xmpbox",
+      "family": "schema",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchemaFactory.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractComplexProperty.java",
+      "module": "xmpbox",
+      "family": "type",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractComplexProperty.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractField.java",
+      "module": "xmpbox",
+      "family": "type",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractField.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractSimpleProperty.java",
+      "module": "xmpbox",
+      "family": "type",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractSimpleProperty.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractStructuredType.java",
+      "module": "xmpbox",
+      "family": "type",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractStructuredType.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ArrayProperty.java",
+      "module": "xmpbox",
+      "family": "type",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/ArrayProperty.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/PropertiesDescription.java",
+      "module": "xmpbox",
+      "family": "type",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/PropertiesDescription.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/TypeMapping.java",
+      "module": "xmpbox",
+      "family": "type",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/TypeMapping.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomHelper.java",
+      "module": "xmpbox",
+      "family": "xml",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomHelper.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
+      "module": "xmpbox",
+      "family": "xml",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomXmpParser.cs"
+      ]
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/PdfaExtensionHelper.java",
+      "module": "xmpbox",
+      "family": "xml",
+      "category": "mapped-common-source-differs-from-trunk",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs"
+      ]
+    }
+  ],
+  "unmapped_common_source_paths_changed_vs_trunk": []
+}
