@@ -19,28 +19,33 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.Examples.PDModel;
+using PdfBox.Net.Examples.Util;
+using PdfBox.Net.PDModel;
+
 namespace PdfBox.Net.Examples.Tests.PDFA;
 
 /// <summary>
 /// Test of the PDF/A merge example.
-/// Ported from MergePDFATest.java. The test remains skipped because:
-/// <list type="bullet">
-///   <item>The test depends on <c>CreatePDFA</c> producing a valid PDF/A-1b file, which itself
-///         throws <see cref="NotSupportedException"/> (see <see cref="CreatePDFATest"/>).</item>
-///   <item>PDF/A compliance validation via VeraPDF is a Java-only dependency with no equivalent
-///         currently integrated in this port.</item>
-/// </list>
+/// Ported from MergePDFATest.java. Full PDF/A compliance validation is covered by the
+/// Preflight/VeraPDF external-validation adaptation ledger; this test covers deterministic
+/// offline creation and merge behavior.
 /// </summary>
 public class MergePDFATest
 {
-    /// <summary>
-    /// Depends on CreatePDFA and VeraPDF, which have no .NET compliance-validation equivalent.
-    /// </summary>
-    [Fact(Skip = "PDF/A compliance validation via VeraPDF has no .NET equivalent.")]
+    [Fact]
     public void TestMergePDFA()
     {
-        // Java original merges two PDF/A-1b files created by CreatePDFA and then
-        // validates the merged result using VeraPDF.
-        // VeraPDF has no .NET equivalent currently integrated in this port.
+        string outDir = ExampleTestResources.CreateTempDirectory("examples-tests-pdfa-merge");
+        string fontPath = ExampleTestResources.WriteLiberationSansRegular(outDir);
+        string sourceFile = Path.Combine(outDir, "Source_PDFA.pdf");
+        string mergedFile = Path.Combine(outDir, "Merged_PDFA.pdf");
+
+        CreatePDFA.Main(new string[] { sourceFile, "The quick brown fox", fontPath });
+        PDFMergerExample.Merge(new[] { sourceFile, sourceFile }, mergedFile);
+
+        using PDDocument document = PDDocument.Load(mergedFile);
+        Assert.Equal(2, document.GetNumberOfPages());
+        Assert.NotNull(document.GetDocumentCatalog().GetMetadata());
     }
 }

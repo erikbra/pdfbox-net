@@ -30,7 +30,7 @@ surface issues.
 | API review | Pass | `reports/pdfbox-3.0-api-review.md`: 0 unreviewed public/protected API deltas. |
 | Runtime parity | Pass | `reports/pdfbox-3.0-runtime-parity.md`: 1027 matches, 0 known gaps, 0 unexpected gaps on local macOS and GitHub Actions Ubuntu. |
 | CI/package metadata | Pass | `reports/pdfbox-3.0-ci-package-metadata.md`: branch-specific API/runtime gates and default `3.0.8-preview` package metadata. |
-| Tools/examples/app/debugger review | Pass with deferrals | `reports/pdfbox-3.0-tools-examples-debugger-review.md`: source stems mapped, `pdfbox` CLI/global-tool parity closed by #601, debugger UI scope resolved by #602, and remaining product gap tracked as #603. |
+| Tools/examples/app/debugger review | Pass | `reports/pdfbox-3.0-tools-examples-debugger-review.md`: source stems mapped, `pdfbox` CLI/global-tool parity closed by #601, debugger UI scope resolved by #602, and examples edge coverage closed by #603. |
 | README/docs support level | Pass | `README.md` now describes 3.0 core parity, Preflight exclusion, preview package default, and deferred product gaps. |
 
 ## Issue State
@@ -57,12 +57,10 @@ Swing UI as an accepted 3.0 adaptation, keeping `PdfBox.Net.Debugger` and the
 `pdfdebugger` console app as non-packable inspection surfaces, and adding
 non-GUI debugger model tests.
 
-The remaining open issues are explicit deferrals, not unreviewed core parity
-blockers:
-
-| Issue | Deferred area | Release impact |
-|---|---|---|
-| #603 | Deterministic examples coverage for PDF/A and advanced signature flows. | Blocks closing the examples edge-case coverage ledger; does not add an unreviewed core library source/API/runtime gap. |
+Issue #603 closes the examples edge-case coverage ledger by adding deterministic
+PDF/A-shaped creation/merge checks, visible-signature tests, and explicit
+external-service adaptation documentation for TSA, OCSP/CRL, and external
+PDF/A validators.
 
 ## Publishing Decision
 
@@ -75,10 +73,12 @@ optional backend packages from this branch, with release notes that state:
 - Preflight/PDF-A validation is excluded.
 - The runtime corpus is green with zero known and zero unexpected gaps.
 - API parity is 100% reviewed, not 100% one-for-one Java member identity.
-- Examples edge coverage remains tracked as #603.
+- Examples edge coverage is locally covered where deterministic, with live
+  TSA/OCSP/CRL and external PDF/A validators documented as accepted adaptations.
 
-Stable 3.0 packages should wait until either #603 is closed or the project owner
-explicitly accepts that examples edge coverage is not a stable-package blocker.
+Stable 3.0 packages can be considered once the owner is satisfied with the
+preview soak and package policy; no open 3.0 parity issue from this readiness
+gate remains.
 
 ## Accepted Adaptations And Behavior-Covered Differences
 
@@ -98,6 +98,10 @@ differences from Apache PDFBox 3.0:
   `PdfBox.Net.Debugger` and the `pdfdebugger` console app as non-packable
   inspection surfaces and treats a desktop debugger UI as a separate future
   product choice.
+- Advanced example flows that require live TSA, OCSP, CRL, VeraPDF, or
+  Preflight validation are accepted external-service or external-validator
+  adaptations. Local deterministic behavior for PDF/A-shaped creation/merge and
+  visible/detached signatures is covered.
 - Preflight/PDF-A validation is excluded from this branch's core parity claim.
 
 These adaptations are documented in the API review, runtime parity report,

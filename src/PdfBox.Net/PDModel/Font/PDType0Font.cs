@@ -30,6 +30,7 @@ using PdfBox.Net.FontBox.CMap;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.FontBox.Util;
 using PdfBox.Net.IO;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Font.Encoding;
 using PdfBox.Net.Util;
 using PdfBox.Net.Util.Geometry;
@@ -112,10 +113,17 @@ public partial class PDType0Font : PDVectorFont
         }
 
         COSDictionary descendantDictionary = new();
+        descendantDictionary.SetName(COSName.TYPE, "Font");
         descendantDictionary.SetName(COSName.SUBTYPE, "CIDFontType2");
         descendantDictionary.SetName(COSName.GetPDFName("BaseFont"), baseFontName);
+        descendantDictionary.SetItem(CidSystemInfoKey, CreateCidSystemInfo());
+        descendantDictionary.SetItem(
+            COSName.GetPDFName("FontDescriptor"),
+            CreateEmbeddedFontDescriptor(document, trueTypeFont, fontBytes, baseFontName));
+        descendantDictionary.SetItem(COSName.GetPDFName("CIDToGIDMap"), COSName.GetPDFName("Identity"));
 
         COSDictionary type0Dictionary = new();
+        type0Dictionary.SetName(COSName.TYPE, "Font");
         type0Dictionary.SetName(COSName.SUBTYPE, "Type0");
         type0Dictionary.SetName(COSName.GetPDFName("BaseFont"), baseFontName);
         type0Dictionary.SetItem(EncodingKey, COSName.GetPDFName("Identity-H"));
@@ -126,6 +134,41 @@ public partial class PDType0Font : PDVectorFont
 
         PDCIDFontType2 descendantFont = new(descendantDictionary, trueTypeFont);
         return new PDType0Font(type0Dictionary, descendantFont);
+    }
+
+    private static COSDictionary CreateCidSystemInfo()
+    {
+        COSDictionary info = new();
+        info.SetString(COSName.GetPDFName("Registry"), "Adobe");
+        info.SetString(COSName.GetPDFName("Ordering"), "Identity");
+        info.SetInt(COSName.GetPDFName("Supplement"), 0);
+        return info;
+    }
+
+    private static COSDictionary CreateEmbeddedFontDescriptor(
+        PDDocument document, TrueTypeFont trueTypeFont, byte[] fontBytes, string baseFontName)
+    {
+        COSDictionary descriptor = new();
+        descriptor.SetName(COSName.TYPE, "FontDescriptor");
+        descriptor.SetName(COSName.GetPDFName("FontName"), baseFontName);
+        descriptor.SetInt(COSName.GetPDFName("Flags"), 32);
+        descriptor.SetFloat(COSName.GetPDFName("StemV"), 80f);
+
+        BoundingBox box = trueTypeFont.GetFontBBox();
+        descriptor.SetItem(
+            COSName.GetPDFName("FontBBox"),
+            COSArray.Of(box.GetLowerLeftX(), box.GetLowerLeftY(), box.GetUpperRightX(), box.GetUpperRightY()));
+
+        if (trueTypeFont.GetHorizontalHeader() is { } horizontalHeader)
+        {
+            descriptor.SetFloat(COSName.GetPDFName("Ascent"), horizontalHeader.Ascender);
+            descriptor.SetFloat(COSName.GetPDFName("Descent"), horizontalHeader.Descender);
+        }
+
+        using MemoryStream fontStream = new(fontBytes, writable: false);
+        PDStream fontFile = new(document, fontStream, COSName.FLATE_DECODE);
+        descriptor.SetItem(COSName.GetPDFName("FontFile2"), fontFile.GetCOSObject());
+        return descriptor;
     }
 
     public int CodeToCID(int code)
