@@ -291,6 +291,24 @@ public class ToolsModuleParityCloseoutTest
         Assert.True(File.Exists(pdfPath));
     }
 
+    [Fact]
+    public void PDFBox_Run_DispatchesPdfBox30ToolAliases()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), "pdfbox-net-tools-test", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        string textPath = Path.Combine(tempDir, "source.txt");
+        string pdfPath = Path.Combine(tempDir, "text.pdf");
+        File.WriteAllText(textPath, "dispatcher alias text");
+
+        StringWriter error = new();
+        int exitCode = PDFBox.Run(["fromtext", "-i", textPath, "-o", pdfPath], new StringWriter(), error);
+
+        Assert.Equal(0, exitCode);
+        Assert.Equal(string.Empty, error.ToString());
+        Assert.True(File.Exists(pdfPath));
+        Assert.Contains("dispatcher alias text", ExtractText.GetText(pdfPath));
+    }
+
     private static void CreateSinglePagePdf(string filePath)
     {
         using PDDocument document = new();
