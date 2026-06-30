@@ -31,10 +31,33 @@ namespace PdfBox.Net.Tools;
 
 public static class PDFMerger
 {
+    public static int Run(string[] args, TextWriter? error = null)
+    {
+        error ??= Console.Error;
+        try
+        {
+            MergeOptions options = ParseOptions(args);
+            Merge(options.OutputFile, options.InputFiles.ToArray());
+            return 0;
+        }
+        catch (ArgumentException ex)
+        {
+            return ToolSupport.Usage(error, ex.Message);
+        }
+        catch (IOException ex)
+        {
+            return ToolSupport.IoError(error, "merging PDF documents", ex);
+        }
+    }
+
     public static void Merge(string destinationFileName, params string[] sourceFiles)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(destinationFileName);
         ArgumentNullException.ThrowIfNull(sourceFiles);
+        if (sourceFiles.Length == 0)
+        {
+            throw new ArgumentException("At least one input PDF is required.", nameof(sourceFiles));
+        }
 
         PDFMergerUtility merger = new()
         {
@@ -48,4 +71,52 @@ public static class PDFMerger
 
         merger.MergeDocuments();
     }
+
+    private static MergeOptions ParseOptions(string[]? args)
+    {
+        args ??= [];
+        List<string> inputs = [];
+        string? output = null;
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            string arg = args[i];
+            switch (arg)
+            {
+                case "-i":
+                case "--input":
+                    int inputCountBeforeOption = inputs.Count;
+                    while (i + 1 < args.Length && !ToolSupport.IsOption(args[i + 1]))
+                    {
+                        inputs.Add(args[++i]);
+                    }
+
+                    if (inputs.Count == inputCountBeforeOption)
+                    {
+                        throw new ArgumentException("Missing value for -i/--input.");
+                    }
+                    break;
+                case "-o":
+                case "--output":
+                    output = ToolSupport.ReadOptionValue(args, ref i, arg);
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown option: {arg}");
+            }
+        }
+
+        if (inputs.Count == 0)
+        {
+            throw new ArgumentException("Missing required option -i/--input.");
+        }
+
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            throw new ArgumentException("Missing required option -o/--output.");
+        }
+
+        return new MergeOptions(inputs, output);
+    }
+
+    private sealed record MergeOptions(List<string> InputFiles, string OutputFile);
 }

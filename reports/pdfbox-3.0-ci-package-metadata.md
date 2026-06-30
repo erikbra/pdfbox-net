@@ -65,10 +65,10 @@ The intended package set is:
 | `PdfBox.Net.SystemDrawing` | Windows System.Drawing helpers and print backend |
 | `PdfBox.Net.ImageSharp` | ImageSharp rendering/backend experiment |
 | `PdfBox.Net.MauiGraphics` | Microsoft.Maui.Graphics rendering/backend experiment |
+| `PdfBox.Net.Tools` | `pdfbox` .NET global tool facade for Apache PDFBox 3.0 CLI commands |
 
-The following projects are intentionally non-packable until their 3.0 tooling
-parity is reviewed separately: examples, benchmarks, debugger app/library, test
-projects, and the runtime parity probe.
+The following projects are intentionally non-packable: examples, benchmarks,
+debugger app/library, test projects, and the runtime parity probe.
 
 ## Validation
 

@@ -31,14 +31,25 @@ namespace PdfBox.Net.Tools.ImageIO;
 
 public static class ImageIOUtil
 {
-    public static bool WriteImage(BufferedImage image, string filename, int dpi)
+    public static bool WriteImage(BufferedImage image, string filename, int dpi, int quality = 100)
     {
         ArgumentNullException.ThrowIfNull(image);
         ArgumentException.ThrowIfNullOrWhiteSpace(filename);
 
-        byte[] data = RenderingBackend.Current.ImageCodec.Encode(image, EncodedImageFormat.Png, 100);
+        byte[] data = RenderingBackend.Current.ImageCodec.Encode(image, GetFormat(filename), quality);
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(filename))!);
         File.WriteAllBytes(filename, data);
         return true;
+    }
+
+    private static EncodedImageFormat GetFormat(string filename)
+    {
+        string extension = Path.GetExtension(filename).TrimStart('.').ToLowerInvariant();
+        return extension switch
+        {
+            "jpg" or "jpeg" => EncodedImageFormat.Jpeg,
+            "png" => EncodedImageFormat.Png,
+            _ => throw new NotSupportedException("ImageIOUtil currently supports PNG and JPEG output only.")
+        };
     }
 }

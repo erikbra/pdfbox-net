@@ -36,9 +36,9 @@ and XmpBox behavior are covered by the 3.0 parity reports.
 - Package default: `3.0.8-preview`
 
 The remaining known 3.0 work is product-surface work rather than unreviewed
-core source/API/runtime parity: full `pdfbox-app` CLI option parity, debugger UI
-scope, and deterministic examples coverage for PDF/A and advanced signature
-flows. See [`reports/pdfbox-3.0-release-readiness.md`](reports/pdfbox-3.0-release-readiness.md)
+core source/API/runtime parity: debugger UI scope and deterministic examples
+coverage for PDF/A and advanced signature flows. See
+[`reports/pdfbox-3.0-release-readiness.md`](reports/pdfbox-3.0-release-readiness.md)
 for the full gate decision.
 
 ## Projects
@@ -57,6 +57,7 @@ packages, examples, tests, and development tools:
 | `PdfBox.Net.SystemDrawing` | Windows `System.Drawing` helpers and print-spooler backend |
 | `PdfBox.Net.ImageSharp` | ImageSharp backend experiment |
 | `PdfBox.Net.MauiGraphics` | Microsoft.Maui.Graphics backend experiment |
+| `PdfBox.Net.Tools` | `pdfbox` .NET global tool facade over `PdfBox.Net.Tools.PDFBox` |
 | `PdfBox.Net.Examples` | Ported Apache PDFBox examples; non-packable by default |
 | `PdfBox.Net.Debugger` | Ported debugger inspection models; non-packable by default |
 | `PdfBox.Net.Tests` | xUnit v3 tests for all non-XmpBox modules |
@@ -83,6 +84,23 @@ small backend/provider contracts so the mechanical Java port stays portable.
 
 See [`reports/printing-backend-policy-2026-06-28.md`](reports/printing-backend-policy-2026-06-28.md)
 for the printing support matrix and platform limitations.
+
+## Command-line tool
+
+The `release/3.0` branch includes a packable .NET tool package named
+`PdfBox.Net.Tools` with command name `pdfbox`. The app delegates to
+`PdfBox.Net.Tools.PDFBox.Run` and supports Apache PDFBox 3.0 command names such
+as `decode`, `export:text`, `render`, `merge`, `split`, `overlay`, `fromimage`,
+and `fromtext`.
+
+```sh
+dotnet tool install --global PdfBox.Net.Tools --version 3.0.8-preview
+pdfbox help
+```
+
+The Java Swing `debug` command is not part of the core `pdfbox` tool; use the
+`pdfdebugger` app or follow the debugger UI parity issue for that product
+surface.
 
 ## Build and test
 
@@ -172,6 +190,7 @@ Traceability records are maintained in:
 - `reports/pdfbox-3.0-source-coverage.md` — 3.0 source coverage excluding Preflight
 - `reports/pdfbox-3.0-api-review.md` — 3.0 API review and accepted adaptations
 - `reports/pdfbox-3.0-runtime-parity.md` — 3.0 runtime parity corpus result
+- `reports/pdfbox-3.0-cli-app-parity.md` — 3.0 CLI/global-tool parity notes
 - `reports/pdfbox-3.0-release-readiness.md` — 3.0 release-readiness gate decision
 
 ## Upstream sync automation

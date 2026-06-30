@@ -33,6 +33,23 @@ public class ToolsModuleParityCloseoutTest
     }
 
     [Fact]
+    public void PDFBox_Run_HelpAndMissingCommand_MatchAppDispatcherShape()
+    {
+        StringWriter help = new();
+        int helpCode = PDFBox.Run(["help"], help, new StringWriter());
+
+        Assert.Equal(0, helpCode);
+        Assert.Contains("Usage: pdfbox [COMMAND] [OPTIONS]", help.ToString(), StringComparison.Ordinal);
+        Assert.Contains("export:text", help.ToString(), StringComparison.Ordinal);
+
+        StringWriter error = new();
+        int missingCode = PDFBox.Run([], new StringWriter(), error);
+
+        Assert.Equal(1, missingCode);
+        Assert.Contains("Subcommand", error.ToString(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void PDFText2HTML_ConvertText_EncodesHtml()
     {
         string html = PDFText2HTML.ConvertText("<hello>");
@@ -307,6 +324,71 @@ public class ToolsModuleParityCloseoutTest
         Assert.Equal(string.Empty, error.ToString());
         Assert.True(File.Exists(pdfPath));
         Assert.Contains("dispatcher alias text", ExtractText.GetText(pdfPath));
+    }
+
+    [Fact]
+    public void PDFBox_Run_DispatchesPdfBox30CoreCliCommands()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), "pdfbox-net-tools-test", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        string textPath = Path.Combine(tempDir, "source.txt");
+        string pdfPath = Path.Combine(tempDir, "text.pdf");
+        string decodedPath = Path.Combine(tempDir, "decoded.pdf");
+        string secondPath = Path.Combine(tempDir, "second.pdf");
+        string mergedPath = Path.Combine(tempDir, "merged.pdf");
+        string splitPrefix = Path.Combine(tempDir, "part");
+        File.WriteAllText(textPath, "apache 3 cli text");
+        CreateSinglePagePdf(secondPath);
+
+        StringWriter error = new();
+        Assert.Equal(0, PDFBox.Run(["fromtext", "-i", textPath, "-o", pdfPath], new StringWriter(), error));
+        Assert.Equal(string.Empty, error.ToString());
+
+        StringWriter textOutput = new();
+        error = new StringWriter();
+        Assert.Equal(0, PDFBox.Run(["export:text", "-i", pdfPath, "-console"], textOutput, error));
+        Assert.Contains("apache 3 cli text", textOutput.ToString(), StringComparison.Ordinal);
+        Assert.Equal(string.Empty, error.ToString());
+
+        error = new StringWriter();
+        Assert.Equal(0, PDFBox.Run(["decode", pdfPath, decodedPath], new StringWriter(), error));
+        Assert.True(File.Exists(decodedPath));
+        Assert.Equal(string.Empty, error.ToString());
+
+        error = new StringWriter();
+        Assert.Equal(0, PDFBox.Run(["merge", "-i", pdfPath, secondPath, "-o", mergedPath], new StringWriter(), error));
+        Assert.Equal(string.Empty, error.ToString());
+        using (PDDocument merged = Loader.LoadPDF(mergedPath))
+        {
+            Assert.Equal(2, merged.GetNumberOfPages());
+        }
+
+        error = new StringWriter();
+        Assert.Equal(0, PDFBox.Run(["split", "-i", mergedPath, "-outputPrefix", splitPrefix, "-split", "1"], new StringWriter(), error));
+        Assert.Equal(string.Empty, error.ToString());
+        Assert.True(File.Exists($"{splitPrefix}-1.pdf"));
+        Assert.True(File.Exists($"{splitPrefix}-2.pdf"));
+    }
+
+    [Fact]
+    public void PDFBox_Run_ReportsExplicitUnsupportedOrAdaptedCommands()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), "pdfbox-net-tools-test", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        string sourcePath = Path.Combine(tempDir, "plain.pdf");
+        CreateSinglePagePdf(sourcePath);
+
+        StringWriter debugError = new();
+        int debugExit = PDFBox.Run(["debug", sourcePath], new StringWriter(), debugError);
+
+        Assert.Equal(1, debugExit);
+        Assert.Contains("pdfdebugger", debugError.ToString(), StringComparison.Ordinal);
+
+        StringWriter renderError = new();
+        int renderExit = PDFBox.Run(["render", "-i", sourcePath, "-format", "tiff"], new StringWriter(), renderError);
+
+        Assert.Equal(4, renderExit);
+        Assert.Contains("PNG and JPEG output only", renderError.ToString(), StringComparison.Ordinal);
     }
 
     private static void CreateSinglePagePdf(string filePath)

@@ -30,7 +30,7 @@ surface issues.
 | API review | Pass | `reports/pdfbox-3.0-api-review.md`: 0 unreviewed public/protected API deltas. |
 | Runtime parity | Pass | `reports/pdfbox-3.0-runtime-parity.md`: 1027 matches, 0 known gaps, 0 unexpected gaps on local macOS and GitHub Actions Ubuntu. |
 | CI/package metadata | Pass | `reports/pdfbox-3.0-ci-package-metadata.md`: branch-specific API/runtime gates and default `3.0.8-preview` package metadata. |
-| Tools/examples/app/debugger review | Pass with deferrals | `reports/pdfbox-3.0-tools-examples-debugger-review.md`: source stems mapped, small tool aliases added, product gaps tracked as #601, #602, and #603. |
+| Tools/examples/app/debugger review | Pass with deferrals | `reports/pdfbox-3.0-tools-examples-debugger-review.md`: source stems mapped, `pdfbox` CLI/global-tool parity closed by #601, and remaining product gaps tracked as #602 and #603. |
 | README/docs support level | Pass | `README.md` now describes 3.0 core parity, Preflight exclusion, preview package default, and deferred product gaps. |
 
 ## Issue State
@@ -48,12 +48,15 @@ The planned 3.0 setup and parity issues are complete:
 | #591 | Closed | Aligned CI and package metadata for `release/3.0`. |
 | #592 | Closed | Reviewed tools, examples, app, debugger, and other non-core module parity. |
 
+Issue #601 closes the `pdfbox-app`/CLI product gap by adding the `PdfBox.Net.Tools`
+global-tool package and wiring Apache PDFBox 3.0 command names through
+`PDFBox.Run`.
+
 The remaining open issues are explicit deferrals, not unreviewed core parity
 blockers:
 
 | Issue | Deferred area | Release impact |
 |---|---|---|
-| #601 | Full `pdfbox-app`/CLI option parity and distributable app/global-tool shape. | Blocks calling the 3.0 product CLI fully equivalent to Apache `pdfbox-app`; does not block core library preview packages. |
 | #602 | Java Swing debugger UI parity decision and implementation scope. | Blocks claiming debugger application parity; does not block core library preview packages. |
 | #603 | Deterministic examples coverage for PDF/A and advanced signature flows. | Blocks closing the examples edge-case coverage ledger; does not add an unreviewed core library source/API/runtime gap. |
 
@@ -68,12 +71,11 @@ optional backend packages from this branch, with release notes that state:
 - Preflight/PDF-A validation is excluded.
 - The runtime corpus is green with zero known and zero unexpected gaps.
 - API parity is 100% reviewed, not 100% one-for-one Java member identity.
-- Full CLI app parity, debugger UI parity, and examples edge coverage remain
-  tracked as #601, #602, and #603.
+- Debugger UI parity and examples edge coverage remain tracked as #602 and #603.
 
-Stable 3.0 packages should wait until either #601, #602, and #603 are closed or
-the project owner explicitly accepts those areas as non-goals for the stable
-3.0 package line.
+Stable 3.0 packages should wait until either #602 and #603 are closed or the
+project owner explicitly accepts those areas as non-goals for the stable 3.0
+package line.
 
 ## Accepted Adaptations And Behavior-Covered Differences
 
