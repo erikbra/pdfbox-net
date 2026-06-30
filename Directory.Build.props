@@ -11,11 +11,8 @@
 
     <Authors>Apache PDFBox contributors; PdfBox.Net contributors</Authors>
     <Company>PdfBox.Net contributors</Company>
-    <Description>PdfBox.Net mechanical port package for the Apache PDFBox $(PdfBoxNetPackageLine) line.</Description>
     <PackageProjectUrl>https://github.com/erikbra/pdfbox-net</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>pdf;pdfbox;apache;port</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/erikbra/pdfbox-net</RepositoryUrl>
     <PackageReleaseNotes>Tracks Apache PDFBox $(PdfBoxNetUpstreamRef) ($(PdfBoxNetUpstreamVersion)).</PackageReleaseNotes>
@@ -25,7 +22,4 @@
     <RepositoryBranch>$(GITHUB_REF_NAME)</RepositoryBranch>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(IsPackable)' != 'false'">
-    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" Visible="false" />
-  </ItemGroup>
 </Project>
