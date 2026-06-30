@@ -30,7 +30,7 @@ surface issues.
 | API review | Pass | `reports/pdfbox-3.0-api-review.md`: 0 unreviewed public/protected API deltas. |
 | Runtime parity | Pass | `reports/pdfbox-3.0-runtime-parity.md`: 1027 matches, 0 known gaps, 0 unexpected gaps on local macOS and GitHub Actions Ubuntu. |
 | CI/package metadata | Pass | `reports/pdfbox-3.0-ci-package-metadata.md`: branch-specific API/runtime gates and default `3.0.8-preview` package metadata. |
-| Tools/examples/app/debugger review | Pass with deferrals | `reports/pdfbox-3.0-tools-examples-debugger-review.md`: source stems mapped, `pdfbox` CLI/global-tool parity closed by #601, and remaining product gaps tracked as #602 and #603. |
+| Tools/examples/app/debugger review | Pass with deferrals | `reports/pdfbox-3.0-tools-examples-debugger-review.md`: source stems mapped, `pdfbox` CLI/global-tool parity closed by #601, debugger UI scope resolved by #602, and remaining product gap tracked as #603. |
 | README/docs support level | Pass | `README.md` now describes 3.0 core parity, Preflight exclusion, preview package default, and deferred product gaps. |
 
 ## Issue State
@@ -52,12 +52,16 @@ Issue #601 closes the `pdfbox-app`/CLI product gap by adding the `PdfBox.Net.Too
 global-tool package and wiring Apache PDFBox 3.0 command names through
 `PDFBox.Run`.
 
+Issue #602 closes the debugger UI product-scope gap by documenting the Java
+Swing UI as an accepted 3.0 adaptation, keeping `PdfBox.Net.Debugger` and the
+`pdfdebugger` console app as non-packable inspection surfaces, and adding
+non-GUI debugger model tests.
+
 The remaining open issues are explicit deferrals, not unreviewed core parity
 blockers:
 
 | Issue | Deferred area | Release impact |
 |---|---|---|
-| #602 | Java Swing debugger UI parity decision and implementation scope. | Blocks claiming debugger application parity; does not block core library preview packages. |
 | #603 | Deterministic examples coverage for PDF/A and advanced signature flows. | Blocks closing the examples edge-case coverage ledger; does not add an unreviewed core library source/API/runtime gap. |
 
 ## Publishing Decision
@@ -71,11 +75,10 @@ optional backend packages from this branch, with release notes that state:
 - Preflight/PDF-A validation is excluded.
 - The runtime corpus is green with zero known and zero unexpected gaps.
 - API parity is 100% reviewed, not 100% one-for-one Java member identity.
-- Debugger UI parity and examples edge coverage remain tracked as #602 and #603.
+- Examples edge coverage remains tracked as #603.
 
-Stable 3.0 packages should wait until either #602 and #603 are closed or the
-project owner explicitly accepts those areas as non-goals for the stable 3.0
-package line.
+Stable 3.0 packages should wait until either #603 is closed or the project owner
+explicitly accepts that examples edge coverage is not a stable-package blocker.
 
 ## Accepted Adaptations And Behavior-Covered Differences
 
@@ -91,8 +94,10 @@ differences from Apache PDFBox 3.0:
   round-trip behavior and constants are present.
 - Java AWT/ImageIO behavior is represented through Java-shaped proxy types and
   optional rendering backends, with SkiaSharp as the complete backend today.
-- The Java Swing debugger UI is not yet claimed as equivalent; #602 owns the
-  product decision.
+- The Java Swing debugger UI is not claimed as equivalent. The 3.0 line accepts
+  `PdfBox.Net.Debugger` and the `pdfdebugger` console app as non-packable
+  inspection surfaces and treats a desktop debugger UI as a separate future
+  product choice.
 - Preflight/PDF-A validation is excluded from this branch's core parity claim.
 
 These adaptations are documented in the API review, runtime parity report,

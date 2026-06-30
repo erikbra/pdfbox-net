@@ -53,6 +53,8 @@ public abstract partial class PDSimpleFont : PDVectorFont
         _encoding = encoding ?? DictionaryEncoding.ResolveEncoding(fontDictionary);
     }
 
+    public Encoding.Encoding GetEncoding() => _encoding;
+
     public override string GetName()
     {
         string name = base.GetName();

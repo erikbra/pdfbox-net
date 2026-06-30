@@ -36,8 +36,8 @@ and XmpBox behavior are covered by the 3.0 parity reports.
 - Package default: `3.0.8-preview`
 
 The remaining known 3.0 work is product-surface work rather than unreviewed
-core source/API/runtime parity: debugger UI scope and deterministic examples
-coverage for PDF/A and advanced signature flows. See
+core source/API/runtime parity: deterministic examples coverage for PDF/A and
+advanced signature flows. See
 [`reports/pdfbox-3.0-release-readiness.md`](reports/pdfbox-3.0-release-readiness.md)
 for the full gate decision.
 
@@ -60,6 +60,7 @@ packages, examples, tests, and development tools:
 | `PdfBox.Net.Tools` | `pdfbox` .NET global tool facade over `PdfBox.Net.Tools.PDFBox` |
 | `PdfBox.Net.Examples` | Ported Apache PDFBox examples; non-packable by default |
 | `PdfBox.Net.Debugger` | Ported debugger inspection models; non-packable by default |
+| `PdfBox.Net.Debugger.App` | `pdfdebugger` console inspection app; non-packable by default |
 | `PdfBox.Net.Tests` | xUnit v3 tests for all non-XmpBox modules |
 | `PdfBox.Net.XmpBox.Tests` | xUnit v3 tests for `PdfBox.Net.XmpBox` |
 | `PdfBox.Net.Benchmark` | BenchmarkDotNet benchmarks (ported from `benchmark` module, located under `src/PdfBox.Net.Benchmark/`) |
@@ -98,9 +99,10 @@ dotnet tool install --global PdfBox.Net.Tools --version 3.0.8-preview
 pdfbox help
 ```
 
-The Java Swing `debug` command is not part of the core `pdfbox` tool; use the
-`pdfdebugger` app or follow the debugger UI parity issue for that product
-surface.
+The Java Swing `debug` command is not part of the core `pdfbox` tool. On the
+3.0 line, debugger parity is provided by the non-packable `pdfdebugger` console
+inspection app and `PdfBox.Net.Debugger` models; a full desktop UI is an
+accepted product adaptation rather than a stable-package blocker.
 
 ## Build and test
 

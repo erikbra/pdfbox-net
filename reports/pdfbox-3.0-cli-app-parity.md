@@ -21,7 +21,7 @@ Java sources.
 
 | Apache PDFBox 3.0 command | PdfBox.Net command target | State |
 |---|---|---|
-| `debug` | explicit unsupported message pointing to `pdfdebugger` / #602 | Adapted |
+| `debug` | explicit unsupported message pointing to the non-packable `pdfdebugger` inspection app and debugger UI adaptation report | Adapted |
 | `decrypt` | `Decrypt.Run` | Implemented |
 | `encrypt` | `Encrypt.Run` | Implemented |
 | `decode` | `WriteDecodedDoc.Run` | Implemented |
@@ -65,8 +65,11 @@ Other previously implemented command classes keep their existing option support.
 ## Accepted Adaptations
 
 - `debug` is not implemented inside the core `pdfbox` dispatcher because the
-  Java command starts the Swing debugger UI. PdfBox.Net keeps debugger UI parity
-  in #602 and returns a clear unsupported message from `pdfbox debug`.
+  Java command starts the Swing debugger UI. PdfBox.Net documents the debugger
+  desktop UI as an accepted 3.0 adaptation in
+  `reports/pdfbox-3.0-debugger-ui-parity.md` and returns a clear unsupported
+  message from `pdfbox debug`; the non-packable `pdfdebugger` console app
+  remains available for text inspection.
 - `render` writes PNG and JPEG through the registered rendering backend. Other
   image formats fail explicitly instead of writing mismatched data.
 - `decode -skipImages` is accepted for command-shape compatibility, but the
