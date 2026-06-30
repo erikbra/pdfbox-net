@@ -13,6 +13,7 @@ namespace PdfBox.Net.Rendering;
 public sealed class SkiaRenderingBackend : IRenderingBackend
 {
     public static SkiaRenderingBackend Instance { get; } = new();
+    internal static readonly SKSamplingOptions ImageSamplingOptions = new(SKFilterMode.Linear, SKMipmapMode.Linear);
 
     private SkiaRenderingBackend()
     {
@@ -151,7 +152,7 @@ internal sealed class SkiaGraphics2DPeer : IGraphics2DPeer
             return;
         }
 
-        _canvas.DrawBitmap(image.GetSkiaBitmap(), x, y);
+        _canvas.DrawBitmap(image.GetSkiaBitmap(), x, y, SkiaRenderingBackend.ImageSamplingOptions, paint: null);
     }
 
     public void Rotate(double theta)
