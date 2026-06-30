@@ -1,0 +1,31 @@
+<Project>
+  <PropertyGroup>
+    <PdfBoxNetPackageLine Condition="'$(PdfBoxNetPackageLine)' == ''">3.0</PdfBoxNetPackageLine>
+    <PdfBoxNetUpstreamRef Condition="'$(PdfBoxNetUpstreamRef)' == ''">origin/3.0</PdfBoxNetUpstreamRef>
+    <PdfBoxNetUpstreamVersion Condition="'$(PdfBoxNetUpstreamVersion)' == ''">3.0.8-SNAPSHOT</PdfBoxNetUpstreamVersion>
+
+    <VersionPrefix Condition="'$(VersionPrefix)' == ''">3.0.8</VersionPrefix>
+    <VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
+    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">3.0.0.0</AssemblyVersion>
+    <FileVersion Condition="'$(FileVersion)' == ''">3.0.8.0</FileVersion>
+
+    <Authors>Apache PDFBox contributors; PdfBox.Net contributors</Authors>
+    <Company>PdfBox.Net contributors</Company>
+    <Description>PdfBox.Net mechanical port package for the Apache PDFBox $(PdfBoxNetPackageLine) line.</Description>
+    <PackageProjectUrl>https://github.com/erikbra/pdfbox-net</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>pdf;pdfbox;apache;port</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/erikbra/pdfbox-net</RepositoryUrl>
+    <PackageReleaseNotes>Tracks Apache PDFBox $(PdfBoxNetUpstreamRef) ($(PdfBoxNetUpstreamVersion)); Preflight is intentionally excluded from the initial core 3.0 branch.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RepositoryBranch)' == '' and '$(GITHUB_REF_NAME)' != ''">
+    <RepositoryBranch>$(GITHUB_REF_NAME)</RepositoryBranch>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+</Project>
