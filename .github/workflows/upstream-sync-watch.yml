@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Compare tracked commit with upstream trunk
+      - name: Compare tracked commit with configured upstream branch
         env:
           GITHUB_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -33,15 +33,16 @@ jobs:
 
           upstream_repo = state["upstream_repository"]
           upstream_branch = state["upstream_branch"]
+          upstream_api_ref = upstream_branch.removeprefix("origin/")
           tracked_commit = state["tracked_commit"]
 
           with urllib.request.urlopen(
-              f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_branch}"
+              f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_api_ref}"
           ) as resp:
               upstream_commit = json.load(resp)["sha"]
 
           if upstream_commit == tracked_commit:
-              print("Tracked commit already matches upstream trunk.")
+              print(f"Tracked commit already matches upstream {upstream_branch}.")
               raise SystemExit(0)
 
           owner, repo = os.environ["REPO"].split("/", 1)
@@ -54,7 +55,7 @@ jobs:
 
           issue_title = "Upstream PDFBox has new commits to sync"
           issue_body = (
-              "Upstream PDFBox trunk has moved beyond our tracked commit.\n\n"
+              f"Upstream PDFBox `{upstream_branch}` has moved beyond our tracked commit.\n\n"
               f"- Tracked commit: `{tracked_commit}`\n"
               f"- Latest upstream commit: `{upstream_commit}`\n\n"
               f"Compare: https://github.com/{upstream_repo}/compare/{tracked_commit}...{upstream_commit}\n\n"

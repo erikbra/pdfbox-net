@@ -99,6 +99,17 @@ def discover_upstream_paths(tree: Iterable[dict]) -> list[UpstreamPath]:
     return scoped
 
 
+def discover_upstream_path_names(path_names: Iterable[str]) -> list[UpstreamPath]:
+    scoped: list[UpstreamPath] = []
+    for path in path_names:
+        if not path.endswith(".java") or "/src/main/java/" not in path:
+            continue
+        module = path.split("/", 1)[0]
+        scoped.append(UpstreamPath(module=module, path=path, family=extract_family(path)))
+    scoped.sort(key=lambda p: p.path)
+    return scoped
+
+
 def discover_local_upstream_paths(upstream_root: Path) -> list[UpstreamPath]:
     scoped: list[UpstreamPath] = []
     for java_file in upstream_root.rglob("*.java"):
@@ -120,14 +131,38 @@ def discover_local_upstream_paths(upstream_root: Path) -> list[UpstreamPath]:
     return scoped
 
 
-def local_git_head(upstream_root: Path) -> str:
+def local_git_ref(upstream_root: Path, ref: str) -> str:
     result = subprocess.run(
-        ["git", "-C", str(upstream_root), "rev-parse", "HEAD"],
+        ["git", "-C", str(upstream_root), "rev-parse", ref],
         check=True,
         capture_output=True,
         encoding="utf-8",
     )
     return result.stdout.strip()
+
+
+def discover_local_git_ref_paths(upstream_root: Path, ref: str) -> list[UpstreamPath]:
+    result = subprocess.run(
+        ["git", "-C", str(upstream_root), "ls-tree", "-r", "--name-only", ref],
+        check=True,
+        capture_output=True,
+        encoding="utf-8",
+    )
+    return discover_upstream_path_names(result.stdout.splitlines())
+
+
+def github_ref_name(ref: str) -> str:
+    return ref.removeprefix("origin/")
+
+
+def parse_excluded_modules(values: Iterable[str]) -> list[str]:
+    modules: set[str] = set()
+    for value in values:
+        for item in value.split(","):
+            item = item.strip()
+            if item:
+                modules.add(item)
+    return sorted(modules)
 
 
 def collect_provenance_paths(src_root: Path) -> dict[str, list[str]]:
@@ -190,12 +225,15 @@ def build_gap_analysis_markdown(
     status_counts: dict,
     file_gap_counts: dict,
     file_gap_module_rows: list[dict],
+    upstream_ref: str,
+    excluded_modules: list[str],
+    excluded_module_counts: dict[str, int],
 ) -> str:
     lines: list[str] = []
     lines.append("# PDFBox Upstream Java Gap Analysis (All Modules)")
     lines.append("")
     lines.append(f"Datetime (UTC): {generated_at}")
-    lines.append("Reference upstream Java repository: Apache PDFBox trunk")
+    lines.append(f"Reference upstream Java repository: Apache PDFBox `{upstream_ref}`")
     lines.append(f"Tracked parity baseline commit: `{tracked_commit}`")
     lines.append(f"Latest upstream head scanned: `{upstream_head}`")
     lines.append("")
@@ -205,6 +243,11 @@ def build_gap_analysis_markdown(
     lines.append("- Counted Java source as mapped using the canonical union of:")
     lines.append("  - `PDFBOX_SOURCE_PATH` matches in `src/**/*.cs`, and")
     lines.append("  - `source_path` rows in `reports/traceability-parity-report.json`.")
+    if excluded_modules:
+        lines.append("")
+        lines.append("Excluded upstream modules:")
+        for module in excluded_modules:
+            lines.append(f"- `{module}`: {excluded_module_counts.get(module, 0)} Java files")
     lines.append("")
     lines.append("## Summary")
     lines.append("")
@@ -278,6 +321,22 @@ def main() -> None:
         help="Use a local Apache PDFBox checkout instead of the GitHub API.",
     )
     parser.add_argument(
+        "--upstream-ref",
+        help=(
+            "Apache PDFBox branch, tag, or commit to scan. Defaults to "
+            "PDFBOX_UPSTREAM_REF, then reports/upstream-sync-state.json."
+        ),
+    )
+    parser.add_argument(
+        "--exclude-module",
+        action="append",
+        default=[],
+        help=(
+            "Exclude an upstream top-level module from coverage. May be passed "
+            "multiple times or as a comma-separated list."
+        ),
+    )
+    parser.add_argument(
         "--update-tracked-commit",
         action="store_true",
         help="When writing sync state, advance tracked_commit to the scanned upstream head.",
@@ -292,34 +351,60 @@ def main() -> None:
     token = os.environ.get("GITHUB_TOKEN", "")
 
     upstream_repo = sync_state["upstream_repository"]
-    upstream_branch = sync_state["upstream_branch"]
+    configured_exclusions = sync_state.get("excluded_upstream_modules", [])
+    if not isinstance(configured_exclusions, list):
+        configured_exclusions = []
+    env_exclusions = os.environ.get("PDFBOX_EXCLUDED_UPSTREAM_MODULES", "")
+    excluded_modules = parse_excluded_modules(
+        [
+            *[str(value) for value in configured_exclusions],
+            env_exclusions,
+            *args.exclude_module,
+        ]
+    )
+    upstream_branch = (
+        args.upstream_ref
+        or os.environ.get("PDFBOX_UPSTREAM_REF")
+        or sync_state["upstream_branch"]
+    )
     tracked_commit = sync_state["tracked_commit"]
 
     print("Checking upstream Java repository state...")
     print(f"- Upstream repository: {upstream_repo}")
-    print(f"- Upstream branch: {upstream_branch}")
+    print(f"- Upstream ref: {upstream_branch}")
+    if excluded_modules:
+        print(f"- Excluded upstream modules: {', '.join(excluded_modules)}")
     print(f"- Tracked parity baseline commit: {tracked_commit}")
     if args.upstream_root:
         upstream_root = Path(args.upstream_root).resolve()
         print(f"Scanning local upstream checkout: {upstream_root}")
-        upstream_head = local_git_head(upstream_root)
-        upstream_paths = discover_local_upstream_paths(upstream_root)
+        if args.upstream_ref or os.environ.get("PDFBOX_UPSTREAM_REF"):
+            upstream_head = local_git_ref(upstream_root, upstream_branch)
+            upstream_paths = discover_local_git_ref_paths(upstream_root, upstream_branch)
+        else:
+            upstream_head = local_git_ref(upstream_root, "HEAD")
+            upstream_paths = discover_local_upstream_paths(upstream_root)
         print(f"- Latest upstream head commit: {upstream_head}")
         print(f"- Upstream Java files in scope: {len(upstream_paths)}")
     else:
         print("Resolving latest upstream head commit...")
+        api_ref = github_ref_name(upstream_branch)
         upstream_head = github_json(
-            f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_branch}",
+            f"https://api.github.com/repos/{upstream_repo}/commits/{api_ref}",
             token,
         )["sha"]
         print(f"- Latest upstream head commit: {upstream_head}")
         print("Fetching recursive upstream repository tree...")
         tree = github_json(
-            f"https://api.github.com/repos/{upstream_repo}/git/trees/{upstream_branch}?recursive=1",
+            f"https://api.github.com/repos/{upstream_repo}/git/trees/{api_ref}?recursive=1",
             token,
         )["tree"]
         upstream_paths = discover_upstream_paths(tree)
         print(f"- Upstream tree entries fetched: {len(tree)}")
+    excluded_module_counts = Counter(p.module for p in upstream_paths if p.module in set(excluded_modules))
+    if excluded_modules:
+        upstream_paths = [p for p in upstream_paths if p.module not in set(excluded_modules)]
+        print(f"- Upstream Java files after exclusions: {len(upstream_paths)}")
     upstream_set = {p.path for p in upstream_paths}
 
     if args.update_tracked_commit:
@@ -407,6 +492,8 @@ def main() -> None:
         "generated_at_utc": generated_at,
         "upstream_repository": upstream_repo,
         "upstream_branch": upstream_branch,
+        "excluded_upstream_modules": excluded_modules,
+        "excluded_upstream_module_counts": dict(sorted(excluded_module_counts.items())),
         "upstream_head": upstream_head,
         "tracked_parity_baseline_commit": tracked_commit,
         "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
@@ -478,6 +565,8 @@ def main() -> None:
         "generated_at_utc": generated_at,
         "upstream_repository": upstream_repo,
         "upstream_branch": upstream_branch,
+        "excluded_upstream_modules": excluded_modules,
+        "excluded_upstream_module_counts": dict(sorted(excluded_module_counts.items())),
         "upstream_head": upstream_head,
         "tracked_parity_baseline_commit": tracked_commit,
         "canonical_mapping_method": all_coverage["canonical_mapping_method"],
@@ -493,6 +582,8 @@ def main() -> None:
     coverage_state = {
         "upstream_repository": upstream_repo,
         "upstream_branch": upstream_branch,
+        "excluded_upstream_modules": excluded_modules,
+        "excluded_upstream_module_counts": dict(sorted(excluded_module_counts.items())),
         "upstream_head_commit": upstream_head,
         "tracked_parity_baseline_commit": tracked_commit,
         "last_scan_utc": generated_at,
@@ -530,11 +621,21 @@ def main() -> None:
             status_counts=all_coverage["traceability_status_counts"],
             file_gap_counts=file_comparison["gap_category_counts"],
             file_gap_module_rows=file_gap_module_rows,
+            upstream_ref=upstream_branch,
+            excluded_modules=excluded_modules,
+            excluded_module_counts=dict(excluded_module_counts),
         ),
         encoding="utf-8",
     )
 
     if args.write_sync_state:
+        sync_state["upstream_branch"] = upstream_branch
+        if excluded_modules:
+            sync_state["excluded_upstream_modules"] = excluded_modules
+            sync_state["excluded_upstream_module_counts"] = dict(sorted(excluded_module_counts.items()))
+        elif "excluded_upstream_modules" in sync_state:
+            sync_state.pop("excluded_upstream_modules", None)
+            sync_state.pop("excluded_upstream_module_counts", None)
         if args.update_tracked_commit:
             sync_state["tracked_commit"] = upstream_head
             sync_state["tracked_commit_updated_utc"] = generated_at
