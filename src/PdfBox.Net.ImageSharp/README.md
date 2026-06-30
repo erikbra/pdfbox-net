@@ -19,3 +19,12 @@ This package currently implements:
 It intentionally does not yet implement a full `PageDrawer` equivalent. Calling
 PDF page rendering with this backend throws a clear `NotSupportedException`.
 `PdfBox.Net.SkiaSharp` remains the complete cross-platform rendering backend.
+
+Install:
+
+```sh
+dotnet add package PdfBox.Net.ImageSharp
+```
+
+Register the backend once at application startup when you want ImageSharp to
+back the Java AWT/ImageIO proxy APIs for supported image operations.

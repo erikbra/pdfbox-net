@@ -16,6 +16,12 @@ It intentionally does not yet implement a full `PageDrawer` equivalent. Calling
 PDF page rendering with this backend throws a clear `NotSupportedException`.
 `PdfBox.Net.SkiaSharp` remains the complete cross-platform rendering backend.
 
+Install:
+
+```sh
+dotnet add package PdfBox.Net.SystemDrawing
+```
+
 Printing is split into two concerns:
 
 - page rasterization/rendering, supplied by the currently registered

@@ -8,9 +8,15 @@
     <PackageId>PdfBox.Net.Tools</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>pdfbox</ToolCommandName>
+    <Title>PdfBox.Net.Tools</Title>
     <Description>Command-line tool facade for the PdfBox.Net Apache PDFBox 3.0 port.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>pdf;pdfbox;apache;cli;tool;text-extraction;rendering</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/PdfBox.Net/PdfBox.Net.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
 </Project>

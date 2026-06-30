@@ -33,3 +33,17 @@ The workflow restores, builds, tests, and packs `PdfBoxNet.slnx`, then uploads
 all produced `.nupkg` files. When `publish` is true, it pushes those packages
 using the `NUGET_API_KEY` repository or `nuget.org` environment secret. The
 publish job refuses to run from branches other than `main` and `release/3.0`.
+
+## Package Metadata
+
+Every packable project should define package-specific NuGet front matter in its
+`.csproj`:
+
+- `Title`
+- `Description`
+- `PackageTags`
+- `PackageReadmeFile`
+
+Each package should include a sibling `README.md` packed to the package root.
+Shared metadata such as license, project URL, repository URL, release notes,
+and version line belongs in `Directory.Build.props`.

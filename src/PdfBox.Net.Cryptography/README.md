@@ -17,6 +17,12 @@ Currently covered:
 - OCSP request/response helpers that preserve raw OCSP response bytes for
   DSS/LTV embedding
 
+Install:
+
+```sh
+dotnet add package PdfBox.Net.Cryptography
+```
+
 Usage:
 
 ```csharp
@@ -24,3 +30,6 @@ using PdfBox.Net.Cryptography.PDModel.Encryption;
 
 BouncyCastlePublicKeySecurityProvider.Register();
 ```
+
+Call the registration method once at process startup before loading public-key
+encrypted PDFs or using APIs that create public-key protection policies.
