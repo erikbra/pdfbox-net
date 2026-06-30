@@ -2,8 +2,8 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "SkiaSharp 4.148.0 upgrade runtime parity review",
-    "generatedAtUtc": "2026-06-30T09:58:30Z",
+    "generatedFrom": "SkiaSharp 4 DCT image sampling parity follow-up",
+    "generatedAtUtc": "2026-06-30T12:33:03Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
     "knownFailures": "tools/parity/runtime/known-failures.json"
   },
@@ -29,7 +29,7 @@
     "render-pattern-transparency-raster-equivalence-match": 1,
     "render-rotation-overlay-shape-equivalence-match": 9,
     "render-sparse-equivalence-match": 1,
-    "render-visual-equivalence-match": 71,
+    "render-visual-equivalence-match": 72,
     "save-structural-match": 148,
     "text-semantic-math-linewrap-match": 1,
     "text-semantic-punctuation-spacing-match": 1
