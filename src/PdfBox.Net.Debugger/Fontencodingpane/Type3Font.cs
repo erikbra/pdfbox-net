@@ -25,11 +25,14 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
 using PdfBox.Net.FontBox.Util;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Font.Encoding;
 using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.Rendering;
 using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.Debugger.Fontencodingpane;
@@ -37,15 +40,15 @@ namespace PdfBox.Net.Debugger.Fontencodingpane;
 /// <summary>
 /// Glyph-encoding data model for Type 3 fonts.
 /// Adapted from Apache PDFBox Type3Font (Khyrul Bashar, Tilman Hausherr).
-/// Note: glyph rendering (BufferedImage) is replaced with a placeholder string token.
 /// </summary>
 public sealed class Type3Font : FontPane
 {
     public const string NoGlyph = "No glyph";
+    public const string GlyphPreviewUnavailable = "[glyph preview unavailable]";
 
     /// <summary>
     /// Table columns: [0] Code (int), [1] Glyph name (string),
-    /// [2] Unicode (string), [3] Glyph token (string).
+    /// [2] Unicode (string), [3] Glyph preview (<see cref="BufferedImage"/> or string token).
     /// </summary>
     public object[][] TableData { get; }
 
@@ -70,6 +73,7 @@ public sealed class Type3Font : FontPane
         Attributes = new Dictionary<string, string>
         {
             ["Font"] = name ?? string.Empty,
+            ["Encoding"] = font.GetEncoding().GetEncodingName(),
             ["Glyphs"] = TotalAvailableGlyph.ToString(),
         };
     }
@@ -113,16 +117,32 @@ public sealed class Type3Font : FontPane
     {
         bool isEmpty = fontBBox.GetWidth() <= 0 || fontBBox.GetHeight() <= 0;
         var table = new object[256][];
+        var renderedGlyphs = new Dictionary<string, BufferedImage>(StringComparer.Ordinal);
+        var encoding = font.GetEncoding();
+        IDictionary<int, string> codeToName = encoding.GetCodeToNameMap();
+
         for (int code = 0; code <= 255; code++)
         {
-            if (font.HasGlyph(code) || font.ToUnicode(code, glyphList) != null)
+            string? unicode = font.ToUnicode(code, glyphList);
+            if (codeToName.ContainsKey(code) || unicode != null)
             {
-                // GetCharProc can return the glyph name for display.
-                PDType3CharProc? charProc = font.GetCharProc(code);
-                string glyphName = $"code {code}";
-                string? unicode = font.ToUnicode(code, glyphList);
-                string glyphToken = (charProc != null && !isEmpty) ? $"[glyph {code}]" : NoGlyph;
-                table[code] = [code, glyphName, unicode ?? NoGlyph, glyphToken];
+                string glyphName = encoding.GetName(code);
+                object glyph = NoGlyph;
+                if (!isEmpty)
+                {
+                    if (!renderedGlyphs.TryGetValue(glyphName, out BufferedImage? image))
+                    {
+                        image = RenderType3Glyph(font, fontBBox, code);
+                        if (image != null)
+                        {
+                            renderedGlyphs[glyphName] = image;
+                        }
+                    }
+
+                    glyph = image is null ? GlyphPreviewUnavailable : image;
+                }
+
+                table[code] = [code, glyphName, unicode ?? NoGlyph, glyph];
                 TotalAvailableGlyph++;
             }
             else
@@ -132,5 +152,56 @@ public sealed class Type3Font : FontPane
         }
 
         return table;
+    }
+
+    // Kind of an overkill to create a PDF for one glyph, but there is no better
+    // backend-neutral way to reuse the existing PDFBox rendering pipeline.
+    private static BufferedImage? RenderType3Glyph(PDType3Font font, PDRectangle fontBBox, int code)
+    {
+        if (!RenderingBackend.IsRegistered)
+        {
+            return null;
+        }
+
+        using PDDocument doc = new();
+        int scale = 1;
+        float minDimension = MathF.Min(MathF.Abs(fontBBox.GetWidth()), MathF.Abs(fontBBox.GetHeight()));
+        if (minDimension > 0 && (fontBBox.GetWidth() < 72 || fontBBox.GetHeight() < 72))
+        {
+            scale = Math.Max(1, (int)(72 / minDimension));
+        }
+
+        PDPage page = new(new PDRectangle(fontBBox.GetWidth() * scale, fontBBox.GetHeight() * scale));
+        PDResources pageResources = font.GetResources() ?? new PDResources();
+        pageResources.Put(COSName.GetPDFName("F0"), font);
+        page.SetResources(pageResources);
+        doc.AddPage(page);
+
+        float scalingFactorX = font.GetFontMatrix().GetScalingFactorX();
+        float scalingFactorY = font.GetFontMatrix().GetScalingFactorY();
+        float translateX = scalingFactorX > 0 ? -fontBBox.GetLowerLeftX() : fontBBox.GetUpperRightX();
+        float translateY = scalingFactorY > 0 ? -fontBBox.GetLowerLeftY() : fontBBox.GetUpperRightY();
+        float minScale = MathF.Min(MathF.Abs(scalingFactorX), MathF.Abs(scalingFactorY));
+        float fontSize = minScale > 0 ? scale / minScale : scale;
+
+        string content = FormattableString.Invariant($"""
+            q
+            1 0 0 1 {translateX * scale} {translateY * scale} cm
+            BT
+            /F0 {fontSize} Tf
+            <{code:X2}> Tj
+            ET
+            Q
+            """);
+
+        COSStream stream = new();
+        using (Stream output = stream.CreateOutputStream())
+        {
+            byte[] bytes = System.Text.Encoding.Latin1.GetBytes(content);
+            output.Write(bytes, 0, bytes.Length);
+        }
+
+        ((COSDictionary)page.GetCOSObject()).SetItem(COSName.CONTENTS, stream);
+        return new PDFRenderer(doc).RenderImage(0);
     }
 }

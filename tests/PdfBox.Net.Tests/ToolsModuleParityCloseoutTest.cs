@@ -382,7 +382,7 @@ public class ToolsModuleParityCloseoutTest
         int debugExit = PDFBox.Run(["debug", sourcePath], new StringWriter(), debugError);
 
         Assert.Equal(1, debugExit);
-        Assert.Contains("pdfdebugger", debugError.ToString(), StringComparison.Ordinal);
+        Assert.Contains("accepted as a debugger product adaptation", debugError.ToString(), StringComparison.Ordinal);
 
         StringWriter renderError = new();
         int renderExit = PDFBox.Run(["render", "-i", sourcePath, "-format", "tiff"], new StringWriter(), renderError);

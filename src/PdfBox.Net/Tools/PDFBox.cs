@@ -64,7 +64,7 @@ public static class PDFBox
         {
             "debug" => UnsupportedCommand(
                 "debug",
-                "The Java Swing PDFDebugger UI is not part of the core PdfBox.Net dispatcher. Use the pdfdebugger app or follow issue #602.",
+                "The Java Swing PDFDebugger UI is accepted as a debugger product adaptation in release/3.0; use the non-packable pdfdebugger inspection app, PdfBox.Net.Debugger models, or build a separate UI package.",
                 error),
             "decrypt" => Decrypt.Run(commandArgs, error),
             "encrypt" => Encrypt.Run(commandArgs, error),
@@ -131,7 +131,7 @@ public static class PDFBox
             "split" => "Usage: pdfbox split -i <input.pdf> [-outputPrefix <prefix>] [-split <pages>]",
             "fromimage" => "Usage: pdfbox fromimage -i <input-image> -o <output.pdf>",
             "fromtext" => "Usage: pdfbox fromtext -i <input.txt> -o <output.pdf>",
-            "debug" => "Usage: pdfbox debug <input.pdf> is not provided by the core dispatcher; use pdfdebugger or follow issue #602.",
+            "debug" => "Usage: pdfbox debug <input.pdf> is not provided by the core dispatcher; use the non-packable pdfdebugger inspection app.",
             "version" => "Usage: pdfbox version",
             _ => $"No help available for command: {args[0]}"
         });

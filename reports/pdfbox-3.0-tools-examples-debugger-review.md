@@ -28,8 +28,8 @@ is needed later.
 | `benchmark` | 4 | All Apache benchmark source stems are present, with additional .NET BenchmarkDotNet wrappers. The benchmark project is intentionally non-packable. | None from this review. |
 | `examples` | 94 | All Apache example source stems are present. The .NET branch has deterministic tests for many examples, plus a few trunk/port helper examples. Remaining skipped flows are PDF/A validation and advanced signature flows that depend on external services or validators. | #603 |
 | `tools` | 26 | All Apache tool source stems are present. Issue #601 adds the `pdfbox` global-tool facade and wires the Apache 3.0 command names through `PDFBox.Run`, including core options for decode, text export, render, merge, split, and overlay. | None from this review. |
-| `debugger` | 91 | All Apache debugger source stems are present. The .NET debugger library exposes useful COS/tree/text inspection models, but it is not yet a full Java Swing PDFDebugger-equivalent UI. | #602 |
-| `app` | 0 | Apache `app` is a Maven packaging module that builds the `pdfbox-app` command-line bundle with `org.apache.pdfbox.tools.PDFBox` as the main class. Issue #601 adds `PdfBox.Net.Tools`, a packable .NET global tool with command name `pdfbox`. | None from this review. |
+| `debugger` | 91 | All Apache debugger source stems are present. The .NET debugger library exposes useful COS/tree/text/font inspection models, including backend-backed Type 3 glyph previews. The non-packable `pdfdebugger` app is a console inspector, and the Java Swing desktop UI is documented as an accepted 3.0 product adaptation. | None from this review. |
+| `app` | 0 | Apache `app` is a Maven packaging module that builds the `pdfbox-app` command-line bundle with `org.apache.pdfbox.tools.PDFBox` as the main class. Issue #601 adds `PdfBox.Net.Tools`, a packable .NET global tool with command name `pdfbox`; the separate debugger app remains non-packable. | None from this review. |
 
 The source-stem comparison for `examples`, `tools`, `debugger`, and `benchmark`
 found no missing Apache 3.0 production stems. Extra .NET stems are either
@@ -70,12 +70,13 @@ command handling.
 
 | Issue | Gap |
 |---|---|
-| #602 | Decide and implement debugger UI parity scope, including whether the Java Swing debugger is an accepted adaptation, a separate UI package/tool, or a cross-platform 3.0 deliverable. |
 | #603 | Expand examples parity coverage for skipped PDF/A and advanced signature flows, replacing external dependencies with deterministic fixtures where practical and documenting accepted external-validation adaptations. |
 
 ## Judgment
 
 The 3.0 branch has source-file coverage for the reviewed non-Preflight modules.
 After issue #601, the `pdfbox` app/CLI surface is present as a .NET global tool
-facade over the implemented commands. The remaining gaps are debugger UI and
-examples edge-coverage product gaps rather than missing source-file mappings.
+facade over the implemented commands. After issue #602, the debugger UI product
+shape is resolved as an accepted adaptation with covered non-GUI inspection
+models. The remaining gap from this review is examples edge coverage rather
+than missing source-file mappings.
