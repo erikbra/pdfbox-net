@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-06-30T14:57:25.017Z",
-  "pdfbox_net_commit": "9159d9400a3b13d3357511352137110c421bbc7f",
+  "generated_at_utc": "2026-06-30T15:35:33.593Z",
+  "pdfbox_net_commit": "48ce3d1e4c1c1f52477aeb2e0d39b73b61c24b1f",
   "upstream": {
     "repository": "apache/pdfbox",
     "ref": "origin/3.0",
@@ -22,9 +22,9 @@
   },
   "summary": {
     "scoped_java_files": 1071,
-    "mapped_java_files": 1059,
-    "missing_java_files": 12,
-    "coverage_percent": 98.88,
+    "mapped_java_files": 1071,
+    "missing_java_files": 0,
+    "coverage_percent": 100.0,
     "mapped_source_paths_not_in_3_0": 16,
     "source_paths_added_in_3_0_vs_trunk": 12,
     "source_paths_removed_from_3_0_vs_trunk": 8,
@@ -36,16 +36,16 @@
     {
       "module": "benchmark",
       "java_files": 4,
-      "mapped": 3,
-      "missing": 1,
-      "pct": 75.0
+      "mapped": 4,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "debugger",
       "java_files": 91,
-      "mapped": 90,
-      "missing": 1,
-      "pct": 98.9
+      "mapped": 91,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "examples",
@@ -57,9 +57,9 @@
     {
       "module": "fontbox",
       "java_files": 143,
-      "mapped": 142,
-      "missing": 1,
-      "pct": 99.3
+      "mapped": 143,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "io",
@@ -71,9 +71,9 @@
     {
       "module": "pdfbox",
       "java_files": 621,
-      "mapped": 613,
-      "missing": 8,
-      "pct": 98.7
+      "mapped": 621,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "tools",
@@ -85,97 +85,12 @@
     {
       "module": "xmpbox",
       "java_files": 74,
-      "mapped": 73,
-      "missing": 1,
-      "pct": 98.6
+      "mapped": 74,
+      "missing": 0,
+      "pct": 100.0
     }
   ],
-  "missing_non_preflight_source_paths": [
-    {
-      "source_path": "benchmark/src/main/java/org/apache/pdfbox/benchmark/NullOutputStream.java",
-      "module": "benchmark",
-      "family": "benchmark",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLog.java",
-      "module": "debugger",
-      "family": "debugger",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1FontUtil.java",
-      "module": "fontbox",
-      "family": "cff",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/IntPoint.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/AppearanceStyle.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceStyle.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainText.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainTextFormatter.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/SmallMap.java",
-      "module": "pdfbox",
-      "family": "util",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    },
-    {
-      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPageTextSchema.java",
-      "module": "xmpbox",
-      "family": "schema",
-      "category": "missing-non-preflight",
-      "target_paths": []
-    }
-  ],
+  "missing_non_preflight_source_paths": [],
   "mapped_source_paths_not_in_3_0": [
     {
       "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLogAppender.java",
@@ -328,84 +243,108 @@
       "module": "benchmark",
       "family": "benchmark",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net.Benchmark/NullOutputStream.cs"
+      ]
     },
     {
       "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLog.java",
       "module": "debugger",
       "family": "debugger",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/DebugLog.cs"
+      ]
     },
     {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1FontUtil.java",
       "module": "fontbox",
       "family": "cff",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CFF/Type1FontUtil.cs"
+      ]
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/IntPoint.java",
       "module": "pdfbox",
       "family": "pdmodel",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Shading/IntPoint.cs"
+      ]
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/AppearanceStyle.java",
       "module": "pdfbox",
       "family": "pdmodel",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/AppearanceStyle.cs"
+      ]
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
       "module": "pdfbox",
       "family": "pdmodel",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainText.cs"
+      ]
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java",
       "module": "pdfbox",
       "family": "pdmodel",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainTextFormatter.cs"
+      ]
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceStyle.java",
       "module": "pdfbox",
       "family": "pdmodel",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/AppearanceStyle.cs"
+      ]
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainText.java",
       "module": "pdfbox",
       "family": "pdmodel",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PlainText.cs"
+      ]
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainTextFormatter.java",
       "module": "pdfbox",
       "family": "pdmodel",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Form/PlainTextFormatter.cs"
+      ]
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/SmallMap.java",
       "module": "pdfbox",
       "family": "util",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net/Util/SmallMap.cs"
+      ]
     },
     {
       "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPageTextSchema.java",
       "module": "xmpbox",
       "family": "schema",
       "category": "3.0-source-not-in-trunk",
-      "target_paths": []
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPageTextSchema.cs"
+      ]
     }
   ],
   "source_paths_removed_from_3_0_vs_trunk": [

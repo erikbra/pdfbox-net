@@ -8677,5 +8677,125 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-31T23:08:14Z",
     "note": "Retained debugger module parity closeout regression coverage alongside the new debugger port."
+  },
+  {
+    "source_path": "benchmark/src/main/java/org/apache/pdfbox/benchmark/NullOutputStream.java",
+    "target_path": "src/PdfBox.Net.Benchmark/NullOutputStream.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLog.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/DebugLog.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1FontUtil.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/Type1FontUtil.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/IntPoint.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/IntPoint.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/AppearanceStyle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/AppearanceStyle.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainText.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Layout/PlainTextFormatter.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceStyle.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/AppearanceStyle.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainText.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PlainText.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainTextFormatter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PlainTextFormatter.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/SmallMap.java",
+    "target_path": "src/PdfBox.Net/Util/SmallMap.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPageTextSchema.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPageTextSchema.cs",
+    "source_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "sync_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-06-30T00:00:00Z",
+    "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
   }
 ]

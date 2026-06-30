@@ -1,7 +1,7 @@
 # PdfBox.Net 3.0 Source Coverage
 
-Datetime (UTC): 2026-06-30T14:57:25.017Z
-PdfBox.Net commit: `9159d9400a3b13d3357511352137110c421bbc7f`
+Datetime (UTC): 2026-06-30T15:35:33.593Z
+PdfBox.Net commit: `48ce3d1e4c1c1f52477aeb2e0d39b73b61c24b1f`
 Apache upstream ref: `origin/3.0` (`ea68b6feae80e671b3d26565b12eccc79e74d967`)
 Comparison ref: `origin/trunk` (`ed358c48dc5ab3f20687cc4a6bf9529436641ecd`)
 
@@ -20,9 +20,9 @@ Preflight/PDF-A validation is intentionally excluded from the initial 3.0 core p
 | Measure | Count |
 |---|---:|
 | Scoped Apache 3.0 Java files | 1071 |
-| Mapped Java files | 1059 |
-| Missing non-Preflight Java files | 12 |
-| Coverage percent | 98.88% |
+| Mapped Java files | 1071 |
+| Missing non-Preflight Java files | 0 |
+| Coverage percent | 100.0% |
 | Mapped source paths not present in 3.0 | 16 |
 | 3.0 source paths not present in trunk | 12 |
 | Trunk source paths not present in 3.0 | 8 |
@@ -33,31 +33,18 @@ Preflight/PDF-A validation is intentionally excluded from the initial 3.0 core p
 
 | Module | Java files | Mapped | Missing | Coverage |
 |---|---:|---:|---:|---:|
-| `benchmark` | 4 | 3 | 1 | 75.0% |
-| `debugger` | 91 | 90 | 1 | 98.9% |
+| `benchmark` | 4 | 4 | 0 | 100.0% |
+| `debugger` | 91 | 91 | 0 | 100.0% |
 | `examples` | 94 | 94 | 0 | 100.0% |
-| `fontbox` | 143 | 142 | 1 | 99.3% |
+| `fontbox` | 143 | 143 | 0 | 100.0% |
 | `io` | 18 | 18 | 0 | 100.0% |
-| `pdfbox` | 621 | 613 | 8 | 98.7% |
+| `pdfbox` | 621 | 621 | 0 | 100.0% |
 | `tools` | 26 | 26 | 0 | 100.0% |
-| `xmpbox` | 74 | 73 | 1 | 98.6% |
+| `xmpbox` | 74 | 74 | 0 | 100.0% |
 
 ## Missing Non-Preflight Files
 
-- `benchmark/src/main/java/org/apache/pdfbox/benchmark/NullOutputStream.java`
-- `debugger/src/main/java/org/apache/pdfbox/debugger/ui/DebugLog.java`
-- `fontbox/src/main/java/org/apache/fontbox/cff/Type1FontUtil.java`
-- `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/IntPoint.java`
-- `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/AppearanceStyle.java`
-- `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainText.java`
-- `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/layout/PlainTextFormatter.java`
-- `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceStyle.java`
-- `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainText.java`
-- `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PlainTextFormatter.java`
-- `pdfbox/src/main/java/org/apache/pdfbox/util/SmallMap.java`
-- `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPageTextSchema.java`
-
-These files are the direct input for issue #588.
+None. Issue #588 reconciled all twelve previously missing non-Preflight Apache PDFBox 3.0 production Java source files with converted or compatibility .NET source files and traceability rows.
 
 ## Mapped Source Paths Not In Apache 3.0
 
