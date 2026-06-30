@@ -4,6 +4,10 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>PdfBox.Net</Title>
+    <Description>Core Apache PDFBox port for loading, parsing, rendering, extracting text, editing, saving, and securing PDF documents on .NET.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>pdf;pdfbox;apache;parser;renderer;text-extraction;encryption</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +22,10 @@
     <EmbeddedResource Include="PDModel/Font/Encoding/glyphlist.txt" />
     <EmbeddedResource Include="PDModel/Font/Encoding/additional.txt" />
     <EmbeddedResource Include="PDModel/Font/Resources/AFM/*.afm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
 
 </Project>

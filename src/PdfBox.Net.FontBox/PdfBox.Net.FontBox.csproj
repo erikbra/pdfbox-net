@@ -5,6 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>PdfBox.Net</RootNamespace>
+    <Title>PdfBox.Net.FontBox</Title>
+    <Description>Font parsing and metrics support ported from Apache FontBox, including AFM, CFF, CMap, TrueType, OpenType, and Type 1 fonts.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>pdf;pdfbox;apache;fontbox;fonts;truetype;opentype;type1</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +26,10 @@
 
   <ItemGroup>
     <EmbeddedResource Include="FontBox/TTF/Scripts.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
 
 </Project>
