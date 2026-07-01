@@ -5,6 +5,11 @@ PDFBox's Maven split where `pdfbox-io`, `fontbox`, `xmpbox`, and `pdfbox` are
 separate artifacts, while .NET-specific backends such as SkiaSharp and
 cryptography remain optional packages.
 
+The core project remains `src/PdfBox.Net` and still builds the `PdfBox.Net`
+assembly/namespace for source compatibility, but its NuGet package ID is
+`PdfBox.Net.Core`. This avoids the existing nuget.org `Pdfbox.net` package ID
+while keeping the package family under the `PdfBox.Net.*` prefix.
+
 ## Version Lines
 
 - `release/3.0` publishes the `3.0.x` package line.
