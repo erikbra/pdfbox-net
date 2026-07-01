@@ -12,10 +12,10 @@ on:
         required: true
         default: false
         type: boolean
-      nuget_source:
-        description: "NuGet v3 package source"
-        required: true
-        default: "https://api.nuget.org/v3/index.json"
+      nuget_user:
+        description: "NuGet.org username/profile name. Uses repository variable NUGET_USER when omitted."
+        required: false
+        default: ""
         type: string
       skip_duplicate:
         description: "Pass --skip-duplicate to dotnet nuget push"
@@ -133,6 +133,10 @@ jobs:
     needs: pack
     if: ${{ inputs.publish }}
     environment: nuget.org
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
 
     steps:
       - name: Ref safety check
@@ -159,17 +163,41 @@ jobs:
           name: nuget-packages-${{ inputs.version }}
           path: artifacts/packages
 
+      - name: Resolve NuGet trusted publishing user
+        id: nuget_user
+        shell: bash
+        env:
+          INPUT_NUGET_USER: ${{ inputs.nuget_user }}
+          VAR_NUGET_USER: ${{ vars.NUGET_USER }}
+        run: |
+          set -euo pipefail
+
+          user="${INPUT_NUGET_USER:-$VAR_NUGET_USER}"
+          if [ -z "$user" ]; then
+            echo "Set the NUGET_USER repository/environment variable or provide the nuget_user workflow input." >&2
+            echo "Use the nuget.org username/profile name, not an email address." >&2
+            exit 1
+          fi
+
+          echo "user=$user" >> "$GITHUB_OUTPUT"
+
+      - name: NuGet login via trusted publishing
+        id: nuget_login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ steps.nuget_user.outputs.user }}
+
       - name: Push packages
         shell: bash
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-          NUGET_SOURCE: ${{ inputs.nuget_source }}
+          NUGET_API_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
+          NUGET_SOURCE: https://api.nuget.org/v3/index.json
           SKIP_DUPLICATE: ${{ inputs.skip_duplicate }}
         run: |
           set -euo pipefail
 
           if [ -z "${NUGET_API_KEY:-}" ]; then
-            echo "The NUGET_API_KEY repository or environment secret is required to publish packages." >&2
+            echo "NuGet trusted publishing did not return a temporary API key." >&2
             exit 1
           fi
 
