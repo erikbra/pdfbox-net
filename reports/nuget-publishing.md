@@ -26,13 +26,27 @@ Inputs:
 - `version`: full SemVer package version to produce.
 - `publish`: defaults to `false`; when false the workflow performs a dry-run
   package build and uploads the `.nupkg` artifacts.
-- `nuget_source`: defaults to NuGet.org.
+- `nuget_user`: optional nuget.org username/profile-name override; when omitted,
+  the workflow uses the `NUGET_USER` repository or environment variable.
 - `skip_duplicate`: passes `--skip-duplicate` during publishing.
 
 The workflow restores, builds, tests, and packs `PdfBoxNet.slnx`, then uploads
 all produced `.nupkg` files. When `publish` is true, it pushes those packages
-using the `NUGET_API_KEY` repository or `nuget.org` environment secret. The
-publish job refuses to run from branches other than `main` and `release/3.0`.
+to NuGet.org using NuGet trusted publishing. The publish job requests a GitHub
+OIDC token, exchanges it through `NuGet/login@v1` for a short-lived NuGet API
+key, and refuses to run from branches other than `main` and `release/3.0`.
+
+Configure a trusted publishing policy on nuget.org with:
+
+- Repository owner: `erikbra`
+- Repository: `pdfbox-net`
+- Workflow file: `publish-nuget.yml`
+- Environment: `nuget.org` if you want the policy restricted to the protected
+  GitHub Actions environment used by this workflow.
+
+Set the GitHub repository or `nuget.org` environment variable `NUGET_USER` to
+the nuget.org username/profile name for the publishing account. Do not use an
+email address.
 
 ## Package Metadata
 
