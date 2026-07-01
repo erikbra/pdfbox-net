@@ -11,6 +11,6 @@ Install:
 dotnet add package PdfBox.Net.FontBox
 ```
 
-Most PDF workloads should reference `PdfBox.Net`, which depends on this package
-automatically. Install `PdfBox.Net.FontBox` directly when you need the font
-parsing APIs without the full PDF document model.
+Most PDF workloads should reference `PdfBox.Net.Core`, which depends on this
+package automatically. Install `PdfBox.Net.FontBox` directly when you need the
+font parsing APIs without the full PDF document model.

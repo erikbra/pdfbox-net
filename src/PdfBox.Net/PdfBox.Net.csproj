@@ -4,7 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Title>PdfBox.Net</Title>
+    <PackageId>PdfBox.Net.Core</PackageId>
+    <Title>PdfBox.Net.Core</Title>
     <Description>Core Apache PDFBox port for loading, parsing, rendering, extracting text, editing, saving, and securing PDF documents on .NET.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>pdf;pdfbox;apache;parser;renderer;text-extraction;encryption</PackageTags>
