@@ -52,7 +52,7 @@ packages, examples, tests, and development tools:
 | `PdfBox.Net.IO` | Low-level random-access IO primitives (ported from `io` module) |
 | `PdfBox.Net.FontBox` | Font handling — AFM, CFF, CMap, TTF, Type1 (ported from `fontbox` module) |
 | `PdfBox.Net.XmpBox` | XMP metadata reading/writing (ported from `xmpbox` module) |
-| `PdfBox.Net` | Core PDF library — COS, filters, parser, writer, pdmodel, text, rendering, tools (ported from `pdfbox` module) |
+| `PdfBox.Net` | Core PDF library, published as `PdfBox.Net.Core`; assembly and namespaces remain `PdfBox.Net` (ported from `pdfbox` module) |
 | `PdfBox.Net.Cryptography` | Optional BouncyCastle-backed public-key security provider |
 | `PdfBox.Net.SkiaSharp` | Complete SkiaSharp rendering backend |
 | `PdfBox.Net.SystemDrawing` | Windows `System.Drawing` helpers and print-spooler backend |
@@ -69,6 +69,7 @@ packages, examples, tests, and development tools:
 ## Requirements
 
 - .NET 10.0 SDK or later
+- `PdfBox.Net.Core` for the core PDF model/parser/writer package.
 - Optional backend packages for rendering, cryptography, or platform printing.
   `PdfBox.Net.SkiaSharp` is the complete rendering backend today.
 

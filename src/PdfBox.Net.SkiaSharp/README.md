@@ -23,5 +23,5 @@ BufferedImage image = new PDFRenderer(document).RenderImageWithDPI(0, 144);
 ```
 
 This package intentionally owns the SkiaSharp dependency so the core
-`PdfBox.Net` package can keep Java-shaped graphics proxy APIs without exposing
-SkiaSharp types directly.
+`PdfBox.Net.Core` package can keep Java-shaped graphics proxy APIs without
+exposing SkiaSharp types directly.

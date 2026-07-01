@@ -1,16 +1,17 @@
-# PdfBox.Net
+# PdfBox.Net.Core
 
 Core .NET port of Apache PDFBox for working with PDF documents.
 
 This package contains the main PDF model, COS objects, parser, filters, writer,
 text extraction, rendering entry points, form handling, annotations, and
-standard-security support. It depends on `PdfBox.Net.IO` and
+standard-security support. The package ID is `PdfBox.Net.Core`; the assembly
+and namespaces remain `PdfBox.Net`. It depends on `PdfBox.Net.IO` and
 `PdfBox.Net.FontBox`, matching the Java PDFBox module split.
 
 Install:
 
 ```sh
-dotnet add package PdfBox.Net
+dotnet add package PdfBox.Net.Core
 ```
 
 Typical usage:
