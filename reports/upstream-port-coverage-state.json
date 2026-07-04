@@ -1,21 +1,27 @@
 {
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
-  "upstream_head_commit": "d760384678b0ec605cc682ac251a38d3bcffcd9c",
+  "upstream_head_commit": "7027ec0bd724dc347176e51d4622cbe112e756f6",
   "tracked_parity_baseline_commit": "ed358c48dc5ab3f20687cc4a6bf9529436641ecd",
-  "last_scan_utc": "2026-07-03T08:02:32.501Z",
-  "upstream_java_files_total": 1067,
+  "last_scan_utc": "2026-07-04T07:57:32.501Z",
+  "upstream_java_files_total": 1072,
   "mapped_java_files_total": 1067,
-  "missing_java_files_total": 0,
+  "missing_java_files_total": 5,
   "mapped_java_files_provenance_total": 1066,
   "mapped_java_files_traceability_total": 789,
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "missing_source_paths_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "missing_source_paths_sample": [],
+  "missing_source_paths_sha256": "0da1ae9e38a1f97b19efa16ca2437225e15cda20cda19d652daaf140069ba732",
+  "missing_source_paths_sample": [
+    "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/GlyphLayoutFontLoaderAwt.java",
+    "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/GlyphLayoutProcessorAwt.java",
+    "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ContentStreamForGlyphLayoutInterface.java",
+    "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphLayoutProcessorInterface.java",
+    "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphsAndPositions.java"
+  ],
   "missing_source_paths_sample_truncated": false,
   "target_100_percent_parity": {
-    "mapped_equals_total": true,
-    "missing_equals_zero": true,
+    "mapped_equals_total": false,
+    "missing_equals_zero": false,
     "traceability_non_insync_rows": 0,
     "definition": "100% parity requires mapped==total, missing==0, and no scoped traceability rows with status partial/partially-in-sync."
   }
