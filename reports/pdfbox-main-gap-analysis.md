@@ -1,9 +1,9 @@
 # PDFBox Upstream Java Gap Analysis (All Modules)
 
-Datetime (UTC): 2026-07-06T08:31:31.600Z
+Datetime (UTC): 2026-07-06T20:25:48.871Z
 Reference upstream Java repository: Apache PDFBox trunk
-Tracked parity baseline commit: `ed358c48dc5ab3f20687cc4a6bf9529436641ecd`
-Latest upstream head scanned: `b739248117838c4a908f2205a0b620d2e6373375`
+Tracked parity baseline commit: `56575fd583792844b6bd182d67739d26568b1d01`
+Latest upstream head scanned: `56575fd583792844b6bd182d67739d26568b1d01`
 
 ## Scope and method
 
@@ -21,18 +21,18 @@ Latest upstream head scanned: `b739248117838c4a908f2205a0b620d2e6373375`
 | `examples` | 94 | 94 | 0 | 100.0% |
 | `fontbox` | 143 | 143 | 0 | 100.0% |
 | `io` | 18 | 18 | 0 | 100.0% |
-| `pdfbox` | 621 | 618 | 3 | 99.5% |
-| `pdfbox-layout-awt` | 3 | 0 | 3 | 0.0% |
+| `pdfbox` | 621 | 621 | 0 | 100.0% |
+| `pdfbox-layout-awt` | 3 | 3 | 0 | 100.0% |
 | `tools` | 26 | 26 | 0 | 100.0% |
 | `xmpbox` | 74 | 74 | 0 | 100.0% |
-| **TOTAL** | **1073** | **1067** | **6** | **99.4%** |
+| **TOTAL** | **1073** | **1073** | **0** | **100.0%** |
 
-Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **853 / 856 = 99.6%**.
+Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **856 / 856 = 100.0%**.
 
 ## Traceability status for mapped upstream source rows
 
-Among **795** rows with scoped upstream `source_path`:
-- `in-sync`: **795**
+Among **803** rows with scoped upstream `source_path`:
+- `in-sync`: **803**
 - `partially-in-sync`: **0**
 - `partial`: **0**
 
@@ -48,19 +48,17 @@ The generated `reports/upstream-file-comparison.json` contains one row for each 
 
 | Gap category | Files |
 |---|---:|
-| `missing-port` | 6 |
+| `missing-port` | 0 |
 | `missing-provenance-marker` | 1 |
-| `missing-traceability-row` | 278 |
-| `none` | 788 |
+| `missing-traceability-row` | 276 |
+| `none` | 796 |
 
 | Gap category | Module | Files |
 |---|---|---:|
-| `missing-port` | `pdfbox` | 3 |
-| `missing-port` | `pdfbox-layout-awt` | 3 |
 | `missing-provenance-marker` | `pdfbox` | 1 |
 | `missing-traceability-row` | `benchmark` | 3 |
 | `missing-traceability-row` | `fontbox` | 100 |
 | `missing-traceability-row` | `io` | 8 |
-| `missing-traceability-row` | `pdfbox` | 141 |
+| `missing-traceability-row` | `pdfbox` | 139 |
 | `missing-traceability-row` | `tools` | 26 |
 

@@ -314,12 +314,12 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java IO -> .NET Stream/byte[] API"
+      "Upstream parser guard synced",
+      "Unsupported CFF2 outlines surfaced as parse header error"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "TTF parser now handles table-directory parsing and mandatory-table validation for downstream font flows, with focused parser regression tests for header and mandatory-table handling."
+    "note": "Synced PDFBOX-6216 by rejecting unsupported CFF2 OpenType outlines before CFF table parsing."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
@@ -1419,25 +1419,23 @@
     "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "API surface adaptation"
+      "Glyph-layout interface adapted",
+      "PDF glyph operands written through COS helpers"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Introduced shared subset writer foundation reused by new form/pattern content stream wrappers."
+    "note": "Added processor registration plus glyph-code, glyph-position, and text-rise content stream hooks."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
     "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
-    "normalization_applied": true,
+    "normalization_applied": false,
     "change_categories": [
-      "High-level document orchestration reduced to chunk-3 lifecycle over COS parser/writer",
-      "Ownership/disposal behavior adapted to .NET IDisposable model",
-      "Underlying COSDocument exposure and header/catalog version semantics aligned with upstream"
+      "Java runtime-specific static initializer difference accepted"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Implements the PDDocument lifecycle parity slice over the existing parser/writer envelope, including COSDocument access, /Info replacement, and upstream version behavior."
+    "note": "Upstream added a Java/Graal UnsatisfiedLinkError catch for missing AWT; no .NET code path is needed."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -4066,11 +4064,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/AppearanceGeneratorHelper.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "AcroForm glyph-layout processor propagated into generated appearances"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+    "note": "Appearance generation now installs the AcroForm glyph-layout processor on appearance content streams."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/FieldUtils.java",
@@ -4088,11 +4086,12 @@
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Glyph-layout processor state added",
+      "Flattening propagation adapted to .NET content stream writer"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+    "note": "AcroForm now stores a glyph-layout processor and propagates it when flattening appearances."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDButton.java",
@@ -4143,11 +4142,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDDefaultAppearanceString.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Resolved PDFont forwarded through appearance writer overload"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+    "note": "Default appearance writing forwards the resolved PDFont so appearance streams can route supported Type 0 text through glyph layout."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDField.java",
@@ -5004,5 +5003,104 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Added Apache license header and XML doc comments explaining the .NET split-operator architecture. No semantic logic changed."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPageContentStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Inherited Java behavior flattened onto sealed .NET writer",
+      "Glyph-layout routing adapted for tracked current PDFont"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added page content stream glyph-layout routing and direct glyph operand writers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAppearanceContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDAppearanceContentStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Inherited Java behavior flattened onto .NET writer",
+      "Resolved default appearance font tracked for glyph routing"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Added appearance content stream glyph-layout routing and direct glyph operand writers."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ContentStreamForGlyphLayoutInterface.java",
+    "target_path": "src/PdfBox.Net/PDModel/ContentStreamForGlyphLayoutInterface.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ported the upstream glyph-layout content stream interface as the C# contract used by page and appearance streams."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphLayoutProcessorInterface.java",
+    "target_path": "src/PdfBox.Net/PDModel/GlyphLayoutProcessorInterface.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ported the upstream glyph-layout processor interface for Type 0 font text shaping integration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphsAndPositions.java",
+    "target_path": "src/PdfBox.Net/PDModel/GlyphsAndPositions.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ported the upstream glyph and positioning container used by glyph-layout processors."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutFontLoaderAwt.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutFontLoaderAwt.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace",
+      "Java AWT dependency represented through existing .NET AWT proxy"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ported the upstream AWT font-loader shape as a Java-compatible registration layer over the existing .NET AWT proxy."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutProcessorAwt.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutProcessorAwt.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace",
+      "Java AWT dependency represented through existing .NET AWT proxy"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ported the upstream AWT glyph-layout processor API; current .NET implementation emits conservative Identity-H glyph codes pending a real shaping backend."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorldAWT.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Examples/GlyphLayoutHelloWorldAWT.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace",
+      "Java AWT dependency represented through existing .NET AWT proxy"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ported the upstream glyph-layout hello-world example against the .NET content stream and AWT-style processor API."
   }
 ]

@@ -1,13 +1,13 @@
 {
-  "generated_at_utc": "2026-07-06T08:31:31.600Z",
+  "generated_at_utc": "2026-07-06T20:25:48.871Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
-  "upstream_head": "b739248117838c4a908f2205a0b620d2e6373375",
-  "tracked_parity_baseline_commit": "ed358c48dc5ab3f20687cc4a6bf9529436641ecd",
+  "upstream_head": "56575fd583792844b6bd182d67739d26568b1d01",
+  "tracked_parity_baseline_commit": "56575fd583792844b6bd182d67739d26568b1d01",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1073,
-  "mapped": 1067,
-  "missing": 6,
+  "mapped": 1073,
+  "missing": 0,
   "modules": [
     {
       "module": "benchmark",
@@ -47,16 +47,16 @@
     {
       "module": "pdfbox",
       "java_files": 621,
-      "mapped": 618,
-      "missing": 3,
-      "pct": 99.5
+      "mapped": 621,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "pdfbox-layout-awt",
       "java_files": 3,
-      "mapped": 0,
-      "missing": 3,
-      "pct": 0.0
+      "mapped": 3,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "tools",
@@ -217,9 +217,9 @@
     {
       "family": "pdfbox:pdmodel",
       "java_files": 431,
-      "mapped": 428,
-      "missing": 3,
-      "pct": 99.3
+      "mapped": 431,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "pdfbox:printing",
@@ -252,9 +252,9 @@
     {
       "family": "pdfbox-layout-awt:glyphlayout",
       "java_files": 3,
-      "mapped": 0,
-      "missing": 3,
-      "pct": 0.0
+      "mapped": 3,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "tools:tools",
@@ -293,21 +293,10 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 795,
-    "in-sync": 795,
+    "total_rows": 803,
+    "in-sync": 803,
     "partially-in-sync": 0,
     "partial": 0
   },
-  "top_missing_modules": {
-    "pdfbox": [
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ContentStreamForGlyphLayoutInterface.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphLayoutProcessorInterface.java",
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphsAndPositions.java"
-    ],
-    "pdfbox-layout-awt": [
-      "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/GlyphLayoutFontLoaderAwt.java",
-      "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/GlyphLayoutProcessorAwt.java",
-      "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorld.java"
-    ]
-  }
+  "top_missing_modules": {}
 }

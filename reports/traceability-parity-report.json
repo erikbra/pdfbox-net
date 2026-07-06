@@ -1323,11 +1323,11 @@
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T07:49:01Z",
-    "note": "TTF parser now reads table directories for core mandatory tables, validates mandatory-table presence, and supports table-header extraction used by downstream font flows and regression tests."
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Reviewed against upstream PDFBOX-6216 and ported the CFF2-outline rejection path while preserving supported CFF OpenType parsing."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
@@ -3022,21 +3022,21 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
     "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T18:45:00Z",
-    "note": "Issue #93 pdmodel foundation closeout: shared content-stream writing foundation added for form/pattern wrappers."
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Synced glyph-layout content stream surface: processor registration plus raw glyph code, glyph-position array, and text-rise operators."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
     "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T10:25:06Z",
-    "note": "PDDocument now exposes the underlying COSDocument, aligns header-versus-catalog version semantics, supports replacing the /Info dictionary, and preserves upstream file-load/dispose lifecycle behavior covered by targeted regression tests."
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Reviewed upstream Graal/AWT UnsatisfiedLinkError catch; no .NET behavior required, so this is accepted as a reviewed no-op adaptation."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -6382,11 +6382,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/AppearanceGeneratorHelper.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Synced form appearance glyph-layout propagation from PDAcroForm into appearance content streams."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/FieldUtils.java",
@@ -6402,11 +6402,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDAcroForm.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Synced glyph-layout processor storage and propagation into flattened page content streams."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDButton.java",
@@ -6452,11 +6452,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDDefaultAppearanceString.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDDefaultAppearanceString.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Adapted default-appearance font writing to pass resolved PDFont instances into appearance streams for glyph-layout routing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDField.java",
@@ -8677,5 +8677,95 @@
     "status": "in-sync",
     "last_checked_utc": "2026-05-31T23:08:14Z",
     "note": "Retained debugger module parity closeout regression coverage alongside the new debugger port."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPageContentStream.cs",
+    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Adapted inherited upstream glyph-layout content stream behavior directly onto the sealed .NET page content stream writer."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAppearanceContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDAppearanceContentStream.cs",
+    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Adapted inherited upstream glyph-layout content stream behavior directly onto the .NET appearance content stream writer."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ContentStreamForGlyphLayoutInterface.java",
+    "target_path": "src/PdfBox.Net/PDModel/ContentStreamForGlyphLayoutInterface.cs",
+    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "port_mode": "adapted-minimal",
+    "status": "in-sync",
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Ported the upstream glyph-layout content stream interface as the C# contract used by page and appearance streams."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphLayoutProcessorInterface.java",
+    "target_path": "src/PdfBox.Net/PDModel/GlyphLayoutProcessorInterface.cs",
+    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "port_mode": "adapted-minimal",
+    "status": "in-sync",
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Ported the upstream glyph-layout processor interface for Type 0 font text shaping integration."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphsAndPositions.java",
+    "target_path": "src/PdfBox.Net/PDModel/GlyphsAndPositions.cs",
+    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "port_mode": "adapted-minimal",
+    "status": "in-sync",
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Ported the upstream glyph and positioning container used by glyph-layout processors."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutFontLoaderAwt.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutFontLoaderAwt.cs",
+    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Ported the upstream AWT font-loader shape as a Java-compatible registration layer over the existing .NET AWT proxy."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutProcessorAwt.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutProcessorAwt.cs",
+    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Ported the upstream AWT glyph-layout processor API; current .NET implementation emits conservative Identity-H glyph codes pending a real shaping backend."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorldAWT.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Examples/GlyphLayoutHelloWorldAWT.cs",
+    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Ported the upstream glyph-layout hello-world example against the .NET content stream and AWT-style processor API."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDContentStreamTest.cs",
+    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-07-06T20:22:42Z",
+    "note": "Added regression coverage for glyph-layout content stream hooks emitting hexadecimal Tj/TJ operands and Ts text rise."
   }
 ]

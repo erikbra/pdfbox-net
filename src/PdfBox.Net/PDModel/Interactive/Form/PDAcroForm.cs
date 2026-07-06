@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDAcroForm.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
  */
 
 /*
@@ -39,6 +39,7 @@ public sealed partial class PDAcroForm : COSObjectable
 {
     private readonly PDDocument _document;
     private readonly COSDictionary _dictionary;
+    private GlyphLayoutProcessorInterface? _glyphLayoutProcessor;
 
     public PDAcroForm(PDDocument document)
     {
@@ -51,6 +52,24 @@ public sealed partial class PDAcroForm : COSObjectable
     {
         _document = document ?? throw new ArgumentNullException(nameof(document));
         _dictionary = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
+    }
+
+    /// <summary>
+    /// Sets the glyph layout processor.
+    /// </summary>
+    /// <param name="glyphLayoutProcessor">The glyph layout processor, or <see langword="null"/>.</param>
+    public void SetGlyphLayoutProcessor(GlyphLayoutProcessorInterface? glyphLayoutProcessor)
+    {
+        _glyphLayoutProcessor = glyphLayoutProcessor;
+    }
+
+    /// <summary>
+    /// Returns the glyph layout processor, or <see langword="null"/>.
+    /// </summary>
+    /// <returns>The glyph layout processor, or <see langword="null"/>.</returns>
+    public GlyphLayoutProcessorInterface? GetGlyphLayoutProcessor()
+    {
+        return _glyphLayoutProcessor;
     }
 
     public COSBase GetCOSObject()
@@ -217,6 +236,10 @@ public sealed partial class PDAcroForm : COSObjectable
                     COSStream appearanceCosStream = appearanceStream.GetCOSObject()
                         ?? throw new InvalidOperationException("Widget appearance stream is missing a COS stream.");
                     contentStream ??= new PDPageContentStream(_document, page, PDPageContentStream.AppendMode.APPEND, false);
+                    if (_glyphLayoutProcessor != null)
+                    {
+                        contentStream.SetGlyphLayoutProcessor(_glyphLayoutProcessor);
+                    }
                     contentStream.SaveGraphicsState();
                     contentStream.Transform(ResolveTransformationMatrix(annotation, appearanceStream));
                     contentStream.DrawForm(new PDFormXObject(appearanceCosStream));

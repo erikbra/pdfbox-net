@@ -152,7 +152,14 @@ public sealed class PDDefaultAppearanceString
             throw new IOException("Default appearance string is missing a font.");
         }
 
-        contents.SetFont(FontName, fontSize);
+        if (Font != null)
+        {
+            contents.SetFont(FontName, Font, fontSize);
+        }
+        else
+        {
+            contents.SetFont(FontName, fontSize);
+        }
         if (FontColor != null)
         {
             contents.SetNonStrokingColor(FontColor);
