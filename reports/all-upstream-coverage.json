@@ -1,13 +1,13 @@
 {
-  "generated_at_utc": "2026-07-05T08:00:10.944Z",
+  "generated_at_utc": "2026-07-06T08:31:31.600Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
-  "upstream_head": "e87b0f958c0ab39713a1ad110a13ede599f9a30b",
+  "upstream_head": "b739248117838c4a908f2205a0b620d2e6373375",
   "tracked_parity_baseline_commit": "ed358c48dc5ab3f20687cc4a6bf9529436641ecd",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "total": 1072,
+  "total": 1073,
   "mapped": 1067,
-  "missing": 5,
+  "missing": 6,
   "modules": [
     {
       "module": "benchmark",
@@ -53,9 +53,9 @@
     },
     {
       "module": "pdfbox-layout-awt",
-      "java_files": 2,
+      "java_files": 3,
       "mapped": 0,
-      "missing": 2,
+      "missing": 3,
       "pct": 0.0
     },
     {
@@ -251,9 +251,9 @@
     },
     {
       "family": "pdfbox-layout-awt:glyphlayout",
-      "java_files": 2,
+      "java_files": 3,
       "mapped": 0,
-      "missing": 2,
+      "missing": 3,
       "pct": 0.0
     },
     {
@@ -306,7 +306,8 @@
     ],
     "pdfbox-layout-awt": [
       "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/GlyphLayoutFontLoaderAwt.java",
-      "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/GlyphLayoutProcessorAwt.java"
+      "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/GlyphLayoutProcessorAwt.java",
+      "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorld.java"
     ]
   }
 }

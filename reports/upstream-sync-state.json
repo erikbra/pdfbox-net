@@ -4,15 +4,15 @@
   "tracked_commit": "ed358c48dc5ab3f20687cc4a6bf9529436641ecd",
   "tracked_commit_updated_utc": "2026-06-29T13:52:20.062Z",
   "note": "Update tracked_commit whenever a sync batch lands so upstream-watch automation can detect new upstream commits.",
-  "latest_upstream_commit_seen": "e87b0f958c0ab39713a1ad110a13ede599f9a30b",
-  "last_port_coverage_scan_utc": "2026-07-05T08:00:10.944Z",
-  "upstream_java_files_total": 1072,
+  "latest_upstream_commit_seen": "b739248117838c4a908f2205a0b620d2e6373375",
+  "last_port_coverage_scan_utc": "2026-07-06T08:31:31.600Z",
+  "upstream_java_files_total": 1073,
   "ported_java_files_total": 1067,
-  "missing_java_files_total": 5,
-  "missing_source_paths_sha256": "0da1ae9e38a1f97b19efa16ca2437225e15cda20cda19d652daaf140069ba732",
+  "missing_java_files_total": 6,
+  "missing_source_paths_sha256": "2dab2411cbbadf8f4337c99e2b5c0150cf1d8326b70a3593c95cf1fd68369c44",
   "scan_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "parity_target": {
-    "mapped_java_files_total": 1072,
+    "mapped_java_files_total": 1073,
     "missing_java_files_total": 0,
     "traceability_status_required": "in-sync only"
   }
