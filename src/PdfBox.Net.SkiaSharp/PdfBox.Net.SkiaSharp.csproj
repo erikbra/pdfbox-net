@@ -5,12 +5,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>PdfBox.Net.SkiaSharp</Title>
-    <Description>Complete cross-platform SkiaSharp rendering backend for PdfBox.Net.</Description>
+    <Description>Complete cross-platform SkiaSharp rendering and glyph layout backend for PdfBox.Net.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>pdf;pdfbox;apache;rendering;skiasharp;graphics;images</PackageTags>
+    <PackageTags>pdf;pdfbox;apache;rendering;skiasharp;graphics;images;harfbuzz;text-shaping</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="HarfBuzzSharp" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" />
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
     <ProjectReference Include="..\PdfBox.Net\PdfBox.Net.csproj" />
