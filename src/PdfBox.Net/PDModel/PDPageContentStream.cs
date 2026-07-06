@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageContentStream.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
  */
 
 /*
@@ -46,7 +46,7 @@ namespace PdfBox.Net.PDModel;
 /// Represents a content stream writer for a PDF page.
 /// Supports overwrite, append, and prepend modes.
 /// </summary>
-public sealed class PDPageContentStream : IDisposable
+public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, IDisposable
 {
     /// <summary>
     /// Specifies how the new content stream is placed relative to any existing content.
@@ -74,6 +74,9 @@ public sealed class PDPageContentStream : IDisposable
     private int _graphicsStateCounter;
     private readonly Stack<PDColorSpace?> _strokingColorSpaceStack = new();
     private readonly Stack<PDColorSpace?> _nonStrokingColorSpaceStack = new();
+    private GlyphLayoutProcessorInterface? _glyphLayoutProcessor;
+    private PDFont? _currentFont;
+    private float _currentFontSize;
 
     /// <summary>
     /// Creates a content stream for the given page using <see cref="AppendMode.OVERWRITE"/>.
@@ -116,7 +119,18 @@ public sealed class PDPageContentStream : IDisposable
 
     public void EndText() => WriteOperator("ET");
 
-    public void ShowText(string text) => WriteOperator("Tj", new COSString(text ?? string.Empty));
+    public void ShowText(string text)
+    {
+        if (_glyphLayoutProcessor != null &&
+            _currentFont is PDType0Font type0Font &&
+            _glyphLayoutProcessor.SupportsFont(type0Font))
+        {
+            _glyphLayoutProcessor.ShowText(this, type0Font, _currentFontSize, text ?? string.Empty);
+            return;
+        }
+
+        WriteOperator("Tj", new COSString(text ?? string.Empty));
+    }
 
     public void NewLineAtOffset(float tx, float ty) => WriteOperator("Td", tx, ty);
 
@@ -127,9 +141,20 @@ public sealed class PDPageContentStream : IDisposable
     public void SetFont(PDFont font, float fontSize)
     {
         ArgumentNullException.ThrowIfNull(font);
+        _currentFont = font;
+        _currentFontSize = fontSize;
         PDResources resources = GetAndEnsureResources();
         COSName fontName = AddFontResource(resources, font);
         WriteOperator("Tf", fontName, fontSize);
+    }
+
+    /// <summary>
+    /// Sets the glyph layout processor used for supported Type 0 fonts.
+    /// </summary>
+    /// <param name="glyphLayoutProcessor">The glyph layout processor, or <see langword="null"/>.</param>
+    public void SetGlyphLayoutProcessor(GlyphLayoutProcessorInterface? glyphLayoutProcessor)
+    {
+        _glyphLayoutProcessor = glyphLayoutProcessor;
     }
 
     public void MoveTo(float x, float y) => WriteOperator("m", x, y);
@@ -270,6 +295,22 @@ public sealed class PDPageContentStream : IDisposable
             }
         }
         WriteOperator("TJ", array);
+    }
+
+    public void ShowGlyphsWithPositioning(GlyphsAndPositions glyphsAndPositions)
+    {
+        WriteOperator("TJ", GlyphLayoutContentStreamSupport.ToGlyphsAndPositionsArray(glyphsAndPositions));
+    }
+
+    public void ShowGlyphCodes(int[] glyphCodes)
+    {
+        ArgumentNullException.ThrowIfNull(glyphCodes);
+        WriteOperator("Tj", GlyphLayoutContentStreamSupport.ToGlyphCodeString(glyphCodes));
+    }
+
+    public void SetTextRise(float rise)
+    {
+        WriteOperator("Ts", rise);
     }
 
     /// <summary>

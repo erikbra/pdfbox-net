@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
  */
 
 using PdfBox.Net.ContentStream.Operator;
@@ -203,6 +203,12 @@ internal sealed class AppearanceGeneratorHelper
         using MemoryStream buffer = new();
         using (PDAppearanceContentStream contents = new(stream, buffer))
         {
+            GlyphLayoutProcessorInterface? glyphLayoutProcessor = _field.GetAcroForm().GetGlyphLayoutProcessor();
+            if (glyphLayoutProcessor != null)
+            {
+                contents.SetGlyphLayoutProcessor(glyphLayoutProcessor);
+            }
+
             PDRectangle bbox = ResolveBoundingBox(widget, stream);
             if (characteristics.GetBackground() is { } background)
             {

@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAppearanceContentStream.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
  */
 
 /*
@@ -37,13 +37,16 @@ using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel;
 
-public sealed class PDAppearanceContentStream : IDisposable
+public sealed class PDAppearanceContentStream : ContentStreamForGlyphLayoutInterface, IDisposable
 {
     private readonly PDAppearanceStream _appearance;
     private readonly Stream _output;
     private readonly bool _ownsStream;
     private readonly ContentStreamWriter _writer;
     private int _graphicsStateCounter;
+    private GlyphLayoutProcessorInterface? _glyphLayoutProcessor;
+    private PDFont? _currentFont;
+    private float _currentFontSize;
 
     public PDAppearanceContentStream(PDAppearanceStream appearance)
         : this(appearance, appearance.GetStream().CreateOutputStream(), ownsStream: true)
@@ -80,9 +83,51 @@ public sealed class PDAppearanceContentStream : IDisposable
 
     public void NewLineAtOffset(float tx, float ty) => WriteOperator("Td", tx, ty);
 
-    public void ShowText(string text) => WriteOperator("Tj", new COSString(text ?? string.Empty));
+    public void ShowText(string text)
+    {
+        if (_glyphLayoutProcessor != null &&
+            _currentFont is PDType0Font type0Font &&
+            _glyphLayoutProcessor.SupportsFont(type0Font))
+        {
+            _glyphLayoutProcessor.ShowText(this, type0Font, _currentFontSize, text ?? string.Empty);
+            return;
+        }
 
-    public void SetFont(COSName fontName, float fontSize) => WriteOperator("Tf", fontName, fontSize);
+        WriteOperator("Tj", new COSString(text ?? string.Empty));
+    }
+
+    public void SetFont(COSName fontName, float fontSize)
+    {
+        _currentFont = null;
+        _currentFontSize = fontSize;
+        WriteOperator("Tf", fontName, fontSize);
+    }
+
+    internal void SetFont(COSName fontName, PDFont font, float fontSize)
+    {
+        ArgumentNullException.ThrowIfNull(font);
+        _currentFont = font;
+        _currentFontSize = fontSize;
+        WriteOperator("Tf", fontName, fontSize);
+    }
+
+    public void SetGlyphLayoutProcessor(GlyphLayoutProcessorInterface? glyphLayoutProcessor)
+    {
+        _glyphLayoutProcessor = glyphLayoutProcessor;
+    }
+
+    public void ShowGlyphsWithPositioning(GlyphsAndPositions glyphsAndPositions)
+    {
+        WriteOperator("TJ", GlyphLayoutContentStreamSupport.ToGlyphsAndPositionsArray(glyphsAndPositions));
+    }
+
+    public void ShowGlyphCodes(int[] glyphCodes)
+    {
+        ArgumentNullException.ThrowIfNull(glyphCodes);
+        WriteOperator("Tj", GlyphLayoutContentStreamSupport.ToGlyphCodeString(glyphCodes));
+    }
+
+    public void SetTextRise(float rise) => WriteOperator("Ts", rise);
 
     public void MoveTo(float x, float y) => WriteOperator("m", x, y);
 

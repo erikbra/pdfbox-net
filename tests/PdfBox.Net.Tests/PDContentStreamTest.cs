@@ -293,6 +293,37 @@ public class PDContentStreamTest
     }
 
     [Fact]
+    public void PDPageContentStream_GlyphLayoutHooks_EmitHexTextOperators()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        GlyphsAndPositions glyphsAndPositions = new();
+        glyphsAndPositions.Add(0x41);
+        glyphsAndPositions.Add(0x42);
+        glyphsAndPositions.Add(-120.0f);
+        glyphsAndPositions.Add(0x43);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.BeginText();
+            content.ShowGlyphCodes([0x41, 0x42]);
+            content.ShowGlyphsWithPositioning(glyphsAndPositions);
+            content.SetTextRise(4.5f);
+            content.EndText();
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        using StreamReader reader = new(stream, Encoding.ASCII);
+        string contentText = reader.ReadToEnd();
+
+        Assert.Contains("<00410042> Tj", contentText);
+        Assert.Contains("[<00410042> -120 <0043> ] TJ", contentText);
+        Assert.Contains("4.5 Ts", contentText);
+    }
+
+    [Fact]
     public void PDPageContentStream_ColorOverloads_EmitDeviceColorOperators()
     {
         using PDDocument document = new();
