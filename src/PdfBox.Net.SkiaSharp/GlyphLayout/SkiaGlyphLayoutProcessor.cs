@@ -144,7 +144,7 @@ public sealed class SkiaGlyphLayoutProcessor : GlyphLayoutProcessorInterface, ID
         }
 
         string safeText = text ?? string.Empty;
-        foreach (TextRun run in GetVisualRuns(safeText))
+        foreach (BidiTextRunResolver.TextRun run in BidiTextRunResolver.GetVisualRuns(safeText))
         {
             ShowTextUni(contentStream, font, fontSize, run.Text, run.BidiLevel, shapedFont);
         }
@@ -294,73 +294,6 @@ public sealed class SkiaGlyphLayoutProcessor : GlyphLayoutProcessorInterface, ID
         glyphsAndPositions.Clear();
     }
 
-    private static IReadOnlyList<TextRun> GetVisualRuns(string text)
-    {
-        if (text.Length == 0)
-        {
-            return [];
-        }
-
-        List<TextRunBuilder> logicalRuns = [];
-        int? currentLevel = null;
-        int runStart = 0;
-        int runLength = 0;
-
-        foreach (Rune rune in text.EnumerateRunes())
-        {
-            int runeLength = rune.Utf16SequenceLength;
-            int? runeLevel = GetStrongBidiLevel(rune);
-            if (runeLevel.HasValue)
-            {
-                if (currentLevel.HasValue && runeLevel.Value != currentLevel.Value)
-                {
-                    logicalRuns.Add(new TextRunBuilder(runStart, runLength, currentLevel.Value));
-                    runStart += runLength;
-                    runLength = 0;
-                }
-
-                currentLevel = runeLevel.Value;
-            }
-
-            runLength += runeLength;
-        }
-
-        logicalRuns.Add(new TextRunBuilder(runStart, runLength, currentLevel ?? 0));
-        if (logicalRuns.Count == 1)
-        {
-            TextRunBuilder only = logicalRuns[0];
-            return [new TextRun(text.Substring(only.Start, only.Length), only.BidiLevel)];
-        }
-
-        int baseLevel = logicalRuns[0].BidiLevel;
-        IEnumerable<TextRunBuilder> visualRuns = baseLevel == 1 ? logicalRuns.AsEnumerable().Reverse() : logicalRuns;
-        return visualRuns
-            .Select(run => new TextRun(text.Substring(run.Start, run.Length), run.BidiLevel))
-            .ToArray();
-    }
-
-    private static int? GetStrongBidiLevel(Rune rune)
-    {
-        int value = rune.Value;
-        if ((value >= 0x0041 && value <= 0x005A) ||
-            (value >= 0x0061 && value <= 0x007A) ||
-            (value >= 0x00C0 && value <= 0x02AF) ||
-            (value >= 0x0370 && value <= 0x052F))
-        {
-            return 0;
-        }
-
-        if ((value >= 0x0590 && value <= 0x08FF) ||
-            (value >= 0xFB1D && value <= 0xFDFF) ||
-            (value >= 0xFE70 && value <= 0xFEFF) ||
-            (value >= 0x10800 && value <= 0x10FFF))
-        {
-            return 1;
-        }
-
-        return null;
-    }
-
     /// <summary>
     /// Specify glyph layout options for a registered font.
     /// </summary>
@@ -408,10 +341,6 @@ public sealed class SkiaGlyphLayoutProcessor : GlyphLayoutProcessorInterface, ID
         float XAdvanceTextUnits,
         float XOffsetTextUnits,
         float YOffsetDesignUnits);
-
-    private readonly record struct TextRun(string Text, int BidiLevel);
-
-    private readonly record struct TextRunBuilder(int Start, int Length, int BidiLevel);
 
     private sealed class ShapedFont : IDisposable
     {
