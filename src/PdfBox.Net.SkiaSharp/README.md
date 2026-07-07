@@ -49,16 +49,14 @@ contents.ShowText("AV office");
 contents.EndText();
 ```
 
-Glyph layout uses HarfBuzzSharp internally. The dependency stays in this
-optional backend package; `PdfBox.Net.Core` continues to expose only the
-Java-shaped PDFBox glyph layout interfaces.
+Glyph layout uses Unicode.Bidi and HarfBuzzSharp internally. These dependencies
+stay in this optional backend package; `PdfBox.Net.Core` continues to expose
+only the Java-shaped PDFBox glyph layout interfaces.
 
 This shapes generated content streams that opt into the processor. Existing PDF
 page rendering still follows the glyph codes and positions already present in
-the PDF content stream. The processor includes Java-like directional run
-ordering for common Arabic/Hebrew, European-number, and neutral-punctuation
-cases, but full modern Unicode Bidirectional Algorithm parity is still tracked
-separately.
+the PDF content stream. The processor resolves bidirectional visual runs with
+Unicode.Bidi before shaping each run with HarfBuzz.
 
 This package intentionally owns the SkiaSharp dependency so the core
 `PdfBox.Net.Core` package can keep Java-shaped graphics proxy APIs without
