@@ -20,7 +20,7 @@ internal static class BidiTextRunResolver
 
         RuneSlice[] slices = CreateRuneSlices(text);
         int baseLevel = FindBaseLevel(slices);
-        int[] strongLevels = ResolveStrongLevels(slices);
+        int[] strongLevels = ResolveStrongLevels(slices, baseLevel);
         int[] levels = ResolveLevels(slices, strongLevels, baseLevel);
         TextRunBuilder[] logicalRuns = BuildLogicalRuns(slices, levels);
 
@@ -73,7 +73,7 @@ internal static class BidiTextRunResolver
         return 0;
     }
 
-    private static int[] ResolveStrongLevels(RuneSlice[] slices)
+    private static int[] ResolveStrongLevels(RuneSlice[] slices, int baseLevel)
     {
         int[] levels = new int[slices.Length];
         Array.Fill(levels, -1);
@@ -82,7 +82,7 @@ internal static class BidiTextRunResolver
         {
             levels[i] = slices[i].Class switch
             {
-                BidiClass.LeftToRight => 0,
+                BidiClass.LeftToRight => baseLevel == 1 ? 2 : 0,
                 BidiClass.RightToLeft => 1,
                 _ => -1,
             };
@@ -98,7 +98,7 @@ internal static class BidiTextRunResolver
         {
             levels[i] = slices[i].Class switch
             {
-                BidiClass.LeftToRight => 0,
+                BidiClass.LeftToRight => baseLevel == 1 ? 2 : 0,
                 BidiClass.RightToLeft => 1,
                 BidiClass.Number => IsNumberInRightToLeftContext(strongLevels, i, baseLevel) ? 2 : 0,
                 _ => ResolveNeutralLevel(slices, strongLevels, i, baseLevel),
@@ -110,6 +110,11 @@ internal static class BidiTextRunResolver
 
     private static bool IsNumberInRightToLeftContext(int[] strongLevels, int index, int baseLevel)
     {
+        if (baseLevel == 1)
+        {
+            return true;
+        }
+
         int previous = PreviousStrongLevel(strongLevels, index);
         if (previous == 1)
         {
@@ -127,11 +132,21 @@ internal static class BidiTextRunResolver
 
         if (NextClass(slices, index) == BidiClass.Number && previousStrong != -1)
         {
+            if (baseLevel == 1 && previousStrong == 2)
+            {
+                return baseLevel;
+            }
+
             return previousStrong;
         }
 
         if (PreviousClass(slices, index) == BidiClass.Number && nextStrong != -1)
         {
+            if (baseLevel == 1 && nextStrong == 2)
+            {
+                return baseLevel;
+            }
+
             return nextStrong;
         }
 
