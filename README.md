@@ -145,9 +145,9 @@ Traceability records are maintained in:
 
 ## Upstream sync automation
 
-A daily scheduled workflow (`.github/workflows/upstream-sync-watch.yml`, 07:00 UTC) watches the `apache/pdfbox` `trunk` branch for new commits. When upstream drift is detected it:
+A daily scheduled workflow (`.github/workflows/upstream-sync-watch.yml`, 07:00 UTC) watches the `apache/pdfbox` `trunk` branch for the main port line and the Apache `3.0` branch for the `release/3.0` port line. When upstream drift is detected it:
 
-1. Creates or updates a single "Upstream PDFBox has new commits to sync" issue.
+1. Creates or updates a matching upstream-sync issue for the affected port line.
 2. Runs `tools/parity/generate_parity_inventory.py` to regenerate the parity inventory.
 3. Refreshes `reports/upstream-sync-state.json`, `reports/upstream-port-coverage-state.json`, `reports/all-upstream-coverage.json`, and `reports/pdfbox-main-gap-analysis.md`.
 
