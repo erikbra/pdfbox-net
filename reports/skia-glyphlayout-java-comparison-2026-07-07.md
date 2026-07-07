@@ -99,6 +99,16 @@ run expectations are now pinned in
 - Neutral parentheses around Hebrew in LTR text attach to the LTR runs, matching
   Java's base-direction neutral handling for this sample.
 
+A later pass added `JavaBidiRunProbe.java` and compared additional RTL
+paragraph cases. Those samples showed that Java assigns embedded Latin runs to
+even level `2` when the paragraph base level is RTL. `BidiTextRunResolver` was
+updated to match that behavior for:
+
+- leading European numbers followed by Hebrew and Latin text,
+- Hebrew plus European digits plus trailing Latin text,
+- LTR text containing Hebrew plus hyphenated European digits,
+- Arabic text with embedded Latin text and European digits.
+
 ## Code Changes
 
 - Added `BidiTextRunResolver`, an internal SkiaSharp-package helper that
@@ -106,14 +116,15 @@ run expectations are now pinned in
 - Replaced the previous strong-character-only splitter in
   `SkiaGlyphLayoutProcessor`.
 - Added unit tests that encode the Java Bidi run outputs above.
-- Added `JavaGlyphLayoutProbe.java` and documentation for local Java/AWT glyph
-  vector comparisons.
+- Added `JavaGlyphLayoutProbe.java`, `JavaBidiRunProbe.java`, and documentation
+  for local Java/AWT glyph vector and Java `Bidi` visual-run comparisons.
 
 ## Remaining Differences
 
 The new resolver is deliberately narrower than full UAX #9. It covers the
-representative Java cases above and improves output for common RTL numbers and
-neutral punctuation, but it should not be documented as full Bidi parity.
+representative Java cases above, RTL paragraph embedding of Latin text and
+European numbers, and common neutral punctuation, but it should not be
+documented as full Bidi parity.
 
 Fallback Unicode rendering in `SkiaPageDrawerPeer.DrawUnicodeGlyphFallback(...)`
 still receives one decoded PDF code at a time. HarfBuzz-based fallback

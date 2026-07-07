@@ -123,6 +123,41 @@ public class SkiaGlyphLayoutProcessorTest
                 ("\u05D0\u05D1\u05D2", 1),
                 (") def", 0),
             ]);
+
+        AssertVisualRuns(
+            "123 \u05D0\u05D1\u05D2 def",
+            [
+                ("def", 2),
+                (" \u05D0\u05D1\u05D2 ", 1),
+                ("123", 2),
+            ]);
+
+        AssertVisualRuns(
+            "\u05D0\u05D1\u05D2 123 def",
+            [
+                ("def", 2),
+                (" ", 1),
+                ("123", 2),
+                ("\u05D0\u05D1\u05D2 ", 1),
+            ]);
+
+        AssertVisualRuns(
+            "abc \u05D0\u05D1\u05D2-123 def",
+            [
+                ("abc ", 0),
+                ("123", 2),
+                ("\u05D0\u05D1\u05D2-", 1),
+                (" def", 0),
+            ]);
+
+        AssertVisualRuns(
+            "\u0645\u0631\u062D\u0628\u0627 (abc) 123",
+            [
+                ("123", 2),
+                (") ", 1),
+                ("abc", 2),
+                ("\u0645\u0631\u062D\u0628\u0627 (", 1),
+            ]);
     }
 
     private static string FontPath(string name)

@@ -108,6 +108,13 @@ runs, European numbers inside RTL text as even-level runs, and neutral
 punctuation such as parentheses resolving back to the base direction when
 surrounded by opposite strong directions.
 
+A follow-up Java comparison pass tightened RTL paragraph behavior: when the
+paragraph base level is RTL, embedded Latin runs and European digits now use
+Java-like even level `2` instead of being treated as root-level LTR text. The
+tests pin Java-observed visual run order for leading-number RTL paragraphs,
+RTL paragraphs with trailing Latin text, hyphenated RTL-plus-number text, and
+Arabic text containing embedded Latin plus European digits.
+
 This is closer to Java than the previous strong-character splitter, but it is
 still not a complete modern UAX #9 implementation. Full Bidi parity remains
 open under issue #618 and should be solved either by a well-maintained licensed
@@ -125,6 +132,8 @@ New tests cover:
 - Content stream output using shaped glyph IDs rather than raw Unicode text.
 - Java `java.text.Bidi` representative visual run outputs for Arabic numbers,
   mixed Arabic/LTR text, Hebrew plus European digits, and neutral parentheses.
+- Java `java.text.Bidi` RTL paragraph outputs where embedded Latin and
+  European numbers are level `2` runs.
 
 ## Remaining Work For #618
 
