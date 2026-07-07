@@ -135,7 +135,7 @@ jobs:
     environment: nuget.org
     permissions:
       actions: read
-      contents: read
+      contents: write
       id-token: write
 
     steps:
@@ -207,3 +207,39 @@ jobs:
           fi
 
           "${args[@]}"
+
+      - name: Create GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PACKAGE_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          tag="v${PACKAGE_VERSION}"
+          title="PdfBox.Net ${PACKAGE_VERSION}"
+          packages=(artifacts/packages/*.nupkg)
+
+          if [ "${#packages[@]}" -eq 0 ]; then
+            echo "No NuGet packages were found to attach to the GitHub release." >&2
+            exit 1
+          fi
+
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "GitHub release $tag already exists; refreshing package assets."
+            gh release upload "$tag" "${packages[@]}" --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$tag" "${packages[@]}" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "$title" \
+              --generate-notes
+          fi
+
+          release_url="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url --jq .url)"
+          {
+            echo "### GitHub release"
+            echo
+            echo "- [$tag]($release_url)"
+          } >> "$GITHUB_STEP_SUMMARY"
