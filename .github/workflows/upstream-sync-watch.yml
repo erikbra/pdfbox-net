@@ -16,33 +16,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Compare tracked commit with upstream trunk
+      - name: Compare tracked commits with upstream branches
         env:
           GITHUB_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
           python - <<'PY'
+          import base64
           import json
           import os
+          import urllib.parse
           import urllib.request
           import urllib.error
-
-          state_path = "reports/upstream-sync-state.json"
-          with open(state_path, "r", encoding="utf-8") as f:
-              state = json.load(f)
-
-          upstream_repo = state["upstream_repository"]
-          upstream_branch = state["upstream_branch"]
-          tracked_commit = state["tracked_commit"]
-
-          with urllib.request.urlopen(
-              f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_branch}"
-          ) as resp:
-              upstream_commit = json.load(resp)["sha"]
-
-          if upstream_commit == tracked_commit:
-              print("Tracked commit already matches upstream trunk.")
-              raise SystemExit(0)
 
           owner, repo = os.environ["REPO"].split("/", 1)
           token = os.environ["GITHUB_TOKEN"]
@@ -52,52 +37,113 @@ jobs:
               "X-GitHub-Api-Version": "2022-11-28",
           }
 
-          issue_title = "Upstream PDFBox has new commits to sync"
-          issue_body = (
-              "Upstream PDFBox trunk has moved beyond our tracked commit.\n\n"
-              f"- Tracked commit: `{tracked_commit}`\n"
-              f"- Latest upstream commit: `{upstream_commit}`\n\n"
-              f"Compare: https://github.com/{upstream_repo}/compare/{tracked_commit}...{upstream_commit}\n\n"
-              f"After syncing changes, update `{state_path}` with the new tracked commit."
-          )
+          checks = [
+              {
+                  "label": "trunk",
+                  "port_branch": os.environ.get("GITHUB_REF_NAME", "main"),
+                  "state_path": "reports/upstream-sync-state.json",
+                  "state_ref": None,
+                  "issue_title": "Upstream PDFBox has new commits to sync",
+              },
+              {
+                  "label": "3.0",
+                  "port_branch": "release/3.0",
+                  "state_path": "reports/upstream-sync-state.json",
+                  "state_ref": "release/3.0",
+                  "issue_title": "Upstream PDFBox 3.0 has new commits to sync",
+              },
+          ]
+
+          def request_json(url, *, method="GET", payload=None):
+              data = None if payload is None else json.dumps(payload).encode("utf-8")
+              req = urllib.request.Request(url, data=data, headers=headers, method=method)
+              with urllib.request.urlopen(req) as resp:
+                  return json.load(resp)
+
+          def normalize_upstream_ref(upstream_branch):
+              for prefix in ("origin/", "refs/heads/"):
+                  if upstream_branch.startswith(prefix):
+                      return upstream_branch[len(prefix):]
+              return upstream_branch
+
+          def load_state(check):
+              state_ref = check["state_ref"]
+              state_path = check["state_path"]
+              if state_ref is None:
+                  with open(state_path, "r", encoding="utf-8") as f:
+                      return json.load(f)
+
+              quoted_path = urllib.parse.quote(state_path)
+              quoted_ref = urllib.parse.quote(state_ref, safe="")
+              contents_url = (
+                  f"https://api.github.com/repos/{owner}/{repo}/contents/{quoted_path}"
+                  f"?ref={quoted_ref}"
+              )
+              payload = request_json(contents_url)
+              content = base64.b64decode(payload["content"]).decode("utf-8")
+              return json.loads(content)
 
           search_url = (
               f"https://api.github.com/repos/{owner}/{repo}/issues"
               "?state=open&per_page=100"
           )
-          req = urllib.request.Request(search_url, headers=headers)
-          with urllib.request.urlopen(req) as resp:
-              issues = json.load(resp)
+          issues = request_json(search_url)
 
-          existing = None
-          for issue in issues:
-              if issue.get("title") == issue_title:
-                  existing = issue
-                  break
+          drift_found = False
+          for check in checks:
+              state = load_state(check)
+              upstream_repo = state["upstream_repository"]
+              upstream_ref = normalize_upstream_ref(state["upstream_branch"])
+              tracked_commit = state["tracked_commit"]
 
-          if existing is None:
-              create_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
-              payload = json.dumps(
-                  {
-                      "title": issue_title,
-                      "body": issue_body,
-                  }
-              ).encode("utf-8")
-              create_req = urllib.request.Request(
-                  create_url, data=payload, headers=headers, method="POST"
+              upstream_url = f"https://api.github.com/repos/{upstream_repo}/commits/{upstream_ref}"
+              upstream_commit = request_json(upstream_url)["sha"]
+
+              if upstream_commit == tracked_commit:
+                  print(f"Tracked commit already matches upstream {check['label']}.")
+                  continue
+
+              drift_found = True
+              issue_title = check["issue_title"]
+              state_location = check["state_path"]
+              if check["state_ref"] is not None:
+                  state_location = f"{state_location} on `{check['state_ref']}`"
+              issue_body = (
+                  f"Upstream PDFBox `{check['label']}` has moved beyond our tracked commit.\n\n"
+                  f"- Port branch: `{check['port_branch']}`\n"
+                  f"- Upstream branch: `{upstream_ref}`\n"
+                  f"- Tracked commit: `{tracked_commit}`\n"
+                  f"- Latest upstream commit: `{upstream_commit}`\n\n"
+                  f"Compare: https://github.com/{upstream_repo}/compare/{tracked_commit}...{upstream_commit}\n\n"
+                  f"After syncing changes into `{check['port_branch']}`, update `{state_location}` "
+                  "with the new tracked commit."
               )
-              with urllib.request.urlopen(create_req) as resp:
-                  created = json.load(resp)
-              print(f"Created upstream-sync issue #{created['number']}.")
-          else:
-              update_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{existing['number']}"
-              payload = json.dumps({"body": issue_body}).encode("utf-8")
-              update_req = urllib.request.Request(
-                  update_url, data=payload, headers=headers, method="PATCH"
-              )
-              with urllib.request.urlopen(update_req) as resp:
-                  updated = json.load(resp)
-              print(f"Updated upstream-sync issue #{updated['number']}.")
+
+              existing = None
+              for issue in issues:
+                  if issue.get("title") == issue_title:
+                      existing = issue
+                      break
+
+              if existing is None:
+                  create_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
+                  created = request_json(
+                      create_url,
+                      method="POST",
+                      payload={"title": issue_title, "body": issue_body},
+                  )
+                  print(f"Created upstream-sync issue #{created['number']} for {check['label']}.")
+              else:
+                  update_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{existing['number']}"
+                  updated = request_json(
+                      update_url,
+                      method="PATCH",
+                      payload={"body": issue_body},
+                  )
+                  print(f"Updated upstream-sync issue #{updated['number']} for {check['label']}.")
+
+          if not drift_found:
+              print("All tracked upstream commits are current.")
           PY
 
   scan-missing-ports:
