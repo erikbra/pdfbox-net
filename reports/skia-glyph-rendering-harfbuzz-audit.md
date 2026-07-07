@@ -92,15 +92,27 @@ NuGet candidates reviewed:
 - `BidiSharp` 0.2.1: MIT licensed, but targets Unicode 6.3 and exposes only a
   low-level `LogicalToVisual(string, int[])` API that requires caller-provided
   embedding levels. Do not use it as a complete Java `Bidi` replacement.
+- `Harara.Bidi` 1.0.3: MIT licensed and managed, but its public model returns
+  visual text and performs Arabic/Persian presentation-form shaping. That is
+  useful for naive text renderers, but it is the wrong input for HarfBuzz,
+  which should receive logical Unicode plus a run direction.
 - `FriBidiSharp`: wraps native FriBidi, which would add another native runtime
   dependency family. This may be valid later, but should be evaluated as a
   separate backend dependency decision.
 
-Current implementation status: `SkiaGlyphLayoutProcessor` includes only a
-small directional-run splitter for common LTR/RTL ranges. This is intentionally
-documented as not full UAX #9 support. Full Bidi parity remains open under
-issue #618 and should be solved either by a well-maintained licensed dependency
-or by a focused port/adaptation with explicit Unicode-version coverage.
+Current implementation status: `SkiaGlyphLayoutProcessor` now uses an internal
+`BidiTextRunResolver` for Java-like visual run ordering before HarfBuzz
+shaping. The resolver covers the Java `Bidi` cases seen in Apache's
+`GlyphLayoutBidiTest` style samples: Arabic/Hebrew RTL runs, mixed LTR/RTL
+runs, European numbers inside RTL text as even-level runs, and neutral
+punctuation such as parentheses resolving back to the base direction when
+surrounded by opposite strong directions.
+
+This is closer to Java than the previous strong-character splitter, but it is
+still not a complete modern UAX #9 implementation. Full Bidi parity remains
+open under issue #618 and should be solved either by a well-maintained licensed
+dependency that exposes run levels without reshaping text, or by a focused
+port/adaptation with explicit Unicode-version coverage.
 
 ## Test Coverage Added
 
@@ -111,13 +123,16 @@ New tests cover:
 - Complex-script substitution with `Lohit-Bengali.ttf`, where the Bengali
   cluster `U+0995 U+09CD U+09B0` shapes to one glyph.
 - Content stream output using shaped glyph IDs rather than raw Unicode text.
+- Java `java.text.Bidi` representative visual run outputs for Arabic numbers,
+  mixed Arabic/LTR text, Hebrew plus European digits, and neutral parentheses.
 
 ## Remaining Work For #618
 
-- Add full Bidi support and tests for Arabic/Hebrew and mixed LTR/RTL text.
+- Add full UAX #9 Bidi support if a suitable dependency or focused internal
+  port is chosen.
 - Decide whether fallback Unicode rendering should buffer whole text runs so it
   can shape fallback text with HarfBuzz before drawing/filling/stroking/clipping.
-- Add Java PDFBox/AWT raster comparison fixtures for Latin kerning, ligatures,
-  RTL, mixed-direction, combining marks, and complex scripts.
+- Promote the local Java PDFBox/AWT comparison probe into CI fixtures if the
+  required extra fonts are accepted as test assets.
 - If fallback run shaping is implemented, verify fill, stroke, fill+stroke,
   invisible, and clipping rendering modes use identical shaped paths.

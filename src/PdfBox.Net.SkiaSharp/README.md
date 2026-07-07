@@ -55,9 +55,10 @@ Java-shaped PDFBox glyph layout interfaces.
 
 This shapes generated content streams that opt into the processor. Existing PDF
 page rendering still follows the glyph codes and positions already present in
-the PDF content stream. Full Unicode Bidirectional Algorithm parity is tracked
-separately and is not provided by the current lightweight directional run
-splitter.
+the PDF content stream. The processor includes Java-like directional run
+ordering for common Arabic/Hebrew, European-number, and neutral-punctuation
+cases, but full modern Unicode Bidirectional Algorithm parity is still tracked
+separately.
 
 This package intentionally owns the SkiaSharp dependency so the core
 `PdfBox.Net.Core` package can keep Java-shaped graphics proxy APIs without
