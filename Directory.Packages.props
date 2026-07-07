@@ -23,6 +23,7 @@
     <PackageVersion Include="System.Drawing.Common" Version="9.0.4" />
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="9.0.4" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="4.148.0" />
+    <PackageVersion Include="Unicode.Bidi" Version="0.3.18-preview.1" />
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
   </ItemGroup>

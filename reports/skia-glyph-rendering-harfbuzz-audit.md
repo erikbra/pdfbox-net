@@ -85,28 +85,20 @@ rasterization.
 Full Java parity uses `java.text.Bidi`, which implements the Unicode
 Bidirectional Algorithm. .NET does not provide an equivalent BCL API.
 
-NuGet candidates reviewed:
-
-- `Bidi` 0.9.0: exposes `System.Text.Bidi`, but its NuGet metadata has no
-  license expression or license URL. Do not add it.
-- `BidiSharp` 0.2.1: MIT licensed, but targets Unicode 6.3 and exposes only a
-  low-level `LogicalToVisual(string, int[])` API that requires caller-provided
-  embedding levels. Do not use it as a complete Java `Bidi` replacement.
-- `Harara.Bidi` 1.0.3: MIT licensed and managed, but its public model returns
-  visual text and performs Arabic/Persian presentation-form shaping. That is
-  useful for naive text renderers, but it is the wrong input for HarfBuzz,
-  which should receive logical Unicode plus a run direction.
-- `FriBidiSharp`: wraps native FriBidi, which would add another native runtime
-  dependency family. This may be valid later, but should be evaluated as a
-  separate backend dependency decision.
+Decision: use the optional `Unicode.Bidi` NuGet package in
+`PdfBox.Net.SkiaSharp`. The package is a .NET port of Rust `unicode-bidi`
+0.3.18, targets .NET 10, has no transitive dependencies, tracks Unicode data
+16.0.0, and exposes UTF-16 code-unit ranges and resolved levels. That API shape
+fits `SkiaGlyphLayoutProcessor`: it can split visual runs while keeping
+HarfBuzz input as logical Unicode text plus a direction.
 
 Current implementation status: `SkiaGlyphLayoutProcessor` now uses an internal
-`BidiTextRunResolver` for Java-like visual run ordering before HarfBuzz
-shaping. The resolver covers the Java `Bidi` cases seen in Apache's
+`BidiTextRunResolver` adapter over `Unicode.Bidi` before HarfBuzz shaping.
+The resolver covers the Java `Bidi` cases seen in Apache's
 `GlyphLayoutBidiTest` style samples: Arabic/Hebrew RTL runs, mixed LTR/RTL
-runs, European numbers inside RTL text as even-level runs, and neutral
-punctuation such as parentheses resolving back to the base direction when
-surrounded by opposite strong directions.
+runs, European numbers inside RTL text as even-level runs, neutral punctuation
+such as parentheses resolving back to the base direction when surrounded by
+opposite strong directions, and isolate controls in representative mixed text.
 
 A follow-up Java comparison pass tightened RTL paragraph behavior: when the
 paragraph base level is RTL, embedded Latin runs and European digits now use
@@ -115,11 +107,12 @@ tests pin Java-observed visual run order for leading-number RTL paragraphs,
 RTL paragraphs with trailing Latin text, hyphenated RTL-plus-number text, and
 Arabic text containing embedded Latin plus European digits.
 
-This is closer to Java than the previous strong-character splitter, but it is
-still not a complete modern UAX #9 implementation. Full Bidi parity remains
-open under issue #618 and should be solved either by a well-maintained licensed
-dependency that exposes run levels without reshaping text, or by a focused
-port/adaptation with explicit Unicode-version coverage.
+This replaces the previous strong-character splitter with a conformance-focused
+UAX #9 implementation while keeping the dependency isolated to the SkiaSharp
+backend. Java `Bidi` and Rust `unicode-bidi` can associate explicit formatting
+controls with adjacent runs differently; those controls are non-rendering, but
+visible Java comparison tests remain focused on glyph-bearing text and isolate
+controls.
 
 ## Test Coverage Added
 
@@ -134,11 +127,12 @@ New tests cover:
   mixed Arabic/LTR text, Hebrew plus European digits, and neutral parentheses.
 - Java `java.text.Bidi` RTL paragraph outputs where embedded Latin and
   European numbers are level `2` runs.
+- Java `java.text.Bidi` isolate-control output for mixed Hebrew/European-digit
+  text.
 
 ## Remaining Work For #618
 
-- Add full UAX #9 Bidi support if a suitable dependency or focused internal
-  port is chosen.
+- Monitor `Unicode.Bidi` preview package upgrades and conformance ratchets.
 - Decide whether fallback Unicode rendering should buffer whole text runs so it
   can shape fallback text with HarfBuzz before drawing/filling/stroking/clipping.
 - Promote the local Java PDFBox/AWT comparison probe into CI fixtures if the

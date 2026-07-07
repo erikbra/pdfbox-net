@@ -109,11 +109,19 @@ updated to match that behavior for:
 - LTR text containing Hebrew plus hyphenated European digits,
 - Arabic text with embedded Latin text and European digits.
 
+A follow-up integration replaced the local Java-like resolver with the
+`Unicode.Bidi` NuGet package. `BidiTextRunResolver` is now a thin SkiaSharp
+adapter over `Unicode.Bidi` visual runs and resolved levels, preserving the
+existing Java-observed expectations while covering a broader UAX #9 surface.
+An isolate-control sample from Java `Bidi` was added to keep comparison
+coverage around modern directional controls.
+
 ## Code Changes
 
 - Added `BidiTextRunResolver`, an internal SkiaSharp-package helper that
-  resolves Java-like visual runs before HarfBuzz shaping.
-- Replaced the previous strong-character-only splitter in
+  resolves visual runs before HarfBuzz shaping.
+- Replaced the previous strong-character-only splitter and later the
+  intermediate Java-like resolver with a `Unicode.Bidi` adapter in
   `SkiaGlyphLayoutProcessor`.
 - Added unit tests that encode the Java Bidi run outputs above.
 - Added `JavaGlyphLayoutProbe.java`, `JavaBidiRunProbe.java`, and documentation
@@ -121,10 +129,10 @@ updated to match that behavior for:
 
 ## Remaining Differences
 
-The new resolver is deliberately narrower than full UAX #9. It covers the
-representative Java cases above, RTL paragraph embedding of Latin text and
-European numbers, and common neutral punctuation, but it should not be
-documented as full Bidi parity.
+Generated-content Bidi now depends on `Unicode.Bidi`, a UAX #9 port of Rust
+`unicode-bidi`. It should be treated as the full-Bidi path for
+`SkiaGlyphLayoutProcessor`, with Java comparison tests remaining in place for
+the PDFBox-specific run-splitting behavior we care about.
 
 Fallback Unicode rendering in `SkiaPageDrawerPeer.DrawUnicodeGlyphFallback(...)`
 still receives one decoded PDF code at a time. HarfBuzz-based fallback

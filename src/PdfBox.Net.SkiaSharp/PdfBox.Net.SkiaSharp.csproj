@@ -7,7 +7,7 @@
     <Title>PdfBox.Net.SkiaSharp</Title>
     <Description>Complete cross-platform SkiaSharp rendering and glyph layout backend for PdfBox.Net.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>pdf;pdfbox;apache;rendering;skiasharp;graphics;images;harfbuzz;text-shaping</PackageTags>
+    <PackageTags>pdf;pdfbox;apache;rendering;skiasharp;graphics;images;harfbuzz;text-shaping;unicode;bidi</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +17,7 @@
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" />
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
+    <PackageReference Include="Unicode.Bidi" />
     <ProjectReference Include="..\PdfBox.Net\PdfBox.Net.csproj" />
   </ItemGroup>
 
