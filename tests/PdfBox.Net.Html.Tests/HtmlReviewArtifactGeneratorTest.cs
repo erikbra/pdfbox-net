@@ -50,6 +50,8 @@ public sealed class HtmlReviewArtifactGeneratorTest
         string css = Path.Combine(exampleDirectory, "assets", "pdfbox-net-fixed.css");
         string semanticHtml = Path.Combine(exampleDirectory, "semantic", "index.html");
         string semanticCss = Path.Combine(exampleDirectory, "semantic", "assets", "pdfbox-net-semantic.css");
+        string continuousSemanticHtml = Path.Combine(exampleDirectory, "semantic-continuous", "index.html");
+        string continuousSemanticCss = Path.Combine(exampleDirectory, "semantic-continuous", "assets", "pdfbox-net-semantic-continuous.css");
         string compare = Path.Combine(exampleDirectory, "compare.html");
         string qualityReportJson = Path.Combine(exampleDirectory, "quality", "quality-report.json");
         string qualityReportMarkdown = Path.Combine(exampleDirectory, "quality", "quality-report.md");
@@ -60,6 +62,8 @@ public sealed class HtmlReviewArtifactGeneratorTest
         Assert.True(File.Exists(css));
         Assert.True(File.Exists(semanticHtml));
         Assert.True(File.Exists(semanticCss));
+        Assert.True(File.Exists(continuousSemanticHtml));
+        Assert.True(File.Exists(continuousSemanticCss));
         Assert.True(File.Exists(compare));
         Assert.True(File.Exists(qualityReportJson));
         Assert.True(File.Exists(qualityReportMarkdown));
@@ -67,11 +71,14 @@ public sealed class HtmlReviewArtifactGeneratorTest
         Assert.Contains("source.pdf", File.ReadAllText(compare));
         Assert.Contains("index.html", File.ReadAllText(compare));
         Assert.Contains("semantic/index.html", File.ReadAllText(compare));
+        Assert.Contains("semantic-continuous/index.html", File.ReadAllText(compare));
         Assert.Contains("quality/quality-report.md", File.ReadAllText(compare));
         string artifactIndex = File.ReadAllText(Path.Combine(outputDirectory, "index.html"));
         Assert.Contains("review-artifact-sample/compare.html", artifactIndex);
         Assert.Contains("review-artifact-sample/semantic/index.html", artifactIndex);
+        Assert.Contains("review-artifact-sample/semantic-continuous/index.html", artifactIndex);
         Assert.Contains("review-artifact-sample/quality/quality-report.md", artifactIndex);
+        Assert.Contains("semantic-continuous/index.html", File.ReadAllText(Path.Combine(exampleDirectory, "summary.md")));
 
         using JsonDocument quality = JsonDocument.Parse(File.ReadAllText(qualityReportJson));
         Assert.Equal(1, quality.RootElement.GetProperty("Schema").GetInt32());

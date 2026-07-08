@@ -232,6 +232,127 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsSoftPageMarkersInsteadOfFixedPages()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = false
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-page"));
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-page"));
+        Assert.Contains("pdf-document-continuous", dom.Descendants("body").Single().Attribute("class")?.Value);
+        Assert.Contains(".pdf-semantic-page-break", html.Css, StringComparison.Ordinal);
+        Assert.Contains("break-before: page", html.Css, StringComparison.Ordinal);
+
+        XElement documentFlow = Assert.Single(ElementsByClass(dom, "pdf-semantic-document-flow"));
+        XElement article = Assert.Single(documentFlow.Elements("article"), element =>
+            HasClass(element, "pdf-semantic-flow") &&
+            HasClass(element, "pdf-semantic-continuous-flow"));
+        XElement[] pageBreaks = ElementsByClass(dom, "pdf-semantic-page-break").ToArray();
+        Assert.Equal(layout.Pages.Count, pageBreaks.Length);
+        Assert.Equal("page-1", pageBreaks[0].Attribute("id")?.Value);
+        Assert.Contains("pdf-semantic-page-start", pageBreaks[0].Attribute("class")?.Value);
+        Assert.Equal("1", pageBreaks[0].Attribute("data-page-number")?.Value);
+        Assert.Equal("page-2", pageBreaks[1].Attribute("id")?.Value);
+        Assert.Equal("2", pageBreaks[1].Attribute("data-page-number")?.Value);
+
+        XElement[] articleChildren = article.Elements().ToArray();
+        int pageTwoBreakIndex = Array.IndexOf(articleChildren, pageBreaks[1]);
+        int introductionIndex = Array.FindIndex(articleChildren, element =>
+            element.Name.LocalName == "h1" &&
+            element.Value == "1 Introduction");
+        Assert.True(pageTwoBreakIndex >= 0 && introductionIndex > pageTwoBreakIndex);
+
+        XElement abstractHeading = Assert.Single(article.Descendants("h2"), element => element.Value == "Abstract");
+        Assert.Contains("pdf-semantic-align-center", abstractHeading.Attribute("class")?.Value);
+        Assert.Contains(ElementsByClass(dom, "pdf-semantic-footer"), footer =>
+            footer.Value.Contains("31st Conference", StringComparison.Ordinal));
+        Assert.DoesNotContain(ElementsByClass(dom, "pdf-semantic-footer"), footer => footer.Value == "2");
+    }
+
+    [Fact]
+    public async Task Convert_SemanticContinuousFlow_RendersReadableFlowInBrowser()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = false
+        });
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize
+            {
+                Width = 1000,
+                Height = 1400
+            }
+        });
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        ContinuousFlowMetrics metrics = await page.EvaluateAsync<ContinuousFlowMetrics>(
+            """
+            () => {
+              const documentFlow = document.querySelector(".pdf-semantic-document-flow");
+              const flow = document.querySelector(".pdf-semantic-continuous-flow");
+              const markers = Array.from(document.querySelectorAll(".pdf-semantic-page-break"));
+              const introduction = Array.from(document.querySelectorAll("h1"))
+                .find(element => element.textContent === "1 Introduction");
+              const documentBox = documentFlow.getBoundingClientRect();
+              const flowBox = flow.getBoundingClientRect();
+              const childRightOverflow = Math.max(0, ...Array.from(flow.children)
+                .map(child => child.getBoundingClientRect().right - documentBox.right));
+
+              return {
+                fixedPageCount: document.querySelectorAll(".pdf-page").length,
+                markerCount: markers.length,
+                documentWidth: documentBox.width,
+                flowWidth: flowBox.width,
+                firstMarkerTop: markers[0].getBoundingClientRect().top,
+                secondMarkerTop: markers[1].getBoundingClientRect().top,
+                introductionTop: introduction.getBoundingClientRect().top,
+                childRightOverflow
+              };
+            }
+            """);
+
+        Assert.Equal(0, metrics.FixedPageCount);
+        Assert.Equal(layout.Pages.Count, metrics.MarkerCount);
+        Assert.InRange(metrics.DocumentWidth, 780, 840);
+        Assert.InRange(metrics.FlowWidth, 500, 540);
+        Assert.True(metrics.SecondMarkerTop > metrics.FirstMarkerTop);
+        Assert.True(metrics.IntroductionTop > metrics.SecondMarkerTop);
+        Assert.True(
+            metrics.ChildRightOverflow <= 1.0,
+            $"Continuous semantic flow extends {metrics.ChildRightOverflow:0.###} CSS pixels outside the document column.");
+    }
+
+    [Fact]
     public async Task Convert_SemanticTextMode_DoesNotClipArxivPageFlow()
     {
         using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
@@ -863,6 +984,25 @@ public class PdfHtmlConverterTest
         return (
             BinaryPrimitives.ReadInt32BigEndian(png.AsSpan(16, 4)),
             BinaryPrimitives.ReadInt32BigEndian(png.AsSpan(20, 4)));
+    }
+
+    private sealed class ContinuousFlowMetrics
+    {
+        public int FixedPageCount { get; set; }
+
+        public int MarkerCount { get; set; }
+
+        public double DocumentWidth { get; set; }
+
+        public double FlowWidth { get; set; }
+
+        public double FirstMarkerTop { get; set; }
+
+        public double SecondMarkerTop { get; set; }
+
+        public double IntroductionTop { get; set; }
+
+        public double ChildRightOverflow { get; set; }
     }
 
     private sealed class BrowserRenderComparison
