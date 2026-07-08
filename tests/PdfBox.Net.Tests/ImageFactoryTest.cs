@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Tests;
@@ -169,6 +170,23 @@ public class ImageFactoryTest
         Assert.True(result.Data.Length >= 24);
         Assert.Equal(0x89504E47u, BinaryPrimitives.ReadUInt32BigEndian(result.Data.AsSpan(0, 4)));
         Assert.Equal(2, BinaryPrimitives.ReadInt32BigEndian(result.Data.AsSpan(16, 4)));
+        Assert.Equal(1, BinaryPrimitives.ReadInt32BigEndian(result.Data.AsSpan(20, 4)));
+    }
+
+    [Fact]
+    public void PdfImageExporter_ExportPng_ExportsInlineImage()
+    {
+        COSDictionary parameters = new();
+        parameters.SetInt(COSName.GetPDFName("W"), 1);
+        parameters.SetInt(COSName.H, 1);
+        parameters.SetInt(COSName.GetPDFName("BPC"), 8);
+        parameters.SetItem(COSName.CS, COSName.GetPDFName("RGB"));
+        PDInlineImage image = new(parameters, [255, 0, 0], new PDResources());
+
+        PdfImageExportResult result = PdfImageExporter.ExportPng(image);
+
+        Assert.Equal("image/png", result.ContentType);
+        Assert.Equal(1, BinaryPrimitives.ReadInt32BigEndian(result.Data.AsSpan(16, 4)));
         Assert.Equal(1, BinaryPrimitives.ReadInt32BigEndian(result.Data.AsSpan(20, 4)));
     }
 

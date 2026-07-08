@@ -9,6 +9,8 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.ContentStream;
+using PdfBox.Net.PDModel.Graphics.Image;
 
 namespace PdfBox.Net.ContentStream.Operator.Graphics;
 
@@ -18,6 +20,14 @@ public sealed class BeginInlineImage : OperatorProcessor
 
     public override void Process(Operator op, IList<COSBase> operands)
     {
+        if (op.GetImageParameters() is COSDictionary parameters &&
+            op.GetImageData() is byte[] data &&
+            Context is PDFGraphicsStreamEngine graphics)
+        {
+            graphics.DrawImage(new PDInlineImage(parameters, data, Context.GetResources()));
+            return;
+        }
+
         Context.BeginInlineImage();
     }
 }

@@ -495,14 +495,19 @@ public static class PdfLayoutExtractor
         {
             if (xobject is PDImageXObject image)
             {
-                CollectImage(image, ResolveSourceName(xobject));
+                CollectXObjectImage(image, ResolveSourceName(xobject));
                 return;
             }
 
             base.XObject(xobject);
         }
 
-        private void CollectImage(PDImageXObject image, string? sourceName)
+        public override void DrawImage(PDImage pdImage)
+        {
+            CollectInlineImage(pdImage);
+        }
+
+        private void CollectXObjectImage(PDImageXObject image, string? sourceName)
         {
             if (_rotation != 0)
             {
@@ -546,11 +551,80 @@ public static class PdfLayoutExtractor
 
             if (_includeImageAssets)
             {
-                ExportImageAsset(image, assetId, index);
+                ExportXObjectImageAsset(image, assetId, index);
             }
         }
 
-        private void ExportImageAsset(PDImageXObject image, string assetId, int index)
+        private void CollectInlineImage(PDImage image)
+        {
+            if (_rotation != 0)
+            {
+                if (!_reportedRotatedImage)
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "image-rotation-unsupported",
+                        "Image placement geometry is not collected for rotated pages yet.",
+                        _pageNumber));
+                    _reportedRotatedImage = true;
+                }
+
+                return;
+            }
+
+            Matrix ctm = GetGraphicsState().GetCurrentTransformationMatrix();
+            Vector lowerLeft = ctm.TransformPoint(0, 0);
+            Vector lowerRight = ctm.TransformPoint(1, 0);
+            Vector upperRight = ctm.TransformPoint(1, 1);
+            Vector upperLeft = ctm.TransformPoint(0, 1);
+            float minX = Min(lowerLeft.GetX(), lowerRight.GetX(), upperRight.GetX(), upperLeft.GetX());
+            float maxX = Max(lowerLeft.GetX(), lowerRight.GetX(), upperRight.GetX(), upperLeft.GetX());
+            float minY = Min(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
+            float maxY = Max(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
+            int index = _images.Count;
+            string assetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-image-{index.ToString(CultureInfo.InvariantCulture)}";
+
+            _images.Add(new PdfLayoutImage(
+                index,
+                assetId,
+                PdfLayoutImageKind.InlineImage,
+                NormalizePdfBox(minX, minY, maxX, maxY),
+                PdfLayoutTransform.FromMatrix(ctm),
+                image.GetWidth(),
+                image.GetHeight(),
+                image.GetBitsPerComponent(),
+                ColorSpaceName(image, index),
+                image.GetInterpolate(),
+                null));
+
+            if (_includeImageAssets)
+            {
+                ExportInlineImageAsset(image, assetId, index);
+            }
+        }
+
+        private void ExportXObjectImageAsset(PDImageXObject image, string assetId, int index)
+        {
+            try
+            {
+                PdfImageExportResult result = PdfImageExporter.ExportPng(image);
+                _imageAssets.Add(new PdfLayoutImageAsset(
+                    assetId,
+                    $"assets/images/{assetId}.{result.FileExtension}",
+                    result.ContentType,
+                    result.Data));
+            }
+            catch (Exception ex) when (ex is IOException or InvalidOperationException or NotSupportedException or ArgumentException)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "image-asset-export-failed",
+                    $"Image {index.ToString(CultureInfo.InvariantCulture)} asset export failed: {ex.Message}",
+                    _pageNumber));
+            }
+        }
+
+        private void ExportInlineImageAsset(PDImage image, string assetId, int index)
         {
             try
             {
@@ -602,6 +676,23 @@ public static class PdfLayoutExtractor
         }
 
         private string? ColorSpaceName(PDImageXObject image, int index)
+        {
+            try
+            {
+                return image.GetColorSpace().GetName();
+            }
+            catch (Exception ex) when (ex is IOException or ArgumentException)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "image-colorspace-unresolved",
+                    $"Image {index.ToString(CultureInfo.InvariantCulture)} color space could not be resolved: {ex.Message}",
+                    _pageNumber));
+                return null;
+            }
+        }
+
+        private string? ColorSpaceName(PDImage image, int index)
         {
             try
             {

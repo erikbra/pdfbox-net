@@ -192,6 +192,37 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_InlineImage_CapturesIntrinsicSizePlacementAndMetadata()
+    {
+        using PDDocument document = CreateInlineImageDocument();
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutImage image = Assert.Single(Assert.Single(layout.Pages).Images);
+        Assert.Empty(layout.Diagnostics);
+        Assert.Empty(layout.ImageAssets);
+        Assert.Equal(0, image.Index);
+        Assert.Equal("page-1-image-0", image.AssetId);
+        Assert.Equal(PdfLayoutImageKind.InlineImage, image.Kind);
+        Assert.Null(image.SourceName);
+        Assert.Equal(2, image.IntrinsicWidth);
+        Assert.Equal(2, image.IntrinsicHeight);
+        Assert.Equal(8, image.BitsPerComponent);
+        Assert.Equal("DeviceRGB", image.ColorSpaceName);
+        Assert.False(image.Interpolate);
+        AssertClose(72, image.Bounds.X);
+        AssertClose(132, image.Bounds.Y);
+        AssertClose(120, image.Bounds.Width);
+        AssertClose(60, image.Bounds.Height);
+        AssertClose(120, image.Transform.A);
+        AssertClose(0, image.Transform.B);
+        AssertClose(0, image.Transform.C);
+        AssertClose(60, image.Transform.D);
+        AssertClose(72, image.Transform.E);
+        AssertClose(600, image.Transform.F);
+    }
+
+    [Fact]
     public void Extract_ImageCollectionCanBeDisabled()
     {
         using PDDocument document = CreateImageDocument();
@@ -286,6 +317,32 @@ public class PdfLayoutExtractorTest
         return document;
     }
 
+    private static PDDocument CreateInlineImageDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
+        pageDictionary.SetItem(COSName.CONTENTS, CreateInlineImageContentStream());
+        return document;
+    }
+
+    private static COSStream CreateInlineImageContentStream()
+    {
+        COSStream stream = new();
+        using Stream output = stream.CreateOutputStream();
+        WriteLatin1(output, "q\n120 0 0 60 72 600 cm\nBI\n/W 2 /H 2 /BPC 8 /CS /RGB\nID\n");
+        output.Write([
+            255, 0, 0,
+            0, 255, 0,
+            0, 0, 255,
+            255, 255, 255
+        ]);
+        WriteLatin1(output, "\nEI\nQ\n");
+        return stream;
+    }
+
     private static COSDictionary CreateDefaultResourcesDictionary()
     {
         COSDictionary fontDictionary = new();
@@ -299,5 +356,11 @@ public class PdfLayoutExtractorTest
         COSDictionary resources = new();
         resources.SetItem(COSName.GetPDFName("Font"), fonts);
         return resources;
+    }
+
+    private static void WriteLatin1(Stream stream, string value)
+    {
+        byte[] bytes = Encoding.Latin1.GetBytes(value);
+        stream.Write(bytes, 0, bytes.Length);
     }
 }
