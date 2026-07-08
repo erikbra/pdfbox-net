@@ -40,6 +40,31 @@ public class PDFGraphicsStreamEngineCallbackApiTest
         Assert.Equal(1, engine.DrawImageCalls);
     }
 
+    [Fact]
+    public void InlineImageOperatorDispatchesToDrawImageCallback()
+    {
+        var engine = new RecordingGraphicsEngine(new PDPage());
+
+        engine.RunStream(InlineImageStream());
+
+        Assert.Equal(1, engine.DrawImageCalls);
+    }
+
+    private static byte[] InlineImageStream()
+    {
+        using MemoryStream stream = new();
+        WriteAscii(stream, "q\n1 0 0 1 0 0 cm\nBI\n/W 1 /H 1 /BPC 8 /CS /RGB\nID\n");
+        stream.Write([255, 0, 0]);
+        WriteAscii(stream, "\nEI\nQ\n");
+        return stream.ToArray();
+    }
+
+    private static void WriteAscii(Stream stream, string value)
+    {
+        byte[] bytes = Encoding.Latin1.GetBytes(value);
+        stream.Write(bytes, 0, bytes.Length);
+    }
+
     private sealed class RecordingGraphicsEngine : PDFGraphicsStreamEngine
     {
         public int AppendRectangleCalls { get; private set; }
@@ -62,6 +87,12 @@ public class PDFGraphicsStreamEngineCallbackApiTest
         public void RunStream(string content)
         {
             using var ms = new MemoryStream(Encoding.Latin1.GetBytes(content));
+            ProcessStream(ms);
+        }
+
+        public void RunStream(byte[] content)
+        {
+            using var ms = new MemoryStream(content);
             ProcessStream(ms);
         }
 

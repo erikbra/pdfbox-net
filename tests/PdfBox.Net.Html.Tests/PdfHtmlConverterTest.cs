@@ -194,6 +194,30 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_EmitsInlineImageElementWithExportedAsset()
+    {
+        using PDDocument document = CreateInlineImageDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+
+        PdfLayoutImage layoutImage = Assert.Single(Assert.Single(layout.Pages).Images);
+        Assert.Equal(PdfLayoutImageKind.InlineImage, layoutImage.Kind);
+        Assert.Empty(layout.Diagnostics);
+        PdfHtmlAsset asset = Assert.Single(html.Assets);
+        Assert.Equal("assets/images/page-1-image-0.png", asset.RelativePath);
+        Assert.Equal((2, 2), PngDimensions(asset.Data));
+        XElement image = Assert.Single(ElementsByClass(dom, "pdf-image"));
+        Assert.Equal(asset.RelativePath, image.Attribute("src")?.Value);
+        Assert.Equal("page-1-image-0", image.Attribute("data-asset-id")?.Value);
+        Assert.Null(image.Attribute("data-source-name"));
+    }
+
+    [Fact]
     public async Task Convert_RenderedImageInHeadlessBrowserMatchesLayoutGeometry()
     {
         using PDDocument document = CreateImageDocument();
@@ -828,6 +852,32 @@ public class PdfHtmlConverterTest
         return document;
     }
 
+    private static PDDocument CreateInlineImageDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
+        pageDictionary.SetItem(COSName.CONTENTS, CreateInlineImageContentStream());
+        return document;
+    }
+
+    private static COSStream CreateInlineImageContentStream()
+    {
+        COSStream stream = new();
+        using Stream output = stream.CreateOutputStream();
+        WriteLatin1(output, "q\n120 0 0 60 72 600 cm\nBI\n/W 2 /H 2 /BPC 8 /CS /RGB\nID\n");
+        output.Write([
+            255, 0, 0,
+            0, 255, 0,
+            0, 0, 255,
+            255, 255, 255
+        ]);
+        WriteLatin1(output, "\nEI\nQ\n");
+        return stream;
+    }
+
     private static COSStream CreateContentStream(string contentStream)
     {
         COSStream stream = new();
@@ -850,6 +900,12 @@ public class PdfHtmlConverterTest
         COSDictionary resources = new();
         resources.SetItem(COSName.GetPDFName("Font"), fonts);
         return resources;
+    }
+
+    private static void WriteLatin1(Stream stream, string value)
+    {
+        byte[] bytes = Encoding.Latin1.GetBytes(value);
+        stream.Write(bytes, 0, bytes.Length);
     }
 
     private sealed class TempDirectory : IDisposable
