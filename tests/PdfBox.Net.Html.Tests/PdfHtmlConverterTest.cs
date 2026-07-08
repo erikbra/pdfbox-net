@@ -332,6 +332,8 @@ public class PdfHtmlConverterTest
         Assert.Contains(".pdf-semantic-italic", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-inline-footnotes", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-radical", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-table", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-inline-summation", html.Css, StringComparison.Ordinal);
 
         XElement continuedParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-page-spanning"), paragraph =>
             paragraph.Value.StartsWith("An attention function can be described", StringComparison.Ordinal));
@@ -368,6 +370,11 @@ public class PdfHtmlConverterTest
         Assert.Contains(pageFourFootnote.Descendants("sub"), subscript =>
             subscript.Value == "k" &&
             HasClass(subscript, "pdf-semantic-math"));
+        XElement summation = Assert.Single(pageFourFootnote.Descendants(), element =>
+            HasClass(element, "pdf-semantic-inline-summation"));
+        Assert.Contains("∑", summation.Value, StringComparison.Ordinal);
+        Assert.Contains("i=1", summation.Value, StringComparison.Ordinal);
+        Assert.Contains(summation.Descendants("sub"), subscript => subscript.Value == "k");
         Assert.True(
             html.Html.IndexOf("id=\"page-4-fn-4\"", StringComparison.Ordinal) <
             html.Html.IndexOf("id=\"page-5\"", StringComparison.Ordinal));
@@ -478,6 +485,15 @@ public class PdfHtmlConverterTest
         });
         Assert.DoesNotContain("√1", html.Html, StringComparison.Ordinal);
 
+        XElement learningRateFormula = Assert.Single(ElementsByClass(dom, "pdf-semantic-formula"), element =>
+            element.Attribute("aria-label")?.Value.Contains("lrate", StringComparison.Ordinal) == true &&
+            element.Attribute("aria-label")?.Value.Contains("warmup_steps", StringComparison.Ordinal) == true);
+        Assert.Equal("math", learningRateFormula.Attribute("role")?.Value);
+        Assert.Contains("(3)", learningRateFormula.Value, StringComparison.Ordinal);
+        Assert.Contains(learningRateFormula.Descendants(), element =>
+            HasClass(element, "pdf-semantic-formula-run") &&
+            element.Value.Contains("warmup", StringComparison.Ordinal));
+
         XElement regularizationParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
             paragraph.Value.Contains("For the base model, we use a rate of", StringComparison.Ordinal));
         Assert.Contains(regularizationParagraph.Descendants(), element =>
@@ -485,6 +501,33 @@ public class PdfHtmlConverterTest
             HasClass(element, "pdf-semantic-math"));
         Assert.Contains(regularizationParagraph.Descendants("sub"), subscript =>
             subscript.Value == "drop");
+
+        XElement[] semanticTables = ElementsByClass(dom, "pdf-semantic-table")
+            .Where(static element => element.Name.LocalName == "table")
+            .ToArray();
+        Assert.True(semanticTables.Length >= 2);
+        XElement complexityTable = Assert.Single(semanticTables, table =>
+            table.Value.Contains("Complexity per Layer", StringComparison.Ordinal) &&
+            table.Value.Contains("Self-Attention", StringComparison.Ordinal));
+        Assert.Contains(complexityTable.Elements("thead").Descendants("th"), header =>
+            header.Value.Contains("Sequential", StringComparison.Ordinal) &&
+            header.Value.Contains("Operations", StringComparison.Ordinal));
+        Assert.Contains(complexityTable.Elements("tbody").Descendants("td"), cell =>
+            cell.Value.Contains("O(n2", StringComparison.Ordinal));
+        Assert.DoesNotContain(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
+            paragraph.Value.StartsWith("Layer Type", StringComparison.Ordinal));
+
+        XElement bleuTable = Assert.Single(semanticTables, table =>
+            table.Value.Contains("Transformer (big)", StringComparison.Ordinal) &&
+            table.Value.Contains("28.4", StringComparison.Ordinal));
+        Assert.Contains(bleuTable.Elements("thead").Descendants("th"), header =>
+            header.Value.Contains("BLEU", StringComparison.Ordinal));
+        Assert.Contains(bleuTable.Elements("tbody").Descendants("td"), cell =>
+            cell.Value == "ByteNet [18]");
+        Assert.Contains(bleuTable.Elements("tbody").Descendants("td"), cell =>
+            cell.Value == "23.75");
+        Assert.Contains(bleuTable.Elements("tbody").Descendants("td"), cell =>
+            cell.Value == "Transformer (big)");
     }
 
     [Fact]

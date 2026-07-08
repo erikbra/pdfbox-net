@@ -41,13 +41,15 @@ public sealed class PdfSemanticElement
         string text,
         PdfLayoutRectangle bounds,
         IReadOnlyList<PdfSemanticLine> lines,
-        int headingLevel = 0)
+        int headingLevel = 0,
+        IReadOnlyList<PdfSemanticTableRow>? tableRows = null)
     {
         Kind = kind;
         Text = text;
         Bounds = bounds;
         Lines = lines.ToArray();
         HeadingLevel = headingLevel;
+        TableRows = tableRows?.ToArray() ?? [];
     }
 
     public PdfSemanticElementKind Kind { get; }
@@ -59,6 +61,43 @@ public sealed class PdfSemanticElement
     public IReadOnlyList<PdfSemanticLine> Lines { get; }
 
     public int HeadingLevel { get; }
+
+    public IReadOnlyList<PdfSemanticTableRow> TableRows { get; }
+}
+
+/// <summary>
+/// A row in an inferred semantic table.
+/// </summary>
+public sealed class PdfSemanticTableRow
+{
+    public PdfSemanticTableRow(IReadOnlyList<PdfSemanticTableCell> cells, bool isHeader)
+    {
+        Cells = cells.ToArray();
+        IsHeader = isHeader;
+    }
+
+    public IReadOnlyList<PdfSemanticTableCell> Cells { get; }
+
+    public bool IsHeader { get; }
+}
+
+/// <summary>
+/// A cell in an inferred semantic table.
+/// </summary>
+public sealed class PdfSemanticTableCell
+{
+    public PdfSemanticTableCell(string text, PdfLayoutRectangle bounds, IReadOnlyList<PdfSemanticLine> lines)
+    {
+        Text = text;
+        Bounds = bounds;
+        Lines = lines.ToArray();
+    }
+
+    public string Text { get; }
+
+    public PdfLayoutRectangle Bounds { get; }
+
+    public IReadOnlyList<PdfSemanticLine> Lines { get; }
 }
 
 /// <summary>

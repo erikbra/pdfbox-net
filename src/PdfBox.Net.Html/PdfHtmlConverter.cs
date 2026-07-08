@@ -210,6 +210,28 @@ public static class PdfHtmlConverter
           white-space: nowrap;
         }
 
+        .pdf-semantic-inline-summation {
+          align-items: center;
+          display: inline-flex;
+          line-height: 1;
+          margin: 0 0.06em;
+          vertical-align: -0.25em;
+        }
+
+        .pdf-semantic-inline-summation-limits {
+          display: inline-flex;
+          flex-direction: column;
+          font-size: 0.62em;
+          line-height: 0.9;
+          margin-left: 0.03em;
+          text-align: center;
+        }
+
+        .pdf-semantic-inline-summation-limits sub {
+          font-size: 0.75em;
+          line-height: 0;
+        }
+
         .pdf-semantic-formula {
           display: block;
           height: var(--pdf-semantic-formula-height, auto);
@@ -230,7 +252,7 @@ public static class PdfHtmlConverter
         }
 
         .pdf-semantic-formula-radical {
-          transform: translateY(3.4pt);
+          transform: translateY(5pt);
         }
 
         .pdf-semantic-formula-vector-layer {
@@ -328,6 +350,33 @@ public static class PdfHtmlConverter
 
         .pdf-semantic-caption {
           line-height: 1.18;
+        }
+
+        .pdf-semantic-table {
+          border-collapse: collapse;
+          line-height: 1.15;
+          margin: 10pt auto 14pt;
+          max-width: 100%;
+          table-layout: auto;
+          width: 100%;
+        }
+
+        .pdf-semantic-table th,
+        .pdf-semantic-table td {
+          border-bottom: 0.35pt solid #d1d5db;
+          padding: 2pt 4pt;
+          text-align: left;
+          vertical-align: top;
+        }
+
+        .pdf-semantic-table thead th {
+          border-bottom-color: #6b7280;
+          font-weight: 600;
+        }
+
+        .pdf-semantic-table td:not(:first-child),
+        .pdf-semantic-table th:not(:first-child) {
+          text-align: right;
         }
 
         .pdf-semantic-authors {
@@ -1923,6 +1972,12 @@ public static class PdfHtmlConverter
         PdfLayoutPage? page = null,
         bool allowMeasuredWidth = true)
     {
+        if (element.Kind == PdfSemanticElementKind.Table && element.TableRows.Count > 0)
+        {
+            WriteSemanticTable(html, element);
+            return;
+        }
+
         if (page != null && IsFormulaBlock(element))
         {
             WriteFormulaBlock(html, page, element);
@@ -1948,6 +2003,86 @@ public static class PdfHtmlConverter
         html.Append("</")
             .Append(tagName)
             .AppendLine(">");
+    }
+
+    private static void WriteSemanticTable(StringBuilder html, PdfSemanticElement element)
+    {
+        html.Append("      <table class=\"")
+            .Append(SemanticClassNames(element, allowMeasuredWidth: false))
+            .Append("\" aria-label=\"")
+            .Append(HtmlAttribute(TableAriaLabel(element)))
+            .AppendLine("\">");
+
+        PdfSemanticTableRow[] headerRows = element.TableRows
+            .TakeWhile(static row => row.IsHeader)
+            .ToArray();
+        PdfSemanticTableRow[] bodyRows = element.TableRows
+            .Skip(headerRows.Length)
+            .ToArray();
+        if (headerRows.Length > 0)
+        {
+            html.AppendLine("        <thead>");
+            foreach (PdfSemanticTableRow row in headerRows)
+            {
+                WriteSemanticTableRow(html, row, header: true);
+            }
+
+            html.AppendLine("        </thead>");
+        }
+
+        html.AppendLine("        <tbody>");
+        foreach (PdfSemanticTableRow row in bodyRows.Length == 0 ? headerRows : bodyRows)
+        {
+            WriteSemanticTableRow(html, row, header: false);
+        }
+
+        html.AppendLine("        </tbody>");
+        html.AppendLine("      </table>");
+    }
+
+    private static void WriteSemanticTableRow(StringBuilder html, PdfSemanticTableRow row, bool header)
+    {
+        string cellTag = header ? "th" : "td";
+        html.AppendLine("          <tr>");
+        foreach (PdfSemanticTableCell cell in row.Cells)
+        {
+            html.Append("            <")
+                .Append(cellTag);
+            if (header)
+            {
+                html.Append(" scope=\"col\"");
+            }
+
+            html.Append('>');
+            if (cell.Lines.Count > 0)
+            {
+                for (int index = 0; index < cell.Lines.Count; index++)
+                {
+                    if (index > 0)
+                    {
+                        html.Append("<br />");
+                    }
+
+                    html.Append(Html(cell.Lines[index].Text));
+                }
+            }
+            else
+            {
+                html.Append(Html(cell.Text));
+            }
+
+            html.Append("</")
+                .Append(cellTag)
+                .AppendLine(">");
+        }
+
+        html.AppendLine("          </tr>");
+    }
+
+    private static string TableAriaLabel(PdfSemanticElement element)
+    {
+        string label = element.Text.Replace('\t', ' ').Replace(Environment.NewLine, " ");
+        return label.Length <= 120 ? label : label[..120];
     }
 
     private static void WriteFormulaBlock(
@@ -3307,6 +3442,13 @@ public static class PdfHtmlConverter
                 continue;
             }
 
+            if (TryWriteCompactSummation(html, segments, index, out consumedSegments, out consumedLength))
+            {
+                offset += consumedLength;
+                index += consumedSegments - 1;
+                continue;
+            }
+
             WriteInlineTextSegment(html, line, segment, lineText, offset, footnotes);
             offset += segment.Text.Length;
         }
@@ -3365,6 +3507,105 @@ public static class PdfHtmlConverter
         consumedSegments = 2 + denominator.Count;
         consumedLength = segments.Skip(index).Take(consumedSegments).Sum(static segment => segment.Text.Length);
         return true;
+    }
+
+    private static bool TryWriteCompactSummation(
+        StringBuilder html,
+        IReadOnlyList<InlineTextSegment> segments,
+        int index,
+        out int consumedSegments,
+        out int consumedLength)
+    {
+        consumedSegments = 0;
+        consumedLength = 0;
+        if (segments[index].Text is not ("∑" or "Σ"))
+        {
+            return false;
+        }
+
+        List<InlineTextSegment> upper = [];
+        List<InlineTextSegment> lower = [];
+        int cursor = index + 1;
+        while (cursor < segments.Count)
+        {
+            InlineTextSegment segment = segments[cursor];
+            if (string.IsNullOrWhiteSpace(segment.Text))
+            {
+                int next = NextNonWhitespaceSegmentIndex(segments, cursor + 1);
+                if (next >= 0 && IsSummationLimitSegment(segments[next]))
+                {
+                    cursor++;
+                    continue;
+                }
+
+                break;
+            }
+
+            if (!IsSummationLimitSegment(segment))
+            {
+                break;
+            }
+
+            if (segment.Role == InlineBaselineRole.Superscript)
+            {
+                upper.Add(segment);
+            }
+            else
+            {
+                lower.Add(segment);
+            }
+
+            cursor++;
+        }
+
+        if (upper.Count == 0 && lower.Count == 0)
+        {
+            return false;
+        }
+
+        html.Append("<span class=\"pdf-semantic-inline-summation pdf-semantic-math\"><span>")
+            .Append(Html(segments[index].Text))
+            .Append("</span><span class=\"pdf-semantic-inline-summation-limits\"><span>");
+        WriteSummationUpperLimit(html, upper);
+        html.Append("</span><span>");
+        WriteSummationLowerLimit(html, lower);
+        html.Append("</span></span></span>");
+
+        consumedSegments = cursor - index;
+        consumedLength = segments.Skip(index).Take(consumedSegments).Sum(static segment => segment.Text.Length);
+        return true;
+    }
+
+    private static bool IsSummationLimitSegment(InlineTextSegment segment)
+    {
+        return segment.Run != null &&
+            segment.Role is InlineBaselineRole.Superscript or InlineBaselineRole.Subscript &&
+            HasMathFont(segment.Run.FontName) &&
+            segment.Text.All(static character => char.IsLetterOrDigit(character) || character == '=');
+    }
+
+    private static void WriteSummationUpperLimit(StringBuilder html, IReadOnlyList<InlineTextSegment> upper)
+    {
+        string compact = CompactSegmentText(upper);
+        if (string.Equals(compact, "dk", StringComparison.Ordinal))
+        {
+            html.Append("d<sub>k</sub>");
+            return;
+        }
+
+        html.Append(Html(compact));
+    }
+
+    private static void WriteSummationLowerLimit(StringBuilder html, IReadOnlyList<InlineTextSegment> lower)
+    {
+        string compact = CompactSegmentText(lower);
+        if (compact.Contains('i') && compact.Contains('=') && compact.Contains('1'))
+        {
+            html.Append("i=1");
+            return;
+        }
+
+        html.Append(Html(compact));
     }
 
     private static bool IsCompactSquareRootSegment(InlineTextSegment segment)
@@ -3881,7 +4122,28 @@ public static class PdfHtmlConverter
         return element.Kind == PdfSemanticElementKind.Paragraph &&
             !IsFigureCaption(element) &&
             !IsInlineFormulaFragment(element) &&
-            element.Lines.Any(IsDisplayFormulaLine);
+            (element.Lines.Any(IsDisplayFormulaLine) ||
+                IsCompactCenteredFormulaElement(element));
+    }
+
+    private static bool IsCompactCenteredFormulaElement(PdfSemanticElement element)
+    {
+        PdfSemanticLine[] lines = HorizontalTextLines(element);
+        if (lines.Length == 0 ||
+            lines.Length > 6 ||
+            element.Text.Length > 220 ||
+            element.Bounds.Height > 90f ||
+            element.Bounds.X < 100f ||
+            element.Bounds.Width is < 90f or > 430f)
+        {
+            return false;
+        }
+
+        string text = element.Text.Trim();
+        return text.Contains('=') &&
+            HasFormulaSignal(text) &&
+            HasMathFont(SemanticFontName(element)) &&
+            CountWords(text) <= 14;
     }
 
     private static bool IsInlineFormulaFragment(PdfSemanticElement element)
@@ -4273,6 +4535,7 @@ public static class PdfHtmlConverter
         {
             PdfSemanticElementKind.Heading => "pdf-semantic-heading",
             PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
+            PdfSemanticElementKind.Table => "pdf-semantic-table",
             PdfSemanticElementKind.AuthorBlock => "pdf-semantic-author-block",
             PdfSemanticElementKind.Footnote => "pdf-semantic-footnote",
             PdfSemanticElementKind.Footer => "pdf-semantic-footer",

@@ -101,6 +101,46 @@ public sealed class PdfSemanticExtractorTest
         Assert.StartsWith("Most competitive neural sequence transduction models", architectureParagraphs[0].Text);
     }
 
+    [Fact]
+    public void Extract_ArxivTables_CreatesSemanticTableRowsAndCells()
+    {
+        PdfSemanticDocument semantic = ExtractArxivSemanticDocument();
+
+        PdfSemanticElement complexityTable = Assert.Single(semantic.Pages[5].Elements, element =>
+            element.Kind == PdfSemanticElementKind.Table &&
+            element.Text.Contains("Self-Attention", StringComparison.Ordinal) &&
+            element.Text.Contains("Complexity per Layer", StringComparison.Ordinal));
+        Assert.Equal(5, complexityTable.TableRows.Count);
+        Assert.Equal("Layer Type", complexityTable.TableRows[0].Cells[0].Text);
+        Assert.Equal("Sequential Operations", complexityTable.TableRows[0].Cells[2].Text);
+        Assert.Contains(complexityTable.TableRows, row =>
+            !row.IsHeader &&
+            row.Cells[0].Text == "Self-Attention" &&
+            row.Cells[1].Text.Contains("O(n2", StringComparison.Ordinal));
+        Assert.DoesNotContain(semantic.Pages[5].Elements, element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("Layer Type", StringComparison.Ordinal));
+
+        PdfSemanticElement bleuTable = Assert.Single(semantic.Pages[7].Elements, element =>
+            element.Kind == PdfSemanticElementKind.Table &&
+            element.Text.Contains("Transformer (big)", StringComparison.Ordinal));
+        Assert.True(bleuTable.TableRows.Count >= 10);
+        Assert.True(bleuTable.TableRows[0].IsHeader);
+        Assert.Contains(bleuTable.TableRows[0].Cells, cell =>
+            cell.Text.Contains("BLEU", StringComparison.Ordinal));
+        Assert.Contains(bleuTable.TableRows, row =>
+            !row.IsHeader &&
+            row.Cells[0].Text == "ByteNet [18]" &&
+            row.Cells.Any(cell => cell.Text == "23.75"));
+        Assert.Contains(bleuTable.TableRows, row =>
+            !row.IsHeader &&
+            row.Cells[0].Text == "Transformer (big)" &&
+            row.Cells.Any(cell => cell.Text == "28.4"));
+        Assert.DoesNotContain(semantic.Pages[7].Elements, element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("BLEU Training Cost", StringComparison.Ordinal));
+    }
+
     private static PdfSemanticElement Heading(PdfSemanticPage page, string text)
     {
         return Assert.Single(page.Elements, element =>
