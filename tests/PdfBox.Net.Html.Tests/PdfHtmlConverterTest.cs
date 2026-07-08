@@ -253,9 +253,24 @@ public class PdfHtmlConverterTest
         Assert.Empty(ElementsByClass(dom, "pdf-semantic-page"));
         Assert.Contains("pdf-document-continuous", dom.Descendants("body").Single().Attribute("class")?.Value);
         Assert.Contains(".pdf-semantic-page-break", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-continuous-flow .pdf-semantic-page-break::after", html.Css, StringComparison.Ordinal);
+        Assert.Contains("--pdf-page-width: min(612pt, calc(100vw - 48pt))", html.Css, StringComparison.Ordinal);
+        Assert.Contains("--pdf-page-corner-shadow: 22pt", html.Css, StringComparison.Ordinal);
+        Assert.Contains("background: var(--pdf-page-surround)", html.Css, StringComparison.Ordinal);
+        Assert.Contains("radial-gradient(ellipse at right top", html.Css, StringComparison.Ordinal);
+        Assert.Contains("calc(100% - var(--pdf-page-shadow-mask) - var(--pdf-page-shadow-mask) - var(--pdf-page-corner-shadow) - var(--pdf-page-corner-shadow))", html.Css, StringComparison.Ordinal);
+        Assert.Contains("text-align-last: center", html.Css, StringComparison.Ordinal);
         Assert.Contains("break-before: page", html.Css, StringComparison.Ordinal);
 
         XElement documentFlow = Assert.Single(ElementsByClass(dom, "pdf-semantic-document-flow"));
+        XElement verticalHeader = Assert.Single(dom.Descendants("header"), header =>
+            header.Value.Contains("arXiv:1706.03762v7", StringComparison.Ordinal));
+        Assert.Contains("pdf-semantic-positioned", verticalHeader.Attribute("class")?.Value);
+        Assert.Contains("pdf-semantic-vertical", verticalHeader.Attribute("class")?.Value);
+        Dictionary<string, string> verticalStyle = ParseStyle(verticalHeader.Attribute("style")?.Value ?? "");
+        Assert.InRange(ParsePoints(verticalStyle["left"]), 18f, 24f);
+        Assert.InRange(ParsePoints(verticalStyle["top"]), 550f, 590f);
+
         XElement article = Assert.Single(documentFlow.Elements("article"), element =>
             HasClass(element, "pdf-semantic-flow") &&
             HasClass(element, "pdf-semantic-continuous-flow"));
@@ -278,7 +293,60 @@ public class PdfHtmlConverterTest
         Assert.Contains("pdf-semantic-align-center", abstractHeading.Attribute("class")?.Value);
         Assert.Contains(ElementsByClass(dom, "pdf-semantic-footer"), footer =>
             footer.Value.Contains("31st Conference", StringComparison.Ordinal));
-        Assert.DoesNotContain(ElementsByClass(dom, "pdf-semantic-footer"), footer => footer.Value == "2");
+        Assert.Contains(ElementsByClass(dom, "pdf-semantic-footer"), footer => footer.Value == "2");
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_PreservesFiguresAndCrossPageParagraphContinuations()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true,
+            IncludeLinks = false
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement[] figures = ElementsByClass(dom, "pdf-semantic-figure").ToArray();
+        Assert.True(figures.Length >= 2);
+        Assert.Contains(figures, figure => figure.Attribute("data-source-page")?.Value == "3");
+        Assert.Contains(figures, figure => figure.Attribute("data-source-page")?.Value == "4");
+        Assert.True(ElementsByClass(dom, "pdf-semantic-figure-svg").Count() >= 2);
+        XElement[] svgImages = dom.Descendants().Where(static element => element.Name.LocalName == "image").ToArray();
+        Assert.Contains(svgImages, image => image.Attribute("href")?.Value == "assets/images/page-4-image-0.png");
+        Assert.Contains(svgImages, image => image.Attribute("href")?.Value == "assets/images/page-4-image-1.png");
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-figure-space"));
+
+        XElement continuedParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-page-spanning"), paragraph =>
+            paragraph.Value.StartsWith("An attention function can be described", StringComparison.Ordinal));
+        Assert.Equal("p", continuedParagraph.Name.LocalName);
+        Assert.Contains("The output is computed as a weighted sum", continuedParagraph.Value, StringComparison.Ordinal);
+        Assert.Contains("of the values, where the weight assigned to each value", continuedParagraph.Value, StringComparison.Ordinal);
+        Assert.Contains("corresponding key.", continuedParagraph.Value, StringComparison.Ordinal);
+        XElement pageFourBreak = Assert.Single(continuedParagraph.Elements(), element =>
+            HasClass(element, "pdf-semantic-inline-page-break") &&
+            element.Attribute("data-page-number")?.Value == "4");
+        XElement pageThreeFooter = Assert.Single(continuedParagraph.Elements(), element =>
+            HasClass(element, "pdf-semantic-footer") &&
+            element.Value == "3");
+        Assert.Contains("pdf-semantic-inline-flow-element", pageThreeFooter.Attribute("class")?.Value);
+        Assert.Contains("pdf-semantic-align-center", pageThreeFooter.Attribute("class")?.Value);
+        XElement[] continuedParagraphChildren = continuedParagraph.Elements().ToArray();
+        Assert.True(
+            Array.IndexOf(continuedParagraphChildren, pageThreeFooter) <
+            Array.IndexOf(continuedParagraphChildren, pageFourBreak));
+        Assert.DoesNotContain(ElementsByClass(dom, "pdf-semantic-footer"), footer =>
+            footer.Value == "3" &&
+            footer.Parent != continuedParagraph);
+        Assert.DoesNotContain(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
+            !HasClass(paragraph, "pdf-semantic-page-spanning") &&
+            paragraph.Value.StartsWith("of the values, where the weight assigned", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -323,9 +391,23 @@ public class PdfHtmlConverterTest
               const markers = Array.from(document.querySelectorAll(".pdf-semantic-page-break"));
               const introduction = Array.from(document.querySelectorAll("h1"))
                 .find(element => element.textContent === "1 Introduction");
+              const pageThreeFooter = Array.from(document.querySelectorAll(".pdf-semantic-page-spanning > .pdf-semantic-footer"))
+                .find(element => element.textContent.trim() === "3");
+              const pageSixFooter = Array.from(document.querySelectorAll(".pdf-semantic-page-spanning > .pdf-semantic-footer"))
+                .find(element => element.textContent.trim() === "6");
+              const pageFourMarker = document.querySelector("#page-4");
               const documentBox = documentFlow.getBoundingClientRect();
               const flowBox = flow.getBoundingClientRect();
+              const flowCenter = flowBox.left + flowBox.width / 2;
+              const textCenterOffset = element => {
+                const range = document.createRange();
+                range.selectNodeContents(element);
+                const textBox = range.getBoundingClientRect();
+                range.detach();
+                return Math.abs((textBox.left + textBox.width / 2) - flowCenter);
+              };
               const childRightOverflow = Math.max(0, ...Array.from(flow.children)
+                .filter(child => !child.classList.contains("pdf-semantic-page-break"))
                 .map(child => child.getBoundingClientRect().right - documentBox.right));
 
               return {
@@ -336,6 +418,10 @@ public class PdfHtmlConverterTest
                 firstMarkerTop: markers[0].getBoundingClientRect().top,
                 secondMarkerTop: markers[1].getBoundingClientRect().top,
                 introductionTop: introduction.getBoundingClientRect().top,
+                pageThreeFooterBottom: pageThreeFooter.getBoundingClientRect().bottom,
+                pageFourMarkerTop: pageFourMarker.getBoundingClientRect().top,
+                pageThreeFooterCenterOffset: textCenterOffset(pageThreeFooter),
+                pageSixFooterCenterOffset: textCenterOffset(pageSixFooter),
                 childRightOverflow
               };
             }
@@ -347,6 +433,15 @@ public class PdfHtmlConverterTest
         Assert.InRange(metrics.FlowWidth, 500, 540);
         Assert.True(metrics.SecondMarkerTop > metrics.FirstMarkerTop);
         Assert.True(metrics.IntroductionTop > metrics.SecondMarkerTop);
+        Assert.True(
+            metrics.PageThreeFooterBottom <= metrics.PageFourMarkerTop + 1.0,
+            $"Page 3 footer renders below the page 4 marker by {metrics.PageThreeFooterBottom - metrics.PageFourMarkerTop:0.###} CSS pixels.");
+        Assert.True(
+            metrics.PageThreeFooterCenterOffset <= 1.0,
+            $"Page 3 footer text is {metrics.PageThreeFooterCenterOffset:0.###} CSS pixels away from center.");
+        Assert.True(
+            metrics.PageSixFooterCenterOffset <= 1.0,
+            $"Page 6 footer text is {metrics.PageSixFooterCenterOffset:0.###} CSS pixels away from center.");
         Assert.True(
             metrics.ChildRightOverflow <= 1.0,
             $"Continuous semantic flow extends {metrics.ChildRightOverflow:0.###} CSS pixels outside the document column.");
@@ -1001,6 +1096,14 @@ public class PdfHtmlConverterTest
         public double SecondMarkerTop { get; set; }
 
         public double IntroductionTop { get; set; }
+
+        public double PageThreeFooterBottom { get; set; }
+
+        public double PageFourMarkerTop { get; set; }
+
+        public double PageThreeFooterCenterOffset { get; set; }
+
+        public double PageSixFooterCenterOffset { get; set; }
 
         public double ChildRightOverflow { get; set; }
     }

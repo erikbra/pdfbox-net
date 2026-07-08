@@ -12,7 +12,13 @@ public static class PdfHtmlConverter
 {
     private const string Css = """
         .pdf-document {
-          background: #f3f4f6;
+          --pdf-page-background: #fff;
+          --pdf-page-corner-shadow: 22pt;
+          --pdf-page-edge-shadow: rgba(17, 24, 39, 0.16);
+          --pdf-page-shadow-mask: 6pt;
+          --pdf-page-surround: #f3f4f6;
+          --pdf-page-width: min(612pt, calc(100vw - 48pt));
+          background: var(--pdf-page-surround);
           color: #111827;
           font-family: Arial, Helvetica, sans-serif;
           margin: 0;
@@ -20,8 +26,8 @@ public static class PdfHtmlConverter
         }
 
         .pdf-page {
-          background: #fff;
-          box-shadow: 0 1pt 4pt rgba(17, 24, 39, 0.16);
+          background: var(--pdf-page-background);
+          box-shadow: 0 1pt 4pt var(--pdf-page-edge-shadow);
           margin: 0 auto 24pt;
           overflow: hidden;
           position: relative;
@@ -53,12 +59,13 @@ public static class PdfHtmlConverter
         }
 
         .pdf-semantic-document-flow {
-          background: #fff;
-          box-shadow: 0 1pt 4pt rgba(17, 24, 39, 0.16);
+          background: var(--pdf-page-background);
+          box-shadow: 0 1pt 4pt var(--pdf-page-edge-shadow);
           box-sizing: border-box;
           margin: 0 auto 24pt;
           padding: 54pt 72pt 48pt;
-          width: min(612pt, calc(100vw - 48pt));
+          position: relative;
+          width: var(--pdf-page-width);
         }
 
         .pdf-semantic-flow {
@@ -86,6 +93,7 @@ public static class PdfHtmlConverter
           border-top: 1pt dashed #d1d5db;
           break-before: page;
           color: #6b7280;
+          display: block;
           margin: 26pt 0 18pt;
           page-break-before: always;
           text-align: center;
@@ -115,6 +123,72 @@ public static class PdfHtmlConverter
         .pdf-semantic-page-artifacts .pdf-semantic-element {
           line-height: 1.2;
           margin-bottom: 4pt;
+        }
+
+        .pdf-semantic-inline-page-break {
+          margin-left: 0;
+          margin-right: 0;
+        }
+
+        .pdf-semantic-continuous-flow > .pdf-semantic-page-break:not(.pdf-semantic-page-start),
+        .pdf-semantic-continuous-flow .pdf-semantic-inline-page-break {
+          background:
+            radial-gradient(ellipse at right top, var(--pdf-page-edge-shadow), rgba(17, 24, 39, 0) 70%) left top / calc(var(--pdf-page-shadow-mask) + var(--pdf-page-corner-shadow)) 4pt no-repeat,
+            radial-gradient(ellipse at left top, var(--pdf-page-edge-shadow), rgba(17, 24, 39, 0) 70%) right top / calc(var(--pdf-page-shadow-mask) + var(--pdf-page-corner-shadow)) 4pt no-repeat,
+            radial-gradient(ellipse at right bottom, var(--pdf-page-edge-shadow), rgba(17, 24, 39, 0) 70%) left bottom / calc(var(--pdf-page-shadow-mask) + var(--pdf-page-corner-shadow)) 4pt no-repeat,
+            radial-gradient(ellipse at left bottom, var(--pdf-page-edge-shadow), rgba(17, 24, 39, 0) 70%) right bottom / calc(var(--pdf-page-shadow-mask) + var(--pdf-page-corner-shadow)) 4pt no-repeat,
+            linear-gradient(to bottom, var(--pdf-page-edge-shadow), rgba(17, 24, 39, 0) 4pt) center top / calc(100% - var(--pdf-page-shadow-mask) - var(--pdf-page-shadow-mask) - var(--pdf-page-corner-shadow) - var(--pdf-page-corner-shadow)) 4pt no-repeat,
+            linear-gradient(to top, var(--pdf-page-edge-shadow), rgba(17, 24, 39, 0) 4pt) center bottom / calc(100% - var(--pdf-page-shadow-mask) - var(--pdf-page-shadow-mask) - var(--pdf-page-corner-shadow) - var(--pdf-page-corner-shadow)) 4pt no-repeat,
+            var(--pdf-page-surround);
+          border: 0;
+          box-shadow: none;
+          box-sizing: border-box;
+          height: 28pt;
+          margin-bottom: 36pt;
+          margin-left: calc((100% - var(--pdf-page-width)) / 2 - var(--pdf-page-shadow-mask));
+          margin-top: 36pt;
+          overflow: hidden;
+          position: relative;
+          width: calc(var(--pdf-page-width) + var(--pdf-page-shadow-mask) + var(--pdf-page-shadow-mask));
+        }
+
+        .pdf-semantic-continuous-flow .pdf-semantic-page-break::after {
+          content: "";
+          display: none;
+        }
+
+        .pdf-semantic-page-spanning {
+          text-align-last: left;
+        }
+
+        .pdf-semantic-page-continuation {
+          display: inline;
+        }
+
+        .pdf-semantic-inline-flow-element {
+          display: block;
+          margin: 8pt 0;
+        }
+
+        .pdf-semantic-figure {
+          box-sizing: border-box;
+          display: block;
+          margin: 12pt auto;
+          max-width: 100%;
+          width: min(100%, var(--pdf-semantic-figure-width, 100%));
+        }
+
+        .pdf-semantic-inline-figure {
+          margin-bottom: 8pt;
+          margin-top: 8pt;
+        }
+
+        .pdf-semantic-figure-svg {
+          display: block;
+          height: auto;
+          max-width: 100%;
+          overflow: hidden;
+          width: 100%;
         }
 
         .pdf-semantic-flow header {
@@ -161,10 +235,12 @@ public static class PdfHtmlConverter
 
         .pdf-semantic-align-center {
           text-align: center;
+          text-align-last: center;
         }
 
         .pdf-semantic-align-right {
           text-align: right;
+          text-align-last: right;
         }
 
         .pdf-semantic-line-row {
@@ -332,7 +408,7 @@ public static class PdfHtmlConverter
 
         if (continuousSemanticFlow && semantic != null)
         {
-            WriteSemanticContinuousDocument(html, layout, semantic, options.Scale);
+            WriteSemanticContinuousDocument(html, layout, semantic, imageAssets, options.Scale);
         }
         else
         {
@@ -642,8 +718,12 @@ public static class PdfHtmlConverter
             flowElements,
             footnotes,
             scale,
-            includeFigureSpaces: true,
-            omitSimplePageNumberFooters: false);
+            imageAssets: null,
+            figureRendering: SemanticFigureRendering.Space,
+            omitSimplePageNumberFooters: false,
+            skippedElements: null,
+            skippedFigureRegions: null,
+            paragraphMerge: null);
         html.AppendLine("    </article>");
     }
 
@@ -651,40 +731,425 @@ public static class PdfHtmlConverter
         StringBuilder html,
         PdfLayoutDocument layout,
         PdfSemanticDocument semantic,
+        IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
         float scale)
     {
+        ContinuousPageContext[] pages = layout.Pages
+            .Select((page, index) => CreateContinuousPageContext(page, semantic.Pages[index]))
+            .ToArray();
+        Dictionary<int, ContinuousParagraphMerge> paragraphMerges = [];
+        HashSet<PdfSemanticElement> skippedElements = [];
+        Dictionary<int, HashSet<PdfLayoutRectangle>> skippedFigureRegionsByPage = [];
+        HashSet<int> inlinePageBreaks = [];
+        for (int index = 0; index + 1 < pages.Length; index++)
+        {
+            ContinuousParagraphMerge? merge = TryCreateContinuousParagraphMerge(pages[index], pages[index + 1]);
+            if (merge == null)
+            {
+                continue;
+            }
+
+            paragraphMerges[index] = merge;
+            inlinePageBreaks.Add(merge.Next.Page.PageNumber);
+            skippedElements.Add(merge.ContinuationElement);
+            if (merge.CurrentPageNumberFooter != null)
+            {
+                skippedElements.Add(merge.CurrentPageNumberFooter);
+            }
+
+            foreach (PdfSemanticElement element in merge.LeadingElements)
+            {
+                skippedElements.Add(element);
+            }
+
+            if (!skippedFigureRegionsByPage.TryGetValue(
+                    merge.Next.Page.PageNumber,
+                    out HashSet<PdfLayoutRectangle>? skippedFigureRegions))
+            {
+                skippedFigureRegions = [];
+                skippedFigureRegionsByPage[merge.Next.Page.PageNumber] = skippedFigureRegions;
+            }
+
+            foreach (PdfLayoutRectangle region in merge.LeadingFigureRegions)
+            {
+                skippedFigureRegions.Add(region);
+            }
+        }
+
         html.AppendLine("  <main class=\"pdf-semantic-document-flow\">");
         html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
 
-        for (int index = 0; index < layout.Pages.Count; index++)
+        for (int index = 0; index < pages.Length; index++)
         {
-            PdfLayoutPage page = layout.Pages[index];
-            PdfSemanticPage semanticPage = semantic.Pages[index];
-            WriteSemanticPageBreak(html, page.PageNumber, isFirstPage: index == 0);
+            ContinuousPageContext context = pages[index];
+            if (!inlinePageBreaks.Contains(context.Page.PageNumber))
+            {
+                WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
+            }
 
-            FootnoteContext footnotes = FootnoteContext.Create(page.PageNumber, semanticPage.Elements);
-            PdfSemanticElement[] positioned = semanticPage.Elements
-                .Where(IsPositionedSemanticElement)
-                .ToArray();
-            WriteContinuousPageArtifacts(html, page, positioned, footnotes);
-
-            HashSet<PdfSemanticElement> positionedSet = positioned.ToHashSet();
-            PdfSemanticElement[] flowElements = semanticPage.Elements
-                .Where(element => !positionedSet.Contains(element))
-                .ToArray();
+            WriteContinuousPageArtifacts(html, context.Page, context.PositionedElements, context.Footnotes, scale);
+            skippedFigureRegionsByPage.TryGetValue(context.Page.PageNumber, out HashSet<PdfLayoutRectangle>? skippedFigureRegions);
             WriteSemanticFlowElements(
                 html,
-                page,
-                semanticPage,
-                flowElements,
-                footnotes,
+                context.Page,
+                context.SemanticPage,
+                context.FlowElements,
+                context.Footnotes,
                 scale,
-                includeFigureSpaces: false,
-                omitSimplePageNumberFooters: true);
+                imageAssets,
+                figureRendering: SemanticFigureRendering.Content,
+                omitSimplePageNumberFooters: false,
+                skippedElements,
+                skippedFigureRegions,
+                paragraphMerges.GetValueOrDefault(index));
         }
 
         html.AppendLine("    </article>");
         html.AppendLine("  </main>");
+    }
+
+    private static ContinuousPageContext CreateContinuousPageContext(PdfLayoutPage page, PdfSemanticPage semanticPage)
+    {
+        PdfSemanticElement[] positioned = semanticPage.Elements
+            .Where(IsPositionedSemanticElement)
+            .ToArray();
+        HashSet<PdfSemanticElement> positionedSet = positioned.ToHashSet();
+        PdfSemanticElement[] flowElements = semanticPage.Elements
+            .Where(element => !positionedSet.Contains(element))
+            .ToArray();
+        return new ContinuousPageContext(
+            page,
+            semanticPage,
+            FootnoteContext.Create(page.PageNumber, semanticPage.Elements),
+            positioned,
+            flowElements,
+            SemanticFigureRegions(page, semanticPage).ToArray());
+    }
+
+    private static ContinuousParagraphMerge? TryCreateContinuousParagraphMerge(
+        ContinuousPageContext current,
+        ContinuousPageContext next)
+    {
+        if (!TryFindTrailingBodyParagraph(current, out PdfSemanticElement? startElement) ||
+            startElement == null ||
+            !TryFindLeadingBodyParagraph(next, out PdfSemanticElement? continuationElement, out PdfSemanticElement[] leadingElements) ||
+            continuationElement == null ||
+            !ShouldMergeParagraphAcrossPage(current, startElement, next, continuationElement))
+        {
+            return null;
+        }
+
+        PdfLayoutRectangle[] leadingFigureRegions = next.FigureRegions
+            .Where(region => region.Y < continuationElement.Bounds.Y - 2f)
+            .ToArray();
+        PdfSemanticElement? currentPageNumberFooter = FindSimplePageNumberFooterAfter(current, startElement);
+        return new ContinuousParagraphMerge(
+            current,
+            next,
+            startElement,
+            continuationElement,
+            currentPageNumberFooter,
+            leadingElements,
+            leadingFigureRegions);
+    }
+
+    private static PdfSemanticElement? FindSimplePageNumberFooterAfter(
+        ContinuousPageContext context,
+        PdfSemanticElement startElement)
+    {
+        bool foundStart = false;
+        foreach (PdfSemanticElement element in context.FlowElements)
+        {
+            if (ReferenceEquals(element, startElement))
+            {
+                foundStart = true;
+                continue;
+            }
+
+            if (!foundStart)
+            {
+                continue;
+            }
+
+            if (IsSimplePageNumberFooter(element, context.Page))
+            {
+                return element;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool TryFindTrailingBodyParagraph(
+        ContinuousPageContext context,
+        out PdfSemanticElement? paragraph)
+    {
+        for (int index = context.FlowElements.Count - 1; index >= 0; index--)
+        {
+            PdfSemanticElement element = context.FlowElements[index];
+            if (IsSimplePageNumberFooter(element, context.Page) || element.Kind == PdfSemanticElementKind.Footer)
+            {
+                continue;
+            }
+
+            if (IsContinuousBodyParagraph(element))
+            {
+                paragraph = element;
+                return true;
+            }
+
+            if (element.Kind is PdfSemanticElementKind.Footnote or PdfSemanticElementKind.Header)
+            {
+                continue;
+            }
+
+            break;
+        }
+
+        paragraph = null;
+        return false;
+    }
+
+    private static bool TryFindLeadingBodyParagraph(
+        ContinuousPageContext context,
+        out PdfSemanticElement? paragraph,
+        out PdfSemanticElement[] leadingElements)
+    {
+        List<PdfSemanticElement> interruptions = [];
+        foreach (PdfSemanticElement element in context.FlowElements)
+        {
+            if (IsSimplePageNumberFooter(element, context.Page))
+            {
+                continue;
+            }
+
+            if (IsLeadingContinuousInterruption(element))
+            {
+                interruptions.Add(element);
+                continue;
+            }
+
+            if (IsContinuousBodyParagraph(element))
+            {
+                paragraph = element;
+                leadingElements = interruptions.ToArray();
+                return true;
+            }
+
+            paragraph = null;
+            leadingElements = [];
+            return false;
+        }
+
+        paragraph = null;
+        leadingElements = [];
+        return false;
+    }
+
+    private static bool IsContinuousBodyParagraph(PdfSemanticElement element)
+    {
+        return element.Kind == PdfSemanticElementKind.Paragraph &&
+            !IsFigureCaption(element) &&
+            !IsSameRowLineGroup(element) &&
+            !string.IsNullOrWhiteSpace(element.Text);
+    }
+
+    private static bool IsLeadingContinuousInterruption(PdfSemanticElement element)
+    {
+        return IsFigureCaption(element) || IsSameRowLineGroup(element);
+    }
+
+    private static bool ShouldMergeParagraphAcrossPage(
+        ContinuousPageContext current,
+        PdfSemanticElement startElement,
+        ContinuousPageContext next,
+        PdfSemanticElement continuationElement)
+    {
+        string startText = startElement.Text.Trim();
+        string continuationText = continuationElement.Text.Trim();
+        if (startText.Length < 24 ||
+            continuationText.Length < 16 ||
+            EndsLikeCompleteParagraph(startText) ||
+            !StartsLikeParagraphContinuation(continuationText))
+        {
+            return false;
+        }
+
+        if (startElement.Bounds.Bottom < current.Page.Height * 0.48f ||
+            continuationElement.Bounds.Y > next.Page.Height * 0.82f)
+        {
+            return false;
+        }
+
+        return HasCompatibleParagraphStyle(startElement, continuationElement);
+    }
+
+    private static bool HasCompatibleParagraphStyle(PdfSemanticElement first, PdfSemanticElement second)
+    {
+        if (!string.Equals(
+                NormalizeFontName(SemanticFontName(first)),
+                NormalizeFontName(SemanticFontName(second)),
+                StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (MathF.Abs(SemanticFontSize(first) - SemanticFontSize(second)) > 1.25f)
+        {
+            return false;
+        }
+
+        return string.Equals(
+            ColorClass(SemanticColor(first)),
+            ColorClass(SemanticColor(second)),
+            StringComparison.Ordinal);
+    }
+
+    private static bool EndsLikeCompleteParagraph(string text)
+    {
+        string trimmed = text.TrimEnd();
+        while (trimmed.Length > 0 && trimmed[^1] is '"' or '\'' or ')' or ']' or '}')
+        {
+            trimmed = trimmed[..^1].TrimEnd();
+        }
+
+        return trimmed.EndsWith(".", StringComparison.Ordinal) ||
+            trimmed.EndsWith("!", StringComparison.Ordinal) ||
+            trimmed.EndsWith("?", StringComparison.Ordinal) ||
+            trimmed.EndsWith(":", StringComparison.Ordinal);
+    }
+
+    private static bool StartsLikeParagraphContinuation(string text)
+    {
+        char first = text.TrimStart().FirstOrDefault();
+        return char.IsLower(first) ||
+            first is ',' or ';' or ':' or ')' or ']' or '}';
+    }
+
+    private static void WriteMergedParagraph(
+        StringBuilder html,
+        ContinuousParagraphMerge merge,
+        IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
+        float scale)
+    {
+        html.Append("      <p class=\"")
+            .Append(SemanticClassNames(merge.StartElement, merge.Current.Page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-page-spanning\"");
+        string style = FlowSemanticStyle(merge.StartElement, merge.Current.Page, allowMeasuredWidth: false);
+        if (style.Length > 0)
+        {
+            html.Append(" style=\"")
+                .Append(HtmlAttribute(style))
+                .Append('"');
+        }
+
+        html.Append('>');
+        WriteSemanticText(html, merge.StartElement, merge.Current.Footnotes);
+        if (merge.CurrentPageNumberFooter != null)
+        {
+            WriteInlineFlowSemanticElement(
+                html,
+                merge.CurrentPageNumberFooter,
+                merge.Current.Footnotes,
+                merge.Current.Page);
+        }
+
+        WriteInlinePageBreak(html, merge.Next.Page.PageNumber);
+        WriteMergedParagraphInterruptions(html, merge, imageAssets, scale);
+        if (NeedsSpaceBetween(merge.StartElement.Text, merge.ContinuationElement.Text))
+        {
+            html.Append(' ');
+        }
+
+        html.Append("<span class=\"pdf-semantic-page-continuation\">");
+        WriteSemanticText(html, merge.ContinuationElement, merge.Next.Footnotes);
+        html.AppendLine("</span></p>");
+    }
+
+    private static void WriteInlinePageBreak(StringBuilder html, int pageNumber)
+    {
+        string pageNumberText = pageNumber.ToString(CultureInfo.InvariantCulture);
+        html.Append("<span class=\"pdf-semantic-page-break pdf-semantic-inline-page-break\" id=\"page-")
+            .Append(pageNumberText)
+            .Append("\" data-page-number=\"")
+            .Append(pageNumberText)
+            .Append("\" role=\"separator\" aria-label=\"Original PDF page ")
+            .Append(pageNumberText)
+            .Append("\"></span>");
+    }
+
+    private static void WriteMergedParagraphInterruptions(
+        StringBuilder html,
+        ContinuousParagraphMerge merge,
+        IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
+        float scale)
+    {
+        int nextFigureRegion = 0;
+        foreach (PdfSemanticElement element in merge.LeadingElements)
+        {
+            while (nextFigureRegion < merge.LeadingFigureRegions.Count &&
+                ShouldInsertFigureSpaceBefore(element, merge.LeadingFigureRegions[nextFigureRegion]))
+            {
+                WriteSemanticFigure(
+                    html,
+                    merge.Next.Page,
+                    merge.Next.SemanticPage,
+                    merge.LeadingFigureRegions[nextFigureRegion],
+                    imageAssets,
+                    scale,
+                    inline: true);
+                nextFigureRegion++;
+            }
+
+            WriteInlineFlowSemanticElement(html, element, merge.Next.Footnotes, merge.Next.Page);
+        }
+
+        while (nextFigureRegion < merge.LeadingFigureRegions.Count)
+        {
+            WriteSemanticFigure(
+                html,
+                merge.Next.Page,
+                merge.Next.SemanticPage,
+                merge.LeadingFigureRegions[nextFigureRegion],
+                imageAssets,
+                scale,
+                inline: true);
+            nextFigureRegion++;
+        }
+    }
+
+    private static void WriteInlineFlowSemanticElement(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage page)
+    {
+        html.Append("<span class=\"")
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-inline-flow-element\"");
+        string style = FlowSemanticStyle(element, page, allowMeasuredWidth: false);
+        if (style.Length > 0)
+        {
+            html.Append(" style=\"")
+                .Append(HtmlAttribute(style))
+                .Append('"');
+        }
+
+        html.Append('>');
+        WriteSemanticText(html, element, footnotes);
+        html.Append("</span>");
+    }
+
+    private static bool NeedsSpaceBetween(string first, string second)
+    {
+        string left = first.TrimEnd();
+        string right = second.TrimStart();
+        if (left.Length == 0 || right.Length == 0)
+        {
+            return false;
+        }
+
+        return !NoSpaceAfter(left[^1]) && !NoSpaceBefore(right[0]) && left[^1] != '-';
     }
 
     private static void WriteSemanticPageBreak(StringBuilder html, int pageNumber, bool isFirstPage)
@@ -709,9 +1174,23 @@ public static class PdfHtmlConverter
         StringBuilder html,
         PdfLayoutPage page,
         IReadOnlyList<PdfSemanticElement> elements,
-        FootnoteContext footnotes)
+        FootnoteContext footnotes,
+        float scale)
     {
         if (elements.Count == 0)
+        {
+            return;
+        }
+
+        PdfSemanticElement[] flowArtifacts = elements
+            .Where(element => !IsContinuousPositionedPageArtifact(page, element))
+            .ToArray();
+        foreach (PdfSemanticElement element in elements.Where(element => IsContinuousPositionedPageArtifact(page, element)))
+        {
+            WritePositionedSemanticElement(html, page, element, footnotes, scale);
+        }
+
+        if (flowArtifacts.Length == 0)
         {
             return;
         }
@@ -719,12 +1198,32 @@ public static class PdfHtmlConverter
         html.Append("      <aside class=\"pdf-semantic-page-artifacts\" aria-label=\"Original page ")
             .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
             .AppendLine(" artifacts\">");
-        foreach (PdfSemanticElement element in elements)
+        foreach (PdfSemanticElement element in flowArtifacts)
         {
             WriteFlowSemanticElement(html, element, footnotes, page, allowMeasuredWidth: false);
         }
 
         html.AppendLine("      </aside>");
+    }
+
+    private static bool IsContinuousPositionedPageArtifact(PdfLayoutPage page, PdfSemanticElement element)
+    {
+        if (element.Kind is not (PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer))
+        {
+            return false;
+        }
+
+        float direction = MathF.Abs(SemanticDirection(element));
+        if (MathF.Abs(direction - 90f) > 0.01f && MathF.Abs(direction - 270f) > 0.01f)
+        {
+            return false;
+        }
+
+        float left = direction < 180f
+            ? element.Bounds.Y
+            : page.Width - element.Bounds.Y;
+        return left <= page.Width * 0.16f ||
+            left >= page.Width * 0.84f;
     }
 
     private static void WriteSemanticFlowElements(
@@ -734,16 +1233,27 @@ public static class PdfHtmlConverter
         IReadOnlyList<PdfSemanticElement> flowElements,
         FootnoteContext footnotes,
         float scale,
-        bool includeFigureSpaces,
-        bool omitSimplePageNumberFooters)
+        IReadOnlyDictionary<string, PdfLayoutImageAsset>? imageAssets,
+        SemanticFigureRendering figureRendering,
+        bool omitSimplePageNumberFooters,
+        ISet<PdfSemanticElement>? skippedElements,
+        ISet<PdfLayoutRectangle>? skippedFigureRegions,
+        ContinuousParagraphMerge? paragraphMerge)
     {
-        PdfLayoutRectangle[] figureRegions = includeFigureSpaces
-            ? SemanticFigureRegions(page, semanticPage).ToArray()
-            : [];
+        PdfLayoutRectangle[] figureRegions = figureRendering == SemanticFigureRendering.None
+            ? []
+            : SemanticFigureRegions(page, semanticPage)
+                .Where(region => skippedFigureRegions == null || !skippedFigureRegions.Contains(region))
+                .ToArray();
         int nextFigureRegion = 0;
         for (int index = 0; index < flowElements.Count; index++)
         {
             PdfSemanticElement element = flowElements[index];
+            if (skippedElements?.Contains(element) == true)
+            {
+                continue;
+            }
+
             if (omitSimplePageNumberFooters && IsSimplePageNumberFooter(element, page))
             {
                 continue;
@@ -752,8 +1262,33 @@ public static class PdfHtmlConverter
             while (nextFigureRegion < figureRegions.Length &&
                 ShouldInsertFigureSpaceBefore(element, figureRegions[nextFigureRegion]))
             {
-                WriteFigureSpace(html, figureRegions[nextFigureRegion], scale);
+                if (figureRendering == SemanticFigureRendering.Space)
+                {
+                    WriteFigureSpace(html, figureRegions[nextFigureRegion], scale);
+                }
+                else if (imageAssets != null)
+                {
+                    WriteSemanticFigure(
+                        html,
+                        page,
+                        semanticPage,
+                        figureRegions[nextFigureRegion],
+                        imageAssets,
+                        scale,
+                        inline: false);
+                }
+
                 nextFigureRegion++;
+            }
+
+            if (paragraphMerge?.StartElement == element)
+            {
+                WriteMergedParagraph(
+                    html,
+                    paragraphMerge,
+                    imageAssets ?? new Dictionary<string, PdfLayoutImageAsset>(StringComparer.Ordinal),
+                    scale);
+                continue;
             }
 
             if (element.Kind == PdfSemanticElementKind.AuthorBlock)
@@ -791,14 +1326,116 @@ public static class PdfHtmlConverter
             .AppendLine("\"></figure>");
     }
 
+    private static bool WriteSemanticFigure(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        PdfLayoutRectangle region,
+        IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
+        float scale,
+        bool inline)
+    {
+        PdfLayoutImage[] images = page.Images
+            .Where(image => RectanglesIntersect(image.Bounds, region, 2f))
+            .ToArray();
+        PdfLayoutPath[] paths = FigureRegionPaths(page, semanticPage, region).ToArray();
+        if (images.Length == 0 && paths.Length == 0)
+        {
+            return false;
+        }
+
+        string tagName = inline ? "span" : "figure";
+        html.Append("      <")
+            .Append(tagName)
+            .Append(" class=\"pdf-semantic-figure");
+        if (inline)
+        {
+            html.Append(" pdf-semantic-inline-figure");
+        }
+
+        html.Append("\" data-source-page=\"")
+            .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
+            .Append("\" data-source-top=\"")
+            .Append(HtmlAttribute(CssPoints(region.Y)))
+            .Append("\" style=\"--pdf-semantic-figure-width:")
+            .Append(CssPoints(region.Width * scale))
+            .Append("\">");
+        html.Append("<svg class=\"pdf-semantic-figure-svg\" viewBox=\"")
+            .Append(SvgNumber(region.X))
+            .Append(' ')
+            .Append(SvgNumber(region.Y))
+            .Append(' ')
+            .Append(SvgNumber(region.Width))
+            .Append(' ')
+            .Append(SvgNumber(region.Height))
+            .Append("\" width=\"")
+            .Append(SvgNumber(region.Width * scale))
+            .Append("\" height=\"")
+            .Append(SvgNumber(region.Height * scale))
+            .Append("\" aria-hidden=\"true\">");
+
+        foreach (PdfLayoutImage image in images)
+        {
+            if (imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
+            {
+                WriteSvgImage(html, image, asset);
+            }
+        }
+
+        foreach (PdfLayoutPath path in paths)
+        {
+            WriteVectorPath(html, path);
+        }
+
+        html.Append("</svg></")
+            .Append(tagName)
+            .AppendLine(">");
+        return true;
+    }
+
+    private static IEnumerable<PdfLayoutPath> FigureRegionPaths(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        PdfLayoutRectangle region)
+    {
+        return page.Paths
+            .Where(path => !IsSemanticFlowRulePath(page, semanticPage, path))
+            .Where(path => path.Bounds.Width > 0.1f || path.Bounds.Height > 0.1f)
+            .Where(path => RectanglesIntersect(path.Bounds, region, 2f));
+    }
+
+    private static void WriteSvgImage(StringBuilder html, PdfLayoutImage image, PdfLayoutImageAsset asset)
+    {
+        html.Append("<image href=\"")
+            .Append(HtmlAttribute(asset.RelativePath))
+            .Append("\" x=\"")
+            .Append(SvgNumber(image.Bounds.X))
+            .Append("\" y=\"")
+            .Append(SvgNumber(image.Bounds.Y))
+            .Append("\" width=\"")
+            .Append(SvgNumber(image.Bounds.Width))
+            .Append("\" height=\"")
+            .Append(SvgNumber(image.Bounds.Height))
+            .Append("\" preserveAspectRatio=\"none\" />");
+    }
+
+    private static bool RectanglesIntersect(PdfLayoutRectangle first, PdfLayoutRectangle second, float tolerance)
+    {
+        return first.Right >= second.X - tolerance &&
+            second.Right >= first.X - tolerance &&
+            first.Bottom >= second.Y - tolerance &&
+            second.Bottom >= first.Y - tolerance;
+    }
+
     private static IEnumerable<PdfLayoutRectangle> SemanticFigureRegions(
         PdfLayoutPage page,
         PdfSemanticPage semanticPage)
     {
         List<PdfLayoutRectangle> regions = [];
-        regions.AddRange(page.Images
+        PdfLayoutRectangle[] imageBounds = page.Images
             .Select(static image => image.Bounds)
-            .Where(bounds => IsSubstantialGraphic(page, bounds)));
+            .ToArray();
+        regions.AddRange(imageBounds.Where(bounds => IsSubstantialGraphic(page, bounds)));
 
         PdfLayoutPath[] candidatePaths = page.Paths
             .Where(path => !IsSemanticFlowRulePath(page, semanticPage, path))
@@ -809,6 +1446,7 @@ public static class PdfHtmlConverter
             .Where(bounds => IsSubstantialGraphic(page, bounds))
             .ToArray();
         regions.AddRange(largePathBounds);
+        regions.AddRange(GraphicRowRegions(page, imageBounds.Concat(largePathBounds).ToArray()));
 
         if (candidatePaths.Length >= 8)
         {
@@ -858,6 +1496,51 @@ public static class PdfHtmlConverter
         }
 
         return merged;
+    }
+
+    private static IEnumerable<PdfLayoutRectangle> GraphicRowRegions(
+        PdfLayoutPage page,
+        IReadOnlyList<PdfLayoutRectangle> bounds)
+    {
+        List<List<PdfLayoutRectangle>> rows = [];
+        foreach (PdfLayoutRectangle rectangle in bounds
+            .OrderBy(static bounds => bounds.Y + (bounds.Height / 2f))
+            .ThenBy(static bounds => bounds.X))
+        {
+            List<PdfLayoutRectangle>? row = rows.FirstOrDefault(existing =>
+                BelongsToGraphicRow(page, UnionRectangles(existing), rectangle));
+            if (row == null)
+            {
+                rows.Add([rectangle]);
+            }
+            else
+            {
+                row.Add(rectangle);
+            }
+        }
+
+        foreach (List<PdfLayoutRectangle> row in rows.Where(static row => row.Count >= 2))
+        {
+            PdfLayoutRectangle union = UnionRectangles(row);
+            if (IsSubstantialGraphic(page, union))
+            {
+                yield return union;
+            }
+        }
+    }
+
+    private static bool BelongsToGraphicRow(
+        PdfLayoutPage page,
+        PdfLayoutRectangle rowBounds,
+        PdfLayoutRectangle rectangle)
+    {
+        float overlap = MathF.Min(rowBounds.Bottom, rectangle.Bottom) - MathF.Max(rowBounds.Y, rectangle.Y);
+        bool verticalOverlap = overlap >= MathF.Min(rowBounds.Height, rectangle.Height) * 0.30f;
+        float centerDistance = MathF.Abs(
+            rowBounds.Y + (rowBounds.Height / 2f) - (rectangle.Y + (rectangle.Height / 2f)));
+        bool similarBand = centerDistance <= MathF.Max(24f, MathF.Max(rowBounds.Height, rectangle.Height) * 0.35f);
+        return (verticalOverlap || similarBand) &&
+            HorizontalGap(rowBounds, rectangle) <= page.Width * 0.30f;
     }
 
     private static PdfLayoutRectangle UnionRectangles(IEnumerable<PdfLayoutRectangle> rectangles)
@@ -1902,6 +2585,79 @@ public static class PdfHtmlConverter
 
         string token = builder.ToString().Trim('-');
         return token.Length == 0 ? "value" : token;
+    }
+
+    private enum SemanticFigureRendering
+    {
+        None,
+        Space,
+        Content
+    }
+
+    private sealed class ContinuousPageContext
+    {
+        public ContinuousPageContext(
+            PdfLayoutPage page,
+            PdfSemanticPage semanticPage,
+            FootnoteContext footnotes,
+            IReadOnlyList<PdfSemanticElement> positionedElements,
+            IReadOnlyList<PdfSemanticElement> flowElements,
+            IReadOnlyList<PdfLayoutRectangle> figureRegions)
+        {
+            Page = page;
+            SemanticPage = semanticPage;
+            Footnotes = footnotes;
+            PositionedElements = positionedElements;
+            FlowElements = flowElements;
+            FigureRegions = figureRegions;
+        }
+
+        public PdfLayoutPage Page { get; }
+
+        public PdfSemanticPage SemanticPage { get; }
+
+        public FootnoteContext Footnotes { get; }
+
+        public IReadOnlyList<PdfSemanticElement> PositionedElements { get; }
+
+        public IReadOnlyList<PdfSemanticElement> FlowElements { get; }
+
+        public IReadOnlyList<PdfLayoutRectangle> FigureRegions { get; }
+    }
+
+    private sealed class ContinuousParagraphMerge
+    {
+        public ContinuousParagraphMerge(
+            ContinuousPageContext current,
+            ContinuousPageContext next,
+            PdfSemanticElement startElement,
+            PdfSemanticElement continuationElement,
+            PdfSemanticElement? currentPageNumberFooter,
+            IReadOnlyList<PdfSemanticElement> leadingElements,
+            IReadOnlyList<PdfLayoutRectangle> leadingFigureRegions)
+        {
+            Current = current;
+            Next = next;
+            StartElement = startElement;
+            ContinuationElement = continuationElement;
+            CurrentPageNumberFooter = currentPageNumberFooter;
+            LeadingElements = leadingElements;
+            LeadingFigureRegions = leadingFigureRegions;
+        }
+
+        public ContinuousPageContext Current { get; }
+
+        public ContinuousPageContext Next { get; }
+
+        public PdfSemanticElement StartElement { get; }
+
+        public PdfSemanticElement ContinuationElement { get; }
+
+        public PdfSemanticElement? CurrentPageNumberFooter { get; }
+
+        public IReadOnlyList<PdfSemanticElement> LeadingElements { get; }
+
+        public IReadOnlyList<PdfLayoutRectangle> LeadingFigureRegions { get; }
     }
 
     private sealed class FootnoteContext
