@@ -69,7 +69,6 @@ public static class PdfHtmlConverter
         .pdf-semantic-flow header {
           line-height: 1.25;
           margin-bottom: 26pt;
-          text-align: center;
         }
 
         .pdf-semantic-flow h1,
@@ -87,7 +86,6 @@ public static class PdfHtmlConverter
           border-bottom: 1pt solid currentColor;
           border-top: 4pt solid currentColor;
           padding: 9pt 0 10pt;
-          text-align: center;
         }
 
         .pdf-semantic-heading {
@@ -108,6 +106,29 @@ public static class PdfHtmlConverter
         .pdf-semantic-measured-width {
           align-self: var(--pdf-semantic-align-self, flex-start);
           width: min(100%, var(--pdf-semantic-width, 100%));
+        }
+
+        .pdf-semantic-align-center {
+          text-align: center;
+        }
+
+        .pdf-semantic-align-right {
+          text-align: right;
+        }
+
+        .pdf-semantic-line-row {
+          column-gap: 18pt;
+          display: grid;
+          grid-template-columns: repeat(var(--pdf-semantic-line-count, 2), minmax(0, 1fr));
+          margin-bottom: 6pt;
+        }
+
+        .pdf-semantic-line-row .pdf-semantic-line {
+          min-width: 0;
+        }
+
+        .pdf-semantic-caption {
+          line-height: 1.18;
         }
 
         .pdf-semantic-authors {
@@ -691,9 +712,24 @@ public static class PdfHtmlConverter
         return new PdfLayoutRectangle(left, top, right - left, bottom - top);
     }
 
+    private static float HorizontalGap(PdfLayoutRectangle first, PdfLayoutRectangle second)
+    {
+        if (first.Right < second.X)
+        {
+            return second.X - first.Right;
+        }
+
+        if (second.Right < first.X)
+        {
+            return first.X - second.Right;
+        }
+
+        return 0f;
+    }
+
     private static bool ShouldInsertFigureSpaceBefore(PdfSemanticElement element, PdfLayoutRectangle figureRegion)
     {
-        return element.Bounds.Bottom >= figureRegion.Y - 12f;
+        return element.Bounds.Y >= figureRegion.Y - 2f;
     }
 
     private static bool IsMeasuredWidthCandidate(IReadOnlyList<PdfSemanticElement> elements, int index)
@@ -876,6 +912,20 @@ public static class PdfHtmlConverter
             return;
         }
 
+        if (IsSameRowLineGroup(element))
+        {
+            foreach (PdfSemanticLine line in SameRowLines(element))
+            {
+                html.Append("<span class=\"")
+                    .Append(SemanticLineClassNames(line))
+                    .Append("\">");
+                WriteTextWithFootnoteReferences(html, line.Text, footnotes);
+                html.Append("</span>");
+            }
+
+            return;
+        }
+
         if (element.Kind is PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
         {
             for (int index = 0; index < element.Lines.Count; index++)
@@ -949,6 +999,25 @@ public static class PdfHtmlConverter
             classes.Add("pdf-semantic-title");
         }
 
+        if (page != null)
+        {
+            string? alignmentClass = SourceAlignmentClass(page, element);
+            if (alignmentClass != null)
+            {
+                classes.Add(alignmentClass);
+            }
+
+            if (IsFigureCaption(element))
+            {
+                classes.Add("pdf-semantic-caption");
+            }
+
+            if (IsSameRowLineGroup(element))
+            {
+                classes.Add("pdf-semantic-line-row");
+            }
+        }
+
         if (element.Kind == PdfSemanticElementKind.Paragraph && page != null)
         {
             if (IsJustifiedParagraph(element))
@@ -972,23 +1041,27 @@ public static class PdfHtmlConverter
         PdfLayoutPage? page,
         bool allowMeasuredWidth)
     {
-        if (!allowMeasuredWidth ||
-            page == null ||
-            element.Kind != PdfSemanticElementKind.Paragraph ||
-            !TryGetParagraphWidthPercent(page, element, out float widthPercent) ||
-            !ShouldUseMeasuredParagraphWidth(widthPercent))
+        List<string> styles = [];
+        if (IsSameRowLineGroup(element))
         {
-            return "";
+            styles.Add("--pdf-semantic-line-count:" + SameRowLines(element).Length.ToString(CultureInfo.InvariantCulture));
         }
 
-        string style = "--pdf-semantic-width:" + CssPercent(widthPercent);
-        string? alignSelf = ParagraphAlignSelf(page, element);
-        if (alignSelf != null)
+        if (allowMeasuredWidth &&
+            page != null &&
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            TryGetParagraphWidthPercent(page, element, out float widthPercent) &&
+            ShouldUseMeasuredParagraphWidth(widthPercent))
         {
-            style += ";--pdf-semantic-align-self:" + alignSelf;
+            styles.Add("--pdf-semantic-width:" + CssPercent(widthPercent));
+            string? alignSelf = ParagraphAlignSelf(page, element);
+            if (alignSelf != null)
+            {
+                styles.Add("--pdf-semantic-align-self:" + alignSelf);
+            }
         }
 
-        return style;
+        return string.Join(";", styles);
     }
 
     private static bool TryGetParagraphWidthPercent(
@@ -1048,6 +1121,311 @@ public static class PdfHtmlConverter
         return MathF.Abs(elementCenter - (page.Width / 2f)) <= page.Width * 0.04f
             ? "center"
             : null;
+    }
+
+    private static string? SourceAlignmentClass(PdfLayoutPage page, PdfSemanticElement element)
+    {
+        if (!ShouldDetectSourceAlignment(element))
+        {
+            return null;
+        }
+
+        PdfSemanticLine[] lines = HorizontalTextLines(element);
+        if (lines.Length == 0)
+        {
+            return null;
+        }
+
+        float weight = lines.Sum(static line => MathF.Max(1f, line.Bounds.Width));
+        float center = lines.Sum(static line => (line.Bounds.X + line.Bounds.Width / 2f) * MathF.Max(1f, line.Bounds.Width)) / weight;
+        float tolerance = MathF.Max(page.Width * 0.035f, SemanticFontSize(element) * 1.75f);
+        if (MathF.Abs(center - page.Width / 2f) <= tolerance)
+        {
+            return "pdf-semantic-align-center";
+        }
+
+        float right = lines.Average(static line => line.Bounds.Right);
+        if (page.Width - right <= page.Width * 0.08f)
+        {
+            return "pdf-semantic-align-right";
+        }
+
+        return null;
+    }
+
+    private static bool ShouldDetectSourceAlignment(PdfSemanticElement element)
+    {
+        return element.Kind is PdfSemanticElementKind.Heading or PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer ||
+            ShouldDetectFigureCaptionAlignment(element) ||
+            IsSameRowLineGroup(element);
+    }
+
+    private static bool ShouldDetectFigureCaptionAlignment(PdfSemanticElement element)
+    {
+        return IsFigureCaption(element) &&
+            (element.Text.Length <= 120 || HorizontalTextLines(element).All(static line => line.Text.Length <= 80));
+    }
+
+    private static bool IsFigureCaption(PdfSemanticElement element)
+    {
+        if (element.Kind != PdfSemanticElementKind.Paragraph && element.Kind != PdfSemanticElementKind.Heading)
+        {
+            return false;
+        }
+
+        string text = element.Text.TrimStart();
+        if (!text.StartsWith("Figure ", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        int colon = text.IndexOf(':', StringComparison.Ordinal);
+        if (colon < 8 || colon > 18)
+        {
+            return false;
+        }
+
+        return text[7..colon].All(static character => char.IsDigit(character));
+    }
+
+    private static bool IsSameRowLineGroup(PdfSemanticElement element)
+    {
+        return SameRowLines(element).Length >= 2;
+    }
+
+    private static PdfSemanticLine[] SameRowLines(PdfSemanticElement element)
+    {
+        if (element.Kind != PdfSemanticElementKind.Paragraph || element.Text.Length > 120)
+        {
+            return [];
+        }
+
+        PdfSemanticLine[] lines = HorizontalTextLines(element);
+        if (lines.Length != element.Lines.Count || lines.Any(static line => line.Text.Length > 64))
+        {
+            return [];
+        }
+
+        if (lines.Length >= 2 && TryGetSameRowLines(element, lines, out PdfSemanticLine[] rowLines))
+        {
+            return rowLines;
+        }
+
+        return lines.Length == 1 ? SameRowRunClusters(lines[0]) : [];
+    }
+
+    private static bool TryGetSameRowLines(
+        PdfSemanticElement element,
+        PdfSemanticLine[] lines,
+        out PdfSemanticLine[] rowLines)
+    {
+        rowLines = [];
+        float maxHeight = lines.Max(static line => line.Bounds.Height);
+        float ySpan = lines.Max(static line => line.Bounds.Y) - lines.Min(static line => line.Bounds.Y);
+        if (ySpan > MathF.Max(3f, maxHeight * 0.60f))
+        {
+            return false;
+        }
+
+        PdfSemanticLine[] ordered = lines
+            .OrderBy(static line => line.Bounds.X)
+            .ToArray();
+        float minimumGap = MathF.Max(14f, SemanticFontSize(element) * 2f);
+        for (int index = 1; index < ordered.Length; index++)
+        {
+            if (HorizontalGap(ordered[index - 1].Bounds, ordered[index].Bounds) < minimumGap)
+            {
+                return false;
+            }
+        }
+
+        rowLines = ordered;
+        return true;
+    }
+
+    private static PdfSemanticLine[] SameRowRunClusters(PdfSemanticLine line)
+    {
+        PdfTextRun[] runs = line.Runs
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .OrderBy(static run => run.Bounds.X)
+            .ToArray();
+        if (runs.Length < 2)
+        {
+            return [];
+        }
+
+        List<List<PdfTextRun>> clusters = [];
+        List<PdfTextRun> current = [];
+        PdfTextRun? previous = null;
+        float splitGap = MathF.Max(24f, line.DominantFontSize * 3f);
+        foreach (PdfTextRun run in runs)
+        {
+            if (previous != null && HorizontalGap(previous.Bounds, run.Bounds) >= splitGap)
+            {
+                clusters.Add(current);
+                current = [];
+            }
+
+            current.Add(run);
+            previous = run;
+        }
+
+        if (current.Count > 0)
+        {
+            clusters.Add(current);
+        }
+
+        if (clusters.Count < 2)
+        {
+            return [];
+        }
+
+        PdfSemanticLine[] rowLines = clusters
+            .Select(CreateSyntheticRowLine)
+            .Where(static rowLine => rowLine.Text.Length is > 0 and <= 64)
+            .ToArray();
+        return rowLines.Length == clusters.Count ? rowLines : [];
+    }
+
+    private static PdfSemanticLine[] HorizontalTextLines(PdfSemanticElement element)
+    {
+        return element.Lines
+            .Where(static line => MathF.Abs(line.Direction) < 0.01f)
+            .Where(static line => !string.IsNullOrWhiteSpace(line.Text))
+            .ToArray();
+    }
+
+    private static PdfSemanticLine CreateSyntheticRowLine(IReadOnlyList<PdfTextRun> runs)
+    {
+        string text = ReconstructText(runs.SelectMany(static run => run.Glyphs));
+        PdfTextRun dominant = runs
+            .GroupBy(static run => (
+                FontName: NormalizeFontName(run.FontName),
+                FontSize: MathF.Round(run.FontSize * 2f) / 2f,
+                Direction: MathF.Round(run.Direction),
+                Color: ColorClass(run.Color)))
+            .OrderByDescending(static group => group.Sum(static run => Math.Max(1, run.Text.Length)))
+            .Select(static group => group.First())
+            .First();
+        return new PdfSemanticLine(
+            text,
+            UnionRectangles(runs.Select(static run => run.Bounds)),
+            NormalizeFontName(dominant.FontName),
+            MathF.Round(dominant.FontSize * 2f) / 2f,
+            MathF.Round(dominant.Direction),
+            dominant.Color,
+            runs);
+    }
+
+    private static string ReconstructText(IEnumerable<PdfTextGlyph> glyphSource)
+    {
+        PdfTextGlyph[] glyphs = glyphSource
+            .Where(static glyph => !string.IsNullOrEmpty(glyph.Text))
+            .OrderBy(static glyph => glyph.Bounds.X)
+            .ThenBy(static glyph => glyph.Bounds.Y)
+            .ToArray();
+        if (glyphs.Length == 0)
+        {
+            return "";
+        }
+
+        StringBuilder text = new();
+        PdfTextGlyph? previous = null;
+        foreach (PdfTextGlyph glyph in glyphs)
+        {
+            if (previous != null && ShouldInsertWordBoundary(previous, glyph))
+            {
+                AppendSpaceIfNeeded(text);
+            }
+
+            if (string.IsNullOrWhiteSpace(glyph.Text))
+            {
+                AppendSpaceIfNeeded(text);
+            }
+            else
+            {
+                text.Append(glyph.Text);
+            }
+
+            previous = glyph;
+        }
+
+        return CollapseWhitespace(text.ToString());
+    }
+
+    private static bool ShouldInsertWordBoundary(PdfTextGlyph previous, PdfTextGlyph glyph)
+    {
+        if (glyph.Bounds.X <= previous.Bounds.X)
+        {
+            return false;
+        }
+
+        string previousText = previous.Text;
+        string currentText = glyph.Text;
+        if (previousText.Length == 0 || currentText.Length == 0)
+        {
+            return false;
+        }
+
+        if (NoSpaceBefore(currentText[0]) || NoSpaceAfter(previousText[^1]))
+        {
+            return false;
+        }
+
+        float gap = glyph.Bounds.X - previous.Bounds.Right;
+        float threshold = MathF.Max(0.8f, MathF.Min(previous.FontSize, glyph.FontSize) * 0.16f);
+        return gap > threshold;
+    }
+
+    private static void AppendSpaceIfNeeded(StringBuilder text)
+    {
+        if (text.Length > 0 && text[^1] != ' ')
+        {
+            text.Append(' ');
+        }
+    }
+
+    private static string CollapseWhitespace(string text)
+    {
+        StringBuilder normalized = new(text.Length);
+        bool pendingWhitespace = false;
+        foreach (char character in text.Trim())
+        {
+            if (char.IsWhiteSpace(character))
+            {
+                pendingWhitespace = normalized.Length > 0;
+                continue;
+            }
+
+            if (pendingWhitespace)
+            {
+                normalized.Append(' ');
+                pendingWhitespace = false;
+            }
+
+            normalized.Append(character);
+        }
+
+        return normalized.ToString();
+    }
+
+    private static bool NoSpaceBefore(char character)
+    {
+        return character is ',' or '.' or ';' or ':' or '!' or '?' or ')' or ']' or '}' or '\'' or '’';
+    }
+
+    private static bool NoSpaceAfter(char character)
+    {
+        return character is '(' or '[' or '{' or '\'' or '‘';
+    }
+
+    private static string NormalizeFontName(string fontName)
+    {
+        int subsetSeparator = fontName.IndexOf('+', StringComparison.Ordinal);
+        return subsetSeparator >= 0 && subsetSeparator + 1 < fontName.Length
+            ? fontName[(subsetSeparator + 1)..]
+            : fontName;
     }
 
     private static bool IsJustifiedParagraph(PdfSemanticElement element)

@@ -94,6 +94,7 @@ public class PdfHtmlConverterTest
         Assert.Contains(".pdf-color-", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-justified", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-measured-width", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-align-center", html.Css, StringComparison.Ordinal);
 
         XElement verticalHeader = Assert.Single(dom.Descendants("header"), header =>
             header.Value.Contains("arXiv:1706.03762v7", StringComparison.Ordinal));
@@ -139,6 +140,7 @@ public class PdfHtmlConverterTest
 
         XElement abstractHeading = Assert.Single(dom.Descendants("h2"), element => element.Value == "Abstract");
         Assert.Null(abstractHeading.Attribute("data-semantic-kind"));
+        Assert.Contains("pdf-semantic-align-center", abstractHeading.Attribute("class")?.Value);
         XElement abstractParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
             paragraph.Value.StartsWith("The dominant sequence transduction models", StringComparison.Ordinal) &&
             paragraph.Value.Contains("large and limited training data.", StringComparison.Ordinal));
@@ -148,7 +150,10 @@ public class PdfHtmlConverterTest
         Assert.InRange(ParsePercent(abstractStyle["--pdf-semantic-width"]), 80f, 84f);
         Assert.Equal("center", abstractStyle["--pdf-semantic-align-self"]);
 
-        Assert.Contains(dom.Descendants("h1"), heading => heading.Value == "1 Introduction");
+        XElement introductionHeading = Assert.Single(dom.Descendants("h1"), heading => heading.Value == "1 Introduction");
+        Assert.DoesNotContain("pdf-semantic-align-center", introductionHeading.Attribute("class")?.Value ?? "");
+        XElement pageNumberFooter = Assert.Single(ElementsByClass(dom, "pdf-semantic-footer"), footer => footer.Value == "2");
+        Assert.Contains("pdf-semantic-align-center", pageNumberFooter.Attribute("class")?.Value);
         XElement pageEndParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
             paragraph.Value.StartsWith("Most competitive neural sequence transduction models", StringComparison.Ordinal));
         Assert.DoesNotContain("pdf-semantic-measured-width", pageEndParagraph.Attribute("class")?.Value ?? "");
@@ -200,6 +205,30 @@ public class PdfHtmlConverterTest
             Dictionary<string, string> style = ParseStyle(figure.Attribute("style")?.Value ?? "");
             Assert.True(ParsePoints(style["height"]) >= 30f);
         });
+
+        XElement figure1Caption = Assert.Single(ElementsByClass(dom, "pdf-semantic-caption"), paragraph =>
+            paragraph.Value == "Figure 1: The Transformer - model architecture.");
+        Assert.Contains("pdf-semantic-align-center", figure1Caption.Attribute("class")?.Value);
+        XElement figure4Caption = Assert.Single(ElementsByClass(dom, "pdf-semantic-caption"), paragraph =>
+            paragraph.Value.StartsWith("Figure 4: Two attention heads", StringComparison.Ordinal));
+        Assert.DoesNotContain("pdf-semantic-align-center", figure4Caption.Attribute("class")?.Value ?? "");
+
+        XElement fourthPage = Assert.Single(dom.Descendants("section"), section =>
+            section.Attribute("id")?.Value == "page-4");
+        XElement flow = Assert.Single(fourthPage.Elements("article"), article => HasClass(article, "pdf-semantic-flow"));
+        XElement[] flowChildren = flow.Elements().ToArray();
+        XElement attentionLabels = Assert.Single(flowChildren, element =>
+            HasClass(element, "pdf-semantic-line-row") &&
+            element.Value.Contains("Scaled Dot-Product Attention", StringComparison.Ordinal) &&
+            element.Value.Contains("Multi-Head Attention", StringComparison.Ordinal));
+        XElement[] labelLines = attentionLabels.Elements("span").ToArray();
+        Assert.Equal(new[] { "Scaled Dot-Product Attention", "Multi-Head Attention" }, labelLines.Select(static line => line.Value).ToArray());
+        Assert.Contains("pdf-semantic-align-center", attentionLabels.Attribute("class")?.Value);
+        Dictionary<string, string> attentionLabelStyle = ParseStyle(attentionLabels.Attribute("style")?.Value ?? "");
+        Assert.Equal("2", attentionLabelStyle["--pdf-semantic-line-count"]);
+        int labelIndex = Array.IndexOf(flowChildren, attentionLabels);
+        int figureSpaceIndex = Array.FindIndex(flowChildren, element => HasClass(element, "pdf-semantic-figure-space"));
+        Assert.True(labelIndex >= 0 && figureSpaceIndex > labelIndex);
     }
 
     [Fact]
