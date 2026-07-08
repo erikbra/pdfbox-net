@@ -35,6 +35,7 @@
     <Project Path="tests/PdfBox.Net.XmpBox.Tests/PdfBox.Net.XmpBox.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">
+    <Project Path="tools/conversion_quality/PdfBox.Net.ConversionQuality/PdfBox.Net.ConversionQuality.csproj" />
     <Project Path="tools/parity/runtime/DotnetPdfProbe/DotnetPdfProbe.csproj" />
   </Folder>
 </Solution>
