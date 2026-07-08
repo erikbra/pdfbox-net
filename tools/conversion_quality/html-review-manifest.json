@@ -6,6 +6,7 @@
       "id": "arxiv-sample",
       "title": "arxiv-sample",
       "sourcePdf": "../../tests/PdfBox.Net.Tests/Fixtures/TextExtraction/Issue412/arxiv-sample.pdf",
+      "qualityPages": 2,
       "notes": "Existing multi-page regression fixture. This is useful for seeing current fixed-layout HTML behavior on a real paper-style PDF."
     }
   ]

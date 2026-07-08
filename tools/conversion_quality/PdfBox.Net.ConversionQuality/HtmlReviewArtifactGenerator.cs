@@ -113,7 +113,17 @@ public static class HtmlReviewArtifactGenerator
         }
 
         html.WriteToDirectory(exampleDirectory);
-        File.Copy(sourcePdf, Path.Combine(exampleDirectory, "source.pdf"), overwrite: true);
+        string copiedSourcePdf = Path.Combine(exampleDirectory, "source.pdf");
+        File.Copy(sourcePdf, copiedSourcePdf, overwrite: true);
+        PdfHtmlQualityReport qualityReport = new PdfHtmlQualityProbe()
+            .AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+                copiedSourcePdf,
+                exampleDirectory,
+                layout,
+                Path.Combine(exampleDirectory, "quality"),
+                example.QualityPages ?? 2))
+            .GetAwaiter()
+            .GetResult();
 
         HtmlReviewExampleResult result = new(
             example.Id,
@@ -128,7 +138,9 @@ public static class HtmlReviewArtifactGenerator
             ExportedAssets: html.Assets.Count,
             Links: layout.Pages.Sum(page => page.Links.Count),
             Diagnostics: layout.Diagnostics.Count + layout.Pages.Sum(page => page.Diagnostics.Count) +
-                CountNonEmptyLines(capturedConversionWarnings));
+                CountNonEmptyLines(capturedConversionWarnings),
+            QualityStatus: qualityReport.Status,
+            QualityChecksNeedingReview: qualityReport.Checks.Count(static check => check.Status == "needs-review"));
 
         WriteText(Path.Combine(exampleDirectory, "summary.md"), RenderExampleSummary(result, layout));
         WriteText(Path.Combine(exampleDirectory, "diagnostics.txt"), RenderDiagnostics(layout, capturedConversionWarnings));
@@ -209,7 +221,7 @@ public static class HtmlReviewArtifactGenerator
         }
 
         html.AppendLine("  <table>");
-        html.AppendLine("    <thead><tr><th>Example</th><th>Links</th><th>Pages</th><th>Text runs</th><th>Images</th><th>Paths</th><th>Diagnostics</th></tr></thead>");
+        html.AppendLine("    <thead><tr><th>Example</th><th>Links</th><th>Pages</th><th>Text runs</th><th>Images</th><th>Paths</th><th>Diagnostics</th><th>Quality</th></tr></thead>");
         html.AppendLine("    <tbody>");
         foreach (HtmlReviewExampleResult result in results)
         {
@@ -231,6 +243,16 @@ public static class HtmlReviewArtifactGenerator
             html.Append(result.VectorPaths.ToString());
             html.Append("</td><td>");
             html.Append(result.Diagnostics.ToString());
+            html.Append("</td><td>");
+            html.Append(WebUtility.HtmlEncode(result.QualityStatus));
+            if (result.QualityChecksNeedingReview > 0)
+            {
+                html.Append(" (");
+                html.Append(result.QualityChecksNeedingReview.ToString());
+                html.Append(")");
+            }
+
+            html.Append($" <a href=\"{directoryName}/quality/quality-report.md\">report</a>");
             html.AppendLine("</td></tr>");
         }
 
@@ -261,6 +283,7 @@ public static class HtmlReviewArtifactGenerator
         summary.AppendLine("- Source PDF: [source.pdf](source.pdf)");
         summary.AppendLine("- Converted HTML: [index.html](index.html)");
         summary.AppendLine("- Side-by-side comparison: [compare.html](compare.html)");
+        summary.AppendLine("- Quality probe: [quality/quality-report.md](quality/quality-report.md)");
         summary.AppendLine($"- Pages: {result.PageCount}");
         summary.AppendLine($"- Text runs: {result.TextRuns}");
         summary.AppendLine($"- Text lines: {result.TextLines}");
@@ -269,6 +292,8 @@ public static class HtmlReviewArtifactGenerator
         summary.AppendLine($"- Exported assets: {result.ExportedAssets}");
         summary.AppendLine($"- Links: {result.Links}");
         summary.AppendLine($"- Diagnostics: {result.Diagnostics}");
+        summary.AppendLine($"- Quality status: {result.QualityStatus}");
+        summary.AppendLine($"- Quality checks needing review: {result.QualityChecksNeedingReview}");
         summary.AppendLine();
         summary.AppendLine("## Text Preview");
         summary.AppendLine();
@@ -349,7 +374,7 @@ public static class HtmlReviewArtifactGenerator
         html.AppendLine("<body>");
         html.Append("  <header><h1>");
         html.Append(WebUtility.HtmlEncode(result.Title));
-        html.AppendLine("</h1><a href=\"source.pdf\">source PDF</a><a href=\"index.html\">generated HTML</a><a href=\"summary.md\">summary</a></header>");
+        html.AppendLine("</h1><a href=\"source.pdf\">source PDF</a><a href=\"index.html\">generated HTML</a><a href=\"quality/quality-report.md\">quality report</a><a href=\"summary.md\">summary</a></header>");
         html.AppendLine("  <main>");
         html.AppendLine("    <section><h2>Source PDF</h2><iframe title=\"Source PDF\" src=\"source.pdf\"></iframe></section>");
         html.AppendLine("    <section><h2>Generated HTML</h2><iframe title=\"Generated HTML\" src=\"index.html\"></iframe></section>");
@@ -381,7 +406,9 @@ public sealed record HtmlReviewExampleResult(
     int VectorPaths,
     int ExportedAssets,
     int Links,
-    int Diagnostics);
+    int Diagnostics,
+    string QualityStatus,
+    int QualityChecksNeedingReview);
 
 public sealed class HtmlReviewManifest
 {
@@ -401,4 +428,6 @@ public sealed class HtmlReviewManifestExample
     public string SourcePdf { get; set; } = "";
 
     public string? Notes { get; set; }
+
+    public int? QualityPages { get; set; }
 }

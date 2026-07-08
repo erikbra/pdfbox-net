@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Playwright" />
     <ProjectReference Include="..\..\..\src\PdfBox.Net.Html\PdfBox.Net.Html.csproj" />
     <ProjectReference Include="..\..\..\src\PdfBox.Net.Layout\PdfBox.Net.Layout.csproj" />
     <ProjectReference Include="..\..\..\src\PdfBox.Net\PdfBox.Net.csproj" />

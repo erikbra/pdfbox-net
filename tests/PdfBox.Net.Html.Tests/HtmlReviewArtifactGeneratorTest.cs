@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using PdfBox.Net.COS;
 using PdfBox.Net.ConversionQuality;
+using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 
 namespace PdfBox.Net.Html.Tests;
@@ -48,16 +49,69 @@ public sealed class HtmlReviewArtifactGeneratorTest
         string convertedHtml = Path.Combine(exampleDirectory, "index.html");
         string css = Path.Combine(exampleDirectory, "assets", "pdfbox-net-fixed.css");
         string compare = Path.Combine(exampleDirectory, "compare.html");
+        string qualityReportJson = Path.Combine(exampleDirectory, "quality", "quality-report.json");
+        string qualityReportMarkdown = Path.Combine(exampleDirectory, "quality", "quality-report.md");
 
         Assert.True(File.Exists(Path.Combine(outputDirectory, "index.html")));
         Assert.True(File.Exists(copiedSource));
         Assert.True(File.Exists(convertedHtml));
         Assert.True(File.Exists(css));
         Assert.True(File.Exists(compare));
+        Assert.True(File.Exists(qualityReportJson));
+        Assert.True(File.Exists(qualityReportMarkdown));
         Assert.Equal(File.ReadAllBytes(sourcePdf), File.ReadAllBytes(copiedSource));
         Assert.Contains("source.pdf", File.ReadAllText(compare));
         Assert.Contains("index.html", File.ReadAllText(compare));
+        Assert.Contains("quality/quality-report.md", File.ReadAllText(compare));
         Assert.Contains("review-artifact-sample/compare.html", File.ReadAllText(Path.Combine(outputDirectory, "index.html")));
+        Assert.Contains("review-artifact-sample/quality/quality-report.md", File.ReadAllText(Path.Combine(outputDirectory, "index.html")));
+
+        using JsonDocument quality = JsonDocument.Parse(File.ReadAllText(qualityReportJson));
+        Assert.Equal(1, quality.RootElement.GetProperty("Schema").GetInt32());
+        Assert.True(example.QualityStatus.Length > 0);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_ReportsWordBoundaryLossWithoutFailingProbe()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        PdfLayoutDocument layout;
+        using (PDDocument document = CreateTextDocument())
+        {
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <head><meta charset="utf-8" /></head>
+            <body style="margin:0;background:#f3f4f6">
+              <section class="pdf-page" data-page-number="1" style="position:relative;width:612pt;height:792pt;background:white">
+                <span class="pdf-text-run" style="position:absolute;left:72pt;top:80pt;font-size:12pt;font-family:Arial,sans-serif">Reviewartifactsample</span>
+              </section>
+            </body>
+            </html>
+            """);
+
+        string outputDirectory = Path.Combine(tempDirectory.Path, "quality");
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            outputDirectory,
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        Assert.Equal("needs-review", report.Status);
+        Assert.Contains(report.Checks, check => check.Id == "word-boundaries" && check.Status == "needs-review");
+        Assert.True(File.Exists(Path.Combine(outputDirectory, "quality-report.json")));
+        Assert.True(File.Exists(Path.Combine(outputDirectory, "quality-report.md")));
     }
 
     private static PDDocument CreateTextDocument()
