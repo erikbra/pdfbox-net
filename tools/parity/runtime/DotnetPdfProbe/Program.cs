@@ -34,7 +34,7 @@ internal static class DotnetPdfProbe
     {
         if (args.Length < 2)
         {
-            Console.Error.WriteLine("usage: DotnetPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b> | --incremental <out-dir> <pdf> [<pdf>...]");
+            Console.Error.WriteLine("usage: DotnetPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b> | --merge-batch <out-dir> <pdf-a> <pdf-b> [<pdf-a> <pdf-b>...] | --incremental <out-dir> <pdf> [<pdf>...]");
             return 2;
         }
 
@@ -47,6 +47,23 @@ internal static class DotnetPdfProbe
             }
 
             Merge(args[1], args[2], args[3]);
+            return 0;
+        }
+
+        if (args[0] == "--merge-batch")
+        {
+            if (args.Length < 4 || ((args.Length - 2) % 2) != 0)
+            {
+                Console.Error.WriteLine("usage: DotnetPdfProbe --merge-batch <out-dir> <pdf-a> <pdf-b> [<pdf-a> <pdf-b>...]");
+                return 2;
+            }
+
+            Directory.CreateDirectory(args[1]);
+            for (int i = 2; i < args.Length; i += 2)
+            {
+                Merge(args[1], args[i], args[i + 1]);
+            }
+
             return 0;
         }
 
