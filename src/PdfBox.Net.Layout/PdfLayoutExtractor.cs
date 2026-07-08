@@ -5,7 +5,9 @@ using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
@@ -123,6 +125,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfTextBlock> _blocks = new();
         private readonly List<PdfLayoutImage> _images = new();
         private readonly List<PdfLayoutImageAsset> _imageAssets = new();
+        private readonly List<PdfLayoutPath> _paths = new();
         private readonly List<PdfLayoutLink> _links = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
 
@@ -143,9 +146,9 @@ public static class PdfLayoutExtractor
                 CollectLinks(page);
             }
 
-            if (options.IncludeImages)
+            if (options.IncludeImages || options.IncludePaths)
             {
-                CollectImages(page, options.IncludeImageAssets);
+                CollectGraphics(page, options);
             }
         }
 
@@ -183,15 +186,23 @@ public static class PdfLayoutExtractor
                 _lines,
                 _blocks,
                 _images,
+                _paths,
                 _links,
                 _diagnostics);
         }
 
         public IReadOnlyList<PdfLayoutImageAsset> ImageAssets => _imageAssets;
 
-        private void CollectImages(PDPage page, bool includeImageAssets)
+        private void CollectGraphics(PDPage page, PdfLayoutOptions options)
         {
-            LayoutImageCollector collector = new(page, _pageNumber, _cropBox, _rotation, includeImageAssets);
+            LayoutGraphicsCollector collector = new(
+                page,
+                _pageNumber,
+                _cropBox,
+                _rotation,
+                options.IncludeImages,
+                options.IncludeImageAssets,
+                options.IncludePaths);
             try
             {
                 collector.Run(page);
@@ -207,6 +218,7 @@ public static class PdfLayoutExtractor
 
             _images.AddRange(collector.Images);
             _imageAssets.AddRange(collector.ImageAssets);
+            _paths.AddRange(collector.Paths);
             _diagnostics.AddRange(collector.Diagnostics);
         }
 
@@ -460,34 +472,45 @@ public static class PdfLayoutExtractor
         }
     }
 
-    private sealed class LayoutImageCollector : PDFGraphicsStreamEngine
+    private sealed class LayoutGraphicsCollector : PDFGraphicsStreamEngine
     {
         private readonly int _pageNumber;
         private readonly PdfLayoutRectangle _cropBox;
         private readonly int _rotation;
+        private readonly bool _includeImages;
         private readonly bool _includeImageAssets;
+        private readonly bool _includePaths;
         private readonly List<PdfLayoutImage> _images = new();
         private readonly List<PdfLayoutImageAsset> _imageAssets = new();
+        private readonly List<PdfLayoutPath> _paths = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
         private bool _reportedRotatedImage;
+        private bool _reportedRotatedPath;
+        private bool _reportedClipping;
 
-        public LayoutImageCollector(
+        public LayoutGraphicsCollector(
             PDPage page,
             int pageNumber,
             PdfLayoutRectangle cropBox,
             int rotation,
-            bool includeImageAssets)
+            bool includeImages,
+            bool includeImageAssets,
+            bool includePaths)
             : base(page)
         {
             _pageNumber = pageNumber;
             _cropBox = cropBox;
             _rotation = rotation;
+            _includeImages = includeImages;
             _includeImageAssets = includeImageAssets;
+            _includePaths = includePaths;
         }
 
         public IReadOnlyList<PdfLayoutImage> Images => _images;
 
         public IReadOnlyList<PdfLayoutImageAsset> ImageAssets => _imageAssets;
+
+        public IReadOnlyList<PdfLayoutPath> Paths => _paths;
 
         public IReadOnlyList<PdfLayoutDiagnostic> Diagnostics => _diagnostics;
 
@@ -495,7 +518,11 @@ public static class PdfLayoutExtractor
         {
             if (xobject is PDImageXObject image)
             {
-                CollectXObjectImage(image, ResolveSourceName(xobject));
+                if (_includeImages)
+                {
+                    CollectXObjectImage(image, ResolveSourceName(xobject));
+                }
+
                 return;
             }
 
@@ -504,7 +531,201 @@ public static class PdfLayoutExtractor
 
         public override void DrawImage(PDImage pdImage)
         {
-            CollectInlineImage(pdImage);
+            if (_includeImages)
+            {
+                CollectInlineImage(pdImage);
+            }
+        }
+
+        public override void Clip(int windingRule)
+        {
+            if (_includePaths && !_reportedClipping && GetCurrentPathSegments().Count > 0)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "path-clipping-unsupported",
+                    "Vector path clipping is not represented in HTML SVG overlays yet.",
+                    _pageNumber));
+                _reportedClipping = true;
+            }
+
+            base.Clip(windingRule);
+        }
+
+        protected override void OnStrokePath(IReadOnlyList<PathSegment> path, PDGraphicsState graphicsState)
+        {
+            if (_includePaths)
+            {
+                CollectPath(path, graphicsState, fillRule: null, includeFill: false, includeStroke: true);
+            }
+        }
+
+        protected override void OnFillPath(int windingRule, IReadOnlyList<PathSegment> path, PDGraphicsState graphicsState)
+        {
+            if (_includePaths)
+            {
+                CollectPath(path, graphicsState, windingRule, includeFill: true, includeStroke: false);
+            }
+        }
+
+        protected override void OnFillAndStrokePath(int windingRule, IReadOnlyList<PathSegment> path, PDGraphicsState graphicsState)
+        {
+            if (_includePaths)
+            {
+                CollectPath(path, graphicsState, windingRule, includeFill: true, includeStroke: true);
+            }
+        }
+
+        private void CollectPath(
+            IReadOnlyList<PathSegment> path,
+            PDGraphicsState graphicsState,
+            int? fillRule,
+            bool includeFill,
+            bool includeStroke)
+        {
+            if (path.Count == 0)
+            {
+                return;
+            }
+
+            if (_rotation != 0)
+            {
+                if (!_reportedRotatedPath)
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "path-rotation-unsupported",
+                        "Vector path geometry is not collected for rotated pages yet.",
+                        _pageNumber));
+                    _reportedRotatedPath = true;
+                }
+
+                return;
+            }
+
+            PdfLayoutPathCommand[] commands = NormalizePath(path, graphicsState.GetCurrentTransformationMatrix());
+            if (commands.Length == 0)
+            {
+                return;
+            }
+
+            int index = _paths.Count;
+            _paths.Add(new PdfLayoutPath(
+                index,
+                commands,
+                Bounds(commands),
+                includeFill ? ResolveColor(graphicsState.GetNonStrokingColor(), graphicsState.GetNonStrokeAlphaConstant(), index, "fill") : null,
+                includeStroke ? StrokeStyle(graphicsState, index) : null,
+                fillRule));
+        }
+
+        private PdfLayoutStrokeStyle StrokeStyle(PDGraphicsState graphicsState, int index)
+        {
+            PDLineDashPattern dashPattern = graphicsState.GetLineDashPattern();
+            return new PdfLayoutStrokeStyle(
+                ResolveColor(graphicsState.GetStrokingColor(), graphicsState.GetAlphaConstant(), index, "stroke"),
+                MathF.Max(0.25f, TransformWidth(graphicsState, graphicsState.GetLineWidth())),
+                graphicsState.GetLineCap(),
+                graphicsState.GetLineJoin(),
+                graphicsState.GetMiterLimit(),
+                dashPattern.GetDashArray().Select(dash => MathF.Max(0, TransformWidth(graphicsState, dash))).ToArray(),
+                MathF.Max(0, TransformWidth(graphicsState, dashPattern.GetPhaseStart())));
+        }
+
+        private PdfLayoutColor ResolveColor(PDColor color, float alpha, int index, string paintKind)
+        {
+            try
+            {
+                int rgb = color.ToRGB();
+                return new PdfLayoutColor(
+                    ((rgb >> 16) & 0xFF) / 255f,
+                    ((rgb >> 8) & 0xFF) / 255f,
+                    (rgb & 0xFF) / 255f,
+                    Math.Clamp(alpha, 0f, 1f),
+                    color.GetColorSpace()?.GetName());
+            }
+            catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "path-color-unresolved",
+                    $"Path {index.ToString(CultureInfo.InvariantCulture)} {paintKind} color could not be resolved: {ex.Message}",
+                    _pageNumber));
+                return new PdfLayoutColor(0, 0, 0, Math.Clamp(alpha, 0f, 1f), null);
+            }
+        }
+
+        private PdfLayoutPathCommand[] NormalizePath(IReadOnlyList<PathSegment> path, Matrix ctm)
+        {
+            List<PdfLayoutPathCommand> commands = new(path.Count);
+            foreach (PathSegment segment in path)
+            {
+                switch (segment.Type)
+                {
+                    case PathSegmentType.MoveTo:
+                    {
+                        (float x, float y) = NormalizePoint(segment.X1, segment.Y1, ctm);
+                        commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, x, y, 0, 0, 0, 0));
+                        break;
+                    }
+                    case PathSegmentType.LineTo:
+                    {
+                        (float x, float y) = NormalizePoint(segment.X1, segment.Y1, ctm);
+                        commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, x, y, 0, 0, 0, 0));
+                        break;
+                    }
+                    case PathSegmentType.CurveTo:
+                    {
+                        (float x1, float y1) = NormalizePoint(segment.X1, segment.Y1, ctm);
+                        (float x2, float y2) = NormalizePoint(segment.X2, segment.Y2, ctm);
+                        (float x3, float y3) = NormalizePoint(segment.X3, segment.Y3, ctm);
+                        commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.CurveTo, x1, y1, x2, y2, x3, y3));
+                        break;
+                    }
+                    case PathSegmentType.Close:
+                        commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0, 0, 0, 0, 0, 0));
+                        break;
+                }
+            }
+
+            return commands.ToArray();
+        }
+
+        private (float X, float Y) NormalizePoint(float x, float y, Matrix ctm)
+        {
+            Vector point = ctm.Transform(x, y);
+            float cropTop = _cropBox.Y + _cropBox.Height;
+            return (point.GetX() - _cropBox.X, cropTop - point.GetY());
+        }
+
+        private static PdfLayoutRectangle Bounds(IReadOnlyList<PdfLayoutPathCommand> commands)
+        {
+            List<PdfLayoutRectangle> points = new();
+            foreach (PdfLayoutPathCommand command in commands)
+            {
+                switch (command.Kind)
+                {
+                    case PdfLayoutPathCommandKind.MoveTo:
+                    case PdfLayoutPathCommandKind.LineTo:
+                        points.Add(new PdfLayoutRectangle(command.X1, command.Y1, 0, 0));
+                        break;
+                    case PdfLayoutPathCommandKind.CurveTo:
+                        points.Add(new PdfLayoutRectangle(command.X1, command.Y1, 0, 0));
+                        points.Add(new PdfLayoutRectangle(command.X2, command.Y2, 0, 0));
+                        points.Add(new PdfLayoutRectangle(command.X3, command.Y3, 0, 0));
+                        break;
+                }
+            }
+
+            return PdfLayoutRectangle.Union(points);
+        }
+
+        private static float TransformWidth(PDGraphicsState graphicsState, float width)
+        {
+            Matrix ctm = graphicsState.GetCurrentTransformationMatrix();
+            float x = ctm.GetScaleX() + ctm.GetShearX();
+            float y = ctm.GetScaleY() + ctm.GetShearY();
+            return width * MathF.Sqrt(((x * x) + (y * y)) * 0.5f);
         }
 
         private void CollectXObjectImage(PDImageXObject image, string? sourceName)

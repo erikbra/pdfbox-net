@@ -161,6 +161,92 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_RectanglePath_CapturesCommandsBoundsAndPaintStyle()
+    {
+        using PDDocument document = CreateTextDocument("""
+            q
+            2 w
+            1 0 0 RG
+            0.1 0.6 0.2 rg
+            72 600 120 60 re
+            B
+            Q
+            """);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutPath path = Assert.Single(Assert.Single(layout.Pages).Paths);
+        Assert.Empty(layout.Diagnostics);
+        Assert.Equal(0, path.Index);
+        Assert.True(path.IsFilled);
+        Assert.True(path.IsStroked);
+        Assert.Equal(1, path.FillRule);
+        AssertClose(72, path.Bounds.X);
+        AssertClose(132, path.Bounds.Y);
+        AssertClose(120, path.Bounds.Width);
+        AssertClose(60, path.Bounds.Height);
+        Assert.Equal(
+            [
+                PdfLayoutPathCommandKind.MoveTo,
+                PdfLayoutPathCommandKind.LineTo,
+                PdfLayoutPathCommandKind.LineTo,
+                PdfLayoutPathCommandKind.LineTo,
+                PdfLayoutPathCommandKind.ClosePath
+            ],
+            path.Commands.Select(command => command.Kind).ToArray());
+        AssertClose(72, path.Commands[0].X1);
+        AssertClose(192, path.Commands[0].Y1);
+        AssertClose(192, path.Commands[2].X1);
+        AssertClose(132, path.Commands[2].Y1);
+        Assert.NotNull(path.FillColor);
+        AssertClose(0.1f, path.FillColor.Value.Red);
+        AssertClose(0.6f, path.FillColor.Value.Green);
+        AssertClose(0.2f, path.FillColor.Value.Blue);
+        AssertClose(1, path.FillColor.Value.Alpha);
+        Assert.NotNull(path.Stroke);
+        AssertClose(2, path.Stroke.Width);
+        AssertClose(1, path.Stroke.Color.Red);
+        AssertClose(0, path.Stroke.Color.Green);
+        AssertClose(0, path.Stroke.Color.Blue);
+    }
+
+    [Fact]
+    public void Extract_PathCollectionCanBeDisabled()
+    {
+        using PDDocument document = CreateTextDocument("""
+            72 600 120 60 re
+            f
+            """);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludePaths = false
+        });
+
+        Assert.Empty(Assert.Single(layout.Pages).Paths);
+    }
+
+    [Fact]
+    public void Extract_PathClippingEmitsDeterministicDiagnostic()
+    {
+        using PDDocument document = CreateTextDocument("""
+            72 600 120 60 re
+            W
+            n
+            90 610 50 20 re
+            f
+            """);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutDiagnostic diagnostic = Assert.Single(layout.Diagnostics);
+        Assert.Equal(PdfLayoutDiagnosticSeverity.Warning, diagnostic.Severity);
+        Assert.Equal("path-clipping-unsupported", diagnostic.Code);
+        Assert.Equal(1, diagnostic.PageNumber);
+        Assert.Single(Assert.Single(layout.Pages).Paths);
+    }
+
+    [Fact]
     public void Extract_XObjectImage_CapturesIntrinsicSizePlacementAndMetadata()
     {
         using PDDocument document = CreateImageDocument();

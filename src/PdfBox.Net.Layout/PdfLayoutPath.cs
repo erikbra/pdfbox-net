@@ -1,0 +1,63 @@
+namespace PdfBox.Net.Layout;
+
+/// <summary>
+/// A collected vector path paint operation in normalized page coordinates.
+/// </summary>
+public sealed class PdfLayoutPath
+{
+    public PdfLayoutPath(
+        int index,
+        IReadOnlyList<PdfLayoutPathCommand> commands,
+        PdfLayoutRectangle bounds,
+        PdfLayoutColor? fillColor,
+        PdfLayoutStrokeStyle? stroke,
+        int? fillRule)
+    {
+        Index = index;
+        Commands = commands.ToArray();
+        Bounds = bounds;
+        FillColor = fillColor;
+        Stroke = stroke;
+        FillRule = fillRule;
+    }
+
+    /// <summary>
+    /// Gets the zero-based path paint operation index on the page.
+    /// </summary>
+    public int Index { get; }
+
+    /// <summary>
+    /// Gets path commands in normalized page coordinates.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutPathCommand> Commands { get; }
+
+    /// <summary>
+    /// Gets the path command bounds.
+    /// </summary>
+    public PdfLayoutRectangle Bounds { get; }
+
+    /// <summary>
+    /// Gets the fill color when the path is filled.
+    /// </summary>
+    public PdfLayoutColor? FillColor { get; }
+
+    /// <summary>
+    /// Gets the stroke style when the path is stroked.
+    /// </summary>
+    public PdfLayoutStrokeStyle? Stroke { get; }
+
+    /// <summary>
+    /// Gets the PDF fill rule when the path is filled. 0 is even-odd, 1 is non-zero winding.
+    /// </summary>
+    public int? FillRule { get; }
+
+    /// <summary>
+    /// Gets whether the path has a fill paint operation.
+    /// </summary>
+    public bool IsFilled => FillColor.HasValue;
+
+    /// <summary>
+    /// Gets whether the path has a stroke paint operation.
+    /// </summary>
+    public bool IsStroked => Stroke is not null;
+}

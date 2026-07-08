@@ -53,6 +53,16 @@ public static class PdfHtmlConverter
           position: absolute;
           z-index: 0;
         }
+
+        .pdf-vector-layer {
+          display: block;
+          left: 0;
+          overflow: visible;
+          pointer-events: none;
+          position: absolute;
+          top: 0;
+          z-index: 0;
+        }
         """;
 
     /// <summary>
@@ -118,6 +128,11 @@ public static class PdfHtmlConverter
             }
         }
 
+        if (page.Paths.Count > 0)
+        {
+            WriteVectorLayer(html, page, scale);
+        }
+
         foreach (PdfTextRun run in page.Runs)
         {
             WriteTextRun(html, run, scale);
@@ -153,6 +168,84 @@ public static class PdfHtmlConverter
             .Append(";height:")
             .Append(CssPoints(image.Bounds.Height * scale))
             .AppendLine("\" />");
+    }
+
+    private static void WriteVectorLayer(StringBuilder html, PdfLayoutPage page, float scale)
+    {
+        html.Append("    <svg class=\"pdf-vector-layer\" data-path-count=\"")
+            .Append(page.Paths.Count.ToString(CultureInfo.InvariantCulture))
+            .Append("\" viewBox=\"0 0 ")
+            .Append(SvgNumber(page.Width))
+            .Append(' ')
+            .Append(SvgNumber(page.Height))
+            .Append("\" style=\"position:absolute;left:0;top:0;width:")
+            .Append(CssPoints(page.Width * scale))
+            .Append(";height:")
+            .Append(CssPoints(page.Height * scale))
+            .AppendLine("\" aria-hidden=\"true\">");
+
+        foreach (PdfLayoutPath path in page.Paths)
+        {
+            WriteVectorPath(html, path);
+        }
+
+        html.AppendLine("    </svg>");
+    }
+
+    private static void WriteVectorPath(StringBuilder html, PdfLayoutPath path)
+    {
+        html.Append("      <path class=\"pdf-vector-path\" data-path-index=\"")
+            .Append(path.Index.ToString(CultureInfo.InvariantCulture))
+            .Append("\" d=\"")
+            .Append(HtmlAttribute(SvgPathData(path.Commands)))
+            .Append("\"");
+
+        if (path.FillColor is PdfLayoutColor fill)
+        {
+            html.Append(" fill=\"")
+                .Append(ColorHex(fill))
+                .Append("\" fill-opacity=\"")
+                .Append(SvgNumber(fill.Alpha))
+                .Append("\" fill-rule=\"")
+                .Append(FillRule(path.FillRule))
+                .Append("\"");
+        }
+        else
+        {
+            html.Append(" fill=\"none\"");
+        }
+
+        if (path.Stroke is PdfLayoutStrokeStyle stroke)
+        {
+            html.Append(" stroke=\"")
+                .Append(ColorHex(stroke.Color))
+                .Append("\" stroke-opacity=\"")
+                .Append(SvgNumber(stroke.Color.Alpha))
+                .Append("\" stroke-width=\"")
+                .Append(SvgNumber(stroke.Width))
+                .Append("\" stroke-linecap=\"")
+                .Append(LineCap(stroke.LineCap))
+                .Append("\" stroke-linejoin=\"")
+                .Append(LineJoin(stroke.LineJoin))
+                .Append("\" stroke-miterlimit=\"")
+                .Append(SvgNumber(stroke.MiterLimit))
+                .Append("\"");
+
+            if (stroke.DashArray.Count > 0 && stroke.DashArray.Any(dash => dash > 0))
+            {
+                html.Append(" stroke-dasharray=\"")
+                    .Append(string.Join(" ", stroke.DashArray.Select(SvgNumber)))
+                    .Append("\" stroke-dashoffset=\"")
+                    .Append(SvgNumber(stroke.DashPhase))
+                    .Append("\"");
+            }
+        }
+        else
+        {
+            html.Append(" stroke=\"none\"");
+        }
+
+        html.AppendLine(" />");
     }
 
     private static void WriteTextRun(StringBuilder html, PdfTextRun run, float scale)
@@ -249,6 +342,96 @@ public static class PdfHtmlConverter
     private static string CssPoints(float value)
     {
         return value.ToString("0.###", CultureInfo.InvariantCulture) + "pt";
+    }
+
+    private static string SvgNumber(float value)
+    {
+        return value.ToString("0.###", CultureInfo.InvariantCulture);
+    }
+
+    private static string SvgPathData(IReadOnlyList<PdfLayoutPathCommand> commands)
+    {
+        StringBuilder builder = new();
+        foreach (PdfLayoutPathCommand command in commands)
+        {
+            if (builder.Length > 0)
+            {
+                builder.Append(' ');
+            }
+
+            switch (command.Kind)
+            {
+                case PdfLayoutPathCommandKind.MoveTo:
+                    builder.Append("M ")
+                        .Append(SvgNumber(command.X1))
+                        .Append(' ')
+                        .Append(SvgNumber(command.Y1));
+                    break;
+                case PdfLayoutPathCommandKind.LineTo:
+                    builder.Append("L ")
+                        .Append(SvgNumber(command.X1))
+                        .Append(' ')
+                        .Append(SvgNumber(command.Y1));
+                    break;
+                case PdfLayoutPathCommandKind.CurveTo:
+                    builder.Append("C ")
+                        .Append(SvgNumber(command.X1))
+                        .Append(' ')
+                        .Append(SvgNumber(command.Y1))
+                        .Append(' ')
+                        .Append(SvgNumber(command.X2))
+                        .Append(' ')
+                        .Append(SvgNumber(command.Y2))
+                        .Append(' ')
+                        .Append(SvgNumber(command.X3))
+                        .Append(' ')
+                        .Append(SvgNumber(command.Y3));
+                    break;
+                case PdfLayoutPathCommandKind.ClosePath:
+                    builder.Append('Z');
+                    break;
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    private static string ColorHex(PdfLayoutColor color)
+    {
+        return "#"
+            + ByteHex(color.Red)
+            + ByteHex(color.Green)
+            + ByteHex(color.Blue);
+    }
+
+    private static string ByteHex(float value)
+    {
+        return ((int)MathF.Round(Math.Clamp(value, 0f, 1f) * 255f)).ToString("X2", CultureInfo.InvariantCulture);
+    }
+
+    private static string FillRule(int? fillRule)
+    {
+        return fillRule == 0 ? "evenodd" : "nonzero";
+    }
+
+    private static string LineCap(int lineCap)
+    {
+        return lineCap switch
+        {
+            1 => "round",
+            2 => "square",
+            _ => "butt"
+        };
+    }
+
+    private static string LineJoin(int lineJoin)
+    {
+        return lineJoin switch
+        {
+            1 => "round",
+            2 => "bevel",
+            _ => "miter"
+        };
     }
 
     private static string CssFontFamily(string fontName)
