@@ -1,0 +1,7 @@
+# Optional upstream JIRA text extraction parity fixtures.
+# Run with tools/parity/runtime/run_runtime_parity.py to compare Java PDFBox
+# and PdfBox.Net behavior for open upstream text-extraction issues tracked by
+# GitHub issue #653.
+repo:tests/PdfBox.Net.Tests/Fixtures/TextExtraction/UpstreamJira/PDFBOX-2138.pdf
+repo:tests/PdfBox.Net.Tests/Fixtures/TextExtraction/UpstreamJira/PDFBOX-2532-PDFBOX2247-701542.pdf
+repo:tests/PdfBox.Net.Tests/Fixtures/TextExtraction/UpstreamJira/PDFBOX-6188-A151_src.pdf
