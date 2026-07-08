@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/SecurityHandler.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: b2f66f9cf320a192533a04fc7aadc14f9098b52a
  */
 
 /*

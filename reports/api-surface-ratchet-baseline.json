@@ -25,7 +25,7 @@
     "not-applicable": 25
   },
   "minCoverage": {
-    "matched_or_arity_members": 5394,
-    "member_coverage_percent": 86.1524
+    "matched_or_arity_members": 5377,
+    "member_coverage_percent": 86.1147
   }
 }

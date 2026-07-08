@@ -62,6 +62,16 @@ internal static class FontBoxTestFixtures
 
     public static byte[] CreateMinimalOpenTypeCff()
     {
+        return CreateMinimalOpenTypeCff("CFF ");
+    }
+
+    public static byte[] CreateMinimalOpenTypeCff2()
+    {
+        return CreateMinimalOpenTypeCff("CFF2");
+    }
+
+    private static byte[] CreateMinimalOpenTypeCff(string cffTableTag)
+    {
         byte[] cff = CreateMinimalType1Cff();
         byte[] head = CreateHeadTable();
         byte[] maxp = CreateMaxpTable();
@@ -72,7 +82,7 @@ internal static class FontBoxTestFixtures
         byte[] cmap = CreateCmapTable();
 
         byte[][] tables = [head, hhea, maxp, post, cmap, hmtx, name, cff];
-        string[] tags = ["head", "hhea", "maxp", "post", "cmap", "hmtx", "name", "CFF "];
+        string[] tags = ["head", "hhea", "maxp", "post", "cmap", "hmtx", "name", cffTableTag];
 
         int tableCount = tables.Length;
         int directorySize = 12 + tableCount * 16;

@@ -9,9 +9,9 @@ permissions:
 
 env:
   PDFBOX_PARITY_GATE_MODE: ${{ vars.PDFBOX_PARITY_GATE_MODE || 'ratchet' }}
-  PDFBOX_PARITY_PDFBOX_REF: ${{ vars.PDFBOX_PARITY_PDFBOX_REF || ((github.base_ref == 'release/3.0' || github.ref_name == 'release/3.0' || startsWith(github.ref_name, 'codex/3-0-')) && '3.0' || '2589dc979982b11e3ba92e107aed9f309362d517') }}
-  PDFBOX_PARITY_RATCHET_BASELINE: ${{ vars.PDFBOX_PARITY_RATCHET_BASELINE || ((github.base_ref == 'release/3.0' || github.ref_name == 'release/3.0' || startsWith(github.ref_name, 'codex/3-0-')) && 'tools/parity/runtime/ratchet-baseline-3.0.json' || 'tools/parity/runtime/ratchet-baseline.json') }}
-  PDFBOX_API_SURFACE_PDFBOX_REF: ${{ vars.PDFBOX_API_SURFACE_PDFBOX_REF || ((github.base_ref == 'release/3.0' || github.ref_name == 'release/3.0' || startsWith(github.ref_name, 'codex/3-0-')) && '3.0' || '833ed8f378f00838fd8df8c01bfc4b915b4c350b') }}
+  PDFBOX_PARITY_PDFBOX_REF: ${{ vars.PDFBOX_PARITY_PDFBOX_REF || ((github.base_ref == 'release/3.0' || github.ref_name == 'release/3.0' || startsWith(github.ref_name, 'codex/3-0-') || contains(github.ref_name, '-3-0-')) && '3.0' || '2589dc979982b11e3ba92e107aed9f309362d517') }}
+  PDFBOX_PARITY_RATCHET_BASELINE: ${{ vars.PDFBOX_PARITY_RATCHET_BASELINE || ((github.base_ref == 'release/3.0' || github.ref_name == 'release/3.0' || startsWith(github.ref_name, 'codex/3-0-') || contains(github.ref_name, '-3-0-')) && 'tools/parity/runtime/ratchet-baseline-3.0.json' || 'tools/parity/runtime/ratchet-baseline.json') }}
+  PDFBOX_API_SURFACE_PDFBOX_REF: ${{ vars.PDFBOX_API_SURFACE_PDFBOX_REF || ((github.base_ref == 'release/3.0' || github.ref_name == 'release/3.0' || startsWith(github.ref_name, 'codex/3-0-') || contains(github.ref_name, '-3-0-')) && '3.0' || '833ed8f378f00838fd8df8c01bfc4b915b4c350b') }}
   PDFBOX_API_SURFACE_ENFORCE: ${{ vars.PDFBOX_API_SURFACE_ENFORCE || 'true' }}
 
 jobs:

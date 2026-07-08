@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java
  * PDFBOX_SOURCE_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
+ * PORT_LAST_SYNC_COMMIT: cab997139d253eba7d4a520c209437b66ed12c90
  */
 
 /*

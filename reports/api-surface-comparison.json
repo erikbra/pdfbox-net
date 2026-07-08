@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-06-30T16:15:21Z",
-  "upstream_root": "/private/tmp/pdfbox-3.0-api.2hm5B5",
-  "upstream_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
-  "pdfbox_net_commit": "07ab46a18c6329ac9dddb2d3610a4fc681066c28",
+  "generated_at_utc": "2026-07-08T08:09:24Z",
+  "upstream_root": "/Users/erik/src/Repos/apache/pdfbox",
+  "upstream_commit": "0186baba87403f81039d6d5a2f171e1184f9a2bc",
+  "pdfbox_net_commit": "81a8b70fe834731a39ed2cf80e6c40586d2afee1",
   "scope": {
     "modules": [
       "io",
@@ -19,11 +19,11 @@
     "java_types": 579,
     "matched_types": 577,
     "same_name_matched_types": 571,
-    "java_members": 6261,
-    "matched_members": 5349,
-    "arity_drift_members": 45,
+    "java_members": 6244,
+    "matched_members": 5333,
+    "arity_drift_members": 44,
     "missing_members": 867,
-    "csharp_extra_members": 1700,
+    "csharp_extra_members": 1697,
     "nonpublic_or_replacement_types": 2,
     "renamed_public_types": 6,
     "missing_types": 0
@@ -59,11 +59,11 @@
       "java_types": 390,
       "same_name_matched_types": 389,
       "matched_types": 389,
-      "java_members": 4209,
-      "matched_members": 3689,
-      "arity_drift_members": 37,
+      "java_members": 4192,
+      "matched_members": 3673,
+      "arity_drift_members": 36,
       "missing_members": 483,
-      "csharp_extra_members": 1162,
+      "csharp_extra_members": 1159,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
       "missing_types": 0
@@ -308,11 +308,11 @@
       "java_types": 279,
       "same_name_matched_types": 278,
       "matched_types": 278,
-      "java_members": 3303,
-      "matched_members": 2883,
-      "arity_drift_members": 22,
+      "java_members": 3286,
+      "matched_members": 2867,
+      "arity_drift_members": 21,
       "missing_members": 398,
-      "csharp_extra_members": 948,
+      "csharp_extra_members": 945,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
       "missing_types": 0
@@ -24490,13 +24490,13 @@
       "java_type_name": "DefaultResourceCache",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 29,
+      "java_member_count": 23,
       "missing_member_count": 0,
-      "matched_member_count": 29,
+      "matched_member_count": 23,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DefaultResourceCache",
-      "csharp_member_count": 29,
-      "csharp_extra_member_count": 8,
+      "csharp_member_count": 23,
+      "csharp_extra_member_count": 6,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java",
@@ -24551,60 +24551,6 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "public PDFont removeFont(COSObject indirect)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getCIDFont",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public PDCIDFont getCIDFont(COSObject indirect)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "put",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public void put(COSObject indirect, PDCIDFont font)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "removeCIDFont",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public PDCIDFont removeCIDFont(COSObject indirect)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getFontDescriptor",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public PDFontDescriptor getFontDescriptor(COSObject indirect)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "put",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public void put(COSObject indirect, PDFontDescriptor fontDescriptor)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "removeFontDescriptor",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public PDFontDescriptor removeFontDescriptor(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -27263,13 +27209,13 @@
       "java_type_name": "ResourceCache",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 27,
+      "java_member_count": 21,
       "missing_member_count": 0,
-      "matched_member_count": 27,
+      "matched_member_count": 21,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.ResourceCache",
-      "csharp_member_count": 27,
-      "csharp_extra_member_count": 8,
+      "csharp_member_count": 21,
+      "csharp_extra_member_count": 6,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java",
@@ -27288,24 +27234,6 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "PDFont getFont(COSObject indirect)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getCIDFont",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "default PDCIDFont getCIDFont(COSObject indirect)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getFontDescriptor",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "default PDFontDescriptor getFontDescriptor(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -27369,24 +27297,6 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "void put(COSObject indirect, PDFont font)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "put",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "default void put(COSObject indirect, PDCIDFont cidFont)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "put",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "default void put(COSObject indirect, PDFontDescriptor fontDescriptor)"
         },
         {
           "java_kind": "method",
@@ -27468,24 +27378,6 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "default PDFont removeFont(COSObject indirect)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "removeCIDFont",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "default PDCIDFont removeCIDFont(COSObject indirect)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "removeFontDescriptor",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "default PDFontDescriptor removeFontDescriptor(COSObject indirect)"
         },
         {
           "java_kind": "method",
@@ -43060,10 +42952,10 @@
       "java_type_name": "PDMMType1Font",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 2,
+      "java_member_count": 1,
       "missing_member_count": 0,
       "matched_member_count": 1,
-      "arity_drift_count": 1,
+      "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDMMType1Font",
       "csharp_member_count": 1,
       "csharp_extra_member_count": 0,
@@ -43085,24 +42977,6 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDMMType1Font(COSDictionary fontDictionary) throws IOException"
-        },
-        {
-          "java_kind": "constructor",
-          "java_name": "PDMMType1Font",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "arity-drift",
-          "matched_via": "constructor",
-          "signature": "public PDMMType1Font(COSDictionary fontDictionary, ResourceCache resourceCache) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDMMType1Font.java|org.apache.pdfbox.pdmodel.font.PDMMType1Font|constructor|PDMMType1Font|2|arity-drift",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "Java 3.0 ResourceCache constructor overloads are reviewed adaptations in the current .NET font stack; font resource caching is owned by PDResources/PDDocument rather than individual font constructors.",
-            "issue": 589,
-            "reviewed_at_utc": "2026-06-30T16:12:31Z",
-            "reviewed_by": "Codex"
-          }
         }
       ]
     },
@@ -43330,13 +43204,13 @@
       "java_type_name": "PDTrueTypeFont",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 25,
+      "java_member_count": 24,
       "missing_member_count": 11,
-      "matched_member_count": 14,
+      "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDTrueTypeFont",
       "csharp_member_count": 17,
-      "csharp_extra_member_count": 5,
+      "csharp_extra_member_count": 6,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
@@ -43355,15 +43229,6 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDTrueTypeFont(COSDictionary fontDictionary) throws IOException"
-        },
-        {
-          "java_kind": "constructor",
-          "java_name": "PDTrueTypeFont",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "constructor",
-          "signature": "public PDTrueTypeFont(COSDictionary fontDictionary, ResourceCache resourceCache) throws IOException"
         },
         {
           "java_kind": "method",
@@ -43681,9 +43546,9 @@
       "java_type_name": "PDType0Font",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 47,
+      "java_member_count": 46,
       "missing_member_count": 13,
-      "matched_member_count": 32,
+      "matched_member_count": 31,
       "arity_drift_count": 2,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType0Font",
       "csharp_member_count": 33,
@@ -43715,15 +43580,6 @@
             "reviewed_at_utc": "2026-06-30T16:12:31Z",
             "reviewed_by": "Codex"
           }
-        },
-        {
-          "java_kind": "constructor",
-          "java_name": "PDType0Font",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "constructor",
-          "signature": "public PDType0Font(COSDictionary fontDictionary, ResourceCache resourceCache) throws IOException"
         },
         {
           "java_kind": "method",
@@ -44266,9 +44122,9 @@
       "java_type_name": "PDType1CFont",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 23,
+      "java_member_count": 22,
       "missing_member_count": 14,
-      "matched_member_count": 8,
+      "matched_member_count": 7,
       "arity_drift_count": 1,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1CFont",
       "csharp_member_count": 9,
@@ -44300,15 +44156,6 @@
             "reviewed_at_utc": "2026-06-30T16:12:31Z",
             "reviewed_by": "Codex"
           }
-        },
-        {
-          "java_kind": "constructor",
-          "java_name": "PDType1CFont",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "constructor",
-          "signature": "public PDType1CFont(COSDictionary fontDictionary, ResourceCache resourceCache) throws IOException"
         },
         {
           "java_kind": "method",
@@ -44635,9 +44482,9 @@
       "java_type_name": "PDType1Font",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 25,
+      "java_member_count": 24,
       "missing_member_count": 13,
-      "matched_member_count": 12,
+      "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1Font",
       "csharp_member_count": 11,
@@ -44701,15 +44548,6 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDType1Font(COSDictionary fontDictionary) throws IOException"
-        },
-        {
-          "java_kind": "constructor",
-          "java_name": "PDType1Font",
-          "java_arity": 2,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "constructor",
-          "signature": "public PDType1Font(COSDictionary fontDictionary, ResourceCache resourceCache) throws IOException"
         },
         {
           "java_kind": "method",
@@ -81435,9 +81273,9 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDType1CFont",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1CFont",
-      "java_member_count": 23,
+      "java_member_count": 22,
       "missing_member_count": 14,
-      "matched_member_count": 8,
+      "matched_member_count": 7,
       "arity_drift_count": 1
     },
     {
@@ -81446,9 +81284,9 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDType0Font",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType0Font",
-      "java_member_count": 47,
+      "java_member_count": 46,
       "missing_member_count": 13,
-      "matched_member_count": 32,
+      "matched_member_count": 31,
       "arity_drift_count": 2
     },
     {
@@ -81457,9 +81295,9 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDType1Font",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1Font",
-      "java_member_count": 25,
+      "java_member_count": 24,
       "missing_member_count": 13,
-      "matched_member_count": 12,
+      "matched_member_count": 11,
       "arity_drift_count": 0
     },
     {
@@ -81479,9 +81317,9 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDTrueTypeFont",
-      "java_member_count": 25,
+      "java_member_count": 24,
       "missing_member_count": 11,
-      "matched_member_count": 14,
+      "matched_member_count": 13,
       "arity_drift_count": 0
     },
     {
@@ -100805,15 +100643,15 @@
     ],
     "raw": {
       "missing_members": 867,
-      "arity_drift_members": 45,
+      "arity_drift_members": 44,
       "type_name_or_visibility_gaps": 8,
-      "total": 920
+      "total": 919
     },
     "reviewed": {
       "missing_members": 867,
-      "arity_drift_members": 45,
+      "arity_drift_members": 44,
       "type_name_or_visibility_gaps": 8,
-      "total": 920
+      "total": 919
     },
     "unreviewed": {
       "missing_members": 0,
@@ -100823,7 +100661,7 @@
     },
     "disposition_counts": {
       "behavior-covered": 116,
-      "intentional-dotnet-adaptation": 710,
+      "intentional-dotnet-adaptation": 709,
       "internal-by-design": 69,
       "not-applicable": 25
     },
@@ -100848,6 +100686,7 @@
       "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|readObjectNumber|0|missing",
       "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java|org.apache.pdfbox.pdfparser.XrefParser|method|getXrefTable|0|missing",
       "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java|org.apache.pdfbox.pdfparser.XrefParser|method|parseXref|2|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDMMType1Font.java|org.apache.pdfbox.pdmodel.font.PDMMType1Font|constructor|PDMMType1Font|2|arity-drift",
       "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/TextAlign.java|org.apache.pdfbox.pdmodel.interactive.TextAlign|method|valueOf|1|missing"
     ]
   }

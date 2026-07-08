@@ -55,4 +55,17 @@ public class TTFParserTest
         Assert.True(font.IsPostScript);
         Assert.NotNull(font.GetTable("CFF "));
     }
+
+    [Fact]
+    public void TestParseTableHeadersRejectsOpenTypeCff2Outlines()
+    {
+        byte[] bytes = FontBoxTestFixtures.CreateMinimalOpenTypeCff2();
+        using RandomAccessReadBuffer input = new(bytes);
+        OTFParser parser = new();
+
+        FontHeaders headers = parser.ParseTableHeaders(input);
+
+        Assert.Equal("OpenType fonts using CFF2 outlines are not supported", headers.GetError());
+        Assert.False(headers.IsOTFAndPostScript());
+    }
 }
