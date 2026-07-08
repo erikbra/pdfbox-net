@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
@@ -140,7 +141,8 @@ public static class HtmlReviewArtifactGenerator
             Diagnostics: layout.Diagnostics.Count + layout.Pages.Sum(page => page.Diagnostics.Count) +
                 CountNonEmptyLines(capturedConversionWarnings),
             QualityStatus: qualityReport.Status,
-            QualityChecksNeedingReview: qualityReport.Checks.Count(static check => check.Status == "needs-review"));
+            QualityChecksNeedingReview: qualityReport.Checks.Count(static check => check.Status == "needs-review"),
+            QualityArtifacts: qualityReport.Artifacts);
 
         WriteText(Path.Combine(exampleDirectory, "summary.md"), RenderExampleSummary(result, layout));
         WriteText(Path.Combine(exampleDirectory, "diagnostics.txt"), RenderDiagnostics(layout, capturedConversionWarnings));
@@ -233,6 +235,7 @@ public static class HtmlReviewArtifactGenerator
             html.Append($"<a href=\"{directoryName}/source.pdf\">source PDF</a> ");
             html.Append($"<a href=\"{directoryName}/index.html\">HTML</a> ");
             html.Append($"<a href=\"{directoryName}/summary.md\">summary</a>");
+            AppendQualityArtifactLinks(html, directoryName, result.QualityArtifacts);
             html.Append("</td><td>");
             html.Append(result.PageCount.ToString());
             html.Append("</td><td>");
@@ -294,6 +297,17 @@ public static class HtmlReviewArtifactGenerator
         summary.AppendLine($"- Diagnostics: {result.Diagnostics}");
         summary.AppendLine($"- Quality status: {result.QualityStatus}");
         summary.AppendLine($"- Quality checks needing review: {result.QualityChecksNeedingReview}");
+        if (QualityArtifactLinks(result.QualityArtifacts).Count > 0)
+        {
+            summary.AppendLine();
+            summary.AppendLine("## Quality Artifacts");
+            summary.AppendLine();
+            foreach ((string label, string artifact) in QualityArtifactLinks(result.QualityArtifacts))
+            {
+                summary.AppendLine($"- [{label}](quality/{artifact})");
+            }
+        }
+
         summary.AppendLine();
         summary.AppendLine("## Text Preview");
         summary.AppendLine();
@@ -384,6 +398,49 @@ public static class HtmlReviewArtifactGenerator
         return html.ToString();
     }
 
+    private static void AppendQualityArtifactLinks(
+        StringBuilder html,
+        string directoryName,
+        IReadOnlyList<string> qualityArtifacts)
+    {
+        foreach ((string label, string artifact) in QualityArtifactLinks(qualityArtifacts))
+        {
+            html.Append(' ');
+            html.Append("<a href=\"");
+            html.Append(directoryName);
+            html.Append("/quality/");
+            html.Append(WebUtility.HtmlEncode(artifact));
+            html.Append("\">");
+            html.Append(WebUtility.HtmlEncode(label));
+            html.Append("</a>");
+        }
+    }
+
+    private static IReadOnlyList<(string Label, string Artifact)> QualityArtifactLinks(
+        IReadOnlyList<string> qualityArtifacts)
+    {
+        List<(string Label, string Artifact)> links = [];
+        foreach (string artifact in qualityArtifacts)
+        {
+            if (artifact.EndsWith("-diff.png", StringComparison.Ordinal))
+            {
+                links.Add((PageArtifactLabel("diff", artifact), artifact));
+            }
+            else if (artifact.EndsWith("-visual-report.html", StringComparison.Ordinal))
+            {
+                links.Add((PageArtifactLabel("visual report", artifact), artifact));
+            }
+        }
+
+        return links;
+    }
+
+    private static string PageArtifactLabel(string prefix, string artifact)
+    {
+        Match match = Regex.Match(artifact, @"page-(\d+)-", RegexOptions.CultureInvariant);
+        return match.Success ? $"{prefix} p{match.Groups[1].Value}" : prefix;
+    }
+
     private static string NormalizeWhitespace(string value)
     {
         return string.Join(" ", value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
@@ -408,7 +465,8 @@ public sealed record HtmlReviewExampleResult(
     int Links,
     int Diagnostics,
     string QualityStatus,
-    int QualityChecksNeedingReview);
+    int QualityChecksNeedingReview,
+    IReadOnlyList<string> QualityArtifacts);
 
 public sealed class HtmlReviewManifest
 {

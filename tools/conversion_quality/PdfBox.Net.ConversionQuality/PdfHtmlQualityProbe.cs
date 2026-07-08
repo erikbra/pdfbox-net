@@ -19,6 +19,9 @@ public sealed class PdfHtmlQualityProbe
     private const float CssPixelsPerPoint = 96f / 72f;
     private const int ForegroundLuminanceThreshold = 245;
     private const int ForegroundDilationRadius = 3;
+    private const double ForegroundDeltaReviewThreshold = 0.15;
+    private const double PdfMissReviewThreshold = 0.10;
+    private const double BrowserMissReviewThreshold = 0.10;
 
     private static readonly Encoding Utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
@@ -80,6 +83,7 @@ public sealed class PdfHtmlQualityProbe
                 cancellationToken);
         }
 
+        IReadOnlyList<PdfHtmlQualityIssueCategory> issueCategories = BuildIssueCategories(pages, checks);
         string status = CombinedStatus(checks);
         PdfHtmlQualityReport report = new(
             Schema: 1,
@@ -88,6 +92,7 @@ public sealed class PdfHtmlQualityProbe
             Html: RelativePath(outputDirectory, htmlPath),
             TextReferenceSource: textReference.Source,
             PagesAnalyzed: pages.Count,
+            IssueCategories: issueCategories,
             Checks: checks,
             Pages: pages,
             Artifacts: artifacts);
@@ -491,9 +496,9 @@ public sealed class PdfHtmlQualityProbe
                     cancellationToken);
                 artifacts.Add(diffPng);
 
-                bool needsReview = stats.ForegroundDeltaRatio > 0.45 ||
-                    stats.PdfMissRatio > 0.25 ||
-                    stats.BrowserMissRatio > 0.25;
+                bool needsReview = stats.ForegroundDeltaRatio > ForegroundDeltaReviewThreshold ||
+                    stats.PdfMissRatio > PdfMissReviewThreshold ||
+                    stats.BrowserMissRatio > BrowserMissReviewThreshold;
                 checks.Add(new PdfHtmlQualityCheck(
                     "visual-foreground-mask",
                     "visual",
@@ -666,6 +671,115 @@ public sealed class PdfHtmlQualityProbe
             : Passed;
     }
 
+    private static IReadOnlyList<PdfHtmlQualityIssueCategory> BuildIssueCategories(
+        IReadOnlyList<PdfHtmlQualityPageReport> pages,
+        IReadOnlyList<PdfHtmlQualityCheck> checks)
+    {
+        PdfHtmlQualityCheck[] setupChecks = checks.Where(static check => check.Category == "setup").ToArray();
+        return
+        [
+            new PdfHtmlQualityIssueCategory(
+                "text-boundaries",
+                "Text reconstruction and word boundaries",
+                CombinedStatus(checks.Where(static check => check.Id == "word-boundaries")),
+                TextBoundaryEvidence(pages)),
+            new PdfHtmlQualityIssueCategory(
+                "layout-geometry",
+                "Page geometry and text-run structure",
+                CombinedStatus(checks.Where(static check => check.Id is "page-dimensions" or "text-run-count")),
+                LayoutGeometryEvidence(pages, checks)),
+            new PdfHtmlQualityIssueCategory(
+                "object-wrapping",
+                "Text wrapping around images and vector objects",
+                CombinedStatus(checks.Where(static check => check.Id is "text-image-overlap" or "text-vector-overlap")),
+                ObjectWrappingEvidence(pages)),
+            new PdfHtmlQualityIssueCategory(
+                "visual-foreground",
+                "Visual foreground parity",
+                CombinedStatus(checks.Where(static check => check.Id == "visual-foreground-mask")),
+                VisualForegroundEvidence(pages)),
+            new PdfHtmlQualityIssueCategory(
+                "probe-setup",
+                "Probe setup and tool availability",
+                setupChecks.Length == 0 ? Passed : CombinedStatus(setupChecks),
+                SetupEvidence(setupChecks))
+        ];
+    }
+
+    private static string TextBoundaryEvidence(IReadOnlyList<PdfHtmlQualityPageReport> pages)
+    {
+        if (pages.Count == 0)
+        {
+            return "No pages were analyzed.";
+        }
+
+        PdfHtmlQualityPageReport worst = pages.MinBy(static page => page.TextTokenCoverage)!;
+        int pagesNeedingReview = pages.Count(static page =>
+            page.Checks.Any(static check => check.Id == "word-boundaries" && check.Status == NeedsReview));
+        return pagesNeedingReview > 0
+            ? $"{pagesNeedingReview} page(s) need review; worst token coverage is {FormatRatio(worst.TextTokenCoverage)} on page {worst.PageNumber}."
+            : $"All analyzed pages passed; lowest token coverage is {FormatRatio(worst.TextTokenCoverage)} on page {worst.PageNumber}.";
+    }
+
+    private static string LayoutGeometryEvidence(
+        IReadOnlyList<PdfHtmlQualityPageReport> pages,
+        IReadOnlyList<PdfHtmlQualityCheck> checks)
+    {
+        int dimensionIssues = checks.Count(static check => check.Id == "page-dimensions" && check.Status == NeedsReview);
+        int runCountIssues = checks.Count(static check => check.Id == "text-run-count" && check.Status == NeedsReview);
+        if (pages.Count == 0)
+        {
+            return "No browser page geometry was captured.";
+        }
+
+        int maxRunDelta = pages.Max(static page => Math.Abs(page.LayoutTextRuns - page.HtmlTextRuns));
+        return dimensionIssues > 0 || runCountIssues > 0
+            ? $"{dimensionIssues} page dimension check(s) and {runCountIssues} text-run count check(s) need review; max run-count delta is {maxRunDelta}."
+            : $"Page dimensions and text-run counts passed; max run-count delta is {maxRunDelta}.";
+    }
+
+    private static string ObjectWrappingEvidence(IReadOnlyList<PdfHtmlQualityPageReport> pages)
+    {
+        int imageOverlaps = pages.Sum(static page => page.TextImageOverlaps);
+        int vectorOverlaps = pages.Sum(static page => page.TextVectorOverlaps);
+        return imageOverlaps + vectorOverlaps > 0
+            ? $"{imageOverlaps} text/image overlap(s) and {vectorOverlaps} text/vector overlap(s) were found."
+            : "No text overlaps with image boxes or large vector boxes were found on analyzed pages.";
+    }
+
+    private static string VisualForegroundEvidence(IReadOnlyList<PdfHtmlQualityPageReport> pages)
+    {
+        PdfHtmlVisualMetrics[] visuals = pages
+            .Select(static page => page.Visual)
+            .Where(static visual => visual is not null)
+            .Cast<PdfHtmlVisualMetrics>()
+            .ToArray();
+        if (visuals.Length == 0)
+        {
+            return "No visual foreground mask metrics were captured.";
+        }
+
+        double maxDelta = visuals.Max(static visual => visual.ForegroundDeltaRatio ?? 0);
+        double maxPdfMiss = visuals.Max(static visual => visual.PdfMissRatio ?? 0);
+        double maxHtmlMiss = visuals.Max(static visual => visual.HtmlMissRatio ?? 0);
+        return $"Max foreground delta is {FormatRatio(maxDelta)}; max source-only foreground ratio is {FormatRatio(maxPdfMiss)}; max HTML-only foreground ratio is {FormatRatio(maxHtmlMiss)}.";
+    }
+
+    private static string SetupEvidence(IReadOnlyList<PdfHtmlQualityCheck> setupChecks)
+    {
+        if (setupChecks.Count == 0)
+        {
+            return "The browser probe and available renderers ran.";
+        }
+
+        return string.Join(" ", setupChecks.Select(static check => check.Message));
+    }
+
+    private static string FormatRatio(double value)
+    {
+        return value.ToString("0.###", CultureInfo.InvariantCulture);
+    }
+
     private static string RenderMarkdownReport(PdfHtmlQualityReport report)
     {
         StringBuilder markdown = new();
@@ -705,6 +819,22 @@ public sealed class PdfHtmlQualityProbe
             markdown.Append(visualDelta);
             markdown.Append(" | ");
             markdown.Append((page.TextImageOverlaps + page.TextVectorOverlaps).ToString(CultureInfo.InvariantCulture));
+            markdown.AppendLine(" |");
+        }
+
+        markdown.AppendLine();
+        markdown.AppendLine("## Issue Categories");
+        markdown.AppendLine();
+        markdown.AppendLine("| Category | Status | Evidence |");
+        markdown.AppendLine("| --- | --- | --- |");
+        foreach (PdfHtmlQualityIssueCategory category in report.IssueCategories)
+        {
+            markdown.Append("| ");
+            markdown.Append(WebUtility.HtmlEncode(category.Title));
+            markdown.Append(" | `");
+            markdown.Append(category.Status);
+            markdown.Append("` | ");
+            markdown.Append(WebUtility.HtmlEncode(category.Evidence));
             markdown.AppendLine(" |");
         }
 
@@ -1223,9 +1353,16 @@ public sealed record PdfHtmlQualityReport(
     string Html,
     string TextReferenceSource,
     int PagesAnalyzed,
+    IReadOnlyList<PdfHtmlQualityIssueCategory> IssueCategories,
     IReadOnlyList<PdfHtmlQualityCheck> Checks,
     IReadOnlyList<PdfHtmlQualityPageReport> Pages,
     IReadOnlyList<string> Artifacts);
+
+public sealed record PdfHtmlQualityIssueCategory(
+    string Id,
+    string Title,
+    string Status,
+    string Evidence);
 
 public sealed record PdfHtmlQualityPageReport(
     int PageNumber,

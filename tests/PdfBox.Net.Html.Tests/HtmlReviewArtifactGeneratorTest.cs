@@ -63,12 +63,23 @@ public sealed class HtmlReviewArtifactGeneratorTest
         Assert.Contains("source.pdf", File.ReadAllText(compare));
         Assert.Contains("index.html", File.ReadAllText(compare));
         Assert.Contains("quality/quality-report.md", File.ReadAllText(compare));
-        Assert.Contains("review-artifact-sample/compare.html", File.ReadAllText(Path.Combine(outputDirectory, "index.html")));
-        Assert.Contains("review-artifact-sample/quality/quality-report.md", File.ReadAllText(Path.Combine(outputDirectory, "index.html")));
+        string artifactIndex = File.ReadAllText(Path.Combine(outputDirectory, "index.html"));
+        Assert.Contains("review-artifact-sample/compare.html", artifactIndex);
+        Assert.Contains("review-artifact-sample/quality/quality-report.md", artifactIndex);
 
         using JsonDocument quality = JsonDocument.Parse(File.ReadAllText(qualityReportJson));
         Assert.Equal(1, quality.RootElement.GetProperty("Schema").GetInt32());
+        Assert.True(quality.RootElement.GetProperty("IssueCategories").GetArrayLength() > 0);
         Assert.True(example.QualityStatus.Length > 0);
+        string[] qualityArtifacts = quality.RootElement.GetProperty("Artifacts")
+            .EnumerateArray()
+            .Select(static artifact => artifact.GetString() ?? "")
+            .ToArray();
+        if (qualityArtifacts.Contains("page-1-diff.png", StringComparer.Ordinal))
+        {
+            Assert.Contains("review-artifact-sample/quality/page-1-diff.png", artifactIndex);
+            Assert.Contains("quality/page-1-diff.png", File.ReadAllText(Path.Combine(exampleDirectory, "summary.md")));
+        }
     }
 
     [Fact]
