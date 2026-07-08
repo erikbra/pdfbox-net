@@ -6,6 +6,7 @@
 
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Font;
@@ -377,6 +378,8 @@ public sealed class SkiaGlyphLayoutProcessor : GlyphLayoutProcessorInterface, ID
             HB.Blob? blob = null;
             HB.Face? face = null;
             HB.Font? font = null;
+            GCHandle fontBytesHandle = default;
+            bool fontBytesPinned = false;
 
             try
             {
@@ -384,8 +387,13 @@ public sealed class SkiaGlyphLayoutProcessor : GlyphLayoutProcessorInterface, ID
                 typeface = SKTypeface.FromData(skData)
                     ?? throw new ArgumentException("SkiaSharp could not load the font data.", nameof(fontBytes));
 
-                using MemoryStream hbStream = new(fontBytes, writable: false);
-                blob = HB.Blob.FromStream(hbStream);
+                // HarfBuzz may read font tables lazily during shaping, so avoid a stream-backed blob.
+                fontBytesHandle = GCHandle.Alloc(fontBytes, GCHandleType.Pinned);
+                fontBytesPinned = true;
+                blob = new HB.Blob(
+                    fontBytesHandle.AddrOfPinnedObject(),
+                    fontBytes.Length,
+                    HB.MemoryMode.Duplicate);
                 face = new HB.Face(blob, 0);
                 font = new HB.Font(face);
                 font.SetFunctionsOpenType();
@@ -406,6 +414,10 @@ public sealed class SkiaGlyphLayoutProcessor : GlyphLayoutProcessorInterface, ID
                 blob?.Dispose();
                 typeface?.Dispose();
                 skData?.Dispose();
+                if (fontBytesPinned)
+                {
+                    fontBytesHandle.Free();
+                }
             }
         }
 
