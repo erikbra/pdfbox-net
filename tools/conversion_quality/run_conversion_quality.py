@@ -24,6 +24,8 @@ CSS_URL_RE = re.compile(r"url\(\s*(['\"]?)(?P<url>[^)'\"\s]+)\1\s*\)", re.IGNORE
 LOCAL_REFERENCE_ATTRIBUTES = {"href", "src", "poster", "data"}
 LOCAL_REFERENCE_SCHEMES = {"", "file"}
 STATUS_ORDER = ("passed", "known", "failed")
+CHECK_STATUS_ORDER = ("passed", "known", "failed", "skipped")
+DOM_FAILURE_CATEGORIES = {"broken-assets", "dom", "required-files", "required-substrings"}
 
 
 @dataclass(frozen=True)
@@ -69,6 +71,15 @@ class HtmlReferenceExtractor(html.parser.HTMLParser):
                 self.references.extend(parse_srcset(value))
             elif name == "style":
                 self.references.extend(parse_css_urls(value))
+
+
+class HtmlElementCollector(html.parser.HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.elements: list[tuple[str, dict[str, str]]] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self.elements.append((tag.lower(), {name.lower(): value or "" for name, value in attrs}))
 
 
 def utc_now() -> str:
@@ -138,6 +149,39 @@ def extract_output_text(path: Path, target: str) -> str:
     if target == "markdown" or suffix in {".md", ".markdown"}:
         return extract_markdown_text(path)
     return path.read_text(encoding="utf-8", errors="replace")
+
+
+def collect_html_elements(path: Path) -> list[tuple[str, dict[str, str]]]:
+    collector = HtmlElementCollector()
+    collector.feed(path.read_text(encoding="utf-8", errors="replace"))
+    collector.close()
+    return collector.elements
+
+
+def selector_count(path: Path, selector: str) -> int:
+    return sum(1 for element in collect_html_elements(path) if matches_selector(element, selector))
+
+
+def matches_selector(element: tuple[str, dict[str, str]], selector: str) -> bool:
+    tag, attrs = element
+    selector = selector.strip()
+    if not selector:
+        return False
+    if selector.startswith("."):
+        return selector[1:] in attrs.get("class", "").split()
+    if selector.startswith("#"):
+        return attrs.get("id") == selector[1:]
+    if selector.startswith("[") and selector.endswith("]"):
+        expression = selector[1:-1].strip()
+        if "=" not in expression:
+            return expression.lower() in attrs
+        name, value = expression.split("=", 1)
+        expected = value.strip().strip("'\"")
+        return attrs.get(name.strip().lower()) == expected
+    if "." in selector:
+        tag_name, class_name = selector.split(".", 1)
+        return tag == tag_name.lower() and class_name in attrs.get("class", "").split()
+    return tag == selector.lower()
 
 
 def parse_srcset(value: str) -> list[str]:
@@ -261,6 +305,202 @@ def required_substring_file(
     return (output_path(fixture, key, results_dir) if key else None, text)
 
 
+def evaluate_dom_selectors(
+    fixture: dict[str, Any],
+    *,
+    primary_path: Path,
+    expectations: dict[str, Any],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    fixture_id = fixture["id"]
+    selectors = expectations.get("domSelectors", [])
+    if selectors is None:
+        selectors = []
+    if not isinstance(selectors, list):
+        raise ValueError(f"Fixture {fixture_id} domSelectors must be an array")
+
+    results: list[dict[str, Any]] = []
+    failures: list[dict[str, Any]] = []
+    for entry in selectors:
+        if isinstance(entry, str):
+            selector = entry
+            minimum = 1
+            exact = None
+        elif isinstance(entry, dict):
+            selector = entry.get("selector")
+            if not isinstance(selector, str):
+                raise ValueError(f"Fixture {fixture_id} domSelectors entries need selector")
+            exact = entry.get("count", entry.get("exactCount"))
+            minimum = entry.get("minCount")
+        else:
+            raise ValueError(f"Fixture {fixture_id} domSelectors entries must be strings or objects")
+
+        actual = selector_count(primary_path, selector)
+        result = {"selector": selector, "actual": actual}
+        if exact is not None:
+            expected = int(exact)
+            result["expected"] = expected
+            if actual != expected:
+                failures.append(
+                    {
+                        "category": "dom",
+                        "message": f"DOM selector {selector!r} matched {actual} elements, expected {expected}",
+                        "selector": selector,
+                        "expected": expected,
+                        "actual": actual,
+                    }
+                )
+        elif minimum is not None:
+            expected = int(minimum)
+            result["minimum"] = expected
+            if actual < expected:
+                failures.append(
+                    {
+                        "category": "dom",
+                        "message": f"DOM selector {selector!r} matched {actual} elements, expected at least {expected}",
+                        "selector": selector,
+                        "expected": expected,
+                        "actual": actual,
+                    }
+                )
+
+        results.append(result)
+
+    return results, failures
+
+
+def load_visual_checks(path: Path) -> list[dict[str, Any]]:
+    data = load_json(path)
+    checks = data.get("checks", [])
+    if not isinstance(checks, list):
+        raise ValueError(f"{path} checks must be an array")
+    return [check for check in checks if isinstance(check, dict)]
+
+
+def visual_check_passed(check: dict[str, Any]) -> bool:
+    if isinstance(check.get("passed"), bool):
+        return bool(check["passed"])
+    status = check.get("status")
+    if isinstance(status, str):
+        return status.casefold() in {"passed", "pass", "ok", "success"}
+    return False
+
+
+def evaluate_visual_checks(
+    fixture: dict[str, Any],
+    *,
+    results_dir: Path,
+    expectations: dict[str, Any],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    visual_path = output_path(fixture, "visual", results_dir)
+    min_visual_checks = expectations.get("minVisualChecks")
+    if visual_path is None:
+        if min_visual_checks is None:
+            return [], []
+        return [], [
+            {
+                "category": "visual",
+                "message": "Fixture requires visual checks but does not declare outputs.visual",
+                "expected": int(min_visual_checks),
+                "actual": 0,
+            }
+        ]
+
+    if not visual_path.exists():
+        return [], [
+            {
+                "category": "visual",
+                "message": "Declared visual check output is missing",
+                "path": str(visual_path),
+            }
+        ]
+
+    checks = load_visual_checks(visual_path)
+    failures: list[dict[str, Any]] = []
+    if min_visual_checks is not None and len(checks) < int(min_visual_checks):
+        failures.append(
+            {
+                "category": "visual",
+                "message": f"{len(checks)} visual checks were reported, expected at least {int(min_visual_checks)}",
+                "expected": int(min_visual_checks),
+                "actual": len(checks),
+            }
+        )
+
+    for index, check in enumerate(checks):
+        if visual_check_passed(check):
+            continue
+        failures.append(
+            {
+                "category": "visual",
+                "message": str(check.get("message", "Visual check failed")),
+                "name": check.get("name", f"visual-{index + 1}"),
+                "metrics": check.get("metrics", {}),
+            }
+        )
+
+    return checks, failures
+
+
+def quality_check_status(failures: list[dict[str, Any]]) -> str:
+    if not failures:
+        return "passed"
+    return "known" if all("known" in failure for failure in failures) else "failed"
+
+
+def build_quality_checks(
+    *,
+    target: str,
+    metrics: dict[str, Any],
+    failures: list[dict[str, Any]],
+    visual_declared: bool,
+) -> list[dict[str, Any]]:
+    dom_failures = [failure for failure in failures if failure["category"] in DOM_FAILURE_CATEGORIES]
+    text_failures = [failure for failure in failures if failure["category"] == "text-coverage"]
+    visual_failures = [failure for failure in failures if failure["category"] == "visual"]
+
+    dom_status = "skipped"
+    if target == "html" or metrics.get("domSelectors"):
+        dom_status = quality_check_status(dom_failures)
+
+    text_status = "skipped" if metrics.get("textCoverage") is None else quality_check_status(text_failures)
+    visual_status = (
+        "skipped"
+        if not visual_declared and metrics.get("visualChecks") == 0 and not visual_failures
+        else quality_check_status(visual_failures)
+    )
+
+    return [
+        {
+            "category": "dom",
+            "status": dom_status,
+            "metrics": {
+                "brokenLocalReferences": metrics.get("brokenLocalReferences", 0),
+                "missingRequiredFiles": metrics.get("missingRequiredFiles", 0),
+                "missingRequiredSubstrings": metrics.get("missingRequiredSubstrings", 0),
+                "domSelectors": metrics.get("domSelectors", []),
+            },
+            "failures": dom_failures,
+        },
+        {
+            "category": "text-coverage",
+            "status": text_status,
+            "metrics": {
+                "textCoverage": metrics.get("textCoverage"),
+            },
+            "failures": text_failures,
+        },
+        {
+            "category": "visual",
+            "status": visual_status,
+            "metrics": {
+                "visualChecks": metrics.get("visualChecks", 0),
+                "visualFailures": metrics.get("visualFailures", 0),
+            },
+            "failures": visual_failures,
+        },
+    ]
+
+
 def load_known_divergences(path: Path | None) -> dict[tuple[str, str], dict[str, Any]]:
     if path is None:
         return {}
@@ -289,7 +529,7 @@ def evaluate_fixture(
     command_failure: CommandFailure | None = None,
 ) -> dict[str, Any]:
     fixture_id = fixture["id"]
-    target = fixture.get("target", "unknown")
+    target = str(fixture.get("target", "unknown"))
     expectations = fixture.get("expectations", {})
     failures: list[dict[str, Any]] = []
     metrics: dict[str, Any] = {
@@ -297,7 +537,13 @@ def evaluate_fixture(
         "brokenLocalReferences": 0,
         "diagnostics": 0,
         "missingRequiredFiles": 0,
+        "missingRequiredSubstrings": 0,
+        "domSelectors": [],
+        "visualChecks": 0,
+        "visualFailures": 0,
     }
+    outputs = fixture.get("outputs", {})
+    visual_declared = isinstance(outputs, dict) and isinstance(outputs.get("visual"), str)
 
     if command_failure is not None:
         failures.append(
@@ -310,10 +556,9 @@ def evaluate_fixture(
             }
         )
 
-    outputs = fixture.get("outputs", {})
     if isinstance(outputs, dict) and command_failure is None:
         for key, relative_path in outputs.items():
-            if key == "diagnostics" or not isinstance(relative_path, str):
+            if key in {"diagnostics", "visual"} or not isinstance(relative_path, str):
                 continue
             if not (results_dir / relative_path).exists():
                 failures.append(
@@ -347,7 +592,7 @@ def evaluate_fixture(
         if not isinstance(expected_text, str):
             raise ValueError(f"Fixture {fixture_id} expectedText must be a string")
 
-        actual_text = extract_output_text(primary_path, str(target))
+        actual_text = extract_output_text(primary_path, target)
         coverage = text_coverage(expected_text, actual_text)
         metrics["textCoverage"] = round(coverage, 6)
 
@@ -362,7 +607,7 @@ def evaluate_fixture(
                 }
             )
 
-        if str(target) == "html" or primary_path.suffix.casefold() in {".html", ".htm"}:
+        if target == "html" or primary_path.suffix.casefold() in {".html", ".htm"}:
             broken = find_broken_local_references(primary_path, results_dir)
             metrics["brokenLocalReferences"] = len(broken)
             max_broken = int(expectations.get("maxBrokenLocalReferences", 0))
@@ -377,12 +622,21 @@ def evaluate_fixture(
                     }
                 )
 
+            dom_results, dom_failures = evaluate_dom_selectors(
+                fixture,
+                primary_path=primary_path,
+                expectations=expectations,
+            )
+            metrics["domSelectors"] = dom_results
+            failures.extend(dom_failures)
+
         required_substrings = expectations.get("requiredSubstrings", [])
         if not isinstance(required_substrings, list):
             raise ValueError(f"Fixture {fixture_id} requiredSubstrings must be an array")
         for entry in required_substrings:
             path, text = required_substring_file(entry, fixture, results_dir)
             if path is None or not path.exists():
+                metrics["missingRequiredSubstrings"] += 1
                 failures.append(
                     {
                         "category": "required-substrings",
@@ -392,6 +646,7 @@ def evaluate_fixture(
                 )
                 continue
             if text not in path.read_text(encoding="utf-8", errors="replace"):
+                metrics["missingRequiredSubstrings"] += 1
                 failures.append(
                     {
                         "category": "required-substrings",
@@ -415,6 +670,16 @@ def evaluate_fixture(
             }
         )
 
+    if command_failure is None:
+        visual_checks, visual_failures = evaluate_visual_checks(
+            fixture,
+            results_dir=results_dir,
+            expectations=expectations,
+        )
+        metrics["visualChecks"] = len(visual_checks)
+        metrics["visualFailures"] = len(visual_failures)
+        failures.extend(visual_failures)
+
     for failure in failures:
         known_entry = known.get((fixture_id, failure["category"]))
         if known_entry:
@@ -431,6 +696,13 @@ def evaluate_fixture(
     else:
         status = "failed"
 
+    quality_checks = build_quality_checks(
+        target=target,
+        metrics=metrics,
+        failures=failures,
+        visual_declared=visual_declared and command_failure is None,
+    )
+
     return {
         "id": fixture_id,
         "title": fixture.get("title", fixture_id),
@@ -438,6 +710,7 @@ def evaluate_fixture(
         "categories": fixture.get("categories", []),
         "status": status,
         "metrics": metrics,
+        "qualityChecks": quality_checks,
         "failures": failures,
     }
 
@@ -492,6 +765,7 @@ def run_converter_commands(
 def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
     status_counts = {status: 0 for status in STATUS_ORDER}
     category_counts: Counter[str] = Counter()
+    check_category_counts: dict[str, dict[str, int]] = {}
     coverage_values: list[float] = []
 
     for result in results:
@@ -501,6 +775,16 @@ def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
             coverage_values.append(float(coverage))
         for failure in result["failures"]:
             category_counts[failure["category"]] += 1
+        for check in result.get("qualityChecks", []):
+            category = check.get("category")
+            status = check.get("status")
+            if not isinstance(category, str) or not isinstance(status, str):
+                continue
+            counts = check_category_counts.setdefault(
+                category,
+                {check_status: 0 for check_status in CHECK_STATUS_ORDER},
+            )
+            counts[status] = counts.get(status, 0) + 1
 
     metrics = {
         "minimumTextCoverage": round(min(coverage_values), 6) if coverage_values else None,
@@ -511,6 +795,7 @@ def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
         "fixtures": len(results),
         "status": status_counts,
         "categories": dict(sorted(category_counts.items())),
+        "checkCategories": dict(sorted(check_category_counts.items())),
         "metrics": metrics,
     }
 
@@ -596,22 +881,48 @@ def render_summary_markdown(comparison: dict[str, Any]) -> str:
         lines.extend(f"- {failure}" for failure in comparison["ratchet"]["failures"])
         lines.append("")
 
+    if summary.get("checkCategories"):
+        lines.extend(
+            [
+                "## Quality Checks",
+                "",
+                "| Category | Passed | Known | Failed | Skipped |",
+                "| --- | ---: | ---: | ---: | ---: |",
+            ]
+        )
+        for category, counts in summary["checkCategories"].items():
+            lines.append(
+                "| {category} | {passed} | {known} | {failed} | {skipped} |".format(
+                    category=category,
+                    passed=counts.get("passed", 0),
+                    known=counts.get("known", 0),
+                    failed=counts.get("failed", 0),
+                    skipped=counts.get("skipped", 0),
+                )
+            )
+        lines.append("")
+
     lines.extend(
         [
             "## Fixtures",
             "",
-            "| Fixture | Target | Status | Text Coverage | Broken References | Diagnostics | Failure Categories |",
-            "| --- | --- | --- | ---: | ---: | ---: | --- |",
+            "| Fixture | Target | Status | Quality Checks | Text Coverage | Broken References | Diagnostics | Failure Categories |",
+            "| --- | --- | --- | --- | ---: | ---: | ---: | --- |",
         ]
     )
     for result in comparison["fixtures"]:
         categories = ", ".join(failure["category"] for failure in result["failures"]) or "-"
+        quality_checks = ", ".join(
+            f"{check['category']}: {check['status']}"
+            for check in result.get("qualityChecks", [])
+        ) or "-"
         coverage = result["metrics"].get("textCoverage")
         lines.append(
-            "| {id} | {target} | {status} | {coverage} | {broken} | {diagnostics} | {categories} |".format(
+            "| {id} | {target} | {status} | {checks} | {coverage} | {broken} | {diagnostics} | {categories} |".format(
                 id=result["id"],
                 target=result["target"],
                 status=result["status"],
+                checks=quality_checks,
                 coverage="-" if coverage is None else coverage,
                 broken=result["metrics"].get("brokenLocalReferences", 0),
                 diagnostics=result["metrics"].get("diagnostics", 0),

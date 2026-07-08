@@ -22,7 +22,8 @@ python3 tools/conversion_quality/run_conversion_quality.py \
 The command writes:
 
 - `comparison.json`, with per-fixture metrics, failure categories, and ratchet
-  status.
+  status. Each fixture also includes `qualityChecks` entries for DOM,
+  text-coverage, and visual categories when applicable.
 - `summary.md`, with the same result in a compact table suitable for CI step
   summaries.
 
@@ -37,6 +38,9 @@ expectations. Current gates cover:
 - diagnostic counts
 - required files
 - required substrings in generated outputs
+- simple HTML DOM selector counts through `expectations.domSelectors`
+- visual check reports through an optional `outputs.visual` JSON file with a
+  `checks` array
 
 Known divergences are listed separately and must include an owning issue and
 reason. Ratchet baselines cap the number of accepted `failed` and `known`
