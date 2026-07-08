@@ -6,8 +6,17 @@ namespace PdfBox.Net.Layout;
 public sealed class PdfLayoutDocument
 {
     public PdfLayoutDocument(IReadOnlyList<PdfLayoutPage> pages, IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
+        : this(pages, [], diagnostics)
+    {
+    }
+
+    public PdfLayoutDocument(
+        IReadOnlyList<PdfLayoutPage> pages,
+        IReadOnlyList<PdfLayoutImageAsset> imageAssets,
+        IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
     {
         Pages = pages.ToArray();
+        ImageAssets = imageAssets.ToArray();
         Diagnostics = diagnostics.ToArray();
     }
 
@@ -15,6 +24,11 @@ public sealed class PdfLayoutDocument
     /// Gets the extracted pages.
     /// </summary>
     public IReadOnlyList<PdfLayoutPage> Pages { get; }
+
+    /// <summary>
+    /// Gets exported image assets referenced by page image placements.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutImageAsset> ImageAssets { get; }
 
     /// <summary>
     /// Gets document-level diagnostics.

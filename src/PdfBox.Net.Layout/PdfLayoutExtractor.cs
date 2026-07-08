@@ -101,10 +101,11 @@ public static class PdfLayoutExtractor
         public PdfLayoutDocument CreateDocument()
         {
             PdfLayoutPage[] pages = _pages.Select(page => page.Build()).ToArray();
+            PdfLayoutImageAsset[] imageAssets = _pages.SelectMany(page => page.ImageAssets).ToArray();
             PdfLayoutDiagnostic[] diagnostics = _diagnostics
                 .Concat(pages.SelectMany(page => page.Diagnostics))
                 .ToArray();
-            return new PdfLayoutDocument(pages, diagnostics);
+            return new PdfLayoutDocument(pages, imageAssets, diagnostics);
         }
     }
 
@@ -121,6 +122,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfTextLine> _lines = new();
         private readonly List<PdfTextBlock> _blocks = new();
         private readonly List<PdfLayoutImage> _images = new();
+        private readonly List<PdfLayoutImageAsset> _imageAssets = new();
         private readonly List<PdfLayoutLink> _links = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
 
@@ -143,7 +145,7 @@ public static class PdfLayoutExtractor
 
             if (options.IncludeImages)
             {
-                CollectImages(page);
+                CollectImages(page, options.IncludeImageAssets);
             }
         }
 
@@ -185,9 +187,11 @@ public static class PdfLayoutExtractor
                 _diagnostics);
         }
 
-        private void CollectImages(PDPage page)
+        public IReadOnlyList<PdfLayoutImageAsset> ImageAssets => _imageAssets;
+
+        private void CollectImages(PDPage page, bool includeImageAssets)
         {
-            LayoutImageCollector collector = new(page, _pageNumber, _cropBox, _rotation);
+            LayoutImageCollector collector = new(page, _pageNumber, _cropBox, _rotation, includeImageAssets);
             try
             {
                 collector.Run(page);
@@ -202,6 +206,7 @@ public static class PdfLayoutExtractor
             }
 
             _images.AddRange(collector.Images);
+            _imageAssets.AddRange(collector.ImageAssets);
             _diagnostics.AddRange(collector.Diagnostics);
         }
 
@@ -460,19 +465,29 @@ public static class PdfLayoutExtractor
         private readonly int _pageNumber;
         private readonly PdfLayoutRectangle _cropBox;
         private readonly int _rotation;
+        private readonly bool _includeImageAssets;
         private readonly List<PdfLayoutImage> _images = new();
+        private readonly List<PdfLayoutImageAsset> _imageAssets = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
         private bool _reportedRotatedImage;
 
-        public LayoutImageCollector(PDPage page, int pageNumber, PdfLayoutRectangle cropBox, int rotation)
+        public LayoutImageCollector(
+            PDPage page,
+            int pageNumber,
+            PdfLayoutRectangle cropBox,
+            int rotation,
+            bool includeImageAssets)
             : base(page)
         {
             _pageNumber = pageNumber;
             _cropBox = cropBox;
             _rotation = rotation;
+            _includeImageAssets = includeImageAssets;
         }
 
         public IReadOnlyList<PdfLayoutImage> Images => _images;
+
+        public IReadOnlyList<PdfLayoutImageAsset> ImageAssets => _imageAssets;
 
         public IReadOnlyList<PdfLayoutDiagnostic> Diagnostics => _diagnostics;
 
@@ -514,10 +529,11 @@ public static class PdfLayoutExtractor
             float minY = Min(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
             float maxY = Max(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
             int index = _images.Count;
+            string assetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-image-{index.ToString(CultureInfo.InvariantCulture)}";
 
             _images.Add(new PdfLayoutImage(
                 index,
-                $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-image-{index.ToString(CultureInfo.InvariantCulture)}",
+                assetId,
                 PdfLayoutImageKind.XObject,
                 NormalizePdfBox(minX, minY, maxX, maxY),
                 PdfLayoutTransform.FromMatrix(ctm),
@@ -527,6 +543,32 @@ public static class PdfLayoutExtractor
                 ColorSpaceName(image, index),
                 image.GetInterpolate(),
                 sourceName));
+
+            if (_includeImageAssets)
+            {
+                ExportImageAsset(image, assetId, index);
+            }
+        }
+
+        private void ExportImageAsset(PDImageXObject image, string assetId, int index)
+        {
+            try
+            {
+                PdfImageExportResult result = PdfImageExporter.ExportPng(image);
+                _imageAssets.Add(new PdfLayoutImageAsset(
+                    assetId,
+                    $"assets/images/{assetId}.{result.FileExtension}",
+                    result.ContentType,
+                    result.Data));
+            }
+            catch (Exception ex) when (ex is IOException or InvalidOperationException or NotSupportedException or ArgumentException)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "image-asset-export-failed",
+                    $"Image {index.ToString(CultureInfo.InvariantCulture)} asset export failed: {ex.Message}",
+                    _pageNumber));
+            }
         }
 
         private string? ResolveSourceName(PDXObject xobject)

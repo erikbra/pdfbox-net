@@ -46,6 +46,13 @@ public static class PdfHtmlConverter
           position: absolute;
           z-index: 3;
         }
+
+        .pdf-image {
+          display: block;
+          object-fit: fill;
+          position: absolute;
+          z-index: 0;
+        }
         """;
 
     /// <summary>
@@ -60,6 +67,9 @@ public static class PdfHtmlConverter
 
         options ??= new PdfHtmlOptions();
         string cssPath = NormalizeCssPath(options.CssPath);
+        Dictionary<string, PdfLayoutImageAsset> imageAssets = layout.ImageAssets
+            .GroupBy(asset => asset.AssetId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
         StringBuilder html = new();
         html.AppendLine("<!doctype html>");
         html.AppendLine("<html lang=\"en\">");
@@ -73,15 +83,22 @@ public static class PdfHtmlConverter
 
         foreach (PdfLayoutPage page in layout.Pages)
         {
-            WritePage(html, page, options.Scale);
+            WritePage(html, page, imageAssets, options.Scale);
         }
 
         html.AppendLine("</body>");
         html.AppendLine("</html>");
-        return new PdfHtmlDocument(html.ToString(), cssPath, Css);
+        PdfHtmlAsset[] assets = imageAssets.Values
+            .Select(asset => new PdfHtmlAsset(asset.RelativePath, asset.ContentType, asset.Data))
+            .ToArray();
+        return new PdfHtmlDocument(html.ToString(), cssPath, Css, assets);
     }
 
-    private static void WritePage(StringBuilder html, PdfLayoutPage page, float scale)
+    private static void WritePage(
+        StringBuilder html,
+        PdfLayoutPage page,
+        IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
+        float scale)
     {
         html.Append("  <section class=\"pdf-page\" data-page-number=\"")
             .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
@@ -92,6 +109,14 @@ public static class PdfHtmlConverter
             .Append(";height:")
             .Append(CssPoints(page.Height * scale))
             .AppendLine("\">");
+
+        foreach (PdfLayoutImage image in page.Images)
+        {
+            if (imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
+            {
+                WriteImage(html, image, asset, scale);
+            }
+        }
 
         foreach (PdfTextRun run in page.Runs)
         {
@@ -104,6 +129,30 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("  </section>");
+    }
+
+    private static void WriteImage(StringBuilder html, PdfLayoutImage image, PdfLayoutImageAsset asset, float scale)
+    {
+        html.Append("    <img class=\"pdf-image\" src=\"")
+            .Append(HtmlAttribute(asset.RelativePath))
+            .Append("\" alt=\"\" data-asset-id=\"")
+            .Append(HtmlAttribute(image.AssetId));
+
+        if (!string.IsNullOrEmpty(image.SourceName))
+        {
+            html.Append("\" data-source-name=\"")
+                .Append(HtmlAttribute(image.SourceName));
+        }
+
+        html.Append("\" style=\"position:absolute;left:")
+            .Append(CssPoints(image.Bounds.X * scale))
+            .Append(";top:")
+            .Append(CssPoints(image.Bounds.Y * scale))
+            .Append(";width:")
+            .Append(CssPoints(image.Bounds.Width * scale))
+            .Append(";height:")
+            .Append(CssPoints(image.Bounds.Height * scale))
+            .AppendLine("\" />");
     }
 
     private static void WriteTextRun(StringBuilder html, PdfTextRun run, float scale)

@@ -10,6 +10,7 @@ using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.Rendering;
@@ -164,6 +165,80 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_EmitsImageElementWithExportedAssetAndBounds()
+    {
+        using PDDocument document = CreateImageDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Empty(layout.Diagnostics);
+        PdfHtmlAsset asset = Assert.Single(html.Assets);
+        Assert.Equal("assets/images/page-1-image-0.png", asset.RelativePath);
+        Assert.Equal("image/png", asset.ContentType);
+        Assert.Equal((2, 2), PngDimensions(asset.Data));
+        XElement image = Assert.Single(ElementsByClass(dom, "pdf-image"));
+        Assert.Equal(asset.RelativePath, image.Attribute("src")?.Value);
+        Assert.Equal("page-1-image-0", image.Attribute("data-asset-id")?.Value);
+        Assert.Equal("Im0", image.Attribute("data-source-name")?.Value);
+        Dictionary<string, string> style = ParseStyle(image.Attribute("style")?.Value ?? "");
+        Assert.Equal("absolute", style["position"]);
+        AssertClose(72, ParsePoints(style["left"]));
+        AssertClose(132, ParsePoints(style["top"]));
+        AssertClose(120, ParsePoints(style["width"]));
+        AssertClose(60, ParsePoints(style["height"]));
+    }
+
+    [Fact]
+    public async Task Convert_RenderedImageInHeadlessBrowserMatchesLayoutGeometry()
+    {
+        using PDDocument document = CreateImageDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize
+            {
+                Width = 1000,
+                Height = 1200
+            }
+        });
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        const float cssPixelsPerPoint = 96f / 72f;
+        const float tolerancePx = 1.0f;
+        PdfLayoutImage layoutImage = Assert.Single(Assert.Single(layout.Pages).Images);
+        ILocator pageLocator = page.Locator(".pdf-page");
+        ILocator imageLocator = page.Locator(".pdf-image");
+        await imageLocator.WaitForAsync();
+        LocatorBoundingBoxResult pageBox = await pageLocator.BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Page did not render a bounding box.");
+        LocatorBoundingBoxResult imageBox = await imageLocator.BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Image did not render a bounding box.");
+
+        AssertWithin(tolerancePx, layoutImage.Bounds.X * cssPixelsPerPoint, (float)(imageBox.X - pageBox.X));
+        AssertWithin(tolerancePx, layoutImage.Bounds.Y * cssPixelsPerPoint, (float)(imageBox.Y - pageBox.Y));
+        AssertWithin(tolerancePx, layoutImage.Bounds.Width * cssPixelsPerPoint, (float)imageBox.Width);
+        AssertWithin(tolerancePx, layoutImage.Bounds.Height * cssPixelsPerPoint, (float)imageBox.Height);
+    }
+
+    [Fact]
     public void WriteToDirectory_EmitsStableFilesWithNoBrokenLocalReferences()
     {
         using PDDocument document = CreateTextDocument("""
@@ -195,6 +270,26 @@ public class PdfHtmlConverterTest
         html.WriteToDirectory(tempDirectory.Path);
 
         Assert.Empty(BrokenLocalReferences(Path.Combine(tempDirectory.Path, "index.html")));
+    }
+
+    [Fact]
+    public void WriteToDirectory_ImageAssetDoesNotCreateBrokenLocalReference()
+    {
+        using PDDocument document = CreateImageDocument();
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        }));
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+
+        string indexPath = Path.Combine(tempDirectory.Path, "index.html");
+        Assert.Empty(BrokenLocalReferences(indexPath));
+        PdfHtmlAsset asset = Assert.Single(html.Assets);
+        string assetPath = Path.Combine(tempDirectory.Path, asset.RelativePath.Replace('/', Path.DirectorySeparatorChar));
+        Assert.True(File.Exists(assetPath));
+        Assert.Equal(asset.Data, File.ReadAllBytes(assetPath));
     }
 
     [Fact]
@@ -603,6 +698,11 @@ public class PdfHtmlConverterTest
         Assert.InRange(actual, expected - 0.01f, expected + 0.01f);
     }
 
+    private static void AssertWithin(float tolerance, float expected, float actual)
+    {
+        Assert.InRange(actual, expected - tolerance, expected + tolerance);
+    }
+
     private static float TextCoverage(string expected, string actual)
     {
         Dictionary<string, int> expectedCounts = TokenCounts(expected);
@@ -704,6 +804,27 @@ public class PdfHtmlConverterTest
         action.SetURI("https://example.com/pdfbox");
         link.SetAction(action);
         document.GetPage(0).SetAnnotations([link]);
+        return document;
+    }
+
+    private static PDDocument CreateImageDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        byte[] rgb =
+        [
+            255, 0, 0,
+            0, 255, 0,
+            0, 0, 255,
+            255, 255, 255
+        ];
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, rgb, 2, 2, 8, 3);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.DrawImage(image, 72, 600, 120, 60);
+        }
+
         return document;
     }
 

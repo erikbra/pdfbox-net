@@ -169,6 +169,7 @@ public class PdfLayoutExtractorTest
 
         PdfLayoutImage image = Assert.Single(Assert.Single(layout.Pages).Images);
         Assert.Empty(layout.Diagnostics);
+        Assert.Empty(layout.ImageAssets);
         Assert.Equal(0, image.Index);
         Assert.Equal("page-1-image-0", image.AssetId);
         Assert.Equal(PdfLayoutImageKind.XObject, image.Kind);
