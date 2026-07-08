@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "description": "HTML conversion review examples generated in CI. Download the artifact and open html-review/index.html, or open an example compare.html to view the source PDF and generated HTML side by side.",
+  "examples": [
+    {
+      "id": "arxiv-sample",
+      "title": "arxiv-sample",
+      "sourcePdf": "../../tests/PdfBox.Net.Tests/Fixtures/TextExtraction/Issue412/arxiv-sample.pdf",
+      "notes": "Existing multi-page regression fixture. This is useful for seeing current fixed-layout HTML behavior on a real paper-style PDF."
+    }
+  ]
+}

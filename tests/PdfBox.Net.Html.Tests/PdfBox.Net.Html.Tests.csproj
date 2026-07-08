@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\tools\conversion_quality\PdfBox.Net.ConversionQuality\PdfBox.Net.ConversionQuality.csproj" />
     <ProjectReference Include="..\..\src\PdfBox.Net.Html\PdfBox.Net.Html.csproj" />
     <ProjectReference Include="..\..\src\PdfBox.Net.Layout\PdfBox.Net.Layout.csproj" />
     <ProjectReference Include="..\..\src\PdfBox.Net\PdfBox.Net.csproj" />

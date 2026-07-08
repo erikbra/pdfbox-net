@@ -27,6 +27,13 @@ The command writes:
 - `summary.md`, with the same result in a compact table suitable for CI step
   summaries.
 
+CI also writes and uploads `artifacts/conversion-quality-smoke/html-review`.
+That directory is a human review bundle for real PDF fixtures: each example
+contains the original `source.pdf`, generated `index.html`, CSS/assets,
+`summary.md`, diagnostics, and a `compare.html` page that shows the PDF and
+generated HTML side by side. Download the `conversion-quality-smoke-*` workflow
+artifact and open `html-review/index.html` to browse the examples.
+
 ## Manifest Shape
 
 Each fixture declares a target, output files, expected text, and measurable

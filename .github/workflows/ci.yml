@@ -54,10 +54,25 @@ jobs:
             --ratchet-baseline tools/conversion_quality/smoke/ratchet-baseline.json \
             --fail-on-unexpected \
             --fail-on-regression
+          dotnet run \
+            --project tools/conversion_quality/PdfBox.Net.ConversionQuality/PdfBox.Net.ConversionQuality.csproj \
+            --configuration Release \
+            --no-build \
+            -- \
+            --manifest tools/conversion_quality/html-review-manifest.json \
+            --out-dir artifacts/conversion-quality-smoke/html-review
           cat artifacts/conversion-quality-smoke/summary.md
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
             cat artifacts/conversion-quality-smoke/summary.md >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      - name: Upload conversion quality artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: conversion-quality-smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/conversion-quality-smoke
+          if-no-files-found: warn
 
       - name: Checkout Apache PDFBox for API surface gate
         uses: actions/checkout@v7.0.0
