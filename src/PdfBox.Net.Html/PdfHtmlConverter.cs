@@ -39,6 +39,37 @@ public static class PdfHtmlConverter
           z-index: 1;
         }
 
+        .pdf-semantic-element {
+          box-sizing: border-box;
+          color: #111827;
+          margin: 0;
+          overflow: visible;
+          padding: 0;
+          position: absolute;
+          z-index: 1;
+        }
+
+        .pdf-semantic-heading {
+          font-weight: 600;
+          line-height: 1.15;
+        }
+
+        .pdf-semantic-paragraph {
+          line-height: 1.25;
+        }
+
+        .pdf-semantic-author-block {
+          font-style: normal;
+          line-height: 1.15;
+          text-align: center;
+        }
+
+        .pdf-semantic-footnote,
+        .pdf-semantic-footer,
+        .pdf-semantic-header {
+          line-height: 1.1;
+        }
+
         .pdf-link-overlay {
           background: transparent;
           display: block;
@@ -80,6 +111,9 @@ public static class PdfHtmlConverter
         Dictionary<string, PdfLayoutImageAsset> imageAssets = layout.ImageAssets
             .GroupBy(asset => asset.AssetId, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+        PdfSemanticDocument? semantic = options.TextMode == PdfHtmlTextMode.Semantic
+            ? PdfSemanticExtractor.Extract(layout, options.SemanticExtractionOptions)
+            : null;
         StringBuilder html = new();
         html.AppendLine("<!doctype html>");
         html.AppendLine("<html lang=\"en\">");
@@ -91,9 +125,15 @@ public static class PdfHtmlConverter
         html.AppendLine("</head>");
         html.AppendLine("<body class=\"pdf-document\">");
 
-        foreach (PdfLayoutPage page in layout.Pages)
+        for (int index = 0; index < layout.Pages.Count; index++)
         {
-            WritePage(html, page, imageAssets, options.Scale);
+            WritePage(
+                html,
+                layout.Pages[index],
+                imageAssets,
+                options.Scale,
+                semantic?.Pages[index],
+                options.TextMode);
         }
 
         html.AppendLine("</body>");
@@ -108,7 +148,9 @@ public static class PdfHtmlConverter
         StringBuilder html,
         PdfLayoutPage page,
         IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
-        float scale)
+        float scale,
+        PdfSemanticPage? semanticPage,
+        PdfHtmlTextMode textMode)
     {
         html.Append("  <section class=\"pdf-page\" data-page-number=\"")
             .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
@@ -133,9 +175,19 @@ public static class PdfHtmlConverter
             WriteVectorLayer(html, page, scale);
         }
 
-        foreach (PdfTextRun run in page.Runs)
+        if (textMode == PdfHtmlTextMode.Semantic && semanticPage != null)
         {
-            WriteTextRun(html, run, scale);
+            foreach (PdfSemanticElement element in semanticPage.Elements)
+            {
+                WriteSemanticElement(html, element, scale);
+            }
+        }
+        else
+        {
+            foreach (PdfTextRun run in page.Runs)
+            {
+                WriteTextRun(html, run, scale);
+            }
         }
 
         foreach (PdfLayoutLink link in page.Links)
@@ -267,6 +319,105 @@ public static class PdfHtmlConverter
             .Append("\">")
             .Append(Html(run.Text))
             .AppendLine("</span>");
+    }
+
+    private static void WriteSemanticElement(StringBuilder html, PdfSemanticElement element, float scale)
+    {
+        string tagName = SemanticTagName(element);
+        html.Append("    <")
+            .Append(tagName)
+            .Append(" class=\"pdf-semantic-element ")
+            .Append(SemanticClassName(element.Kind))
+            .Append("\" data-semantic-kind=\"")
+            .Append(HtmlAttribute(element.Kind.ToString().ToLowerInvariant()))
+            .Append("\" style=\"position:absolute;left:")
+            .Append(CssPoints(element.Bounds.X * scale))
+            .Append(";top:")
+            .Append(CssPoints(element.Bounds.Y * scale))
+            .Append(";width:")
+            .Append(CssPoints(element.Bounds.Width * scale))
+            .Append(";min-height:")
+            .Append(CssPoints(element.Bounds.Height * scale))
+            .Append(";font-size:")
+            .Append(CssPoints(SemanticFontSize(element) * scale))
+            .Append(";font-family:")
+            .Append(CssFontFamily(SemanticFontName(element)))
+            .Append("\">");
+
+        WriteSemanticText(html, element);
+
+        html.Append("</")
+            .Append(tagName)
+            .AppendLine(">");
+    }
+
+    private static void WriteSemanticText(StringBuilder html, PdfSemanticElement element)
+    {
+        if (element.Kind is PdfSemanticElementKind.AuthorBlock or PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
+        {
+            for (int index = 0; index < element.Lines.Count; index++)
+            {
+                if (index > 0)
+                {
+                    html.Append("<br />");
+                }
+
+                html.Append(Html(element.Lines[index].Text));
+            }
+
+            return;
+        }
+
+        html.Append(Html(element.Text));
+    }
+
+    private static string SemanticTagName(PdfSemanticElement element)
+    {
+        return element.Kind switch
+        {
+            PdfSemanticElementKind.Heading => "h" + Math.Clamp(element.HeadingLevel, 1, 6).ToString(CultureInfo.InvariantCulture),
+            PdfSemanticElementKind.Paragraph => "p",
+            PdfSemanticElementKind.AuthorBlock => "address",
+            PdfSemanticElementKind.Footnote => "aside",
+            PdfSemanticElementKind.Footer => "footer",
+            PdfSemanticElementKind.Header => "header",
+            _ => "div"
+        };
+    }
+
+    private static string SemanticClassName(PdfSemanticElementKind kind)
+    {
+        return kind switch
+        {
+            PdfSemanticElementKind.Heading => "pdf-semantic-heading",
+            PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
+            PdfSemanticElementKind.AuthorBlock => "pdf-semantic-author-block",
+            PdfSemanticElementKind.Footnote => "pdf-semantic-footnote",
+            PdfSemanticElementKind.Footer => "pdf-semantic-footer",
+            PdfSemanticElementKind.Header => "pdf-semantic-header",
+            _ => "pdf-semantic-other"
+        };
+    }
+
+    private static float SemanticFontSize(PdfSemanticElement element)
+    {
+        return element.Lines.Count == 0
+            ? 10f
+            : element.Lines
+                .GroupBy(static line => MathF.Round(line.DominantFontSize * 2f) / 2f)
+                .OrderByDescending(static group => group.Sum(static line => Math.Max(1, line.Text.Length)))
+                .ThenByDescending(static group => group.Key)
+                .Select(static group => group.Key)
+                .First();
+    }
+
+    private static string SemanticFontName(PdfSemanticElement element)
+    {
+        return element.Lines
+            .GroupBy(static line => line.DominantFontName, StringComparer.Ordinal)
+            .OrderByDescending(static group => group.Sum(static line => Math.Max(1, line.Text.Length)))
+            .Select(static group => group.Key)
+            .FirstOrDefault() ?? "";
     }
 
     private static void WriteLink(StringBuilder html, PdfLayoutLink link, float scale)

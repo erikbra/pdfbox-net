@@ -1,7 +1,9 @@
+using PdfBox.Net.Layout;
+
 namespace PdfBox.Net.Html;
 
 /// <summary>
-/// Options for fixed-layout HTML conversion.
+/// Options for HTML conversion.
 /// </summary>
 public sealed class PdfHtmlOptions
 {
@@ -19,4 +21,14 @@ public sealed class PdfHtmlOptions
     /// Gets or sets the scalar applied to emitted page and text coordinates.
     /// </summary>
     public float Scale { get; init; } = 1.0f;
+
+    /// <summary>
+    /// Gets or sets how text is emitted in the generated HTML.
+    /// </summary>
+    public PdfHtmlTextMode TextMode { get; init; } = PdfHtmlTextMode.FixedLayout;
+
+    /// <summary>
+    /// Gets or sets the semantic extraction options used when <see cref="TextMode"/> is <see cref="PdfHtmlTextMode.Semantic"/>.
+    /// </summary>
+    public PdfSemanticExtractionOptions SemanticExtractionOptions { get; init; } = new();
 }

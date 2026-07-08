@@ -73,6 +73,52 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticTextMode_EmitsGroupedArxivElements()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = false
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-text-run"));
+        XElement title = Assert.Single(dom.Descendants("h1"), element =>
+            element.Value.Contains("Attention Is All You Need", StringComparison.Ordinal));
+        Assert.Equal("heading", title.Attribute("data-semantic-kind")?.Value);
+
+        XElement[] authors = ElementsByClass(dom, "pdf-semantic-author-block").ToArray();
+        Assert.Equal(8, authors.Length);
+        Assert.All(authors, author => Assert.Equal("address", author.Name.LocalName));
+        Assert.Contains(authors, author =>
+            author.Value.Contains("Ashish Vaswani", StringComparison.Ordinal) &&
+            author.Value.Contains("avaswani@google.com", StringComparison.Ordinal));
+        Assert.Contains(authors, author =>
+            author.Value.Contains("Illia Polosukhin", StringComparison.Ordinal) &&
+            author.Value.Contains("illia.polosukhin@gmail.com", StringComparison.Ordinal));
+
+        XElement abstractHeading = Assert.Single(dom.Descendants("h2"), element => element.Value == "Abstract");
+        Assert.Equal("heading", abstractHeading.Attribute("data-semantic-kind")?.Value);
+        Assert.Contains(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
+            paragraph.Value.StartsWith("The dominant sequence transduction models", StringComparison.Ordinal) &&
+            paragraph.Value.Contains("large and limited training data.", StringComparison.Ordinal));
+
+        Assert.Contains(dom.Descendants("h1"), heading => heading.Value == "1 Introduction");
+        XElement[] footnotes = ElementsByClass(dom, "pdf-semantic-footnote").ToArray();
+        Assert.Equal(3, footnotes.Length);
+        Assert.All(footnotes, footnote => Assert.Equal("aside", footnote.Name.LocalName));
+        Assert.Contains(ElementsByClass(dom, "pdf-semantic-footer"), footer =>
+            footer.Value.Contains("31st Conference", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Convert_ForegroundBoxMaskMatchesLayoutRuns()
     {
         using PDDocument document = CreateTextDocument("""

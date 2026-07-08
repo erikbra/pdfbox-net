@@ -91,6 +91,7 @@ public static class HtmlReviewArtifactGenerator
 
         PdfLayoutDocument layout;
         PdfHtmlDocument html;
+        PdfHtmlDocument semanticHtml;
         string capturedConversionWarnings;
         TextWriter originalError = Console.Error;
         using (StringWriter conversionWarnings = new())
@@ -104,6 +105,11 @@ public static class HtmlReviewArtifactGenerator
                     IncludeImageAssets = true
                 });
                 html = PdfHtmlConverter.Convert(layout);
+                semanticHtml = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+                {
+                    CssPath = "assets/pdfbox-net-semantic.css",
+                    TextMode = PdfHtmlTextMode.Semantic
+                });
             }
             finally
             {
@@ -114,6 +120,7 @@ public static class HtmlReviewArtifactGenerator
         }
 
         html.WriteToDirectory(exampleDirectory);
+        semanticHtml.WriteToDirectory(Path.Combine(exampleDirectory, "semantic"));
         string copiedSourcePdf = Path.Combine(exampleDirectory, "source.pdf");
         File.Copy(sourcePdf, copiedSourcePdf, overwrite: true);
         PdfHtmlQualityReport qualityReport = new PdfHtmlQualityProbe()
@@ -233,7 +240,8 @@ public static class HtmlReviewArtifactGenerator
             html.Append("</td><td>");
             html.Append($"<a href=\"{directoryName}/compare.html\">compare</a> ");
             html.Append($"<a href=\"{directoryName}/source.pdf\">source PDF</a> ");
-            html.Append($"<a href=\"{directoryName}/index.html\">HTML</a> ");
+            html.Append($"<a href=\"{directoryName}/index.html\">fixed HTML</a> ");
+            html.Append($"<a href=\"{directoryName}/semantic/index.html\">semantic HTML</a> ");
             html.Append($"<a href=\"{directoryName}/summary.md\">summary</a>");
             AppendQualityArtifactLinks(html, directoryName, result.QualityArtifacts);
             html.Append("</td><td>");
@@ -284,7 +292,8 @@ public static class HtmlReviewArtifactGenerator
         }
 
         summary.AppendLine("- Source PDF: [source.pdf](source.pdf)");
-        summary.AppendLine("- Converted HTML: [index.html](index.html)");
+        summary.AppendLine("- Fixed-layout HTML: [index.html](index.html)");
+        summary.AppendLine("- Semantic HTML: [semantic/index.html](semantic/index.html)");
         summary.AppendLine("- Side-by-side comparison: [compare.html](compare.html)");
         summary.AppendLine("- Quality probe: [quality/quality-report.md](quality/quality-report.md)");
         summary.AppendLine($"- Pages: {result.PageCount}");
@@ -377,21 +386,22 @@ public static class HtmlReviewArtifactGenerator
         html.AppendLine("    header{height:48px;display:flex;align-items:center;gap:16px;padding:0 16px;background:#fff;border-bottom:1px solid #d1d5db}");
         html.AppendLine("    h1{font-size:16px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}");
         html.AppendLine("    a{color:#0f5ea8}");
-        html.AppendLine("    main{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 48px)}");
+        html.AppendLine("    main{display:grid;grid-template-columns:1fr 1fr 1fr;height:calc(100vh - 48px)}");
         html.AppendLine("    section{min-width:0;border-right:1px solid #d1d5db;display:grid;grid-template-rows:32px 1fr}");
         html.AppendLine("    section:last-child{border-right:0}");
         html.AppendLine("    h2{font-size:13px;margin:0;padding:8px 12px;background:#e5e7eb}");
         html.AppendLine("    iframe{border:0;width:100%;height:100%;background:#fff}");
-        html.AppendLine("    @media (max-width:900px){main{grid-template-columns:1fr;height:auto}section{height:80vh;border-right:0;border-bottom:1px solid #d1d5db}}");
+        html.AppendLine("    @media (max-width:1100px){main{grid-template-columns:1fr;height:auto}section{height:80vh;border-right:0;border-bottom:1px solid #d1d5db}}");
         html.AppendLine("  </style>");
         html.AppendLine("</head>");
         html.AppendLine("<body>");
         html.Append("  <header><h1>");
         html.Append(WebUtility.HtmlEncode(result.Title));
-        html.AppendLine("</h1><a href=\"source.pdf\">source PDF</a><a href=\"index.html\">generated HTML</a><a href=\"quality/quality-report.md\">quality report</a><a href=\"summary.md\">summary</a></header>");
+        html.AppendLine("</h1><a href=\"source.pdf\">source PDF</a><a href=\"index.html\">fixed HTML</a><a href=\"semantic/index.html\">semantic HTML</a><a href=\"quality/quality-report.md\">quality report</a><a href=\"summary.md\">summary</a></header>");
         html.AppendLine("  <main>");
         html.AppendLine("    <section><h2>Source PDF</h2><iframe title=\"Source PDF\" src=\"source.pdf\"></iframe></section>");
-        html.AppendLine("    <section><h2>Generated HTML</h2><iframe title=\"Generated HTML\" src=\"index.html\"></iframe></section>");
+        html.AppendLine("    <section><h2>Fixed-layout HTML</h2><iframe title=\"Fixed-layout HTML\" src=\"index.html\"></iframe></section>");
+        html.AppendLine("    <section><h2>Semantic HTML</h2><iframe title=\"Semantic HTML\" src=\"semantic/index.html\"></iframe></section>");
         html.AppendLine("  </main>");
         html.AppendLine("</body>");
         html.AppendLine("</html>");

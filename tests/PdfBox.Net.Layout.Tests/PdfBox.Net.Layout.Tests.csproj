@@ -29,6 +29,9 @@
     <Content Include="..\PdfBox.Net.Tests\Fixtures\rotation.pdf" Link="Fixtures\rotation.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\PdfBox.Net.Tests\Fixtures\TextExtraction\Issue412\arxiv-sample.pdf" Link="Fixtures\arxiv-sample.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
