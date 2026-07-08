@@ -623,7 +623,8 @@ public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, 
         if (_form != null)
         {
             // Write content directly to the form XObject's stream.
-            COSStream cosStream = (COSStream)_form.GetCOSObject();
+            COSStream cosStream = _form.GetCOSObject()
+                ?? throw new InvalidOperationException("Form stream missing.");
             if (_compress)
             {
                 using Stream output = cosStream.CreateOutputStream(COSName.FLATE_DECODE);

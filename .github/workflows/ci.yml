@@ -2,6 +2,8 @@ name: CI Build
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 permissions:
@@ -18,10 +20,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v5.4.0
         with:
           dotnet-version: 10.0.x
 
@@ -52,7 +54,7 @@ jobs:
           fi
 
       - name: Checkout Apache PDFBox for API surface gate
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.0
         with:
           repository: apache/pdfbox
           ref: ${{ env.PDFBOX_API_SURFACE_PDFBOX_REF }}
@@ -79,22 +81,22 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.0
 
       - name: Checkout Apache PDFBox
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.0
         with:
           repository: apache/pdfbox
           ref: ${{ env.PDFBOX_PARITY_PDFBOX_REF }}
           path: apache-pdfbox
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v5.4.0
         with:
           dotnet-version: 10.0.x
 
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5.5.0
         with:
           distribution: temurin
           java-version: '17'
@@ -130,7 +132,7 @@ jobs:
 
       - name: Upload runtime parity artifacts
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: runtime-parity-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/runtime-parity

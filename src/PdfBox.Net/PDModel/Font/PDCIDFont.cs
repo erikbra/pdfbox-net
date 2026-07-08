@@ -171,7 +171,7 @@ public abstract partial class PDCIDFont : PDFont
                 break;
             }
 
-            COSBase next = metrics.GetObject(index);
+            COSBase? next = metrics.GetObject(index);
             if (next is COSArray array)
             {
                 index++;
