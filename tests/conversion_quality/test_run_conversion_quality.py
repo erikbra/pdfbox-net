@@ -51,6 +51,7 @@ class ConversionQualityHarnessTest(unittest.TestCase):
             )
             write_text(results / "html-basic/assets/page.css", ".page { position: relative; }\n")
             write_json(results / "html-basic/diagnostics.json", {"diagnostics": []})
+            self._write_passing_visual(results / "html-basic/visual.json")
 
             exit_code = harness.main(
                 [
@@ -71,7 +72,17 @@ class ConversionQualityHarnessTest(unittest.TestCase):
             comparison = json.loads((out_dir / "comparison.json").read_text(encoding="utf-8"))
             self.assertEqual({"passed": 1, "known": 0, "failed": 0}, comparison["summary"]["status"])
             self.assertEqual(1.0, comparison["fixtures"][0]["metrics"]["textCoverage"])
-            self.assertIn("html-basic", (out_dir / "summary.md").read_text(encoding="utf-8"))
+            checks = {check["category"]: check for check in comparison["fixtures"][0]["qualityChecks"]}
+            self.assertEqual("passed", checks["dom"]["status"])
+            self.assertEqual("passed", checks["text-coverage"]["status"])
+            self.assertEqual("passed", checks["visual"]["status"])
+            self.assertEqual(2, checks["visual"]["metrics"]["visualChecks"])
+            self.assertEqual(1, comparison["summary"]["checkCategories"]["dom"]["passed"])
+            self.assertEqual(1, comparison["summary"]["checkCategories"]["text-coverage"]["passed"])
+            self.assertEqual(1, comparison["summary"]["checkCategories"]["visual"]["passed"])
+            summary = (out_dir / "summary.md").read_text(encoding="utf-8")
+            self.assertIn("html-basic", summary)
+            self.assertIn("visual: passed", summary)
 
     def test_low_text_coverage_broken_assets_and_diagnostics_fail_ratchet(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -94,6 +105,19 @@ class ConversionQualityHarnessTest(unittest.TestCase):
                 results / "html-basic/diagnostics.json",
                 {"diagnostics": [{"severity": "warning", "message": "Synthetic diagnostic"}]},
             )
+            write_json(
+                results / "html-basic/visual.json",
+                {
+                    "checks": [
+                        {
+                            "name": "foreground-mask",
+                            "passed": False,
+                            "message": "Foreground mask drift exceeded threshold.",
+                            "metrics": {"pdfMissRatio": 0.5},
+                        }
+                    ]
+                },
+            )
 
             exit_code = harness.main(
                 [
@@ -115,6 +139,12 @@ class ConversionQualityHarnessTest(unittest.TestCase):
             self.assertEqual(1, comparison["summary"]["categories"]["text-coverage"])
             self.assertEqual(1, comparison["summary"]["categories"]["broken-assets"])
             self.assertEqual(1, comparison["summary"]["categories"]["diagnostics"])
+            self.assertEqual(2, comparison["summary"]["categories"]["dom"])
+            self.assertEqual(2, comparison["summary"]["categories"]["visual"])
+            checks = {check["category"]: check for check in comparison["fixtures"][0]["qualityChecks"]}
+            self.assertEqual("failed", checks["dom"]["status"])
+            self.assertEqual("failed", checks["text-coverage"]["status"])
+            self.assertEqual("failed", checks["visual"]["status"])
             self.assertFalse(comparison["ratchet"]["passed"])
 
     def test_known_divergence_is_reported_separately_and_can_be_ratchet_accepted(self) -> None:
@@ -155,10 +185,14 @@ class ConversionQualityHarnessTest(unittest.TestCase):
             write_text(
                 results / "html-basic/index.html",
                 """<!doctype html><html><body>
+                <section data-page-number="1">
                 <span style="position:absolute">Alpha</span>
+                <span>Supplemental DOM text</span>
+                </section>
                 </body></html>""",
             )
             write_json(results / "html-basic/diagnostics.json", {"diagnostics": []})
+            self._write_passing_visual(results / "html-basic/visual.json")
 
             exit_code = harness.main(
                 [
@@ -227,12 +261,18 @@ class ConversionQualityHarnessTest(unittest.TestCase):
                     "outputs": {
                         "html": "html-basic/index.html",
                         "diagnostics": "html-basic/diagnostics.json",
+                        "visual": "html-basic/visual.json",
                     },
                     "expectedText": "Hello PDF conversion Second line",
                     "expectations": {
                         "minTextCoverage": 1.0,
                         "maxBrokenLocalReferences": 0,
                         "maxDiagnostics": 0,
+                        "minVisualChecks": 2,
+                        "domSelectors": [
+                            {"selector": "[data-page-number]", "count": 1},
+                            {"selector": "span", "minCount": 2},
+                        ],
                         "requiredSubstrings": [
                             {"output": "html", "text": "position:absolute"},
                         ],
@@ -250,12 +290,43 @@ class ConversionQualityHarnessTest(unittest.TestCase):
                 "broken-assets": 0,
                 "crash": 0,
                 "diagnostics": 0,
+                "dom": 0,
                 "required-files": 0,
                 "required-substrings": 0,
                 "text-coverage": 0,
+                "visual": 0,
             },
             "minMetrics": {"minimumTextCoverage": 1.0},
         }
+
+    @staticmethod
+    def _write_passing_visual(path: Path) -> None:
+        write_json(
+            path,
+            {
+                "checks": [
+                    {
+                        "name": "page-screenshot-dimensions",
+                        "passed": True,
+                        "metrics": {
+                            "actualHeight": 1056,
+                            "actualWidth": 816,
+                            "expectedHeight": 1056,
+                            "expectedWidth": 816,
+                        },
+                    },
+                    {
+                        "name": "foreground-mask",
+                        "passed": True,
+                        "metrics": {
+                            "browserMissRatio": 0.01,
+                            "foregroundDeltaRatio": 0.02,
+                            "pdfMissRatio": 0.01,
+                        },
+                    },
+                ]
+            },
+        )
 
 
 if __name__ == "__main__":

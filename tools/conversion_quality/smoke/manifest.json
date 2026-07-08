@@ -13,13 +13,29 @@
       ],
       "outputs": {
         "html": "synthetic-html-text/index.html",
-        "diagnostics": "synthetic-html-text/diagnostics.json"
+        "diagnostics": "synthetic-html-text/diagnostics.json",
+        "visual": "synthetic-html-text/visual.json"
       },
       "expectedText": "Hello PDF conversion Second line",
       "expectations": {
         "minTextCoverage": 1.0,
         "maxBrokenLocalReferences": 0,
         "maxDiagnostics": 0,
+        "minVisualChecks": 2,
+        "domSelectors": [
+          {
+            "selector": ".pdf-page",
+            "count": 1
+          },
+          {
+            "selector": ".text-run",
+            "count": 2
+          },
+          {
+            "selector": "[data-page-number]",
+            "count": 1
+          }
+        ],
         "requiredFiles": [
           "synthetic-html-text/index.html",
           "synthetic-html-text/assets/page.css"
