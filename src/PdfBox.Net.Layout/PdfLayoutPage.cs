@@ -16,6 +16,7 @@ public sealed class PdfLayoutPage
         IReadOnlyList<PdfTextRun> runs,
         IReadOnlyList<PdfTextLine> lines,
         IReadOnlyList<PdfTextBlock> blocks,
+        IReadOnlyList<PdfLayoutLink> links,
         IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
     {
         PageNumber = pageNumber;
@@ -28,6 +29,7 @@ public sealed class PdfLayoutPage
         Runs = runs.ToArray();
         Lines = lines.ToArray();
         Blocks = blocks.ToArray();
+        Links = links.ToArray();
         Diagnostics = diagnostics.ToArray();
     }
 
@@ -80,6 +82,11 @@ public sealed class PdfLayoutPage
     /// Gets text blocks.
     /// </summary>
     public IReadOnlyList<PdfTextBlock> Blocks { get; }
+
+    /// <summary>
+    /// Gets link annotations on this page.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutLink> Links { get; }
 
     /// <summary>
     /// Gets diagnostics emitted for this page.

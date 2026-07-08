@@ -2,6 +2,9 @@ using System.Globalization;
 using System.Text;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.Action;
+using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.Text;
 
 namespace PdfBox.Net.Layout;
@@ -52,7 +55,7 @@ public static class PdfLayoutExtractor
             int pageNumber = 1;
             foreach (PDPage page in document.GetPages())
             {
-                _pages.Add(new PageBuilder(pageNumber, page));
+                _pages.Add(new PageBuilder(pageNumber, page, _options));
                 pageNumber++;
             }
         }
@@ -111,9 +114,10 @@ public static class PdfLayoutExtractor
         private readonly List<PdfTextRun> _runs = new();
         private readonly List<PdfTextLine> _lines = new();
         private readonly List<PdfTextBlock> _blocks = new();
+        private readonly List<PdfLayoutLink> _links = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
 
-        public PageBuilder(int pageNumber, PDPage page)
+        public PageBuilder(int pageNumber, PDPage page, PdfLayoutOptions options)
         {
             _pageNumber = pageNumber;
             PDRectangle mediaBox = page.GetMediaBox();
@@ -124,6 +128,11 @@ public static class PdfLayoutExtractor
             bool rotated = _rotation == 90 || _rotation == 270;
             _width = rotated ? cropBox.GetHeight() : cropBox.GetWidth();
             _height = rotated ? cropBox.GetWidth() : cropBox.GetHeight();
+
+            if (options.IncludeLinks)
+            {
+                CollectLinks(page);
+            }
         }
 
         public void SetTextPositions(IReadOnlyList<TextPosition> textPositions, PdfLayoutOptions options)
@@ -159,7 +168,136 @@ public static class PdfLayoutExtractor
                 _runs,
                 _lines,
                 _blocks,
+                _links,
                 _diagnostics);
+        }
+
+        private void CollectLinks(PDPage page)
+        {
+            IList<PDAnnotation> annotations = page.GetAnnotations();
+            if (_rotation != 0)
+            {
+                if (annotations.OfType<PDAnnotationLink>().Any())
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "link-rotation-unsupported",
+                        "Link annotation geometry is not collected for rotated pages yet.",
+                        _pageNumber));
+                }
+
+                return;
+            }
+
+            int index = 0;
+            foreach (PDAnnotationLink annotation in annotations.OfType<PDAnnotationLink>())
+            {
+                PDRectangle? rectangle = annotation.GetRectangle();
+                if (rectangle == null)
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "link-missing-rectangle",
+                        "Link annotation has no rectangle and was skipped.",
+                        _pageNumber));
+                    continue;
+                }
+
+                (PdfLayoutLinkKind kind, string? uri, string? destination, int? destinationPageNumber) = Target(annotation);
+                _links.Add(new PdfLayoutLink(
+                    index,
+                    NormalizePdfRectangle(rectangle),
+                    kind,
+                    uri,
+                    destination,
+                    destinationPageNumber,
+                    QuadBounds(annotation.GetQuadPoints())));
+                index++;
+            }
+        }
+
+        private PdfLayoutRectangle NormalizePdfRectangle(PDRectangle rectangle)
+        {
+            return NormalizePdfBox(
+                rectangle.GetLowerLeftX(),
+                rectangle.GetLowerLeftY(),
+                rectangle.GetUpperRightX(),
+                rectangle.GetUpperRightY());
+        }
+
+        private IReadOnlyList<PdfLayoutRectangle> QuadBounds(float[]? quadPoints)
+        {
+            if (quadPoints == null || quadPoints.Length < 8)
+            {
+                return [];
+            }
+
+            List<PdfLayoutRectangle> bounds = new();
+            for (int i = 0; i + 7 < quadPoints.Length; i += 8)
+            {
+                float minX = MathF.Min(MathF.Min(quadPoints[i], quadPoints[i + 2]), MathF.Min(quadPoints[i + 4], quadPoints[i + 6]));
+                float maxX = MathF.Max(MathF.Max(quadPoints[i], quadPoints[i + 2]), MathF.Max(quadPoints[i + 4], quadPoints[i + 6]));
+                float minY = MathF.Min(MathF.Min(quadPoints[i + 1], quadPoints[i + 3]), MathF.Min(quadPoints[i + 5], quadPoints[i + 7]));
+                float maxY = MathF.Max(MathF.Max(quadPoints[i + 1], quadPoints[i + 3]), MathF.Max(quadPoints[i + 5], quadPoints[i + 7]));
+                bounds.Add(NormalizePdfBox(minX, minY, maxX, maxY));
+            }
+
+            return bounds;
+        }
+
+        private PdfLayoutRectangle NormalizePdfBox(float lowerLeftX, float lowerLeftY, float upperRightX, float upperRightY)
+        {
+            float cropTop = _cropBox.Y + _cropBox.Height;
+            return new PdfLayoutRectangle(
+                lowerLeftX - _cropBox.X,
+                cropTop - upperRightY,
+                MathF.Max(0, upperRightX - lowerLeftX),
+                MathF.Max(0, upperRightY - lowerLeftY));
+        }
+
+        private static (PdfLayoutLinkKind Kind, string? Uri, string? Destination, int? DestinationPageNumber) Target(
+            PDAnnotationLink annotation)
+        {
+            if (annotation.GetAction() is PDActionURI uriAction)
+            {
+                string? uri = uriAction.GetURI();
+                if (!string.IsNullOrWhiteSpace(uri))
+                {
+                    return (PdfLayoutLinkKind.Uri, uri, null, null);
+                }
+            }
+
+            PDDestination? destination = annotation.GetAction() is PDActionGoTo goToAction
+                ? goToAction.GetDestination()
+                : annotation.GetDestination();
+            return DestinationTarget(destination);
+        }
+
+        private static (PdfLayoutLinkKind Kind, string? Uri, string? Destination, int? DestinationPageNumber) DestinationTarget(
+            PDDestination? destination)
+        {
+            if (destination == null)
+            {
+                return (PdfLayoutLinkKind.Unknown, null, null, null);
+            }
+
+            if (destination is PDNamedDestination namedDestination)
+            {
+                return (PdfLayoutLinkKind.Destination, null, namedDestination.GetNamedDestination(), null);
+            }
+
+            if (destination is PDPageDestination pageDestination)
+            {
+                int pageIndex = pageDestination.RetrievePageNumber();
+                if (pageIndex >= 0)
+                {
+                    return (PdfLayoutLinkKind.Destination, null, $"page:{pageIndex + 1}", pageIndex + 1);
+                }
+
+                return (PdfLayoutLinkKind.Destination, null, "page", null);
+            }
+
+            return (PdfLayoutLinkKind.Destination, null, destination.GetType().Name, null);
         }
 
         private static PdfTextGlyph CreateGlyph(TextPosition position)

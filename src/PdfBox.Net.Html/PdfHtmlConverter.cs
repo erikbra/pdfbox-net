@@ -36,6 +36,15 @@ public static class PdfHtmlConverter
           position: absolute;
           transform-origin: 0 0;
           white-space: pre;
+          z-index: 1;
+        }
+
+        .pdf-link-overlay {
+          background: transparent;
+          display: block;
+          outline: none;
+          position: absolute;
+          z-index: 3;
         }
         """;
 
@@ -76,6 +85,8 @@ public static class PdfHtmlConverter
     {
         html.Append("  <section class=\"pdf-page\" data-page-number=\"")
             .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
+            .Append("\" id=\"page-")
+            .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
             .Append("\" style=\"width:")
             .Append(CssPoints(page.Width * scale))
             .Append(";height:")
@@ -85,6 +96,11 @@ public static class PdfHtmlConverter
         foreach (PdfTextRun run in page.Runs)
         {
             WriteTextRun(html, run, scale);
+        }
+
+        foreach (PdfLayoutLink link in page.Links)
+        {
+            WriteLink(html, link, scale);
         }
 
         html.AppendLine("  </section>");
@@ -109,6 +125,70 @@ public static class PdfHtmlConverter
             .Append("\">")
             .Append(Html(run.Text))
             .AppendLine("</span>");
+    }
+
+    private static void WriteLink(StringBuilder html, PdfLayoutLink link, float scale)
+    {
+        html.Append("    <a class=\"pdf-link-overlay\" href=\"")
+            .Append(HtmlAttribute(LinkHref(link)))
+            .Append("\" data-link-kind=\"")
+            .Append(HtmlAttribute(link.Kind.ToString().ToLowerInvariant()));
+
+        if (!string.IsNullOrEmpty(link.Uri))
+        {
+            html.Append("\" data-uri=\"")
+                .Append(HtmlAttribute(link.Uri));
+        }
+
+        if (!string.IsNullOrEmpty(link.Destination))
+        {
+            html.Append("\" data-destination=\"")
+                .Append(HtmlAttribute(link.Destination));
+        }
+
+        html.Append("\" aria-label=\"")
+            .Append(HtmlAttribute(LinkLabel(link)))
+            .Append("\" style=\"position:absolute;left:")
+            .Append(CssPoints(link.Bounds.X * scale))
+            .Append(";top:")
+            .Append(CssPoints(link.Bounds.Y * scale))
+            .Append(";width:")
+            .Append(CssPoints(link.Bounds.Width * scale))
+            .Append(";height:")
+            .Append(CssPoints(link.Bounds.Height * scale))
+            .AppendLine("\"></a>");
+    }
+
+    private static string LinkHref(PdfLayoutLink link)
+    {
+        if (!string.IsNullOrEmpty(link.Uri))
+        {
+            return link.Uri;
+        }
+
+        if (link.DestinationPageNumber.HasValue)
+        {
+            return "#page-" + link.DestinationPageNumber.Value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        return string.IsNullOrEmpty(link.Destination)
+            ? "#"
+            : "#" + Uri.EscapeDataString(link.Destination);
+    }
+
+    private static string LinkLabel(PdfLayoutLink link)
+    {
+        if (!string.IsNullOrEmpty(link.Uri))
+        {
+            return link.Uri;
+        }
+
+        if (!string.IsNullOrEmpty(link.Destination))
+        {
+            return link.Destination;
+        }
+
+        return "PDF link";
     }
 
     private static string NormalizeCssPath(string cssPath)

@@ -9,6 +9,9 @@ using PdfBox.Net.COS;
 using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.Action;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Html.Tests;
@@ -139,6 +142,28 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_EmitsLinkOverlayWithUriAndBounds()
+    {
+        using PDDocument document = CreateLinkedTextDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement link = Assert.Single(ElementsByClass(dom, "pdf-link-overlay"));
+        Assert.Equal("https://example.com/pdfbox", link.Attribute("href")?.Value);
+        Assert.Equal("uri", link.Attribute("data-link-kind")?.Value);
+        Assert.Equal("https://example.com/pdfbox", link.Attribute("data-uri")?.Value);
+        Assert.Equal("https://example.com/pdfbox", link.Attribute("aria-label")?.Value);
+        Dictionary<string, string> style = ParseStyle(link.Attribute("style")?.Value ?? "");
+        Assert.Equal("absolute", style["position"]);
+        AssertClose(72, ParsePoints(style["left"]));
+        AssertClose(88, ParsePoints(style["top"]));
+        AssertClose(120, ParsePoints(style["width"]));
+        AssertClose(24, ParsePoints(style["height"]));
+    }
+
+    [Fact]
     public void WriteToDirectory_EmitsStableFilesWithNoBrokenLocalReferences()
     {
         using PDDocument document = CreateTextDocument("""
@@ -158,6 +183,18 @@ public class PdfHtmlConverterTest
         Assert.True(File.Exists(indexPath));
         Assert.True(File.Exists(cssPath));
         Assert.Empty(BrokenLocalReferences(indexPath));
+    }
+
+    [Fact]
+    public void WriteToDirectory_LinkOverlayDoesNotCreateBrokenLocalReference()
+    {
+        using PDDocument document = CreateLinkedTextDocument();
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(document));
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+
+        Assert.Empty(BrokenLocalReferences(Path.Combine(tempDirectory.Path, "index.html")));
     }
 
     [Fact]
@@ -649,6 +686,24 @@ public class PdfHtmlConverterTest
         COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
         pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
         pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream(contentStream));
+        return document;
+    }
+
+    private static PDDocument CreateLinkedTextDocument()
+    {
+        PDDocument document = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            72 700 Td
+            (Linked text) Tj
+            ET
+            """);
+        PDAnnotationLink link = new();
+        link.SetRectangle(new PDRectangle(72, 680, 120, 24));
+        PDActionURI action = new();
+        action.SetURI("https://example.com/pdfbox");
+        link.SetAction(action);
+        document.GetPage(0).SetAnnotations([link]);
         return document;
     }
 

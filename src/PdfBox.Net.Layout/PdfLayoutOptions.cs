@@ -11,6 +11,11 @@ public sealed class PdfLayoutOptions
     public bool IncludeText { get; init; } = true;
 
     /// <summary>
+    /// Gets or sets whether link annotations should be collected.
+    /// </summary>
+    public bool IncludeLinks { get; init; } = true;
+
+    /// <summary>
     /// Gets or sets whether text positions should be sorted into visual reading order.
     /// </summary>
     public bool SortTextByPosition { get; init; } = true;
