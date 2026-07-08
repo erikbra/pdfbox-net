@@ -26,6 +26,8 @@
  * limitations under the License.
  */
 
+using System.Diagnostics;
+using System.Globalization;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.COS;
 using PdfBox.Net.FontBox.TTF;
@@ -59,6 +61,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     private readonly PageDrawerParameters _parameters;
     private readonly Dictionary<PDVectorFont, GlyphCache> _glyphCaches = new();
     private readonly Dictionary<COSDictionary, PDTrueTypeFont?> _mappedTrueTypeFonts = new();
+    private readonly Dictionary<FallbackTypefaceKey, SKTypeface?> _fallbackTypefaces = new();
     private readonly TilingPaintFactory _tilingPaintFactory;
     private AnnotationFilter _annotationFilter = _ => true;
     private Graphics2D? _graphics;
@@ -69,10 +72,22 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     private readonly Stack<bool> _hiddenMarkedContentStack = new();
     private int _nestedHiddenOptionalContentCount;
     private const float GlyphWidthTolerance = 0.0001f;
+    private const string ForceUnicodeFallbackEnvironmentVariable = "PDFBOX_NET_RENDER_FORCE_UNICODE_FALLBACK";
+    private const string FallbackDiagnosticsEnvironmentVariable = "PDFBOX_NET_RENDER_FALLBACK_DIAGNOSTICS";
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
     private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
     private static readonly COSName FontNameKey = COSName.GetPDFName("FontName");
     private static readonly COSName FontSubtypeKey = COSName.GetPDFName("Subtype");
+    private static readonly bool ForceUnicodeFallback = IsEnvironmentFlagEnabled(ForceUnicodeFallbackEnvironmentVariable);
+    private static readonly bool FallbackDiagnosticsEnabled = IsEnvironmentFlagEnabled(FallbackDiagnosticsEnvironmentVariable);
+    private long _unicodeFallbackGlyphCount;
+    private long _fallbackTypefaceLookupCount;
+    private long _fallbackTypefaceLookupTicks;
+    private long _fallbackTypefaceCacheHits;
+    private long _fallbackTypefaceCacheMisses;
+    private bool _disposed;
+
+    private readonly record struct FallbackTypefaceKey(string FontName, string Family, bool Bold, bool Italic);
 
     // Page crop box in PDF points, used to translate visible content and flip
     // from PDF space (Y-up, origin bottom-left) to canvas space (Y-down).
@@ -109,6 +124,31 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
+        if (FallbackDiagnosticsEnabled && (_unicodeFallbackGlyphCount > 0 || _fallbackTypefaceLookupCount > 0))
+        {
+            double lookupMs = _fallbackTypefaceLookupTicks * 1000d / Stopwatch.Frequency;
+            string lookupMsText = lookupMs.ToString("F3", CultureInfo.InvariantCulture);
+            Console.Error.WriteLine(
+                $"pdfbox.net skia fallback diagnostics: glyphs={_unicodeFallbackGlyphCount}; " +
+                $"typefaceLookups={_fallbackTypefaceLookupCount}; " +
+                $"typefaceCacheHits={_fallbackTypefaceCacheHits}; " +
+                $"typefaceCacheMisses={_fallbackTypefaceCacheMisses}; " +
+                $"typefaceLookupMs={lookupMsText}");
+        }
+
+        foreach (SKTypeface? typeface in _fallbackTypefaces.Values)
+        {
+            typeface?.Dispose();
+        }
+
+        _fallbackTypefaces.Clear();
     }
 
     public void DrawPage(Graphics2D graphics, PDRectangle pageSize)
@@ -203,6 +243,12 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
     protected virtual void ShowFontGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
     {
+        if (ForceUnicodeFallback)
+        {
+            DrawUnicodeGlyphFallback(textRenderingMatrix, font, code, displacement);
+            return;
+        }
+
         if (font is PDVectorFont vectorFont)
         {
             GeneralPath path = GetGlyphCache(vectorFont).GetPathForCharacterCode(code);
@@ -1293,7 +1339,8 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
         RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
         Matrix fallbackGlyphMatrix = CreateFallbackGlyphMatrix(textRenderingMatrix);
-        using SKTypeface? typeface = CreateFallbackTypeface(font);
+        _unicodeFallbackGlyphCount++;
+        SKTypeface? typeface = GetFallbackTypeface(font);
         // Java2D renders fallback glyphs with grayscale antialiasing and fractional placement.
         using SKFont skFont = new(typeface ?? SKTypeface.Default, GetFallbackFontSize(font))
         {
@@ -1595,18 +1642,41 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         return font is PDDictionaryFont ? 1.12f : 1f;
     }
 
-    private static SKTypeface? CreateFallbackTypeface(PDFont font)
+    private SKTypeface? GetFallbackTypeface(PDFont font)
+    {
+        FallbackTypefaceKey key = CreateFallbackTypefaceKey(font);
+        if (_fallbackTypefaces.TryGetValue(key, out SKTypeface? cachedTypeface))
+        {
+            _fallbackTypefaceCacheHits++;
+            return cachedTypeface;
+        }
+
+        _fallbackTypefaceCacheMisses++;
+        long lookupStart = Stopwatch.GetTimestamp();
+        SKTypeface? typeface = CreateFallbackTypeface(key);
+        _fallbackTypefaceLookupCount++;
+        _fallbackTypefaceLookupTicks += Stopwatch.GetTimestamp() - lookupStart;
+        _fallbackTypefaces[key] = typeface;
+        return typeface;
+    }
+
+    private static FallbackTypefaceKey CreateFallbackTypefaceKey(PDFont font)
     {
         string fontName = StripSubsetPrefix(font.GetName());
         PDFontDescriptor? descriptor = font.GetFontDescriptor();
         string family = StripSubsetPrefix(descriptor?.GetFontFamily());
         bool bold = IsBold(fontName, descriptor);
         bool italic = IsItalic(fontName, descriptor);
-        SKFontStyleWeight weight = bold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal;
-        SKFontStyleSlant slant = italic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright;
+        return new FallbackTypefaceKey(fontName, family, bold, italic);
+    }
+
+    private static SKTypeface? CreateFallbackTypeface(FallbackTypefaceKey key)
+    {
+        SKFontStyleWeight weight = key.Bold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal;
+        SKFontStyleSlant slant = key.Italic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright;
         SKTypeface? firstAvailable = null;
 
-        foreach (string candidate in GetFallbackFamilies(fontName, family))
+        foreach (string candidate in GetFallbackFamilies(key.FontName, key.Family))
         {
             SKTypeface? typeface = SKTypeface.FromFamilyName(candidate, weight, SKFontStyleWidth.Normal, slant);
             if (typeface is null)
@@ -1702,6 +1772,15 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
         int plus = name.IndexOf('+', StringComparison.Ordinal);
         return plus >= 0 && plus + 1 < name.Length ? name[(plus + 1)..] : name;
+    }
+
+    private static bool IsEnvironmentFlagEnabled(string name)
+    {
+        string? value = Environment.GetEnvironmentVariable(name);
+        return value is not null &&
+               !value.Equals("0", StringComparison.OrdinalIgnoreCase) &&
+               !value.Equals("false", StringComparison.OrdinalIgnoreCase) &&
+               !value.Equals("no", StringComparison.OrdinalIgnoreCase);
     }
 
     private SKMatrix ToCanvasMatrix(Matrix matrix)

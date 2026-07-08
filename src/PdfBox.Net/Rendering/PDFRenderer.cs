@@ -154,7 +154,7 @@ public partial class PDFRenderer
 
             RenderingHints actualRenderingHints = _renderingHints ?? CreateDefaultRenderingHints(graphics);
             PageDrawerParameters parameters = new(this, page, _subsamplingAllowed, destination, actualRenderingHints, _imageDownscalingOptimizationThreshold);
-            PageDrawer drawer = CreatePageDrawer(parameters);
+            using PageDrawer drawer = CreatePageDrawer(parameters);
             drawer.DrawPage(graphics, cropBox);
         }
         finally
@@ -201,7 +201,7 @@ public partial class PDFRenderer
 
         RenderingHints actualRenderingHints = _renderingHints ?? CreateDefaultRenderingHints(graphics);
         PageDrawerParameters parameters = new(this, page, _subsamplingAllowed, destination, actualRenderingHints, _imageDownscalingOptimizationThreshold);
-        PageDrawer drawer = CreatePageDrawer(parameters);
+        using PageDrawer drawer = CreatePageDrawer(parameters);
         drawer.DrawPage(graphics, cropBox);
     }
 
