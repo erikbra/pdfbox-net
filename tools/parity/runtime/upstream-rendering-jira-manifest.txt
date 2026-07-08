@@ -1,0 +1,9 @@
+# Optional upstream JIRA rendering/form/mask parity fixtures.
+# Run with tools/parity/runtime/run_runtime_parity.py to compare Java PDFBox
+# and PdfBox.Net behavior for open upstream rendering issues tracked by GitHub
+# issue #654.
+repo:tests/PdfBox.Net.Tests/Fixtures/Rendering/UpstreamJira/PDFBOX-2359-3.pdf
+repo:tests/PdfBox.Net.Tests/Fixtures/Rendering/UpstreamJira/PDFBOX-5953-mail-test2-repaired.pdf
+repo:tests/PdfBox.Net.Tests/Fixtures/Rendering/UpstreamJira/PDFBOX-6024-gs-bugzilla689309-reduced-bc1_RGB.pdf
+repo:tests/PdfBox.Net.Tests/Fixtures/Rendering/UpstreamJira/PDFBOX-6024-gs-bugzilla689931-reduced-Multiply.pdf
+repo:tests/PdfBox.Net.Tests/Fixtures/Rendering/UpstreamJira/PDFBOX-6024-gs-bugzilla689931-reduced-Screen.pdf
