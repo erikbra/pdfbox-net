@@ -31,6 +31,12 @@ jobs:
       - name: Build
         run: dotnet build PdfBoxNet.slnx --configuration Release --no-restore
 
+      - name: Install Playwright browsers
+        run: >
+          tests/PdfBox.Net.Html.Tests/bin/Release/net10.0/.playwright/node/linux-x64/node
+          tests/PdfBox.Net.Html.Tests/bin/Release/net10.0/.playwright/package/cli.js
+          install --with-deps chromium
+
       - name: Test
         run: dotnet test PdfBoxNet.slnx --configuration Release --no-build --nologo
 
