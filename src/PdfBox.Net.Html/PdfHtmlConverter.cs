@@ -39,6 +39,106 @@ public static class PdfHtmlConverter
           z-index: 1;
         }
 
+        .pdf-semantic-element {
+          box-sizing: border-box;
+          color: #111827;
+          margin: 0;
+          overflow: visible;
+          padding: 0;
+          z-index: 1;
+        }
+
+        .pdf-page.pdf-semantic-page {
+          box-sizing: border-box;
+        }
+
+        .pdf-semantic-flow {
+          box-sizing: border-box;
+          margin: 0 auto;
+          padding: 54pt 0 36pt;
+          width: min(396pt, calc(100% - 144pt));
+        }
+
+        .pdf-semantic-flow > * + * {
+          margin-top: 8pt;
+        }
+
+        .pdf-semantic-flow header {
+          line-height: 1.25;
+          margin-bottom: 26pt;
+          text-align: center;
+        }
+
+        .pdf-semantic-flow h1,
+        .pdf-semantic-flow h2,
+        .pdf-semantic-flow h3,
+        .pdf-semantic-flow h4,
+        .pdf-semantic-flow h5,
+        .pdf-semantic-flow h6 {
+          font-weight: 600;
+          line-height: 1.18;
+          margin-bottom: 10pt;
+        }
+
+        .pdf-semantic-title {
+          text-align: center;
+        }
+
+        .pdf-semantic-heading {
+          font-weight: 600;
+          line-height: 1.18;
+        }
+
+        .pdf-semantic-paragraph {
+          line-height: 1.35;
+          margin-bottom: 8pt;
+        }
+
+        .pdf-semantic-authors {
+          display: grid;
+          gap: 16pt 18pt;
+          grid-template-columns: repeat(auto-fit, minmax(78pt, 1fr));
+          margin: 16pt 0 28pt;
+        }
+
+        .pdf-semantic-authors address {
+          font-style: normal;
+          line-height: 1.15;
+          text-align: center;
+        }
+
+        .pdf-semantic-footnotes {
+          border-top: 0.5pt solid #9ca3af;
+          margin-top: 18pt;
+          padding-top: 6pt;
+        }
+
+        .pdf-semantic-footnotes p {
+          line-height: 1.18;
+          margin: 0 0 4pt;
+        }
+
+        .pdf-semantic-footnote-ref,
+        .pdf-semantic-footnote-backref {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        .pdf-semantic-footer,
+        .pdf-semantic-header {
+          line-height: 1.1;
+        }
+
+        .pdf-semantic-positioned {
+          position: absolute;
+        }
+
+        .pdf-semantic-vertical {
+          transform: rotate(-90deg);
+          transform-origin: left top;
+          white-space: nowrap;
+        }
+
         .pdf-link-overlay {
           background: transparent;
           display: block;
@@ -80,6 +180,9 @@ public static class PdfHtmlConverter
         Dictionary<string, PdfLayoutImageAsset> imageAssets = layout.ImageAssets
             .GroupBy(asset => asset.AssetId, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+        PdfSemanticDocument? semantic = options.TextMode == PdfHtmlTextMode.Semantic
+            ? PdfSemanticExtractor.Extract(layout, options.SemanticExtractionOptions)
+            : null;
         StringBuilder html = new();
         html.AppendLine("<!doctype html>");
         html.AppendLine("<html lang=\"en\">");
@@ -91,9 +194,15 @@ public static class PdfHtmlConverter
         html.AppendLine("</head>");
         html.AppendLine("<body class=\"pdf-document\">");
 
-        foreach (PdfLayoutPage page in layout.Pages)
+        for (int index = 0; index < layout.Pages.Count; index++)
         {
-            WritePage(html, page, imageAssets, options.Scale);
+            WritePage(
+                html,
+                layout.Pages[index],
+                imageAssets,
+                options.Scale,
+                semantic?.Pages[index],
+                options.TextMode);
         }
 
         html.AppendLine("</body>");
@@ -101,16 +210,85 @@ public static class PdfHtmlConverter
         PdfHtmlAsset[] assets = imageAssets.Values
             .Select(asset => new PdfHtmlAsset(asset.RelativePath, asset.ContentType, asset.Data))
             .ToArray();
-        return new PdfHtmlDocument(html.ToString(), cssPath, Css, assets);
+        return new PdfHtmlDocument(html.ToString(), cssPath, BuildCss(semantic), assets);
+    }
+
+    private static string BuildCss(PdfSemanticDocument? semantic)
+    {
+        if (semantic == null)
+        {
+            return Css;
+        }
+
+        StringBuilder css = new(Css);
+        css.AppendLine();
+        foreach (string fontName in semantic.Elements
+            .SelectMany(static element => element.Lines)
+            .Select(static line => line.DominantFontName)
+            .Where(static fontName => !string.IsNullOrWhiteSpace(fontName))
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal))
+        {
+            css.Append('.')
+                .Append(FontClass(fontName))
+                .Append("{font-family:")
+                .Append(CssFontFamily(fontName))
+                .AppendLine("}");
+        }
+
+        foreach (float fontSize in semantic.Elements
+            .SelectMany(static element => element.Lines)
+            .Select(static line => MathF.Round(line.DominantFontSize * 2f) / 2f)
+            .Distinct()
+            .Order())
+        {
+            css.Append('.')
+                .Append(FontSizeClass(fontSize))
+                .Append("{font-size:")
+                .Append(CssPoints(fontSize))
+                .AppendLine("}");
+        }
+
+        foreach (PdfLayoutColor color in semantic.Elements
+            .SelectMany(static element => element.Lines)
+            .Select(static line => line.Color)
+            .Distinct()
+            .OrderBy(static color => color.Red)
+            .ThenBy(static color => color.Green)
+            .ThenBy(static color => color.Blue)
+            .ThenBy(static color => color.Alpha))
+        {
+            css.Append('.')
+                .Append(ColorClass(color))
+                .Append("{color:")
+                .Append(ColorHex(color));
+            if (color.Alpha < 0.999f)
+            {
+                css.Append(";opacity:")
+                    .Append(SvgNumber(color.Alpha));
+            }
+
+            css.AppendLine("}");
+        }
+
+        return css.ToString();
     }
 
     private static void WritePage(
         StringBuilder html,
         PdfLayoutPage page,
         IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
-        float scale)
+        float scale,
+        PdfSemanticPage? semanticPage,
+        PdfHtmlTextMode textMode)
     {
-        html.Append("  <section class=\"pdf-page\" data-page-number=\"")
+        html.Append("  <section class=\"pdf-page");
+        if (textMode == PdfHtmlTextMode.Semantic)
+        {
+            html.Append(" pdf-semantic-page");
+        }
+
+        html.Append("\" data-page-number=\"")
             .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
             .Append("\" id=\"page-")
             .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
@@ -133,9 +311,16 @@ public static class PdfHtmlConverter
             WriteVectorLayer(html, page, scale);
         }
 
-        foreach (PdfTextRun run in page.Runs)
+        if (textMode == PdfHtmlTextMode.Semantic && semanticPage != null)
         {
-            WriteTextRun(html, run, scale);
+            WriteSemanticPage(html, page, semanticPage, scale);
+        }
+        else
+        {
+            foreach (PdfTextRun run in page.Runs)
+            {
+                WriteTextRun(html, run, scale);
+            }
         }
 
         foreach (PdfLayoutLink link in page.Links)
@@ -264,9 +449,428 @@ public static class PdfHtmlConverter
             .Append(CssPoints(run.FontSize * scale))
             .Append(";font-family:")
             .Append(CssFontFamily(run.FontName))
+            .Append(";color:")
+            .Append(ColorHex(run.Color))
             .Append("\">")
             .Append(Html(run.Text))
             .AppendLine("</span>");
+    }
+
+    private static void WriteSemanticPage(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        float scale)
+    {
+        FootnoteContext footnotes = FootnoteContext.Create(page.PageNumber, semanticPage.Elements);
+        PdfSemanticElement[] positioned = semanticPage.Elements
+            .Where(IsPositionedSemanticElement)
+            .ToArray();
+        foreach (PdfSemanticElement element in positioned)
+        {
+            WritePositionedSemanticElement(html, page, element, footnotes, scale);
+        }
+
+        HashSet<PdfSemanticElement> positionedSet = positioned.ToHashSet();
+        PdfSemanticElement[] flowElements = semanticPage.Elements
+            .Where(element => !positionedSet.Contains(element))
+            .ToArray();
+        html.AppendLine("    <article class=\"pdf-semantic-flow\">");
+        for (int index = 0; index < flowElements.Length; index++)
+        {
+            PdfSemanticElement element = flowElements[index];
+            if (element.Kind == PdfSemanticElementKind.AuthorBlock)
+            {
+                index = WriteAuthorSection(html, flowElements, index, footnotes);
+                continue;
+            }
+
+            if (element.Kind == PdfSemanticElementKind.Footnote)
+            {
+                index = WriteFootnoteSection(html, flowElements, index, footnotes);
+                continue;
+            }
+
+            WriteFlowSemanticElement(html, element, footnotes);
+        }
+
+        html.AppendLine("    </article>");
+    }
+
+    private static int WriteAuthorSection(
+        StringBuilder html,
+        IReadOnlyList<PdfSemanticElement> elements,
+        int startIndex,
+        FootnoteContext footnotes)
+    {
+        html.AppendLine("      <section class=\"pdf-semantic-authors\" aria-label=\"Authors\">");
+        int index = startIndex;
+        for (; index < elements.Count && elements[index].Kind == PdfSemanticElementKind.AuthorBlock; index++)
+        {
+            WriteFlowSemanticElement(html, elements[index], footnotes);
+        }
+
+        html.AppendLine("      </section>");
+        return index - 1;
+    }
+
+    private static int WriteFootnoteSection(
+        StringBuilder html,
+        IReadOnlyList<PdfSemanticElement> elements,
+        int startIndex,
+        FootnoteContext footnotes)
+    {
+        html.AppendLine("      <section class=\"pdf-semantic-footnotes\" aria-label=\"Footnotes\">");
+        int index = startIndex;
+        for (; index < elements.Count && elements[index].Kind == PdfSemanticElementKind.Footnote; index++)
+        {
+            WriteFootnote(html, elements[index], footnotes);
+        }
+
+        html.AppendLine("      </section>");
+        return index - 1;
+    }
+
+    private static void WriteFlowSemanticElement(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes)
+    {
+        string tagName = SemanticTagName(element);
+        html.Append("      <")
+            .Append(tagName)
+            .Append(" class=\"")
+            .Append(SemanticClassNames(element))
+            .Append("\">");
+        WriteSemanticText(html, element, footnotes);
+        html.Append("</")
+            .Append(tagName)
+            .AppendLine(">");
+    }
+
+    private static void WritePositionedSemanticElement(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        float scale)
+    {
+        string tagName = SemanticTagName(element);
+        html.Append("    <")
+            .Append(tagName)
+            .Append(" class=\"")
+            .Append(SemanticClassNames(element))
+            .Append(" pdf-semantic-positioned pdf-semantic-vertical")
+            .Append("\" style=\"")
+            .Append(PositionStyle(page, element, scale))
+            .Append("\">");
+        WriteSemanticText(html, element, footnotes);
+        html.Append("</")
+            .Append(tagName)
+            .AppendLine(">");
+    }
+
+    private static void WriteSemanticText(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes)
+    {
+        if (element.Kind is PdfSemanticElementKind.AuthorBlock or PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
+        {
+            for (int index = 0; index < element.Lines.Count; index++)
+            {
+                if (index > 0)
+                {
+                    html.Append("<br />");
+                }
+
+                WriteTextWithFootnoteReferences(html, element.Lines[index].Text, footnotes);
+            }
+
+            return;
+        }
+
+        WriteTextWithFootnoteReferences(html, element.Text, footnotes);
+    }
+
+    private static void WriteFootnote(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes)
+    {
+        string text = element.Text.Trim();
+        string marker = text.Length > 0 ? text[..1] : "";
+        string body = footnotes.Contains(marker) && text.Length > marker.Length
+            ? text[marker.Length..].TrimStart()
+            : text;
+        html.Append("        <p id=\"")
+            .Append(HtmlAttribute(footnotes.IdFor(marker)))
+            .Append("\" class=\"")
+            .Append(SemanticClassNames(element))
+            .Append("\"><a class=\"pdf-semantic-footnote-backref\" href=\"")
+            .Append(HtmlAttribute(footnotes.FirstReferenceHref(marker)))
+            .Append("\">")
+            .Append(Html(marker))
+            .Append("</a> ");
+        html.Append(Html(body));
+        html.AppendLine("</p>");
+    }
+
+    private static string SemanticTagName(PdfSemanticElement element)
+    {
+        return element.Kind switch
+        {
+            PdfSemanticElementKind.Heading => "h" + Math.Clamp(element.HeadingLevel, 1, 6).ToString(CultureInfo.InvariantCulture),
+            PdfSemanticElementKind.Paragraph => "p",
+            PdfSemanticElementKind.AuthorBlock => "address",
+            PdfSemanticElementKind.Footnote => "p",
+            PdfSemanticElementKind.Footer => "footer",
+            PdfSemanticElementKind.Header => "header",
+            _ => "div"
+        };
+    }
+
+    private static string SemanticClassNames(PdfSemanticElement element)
+    {
+        List<string> classes =
+        [
+            "pdf-semantic-element",
+            SemanticClassName(element.Kind),
+            FontClass(SemanticFontName(element)),
+            FontSizeClass(SemanticFontSize(element)),
+            ColorClass(SemanticColor(element))
+        ];
+        if (IsTitleElement(element))
+        {
+            classes.Add("pdf-semantic-title");
+        }
+
+        return string.Join(" ", classes);
+    }
+
+    private static string SemanticClassName(PdfSemanticElementKind kind)
+    {
+        return kind switch
+        {
+            PdfSemanticElementKind.Heading => "pdf-semantic-heading",
+            PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
+            PdfSemanticElementKind.AuthorBlock => "pdf-semantic-author-block",
+            PdfSemanticElementKind.Footnote => "pdf-semantic-footnote",
+            PdfSemanticElementKind.Footer => "pdf-semantic-footer",
+            PdfSemanticElementKind.Header => "pdf-semantic-header",
+            _ => "pdf-semantic-other"
+        };
+    }
+
+    private static bool IsPositionedSemanticElement(PdfSemanticElement element)
+    {
+        return element.Lines.Any(static line => MathF.Abs(line.Direction) > 0.01f);
+    }
+
+    private static bool IsTitleElement(PdfSemanticElement element)
+    {
+        return element.Kind == PdfSemanticElementKind.Heading &&
+            element.HeadingLevel == 1 &&
+            SemanticFontSize(element) >= 14f &&
+            !char.IsDigit(element.Text.TrimStart().FirstOrDefault());
+    }
+
+    private static string PositionStyle(PdfLayoutPage page, PdfSemanticElement element, float scale)
+    {
+        float direction = SemanticDirection(element);
+        float left = element.Bounds.X;
+        float top = element.Bounds.Y;
+        if (MathF.Abs(direction - 90f) < 0.01f)
+        {
+            left = element.Bounds.Y;
+            top = element.Bounds.X;
+        }
+        else if (MathF.Abs(direction - 270f) < 0.01f)
+        {
+            left = page.Width - element.Bounds.Y;
+            top = element.Bounds.X;
+        }
+
+        return "left:" + CssPoints(left * scale) +
+            ";top:" + CssPoints(top * scale) +
+            ";width:" + CssPoints(element.Bounds.Width * scale);
+    }
+
+    private static float SemanticFontSize(PdfSemanticElement element)
+    {
+        return element.Lines.Count == 0
+            ? 10f
+            : element.Lines
+                .GroupBy(static line => MathF.Round(line.DominantFontSize * 2f) / 2f)
+                .OrderByDescending(static group => group.Sum(static line => Math.Max(1, line.Text.Length)))
+                .ThenByDescending(static group => group.Key)
+                .Select(static group => group.Key)
+                .First();
+    }
+
+    private static string SemanticFontName(PdfSemanticElement element)
+    {
+        return element.Lines
+            .GroupBy(static line => line.DominantFontName, StringComparer.Ordinal)
+            .OrderByDescending(static group => group.Sum(static line => Math.Max(1, line.Text.Length)))
+            .Select(static group => group.Key)
+            .FirstOrDefault() ?? "";
+    }
+
+    private static float SemanticDirection(PdfSemanticElement element)
+    {
+        return element.Lines
+            .GroupBy(static line => MathF.Round(line.Direction))
+            .OrderByDescending(static group => group.Sum(static line => Math.Max(1, line.Text.Length)))
+            .Select(static group => group.Key)
+            .FirstOrDefault();
+    }
+
+    private static PdfLayoutColor SemanticColor(PdfSemanticElement element)
+    {
+        return element.Lines
+            .GroupBy(static line => ColorClass(line.Color), StringComparer.Ordinal)
+            .OrderByDescending(static group => group.Sum(static line => Math.Max(1, line.Text.Length)))
+            .Select(static group => group.First().Color)
+            .FirstOrDefault();
+    }
+
+    private static void WriteTextWithFootnoteReferences(
+        StringBuilder html,
+        string text,
+        FootnoteContext footnotes)
+    {
+        for (int index = 0; index < text.Length; index++)
+        {
+            string marker = text[index].ToString();
+            if (footnotes.Contains(marker) && IsFootnoteReferenceBoundary(text, index))
+            {
+                string referenceId = footnotes.NextReferenceId(marker);
+                html.Append("<sup id=\"")
+                    .Append(HtmlAttribute(referenceId))
+                    .Append("\"><a class=\"pdf-semantic-footnote-ref\" href=\"#")
+                    .Append(HtmlAttribute(footnotes.IdFor(marker)))
+                    .Append("\">")
+                    .Append(Html(marker))
+                    .Append("</a></sup>");
+                continue;
+            }
+
+            html.Append(Html(text[index].ToString()));
+        }
+    }
+
+    private static bool IsFootnoteReferenceBoundary(string text, int index)
+    {
+        bool before = index == 0 || char.IsWhiteSpace(text[index - 1]) || text[index - 1] == '(';
+        bool after = index == text.Length - 1 || char.IsWhiteSpace(text[index + 1]) || text[index + 1] is ',' or ';' or '.' or ')';
+        return before && after;
+    }
+
+    private static string FontClass(string fontName)
+    {
+        return "pdf-font-" + CssClassToken(string.IsNullOrWhiteSpace(fontName) ? "default" : fontName);
+    }
+
+    private static string FontSizeClass(float fontSize)
+    {
+        return "pdf-font-size-" + CssClassToken(fontSize.ToString("0.#", CultureInfo.InvariantCulture).Replace('.', '-'));
+    }
+
+    private static string ColorClass(PdfLayoutColor color)
+    {
+        return "pdf-color-" +
+            ByteHex(color.Red).ToLowerInvariant() +
+            ByteHex(color.Green).ToLowerInvariant() +
+            ByteHex(color.Blue).ToLowerInvariant() +
+            "-" +
+            ByteHex(color.Alpha).ToLowerInvariant();
+    }
+
+    private static string CssClassToken(string value)
+    {
+        StringBuilder builder = new(value.Length);
+        foreach (char character in value)
+        {
+            if (character is (>= 'a' and <= 'z') or (>= 'A' and <= 'Z') or (>= '0' and <= '9'))
+            {
+                builder.Append(char.ToLowerInvariant(character));
+            }
+            else if (builder.Length > 0 && builder[^1] != '-')
+            {
+                builder.Append('-');
+            }
+        }
+
+        string token = builder.ToString().Trim('-');
+        return token.Length == 0 ? "value" : token;
+    }
+
+    private sealed class FootnoteContext
+    {
+        private readonly int _pageNumber;
+        private readonly Dictionary<string, string> _footnoteIds;
+        private readonly Dictionary<string, int> _referenceCounts = new(StringComparer.Ordinal);
+
+        private FootnoteContext(int pageNumber, Dictionary<string, string> footnoteIds)
+        {
+            _pageNumber = pageNumber;
+            _footnoteIds = footnoteIds;
+        }
+
+        public static FootnoteContext Create(int pageNumber, IReadOnlyList<PdfSemanticElement> elements)
+        {
+            Dictionary<string, string> ids = new(StringComparer.Ordinal);
+            foreach (PdfSemanticElement footnote in elements.Where(static element => element.Kind == PdfSemanticElementKind.Footnote))
+            {
+                string text = footnote.Text.Trim();
+                if (text.Length == 0)
+                {
+                    continue;
+                }
+
+                string marker = text[..1];
+                ids.TryAdd(marker, $"page-{pageNumber.ToString(CultureInfo.InvariantCulture)}-fn-{FootnoteMarkerToken(marker)}");
+            }
+
+            return new FootnoteContext(pageNumber, ids);
+        }
+
+        public bool Contains(string marker)
+        {
+            return _footnoteIds.ContainsKey(marker);
+        }
+
+        public string IdFor(string marker)
+        {
+            return _footnoteIds.TryGetValue(marker, out string? id)
+                ? id
+                : $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-fn";
+        }
+
+        public string NextReferenceId(string marker)
+        {
+            _referenceCounts.TryGetValue(marker, out int count);
+            count++;
+            _referenceCounts[marker] = count;
+            return $"{IdFor(marker)}-ref-{count.ToString(CultureInfo.InvariantCulture)}";
+        }
+
+        public string FirstReferenceHref(string marker)
+        {
+            return "#" + IdFor(marker) + "-ref-1";
+        }
+
+        private static string FootnoteMarkerToken(string marker)
+        {
+            return marker switch
+            {
+                "*" or "∗" => "asterisk",
+                "†" => "dagger",
+                "‡" => "double-dagger",
+                _ => CssClassToken(marker)
+            };
+        }
     }
 
     private static void WriteLink(StringBuilder html, PdfLayoutLink link, float scale)
@@ -441,9 +1045,30 @@ public static class PdfHtmlConverter
             return "sans-serif";
         }
 
+        string fallback = FontFallback(fontName);
         string escaped = fontName.Replace("\\", "\\\\", StringComparison.Ordinal)
             .Replace("'", "\\'", StringComparison.Ordinal);
-        return "'" + escaped + "', sans-serif";
+        return "'" + escaped + "', " + fallback;
+    }
+
+    private static string FontFallback(string fontName)
+    {
+        if (fontName.Contains("SFTT", StringComparison.OrdinalIgnoreCase) ||
+            fontName.Contains("Mono", StringComparison.OrdinalIgnoreCase) ||
+            fontName.Contains("Courier", StringComparison.OrdinalIgnoreCase))
+        {
+            return "monospace";
+        }
+
+        if (fontName.Contains("NimbusRom", StringComparison.OrdinalIgnoreCase) ||
+            fontName.Contains("Times", StringComparison.OrdinalIgnoreCase) ||
+            fontName.Contains("CMR", StringComparison.OrdinalIgnoreCase) ||
+            fontName.Contains("CMBX", StringComparison.OrdinalIgnoreCase))
+        {
+            return "serif";
+        }
+
+        return "sans-serif";
     }
 
     private static string Html(string value)

@@ -48,6 +48,8 @@ public sealed class HtmlReviewArtifactGeneratorTest
         string copiedSource = Path.Combine(exampleDirectory, "source.pdf");
         string convertedHtml = Path.Combine(exampleDirectory, "index.html");
         string css = Path.Combine(exampleDirectory, "assets", "pdfbox-net-fixed.css");
+        string semanticHtml = Path.Combine(exampleDirectory, "semantic", "index.html");
+        string semanticCss = Path.Combine(exampleDirectory, "semantic", "assets", "pdfbox-net-semantic.css");
         string compare = Path.Combine(exampleDirectory, "compare.html");
         string qualityReportJson = Path.Combine(exampleDirectory, "quality", "quality-report.json");
         string qualityReportMarkdown = Path.Combine(exampleDirectory, "quality", "quality-report.md");
@@ -56,15 +58,19 @@ public sealed class HtmlReviewArtifactGeneratorTest
         Assert.True(File.Exists(copiedSource));
         Assert.True(File.Exists(convertedHtml));
         Assert.True(File.Exists(css));
+        Assert.True(File.Exists(semanticHtml));
+        Assert.True(File.Exists(semanticCss));
         Assert.True(File.Exists(compare));
         Assert.True(File.Exists(qualityReportJson));
         Assert.True(File.Exists(qualityReportMarkdown));
         Assert.Equal(File.ReadAllBytes(sourcePdf), File.ReadAllBytes(copiedSource));
         Assert.Contains("source.pdf", File.ReadAllText(compare));
         Assert.Contains("index.html", File.ReadAllText(compare));
+        Assert.Contains("semantic/index.html", File.ReadAllText(compare));
         Assert.Contains("quality/quality-report.md", File.ReadAllText(compare));
         string artifactIndex = File.ReadAllText(Path.Combine(outputDirectory, "index.html"));
         Assert.Contains("review-artifact-sample/compare.html", artifactIndex);
+        Assert.Contains("review-artifact-sample/semantic/index.html", artifactIndex);
         Assert.Contains("review-artifact-sample/quality/quality-report.md", artifactIndex);
 
         using JsonDocument quality = JsonDocument.Parse(File.ReadAllText(qualityReportJson));

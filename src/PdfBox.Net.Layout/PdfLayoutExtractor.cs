@@ -44,6 +44,7 @@ public static class PdfLayoutExtractor
         private readonly PdfLayoutOptions _options;
         private readonly List<PageBuilder> _pages = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
+        private readonly Dictionary<TextPosition, PdfLayoutColor> _textColors = new(ReferenceEqualityComparer.Instance);
         private PageBuilder? _currentPage;
 
         public LayoutTextStripper(PdfLayoutOptions options)
@@ -58,6 +59,7 @@ public static class PdfLayoutExtractor
         {
             _pages.Clear();
             _diagnostics.Clear();
+            _textColors.Clear();
             _currentPage = null;
 
             int pageNumber = 1;
@@ -92,7 +94,18 @@ public static class PdfLayoutExtractor
                 textPositions.Sort(new TextPositionComparator());
             }
 
-            _currentPage.SetTextPositions(textPositions, _options);
+            _currentPage.SetTextPositions(textPositions, _options, _textColors);
+        }
+
+        protected override void ProcessTextPosition(TextPosition text)
+        {
+            _textColors[text] = ResolveGraphicsColor(
+                GetGraphicsState().GetNonStrokingColor(),
+                GetGraphicsState().GetNonStrokeAlphaConstant(),
+                GetCurrentPageNo(),
+                _diagnostics,
+                "text");
+            base.ProcessTextPosition(text);
         }
 
         protected override void EndPage(PDPage page)
@@ -152,14 +165,17 @@ public static class PdfLayoutExtractor
             }
         }
 
-        public void SetTextPositions(IReadOnlyList<TextPosition> textPositions, PdfLayoutOptions options)
+        public void SetTextPositions(
+            IReadOnlyList<TextPosition> textPositions,
+            PdfLayoutOptions options,
+            IReadOnlyDictionary<TextPosition, PdfLayoutColor> textColors)
         {
             _glyphs.Clear();
             _runs.Clear();
             _lines.Clear();
             _blocks.Clear();
 
-            _glyphs.AddRange(textPositions.Select(CreateGlyph));
+            _glyphs.AddRange(textPositions.Select(position => CreateGlyph(position, textColors)));
             _lines.AddRange(CreateLines(_glyphs, options));
             _runs.AddRange(_lines.SelectMany(line => line.Runs));
 
@@ -350,7 +366,9 @@ public static class PdfLayoutExtractor
             return (PdfLayoutLinkKind.Destination, null, destination.GetType().Name, null);
         }
 
-        private static PdfTextGlyph CreateGlyph(TextPosition position)
+        private static PdfTextGlyph CreateGlyph(
+            TextPosition position,
+            IReadOnlyDictionary<TextPosition, PdfLayoutColor> textColors)
         {
             float height = MathF.Max(0, position.GetHeightDir());
             float y = position.GetYDirAdj() - height;
@@ -363,7 +381,8 @@ public static class PdfLayoutExtractor
                     position.GetXDirAdj(),
                     y,
                     MathF.Max(0, position.GetWidthDirAdj()),
-                    height));
+                    height),
+                textColors.GetValueOrDefault(position, new PdfLayoutColor(0, 0, 0, 1, null)));
         }
 
         private static IEnumerable<PdfTextLine> CreateLines(IReadOnlyList<PdfTextGlyph> glyphs, PdfLayoutOptions options)
@@ -448,9 +467,23 @@ public static class PdfLayoutExtractor
                 return true;
             }
 
+            if (!SameColor(previous.Color, glyph.Color))
+            {
+                return true;
+            }
+
             float gap = glyph.Bounds.X - previous.Bounds.Right;
             float threshold = MathF.Max(previous.Bounds.Height, glyph.Bounds.Height) * options.WordSpacingMultiplier;
             return gap > threshold;
+        }
+
+        private static bool SameColor(PdfLayoutColor first, PdfLayoutColor second)
+        {
+            return MathF.Abs(first.Red - second.Red) < 0.001f &&
+                MathF.Abs(first.Green - second.Green) < 0.001f &&
+                MathF.Abs(first.Blue - second.Blue) < 0.001f &&
+                MathF.Abs(first.Alpha - second.Alpha) < 0.001f &&
+                string.Equals(first.ColorSpaceName, second.ColorSpaceName, StringComparison.Ordinal);
         }
 
         private static PdfTextRun CreateRun(IReadOnlyList<PdfTextGlyph> glyphs)
@@ -468,7 +501,36 @@ public static class PdfLayoutExtractor
                 first.FontSize,
                 first.Direction,
                 PdfLayoutRectangle.Union(glyphs.Select(glyph => glyph.Bounds)),
+                first.Color,
                 glyphs);
+        }
+    }
+
+    private static PdfLayoutColor ResolveGraphicsColor(
+        PDColor color,
+        float alpha,
+        int pageNumber,
+        List<PdfLayoutDiagnostic> diagnostics,
+        string context)
+    {
+        try
+        {
+            int rgb = color.ToRGB();
+            return new PdfLayoutColor(
+                ((rgb >> 16) & 0xFF) / 255f,
+                ((rgb >> 8) & 0xFF) / 255f,
+                (rgb & 0xFF) / 255f,
+                Math.Clamp(alpha, 0f, 1f),
+                color.GetColorSpace()?.GetName());
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException)
+        {
+            diagnostics.Add(new PdfLayoutDiagnostic(
+                PdfLayoutDiagnosticSeverity.Warning,
+                "color-unresolved",
+                $"{context} color could not be resolved: {ex.Message}",
+                pageNumber));
+            return new PdfLayoutColor(0, 0, 0, Math.Clamp(alpha, 0f, 1f), null);
         }
     }
 
@@ -634,25 +696,12 @@ public static class PdfLayoutExtractor
 
         private PdfLayoutColor ResolveColor(PDColor color, float alpha, int index, string paintKind)
         {
-            try
-            {
-                int rgb = color.ToRGB();
-                return new PdfLayoutColor(
-                    ((rgb >> 16) & 0xFF) / 255f,
-                    ((rgb >> 8) & 0xFF) / 255f,
-                    (rgb & 0xFF) / 255f,
-                    Math.Clamp(alpha, 0f, 1f),
-                    color.GetColorSpace()?.GetName());
-            }
-            catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException)
-            {
-                _diagnostics.Add(new PdfLayoutDiagnostic(
-                    PdfLayoutDiagnosticSeverity.Warning,
-                    "path-color-unresolved",
-                    $"Path {index.ToString(CultureInfo.InvariantCulture)} {paintKind} color could not be resolved: {ex.Message}",
-                    _pageNumber));
-                return new PdfLayoutColor(0, 0, 0, Math.Clamp(alpha, 0f, 1f), null);
-            }
+            return ResolveGraphicsColor(
+                color,
+                alpha,
+                _pageNumber,
+                _diagnostics,
+                $"path {index.ToString(CultureInfo.InvariantCulture)} {paintKind}");
         }
 
         private PdfLayoutPathCommand[] NormalizePath(IReadOnlyList<PathSegment> path, Matrix ctm)

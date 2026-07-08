@@ -73,6 +73,71 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticTextMode_EmitsGroupedArxivElements()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = false
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-text-run"));
+        Assert.Contains(".pdf-font-", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-color-", html.Css, StringComparison.Ordinal);
+
+        XElement verticalHeader = Assert.Single(dom.Descendants("header"), header =>
+            header.Value.Contains("arXiv:1706.03762v7", StringComparison.Ordinal));
+        Assert.Contains("pdf-semantic-positioned", verticalHeader.Attribute("class")?.Value);
+        Assert.Contains("pdf-semantic-vertical", verticalHeader.Attribute("class")?.Value);
+
+        XElement permissionHeader = Assert.Single(dom.Descendants("header"), header =>
+            header.Value.Contains("Provided proper attribution", StringComparison.Ordinal));
+        Assert.DoesNotContain("pdf-semantic-positioned", permissionHeader.Attribute("class")?.Value ?? "");
+        Assert.Contains("reproduce the tables and figures in this paper solely for use in journalistic or", permissionHeader.Value, StringComparison.Ordinal);
+        Assert.Contains("scholarly works.", permissionHeader.Value, StringComparison.Ordinal);
+
+        XElement title = Assert.Single(dom.Descendants("h1"), element =>
+            element.Value.Contains("Attention Is All You Need", StringComparison.Ordinal));
+        Assert.Null(title.Attribute("data-semantic-kind"));
+        Assert.Null(title.Attribute("style"));
+
+        XElement[] authors = ElementsByClass(dom, "pdf-semantic-author-block").ToArray();
+        Assert.Equal(8, authors.Length);
+        Assert.All(authors, author => Assert.Equal("address", author.Name.LocalName));
+        Assert.Contains(authors, author =>
+            author.Value.Contains("Ashish Vaswani", StringComparison.Ordinal) &&
+            author.Value.Contains("avaswani@google.com", StringComparison.Ordinal));
+        Assert.Contains(authors, author =>
+            author.Value.Contains("Illia Polosukhin", StringComparison.Ordinal) &&
+            author.Value.Contains("illia.polosukhin@gmail.com", StringComparison.Ordinal));
+        Assert.Contains(dom.Descendants("a"), link =>
+            link.Attribute("href")?.Value == "#page-1-fn-asterisk" &&
+            link.Value == "∗");
+
+        XElement abstractHeading = Assert.Single(dom.Descendants("h2"), element => element.Value == "Abstract");
+        Assert.Null(abstractHeading.Attribute("data-semantic-kind"));
+        Assert.Contains(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
+            paragraph.Value.StartsWith("The dominant sequence transduction models", StringComparison.Ordinal) &&
+            paragraph.Value.Contains("large and limited training data.", StringComparison.Ordinal));
+
+        Assert.Contains(dom.Descendants("h1"), heading => heading.Value == "1 Introduction");
+        XElement[] footnotes = ElementsByClass(dom, "pdf-semantic-footnote").ToArray();
+        Assert.Equal(3, footnotes.Length);
+        Assert.All(footnotes, footnote => Assert.Equal("p", footnote.Name.LocalName));
+        Assert.Contains(footnotes, footnote => footnote.Attribute("id")?.Value == "page-1-fn-asterisk");
+        Assert.Contains(ElementsByClass(dom, "pdf-semantic-footer"), footer =>
+            footer.Value.Contains("31st Conference", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Convert_ForegroundBoxMaskMatchesLayoutRuns()
     {
         using PDDocument document = CreateTextDocument("""

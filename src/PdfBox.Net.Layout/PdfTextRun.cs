@@ -11,6 +11,7 @@ public sealed class PdfTextRun
         float fontSize,
         float direction,
         PdfLayoutRectangle bounds,
+        PdfLayoutColor color,
         IReadOnlyList<PdfTextGlyph> glyphs)
     {
         Text = text;
@@ -18,6 +19,7 @@ public sealed class PdfTextRun
         FontSize = fontSize;
         Direction = direction;
         Bounds = bounds;
+        Color = color;
         Glyphs = glyphs.ToArray();
     }
 
@@ -45,6 +47,11 @@ public sealed class PdfTextRun
     /// Gets the run bounds.
     /// </summary>
     public PdfLayoutRectangle Bounds { get; }
+
+    /// <summary>
+    /// Gets the resolved fill color used by the run.
+    /// </summary>
+    public PdfLayoutColor Color { get; }
 
     /// <summary>
     /// Gets the glyphs that make up the run.

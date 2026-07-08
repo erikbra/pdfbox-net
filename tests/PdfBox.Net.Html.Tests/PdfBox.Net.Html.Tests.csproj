@@ -29,4 +29,10 @@
     <ProjectReference Include="..\..\src\PdfBox.Net.SkiaSharp\PdfBox.Net.SkiaSharp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\PdfBox.Net.Tests\Fixtures\TextExtraction\Issue412\arxiv-sample.pdf" Link="Fixtures\arxiv-sample.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

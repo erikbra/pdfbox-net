@@ -8,4 +8,5 @@ public sealed record PdfTextGlyph(
     string FontName,
     float FontSize,
     float Direction,
-    PdfLayoutRectangle Bounds);
+    PdfLayoutRectangle Bounds,
+    PdfLayoutColor Color);
