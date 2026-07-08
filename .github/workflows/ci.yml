@@ -34,6 +34,23 @@ jobs:
       - name: Test
         run: dotnet test PdfBoxNet.slnx --configuration Release --no-build --nologo
 
+      - name: Conversion quality harness smoke
+        run: |
+          python3 -m py_compile tools/conversion_quality/run_conversion_quality.py
+          python3 -m unittest discover -s tests/conversion_quality -p 'test_*.py'
+          python3 tools/conversion_quality/run_conversion_quality.py \
+            --manifest tools/conversion_quality/smoke/manifest.json \
+            --results-dir tools/conversion_quality/smoke/results \
+            --out-dir artifacts/conversion-quality-smoke \
+            --known-divergences tools/conversion_quality/smoke/known-divergences.json \
+            --ratchet-baseline tools/conversion_quality/smoke/ratchet-baseline.json \
+            --fail-on-unexpected \
+            --fail-on-regression
+          cat artifacts/conversion-quality-smoke/summary.md
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            cat artifacts/conversion-quality-smoke/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Checkout Apache PDFBox for API surface gate
         uses: actions/checkout@v5
         with:
