@@ -31,4 +31,9 @@ public sealed class PdfHtmlOptions
     /// Gets or sets the semantic extraction options used when <see cref="TextMode"/> is <see cref="PdfHtmlTextMode.Semantic"/>.
     /// </summary>
     public PdfSemanticExtractionOptions SemanticExtractionOptions { get; init; } = new();
+
+    /// <summary>
+    /// Gets or sets how inferred semantic text is arranged across source PDF pages.
+    /// </summary>
+    public PdfHtmlSemanticPageMode SemanticPageMode { get; init; } = PdfHtmlSemanticPageMode.FixedPages;
 }
