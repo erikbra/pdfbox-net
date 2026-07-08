@@ -48,7 +48,7 @@ public final class JavaPdfProbe {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            System.err.println("usage: JavaPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b> | --structure <pdf> [<pdf>...] | --incremental <out-dir> <pdf> [<pdf>...]");
+            System.err.println("usage: JavaPdfProbe <out-dir> <pdf> [<pdf>...] | --merge <out-dir> <pdf-a> <pdf-b> | --merge-batch <out-dir> <pdf-a> <pdf-b> [<pdf-a> <pdf-b>...] | --structure <pdf> [<pdf>...] | --incremental <out-dir> <pdf> [<pdf>...]");
             System.exit(2);
         }
         if ("--merge".equals(args[0])) {
@@ -57,6 +57,17 @@ public final class JavaPdfProbe {
                 System.exit(2);
             }
             merge(new File(args[1]), new File(args[2]), new File(args[3]));
+            return;
+        }
+        if ("--merge-batch".equals(args[0])) {
+            if (args.length < 4 || ((args.length - 2) % 2) != 0) {
+                System.err.println("usage: JavaPdfProbe --merge-batch <out-dir> <pdf-a> <pdf-b> [<pdf-a> <pdf-b>...]");
+                System.exit(2);
+            }
+            File outDir = new File(args[1]);
+            for (int i = 2; i < args.length; i += 2) {
+                merge(outDir, new File(args[i]), new File(args[i + 1]));
+            }
             return;
         }
         if ("--structure".equals(args[0])) {

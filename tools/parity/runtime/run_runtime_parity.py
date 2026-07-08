@@ -14,6 +14,7 @@ import zlib
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Callable, Iterable
 
@@ -858,6 +859,7 @@ def dilate_mask(mask: list[bool], width: int, height: int, radius: int) -> list[
     return dilated
 
 
+@lru_cache(maxsize=None)
 def read_png_rgba(path: Path) -> RenderImage:
     data = path.read_bytes()
     if not data.startswith(PNG_SIGNATURE):
@@ -2182,7 +2184,7 @@ def main() -> int:
         run_streaming([java_tool(args.java_home, "javac"), "-proc:none", "-cp", args.java_classpath, "-d", str(classes_out), str(JAVA_PROBE)])
 
     java_cp = os.pathsep.join([str(classes_out), args.java_classpath])
-    dotnet_args = ["dotnet", "run", "--no-build", "--configuration", "Release", "--project", str(PROBE_PROJECT), "--"]
+    dotnet_args = ["dotnet", str(PROBE_ASSEMBLY)]
 
     java_rows = parse_jsonl(
         run([*java_probe_args(args.java_home, java_cp), str(java_out), *[str(pdf) for pdf in pdfs]]).stdout,
@@ -2197,10 +2199,11 @@ def main() -> int:
         ignored_output_summary,
     )
 
-    for a, b in merge_pairs:
+    if merge_pairs:
+        flattened_merge_paths = [str(path) for pair in merge_pairs for path in pair]
         java_rows.extend(
             parse_jsonl(
-                run([*java_probe_args(args.java_home, java_cp), "--merge", str(java_out), str(a), str(b)]).stdout,
+                run([*java_probe_args(args.java_home, java_cp), "--merge-batch", str(java_out), *flattened_merge_paths]).stdout,
                 "java",
                 ignored_output_paths["java"],
                 ignored_output_summary,
@@ -2208,7 +2211,7 @@ def main() -> int:
         )
         dotnet_rows.extend(
             parse_jsonl(
-                run([*dotnet_args, "--merge", str(dotnet_out), str(a), str(b)]).stdout,
+                run([*dotnet_args, "--merge-batch", str(dotnet_out), *flattened_merge_paths]).stdout,
                 "dotnet",
                 ignored_output_paths["dotnet"],
                 ignored_output_summary,
