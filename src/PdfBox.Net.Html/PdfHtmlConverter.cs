@@ -54,13 +54,16 @@ public static class PdfHtmlConverter
 
         .pdf-semantic-flow {
           box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
           margin: 0 auto;
+          min-height: 100%;
           padding: 54pt 0 36pt;
           width: min(396pt, calc(100% - 144pt));
         }
 
         .pdf-semantic-flow > * + * {
-          margin-top: 8pt;
+          margin-top: 0;
         }
 
         .pdf-semantic-flow header {
@@ -76,30 +79,56 @@ public static class PdfHtmlConverter
         .pdf-semantic-flow h5,
         .pdf-semantic-flow h6 {
           font-weight: 600;
-          line-height: 1.18;
-          margin-bottom: 10pt;
+          line-height: 1.12;
+          margin-bottom: 8pt;
         }
 
         .pdf-semantic-title {
+          border-bottom: 1pt solid currentColor;
+          border-top: 4pt solid currentColor;
+          padding: 9pt 0 10pt;
           text-align: center;
         }
 
         .pdf-semantic-heading {
           font-weight: 600;
-          line-height: 1.18;
+          line-height: 1.12;
         }
 
         .pdf-semantic-paragraph {
-          line-height: 1.35;
-          margin-bottom: 8pt;
+          line-height: 1.18;
+          margin-bottom: 6pt;
+        }
+
+        .pdf-semantic-justified {
+          text-align: justify;
+          text-align-last: left;
+        }
+
+        .pdf-semantic-measured-width {
+          align-self: var(--pdf-semantic-align-self, flex-start);
+          width: min(100%, var(--pdf-semantic-width, 100%));
         }
 
         .pdf-semantic-authors {
-          display: grid;
-          gap: 16pt 18pt;
-          grid-template-columns: repeat(auto-fit, minmax(78pt, 1fr));
+          display: flex;
+          flex-direction: column;
+          gap: 14pt;
           margin: 16pt 0 28pt;
         }
+
+        .pdf-semantic-author-row {
+          display: grid;
+          gap: 18pt;
+          justify-content: center;
+        }
+
+        .pdf-author-count-1 { grid-template-columns: minmax(78pt, 96pt); }
+        .pdf-author-count-2 { grid-template-columns: repeat(2, minmax(78pt, 1fr)); }
+        .pdf-author-count-3 { grid-template-columns: repeat(3, minmax(78pt, 1fr)); }
+        .pdf-author-count-4 { grid-template-columns: repeat(4, minmax(72pt, 1fr)); }
+        .pdf-author-count-5 { grid-template-columns: repeat(5, minmax(64pt, 1fr)); }
+        .pdf-author-count-6 { grid-template-columns: repeat(6, minmax(58pt, 1fr)); }
 
         .pdf-semantic-authors address {
           font-style: normal;
@@ -107,10 +136,32 @@ public static class PdfHtmlConverter
           text-align: center;
         }
 
+        .pdf-semantic-line {
+          display: block;
+        }
+
+        .pdf-semantic-author-block .pdf-semantic-line + .pdf-semantic-line {
+          margin-top: 1pt;
+        }
+
+        .pdf-semantic-figure-space {
+          display: block;
+          flex: 0 0 auto;
+          margin: 0 0 12pt;
+          pointer-events: none;
+        }
+
         .pdf-semantic-footnotes {
-          border-top: 0.5pt solid #9ca3af;
           margin-top: 18pt;
-          padding-top: 6pt;
+          padding-top: 0;
+        }
+
+        .pdf-semantic-footnotes::before {
+          border-top: var(--pdf-footnote-rule-thickness, 0.5pt) solid var(--pdf-footnote-rule-color, #9ca3af);
+          content: "";
+          display: block;
+          margin-bottom: 6pt;
+          width: var(--pdf-footnote-rule-width, 144pt);
         }
 
         .pdf-semantic-footnotes p {
@@ -127,6 +178,11 @@ public static class PdfHtmlConverter
         .pdf-semantic-footer,
         .pdf-semantic-header {
           line-height: 1.1;
+        }
+
+        .pdf-semantic-flow > footer.pdf-semantic-footer {
+          margin-top: auto;
+          padding-top: 16pt;
         }
 
         .pdf-semantic-positioned {
@@ -308,7 +364,11 @@ public static class PdfHtmlConverter
 
         if (page.Paths.Count > 0)
         {
-            WriteVectorLayer(html, page, scale);
+            WriteVectorLayer(
+                html,
+                page,
+                scale,
+                textMode == PdfHtmlTextMode.Semantic ? semanticPage : null);
         }
 
         if (textMode == PdfHtmlTextMode.Semantic && semanticPage != null)
@@ -355,10 +415,22 @@ public static class PdfHtmlConverter
             .AppendLine("\" />");
     }
 
-    private static void WriteVectorLayer(StringBuilder html, PdfLayoutPage page, float scale)
+    private static void WriteVectorLayer(
+        StringBuilder html,
+        PdfLayoutPage page,
+        float scale,
+        PdfSemanticPage? semanticPage)
     {
+        PdfLayoutPath[] paths = page.Paths
+            .Where(path => semanticPage == null || !IsSemanticFlowRulePath(page, semanticPage, path))
+            .ToArray();
+        if (paths.Length == 0)
+        {
+            return;
+        }
+
         html.Append("    <svg class=\"pdf-vector-layer\" data-path-count=\"")
-            .Append(page.Paths.Count.ToString(CultureInfo.InvariantCulture))
+            .Append(paths.Length.ToString(CultureInfo.InvariantCulture))
             .Append("\" viewBox=\"0 0 ")
             .Append(SvgNumber(page.Width))
             .Append(' ')
@@ -369,7 +441,7 @@ public static class PdfHtmlConverter
             .Append(CssPoints(page.Height * scale))
             .AppendLine("\" aria-hidden=\"true\">");
 
-        foreach (PdfLayoutPath path in page.Paths)
+        foreach (PdfLayoutPath path in paths)
         {
             WriteVectorPath(html, path);
         }
@@ -475,10 +547,19 @@ public static class PdfHtmlConverter
         PdfSemanticElement[] flowElements = semanticPage.Elements
             .Where(element => !positionedSet.Contains(element))
             .ToArray();
+        PdfLayoutRectangle[] figureRegions = SemanticFigureRegions(page, semanticPage).ToArray();
+        int nextFigureRegion = 0;
         html.AppendLine("    <article class=\"pdf-semantic-flow\">");
         for (int index = 0; index < flowElements.Length; index++)
         {
             PdfSemanticElement element = flowElements[index];
+            while (nextFigureRegion < figureRegions.Length &&
+                ShouldInsertFigureSpaceBefore(element, figureRegions[nextFigureRegion]))
+            {
+                WriteFigureSpace(html, figureRegions[nextFigureRegion], scale);
+                nextFigureRegion++;
+            }
+
             if (element.Kind == PdfSemanticElementKind.AuthorBlock)
             {
                 index = WriteAuthorSection(html, flowElements, index, footnotes);
@@ -487,14 +568,138 @@ public static class PdfHtmlConverter
 
             if (element.Kind == PdfSemanticElementKind.Footnote)
             {
-                index = WriteFootnoteSection(html, flowElements, index, footnotes);
+                index = WriteFootnoteSection(
+                    html,
+                    flowElements,
+                    index,
+                    footnotes,
+                    DecorativeFootnoteRulePath(page, semanticPage));
                 continue;
             }
 
-            WriteFlowSemanticElement(html, element, footnotes);
+            WriteFlowSemanticElement(
+                html,
+                element,
+                footnotes,
+                page,
+                allowMeasuredWidth: IsMeasuredWidthCandidate(flowElements, index));
         }
 
         html.AppendLine("    </article>");
+    }
+
+    private static void WriteFigureSpace(StringBuilder html, PdfLayoutRectangle region, float scale)
+    {
+        html.Append("      <figure class=\"pdf-semantic-figure-space\" aria-hidden=\"true\" data-source-top=\"")
+            .Append(HtmlAttribute(CssPoints(region.Y)))
+            .Append("\" style=\"height:")
+            .Append(CssPoints((region.Height + 18f) * scale))
+            .AppendLine("\"></figure>");
+    }
+
+    private static IEnumerable<PdfLayoutRectangle> SemanticFigureRegions(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage)
+    {
+        List<PdfLayoutRectangle> regions = [];
+        regions.AddRange(page.Images
+            .Select(static image => image.Bounds)
+            .Where(bounds => IsSubstantialGraphic(page, bounds)));
+
+        PdfLayoutPath[] candidatePaths = page.Paths
+            .Where(path => !IsSemanticFlowRulePath(page, semanticPage, path))
+            .Where(path => path.Bounds.Width > 2f && path.Bounds.Height > 2f)
+            .ToArray();
+        PdfLayoutRectangle[] largePathBounds = candidatePaths
+            .Select(static path => path.Bounds)
+            .Where(bounds => IsSubstantialGraphic(page, bounds))
+            .ToArray();
+        regions.AddRange(largePathBounds);
+
+        if (candidatePaths.Length >= 8)
+        {
+            PdfLayoutRectangle union = UnionRectangles(candidatePaths.Select(static path => path.Bounds));
+            if (IsSubstantialGraphic(page, union))
+            {
+                regions.Add(union);
+            }
+        }
+
+        foreach (PdfLayoutRectangle region in MergeGraphicRegions(regions))
+        {
+            yield return region;
+        }
+    }
+
+    private static bool IsSubstantialGraphic(PdfLayoutPage page, PdfLayoutRectangle bounds)
+    {
+        return bounds.Width >= page.Width * 0.18f &&
+            bounds.Height >= MathF.Max(18f, page.Height * 0.035f);
+    }
+
+    private static IEnumerable<PdfLayoutRectangle> MergeGraphicRegions(IEnumerable<PdfLayoutRectangle> regions)
+    {
+        List<PdfLayoutRectangle> merged = [];
+        foreach (PdfLayoutRectangle region in regions
+            .OrderBy(static region => region.Y)
+            .ThenBy(static region => region.X))
+        {
+            if (merged.Count == 0)
+            {
+                merged.Add(region);
+                continue;
+            }
+
+            PdfLayoutRectangle last = merged[^1];
+            bool closeVertically = region.Y <= last.Bottom + 18f;
+            bool overlapsHorizontally = region.X <= last.Right + 18f && region.Right + 18f >= last.X;
+            if (closeVertically && overlapsHorizontally)
+            {
+                merged[^1] = UnionRectangles([last, region]);
+            }
+            else
+            {
+                merged.Add(region);
+            }
+        }
+
+        return merged;
+    }
+
+    private static PdfLayoutRectangle UnionRectangles(IEnumerable<PdfLayoutRectangle> rectangles)
+    {
+        using IEnumerator<PdfLayoutRectangle> enumerator = rectangles.GetEnumerator();
+        if (!enumerator.MoveNext())
+        {
+            return new PdfLayoutRectangle(0, 0, 0, 0);
+        }
+
+        PdfLayoutRectangle first = enumerator.Current;
+        float left = first.X;
+        float top = first.Y;
+        float right = first.Right;
+        float bottom = first.Bottom;
+        while (enumerator.MoveNext())
+        {
+            PdfLayoutRectangle rectangle = enumerator.Current;
+            left = MathF.Min(left, rectangle.X);
+            top = MathF.Min(top, rectangle.Y);
+            right = MathF.Max(right, rectangle.Right);
+            bottom = MathF.Max(bottom, rectangle.Bottom);
+        }
+
+        return new PdfLayoutRectangle(left, top, right - left, bottom - top);
+    }
+
+    private static bool ShouldInsertFigureSpaceBefore(PdfSemanticElement element, PdfLayoutRectangle figureRegion)
+    {
+        return element.Bounds.Bottom >= figureRegion.Y - 12f;
+    }
+
+    private static bool IsMeasuredWidthCandidate(IReadOnlyList<PdfSemanticElement> elements, int index)
+    {
+        return index + 1 >= elements.Count ||
+            elements[index + 1].Kind != PdfSemanticElementKind.Footer;
     }
 
     private static int WriteAuthorSection(
@@ -503,24 +708,86 @@ public static class PdfHtmlConverter
         int startIndex,
         FootnoteContext footnotes)
     {
-        html.AppendLine("      <section class=\"pdf-semantic-authors\" aria-label=\"Authors\">");
         int index = startIndex;
+        List<PdfSemanticElement> authors = [];
         for (; index < elements.Count && elements[index].Kind == PdfSemanticElementKind.AuthorBlock; index++)
         {
-            WriteFlowSemanticElement(html, elements[index], footnotes);
+            authors.Add(elements[index]);
+        }
+
+        html.AppendLine("      <section class=\"pdf-semantic-authors\" aria-label=\"Authors\">");
+        foreach (IReadOnlyList<PdfSemanticElement> row in GroupAuthorRows(authors))
+        {
+            html.Append("        <div class=\"pdf-semantic-author-row ")
+                .Append(AuthorCountClass(row.Count))
+                .AppendLine("\">");
+            foreach (PdfSemanticElement author in row)
+            {
+                WriteFlowSemanticElement(html, author, footnotes);
+            }
+
+            html.AppendLine("        </div>");
         }
 
         html.AppendLine("      </section>");
         return index - 1;
     }
 
+    private static IEnumerable<IReadOnlyList<PdfSemanticElement>> GroupAuthorRows(IReadOnlyList<PdfSemanticElement> authors)
+    {
+        List<List<PdfSemanticElement>> rows = [];
+        foreach (PdfSemanticElement author in authors
+            .OrderBy(static author => AuthorCenterY(author))
+            .ThenBy(static author => author.Bounds.X))
+        {
+            List<PdfSemanticElement>? row = rows.FirstOrDefault(existing =>
+                MathF.Abs(AuthorCenterY(existing[0]) - AuthorCenterY(author)) <= AuthorRowTolerance(existing[0], author));
+            if (row == null)
+            {
+                rows.Add([author]);
+            }
+            else
+            {
+                row.Add(author);
+            }
+        }
+
+        return rows
+            .OrderBy(static row => row.Average(static author => AuthorCenterY(author)))
+            .Select(static row => row.OrderBy(static author => author.Bounds.X).ToArray());
+    }
+
+    private static float AuthorCenterY(PdfSemanticElement author)
+    {
+        return author.Bounds.Y + (author.Bounds.Height / 2f);
+    }
+
+    private static float AuthorRowTolerance(PdfSemanticElement first, PdfSemanticElement second)
+    {
+        return Math.Clamp(MathF.Min(first.Bounds.Height, second.Bounds.Height) * 0.45f, 8f, 18f);
+    }
+
+    private static string AuthorCountClass(int count)
+    {
+        return "pdf-author-count-" + Math.Clamp(count, 1, 6).ToString(CultureInfo.InvariantCulture);
+    }
+
     private static int WriteFootnoteSection(
         StringBuilder html,
         IReadOnlyList<PdfSemanticElement> elements,
         int startIndex,
-        FootnoteContext footnotes)
+        FootnoteContext footnotes,
+        PdfLayoutPath? footnoteRule)
     {
-        html.AppendLine("      <section class=\"pdf-semantic-footnotes\" aria-label=\"Footnotes\">");
+        html.Append("      <section class=\"pdf-semantic-footnotes\" aria-label=\"Footnotes\"");
+        if (footnoteRule != null)
+        {
+            html.Append(" style=\"")
+                .Append(HtmlAttribute(FootnoteRuleStyle(footnoteRule)))
+                .Append('"');
+        }
+
+        html.AppendLine(">");
         int index = startIndex;
         for (; index < elements.Count && elements[index].Kind == PdfSemanticElementKind.Footnote; index++)
         {
@@ -531,17 +798,37 @@ public static class PdfHtmlConverter
         return index - 1;
     }
 
+    private static string FootnoteRuleStyle(PdfLayoutPath path)
+    {
+        PdfLayoutColor color = path.Stroke?.Color ?? path.FillColor ?? new PdfLayoutColor(0, 0, 0, 1, null);
+        float thickness = path.Stroke?.Width ?? MathF.Max(0.5f, path.Bounds.Height);
+        return "--pdf-footnote-rule-width:" + CssPoints(path.Bounds.Width) +
+            ";--pdf-footnote-rule-thickness:" + CssPoints(thickness) +
+            ";--pdf-footnote-rule-color:" + ColorHex(color);
+    }
+
     private static void WriteFlowSemanticElement(
         StringBuilder html,
         PdfSemanticElement element,
-        FootnoteContext footnotes)
+        FootnoteContext footnotes,
+        PdfLayoutPage? page = null,
+        bool allowMeasuredWidth = true)
     {
         string tagName = SemanticTagName(element);
         html.Append("      <")
             .Append(tagName)
             .Append(" class=\"")
-            .Append(SemanticClassNames(element))
-            .Append("\">");
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth))
+            .Append('"');
+        string style = FlowSemanticStyle(element, page, allowMeasuredWidth);
+        if (style.Length > 0)
+        {
+            html.Append(" style=\"")
+                .Append(HtmlAttribute(style))
+                .Append('"');
+        }
+
+        html.Append(">");
         WriteSemanticText(html, element, footnotes);
         html.Append("</")
             .Append(tagName)
@@ -575,7 +862,21 @@ public static class PdfHtmlConverter
         PdfSemanticElement element,
         FootnoteContext footnotes)
     {
-        if (element.Kind is PdfSemanticElementKind.AuthorBlock or PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
+        if (element.Kind == PdfSemanticElementKind.AuthorBlock)
+        {
+            foreach (PdfSemanticLine line in element.Lines)
+            {
+                html.Append("<span class=\"")
+                    .Append(SemanticLineClassNames(line))
+                    .Append("\">");
+                WriteTextWithFootnoteReferences(html, line.Text, footnotes);
+                html.Append("</span>");
+            }
+
+            return;
+        }
+
+        if (element.Kind is PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
         {
             for (int index = 0; index < element.Lines.Count; index++)
             {
@@ -630,7 +931,10 @@ public static class PdfHtmlConverter
         };
     }
 
-    private static string SemanticClassNames(PdfSemanticElement element)
+    private static string SemanticClassNames(
+        PdfSemanticElement element,
+        PdfLayoutPage? page = null,
+        bool allowMeasuredWidth = true)
     {
         List<string> classes =
         [
@@ -645,7 +949,159 @@ public static class PdfHtmlConverter
             classes.Add("pdf-semantic-title");
         }
 
+        if (element.Kind == PdfSemanticElementKind.Paragraph && page != null)
+        {
+            if (IsJustifiedParagraph(element))
+            {
+                classes.Add("pdf-semantic-justified");
+            }
+
+            if (allowMeasuredWidth &&
+                TryGetParagraphWidthPercent(page, element, out float widthPercent) &&
+                ShouldUseMeasuredParagraphWidth(widthPercent))
+            {
+                classes.Add("pdf-semantic-measured-width");
+            }
+        }
+
         return string.Join(" ", classes);
+    }
+
+    private static string FlowSemanticStyle(
+        PdfSemanticElement element,
+        PdfLayoutPage? page,
+        bool allowMeasuredWidth)
+    {
+        if (!allowMeasuredWidth ||
+            page == null ||
+            element.Kind != PdfSemanticElementKind.Paragraph ||
+            !TryGetParagraphWidthPercent(page, element, out float widthPercent) ||
+            !ShouldUseMeasuredParagraphWidth(widthPercent))
+        {
+            return "";
+        }
+
+        string style = "--pdf-semantic-width:" + CssPercent(widthPercent);
+        string? alignSelf = ParagraphAlignSelf(page, element);
+        if (alignSelf != null)
+        {
+            style += ";--pdf-semantic-align-self:" + alignSelf;
+        }
+
+        return style;
+    }
+
+    private static bool TryGetParagraphWidthPercent(
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        out float widthPercent)
+    {
+        widthPercent = 100f;
+        if (element.Kind != PdfSemanticElementKind.Paragraph ||
+            element.Lines.Count < 4 ||
+            element.Text.Length < 240 ||
+            !TryGetRepresentativeLineWidth(element, out float representativeWidth))
+        {
+            return false;
+        }
+
+        float flowWidth = SemanticFlowWidth(page);
+        if (flowWidth <= 0.01f)
+        {
+            return false;
+        }
+
+        widthPercent = Math.Clamp((representativeWidth / flowWidth) * 100f, 25f, 100f);
+        return true;
+    }
+
+    private static bool TryGetRepresentativeLineWidth(PdfSemanticElement element, out float width)
+    {
+        float[] widths = element.Lines
+            .Where(static line => MathF.Abs(line.Direction) < 0.01f)
+            .Where(static line => !string.IsNullOrWhiteSpace(line.Text))
+            .Select(static line => line.Bounds.Width)
+            .Where(static width => width > 0.01f)
+            .OrderDescending()
+            .ToArray();
+        if (widths.Length == 0)
+        {
+            width = 0f;
+            return false;
+        }
+
+        int count = widths.Length <= 2
+            ? widths.Length
+            : Math.Max(1, (int)MathF.Ceiling(widths.Length * 0.65f));
+        width = widths.Take(count).Average();
+        return true;
+    }
+
+    private static bool ShouldUseMeasuredParagraphWidth(float widthPercent)
+    {
+        return widthPercent <= 92f;
+    }
+
+    private static string? ParagraphAlignSelf(PdfLayoutPage page, PdfSemanticElement element)
+    {
+        float elementCenter = element.Bounds.X + (element.Bounds.Width / 2f);
+        return MathF.Abs(elementCenter - (page.Width / 2f)) <= page.Width * 0.04f
+            ? "center"
+            : null;
+    }
+
+    private static bool IsJustifiedParagraph(PdfSemanticElement element)
+    {
+        if (element.Kind != PdfSemanticElementKind.Paragraph)
+        {
+            return false;
+        }
+
+        PdfSemanticLine[] lines = element.Lines
+            .Where(static line => MathF.Abs(line.Direction) < 0.01f)
+            .Where(static line => !string.IsNullOrWhiteSpace(line.Text))
+            .ToArray();
+        if (lines.Length < 3)
+        {
+            return false;
+        }
+
+        float[] nonFinalWidths = lines
+            .Take(lines.Length - 1)
+            .Select(static line => line.Bounds.Width)
+            .Where(static width => width > 0.01f)
+            .ToArray();
+        if (nonFinalWidths.Length < 2)
+        {
+            return false;
+        }
+
+        float max = nonFinalWidths.Max();
+        float mean = nonFinalWidths.Average();
+        float min = nonFinalWidths.Min();
+        float variance = nonFinalWidths.Sum(width => MathF.Pow(width - mean, 2f)) / nonFinalWidths.Length;
+        float standardDeviation = MathF.Sqrt(variance);
+        float averageCharacters = (float)lines.Take(lines.Length - 1).Average(static line => line.Text.Length);
+        return max >= 160f &&
+            averageCharacters >= 36f &&
+            mean >= max * 0.86f &&
+            min >= max * 0.70f &&
+            standardDeviation <= max * 0.13f;
+    }
+
+    private static float SemanticFlowWidth(PdfLayoutPage page)
+    {
+        return MathF.Min(396f, MathF.Max(0f, page.Width - 144f));
+    }
+
+    private static string SemanticLineClassNames(PdfSemanticLine line)
+    {
+        return string.Join(
+            " ",
+            "pdf-semantic-line",
+            FontClass(line.DominantFontName),
+            FontSizeClass(line.DominantFontSize),
+            ColorClass(line.Color));
     }
 
     private static string SemanticClassName(PdfSemanticElementKind kind)
@@ -671,8 +1127,90 @@ public static class PdfHtmlConverter
     {
         return element.Kind == PdfSemanticElementKind.Heading &&
             element.HeadingLevel == 1 &&
-            SemanticFontSize(element) >= 14f &&
+            SemanticFontSize(element) >= 16f &&
             !char.IsDigit(element.Text.TrimStart().FirstOrDefault());
+    }
+
+    private static bool IsSemanticFlowRulePath(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        PdfLayoutPath path)
+    {
+        return IsDecorativeTitleRulePath(page, semanticPage, path) ||
+            IsDecorativeFootnoteRulePath(page, semanticPage, path);
+    }
+
+    private static bool IsDecorativeTitleRulePath(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        PdfLayoutPath path)
+    {
+        PdfSemanticElement? title = semanticPage.Elements.FirstOrDefault(IsTitleElement);
+        if (title == null)
+        {
+            return false;
+        }
+
+        bool horizontalRuleShape = path.Bounds.Width >= MathF.Max(title.Bounds.Width * 0.95f, page.Width * 0.45f) &&
+            path.Bounds.Height <= 6f &&
+            path.Bounds.X <= title.Bounds.X + 6f &&
+            path.Bounds.Right >= title.Bounds.Right - 6f;
+        if (!horizontalRuleShape)
+        {
+            return false;
+        }
+
+        bool closeAboveTitle = path.Bounds.Bottom <= title.Bounds.Y + 3f &&
+            title.Bounds.Y - path.Bounds.Bottom <= 32f;
+        bool closeBelowTitle = path.Bounds.Y >= title.Bounds.Bottom - 3f &&
+            path.Bounds.Y - title.Bounds.Bottom <= 32f;
+        return closeAboveTitle || closeBelowTitle;
+    }
+
+    private static bool IsDecorativeFootnoteRulePath(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        PdfLayoutPath path)
+    {
+        PdfSemanticElement[] footnotes = semanticPage.Elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Footnote)
+            .ToArray();
+        if (footnotes.Length == 0)
+        {
+            return false;
+        }
+
+        float footnoteTop = footnotes.Min(static footnote => footnote.Bounds.Y);
+        float footnoteLeft = footnotes.Min(static footnote => footnote.Bounds.X);
+        bool horizontalRuleShape = path.Bounds.Width >= page.Width * 0.10f &&
+            path.Bounds.Width <= page.Width * 0.45f &&
+            path.Bounds.Height <= 4f &&
+            path.Bounds.X <= footnoteLeft + 16f;
+        if (!horizontalRuleShape)
+        {
+            return false;
+        }
+
+        return path.Bounds.Y <= footnoteTop + 4f &&
+            footnoteTop - path.Bounds.Y <= 28f;
+    }
+
+    private static PdfLayoutPath? DecorativeFootnoteRulePath(PdfLayoutPage page, PdfSemanticPage semanticPage)
+    {
+        PdfSemanticElement[] footnotes = semanticPage.Elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Footnote)
+            .ToArray();
+        if (footnotes.Length == 0)
+        {
+            return null;
+        }
+
+        float footnoteTop = footnotes.Min(static footnote => footnote.Bounds.Y);
+        return page.Paths
+            .Where(path => IsDecorativeFootnoteRulePath(page, semanticPage, path))
+            .OrderBy(path => MathF.Abs(path.Bounds.Y - footnoteTop))
+            .ThenByDescending(static path => path.Bounds.Width)
+            .FirstOrDefault();
     }
 
     private static string PositionStyle(PdfLayoutPage page, PdfSemanticElement element, float scale)
@@ -683,12 +1221,12 @@ public static class PdfHtmlConverter
         if (MathF.Abs(direction - 90f) < 0.01f)
         {
             left = element.Bounds.Y;
-            top = element.Bounds.X;
+            top = (page.Height + element.Bounds.Width) / 2f;
         }
         else if (MathF.Abs(direction - 270f) < 0.01f)
         {
             left = page.Width - element.Bounds.Y;
-            top = element.Bounds.X;
+            top = (page.Height - element.Bounds.Width) / 2f;
         }
 
         return "left:" + CssPoints(left * scale) +
@@ -946,6 +1484,11 @@ public static class PdfHtmlConverter
     private static string CssPoints(float value)
     {
         return value.ToString("0.###", CultureInfo.InvariantCulture) + "pt";
+    }
+
+    private static string CssPercent(float value)
+    {
+        return value.ToString("0.###", CultureInfo.InvariantCulture) + "%";
     }
 
     private static string SvgNumber(float value)

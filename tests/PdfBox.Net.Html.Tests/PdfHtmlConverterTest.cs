@@ -92,11 +92,15 @@ public class PdfHtmlConverterTest
         Assert.Empty(ElementsByClass(dom, "pdf-text-run"));
         Assert.Contains(".pdf-font-", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-color-", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-justified", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-measured-width", html.Css, StringComparison.Ordinal);
 
         XElement verticalHeader = Assert.Single(dom.Descendants("header"), header =>
             header.Value.Contains("arXiv:1706.03762v7", StringComparison.Ordinal));
         Assert.Contains("pdf-semantic-positioned", verticalHeader.Attribute("class")?.Value);
         Assert.Contains("pdf-semantic-vertical", verticalHeader.Attribute("class")?.Value);
+        Dictionary<string, string> verticalStyle = ParseStyle(verticalHeader.Attribute("style")?.Value ?? "");
+        Assert.InRange(ParsePoints(verticalStyle["top"]), 550f, 590f);
 
         XElement permissionHeader = Assert.Single(dom.Descendants("header"), header =>
             header.Value.Contains("Provided proper attribution", StringComparison.Ordinal));
@@ -108,33 +112,151 @@ public class PdfHtmlConverterTest
             element.Value.Contains("Attention Is All You Need", StringComparison.Ordinal));
         Assert.Null(title.Attribute("data-semantic-kind"));
         Assert.Null(title.Attribute("style"));
+        Assert.Contains("pdf-semantic-title", title.Attribute("class")?.Value);
+        Assert.Contains("border-top: 4pt solid currentColor", html.Css, StringComparison.Ordinal);
+        Assert.Contains("border-bottom: 1pt solid currentColor", html.Css, StringComparison.Ordinal);
 
         XElement[] authors = ElementsByClass(dom, "pdf-semantic-author-block").ToArray();
         Assert.Equal(8, authors.Length);
         Assert.All(authors, author => Assert.Equal("address", author.Name.LocalName));
+        XElement[] authorRows = ElementsByClass(dom, "pdf-semantic-author-row").ToArray();
+        Assert.Equal(new[] { 4, 3, 1 }, authorRows
+            .Select(row => row.Descendants().Count(element => HasClass(element, "pdf-semantic-author-block")))
+            .ToArray());
         Assert.Contains(authors, author =>
             author.Value.Contains("Ashish Vaswani", StringComparison.Ordinal) &&
             author.Value.Contains("avaswani@google.com", StringComparison.Ordinal));
         Assert.Contains(authors, author =>
             author.Value.Contains("Illia Polosukhin", StringComparison.Ordinal) &&
             author.Value.Contains("illia.polosukhin@gmail.com", StringComparison.Ordinal));
+        XElement ashish = Assert.Single(authors, author => author.Value.Contains("Ashish Vaswani", StringComparison.Ordinal));
+        XElement[] ashishLines = ashish.Descendants().Where(element => HasClass(element, "pdf-semantic-line")).ToArray();
+        Assert.True(ashishLines.Length >= 3);
+        Assert.NotEqual(ashishLines[0].Attribute("class")?.Value, ashishLines[^1].Attribute("class")?.Value);
         Assert.Contains(dom.Descendants("a"), link =>
             link.Attribute("href")?.Value == "#page-1-fn-asterisk" &&
             link.Value == "∗");
 
         XElement abstractHeading = Assert.Single(dom.Descendants("h2"), element => element.Value == "Abstract");
         Assert.Null(abstractHeading.Attribute("data-semantic-kind"));
-        Assert.Contains(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
+        XElement abstractParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
             paragraph.Value.StartsWith("The dominant sequence transduction models", StringComparison.Ordinal) &&
             paragraph.Value.Contains("large and limited training data.", StringComparison.Ordinal));
+        Assert.Contains("pdf-semantic-justified", abstractParagraph.Attribute("class")?.Value);
+        Assert.Contains("pdf-semantic-measured-width", abstractParagraph.Attribute("class")?.Value);
+        Dictionary<string, string> abstractStyle = ParseStyle(abstractParagraph.Attribute("style")?.Value ?? "");
+        Assert.InRange(ParsePercent(abstractStyle["--pdf-semantic-width"]), 80f, 84f);
+        Assert.Equal("center", abstractStyle["--pdf-semantic-align-self"]);
 
         Assert.Contains(dom.Descendants("h1"), heading => heading.Value == "1 Introduction");
+        XElement pageEndParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
+            paragraph.Value.StartsWith("Most competitive neural sequence transduction models", StringComparison.Ordinal));
+        Assert.DoesNotContain("pdf-semantic-measured-width", pageEndParagraph.Attribute("class")?.Value ?? "");
         XElement[] footnotes = ElementsByClass(dom, "pdf-semantic-footnote").ToArray();
         Assert.Equal(3, footnotes.Length);
         Assert.All(footnotes, footnote => Assert.Equal("p", footnote.Name.LocalName));
         Assert.Contains(footnotes, footnote => footnote.Attribute("id")?.Value == "page-1-fn-asterisk");
         Assert.Contains(ElementsByClass(dom, "pdf-semantic-footer"), footer =>
             footer.Value.Contains("31st Conference", StringComparison.Ordinal));
+        Assert.Contains(".pdf-semantic-flow > footer.pdf-semantic-footer", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-footnotes::before", html.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_SemanticTextMode_ReservesGraphicRegionsAndPromotesFlowRulesToCss()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true,
+            IncludeLinks = false
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement firstPage = Assert.Single(dom.Descendants("section"), section =>
+            section.Attribute("id")?.Value == "page-1");
+        Assert.DoesNotContain(firstPage.Descendants(), element => HasClass(element, "pdf-vector-layer"));
+        Assert.Contains("border-top: 4pt solid currentColor", html.Css, StringComparison.Ordinal);
+        Assert.Contains("border-bottom: 1pt solid currentColor", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-footnotes::before", html.Css, StringComparison.Ordinal);
+        XElement footnoteSection = Assert.Single(firstPage.Descendants(), element => HasClass(element, "pdf-semantic-footnotes"));
+        Dictionary<string, string> footnoteRuleStyle = ParseStyle(footnoteSection.Attribute("style")?.Value ?? "");
+        Assert.InRange(ParsePoints(footnoteRuleStyle["--pdf-footnote-rule-width"]), 140f, 146f);
+        Assert.InRange(ParsePoints(footnoteRuleStyle["--pdf-footnote-rule-thickness"]), 0.3f, 0.5f);
+        Assert.Equal("#000000", footnoteRuleStyle["--pdf-footnote-rule-color"]);
+        Assert.DoesNotContain(dom.Descendants("h1").Where(heading =>
+                heading.Value.Contains("Input-Input Layer5", StringComparison.Ordinal)),
+            heading => HasClass(heading, "pdf-semantic-title"));
+
+        XElement[] figureSpaces = ElementsByClass(dom, "pdf-semantic-figure-space").ToArray();
+        Assert.True(figureSpaces.Length >= 2);
+        Assert.All(figureSpaces, figure =>
+        {
+            Dictionary<string, string> style = ParseStyle(figure.Attribute("style")?.Value ?? "");
+            Assert.True(ParsePoints(style["height"]) >= 30f);
+        });
+    }
+
+    [Fact]
+    public async Task Convert_SemanticTextMode_DoesNotClipArxivPageFlow()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true,
+            IncludeLinks = false
+        });
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize
+            {
+                Width = 1200,
+                Height = 1400
+            }
+        });
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        double[] overflows = await page.EvaluateAsync<double[]>(
+            """
+            () => Array.from(document.querySelectorAll(".pdf-semantic-page"))
+              .slice(0, 7)
+              .map(page => {
+                const flow = page.querySelector(".pdf-semantic-flow");
+                if (!flow) {
+                  return 0;
+                }
+
+                const pageBottom = page.getBoundingClientRect().bottom;
+                const children = Array.from(flow.children);
+                return Math.max(0, ...children.map(child => child.getBoundingClientRect().bottom - pageBottom));
+              })
+            """);
+
+        Assert.True(overflows.Length >= 7);
+        for (int index = 0; index < overflows.Length; index++)
+        {
+            Assert.True(
+                overflows[index] <= 1.0,
+                $"Semantic flow on page {index + 1} extends {overflows[index]:0.###} CSS pixels below the page.");
+        }
     }
 
     [Fact]
@@ -863,8 +985,13 @@ public class PdfHtmlConverterTest
     private static IEnumerable<XElement> ElementsByClass(XDocument document, string className)
     {
         return document.Descendants()
-            .Where(element => (element.Attribute("class")?.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [])
-                .Contains(className, StringComparer.Ordinal));
+            .Where(element => HasClass(element, className));
+    }
+
+    private static bool HasClass(XElement element, string className)
+    {
+        return (element.Attribute("class")?.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [])
+            .Contains(className, StringComparer.Ordinal);
     }
 
     private static Dictionary<string, string> ParseStyle(string style)
@@ -891,6 +1018,12 @@ public class PdfHtmlConverterTest
     {
         Assert.EndsWith("pt", value);
         return float.Parse(value[..^2], CultureInfo.InvariantCulture);
+    }
+
+    private static float ParsePercent(string value)
+    {
+        Assert.EndsWith("%", value);
+        return float.Parse(value[..^1], CultureInfo.InvariantCulture);
     }
 
     private static void AssertClose(float expected, float actual)
