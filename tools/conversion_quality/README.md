@@ -31,8 +31,26 @@ CI also writes and uploads `artifacts/conversion-quality-smoke/html-review`.
 That directory is a human review bundle for real PDF fixtures: each example
 contains the original `source.pdf`, generated `index.html`, CSS/assets,
 `summary.md`, diagnostics, and a `compare.html` page that shows the PDF and
-generated HTML side by side. Download the `conversion-quality-smoke-*` workflow
-artifact and open `html-review/index.html` to browse the examples.
+generated HTML side by side. Each example also contains `quality/quality-report.md`
+and `quality/quality-report.json`, plus page-level PNG artifacts from the
+source PDF render, browser-rendered HTML, and a foreground-mask diff. These
+quality probe findings are non-gating: `needs-review` means the artifact found
+a likely visual or structural conversion issue for humans to inspect, not that
+the CI step failed. Download the `conversion-quality-smoke-*` workflow artifact
+and open `html-review/index.html` to browse the examples.
+
+The HTML quality probe currently checks:
+
+- browser page dimensions and text-run counts against extracted layout data
+- word-boundary loss by comparing browser-visible HTML text with `pdftotext`
+  when available, otherwise the PdfBox.Net layout text fallback
+- text overlaps with rendered image boxes and large vector boxes
+- foreground-mask deltas between a source PDF page render and the browser page
+  screenshot, with visual report pages to make mismatches easy to inspect
+
+HTML review examples can set `qualityPages` to cap how many pages the browser
+probe renders. Keeping this small makes CI artifacts quick while still giving
+us stable samples to improve against.
 
 ## Manifest Shape
 
