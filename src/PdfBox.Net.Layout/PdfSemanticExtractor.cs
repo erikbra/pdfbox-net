@@ -41,36 +41,43 @@ public static class PdfSemanticExtractor
         LineCandidate[] headingLines = lines
             .Where(line => IsHeading(line, page, bodyFontSize, options))
             .ToArray();
-        LineCandidate? title = headingLines
+        LineCandidate? titleCandidate = headingLines
             .Where(line => line.Bounds.Y < page.Height * 0.55f)
             .OrderByDescending(static line => line.FontSize)
             .ThenBy(static line => line.Bounds.Y)
             .FirstOrDefault();
+        LineCandidate? documentTitle = titleCandidate != null && IsDocumentTitle(titleCandidate, page, bodyFontSize)
+            ? titleCandidate
+            : null;
 
-        if (title != null)
+        LineCandidate[] headerLines;
+        if (documentTitle != null)
         {
-            foreach (LineCandidate line in lines.Where(line => line.Bounds.Bottom < title.Bounds.Y - lineStep * 0.5f))
-            {
-                consumed.Add(line.Index);
-                elements.Add(CreateElement(PdfSemanticElementKind.Header, [line]));
-            }
+            headerLines = lines
+                .Where(line => line.Bounds.Bottom < documentTitle.Bounds.Y - lineStep * 0.5f)
+                .ToArray();
         }
         else
         {
-            foreach (LineCandidate line in lines.Where(line => line.Bounds.Y < page.Height * 0.055f))
-            {
-                consumed.Add(line.Index);
-                elements.Add(CreateElement(PdfSemanticElementKind.Header, [line]));
-            }
+            headerLines = lines
+                .Where(line => line.Bounds.Y < page.Height * 0.055f)
+                .ToArray();
+        }
+
+        foreach (PdfSemanticElement header in GroupHeaders(headerLines, lineStep, consumed))
+        {
+            elements.Add(header);
         }
 
         foreach (LineCandidate line in lines.Where(line => IsFooter(line, page, bodyFontSize)))
         {
-            consumed.Add(line.Index);
-            elements.Add(CreateElement(PdfSemanticElementKind.Footer, [line]));
+            if (consumed.Add(line.Index))
+            {
+                elements.Add(CreateElement(PdfSemanticElementKind.Footer, [line]));
+            }
         }
 
-        foreach (PdfSemanticElement author in ExtractAuthorBlocks(page, lines, title, headingLines, options, consumed))
+        foreach (PdfSemanticElement author in ExtractAuthorBlocks(page, lines, documentTitle, headingLines, options, consumed))
         {
             elements.Add(author);
         }
@@ -102,25 +109,99 @@ public static class PdfSemanticExtractor
                 .ToArray());
     }
 
+    private static IEnumerable<PdfSemanticElement> GroupHeaders(
+        IReadOnlyList<LineCandidate> lines,
+        float lineStep,
+        HashSet<int> consumed)
+    {
+        List<LineCandidate> current = [];
+        foreach (LineCandidate line in lines.OrderBy(static line => line.Bounds.Y).ThenBy(static line => line.Bounds.X))
+        {
+            if (current.Count == 0)
+            {
+                current.Add(line);
+                continue;
+            }
+
+            LineCandidate previous = current[^1];
+            if (ShouldGroupHeader(previous, line, lineStep))
+            {
+                current.Add(line);
+                continue;
+            }
+
+            yield return CreateHeader(current, consumed);
+            current.Clear();
+            current.Add(line);
+        }
+
+        if (current.Count > 0)
+        {
+            yield return CreateHeader(current, consumed);
+        }
+    }
+
+    private static PdfSemanticElement CreateHeader(IReadOnlyList<LineCandidate> lines, HashSet<int> consumed)
+    {
+        foreach (LineCandidate line in lines)
+        {
+            consumed.Add(line.Index);
+        }
+
+        return CreateElement(PdfSemanticElementKind.Header, lines);
+    }
+
+    private static bool ShouldGroupHeader(LineCandidate previous, LineCandidate current, float lineStep)
+    {
+        if (MathF.Abs(previous.Direction - current.Direction) > 0.01f)
+        {
+            return false;
+        }
+
+        if (!SameColor(previous.Color, current.Color))
+        {
+            return false;
+        }
+
+        if (!string.Equals(previous.FontName, current.FontName, StringComparison.Ordinal) ||
+            MathF.Abs(previous.FontSize - current.FontSize) > 0.75f)
+        {
+            return false;
+        }
+
+        if (MathF.Abs(previous.Direction) > 0.01f)
+        {
+            return false;
+        }
+
+        return current.Bounds.Y - previous.Bounds.Y <= lineStep * 1.6f;
+    }
+
     private static LineCandidate CreateLineCandidate(
         int index,
         PdfTextLine source,
         PdfSemanticExtractionOptions options)
     {
         string text = ReconstructText(source.Runs.SelectMany(static run => run.Glyphs), options);
-        (string fontName, float fontSize) = DominantFont(source.Runs);
+        (string fontName, float fontSize, float direction, PdfLayoutColor color) = DominantStyle(source.Runs);
         return new LineCandidate(
             index,
             source,
-            new PdfSemanticLine(text, source.Bounds, fontName, fontSize, source.Runs),
+            new PdfSemanticLine(text, source.Bounds, fontName, fontSize, direction, color, source.Runs),
             fontName,
-            fontSize);
+            fontSize,
+            direction,
+            color);
     }
 
-    private static (string FontName, float FontSize) DominantFont(IReadOnlyList<PdfTextRun> runs)
+    private static (string FontName, float FontSize, float Direction, PdfLayoutColor Color) DominantStyle(IReadOnlyList<PdfTextRun> runs)
     {
         return runs
-            .GroupBy(static run => (NormalizeFontName(run.FontName), MathF.Round(run.FontSize * 2f) / 2f))
+            .GroupBy(static run => (
+                NormalizeFontName(run.FontName),
+                MathF.Round(run.FontSize * 2f) / 2f,
+                MathF.Round(run.Direction),
+                ColorKey(run.Color)))
             .Select(static group => new
             {
                 group.Key,
@@ -128,8 +209,32 @@ public static class PdfSemanticExtractor
             })
             .OrderByDescending(static item => item.Weight)
             .ThenByDescending(static item => item.Key.Item2)
-            .Select(static item => (item.Key.Item1, item.Key.Item2))
+            .Select(static item => (
+                item.Key.Item1,
+                item.Key.Item2,
+                item.Key.Item3,
+                item.Key.Item4.Color))
             .FirstOrDefault();
+    }
+
+    private static ColorKeyValue ColorKey(PdfLayoutColor color)
+    {
+        return new ColorKeyValue(
+            MathF.Round(color.Red * 255f) / 255f,
+            MathF.Round(color.Green * 255f) / 255f,
+            MathF.Round(color.Blue * 255f) / 255f,
+            MathF.Round(color.Alpha * 255f) / 255f,
+            color.ColorSpaceName,
+            color);
+    }
+
+    private static bool SameColor(PdfLayoutColor first, PdfLayoutColor second)
+    {
+        return MathF.Abs(first.Red - second.Red) < 0.001f &&
+            MathF.Abs(first.Green - second.Green) < 0.001f &&
+            MathF.Abs(first.Blue - second.Blue) < 0.001f &&
+            MathF.Abs(first.Alpha - second.Alpha) < 0.001f &&
+            string.Equals(first.ColorSpaceName, second.ColorSpaceName, StringComparison.Ordinal);
     }
 
     private static float EstimateBodyFontSize(IReadOnlyList<LineCandidate> lines)
@@ -197,6 +302,14 @@ public static class PdfSemanticExtractor
         }
 
         return NumberedHeadingPattern.IsMatch(line.Text) ? 1 : 2;
+    }
+
+    private static bool IsDocumentTitle(LineCandidate line, PdfLayoutPage page, float bodyFontSize)
+    {
+        bool muchLargerThanBody = line.FontSize >= bodyFontSize + 4f;
+        bool centered = MathF.Abs(line.CenterX - page.Width / 2f) < page.Width * 0.18f;
+        bool highOnPage = line.Bounds.Y < page.Height * 0.30f;
+        return muchLargerThanBody && centered && highOnPage;
     }
 
     private static bool IsFooter(LineCandidate line, PdfLayoutPage page, float bodyFontSize)
@@ -568,8 +681,12 @@ public static class PdfSemanticExtractor
 
     private static PdfSemanticLine CreateSyntheticLine(string text, IReadOnlyList<AuthorSegment> segments)
     {
-        (string fontName, float fontSize) = segments
-            .GroupBy(static segment => (NormalizeFontName(segment.Run.FontName), MathF.Round(segment.Run.FontSize * 2f) / 2f))
+        (string fontName, float fontSize, float direction, PdfLayoutColor color) = segments
+            .GroupBy(static segment => (
+                NormalizeFontName(segment.Run.FontName),
+                MathF.Round(segment.Run.FontSize * 2f) / 2f,
+                MathF.Round(segment.Run.Direction),
+                ColorKey(segment.Run.Color)))
             .Select(static group => new
             {
                 group.Key,
@@ -577,7 +694,7 @@ public static class PdfSemanticExtractor
             })
             .OrderByDescending(static item => item.Weight)
             .ThenByDescending(static item => item.Key.Item2)
-            .Select(static item => (item.Key.Item1, item.Key.Item2))
+            .Select(static item => (item.Key.Item1, item.Key.Item2, item.Key.Item3, item.Key.Item4.Color))
             .First();
 
         return new PdfSemanticLine(
@@ -585,6 +702,8 @@ public static class PdfSemanticExtractor
             PdfLayoutRectangle.Union(segments.Select(static segment => segment.Bounds)),
             fontName,
             fontSize,
+            direction,
+            color,
             segments.Select(static segment => segment.Run).ToArray());
     }
 
@@ -747,13 +866,17 @@ public static class PdfSemanticExtractor
             PdfTextLine source,
             PdfSemanticLine semanticLine,
             string fontName,
-            float fontSize)
+            float fontSize,
+            float direction,
+            PdfLayoutColor color)
         {
             Index = index;
             Source = source;
             SemanticLine = semanticLine;
             FontName = fontName;
             FontSize = fontSize;
+            Direction = direction;
+            Color = color;
         }
 
         public int Index { get; }
@@ -765,6 +888,10 @@ public static class PdfSemanticExtractor
         public string FontName { get; }
 
         public float FontSize { get; }
+
+        public float Direction { get; }
+
+        public PdfLayoutColor Color { get; }
 
         public string Text => SemanticLine.Text;
 
@@ -821,6 +948,14 @@ public static class PdfSemanticExtractor
             _segments.Add(segment);
         }
     }
+
+    private readonly record struct ColorKeyValue(
+        float Red,
+        float Green,
+        float Blue,
+        float Alpha,
+        string? ColorSpaceName,
+        PdfLayoutColor Color);
 }
 
 internal static class PdfSemanticEnumerableExtensions

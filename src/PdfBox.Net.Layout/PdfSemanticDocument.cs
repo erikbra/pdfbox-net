@@ -71,12 +71,16 @@ public sealed class PdfSemanticLine
         PdfLayoutRectangle bounds,
         string dominantFontName,
         float dominantFontSize,
+        float direction,
+        PdfLayoutColor color,
         IReadOnlyList<PdfTextRun> runs)
     {
         Text = text;
         Bounds = bounds;
         DominantFontName = dominantFontName;
         DominantFontSize = dominantFontSize;
+        Direction = direction;
+        Color = color;
         Runs = runs.ToArray();
     }
 
@@ -87,6 +91,10 @@ public sealed class PdfSemanticLine
     public string DominantFontName { get; }
 
     public float DominantFontSize { get; }
+
+    public float Direction { get; }
+
+    public PdfLayoutColor Color { get; }
 
     public IReadOnlyList<PdfTextRun> Runs { get; }
 }

@@ -11,6 +11,20 @@ public sealed class PdfSemanticExtractorTest
         PdfSemanticDocument semantic = ExtractArxivSemanticDocument();
         PdfSemanticPage page = semantic.Pages[0];
 
+        PdfSemanticElement[] headers = page.Elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Header)
+            .ToArray();
+        Assert.Equal(2, headers.Length);
+        PdfSemanticElement arxivHeader = Assert.Single(headers, header =>
+            header.Text.Contains("arXiv:1706.03762v7", StringComparison.Ordinal));
+        Assert.Contains(arxivHeader.Lines, line => MathF.Abs(line.Direction - 90f) < 0.01f);
+        PdfSemanticElement permissionHeader = Assert.Single(headers, header =>
+            header.Text.Contains("Provided proper attribution", StringComparison.Ordinal));
+        Assert.Equal(3, permissionHeader.Lines.Count);
+        Assert.Contains("reproduce the tables and figures in this paper solely for use in journalistic or", permissionHeader.Text, StringComparison.Ordinal);
+        Assert.Contains("scholarly works.", permissionHeader.Text, StringComparison.Ordinal);
+        Assert.All(permissionHeader.Lines, line => Assert.True(line.Color.Red > line.Color.Blue));
+
         PdfSemanticElement title = Assert.Single(page.Elements, element =>
             element.Kind == PdfSemanticElementKind.Heading &&
             element.HeadingLevel == 1 &&
