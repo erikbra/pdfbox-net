@@ -1,8 +1,8 @@
 {
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
-  "tracked_commit": "56575fd583792844b6bd182d67739d26568b1d01",
-  "tracked_commit_updated_utc": "2026-07-06T20:25:48.871Z",
+  "tracked_commit": "229bd6596aa35ecb2fcd95538c6a7241f5cfbc34",
+  "tracked_commit_updated_utc": "2026-07-08T07:52:00.000Z",
   "note": "Update tracked_commit whenever a sync batch lands so upstream-watch automation can detect new upstream commits.",
   "latest_upstream_commit_seen": "229bd6596aa35ecb2fcd95538c6a7241f5cfbc34",
   "last_port_coverage_scan_utc": "2026-07-07T21:53:28.065Z",
