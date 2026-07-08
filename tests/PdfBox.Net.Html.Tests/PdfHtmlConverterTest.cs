@@ -263,6 +263,96 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_EmitsVectorSvgOverlayWithPathStyle()
+    {
+        using PDDocument document = CreateTextDocument("""
+            q
+            2 w
+            1 0 0 RG
+            0.1 0.6 0.2 rg
+            72 600 120 60 re
+            B
+            Q
+            """);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement svg = Assert.Single(ElementsByClass(dom, "pdf-vector-layer"));
+        Assert.Equal("1", svg.Attribute("data-path-count")?.Value);
+        Assert.Equal("0 0 612 792", svg.Attribute("viewBox")?.Value);
+        XElement path = Assert.Single(ElementsByClass(dom, "pdf-vector-path"));
+        Assert.Equal("0", path.Attribute("data-path-index")?.Value);
+        Assert.Equal("M 72 192 L 192 192 L 192 132 L 72 132 Z", path.Attribute("d")?.Value);
+        Assert.Equal("#1A9933", path.Attribute("fill")?.Value);
+        Assert.Equal("1", path.Attribute("fill-opacity")?.Value);
+        Assert.Equal("nonzero", path.Attribute("fill-rule")?.Value);
+        Assert.Equal("#FF0000", path.Attribute("stroke")?.Value);
+        Assert.Equal("2", path.Attribute("stroke-width")?.Value);
+        Assert.Equal("butt", path.Attribute("stroke-linecap")?.Value);
+        Assert.Equal("miter", path.Attribute("stroke-linejoin")?.Value);
+    }
+
+    [Fact]
+    public async Task Convert_RenderedVectorPathInHeadlessBrowserMatchesLayoutGeometry()
+    {
+        using PDDocument document = CreateTextDocument("""
+            0.1 0.6 0.2 rg
+            72 600 120 60 re
+            f
+            """);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize
+            {
+                Width = 1000,
+                Height = 1200
+            }
+        });
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        const float cssPixelsPerPoint = 96f / 72f;
+        const float tolerancePx = 1.0f;
+        PdfLayoutPath layoutPath = Assert.Single(Assert.Single(layout.Pages).Paths);
+        ILocator pageLocator = page.Locator(".pdf-page");
+        ILocator pathLocator = page.Locator(".pdf-vector-path");
+        await pathLocator.WaitForAsync();
+        LocatorBoundingBoxResult pageBox = await pageLocator.BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Page did not render a bounding box.");
+        LocatorBoundingBoxResult pathBox = await pathLocator.BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Vector path did not render a bounding box.");
+
+        List<string> mismatches = [];
+        AddMismatchIfOutsideTolerance(mismatches, "vector path x", layoutPath.Bounds.X * cssPixelsPerPoint, (float)(pathBox.X - pageBox.X), tolerancePx);
+        AddMismatchIfOutsideTolerance(mismatches, "vector path y", layoutPath.Bounds.Y * cssPixelsPerPoint, (float)(pathBox.Y - pageBox.Y), tolerancePx);
+        AddMismatchIfOutsideTolerance(mismatches, "vector path width", layoutPath.Bounds.Width * cssPixelsPerPoint, (float)pathBox.Width, tolerancePx);
+        AddMismatchIfOutsideTolerance(mismatches, "vector path height", layoutPath.Bounds.Height * cssPixelsPerPoint, (float)pathBox.Height, tolerancePx);
+
+        if (mismatches.Count > 0)
+        {
+            string artifactDirectory = ArtifactDirectory(nameof(Convert_RenderedVectorPathInHeadlessBrowserMatchesLayoutGeometry));
+            await WriteGeometryMismatchArtifactsAsync(html, page, artifactDirectory, mismatches);
+        }
+
+        Assert.True(
+            mismatches.Count == 0,
+            string.Join(Environment.NewLine, mismatches) + Environment.NewLine +
+            $"Artifacts: {ArtifactDirectory(nameof(Convert_RenderedVectorPathInHeadlessBrowserMatchesLayoutGeometry))}");
+    }
+
+    [Fact]
     public void WriteToDirectory_EmitsStableFilesWithNoBrokenLocalReferences()
     {
         using PDDocument document = CreateTextDocument("""
@@ -488,6 +578,27 @@ public class PdfHtmlConverterTest
         });
         File.WriteAllLines(Path.Combine(artifactDirectory, "mismatches.txt"), comparison.Mismatches);
         await File.WriteAllTextAsync(Path.Combine(artifactDirectory, "visual-report.html"), VisualReportHtml(comparison.Mismatches));
+    }
+
+    private static async Task WriteGeometryMismatchArtifactsAsync(
+        PdfHtmlDocument html,
+        IPage page,
+        string artifactDirectory,
+        IReadOnlyList<string> mismatches)
+    {
+        if (Directory.Exists(artifactDirectory))
+        {
+            Directory.Delete(artifactDirectory, recursive: true);
+        }
+
+        Directory.CreateDirectory(artifactDirectory);
+        html.WriteToDirectory(artifactDirectory);
+        await page.ScreenshotAsync(new PageScreenshotOptions
+        {
+            FullPage = true,
+            Path = Path.Combine(artifactDirectory, "viewport.png")
+        });
+        await File.WriteAllLinesAsync(Path.Combine(artifactDirectory, "mismatches.txt"), mismatches);
     }
 
     private static string VisualReportHtml(IReadOnlyList<string> mismatches)

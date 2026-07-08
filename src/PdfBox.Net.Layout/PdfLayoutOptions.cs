@@ -21,6 +21,11 @@ public sealed class PdfLayoutOptions
     public bool IncludeImages { get; init; } = true;
 
     /// <summary>
+    /// Gets or sets whether vector path paint operations should be collected.
+    /// </summary>
+    public bool IncludePaths { get; init; } = true;
+
+    /// <summary>
     /// Gets or sets whether collected images should also be exported as browser-safe assets.
     /// </summary>
     public bool IncludeImageAssets { get; init; }
