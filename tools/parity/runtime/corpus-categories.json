@@ -41,6 +41,11 @@
     {
       "category": "rendering",
       "files": [
+        "PDFBOX-2359-3.pdf",
+        "PDFBOX-5953-mail-test2-repaired.pdf",
+        "PDFBOX-6024-gs-bugzilla689309-reduced-bc1_RGB.pdf",
+        "PDFBOX-6024-gs-bugzilla689931-reduced-Multiply.pdf",
+        "PDFBOX-6024-gs-bugzilla689931-reduced-Screen.pdf",
         "rotation.pdf",
         "survey.pdf",
         "sampleForSpec.pdf",
