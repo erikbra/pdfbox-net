@@ -16,6 +16,7 @@ public sealed class PdfLayoutPage
         IReadOnlyList<PdfTextRun> runs,
         IReadOnlyList<PdfTextLine> lines,
         IReadOnlyList<PdfTextBlock> blocks,
+        IReadOnlyList<PdfLayoutImage> images,
         IReadOnlyList<PdfLayoutLink> links,
         IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
     {
@@ -29,6 +30,7 @@ public sealed class PdfLayoutPage
         Runs = runs.ToArray();
         Lines = lines.ToArray();
         Blocks = blocks.ToArray();
+        Images = images.ToArray();
         Links = links.ToArray();
         Diagnostics = diagnostics.ToArray();
     }
@@ -82,6 +84,11 @@ public sealed class PdfLayoutPage
     /// Gets text blocks.
     /// </summary>
     public IReadOnlyList<PdfTextBlock> Blocks { get; }
+
+    /// <summary>
+    /// Gets image placements on this page.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutImage> Images { get; }
 
     /// <summary>
     /// Gets link annotations on this page.

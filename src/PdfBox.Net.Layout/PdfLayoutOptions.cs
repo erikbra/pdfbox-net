@@ -16,6 +16,11 @@ public sealed class PdfLayoutOptions
     public bool IncludeLinks { get; init; } = true;
 
     /// <summary>
+    /// Gets or sets whether image placements should be collected.
+    /// </summary>
+    public bool IncludeImages { get; init; } = true;
+
+    /// <summary>
     /// Gets or sets whether text positions should be sorted into visual reading order.
     /// </summary>
     public bool SortTextByPosition { get; init; } = true;

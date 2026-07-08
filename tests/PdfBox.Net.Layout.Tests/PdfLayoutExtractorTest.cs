@@ -3,6 +3,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 
@@ -160,6 +161,49 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_XObjectImage_CapturesIntrinsicSizePlacementAndMetadata()
+    {
+        using PDDocument document = CreateImageDocument();
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutImage image = Assert.Single(Assert.Single(layout.Pages).Images);
+        Assert.Empty(layout.Diagnostics);
+        Assert.Equal(0, image.Index);
+        Assert.Equal("page-1-image-0", image.AssetId);
+        Assert.Equal(PdfLayoutImageKind.XObject, image.Kind);
+        Assert.Equal("Im0", image.SourceName);
+        Assert.Equal(2, image.IntrinsicWidth);
+        Assert.Equal(2, image.IntrinsicHeight);
+        Assert.Equal(8, image.BitsPerComponent);
+        Assert.Equal("DeviceRGB", image.ColorSpaceName);
+        Assert.False(image.Interpolate);
+        AssertClose(72, image.Bounds.X);
+        AssertClose(132, image.Bounds.Y);
+        AssertClose(120, image.Bounds.Width);
+        AssertClose(60, image.Bounds.Height);
+        AssertClose(120, image.Transform.A);
+        AssertClose(0, image.Transform.B);
+        AssertClose(0, image.Transform.C);
+        AssertClose(60, image.Transform.D);
+        AssertClose(72, image.Transform.E);
+        AssertClose(600, image.Transform.F);
+    }
+
+    [Fact]
+    public void Extract_ImageCollectionCanBeDisabled()
+    {
+        using PDDocument document = CreateImageDocument();
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false
+        });
+
+        Assert.Empty(Assert.Single(layout.Pages).Images);
+    }
+
+    [Fact]
     public void Extract_IsDeterministicAcrossRepeatedRuns()
     {
         using PDDocument document = CreateTextDocument("""
@@ -218,6 +262,27 @@ public class PdfLayoutExtractorTest
         byte[] bytes = Encoding.Latin1.GetBytes(contentStream);
         output.Write(bytes, 0, bytes.Length);
         return stream;
+    }
+
+    private static PDDocument CreateImageDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        byte[] rgb =
+        [
+            255, 0, 0,
+            0, 255, 0,
+            0, 0, 255,
+            255, 255, 255
+        ];
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, rgb, 2, 2, 8, 3);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.DrawImage(image, 72, 600, 120, 60);
+        }
+
+        return document;
     }
 
     private static COSDictionary CreateDefaultResourcesDictionary()

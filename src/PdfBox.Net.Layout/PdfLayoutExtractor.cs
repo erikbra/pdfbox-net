@@ -1,11 +1,17 @@
 using System.Globalization;
 using System.Text;
+using PdfBox.Net.ContentStream;
+using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Graphics;
+using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
+using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Text;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Layout;
 
@@ -114,6 +120,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfTextRun> _runs = new();
         private readonly List<PdfTextLine> _lines = new();
         private readonly List<PdfTextBlock> _blocks = new();
+        private readonly List<PdfLayoutImage> _images = new();
         private readonly List<PdfLayoutLink> _links = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
 
@@ -132,6 +139,11 @@ public static class PdfLayoutExtractor
             if (options.IncludeLinks)
             {
                 CollectLinks(page);
+            }
+
+            if (options.IncludeImages)
+            {
+                CollectImages(page);
             }
         }
 
@@ -168,8 +180,29 @@ public static class PdfLayoutExtractor
                 _runs,
                 _lines,
                 _blocks,
+                _images,
                 _links,
                 _diagnostics);
+        }
+
+        private void CollectImages(PDPage page)
+        {
+            LayoutImageCollector collector = new(page, _pageNumber, _cropBox, _rotation);
+            try
+            {
+                collector.Run(page);
+            }
+            catch (IOException ex)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "image-collection-failed",
+                    "Image placement collection failed: " + ex.Message,
+                    _pageNumber));
+            }
+
+            _images.AddRange(collector.Images);
+            _diagnostics.AddRange(collector.Diagnostics);
         }
 
         private void CollectLinks(PDPage page)
@@ -419,6 +452,148 @@ public static class PdfLayoutExtractor
                 first.Direction,
                 PdfLayoutRectangle.Union(glyphs.Select(glyph => glyph.Bounds)),
                 glyphs);
+        }
+    }
+
+    private sealed class LayoutImageCollector : PDFGraphicsStreamEngine
+    {
+        private readonly int _pageNumber;
+        private readonly PdfLayoutRectangle _cropBox;
+        private readonly int _rotation;
+        private readonly List<PdfLayoutImage> _images = new();
+        private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
+        private bool _reportedRotatedImage;
+
+        public LayoutImageCollector(PDPage page, int pageNumber, PdfLayoutRectangle cropBox, int rotation)
+            : base(page)
+        {
+            _pageNumber = pageNumber;
+            _cropBox = cropBox;
+            _rotation = rotation;
+        }
+
+        public IReadOnlyList<PdfLayoutImage> Images => _images;
+
+        public IReadOnlyList<PdfLayoutDiagnostic> Diagnostics => _diagnostics;
+
+        public override void XObject(PDXObject xobject)
+        {
+            if (xobject is PDImageXObject image)
+            {
+                CollectImage(image, ResolveSourceName(xobject));
+                return;
+            }
+
+            base.XObject(xobject);
+        }
+
+        private void CollectImage(PDImageXObject image, string? sourceName)
+        {
+            if (_rotation != 0)
+            {
+                if (!_reportedRotatedImage)
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "image-rotation-unsupported",
+                        "Image placement geometry is not collected for rotated pages yet.",
+                        _pageNumber));
+                    _reportedRotatedImage = true;
+                }
+
+                return;
+            }
+
+            Matrix ctm = GetGraphicsState().GetCurrentTransformationMatrix();
+            Vector lowerLeft = ctm.TransformPoint(0, 0);
+            Vector lowerRight = ctm.TransformPoint(1, 0);
+            Vector upperRight = ctm.TransformPoint(1, 1);
+            Vector upperLeft = ctm.TransformPoint(0, 1);
+            float minX = Min(lowerLeft.GetX(), lowerRight.GetX(), upperRight.GetX(), upperLeft.GetX());
+            float maxX = Max(lowerLeft.GetX(), lowerRight.GetX(), upperRight.GetX(), upperLeft.GetX());
+            float minY = Min(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
+            float maxY = Max(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
+            int index = _images.Count;
+
+            _images.Add(new PdfLayoutImage(
+                index,
+                $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-image-{index.ToString(CultureInfo.InvariantCulture)}",
+                PdfLayoutImageKind.XObject,
+                NormalizePdfBox(minX, minY, maxX, maxY),
+                PdfLayoutTransform.FromMatrix(ctm),
+                image.GetWidth(),
+                image.GetHeight(),
+                image.GetBitsPerComponent(),
+                ColorSpaceName(image, index),
+                image.GetInterpolate(),
+                sourceName));
+        }
+
+        private string? ResolveSourceName(PDXObject xobject)
+        {
+            PDResources? resources = GetResources();
+            COSStream? stream = xobject.GetCOSObject();
+            if (resources == null || stream == null)
+            {
+                return null;
+            }
+
+            foreach (COSName name in resources.GetXObjectNames())
+            {
+                PDXObject? candidate;
+                try
+                {
+                    candidate = resources.GetXObject(name);
+                }
+                catch (IOException)
+                {
+                    continue;
+                }
+
+                if (ReferenceEquals(candidate?.GetCOSObject(), stream))
+                {
+                    return name.GetName();
+                }
+            }
+
+            return null;
+        }
+
+        private string? ColorSpaceName(PDImageXObject image, int index)
+        {
+            try
+            {
+                return image.GetColorSpace().GetName();
+            }
+            catch (Exception ex) when (ex is IOException or ArgumentException)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "image-colorspace-unresolved",
+                    $"Image {index.ToString(CultureInfo.InvariantCulture)} color space could not be resolved: {ex.Message}",
+                    _pageNumber));
+                return null;
+            }
+        }
+
+        private PdfLayoutRectangle NormalizePdfBox(float lowerLeftX, float lowerLeftY, float upperRightX, float upperRightY)
+        {
+            float cropTop = _cropBox.Y + _cropBox.Height;
+            return new PdfLayoutRectangle(
+                lowerLeftX - _cropBox.X,
+                cropTop - upperRightY,
+                MathF.Max(0, upperRightX - lowerLeftX),
+                MathF.Max(0, upperRightY - lowerLeftY));
+        }
+
+        private static float Min(float a, float b, float c, float d)
+        {
+            return MathF.Min(MathF.Min(a, b), MathF.Min(c, d));
+        }
+
+        private static float Max(float a, float b, float c, float d)
+        {
+            return MathF.Max(MathF.Max(a, b), MathF.Max(c, d));
         }
     }
 }
