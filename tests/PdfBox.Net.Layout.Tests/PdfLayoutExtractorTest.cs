@@ -3,6 +3,8 @@ using PdfBox.Net.COS;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.Action;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.Layout.Tests;
 
@@ -105,6 +107,59 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_LinkAnnotation_CapturesUriBoundsAndQuadBounds()
+    {
+        using PDDocument document = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            72 700 Td
+            (Linked text) Tj
+            ET
+            """);
+        PDAnnotationLink link = new();
+        link.SetRectangle(new PDRectangle(72, 680, 120, 24));
+        link.SetQuadPoints([72, 704, 192, 704, 72, 680, 192, 680]);
+        PDActionURI action = new();
+        action.SetURI("https://example.com/pdfbox");
+        link.SetAction(action);
+        document.GetPage(0).SetAnnotations([link]);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutLink layoutLink = Assert.Single(Assert.Single(layout.Pages).Links);
+        Assert.Equal(0, layoutLink.Index);
+        Assert.Equal(PdfLayoutLinkKind.Uri, layoutLink.Kind);
+        Assert.Equal("https://example.com/pdfbox", layoutLink.Uri);
+        Assert.Null(layoutLink.Destination);
+        Assert.Null(layoutLink.DestinationPageNumber);
+        AssertClose(72, layoutLink.Bounds.X);
+        AssertClose(88, layoutLink.Bounds.Y);
+        AssertClose(120, layoutLink.Bounds.Width);
+        AssertClose(24, layoutLink.Bounds.Height);
+        PdfLayoutRectangle quad = Assert.Single(layoutLink.QuadBounds);
+        AssertClose(layoutLink.Bounds.X, quad.X);
+        AssertClose(layoutLink.Bounds.Y, quad.Y);
+        AssertClose(layoutLink.Bounds.Width, quad.Width);
+        AssertClose(layoutLink.Bounds.Height, quad.Height);
+    }
+
+    [Fact]
+    public void Extract_LinkCollectionCanBeDisabled()
+    {
+        using PDDocument document = CreateTextDocument("");
+        PDAnnotationLink link = new();
+        link.SetRectangle(new PDRectangle(72, 680, 120, 24));
+        document.GetPage(0).SetAnnotations([link]);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeLinks = false
+        });
+
+        Assert.Empty(Assert.Single(layout.Pages).Links);
+    }
+
+    [Fact]
     public void Extract_IsDeterministicAcrossRepeatedRuns()
     {
         using PDDocument document = CreateTextDocument("""
@@ -137,6 +192,11 @@ public class PdfLayoutExtractorTest
         }
 
         return builder.ToString();
+    }
+
+    private static void AssertClose(float expected, float actual)
+    {
+        Assert.InRange(actual, expected - 0.01f, expected + 0.01f);
     }
 
     private static PDDocument CreateTextDocument(string contentStream)
