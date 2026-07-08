@@ -89,6 +89,27 @@ public class SkiaGlyphLayoutProcessorTest
     }
 
     [Fact]
+    public void ComputeGlyphs_ShapesThaiText()
+    {
+        const string thaiText = "\u0E01\u0E39\u0E01\u0E34\u0E19\u0E01\u0E49\u0E07\u0E1B\u0E34\u0E49\u0E07\u0E2D\u0E22\u0E39\u0E48\u0E43\u0E19\u0E16\u0E49\u0E33";
+
+        using PDDocument document = new();
+        using SkiaGlyphLayoutProcessor processor = new();
+        SkiaGlyphLayoutProcessor.FontOptions options = new();
+        options.SetKerningOn().SetLigaturesOn();
+
+        using FileStream input = File.OpenRead(FontPath("NotoSansThai-Regular.ttf"));
+        PDType0Font font = processor.LoadFont(document, input, options);
+
+        SkiaGlyphLayoutProcessor.ShapedGlyph[] glyphs = processor.ComputeGlyphs(font, thaiText);
+
+        Assert.True(glyphs.Length >= thaiText.EnumerateRunes().Count());
+        Assert.All(glyphs, glyph => Assert.True(glyph.GlyphId > 0));
+        Assert.Contains(glyphs, glyph => glyph.XAdvanceTextUnits == 0);
+        Assert.Contains(glyphs, glyph => MathF.Abs(glyph.XOffsetTextUnits) > 0 || MathF.Abs(glyph.YOffsetDesignUnits) > 0);
+    }
+
+    [Fact]
     public void BidiTextRunResolver_MatchesJavaTextBidiForRepresentativeRuns()
     {
         AssertVisualRuns(
