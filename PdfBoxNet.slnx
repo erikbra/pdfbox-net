@@ -12,6 +12,7 @@
     <Project Path="src/PdfBox.Net.FontBox/PdfBox.Net.FontBox.csproj" />
     <Project Path="src/PdfBox.Net.ImageSharp/PdfBox.Net.ImageSharp.csproj" />
     <Project Path="src/PdfBox.Net.IO/PdfBox.Net.IO.csproj" />
+    <Project Path="src/PdfBox.Net.Layout/PdfBox.Net.Layout.csproj" />
     <Project Path="src/PdfBox.Net.MauiGraphics/PdfBox.Net.MauiGraphics.csproj" />
     <Project Path="src/PdfBox.Net/PdfBox.Net.csproj" />
     <Project Path="src/PdfBox.Net.SkiaSharp/PdfBox.Net.SkiaSharp.csproj" />
@@ -26,6 +27,7 @@
     <Project Path="tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.FontBox.Tests/PdfBox.Net.FontBox.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.ImageSharp.Tests/PdfBox.Net.ImageSharp.Tests.csproj" />
+    <Project Path="tests/PdfBox.Net.Layout.Tests/PdfBox.Net.Layout.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.MauiGraphics.Tests/PdfBox.Net.MauiGraphics.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.SystemDrawing.Tests/PdfBox.Net.SystemDrawing.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.XmpBox.Tests/PdfBox.Net.XmpBox.Tests.csproj" />
