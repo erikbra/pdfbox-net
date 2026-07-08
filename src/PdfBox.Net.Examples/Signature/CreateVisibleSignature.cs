@@ -179,7 +179,18 @@ public class CreateVisibleSignature : CreateSignatureBase
                 signatureOptions = new SignatureOptions();
                 signatureOptions.SetVisualSignature(_visibleSignatureProperties.GetVisibleSignature());
                 signatureOptions.SetPage(_visibleSignatureProperties.GetPage() - 1);
-                _doc.AddSignature(signature, signInterface, signatureOptions);
+                if (signInterface is null)
+                {
+                    _doc.AddSignature(signature, signatureOptions);
+                }
+                else
+                {
+                    _doc.AddSignature(signature, signInterface, signatureOptions);
+                }
+            }
+            else if (signInterface is null)
+            {
+                _doc.AddSignature(signature);
             }
             else
             {

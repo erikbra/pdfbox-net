@@ -41,10 +41,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v5.4.0
         with:
           dotnet-version: 10.0.x
 
@@ -121,7 +121,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload package artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: nuget-packages-${{ inputs.version }}
           path: artifacts/packages/*.nupkg
@@ -153,12 +153,12 @@ jobs:
           esac
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v5.4.0
         with:
           dotnet-version: 10.0.x
 
       - name: Download package artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8.0.1
         with:
           name: nuget-packages-${{ inputs.version }}
           path: artifacts/packages
@@ -183,7 +183,7 @@ jobs:
 
       - name: NuGet login via trusted publishing
         id: nuget_login
-        uses: NuGet/login@v1
+        uses: NuGet/login@v1.2.0
         with:
           user: ${{ steps.nuget_user.outputs.user }}
 
