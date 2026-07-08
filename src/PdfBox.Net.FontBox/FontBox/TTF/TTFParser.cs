@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: 498c4a0164e0d743da898a4345d334b520248e17
  */
 
 /*
@@ -193,13 +193,18 @@ public class TTFParser
             font.ReadTableHeaders(HeaderTable.TAG, outHeaders);
             outHeaders.SetOs2Windows(font.GetOS2Windows());
 
-            bool isOTFAndPostScript;
+            bool isOTFAndPostScript = false;
             if (font is OpenTypeFont openTypeFont && openTypeFont.IsPostScript)
             {
-                isOTFAndPostScript = true;
                 if (openTypeFont.IsSupportedOTF())
                 {
+                    isOTFAndPostScript = true;
                     font.ReadTableHeaders(CFFTable.TAG, outHeaders);
+                }
+                else
+                {
+                    outHeaders.SetError("OpenType fonts using CFF2 outlines are not supported");
+                    return outHeaders;
                 }
             }
             else if (font is not OpenTypeFont && font.GetTableMap().ContainsKey(CFFTable.TAG))
@@ -209,7 +214,6 @@ public class TTFParser
             }
             else
             {
-                isOTFAndPostScript = false;
                 if (font.GetTableMap().TryGetValue("gcid", out TTFTable? gcid) && gcid.GetLength() >= FontHeaders.BYTES_GCID)
                 {
                     outHeaders.SetNonOtfGcid142(font.GetTableNBytes(gcid, FontHeaders.BYTES_GCID));

@@ -103,8 +103,6 @@ public class PDModelResourceContentStreamGapTest
         private readonly Dictionary<COSObject, PDXObject> _xObjects = [];
 
         public PDFont? GetFont(COSObject indirect) => null;
-        public PDCIDFont? GetCIDFont(COSObject indirect) => null;
-        public PDFontDescriptor? GetFontDescriptor(COSObject indirect) => null;
         public PDColorSpace? GetColorSpace(COSObject indirect) => null;
         public PDExtendedGraphicsState? GetExtGState(COSObject indirect) => null;
         public PDShading? GetShading(COSObject indirect) => null;
@@ -113,14 +111,6 @@ public class PDModelResourceContentStreamGapTest
         public PDXObject? GetXObject(COSObject indirect) => _xObjects.TryGetValue(indirect, out PDXObject? xObject) ? xObject : null;
 
         public void Put(COSObject indirect, PDFont font)
-        {
-        }
-
-        public void Put(COSObject indirect, PDCIDFont cidFont)
-        {
-        }
-
-        public void Put(COSObject indirect, PDFontDescriptor fontDescriptor)
         {
         }
 
@@ -153,8 +143,6 @@ public class PDModelResourceContentStreamGapTest
         public PDColorSpace? RemoveColorSpace(COSObject indirect) => null;
         public PDExtendedGraphicsState? RemoveExtState(COSObject indirect) => null;
         public PDFont? RemoveFont(COSObject indirect) => null;
-        public PDCIDFont? RemoveCIDFont(COSObject indirect) => null;
-        public PDFontDescriptor? RemoveFontDescriptor(COSObject indirect) => null;
         public PDShading? RemoveShading(COSObject indirect) => null;
         public PDAbstractPattern? RemovePattern(COSObject indirect) => null;
         public PDPropertyList? RemoveProperties(COSObject indirect) => null;

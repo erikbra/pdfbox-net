@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ResourceCache.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: cab997139d253eba7d4a520c209437b66ed12c90
  */
 
 /*
@@ -42,8 +42,6 @@ namespace PdfBox.Net.PDModel;
 public interface ResourceCache
 {
     PDFont? GetFont(COSObject indirect);
-    PDCIDFont? GetCIDFont(COSObject indirect);
-    PDFontDescriptor? GetFontDescriptor(COSObject indirect);
     PDColorSpace? GetColorSpace(COSObject indirect);
     PDExtendedGraphicsState? GetExtGState(COSObject indirect);
     PDShading? GetShading(COSObject indirect);
@@ -52,8 +50,6 @@ public interface ResourceCache
     PDXObject? GetXObject(COSObject indirect);
 
     void Put(COSObject indirect, PDFont font);
-    void Put(COSObject indirect, PDCIDFont cidFont);
-    void Put(COSObject indirect, PDFontDescriptor fontDescriptor);
     void Put(COSObject indirect, PDColorSpace colorSpace);
     void Put(COSObject indirect, PDExtendedGraphicsState extGState);
     void Put(COSObject indirect, PDShading shading);
@@ -64,8 +60,6 @@ public interface ResourceCache
     PDColorSpace? RemoveColorSpace(COSObject indirect);
     PDExtendedGraphicsState? RemoveExtState(COSObject indirect);
     PDFont? RemoveFont(COSObject indirect);
-    PDCIDFont? RemoveCIDFont(COSObject indirect);
-    PDFontDescriptor? RemoveFontDescriptor(COSObject indirect);
     PDShading? RemoveShading(COSObject indirect);
     PDAbstractPattern? RemovePattern(COSObject indirect);
     PDPropertyList? RemoveProperties(COSObject indirect);

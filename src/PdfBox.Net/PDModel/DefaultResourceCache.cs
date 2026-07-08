@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/DefaultResourceCache.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: cab997139d253eba7d4a520c209437b66ed12c90
  */
 
 /*
@@ -48,9 +48,6 @@ public class DefaultResourceCache : ResourceCache
     private readonly Dictionary<long, int> _removedFonts = [];
     private readonly HashSet<long> _stableFonts = [];
 
-    private readonly Dictionary<COSObject, WeakReference<PDCIDFont>> _cidFonts = [];
-    private readonly Dictionary<COSObject, WeakReference<PDFontDescriptor>> _fontDescriptors = [];
-
     private readonly Dictionary<COSObject, WeakReference<PDColorSpace>> _colorSpaces = [];
     private readonly Dictionary<long, int> _removedColorSpaces = [];
     private readonly HashSet<long> _stableColorSpaces = [];
@@ -88,15 +85,6 @@ public class DefaultResourceCache : ResourceCache
     public PDFont? GetFont(COSObject indirect) => Get(_fonts, indirect);
     public void Put(COSObject indirect, PDFont font) => _fonts[indirect] = new WeakReference<PDFont>(font);
     public PDFont? RemoveFont(COSObject indirect) => Remove(_fonts, indirect, _removedFonts, _stableFonts);
-
-    public PDCIDFont? GetCIDFont(COSObject indirect) => Get(_cidFonts, indirect);
-    public void Put(COSObject indirect, PDCIDFont cidFont) => _cidFonts[indirect] = new WeakReference<PDCIDFont>(cidFont);
-    public PDCIDFont? RemoveCIDFont(COSObject indirect) => Remove(_cidFonts, indirect);
-
-    public PDFontDescriptor? GetFontDescriptor(COSObject indirect) => Get(_fontDescriptors, indirect);
-    public void Put(COSObject indirect, PDFontDescriptor fontDescriptor) =>
-        _fontDescriptors[indirect] = new WeakReference<PDFontDescriptor>(fontDescriptor);
-    public PDFontDescriptor? RemoveFontDescriptor(COSObject indirect) => Remove(_fontDescriptors, indirect);
 
     public PDColorSpace? GetColorSpace(COSObject indirect) => Get(_colorSpaces, indirect);
     public void Put(COSObject indirect, PDColorSpace colorSpace) => _colorSpaces[indirect] = new WeakReference<PDColorSpace>(colorSpace);
