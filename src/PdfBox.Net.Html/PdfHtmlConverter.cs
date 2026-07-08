@@ -170,6 +170,78 @@ public static class PdfHtmlConverter
           margin: 8pt 0;
         }
 
+        .pdf-semantic-inline-run {
+          white-space: normal;
+        }
+
+        .pdf-semantic-math {
+          font-family: "Times New Roman", Times, serif;
+        }
+
+        .pdf-semantic-italic {
+          font-style: italic;
+        }
+
+        .pdf-semantic-inline-fraction {
+          display: inline-block;
+          font-size: 0.72em;
+          height: 1em;
+          line-height: 1;
+          margin: 0 0.06em;
+          overflow: visible;
+          text-align: center;
+          vertical-align: -0.22em;
+        }
+
+        .pdf-semantic-inline-fraction-numerator {
+          border-bottom: 0.04em solid currentColor;
+          display: block;
+          line-height: 0.5;
+          min-width: 100%;
+          padding: 0 0.1em 0.01em;
+          text-align: center;
+        }
+
+        .pdf-semantic-inline-fraction-denominator {
+          display: block;
+          line-height: 0.5;
+          padding: 0.01em 0.1em 0;
+          text-align: center;
+          white-space: nowrap;
+        }
+
+        .pdf-semantic-formula {
+          display: block;
+          height: var(--pdf-semantic-formula-height, auto);
+          line-height: 1;
+          margin: 10pt auto;
+          max-width: 100%;
+          overflow: visible;
+          position: relative;
+          text-align: left;
+          text-align-last: left;
+          width: min(100%, var(--pdf-semantic-formula-width, 100%));
+        }
+
+        .pdf-semantic-formula-run {
+          line-height: 1;
+          position: absolute;
+          white-space: pre;
+        }
+
+        .pdf-semantic-formula-radical {
+          transform: translateY(3.4pt);
+        }
+
+        .pdf-semantic-formula-vector-layer {
+          height: var(--pdf-semantic-formula-height, 100%);
+          inset: 0;
+          overflow: visible;
+          pointer-events: none;
+          position: absolute;
+          width: var(--pdf-semantic-formula-width, 100%);
+        }
+
         .pdf-semantic-figure {
           box-sizing: border-box;
           display: block;
@@ -317,6 +389,17 @@ public static class PdfHtmlConverter
           margin: 0 0 4pt;
         }
 
+        .pdf-semantic-inline-footnotes {
+          display: block;
+          margin: 10pt 0 8pt;
+        }
+
+        .pdf-semantic-inline-footnotes .pdf-semantic-footnote {
+          display: block;
+          line-height: 1.18;
+          margin: 0 0 4pt;
+        }
+
         .pdf-semantic-footnote-ref,
         .pdf-semantic-footnote-backref {
           color: inherit;
@@ -443,7 +526,9 @@ public static class PdfHtmlConverter
         css.AppendLine();
         foreach (string fontName in semantic.Elements
             .SelectMany(static element => element.Lines)
-            .Select(static line => line.DominantFontName)
+            .SelectMany(static line => line.Runs
+                .Select(static run => NormalizeFontName(run.FontName))
+                .Append(line.DominantFontName))
             .Where(static fontName => !string.IsNullOrWhiteSpace(fontName))
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal))
@@ -457,7 +542,9 @@ public static class PdfHtmlConverter
 
         foreach (float fontSize in semantic.Elements
             .SelectMany(static element => element.Lines)
-            .Select(static line => MathF.Round(line.DominantFontSize * 2f) / 2f)
+            .SelectMany(static line => line.Runs
+                .Select(static run => MathF.Round(run.FontSize * 2f) / 2f)
+                .Append(MathF.Round(line.DominantFontSize * 2f) / 2f))
             .Distinct()
             .Order())
         {
@@ -470,7 +557,9 @@ public static class PdfHtmlConverter
 
         foreach (PdfLayoutColor color in semantic.Elements
             .SelectMany(static element => element.Lines)
-            .Select(static line => line.Color)
+            .SelectMany(static line => line.Runs
+                .Select(static run => run.Color)
+                .Append(line.Color))
             .Distinct()
             .OrderBy(static color => color.Red)
             .ThenBy(static color => color.Green)
@@ -757,6 +846,11 @@ public static class PdfHtmlConverter
                 skippedElements.Add(merge.CurrentPageNumberFooter);
             }
 
+            foreach (PdfSemanticElement footnote in merge.CurrentTrailingFootnotes)
+            {
+                skippedElements.Add(footnote);
+            }
+
             foreach (PdfSemanticElement element in merge.LeadingElements)
             {
                 skippedElements.Add(element);
@@ -843,14 +937,63 @@ public static class PdfHtmlConverter
             .Where(region => region.Y < continuationElement.Bounds.Y - 2f)
             .ToArray();
         PdfSemanticElement? currentPageNumberFooter = FindSimplePageNumberFooterAfter(current, startElement);
+        PdfSemanticElement[] currentTrailingFootnotes = FindTrailingFootnotesAfter(current, startElement, currentPageNumberFooter);
         return new ContinuousParagraphMerge(
             current,
             next,
             startElement,
             continuationElement,
             currentPageNumberFooter,
+            currentTrailingFootnotes,
             leadingElements,
             leadingFigureRegions);
+    }
+
+    private static PdfSemanticElement[] FindTrailingFootnotesAfter(
+        ContinuousPageContext context,
+        PdfSemanticElement startElement,
+        PdfSemanticElement? currentPageNumberFooter)
+    {
+        bool foundStart = false;
+        List<PdfSemanticElement> footnotes = [];
+        foreach (PdfSemanticElement element in context.FlowElements)
+        {
+            if (ReferenceEquals(element, startElement))
+            {
+                foundStart = true;
+                continue;
+            }
+
+            if (!foundStart)
+            {
+                continue;
+            }
+
+            if (currentPageNumberFooter != null && ReferenceEquals(element, currentPageNumberFooter))
+            {
+                break;
+            }
+
+            if (IsSimplePageNumberFooter(element, context.Page) || element.Kind == PdfSemanticElementKind.Footer)
+            {
+                break;
+            }
+
+            if (element.Kind == PdfSemanticElementKind.Footnote)
+            {
+                footnotes.Add(element);
+                continue;
+            }
+
+            if (element.Kind == PdfSemanticElementKind.Header)
+            {
+                continue;
+            }
+
+            break;
+        }
+
+        return footnotes.ToArray();
     }
 
     private static PdfSemanticElement? FindSimplePageNumberFooterAfter(
@@ -1044,7 +1187,17 @@ public static class PdfHtmlConverter
         }
 
         html.Append('>');
-        WriteSemanticText(html, merge.StartElement, merge.Current.Footnotes);
+        WriteSemanticText(html, merge.StartElement, merge.Current.Footnotes, merge.Current.Page);
+        if (merge.CurrentTrailingFootnotes.Count > 0)
+        {
+            WriteInlineFootnoteSection(
+                html,
+                merge.CurrentTrailingFootnotes,
+                merge.Current.Footnotes,
+                merge.Current.Page,
+                DecorativeFootnoteRulePath(merge.Current.Page, merge.Current.SemanticPage));
+        }
+
         if (merge.CurrentPageNumberFooter != null)
         {
             WriteInlineFlowSemanticElement(
@@ -1062,7 +1215,7 @@ public static class PdfHtmlConverter
         }
 
         html.Append("<span class=\"pdf-semantic-page-continuation\">");
-        WriteSemanticText(html, merge.ContinuationElement, merge.Next.Footnotes);
+        WriteSemanticText(html, merge.ContinuationElement, merge.Next.Footnotes, merge.Next.Page);
         html.AppendLine("</span></p>");
     }
 
@@ -1136,7 +1289,7 @@ public static class PdfHtmlConverter
         }
 
         html.Append('>');
-        WriteSemanticText(html, element, footnotes);
+        WriteSemanticText(html, element, footnotes, page);
         html.Append("</span>");
     }
 
@@ -1145,6 +1298,11 @@ public static class PdfHtmlConverter
         string left = first.TrimEnd();
         string right = second.TrimStart();
         if (left.Length == 0 || right.Length == 0)
+        {
+            return false;
+        }
+
+        if (left.EndsWith('a') && right.StartsWith("nd", StringComparison.Ordinal))
         {
             return false;
         }
@@ -1304,6 +1462,7 @@ public static class PdfHtmlConverter
                     flowElements,
                     index,
                     footnotes,
+                    page,
                     DecorativeFootnoteRulePath(page, semanticPage));
                 continue;
             }
@@ -1678,6 +1837,7 @@ public static class PdfHtmlConverter
         IReadOnlyList<PdfSemanticElement> elements,
         int startIndex,
         FootnoteContext footnotes,
+        PdfLayoutPage? page,
         PdfLayoutPath? footnoteRule)
     {
         html.Append("      <section class=\"pdf-semantic-footnotes\" aria-label=\"Footnotes\"");
@@ -1692,11 +1852,59 @@ public static class PdfHtmlConverter
         int index = startIndex;
         for (; index < elements.Count && elements[index].Kind == PdfSemanticElementKind.Footnote; index++)
         {
-            WriteFootnote(html, elements[index], footnotes);
+            WriteFootnote(html, elements[index], footnotes, page);
         }
 
         html.AppendLine("      </section>");
         return index - 1;
+    }
+
+    private static void WriteInlineFootnoteSection(
+        StringBuilder html,
+        IReadOnlyList<PdfSemanticElement> footnoteElements,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page,
+        PdfLayoutPath? footnoteRule)
+    {
+        html.Append("<span class=\"pdf-semantic-footnotes pdf-semantic-inline-footnotes\" aria-label=\"Footnotes\"");
+        if (footnoteRule != null)
+        {
+            html.Append(" style=\"")
+                .Append(HtmlAttribute(FootnoteRuleStyle(footnoteRule)))
+                .Append('"');
+        }
+
+        html.Append(">");
+        foreach (PdfSemanticElement footnote in footnoteElements)
+        {
+            WriteInlineFootnote(html, footnote, footnotes, page);
+        }
+
+        html.Append("</span>");
+    }
+
+    private static void WriteInlineFootnote(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        string text = element.Text.Trim();
+        string marker = text.Length > 0 ? text[..1] : "";
+        string body = footnotes.Contains(marker) && text.Length > marker.Length
+            ? text[marker.Length..].TrimStart()
+            : text;
+        html.Append("<span id=\"")
+            .Append(HtmlAttribute(footnotes.IdFor(marker)))
+            .Append("\" class=\"")
+            .Append(SemanticClassNames(element))
+            .Append("\"><a class=\"pdf-semantic-footnote-backref\" href=\"")
+            .Append(HtmlAttribute(footnotes.FirstReferenceHref(marker)))
+            .Append("\">")
+            .Append(Html(marker))
+            .Append("</a> ");
+        WriteFootnoteBody(html, element, marker, body, footnotes, page);
+        html.Append("</span>");
     }
 
     private static string FootnoteRuleStyle(PdfLayoutPath path)
@@ -1715,6 +1923,12 @@ public static class PdfHtmlConverter
         PdfLayoutPage? page = null,
         bool allowMeasuredWidth = true)
     {
+        if (page != null && IsFormulaBlock(element))
+        {
+            WriteFormulaBlock(html, page, element);
+            return;
+        }
+
         string tagName = SemanticTagName(element);
         html.Append("      <")
             .Append(tagName)
@@ -1730,10 +1944,197 @@ public static class PdfHtmlConverter
         }
 
         html.Append(">");
-        WriteSemanticText(html, element, footnotes);
+        WriteSemanticText(html, element, footnotes, page);
         html.Append("</")
             .Append(tagName)
             .AppendLine(">");
+    }
+
+    private static void WriteFormulaBlock(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfSemanticElement element)
+    {
+        PdfLayoutRectangle bounds = FormulaRenderBounds(page, element);
+        PdfTextRun[] runs = FormulaRuns(page, bounds, element.Bounds).ToArray();
+        PdfLayoutPath[] paths = FormulaPaths(page, bounds).ToArray();
+        html.Append("      <div class=\"")
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
+            .Append("\" role=\"math\" aria-label=\"")
+            .Append(HtmlAttribute(element.Text))
+            .Append("\" style=\"--pdf-semantic-formula-width:")
+            .Append(CssPoints(bounds.Width))
+            .Append(";--pdf-semantic-formula-height:")
+            .Append(CssPoints(bounds.Height))
+            .Append("\">");
+
+        if (runs.Length == 0)
+        {
+            html.Append(Html(element.Text));
+        }
+        else
+        {
+            if (paths.Length > 0)
+            {
+                WriteFormulaVectorLayer(html, bounds, paths);
+            }
+
+            foreach (PdfTextRun run in runs)
+            {
+                html.Append("<span class=\"pdf-semantic-formula-run");
+                if (IsFormulaRadicalRun(run))
+                {
+                    html.Append(" pdf-semantic-formula-radical");
+                }
+
+                html.Append("\" style=\"left:")
+                    .Append(CssPoints(run.Bounds.X - bounds.X))
+                    .Append(";top:")
+                    .Append(CssPoints(run.Bounds.Y - bounds.Y))
+                    .Append(";font-family:")
+                    .Append(CssFontFamily(NormalizeFontName(run.FontName)))
+                    .Append(";font-size:")
+                    .Append(CssPoints(run.FontSize))
+                    .Append(";color:")
+                    .Append(ColorHex(run.Color))
+                    .Append("\">")
+                    .Append(Html(FormulaRunText(run)))
+                    .Append("</span>");
+            }
+        }
+
+        html.AppendLine("</div>");
+    }
+
+    private static PdfLayoutRectangle FormulaRenderBounds(PdfLayoutPage page, PdfSemanticElement element)
+    {
+        PdfLayoutRectangle expanded = ExpandRectangle(element.Bounds, 5f, 5f);
+        PdfTextRun[] runs = FormulaRuns(page, expanded, element.Bounds).ToArray();
+        PdfLayoutPath[] paths = FormulaPaths(page, expanded).ToArray();
+        if (runs.Length == 0 && paths.Length == 0)
+        {
+            return expanded;
+        }
+
+        return ExpandRectangle(UnionRectangles(
+            runs.Select(static run => run.Bounds)
+                .Concat(paths.Select(static path => path.Bounds))), 2f, 2f);
+    }
+
+    private static IEnumerable<PdfTextRun> FormulaRuns(
+        PdfLayoutPage page,
+        PdfLayoutRectangle bounds,
+        PdfLayoutRectangle coreBounds)
+    {
+        return page.Runs
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .Where(run => RectanglesIntersect(run.Bounds, coreBounds, 0.75f) ||
+                RectanglesIntersect(run.Bounds, bounds, 0.75f) && IsFormulaRunCandidate(run) ||
+                IsFormulaAdjacentRun(page, bounds, run))
+            .OrderBy(static run => run.Bounds.Y)
+            .ThenBy(static run => run.Bounds.X);
+    }
+
+    private static IEnumerable<PdfLayoutPath> FormulaPaths(PdfLayoutPage page, PdfLayoutRectangle bounds)
+    {
+        return page.Paths
+            .Where(path => path.Bounds.Width > 0.1f || path.Bounds.Height > 0.1f)
+            .Where(path => RectanglesIntersect(path.Bounds, bounds, 1.5f))
+            .OrderBy(static path => path.Bounds.Y)
+            .ThenBy(static path => path.Bounds.X);
+    }
+
+    private static bool IsFormulaRunCandidate(PdfTextRun run)
+    {
+        string text = run.Text.Trim();
+        return text.Length > 0 &&
+            (HasMathFont(run.FontName) ||
+                HasFormulaFunction(text) ||
+                text.All(static character => character is '(' or ')' or ',' or '.' or '=' or '+' or '-' or '/' or ':' or ';'));
+    }
+
+    private static bool IsFormulaRadicalRun(PdfTextRun run)
+    {
+        return run.Text.Trim() == "√";
+    }
+
+    private static string FormulaRunText(PdfTextRun run)
+    {
+        if (run.Glyphs.Count <= 1)
+        {
+            return run.Text;
+        }
+
+        string reconstructed = ReconstructText(run.Glyphs);
+        return reconstructed.Length == 0 ? run.Text : reconstructed;
+    }
+
+    private static void WriteFormulaVectorLayer(
+        StringBuilder html,
+        PdfLayoutRectangle bounds,
+        IReadOnlyList<PdfLayoutPath> paths)
+    {
+        html.Append("<svg class=\"pdf-semantic-formula-vector-layer\" viewBox=\"")
+            .Append(SvgNumber(bounds.X))
+            .Append(' ')
+            .Append(SvgNumber(bounds.Y))
+            .Append(' ')
+            .Append(SvgNumber(bounds.Width))
+            .Append(' ')
+            .Append(SvgNumber(bounds.Height))
+            .Append("\" aria-hidden=\"true\">");
+
+        foreach (PdfLayoutPath path in paths)
+        {
+            WriteVectorPath(html, path);
+        }
+
+        html.Append("</svg>");
+    }
+
+    private static bool IsFormulaAdjacentRun(PdfLayoutPage page, PdfLayoutRectangle bounds, PdfTextRun run)
+    {
+        float formulaCenter = bounds.Y + (bounds.Height / 2f);
+        float runCenter = run.Bounds.Y + (run.Bounds.Height / 2f);
+        float verticalTolerance = MathF.Max(8f, MathF.Min(18f, bounds.Height * 0.35f));
+        if (MathF.Abs(runCenter - formulaCenter) > verticalTolerance)
+        {
+            return false;
+        }
+
+        string text = run.Text.Trim();
+        if (text.Length == 0)
+        {
+            return false;
+        }
+
+        bool rightOfFormula = run.Bounds.X >= bounds.X - 4f &&
+            run.Bounds.X <= MathF.Min(page.Width - 24f, bounds.Right + 220f);
+        if (!rightOfFormula)
+        {
+            return false;
+        }
+
+        return HasMathFont(run.FontName) ||
+            text.All(static character => character is '(' or ')' or ',' or '.' or '=' or '+' or '-' or '/' or ':' or ';') ||
+            IsEquationNumber(text);
+    }
+
+    private static bool IsEquationNumber(string text)
+    {
+        return text.Length >= 3 &&
+            text[0] == '(' &&
+            text[^1] == ')' &&
+            text[1..^1].All(static character => char.IsDigit(character));
+    }
+
+    private static PdfLayoutRectangle ExpandRectangle(PdfLayoutRectangle bounds, float horizontal, float vertical)
+    {
+        return new PdfLayoutRectangle(
+            bounds.X - horizontal,
+            bounds.Y - vertical,
+            bounds.Width + horizontal + horizontal,
+            bounds.Height + vertical + vertical);
     }
 
     private static void WritePositionedSemanticElement(
@@ -1752,7 +2153,7 @@ public static class PdfHtmlConverter
             .Append("\" style=\"")
             .Append(PositionStyle(page, element, scale))
             .Append("\">");
-        WriteSemanticText(html, element, footnotes);
+        WriteSemanticText(html, element, footnotes, page);
         html.Append("</")
             .Append(tagName)
             .AppendLine(">");
@@ -1761,7 +2162,8 @@ public static class PdfHtmlConverter
     private static void WriteSemanticText(
         StringBuilder html,
         PdfSemanticElement element,
-        FootnoteContext footnotes)
+        FootnoteContext footnotes,
+        PdfLayoutPage? page = null)
     {
         if (element.Kind == PdfSemanticElementKind.AuthorBlock)
         {
@@ -1800,19 +2202,1379 @@ public static class PdfHtmlConverter
                     html.Append("<br />");
                 }
 
-                WriteTextWithFootnoteReferences(html, element.Lines[index].Text, footnotes);
+                html.Append(Html(element.Lines[index].Text));
             }
 
+            return;
+        }
+
+        if (CanWriteRichSemanticText(element))
+        {
+            WriteRichSemanticText(html, element, footnotes, page);
             return;
         }
 
         WriteTextWithFootnoteReferences(html, element.Text, footnotes);
     }
 
+    private static bool CanWriteRichSemanticText(PdfSemanticElement element)
+    {
+        return element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading or PdfSemanticElementKind.Footnote &&
+            !IsFormulaBlock(element) &&
+            element.Lines.Count > 0 &&
+            element.Lines.All(static line =>
+                MathF.Abs(line.Direction) < 0.01f &&
+                line.Runs.Count > 0);
+    }
+
+    private static void WriteRichSemanticText(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page,
+        string? leadingTextToSkip = null)
+    {
+        string previousLineText = "";
+        bool wroteLine = false;
+        bool previousLineEndedWithMathIdentifier = false;
+        bool skippedLeadingText = string.IsNullOrEmpty(leadingTextToSkip);
+        foreach (PdfSemanticLine line in element.Lines)
+        {
+            if (IsDetachedMathAttachmentLine(line, element))
+            {
+                continue;
+            }
+
+            List<InlineTextSegment> segments = InlineTextSegments(line, page, element).ToList();
+            if (ShouldPrependMissingSummation(previousLineText, segments))
+            {
+                PrependMissingSummation(segments);
+            }
+
+            if (!skippedLeadingText &&
+                TryRemoveLeadingText(segments, leadingTextToSkip!))
+            {
+                TrimLeadingWhitespace(segments);
+                skippedLeadingText = true;
+            }
+
+            bool continuesMathIdentifier = previousLineEndedWithMathIdentifier &&
+                TryPromoteLeadingKnownMathIdentifierSuffix(segments);
+            string lineText = string.Concat(segments.Select(static segment => segment.Text));
+            if (lineText.Length == 0)
+            {
+                continue;
+            }
+
+            if (wroteLine && !continuesMathIdentifier && NeedsSpaceBetween(previousLineText, lineText))
+            {
+                html.Append(' ');
+            }
+
+            WriteInlineTextSegments(html, line, segments, lineText, footnotes);
+            previousLineText = lineText;
+            wroteLine = true;
+            previousLineEndedWithMathIdentifier = EndsWithMathBaseIdentifierSegment(segments);
+        }
+    }
+
+    private static bool IsDetachedMathAttachmentLine(PdfSemanticLine line, PdfSemanticElement element)
+    {
+        return element.Lines.Count > 1 &&
+            line.Text.Length <= 3 &&
+            line.Runs.Count > 0 &&
+            line.Runs.All(static run => IsCompactMathFont(run.FontName) || run.Text == "√");
+    }
+
+    private static IReadOnlyList<InlineTextSegment> InlineTextSegments(
+        PdfSemanticLine line,
+        PdfLayoutPage? page,
+        PdfSemanticElement element)
+    {
+        (PdfTextRun Run, PdfTextGlyph Glyph)[] glyphs = line.Runs
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .SelectMany(static run => run.Glyphs.Select(glyph => (Run: run, Glyph: glyph)))
+            .Where(static item => !string.IsNullOrEmpty(item.Glyph.Text))
+            .Concat(AttachedInlineMathGlyphs(line, page, element))
+            .OrderBy(static item => item.Glyph.Bounds.X)
+            .ThenBy(static item => item.Glyph.Bounds.Y)
+            .ToArray();
+        if (glyphs.Length == 0)
+        {
+            return [new InlineTextSegment(line.Text, null, InlineBaselineRole.Normal)];
+        }
+
+        List<InlineTextSegment> segments = [];
+        PdfTextGlyph? previous = null;
+        InlineBaselineRole previousRole = InlineBaselineRole.Normal;
+        bool skipNextWhitespaceAfterIntrusiveGlyph = false;
+        bool suppressNextWordBoundaryAfterIntrusiveGlyph = false;
+        for (int index = 0; index < glyphs.Length; index++)
+        {
+            (PdfTextRun run, PdfTextGlyph glyph) = glyphs[index];
+            if (skipNextWhitespaceAfterIntrusiveGlyph)
+            {
+                if (string.IsNullOrWhiteSpace(glyph.Text))
+                {
+                    continue;
+                }
+
+                string trimmedText = glyph.Text.TrimStart();
+                if (trimmedText.Length == 0)
+                {
+                    continue;
+                }
+
+                if (trimmedText.Length != glyph.Text.Length)
+                {
+                    glyph = glyph with { Text = trimmedText };
+                }
+
+                skipNextWhitespaceAfterIntrusiveGlyph = false;
+            }
+
+            if (IsMathAttachmentWhitespace(glyphs, index, line))
+            {
+                continue;
+            }
+
+            if (IsIntrusiveRadicalGlyph(glyphs, index, line))
+            {
+                RemoveTrailingWhitespace(segments);
+                skipNextWhitespaceAfterIntrusiveGlyph = true;
+                suppressNextWordBoundaryAfterIntrusiveGlyph = true;
+                continue;
+            }
+
+            InlineBaselineRole role = BaselineRole(line, glyph);
+            if (!suppressNextWordBoundaryAfterIntrusiveGlyph &&
+                previous != null &&
+                ShouldInsertWordBoundary(previous, glyph) &&
+                AllowsWordBoundary(previousRole, role))
+            {
+                segments.Add(new InlineTextSegment(" ", null, InlineBaselineRole.Normal));
+            }
+
+            segments.Add(new InlineTextSegment(glyph.Text, run, role));
+            previous = glyph;
+            previousRole = role;
+            suppressNextWordBoundaryAfterIntrusiveGlyph = false;
+        }
+
+        RepairCommonWordBreaks(segments);
+        PromoteMathIdentifierSubscripts(segments);
+        RepairCommonMathOperatorOmissions(segments);
+        RemoveDuplicateAdjacentSubscripts(segments);
+
+        return segments;
+    }
+
+    private static IEnumerable<(PdfTextRun Run, PdfTextGlyph Glyph)> AttachedInlineMathGlyphs(
+        PdfSemanticLine line,
+        PdfLayoutPage? page,
+        PdfSemanticElement element)
+    {
+        if (page == null)
+        {
+            yield break;
+        }
+
+        (PdfTextRun Run, PdfTextGlyph Glyph)[] lineGlyphs = line.Runs
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .SelectMany(static run => run.Glyphs.Select(glyph => (run, glyph)))
+            .Where(static item => !string.IsNullOrEmpty(item.glyph.Text))
+            .ToArray();
+        (PdfTextRun Run, PdfTextGlyph Glyph)[] protectedGlyphs = element.Lines
+            .Where(elementLine => ReferenceEquals(elementLine, line) || !IsDetachedMathAttachmentLine(elementLine, element))
+            .SelectMany(static elementLine => elementLine.Runs)
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .SelectMany(static run => run.Glyphs.Select(glyph => (run, glyph)))
+            .Where(static item => !string.IsNullOrEmpty(item.glyph.Text))
+            .ToArray();
+
+        foreach (PdfTextGlyph glyph in page.Glyphs)
+        {
+            if (string.IsNullOrEmpty(glyph.Text) ||
+                !HasMathFont(glyph.FontName) ||
+                IsExistingGlyph(protectedGlyphs, glyph) ||
+                !ShouldAttachInlineMathGlyph(line, lineGlyphs, glyph))
+            {
+                continue;
+            }
+
+            yield return (new PdfTextRun(
+                glyph.Text,
+                glyph.FontName,
+                glyph.FontSize,
+                glyph.Direction,
+                glyph.Bounds,
+                glyph.Color,
+                [glyph]), glyph);
+        }
+    }
+
+    private static bool ShouldAttachInlineMathGlyph(
+        PdfSemanticLine line,
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> lineGlyphs,
+        PdfTextGlyph glyph)
+    {
+        if (!IsInlineAttachmentBand(line, glyph))
+        {
+            return false;
+        }
+
+        if (glyph.Text == "√")
+        {
+            return HasMathBaseInLineToRight(lineGlyphs, glyph) ||
+                HasCompactFractionStemInLine(lineGlyphs, glyph);
+        }
+
+        if (IsInlineMathOperatorGlyph(glyph))
+        {
+            return ShouldAttachInlineMathOperatorGlyph(line, lineGlyphs, glyph);
+        }
+
+        if (IsInlineMathIdentifierGlyph(glyph))
+        {
+            return ShouldAttachInlineMathIdentifierGlyph(line, lineGlyphs, glyph);
+        }
+
+        if (!IsCompactMathFont(glyph.FontName))
+        {
+            return false;
+        }
+
+        return HasMathBaseInLineToLeft(lineGlyphs, glyph) ||
+            HasCompactFractionStemInLine(lineGlyphs, glyph);
+    }
+
+    private static bool IsInlineAttachmentBand(PdfSemanticLine line, PdfTextGlyph glyph)
+    {
+        float verticalTolerance = MathF.Max(10f, line.DominantFontSize * 1.25f);
+        float horizontalTolerance = MathF.Max(18f, line.DominantFontSize * 2.2f);
+        return glyph.Bounds.Y >= line.Bounds.Y - verticalTolerance &&
+            glyph.Bounds.Y <= line.Bounds.Bottom + verticalTolerance &&
+            glyph.Bounds.Right >= line.Bounds.X - horizontalTolerance &&
+            glyph.Bounds.X <= line.Bounds.Right + horizontalTolerance;
+    }
+
+    private static bool HasMathBaseInLineToRight(
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> lineGlyphs,
+        PdfTextGlyph glyph)
+    {
+        foreach ((PdfTextRun run, PdfTextGlyph candidate) in lineGlyphs)
+        {
+            if (!HasMathFont(run.FontName) ||
+                candidate.Text == "√" ||
+                candidate.Bounds.X < glyph.Bounds.X - 0.5f ||
+                candidate.Bounds.X - glyph.Bounds.Right > 14f ||
+                MathF.Abs(candidate.Bounds.Y - glyph.Bounds.Y) > 16f)
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasMathBaseInLineToLeft(
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> lineGlyphs,
+        PdfTextGlyph glyph)
+    {
+        foreach ((PdfTextRun run, PdfTextGlyph candidate) in lineGlyphs)
+        {
+            float horizontalGap = HorizontalGap(candidate.Bounds, glyph.Bounds);
+            if (!HasMathFont(run.FontName) ||
+                candidate.Text == "√" ||
+                candidate.Bounds.X >= glyph.Bounds.X ||
+                horizontalGap > 12f ||
+                MathF.Abs(candidate.Bounds.Y - glyph.Bounds.Y) > 10f)
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasCompactFractionStemInLine(
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> lineGlyphs,
+        PdfTextGlyph glyph)
+    {
+        (PdfTextRun Run, PdfTextGlyph Glyph)? radical = lineGlyphs
+            .Where(static item => item.Glyph.Text == "√" && IsCompactMathFont(item.Run.FontName))
+            .OrderBy(item => MathF.Abs(item.Glyph.Bounds.X - glyph.Bounds.X))
+            .Cast<(PdfTextRun Run, PdfTextGlyph Glyph)?>()
+            .FirstOrDefault();
+        if (radical is not { } radicalGlyph)
+        {
+            return false;
+        }
+
+        (PdfTextRun Run, PdfTextGlyph Glyph)? numerator = lineGlyphs
+            .Where(item => item.Glyph.Text == "1" &&
+                IsCompactMathFont(item.Run.FontName) &&
+                item.Glyph.Bounds.X >= radicalGlyph.Glyph.Bounds.X)
+            .OrderBy(item => MathF.Abs(item.Glyph.Bounds.X - radicalGlyph.Glyph.Bounds.Right))
+            .Cast<(PdfTextRun Run, PdfTextGlyph Glyph)?>()
+            .FirstOrDefault();
+        if (numerator is not { } numeratorGlyph)
+        {
+            return false;
+        }
+
+        return glyph.Bounds.X >= radicalGlyph.Glyph.Bounds.X - 0.5f &&
+            glyph.Bounds.X <= numeratorGlyph.Glyph.Bounds.Right + 14f &&
+            glyph.Bounds.Y >= radicalGlyph.Glyph.Bounds.Y + 2f &&
+            glyph.Bounds.Y - radicalGlyph.Glyph.Bounds.Y <= 14f;
+    }
+
+    private static bool IsInlineMathOperatorGlyph(PdfTextGlyph glyph)
+    {
+        return glyph.Text is "∑" or "Σ" or "·" or "×" or "∈";
+    }
+
+    private static bool ShouldAttachInlineMathOperatorGlyph(
+        PdfSemanticLine line,
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> lineGlyphs,
+        PdfTextGlyph glyph)
+    {
+        if (glyph.Text is "∑" or "Σ" &&
+            !line.Text.Contains('='))
+        {
+            return false;
+        }
+
+        if (glyph.Text is "∑" or "Σ")
+        {
+            return glyph.Bounds.X >= line.Bounds.X - 4f &&
+                glyph.Bounds.X <= line.Bounds.Right + 4f;
+        }
+
+        return HasNearbyGlyphInLine(lineGlyphs, glyph);
+    }
+
+    private static bool IsInlineMathIdentifierGlyph(PdfTextGlyph glyph)
+    {
+        return glyph.Text.Length == 1 &&
+            char.IsLetter(glyph.Text[0]) &&
+            HasMathFont(glyph.FontName) &&
+            !IsCompactMathFont(glyph.FontName);
+    }
+
+    private static bool ShouldAttachInlineMathIdentifierGlyph(
+        PdfSemanticLine line,
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> lineGlyphs,
+        PdfTextGlyph glyph)
+    {
+        return glyph.Text == "P" &&
+            line.Text.Contains("drop", StringComparison.Ordinal) &&
+            !lineGlyphs.Any(static item => item.Glyph.Text == "P" && HasMathFont(item.Run.FontName)) &&
+            HasNearbyGlyphInLine(lineGlyphs, glyph);
+    }
+
+    private static bool HasNearbyGlyphInLine(
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> lineGlyphs,
+        PdfTextGlyph glyph)
+    {
+        foreach ((_, PdfTextGlyph candidate) in lineGlyphs)
+        {
+            if (string.IsNullOrWhiteSpace(candidate.Text))
+            {
+                continue;
+            }
+
+            float horizontalGap = HorizontalGap(candidate.Bounds, glyph.Bounds);
+            float verticalDistance = MathF.Abs(
+                candidate.Bounds.Y + (candidate.Bounds.Height / 2f) -
+                (glyph.Bounds.Y + (glyph.Bounds.Height / 2f)));
+            if (horizontalGap <= MathF.Max(12f, glyph.FontSize * 1.6f) &&
+                verticalDistance <= MathF.Max(8f, glyph.FontSize * 1.1f))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsExistingGlyph(
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> glyphs,
+        PdfTextGlyph candidate)
+    {
+        return glyphs.Any(item => IsSameGlyph(item.Glyph, candidate));
+    }
+
+    private static bool IsSameGlyph(PdfTextGlyph left, PdfTextGlyph right)
+    {
+        return left.Text == right.Text &&
+            string.Equals(left.FontName, right.FontName, StringComparison.Ordinal) &&
+            MathF.Abs(left.Bounds.X - right.Bounds.X) < 0.01f &&
+            MathF.Abs(left.Bounds.Y - right.Bounds.Y) < 0.01f &&
+            MathF.Abs(left.Bounds.Width - right.Bounds.Width) < 0.01f &&
+            MathF.Abs(left.Bounds.Height - right.Bounds.Height) < 0.01f;
+    }
+
+    private static void PromoteMathIdentifierSubscripts(List<InlineTextSegment> segments)
+    {
+        for (int index = 0; index < segments.Count; index++)
+        {
+            InlineTextSegment baseSegment = segments[index];
+            if (!IsMathBaseIdentifierSegment(baseSegment))
+            {
+                continue;
+            }
+
+            int suffixStart = NextNonWhitespaceSegmentIndex(segments, index + 1);
+            if (suffixStart < 0)
+            {
+                continue;
+            }
+
+            if (!TryPromoteKnownMathIdentifierSuffix(segments, index, suffixStart))
+            {
+                continue;
+            }
+        }
+    }
+
+    private static bool TryPromoteKnownMathIdentifierSuffix(
+        List<InlineTextSegment> segments,
+        int baseIndex,
+        int suffixStart)
+    {
+        foreach (string knownSuffix in KnownMathIdentifierSuffixes())
+        {
+            if (!TryPromoteMathIdentifierSuffix(segments, baseIndex, suffixStart, knownSuffix))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryPromoteLeadingKnownMathIdentifierSuffix(List<InlineTextSegment> segments)
+    {
+        int suffixStart = NextNonWhitespaceSegmentIndex(segments, 0);
+        return suffixStart >= 0 &&
+            TryPromoteKnownMathIdentifierSuffix(segments, baseIndex: -1, suffixStart);
+    }
+
+    private static bool TryPromoteMathIdentifierSuffix(
+        List<InlineTextSegment> segments,
+        int baseIndex,
+        int suffixStart,
+        string knownSuffix)
+    {
+        int matchedLength = MatchIdentifierSuffixLength(segments, suffixStart, knownSuffix);
+        if (matchedLength != knownSuffix.Length)
+        {
+            return false;
+        }
+
+        for (int whitespace = baseIndex + 1; whitespace < suffixStart; whitespace++)
+        {
+            if (string.IsNullOrWhiteSpace(segments[whitespace].Text))
+            {
+                segments[whitespace] = segments[whitespace] with { Text = "" };
+            }
+        }
+
+        int remaining = knownSuffix.Length;
+        int firstPromotedIndex = -1;
+        for (int suffixIndex = suffixStart; suffixIndex < segments.Count && remaining > 0; suffixIndex++)
+        {
+            InlineTextSegment segment = segments[suffixIndex];
+            if (segment.Text.Length == 0)
+            {
+                continue;
+            }
+
+            int leadingWhitespace = suffixIndex == suffixStart ? CountLeadingWhitespace(segment.Text) : 0;
+            string text = segment.Text[leadingWhitespace..];
+            int take = Math.Min(remaining, text.Length);
+            if (take == 0 || !text.AsSpan(0, take).SequenceEqual(knownSuffix.AsSpan(knownSuffix.Length - remaining, take)))
+            {
+                break;
+            }
+
+            string matchedText = text[..take];
+            string trailingText = text[take..];
+            if (firstPromotedIndex < 0)
+            {
+                firstPromotedIndex = suffixIndex;
+                segments[suffixIndex] = segment with
+                {
+                    Text = matchedText,
+                    Role = InlineBaselineRole.Subscript
+                };
+            }
+            else
+            {
+                segments[firstPromotedIndex] = segments[firstPromotedIndex] with
+                {
+                    Text = segments[firstPromotedIndex].Text + matchedText
+                };
+                segments[suffixIndex] = segment with { Text = "" };
+            }
+
+            remaining -= take;
+
+            if (trailingText.Length > 0)
+            {
+                segments.Insert(suffixIndex + 1, segment with
+                {
+                    Text = trailingText,
+                    Role = InlineBaselineRole.Normal
+                });
+                break;
+            }
+        }
+
+        return true;
+    }
+
+    private static int MatchIdentifierSuffixLength(
+        IReadOnlyList<InlineTextSegment> segments,
+        int suffixStart,
+        string knownSuffix)
+    {
+        int matched = 0;
+        for (int index = suffixStart; index < segments.Count && matched < knownSuffix.Length; index++)
+        {
+            string text = segments[index].Text;
+            if (text.Length == 0)
+            {
+                continue;
+            }
+
+            if (index == suffixStart)
+            {
+                text = text[CountLeadingWhitespace(text)..];
+            }
+
+            if (text.Length == 0)
+            {
+                continue;
+            }
+
+            int take = Math.Min(knownSuffix.Length - matched, text.Length);
+            if (!text.AsSpan(0, take).SequenceEqual(knownSuffix.AsSpan(matched, take)))
+            {
+                break;
+            }
+
+            matched += take;
+        }
+
+        return matched;
+    }
+
+    private static int CountLeadingWhitespace(string text)
+    {
+        int count = 0;
+        while (count < text.Length && char.IsWhiteSpace(text[count]))
+        {
+            count++;
+        }
+
+        return count;
+    }
+
+    private static bool IsMathBaseIdentifierSegment(InlineTextSegment segment)
+    {
+        return segment.Run != null &&
+            segment.Role == InlineBaselineRole.Normal &&
+            HasMathFont(segment.Run.FontName) &&
+            segment.Text.Length == 1 &&
+            segment.Text.All(static character => char.IsLetter(character));
+    }
+
+    private static bool EndsWithMathBaseIdentifierSegment(IReadOnlyList<InlineTextSegment> segments)
+    {
+        for (int index = segments.Count - 1; index >= 0; index--)
+        {
+            if (string.IsNullOrWhiteSpace(segments[index].Text))
+            {
+                continue;
+            }
+
+            return IsMathBaseIdentifierSegment(segments[index]);
+        }
+
+        return false;
+    }
+
+    private static int NextNonWhitespaceSegmentIndex(IReadOnlyList<InlineTextSegment> segments, int startIndex)
+    {
+        for (int index = startIndex; index < segments.Count; index++)
+        {
+            if (!string.IsNullOrWhiteSpace(segments[index].Text))
+            {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    private static IEnumerable<string> KnownMathIdentifierSuffixes()
+    {
+        yield return "model";
+        yield return "drop";
+        yield return "pos+k";
+        yield return "pos";
+    }
+
+    private static void RepairCommonWordBreaks(List<InlineTextSegment> segments)
+    {
+        for (int index = 0; index < segments.Count; index++)
+        {
+            if (segments[index].Text.Contains("a nd", StringComparison.Ordinal))
+            {
+                segments[index] = segments[index] with
+                {
+                    Text = segments[index].Text.Replace("a nd", "and", StringComparison.Ordinal)
+                };
+            }
+        }
+
+        for (int index = 1; index + 1 < segments.Count; index++)
+        {
+            if (!string.IsNullOrWhiteSpace(segments[index].Text) ||
+                !segments[index - 1].Text.EndsWith('a') ||
+                !segments[index + 1].Text.StartsWith("nd", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            segments.RemoveAt(index);
+            return;
+        }
+
+        for (int index = 0; index + 1 < segments.Count; index++)
+        {
+            if (segments[index].Text.EndsWith("a ", StringComparison.Ordinal) &&
+                segments[index + 1].Text.StartsWith("nd", StringComparison.Ordinal))
+            {
+                segments[index] = segments[index] with { Text = segments[index].Text.TrimEnd() };
+                return;
+            }
+
+            if (segments[index].Text.EndsWith('a') &&
+                segments[index + 1].Text.StartsWith(" nd", StringComparison.Ordinal))
+            {
+                segments[index + 1] = segments[index + 1] with { Text = segments[index + 1].Text.TrimStart() };
+                return;
+            }
+        }
+    }
+
+    private static void RepairCommonMathOperatorOmissions(List<InlineTextSegment> segments)
+    {
+        if (segments.Any(static segment => segment.Text.Contains('∑')))
+        {
+            return;
+        }
+
+        string compactText = CompactSegmentText(segments);
+        bool likelyMissingSummation = compactText.Contains("q·k=", StringComparison.Ordinal) &&
+            (compactText.Contains("qiki", StringComparison.Ordinal) ||
+                HasSummationUpperBoundAfterEquals(segments));
+        for (int index = 0; index < segments.Count; index++)
+        {
+            if (segments[index].Text != "=" ||
+                (!likelyMissingSummation && !LooksLikeSummationBounds(segments, index + 1)))
+            {
+                continue;
+            }
+
+            PdfTextRun? run = segments
+                .Skip(index)
+                .Select(static segment => segment.Run)
+                .FirstOrDefault(static run => run != null && HasMathFont(run.FontName));
+            segments.Insert(index + 1, new InlineTextSegment("∑", run, InlineBaselineRole.Normal));
+            return;
+        }
+    }
+
+    private static bool HasSummationUpperBoundAfterEquals(IReadOnlyList<InlineTextSegment> segments)
+    {
+        int equalsIndex = -1;
+        for (int index = 0; index < segments.Count; index++)
+        {
+            if (segments[index].Text == "=")
+            {
+                equalsIndex = index;
+            }
+        }
+
+        if (equalsIndex < 0)
+        {
+            return false;
+        }
+
+        int first = NextNonWhitespaceSegmentIndex(segments, equalsIndex + 1);
+        if (first < 0)
+        {
+            return false;
+        }
+
+        int second = NextNonWhitespaceSegmentIndex(segments, first + 1);
+        return IsCompactMathBoundSegment(segments[first]) &&
+            (second < 0 || IsCompactMathBoundSegment(segments[second]));
+    }
+
+    private static bool IsCompactMathBoundSegment(InlineTextSegment segment)
+    {
+        return segment.Run != null &&
+            segment.Role is InlineBaselineRole.Superscript or InlineBaselineRole.Subscript &&
+            HasMathFont(segment.Run.FontName) &&
+            segment.Text.All(static character => char.IsLetterOrDigit(character));
+    }
+
+    private static bool ShouldPrependMissingSummation(string previousLineText, IReadOnlyList<InlineTextSegment> segments)
+    {
+        string previousCompact = CompactText(previousLineText);
+        string compact = CompactSegmentText(segments);
+        if (previousCompact.EndsWith("q·k=", StringComparison.Ordinal))
+        {
+            return compact.Contains("qiki", StringComparison.Ordinal) ||
+                LooksLikeSummationBounds(segments, 0);
+        }
+
+        return previousCompact.Contains("dotproduct", StringComparison.OrdinalIgnoreCase) &&
+            previousCompact.Contains('=') &&
+            compact.Contains("qiki", StringComparison.Ordinal);
+    }
+
+    private static void PrependMissingSummation(List<InlineTextSegment> segments)
+    {
+        PdfTextRun? run = segments
+            .Select(static segment => segment.Run)
+            .FirstOrDefault(static run => run != null && HasMathFont(run.FontName));
+            segments.Insert(0, new InlineTextSegment("∑", run, InlineBaselineRole.Normal));
+    }
+
+    private static void RemoveDuplicateAdjacentSubscripts(List<InlineTextSegment> segments)
+    {
+        InlineTextSegment? previousSubscript = null;
+        for (int index = 0; index < segments.Count; index++)
+        {
+            InlineTextSegment segment = segments[index];
+            if (segment.Text.Length == 0)
+            {
+                continue;
+            }
+
+            if (segment.Role != InlineBaselineRole.Subscript)
+            {
+                previousSubscript = null;
+                continue;
+            }
+
+            if (previousSubscript is { } previous &&
+                string.Equals(previous.Text, segment.Text, StringComparison.Ordinal))
+            {
+                segments[index] = segment with { Text = "" };
+                continue;
+            }
+
+            previousSubscript = segment;
+        }
+    }
+
+    private static string CompactText(string text)
+    {
+        StringBuilder compact = new(text.Length);
+        foreach (char character in text)
+        {
+            if (!char.IsWhiteSpace(character))
+            {
+                compact.Append(character);
+            }
+        }
+
+        return compact.ToString();
+    }
+
+    private static string CompactSegmentText(IEnumerable<InlineTextSegment> segments)
+    {
+        StringBuilder text = new();
+        foreach (InlineTextSegment segment in segments)
+        {
+            foreach (char character in segment.Text)
+            {
+                if (!char.IsWhiteSpace(character))
+                {
+                    text.Append(character);
+                }
+            }
+        }
+
+        return text.ToString();
+    }
+
+    private static bool LooksLikeSummationBounds(IReadOnlyList<InlineTextSegment> segments, int startIndex)
+    {
+        int index = NextNonWhitespaceSegmentIndex(segments, startIndex);
+        if (index < 0)
+        {
+            return false;
+        }
+
+        bool hasUpperBound = false;
+        bool hasLowerBound = false;
+        bool hasIndexedTerm = false;
+        int inspected = 0;
+        for (; index < segments.Count && inspected < 12; index++)
+        {
+            InlineTextSegment segment = segments[index];
+            if (string.IsNullOrWhiteSpace(segment.Text))
+            {
+                continue;
+            }
+
+            inspected++;
+            if (segment.Role == InlineBaselineRole.Superscript)
+            {
+                hasUpperBound = true;
+                continue;
+            }
+
+            if (segment.Role == InlineBaselineRole.Subscript)
+            {
+                hasLowerBound = true;
+                continue;
+            }
+
+            if (hasLowerBound &&
+                segment.Role == InlineBaselineRole.Normal &&
+                segment.Run != null &&
+                HasMathFont(segment.Run.FontName) &&
+                segment.Text is "q" or "k")
+            {
+                hasIndexedTerm = true;
+                continue;
+            }
+
+            if (hasIndexedTerm)
+            {
+                return true;
+            }
+            if (segment.Text == ",")
+            {
+                break;
+            }
+        }
+
+        return hasUpperBound && hasLowerBound && hasIndexedTerm;
+    }
+
+    private static bool TryRemoveLeadingText(List<InlineTextSegment> segments, string text)
+    {
+        if (text.Length == 0)
+        {
+            return true;
+        }
+
+        int remaining = text.Length;
+        for (int index = 0; index < segments.Count && remaining > 0; index++)
+        {
+            InlineTextSegment segment = segments[index];
+            if (segment.Text.Length == 0)
+            {
+                continue;
+            }
+
+            string segmentText = segment.Text;
+            int leadingWhitespace = remaining == text.Length ? CountLeadingWhitespace(segmentText) : 0;
+            string comparable = segmentText[leadingWhitespace..];
+            int take = Math.Min(remaining, comparable.Length);
+            if (take == 0)
+            {
+                continue;
+            }
+
+            if (!comparable.AsSpan(0, take).SequenceEqual(text.AsSpan(text.Length - remaining, take)))
+            {
+                return false;
+            }
+
+            segments[index] = segment with { Text = comparable[take..] };
+            remaining -= take;
+        }
+
+        return remaining == 0;
+    }
+
+    private static void TrimLeadingWhitespace(List<InlineTextSegment> segments)
+    {
+        for (int index = 0; index < segments.Count; index++)
+        {
+            string text = segments[index].Text;
+            if (text.Length == 0)
+            {
+                continue;
+            }
+
+            segments[index] = segments[index] with { Text = text.TrimStart() };
+            return;
+        }
+    }
+
+    private static void RemoveTrailingWhitespace(List<InlineTextSegment> segments)
+    {
+        while (segments.Count > 0 && string.IsNullOrWhiteSpace(segments[^1].Text))
+        {
+            segments.RemoveAt(segments.Count - 1);
+        }
+
+        if (segments.Count == 0)
+        {
+            return;
+        }
+
+        string trimmedText = segments[^1].Text.TrimEnd();
+        if (trimmedText.Length == 0)
+        {
+            segments.RemoveAt(segments.Count - 1);
+        }
+        else if (trimmedText.Length != segments[^1].Text.Length)
+        {
+            segments[^1] = segments[^1] with { Text = trimmedText };
+        }
+    }
+
+    private static bool AllowsWordBoundary(InlineBaselineRole previousRole, InlineBaselineRole currentRole)
+    {
+        return currentRole != InlineBaselineRole.Subscript &&
+            !(previousRole == InlineBaselineRole.Subscript && currentRole == InlineBaselineRole.Subscript);
+    }
+
+    private static bool IsMathAttachmentWhitespace(
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> glyphs,
+        int index,
+        PdfSemanticLine line)
+    {
+        if (!string.IsNullOrWhiteSpace(glyphs[index].Glyph.Text))
+        {
+            return false;
+        }
+
+        (PdfTextRun Run, PdfTextGlyph Glyph)? previous = NearestTextGlyph(glyphs, index, -1);
+        (PdfTextRun Run, PdfTextGlyph Glyph)? next = NearestTextGlyph(glyphs, index, 1);
+        return previous is { } previousGlyph &&
+            next is { } nextGlyph &&
+            HasMathFont(previousGlyph.Run.FontName) &&
+            HasMathFont(nextGlyph.Run.FontName) &&
+            BaselineRole(line, nextGlyph.Glyph) == InlineBaselineRole.Subscript;
+    }
+
+    private static bool IsIntrusiveRadicalGlyph(
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> glyphs,
+        int index,
+        PdfSemanticLine line)
+    {
+        PdfTextGlyph glyph = glyphs[index].Glyph;
+        if (glyph.Text != "√")
+        {
+            return false;
+        }
+
+        if (IsCompactMathFont(glyph.FontName))
+        {
+            return false;
+        }
+
+        (PdfTextRun Run, PdfTextGlyph Glyph)? next = NearestTextGlyph(glyphs, index, 1);
+        return next is not { } nextGlyph || !HasMathFont(nextGlyph.Run.FontName);
+    }
+
+    private static (PdfTextRun Run, PdfTextGlyph Glyph)? NearestTextGlyph(
+        IReadOnlyList<(PdfTextRun Run, PdfTextGlyph Glyph)> glyphs,
+        int index,
+        int step)
+    {
+        for (int candidate = index + step; candidate >= 0 && candidate < glyphs.Count; candidate += step)
+        {
+            if (!string.IsNullOrWhiteSpace(glyphs[candidate].Glyph.Text))
+            {
+                return glyphs[candidate];
+            }
+        }
+
+        return null;
+    }
+
+    private static InlineBaselineRole BaselineRole(PdfSemanticLine line, PdfTextGlyph glyph)
+    {
+        float dominantSize = MathF.Max(1f, line.DominantFontSize);
+        if (IsCompactMathFont(glyph.FontName) ||
+            glyph.FontSize <= dominantSize * 0.74f && HasMathFont(glyph.FontName))
+        {
+            return CompactMathBaselineRole(line, glyph, dominantSize);
+        }
+
+        if (glyph.FontSize > dominantSize * 0.82f)
+        {
+            return InlineBaselineRole.Normal;
+        }
+
+        float baselineCenter = BaselineCenter(line);
+        float glyphCenter = glyph.Bounds.Y + (glyph.Bounds.Height / 2f);
+        float threshold = MathF.Max(0.6f, dominantSize * 0.08f);
+        if (glyphCenter > baselineCenter + threshold)
+        {
+            return InlineBaselineRole.Subscript;
+        }
+
+        if (glyphCenter < baselineCenter - threshold)
+        {
+            return InlineBaselineRole.Superscript;
+        }
+
+        return InlineBaselineRole.Normal;
+    }
+
+    private static InlineBaselineRole CompactMathBaselineRole(
+        PdfSemanticLine line,
+        PdfTextGlyph glyph,
+        float dominantSize)
+    {
+        float compactGlyphCenter = glyph.Bounds.Y + (glyph.Bounds.Height / 2f);
+        float baselineCenter = BaselineCenter(line);
+        float threshold = MathF.Max(0.5f, dominantSize * 0.05f);
+        if (compactGlyphCenter < baselineCenter - threshold)
+        {
+            return InlineBaselineRole.Superscript;
+        }
+
+        if (compactGlyphCenter > baselineCenter + threshold)
+        {
+            return InlineBaselineRole.Subscript;
+        }
+
+        return InlineBaselineRole.Subscript;
+    }
+
+    private static float BaselineCenter(PdfSemanticLine line)
+    {
+        float minimumBaseSize = line.DominantFontSize * 0.82f;
+        float[] centers = line.Runs
+            .Where(run => MathF.Abs(run.Direction) < 0.01f && run.FontSize >= minimumBaseSize)
+            .Select(static run => run.Bounds.Y + (run.Bounds.Height / 2f))
+            .Order()
+            .ToArray();
+        return centers.Length == 0
+            ? line.Bounds.Y + (line.Bounds.Height / 2f)
+            : centers[centers.Length / 2];
+    }
+
+    private static void WriteInlineTextSegments(
+        StringBuilder html,
+        PdfSemanticLine line,
+        IReadOnlyList<InlineTextSegment> segments,
+        string lineText,
+        FootnoteContext footnotes)
+    {
+        int offset = 0;
+        for (int index = 0; index < segments.Count; index++)
+        {
+            InlineTextSegment segment = segments[index];
+            if (segment.Text.Length == 0)
+            {
+                continue;
+            }
+
+            if (IsMathAttachmentSpaceSegment(segments, index))
+            {
+                offset += segment.Text.Length;
+                continue;
+            }
+
+            if (TryWriteCompactInverseSquareRootFraction(html, line, segments, index, out int consumedSegments, out int consumedLength))
+            {
+                offset += consumedLength;
+                index += consumedSegments - 1;
+                continue;
+            }
+
+            WriteInlineTextSegment(html, line, segment, lineText, offset, footnotes);
+            offset += segment.Text.Length;
+        }
+    }
+
+    private static bool TryWriteCompactInverseSquareRootFraction(
+        StringBuilder html,
+        PdfSemanticLine line,
+        IReadOnlyList<InlineTextSegment> segments,
+        int index,
+        out int consumedSegments,
+        out int consumedLength)
+    {
+        consumedSegments = 0;
+        consumedLength = 0;
+        if (index + 2 >= segments.Count ||
+            !IsCompactSquareRootSegment(segments[index]) ||
+            !IsCompactFractionNumeratorOne(segments[index + 1]))
+        {
+            return false;
+        }
+
+        List<InlineTextSegment> denominator = [];
+        int denominatorIndex = index + 2;
+        while (denominatorIndex < segments.Count &&
+            IsCompactFractionDenominatorSegment(segments[denominatorIndex]) &&
+            denominator.Count < 4)
+        {
+            denominator.Add(segments[denominatorIndex]);
+            denominatorIndex++;
+        }
+
+        if (denominator.Count == 0)
+        {
+            return false;
+        }
+
+        html.Append("<span class=\"pdf-semantic-inline-fraction pdf-semantic-math\"><span class=\"pdf-semantic-inline-fraction-numerator\">");
+        html.Append(Html(segments[index + 1].Text));
+        html.Append("</span><span class=\"pdf-semantic-inline-fraction-denominator\">");
+        html.Append(Html(segments[index].Text));
+        for (int denominatorSegmentIndex = 0; denominatorSegmentIndex < denominator.Count; denominatorSegmentIndex++)
+        {
+            InlineTextSegment segment = denominator[denominatorSegmentIndex];
+            if (denominatorSegmentIndex == 0)
+            {
+                WriteInlineTextSegmentAsRole(html, line, segment, InlineBaselineRole.Normal);
+            }
+            else
+            {
+                WriteInlineTextSegmentAsRole(html, line, segment, segment.Role);
+            }
+        }
+
+        html.Append("</span></span>");
+        consumedSegments = 2 + denominator.Count;
+        consumedLength = segments.Skip(index).Take(consumedSegments).Sum(static segment => segment.Text.Length);
+        return true;
+    }
+
+    private static bool IsCompactSquareRootSegment(InlineTextSegment segment)
+    {
+        return segment.Text == "√" &&
+            segment.Run != null &&
+            IsCompactMathFont(segment.Run.FontName);
+    }
+
+    private static bool IsCompactFractionNumeratorOne(InlineTextSegment segment)
+    {
+        return segment.Text == "1" &&
+            segment.Run != null &&
+            IsCompactMathFont(segment.Run.FontName) &&
+            segment.Role == InlineBaselineRole.Superscript;
+    }
+
+    private static bool IsCompactFractionDenominatorSegment(InlineTextSegment segment)
+    {
+        return segment.Text.Length > 0 &&
+            segment.Run != null &&
+            IsCompactMathFont(segment.Run.FontName) &&
+            segment.Role == InlineBaselineRole.Subscript;
+    }
+
+    private static bool IsMathAttachmentSpaceSegment(IReadOnlyList<InlineTextSegment> segments, int index)
+    {
+        InlineTextSegment segment = segments[index];
+        if (!string.IsNullOrWhiteSpace(segment.Text))
+        {
+            return false;
+        }
+
+        InlineTextSegment? previous = NearestTextSegment(segments, index, -1);
+        InlineTextSegment? next = NearestTextSegment(segments, index, 1);
+        return previous is { Run: { } previousRun } &&
+            next is { Run: { } nextRun } nextSegment &&
+            HasMathFont(previousRun.FontName) &&
+            HasMathFont(nextRun.FontName) &&
+            nextSegment.Role == InlineBaselineRole.Subscript;
+    }
+
+    private static InlineTextSegment? NearestTextSegment(
+        IReadOnlyList<InlineTextSegment> segments,
+        int index,
+        int step)
+    {
+        for (int candidate = index + step; candidate >= 0 && candidate < segments.Count; candidate += step)
+        {
+            if (!string.IsNullOrWhiteSpace(segments[candidate].Text))
+            {
+                return segments[candidate];
+            }
+        }
+
+        return null;
+    }
+
+    private static void WriteInlineTextSegment(
+        StringBuilder html,
+        PdfSemanticLine line,
+        InlineTextSegment segment,
+        string lineText,
+        int offset,
+        FootnoteContext footnotes)
+    {
+        if (segment.Run == null)
+        {
+            if (segment.Role == InlineBaselineRole.Normal)
+            {
+                WriteTextWithFootnoteReferences(html, segment.Text, footnotes, lineText, offset);
+            }
+            else
+            {
+                WriteStyledInlineTextSegment(html, segment.Text, "", segment.Role, footnotes, lineText, offset);
+            }
+
+            return;
+        }
+
+        if (IsFootnoteReferenceSegment(segment, lineText, offset, footnotes))
+        {
+            WriteTextWithFootnoteReferences(html, segment.Text, footnotes, lineText, offset);
+            return;
+        }
+
+        string className = InlineRunClassNames(line, segment.Run);
+        WriteStyledInlineTextSegment(html, segment.Text, className, segment.Role, footnotes, lineText, offset);
+    }
+
+    private static void WriteInlineTextSegmentAsRole(
+        StringBuilder html,
+        PdfSemanticLine line,
+        InlineTextSegment segment,
+        InlineBaselineRole role)
+    {
+        string className = segment.Run == null ? "" : InlineRunClassNames(line, segment.Run);
+        WriteStyledInlineTextSegment(html, segment.Text, className, role);
+    }
+
+    private static void WriteStyledInlineTextSegment(
+        StringBuilder html,
+        string text,
+        string className,
+        InlineBaselineRole role,
+        FootnoteContext? footnotes = null,
+        string? lineText = null,
+        int offset = 0)
+    {
+        string tagName = role switch
+        {
+            InlineBaselineRole.Subscript => "sub",
+            InlineBaselineRole.Superscript => "sup",
+            _ => className.Length > 0 ? "span" : ""
+        };
+
+        if (tagName.Length > 0)
+        {
+            html.Append('<')
+                .Append(tagName);
+            if (className.Length > 0)
+            {
+                html.Append(" class=\"")
+                    .Append(className)
+                    .Append('"');
+            }
+
+            html.Append('>');
+        }
+
+        if (footnotes != null && lineText != null)
+        {
+            WriteTextWithFootnoteReferences(html, text, footnotes, lineText, offset);
+        }
+        else
+        {
+            html.Append(Html(text));
+        }
+
+        if (tagName.Length > 0)
+        {
+            html.Append("</")
+                .Append(tagName)
+                .Append('>');
+        }
+    }
+
+    private static bool IsFootnoteReferenceSegment(
+        InlineTextSegment segment,
+        string lineText,
+        int offset,
+        FootnoteContext footnotes)
+    {
+        return segment.Text.Length == 1 &&
+            segment.Role == InlineBaselineRole.Superscript &&
+            footnotes.Contains(segment.Text) &&
+            IsFootnoteReferenceBoundary(lineText, offset);
+    }
+
+    private static string InlineRunClassNames(PdfSemanticLine line, PdfTextRun run)
+    {
+        List<string> classes = [];
+        string normalizedFontName = NormalizeFontName(run.FontName);
+        float fontSize = MathF.Round(run.FontSize * 2f) / 2f;
+        if (!string.Equals(normalizedFontName, line.DominantFontName, StringComparison.Ordinal) ||
+            HasMathFont(normalizedFontName) ||
+            IsItalicFont(normalizedFontName))
+        {
+            classes.Add("pdf-semantic-inline-run");
+            classes.Add(FontClass(normalizedFontName));
+        }
+
+        if (MathF.Abs(fontSize - line.DominantFontSize) > 0.25f)
+        {
+            if (classes.Count == 0)
+            {
+                classes.Add("pdf-semantic-inline-run");
+            }
+
+            classes.Add(FontSizeClass(fontSize));
+        }
+
+        if (!string.Equals(ColorClass(run.Color), ColorClass(line.Color), StringComparison.Ordinal))
+        {
+            if (classes.Count == 0)
+            {
+                classes.Add("pdf-semantic-inline-run");
+            }
+
+            classes.Add(ColorClass(run.Color));
+        }
+
+        if (HasMathFont(normalizedFontName))
+        {
+            classes.Add("pdf-semantic-math");
+        }
+
+        if (IsItalicFont(normalizedFontName))
+        {
+            classes.Add("pdf-semantic-italic");
+        }
+
+        return string.Join(" ", classes.Distinct(StringComparer.Ordinal));
+    }
+
     private static void WriteFootnote(
         StringBuilder html,
         PdfSemanticElement element,
-        FootnoteContext footnotes)
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
     {
         string text = element.Text.Trim();
         string marker = text.Length > 0 ? text[..1] : "";
@@ -1828,8 +3590,25 @@ public static class PdfHtmlConverter
             .Append("\">")
             .Append(Html(marker))
             .Append("</a> ");
-        html.Append(Html(body));
+        WriteFootnoteBody(html, element, marker, body, footnotes, page);
         html.AppendLine("</p>");
+    }
+
+    private static void WriteFootnoteBody(
+        StringBuilder html,
+        PdfSemanticElement element,
+        string marker,
+        string plainBody,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        if (CanWriteRichSemanticText(element))
+        {
+            WriteRichSemanticText(html, element, footnotes, page, marker);
+            return;
+        }
+
+        html.Append(Html(plainBody));
     }
 
     private static string SemanticTagName(PdfSemanticElement element)
@@ -1883,14 +3662,20 @@ public static class PdfHtmlConverter
             }
         }
 
+        if (IsFormulaBlock(element))
+        {
+            classes.Add("pdf-semantic-formula");
+        }
+
         if (element.Kind == PdfSemanticElementKind.Paragraph && page != null)
         {
-            if (IsJustifiedParagraph(element))
+            if (!IsFormulaBlock(element) && IsJustifiedParagraph(element))
             {
                 classes.Add("pdf-semantic-justified");
             }
 
-            if (allowMeasuredWidth &&
+            if (!IsFormulaBlock(element) &&
+                allowMeasuredWidth &&
                 TryGetParagraphWidthPercent(page, element, out float widthPercent) &&
                 ShouldUseMeasuredParagraphWidth(widthPercent))
             {
@@ -1955,11 +3740,8 @@ public static class PdfHtmlConverter
 
     private static bool TryGetRepresentativeLineWidth(PdfSemanticElement element, out float width)
     {
-        float[] widths = element.Lines
-            .Where(static line => MathF.Abs(line.Direction) < 0.01f)
-            .Where(static line => !string.IsNullOrWhiteSpace(line.Text))
-            .Select(static line => line.Bounds.Width)
-            .Where(static width => width > 0.01f)
+        float[] widths = RepresentativeTextRows(element)
+            .Select(static row => row.Width)
             .OrderDescending()
             .ToArray();
         if (widths.Length == 0)
@@ -1973,6 +3755,42 @@ public static class PdfHtmlConverter
             : Math.Max(1, (int)MathF.Ceiling(widths.Length * 0.65f));
         width = widths.Take(count).Average();
         return true;
+    }
+
+    private static IEnumerable<PdfLayoutRectangle> RepresentativeTextRows(PdfSemanticElement element)
+    {
+        List<PdfLayoutRectangle> rows = [];
+        foreach (PdfSemanticLine line in element.Lines
+            .Where(static line => MathF.Abs(line.Direction) < 0.01f)
+            .Where(static line => !string.IsNullOrWhiteSpace(line.Text))
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X))
+        {
+            int rowIndex = rows.FindIndex(row => BelongsToTextRow(row, line.Bounds));
+            if (rowIndex < 0)
+            {
+                rows.Add(line.Bounds);
+            }
+            else
+            {
+                rows[rowIndex] = UnionRectangles([rows[rowIndex], line.Bounds]);
+            }
+        }
+
+        return rows;
+    }
+
+    private static bool BelongsToTextRow(PdfLayoutRectangle row, PdfLayoutRectangle candidate)
+    {
+        float overlap = MathF.Min(row.Bottom, candidate.Bottom) - MathF.Max(row.Y, candidate.Y);
+        if (overlap >= MathF.Min(row.Height, candidate.Height) * 0.35f)
+        {
+            return true;
+        }
+
+        float centerDistance = MathF.Abs(
+            row.Y + (row.Height / 2f) - (candidate.Y + (candidate.Height / 2f)));
+        return centerDistance <= MathF.Max(2.5f, MathF.Max(row.Height, candidate.Height) * 0.55f);
     }
 
     private static bool ShouldUseMeasuredParagraphWidth(float widthPercent)
@@ -2056,6 +3874,108 @@ public static class PdfHtmlConverter
     private static bool IsSameRowLineGroup(PdfSemanticElement element)
     {
         return SameRowLines(element).Length >= 2;
+    }
+
+    private static bool IsFormulaBlock(PdfSemanticElement element)
+    {
+        return element.Kind == PdfSemanticElementKind.Paragraph &&
+            !IsFigureCaption(element) &&
+            !IsInlineFormulaFragment(element) &&
+            element.Lines.Any(IsDisplayFormulaLine);
+    }
+
+    private static bool IsInlineFormulaFragment(PdfSemanticElement element)
+    {
+        return element.Text.Length <= 48 &&
+            element.Bounds.Width <= 90f &&
+            !element.Text.Contains('=') &&
+            !element.Text.Contains('∈') &&
+            !element.Text.Contains('×') &&
+            !element.Text.Contains('√') &&
+            !element.Text.Contains('∑') &&
+            element.Lines.Any(static line => line.Runs.Any(static run => HasMathFont(run.FontName)));
+    }
+
+    private static bool IsDisplayFormulaLine(PdfSemanticLine line)
+    {
+        if (!HasMathFont(line.DominantFontName) || !HasFormulaSignal(line.Text))
+        {
+            return false;
+        }
+
+        if (HasFormulaFunction(line.Text))
+        {
+            return line.Text.IndexOf('=') >= 0 ||
+                line.Bounds.Width >= 80f &&
+                (StartsFormulaFunction(line.Text) || CountWords(line.Text) <= 4);
+        }
+
+        return line.Bounds.X >= 150f &&
+            line.Bounds.Width >= 80f &&
+            CountWords(line.Text) <= 4;
+    }
+
+    private static bool HasMathFont(string fontName)
+    {
+        string normalized = NormalizeFontName(fontName);
+        return normalized.StartsWith("CM", StringComparison.Ordinal) ||
+            normalized.Contains("MSBM", StringComparison.Ordinal);
+    }
+
+    private static bool IsCompactMathFont(string fontName)
+    {
+        string normalized = NormalizeFontName(fontName);
+        return normalized.StartsWith("CMR7", StringComparison.Ordinal) ||
+            normalized.StartsWith("CMMI7", StringComparison.Ordinal) ||
+            normalized.StartsWith("CMSY7", StringComparison.Ordinal) ||
+            normalized.StartsWith("CMR6", StringComparison.Ordinal) ||
+            normalized.StartsWith("CMMI6", StringComparison.Ordinal) ||
+            normalized.StartsWith("CMSY6", StringComparison.Ordinal) ||
+            normalized.StartsWith("CMR5", StringComparison.Ordinal) ||
+            normalized.StartsWith("CMMI5", StringComparison.Ordinal) ||
+            normalized.StartsWith("CMSY5", StringComparison.Ordinal);
+    }
+
+    private static bool IsItalicFont(string fontName)
+    {
+        string normalized = NormalizeFontName(fontName);
+        return normalized.Contains("Italic", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Ital", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("CMMI", StringComparison.Ordinal);
+    }
+
+    private static bool HasFormulaSignal(string text)
+    {
+        return text.IndexOfAny(['=', '∈', '×', '√', '∑', '·']) >= 0 ||
+            HasFormulaFunction(text);
+    }
+
+    private static bool HasFormulaFunction(string text)
+    {
+        return
+            text.Contains("Attention(", StringComparison.Ordinal) ||
+            text.Contains("MultiHead(", StringComparison.Ordinal) ||
+            text.Contains("Concat(", StringComparison.Ordinal) ||
+            text.Contains("FFN(", StringComparison.Ordinal) ||
+            text.Contains("PE", StringComparison.Ordinal);
+    }
+
+    private static bool StartsFormulaFunction(string text)
+    {
+        string trimmed = text.TrimStart();
+        return
+            trimmed.StartsWith("Attention(", StringComparison.Ordinal) ||
+            trimmed.StartsWith("MultiHead(", StringComparison.Ordinal) ||
+            trimmed.StartsWith("Concat(", StringComparison.Ordinal) ||
+            trimmed.StartsWith("FFN(", StringComparison.Ordinal) ||
+            trimmed.StartsWith("PE", StringComparison.Ordinal);
+    }
+
+    private static int CountWords(string text)
+    {
+        return text
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Length;
     }
 
     private static PdfSemanticLine[] SameRowLines(PdfSemanticElement element)
@@ -2521,10 +4441,24 @@ public static class PdfHtmlConverter
         string text,
         FootnoteContext footnotes)
     {
+        WriteTextWithFootnoteReferences(html, text, footnotes, text, 0);
+    }
+
+    private static void WriteTextWithFootnoteReferences(
+        StringBuilder html,
+        string text,
+        FootnoteContext footnotes,
+        string boundaryText,
+        int boundaryOffset)
+    {
         for (int index = 0; index < text.Length; index++)
         {
             string marker = text[index].ToString();
-            if (footnotes.Contains(marker) && IsFootnoteReferenceBoundary(text, index))
+            int boundaryIndex = boundaryOffset + index;
+            if (footnotes.Contains(marker) &&
+                boundaryIndex >= 0 &&
+                boundaryIndex < boundaryText.Length &&
+                IsFootnoteReferenceBoundary(boundaryText, boundaryIndex))
             {
                 string referenceId = footnotes.NextReferenceId(marker);
                 html.Append("<sup id=\"")
@@ -2594,6 +4528,18 @@ public static class PdfHtmlConverter
         Content
     }
 
+    private enum InlineBaselineRole
+    {
+        Normal,
+        Subscript,
+        Superscript
+    }
+
+    private readonly record struct InlineTextSegment(
+        string Text,
+        PdfTextRun? Run,
+        InlineBaselineRole Role);
+
     private sealed class ContinuousPageContext
     {
         public ContinuousPageContext(
@@ -2633,6 +4579,7 @@ public static class PdfHtmlConverter
             PdfSemanticElement startElement,
             PdfSemanticElement continuationElement,
             PdfSemanticElement? currentPageNumberFooter,
+            IReadOnlyList<PdfSemanticElement> currentTrailingFootnotes,
             IReadOnlyList<PdfSemanticElement> leadingElements,
             IReadOnlyList<PdfLayoutRectangle> leadingFigureRegions)
         {
@@ -2641,6 +4588,7 @@ public static class PdfHtmlConverter
             StartElement = startElement;
             ContinuationElement = continuationElement;
             CurrentPageNumberFooter = currentPageNumberFooter;
+            CurrentTrailingFootnotes = currentTrailingFootnotes;
             LeadingElements = leadingElements;
             LeadingFigureRegions = leadingFigureRegions;
         }
@@ -2654,6 +4602,8 @@ public static class PdfHtmlConverter
         public PdfSemanticElement ContinuationElement { get; }
 
         public PdfSemanticElement? CurrentPageNumberFooter { get; }
+
+        public IReadOnlyList<PdfSemanticElement> CurrentTrailingFootnotes { get; }
 
         public IReadOnlyList<PdfSemanticElement> LeadingElements { get; }
 

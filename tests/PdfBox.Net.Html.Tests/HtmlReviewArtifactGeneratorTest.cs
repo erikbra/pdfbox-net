@@ -68,17 +68,21 @@ public sealed class HtmlReviewArtifactGeneratorTest
         Assert.True(File.Exists(qualityReportJson));
         Assert.True(File.Exists(qualityReportMarkdown));
         Assert.Equal(File.ReadAllBytes(sourcePdf), File.ReadAllBytes(copiedSource));
-        Assert.Contains("source.pdf", File.ReadAllText(compare));
-        Assert.Contains("index.html", File.ReadAllText(compare));
-        Assert.Contains("semantic/index.html", File.ReadAllText(compare));
-        Assert.Contains("semantic-continuous/index.html", File.ReadAllText(compare));
-        Assert.Contains("quality/quality-report.md", File.ReadAllText(compare));
+        string comparisonHtml = File.ReadAllText(compare);
+        Assert.Contains("source.pdf", comparisonHtml);
+        Assert.Contains("semantic-continuous/index.html", comparisonHtml);
+        Assert.Contains("quality/quality-report.md", comparisonHtml);
+        Assert.DoesNotContain("Fixed-layout HTML", comparisonHtml);
+        Assert.DoesNotContain("<h2>Semantic HTML</h2>", comparisonHtml);
+        Assert.DoesNotContain("semantic/index.html", comparisonHtml);
         string artifactIndex = File.ReadAllText(Path.Combine(outputDirectory, "index.html"));
         Assert.Contains("review-artifact-sample/compare.html", artifactIndex);
-        Assert.Contains("review-artifact-sample/semantic/index.html", artifactIndex);
+        Assert.DoesNotContain("review-artifact-sample/semantic/index.html", artifactIndex);
         Assert.Contains("review-artifact-sample/semantic-continuous/index.html", artifactIndex);
         Assert.Contains("review-artifact-sample/quality/quality-report.md", artifactIndex);
-        Assert.Contains("semantic-continuous/index.html", File.ReadAllText(Path.Combine(exampleDirectory, "summary.md")));
+        string summary = File.ReadAllText(Path.Combine(exampleDirectory, "summary.md"));
+        Assert.Contains("semantic-continuous/index.html", summary);
+        Assert.DoesNotContain("semantic/index.html", summary);
 
         using JsonDocument quality = JsonDocument.Parse(File.ReadAllText(qualityReportJson));
         Assert.Equal(1, quality.RootElement.GetProperty("Schema").GetInt32());
