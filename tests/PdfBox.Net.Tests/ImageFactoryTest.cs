@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Graphics.Image;
@@ -152,6 +153,23 @@ public class ImageFactoryTest
         Assert.Equal(1, img.GetHeight());
         Assert.Equal("DeviceRGB", img.GetColorSpace().GetName());
         Assert.Equal(rgb, img.GetImageData());
+    }
+
+    [Fact]
+    public void PdfImageExporter_ExportPng_ReturnsBrowserSafePng()
+    {
+        using PDDocument doc = new();
+        byte[] rgb = [255, 0, 0, 0, 255, 0];
+        PDImageXObject img = LosslessFactory.CreateFromRawData(doc, rgb, 2, 1, 8, 3);
+
+        PdfImageExportResult result = PdfImageExporter.ExportPng(img);
+
+        Assert.Equal("image/png", result.ContentType);
+        Assert.Equal("png", result.FileExtension);
+        Assert.True(result.Data.Length >= 24);
+        Assert.Equal(0x89504E47u, BinaryPrimitives.ReadUInt32BigEndian(result.Data.AsSpan(0, 4)));
+        Assert.Equal(2, BinaryPrimitives.ReadInt32BigEndian(result.Data.AsSpan(16, 4)));
+        Assert.Equal(1, BinaryPrimitives.ReadInt32BigEndian(result.Data.AsSpan(20, 4)));
     }
 
     [Fact]

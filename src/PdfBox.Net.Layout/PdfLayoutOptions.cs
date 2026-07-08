@@ -21,6 +21,11 @@ public sealed class PdfLayoutOptions
     public bool IncludeImages { get; init; } = true;
 
     /// <summary>
+    /// Gets or sets whether collected images should also be exported as browser-safe assets.
+    /// </summary>
+    public bool IncludeImageAssets { get; init; }
+
+    /// <summary>
     /// Gets or sets whether text positions should be sorted into visual reading order.
     /// </summary>
     public bool SortTextByPosition { get; init; } = true;
