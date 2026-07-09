@@ -360,10 +360,26 @@ public class PdfHtmlConverterTest
         Assert.True(figures.Length >= 2);
         Assert.Contains(figures, figure => figure.Attribute("data-source-page")?.Value == "3");
         Assert.Contains(figures, figure => figure.Attribute("data-source-page")?.Value == "4");
+        Assert.Contains(figures, figure => figure.Attribute("data-source-page")?.Value == "13");
         Assert.True(ElementsByClass(dom, "pdf-semantic-figure-svg").Count() >= 2);
         XElement[] svgImages = dom.Descendants().Where(static element => element.Name.LocalName == "image").ToArray();
         Assert.Contains(svgImages, image => image.Attribute("href")?.Value == "assets/images/page-4-image-0.png");
         Assert.Contains(svgImages, image => image.Attribute("href")?.Value == "assets/images/page-4-image-1.png");
+        XElement attentionVisualization = Assert.Single(figures, figure => figure.Attribute("data-source-page")?.Value == "13");
+        XElement[] attentionVisualizationLabels = attentionVisualization.Descendants()
+            .Where(static element => element.Name.LocalName == "text" && HasClass(element, "pdf-semantic-figure-text"))
+            .ToArray();
+        Assert.Contains(attentionVisualizationLabels, label => label.Value == "making");
+        Assert.Contains(attentionVisualizationLabels, label => label.Value == "registration");
+        Assert.Contains(attentionVisualizationLabels, label =>
+            label.Attribute("transform")?.Value.Contains("rotate", StringComparison.Ordinal) == true);
+        Assert.DoesNotContain(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
+            paragraph.Value.Contains("In A tt p en u", StringComparison.Ordinal));
+        XElement figureThreeCaption = Assert.Single(ElementsByClass(dom, "pdf-semantic-caption"), caption =>
+            caption.Value.StartsWith("Figure 3:", StringComparison.Ordinal));
+        Assert.Contains("Best viewed in color.", figureThreeCaption.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("registration registration", figureThreeCaption.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("Input-Input Layer5", dom.Root?.Value ?? "", StringComparison.Ordinal);
         Assert.Empty(ElementsByClass(dom, "pdf-semantic-figure-space"));
         Assert.Contains(".pdf-semantic-formula", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-run", html.Css, StringComparison.Ordinal);

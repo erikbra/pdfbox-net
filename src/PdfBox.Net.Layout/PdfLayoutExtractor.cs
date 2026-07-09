@@ -550,18 +550,29 @@ public static class PdfLayoutExtractor
             IReadOnlyDictionary<TextPosition, PdfLayoutColor> textColors)
         {
             float height = MathF.Max(0, position.GetHeightDir());
+            float width = MathF.Max(0, position.GetWidthDirAdj());
             float y = position.GetYDirAdj() - height;
+            float direction = position.GetDir();
+            bool vertical = MathF.Abs(direction - 90f) < 0.01f || MathF.Abs(direction - 270f) < 0.01f;
+            PdfLayoutRectangle pageBounds = new(
+                position.GetX(),
+                position.GetY() - (vertical ? width : height),
+                vertical ? height : width,
+                vertical ? width : height);
             return new PdfTextGlyph(
                 position.GetUnicode(),
                 position.GetFont().GetName(),
                 position.GetFontSizeInPtFloat(),
-                position.GetDir(),
+                direction,
                 new PdfLayoutRectangle(
                     position.GetXDirAdj(),
                     y,
-                    MathF.Max(0, position.GetWidthDirAdj()),
+                    width,
                     height),
-                textColors.GetValueOrDefault(position, new PdfLayoutColor(0, 0, 0, 1, null)));
+                textColors.GetValueOrDefault(position, new PdfLayoutColor(0, 0, 0, 1, null)))
+            {
+                PageBounds = pageBounds
+            };
         }
 
         private static IEnumerable<PdfTextLine> CreateLines(IReadOnlyList<PdfTextGlyph> glyphs, PdfLayoutOptions options)
@@ -681,7 +692,8 @@ public static class PdfLayoutExtractor
                 first.Direction,
                 PdfLayoutRectangle.Union(glyphs.Select(glyph => glyph.Bounds)),
                 first.Color,
-                glyphs);
+                glyphs,
+                PdfLayoutRectangle.Union(glyphs.Select(glyph => glyph.PageBounds)));
         }
     }
 

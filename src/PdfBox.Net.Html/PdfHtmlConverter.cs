@@ -309,6 +309,12 @@ public static class PdfHtmlConverter
           width: 100%;
         }
 
+        .pdf-semantic-figure-text {
+          dominant-baseline: alphabetic;
+          paint-order: fill;
+          white-space: pre;
+        }
+
         .pdf-semantic-flow header {
           line-height: 1.25;
           margin-bottom: 26pt;
@@ -954,8 +960,10 @@ public static class PdfHtmlConverter
         float scale)
     {
         FootnoteContext footnotes = FootnoteContext.Create(page.PageNumber, semanticPage.Elements);
+        PdfLayoutRectangle[] figureRegions = SemanticFigureRegions(page, semanticPage).ToArray();
         PdfSemanticElement[] positioned = semanticPage.Elements
             .Where(IsPositionedSemanticElement)
+            .Where(element => !ShouldKeepInFlowForFigureRendering(page, element, figureRegions))
             .ToArray();
         foreach (PdfSemanticElement element in positioned)
         {
@@ -1048,7 +1056,13 @@ public static class PdfHtmlConverter
                 WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
             }
 
-            WriteContinuousPageArtifacts(html, context.Page, context.PositionedElements, context.Footnotes, scale);
+            WriteContinuousPageArtifacts(
+                html,
+                context.Page,
+                context.PositionedElements,
+                context.Footnotes,
+                context.FigureRegions,
+                scale);
             skippedFigureRegionsByPage.TryGetValue(context.Page.PageNumber, out HashSet<PdfLayoutRectangle>? skippedFigureRegions);
             WriteSemanticFlowElements(
                 html,
@@ -1071,8 +1085,10 @@ public static class PdfHtmlConverter
 
     private static ContinuousPageContext CreateContinuousPageContext(PdfLayoutPage page, PdfSemanticPage semanticPage)
     {
+        PdfLayoutRectangle[] figureRegions = SemanticFigureRegions(page, semanticPage).ToArray();
         PdfSemanticElement[] positioned = semanticPage.Elements
             .Where(IsPositionedSemanticElement)
+            .Where(element => !ShouldKeepInFlowForFigureRendering(page, element, figureRegions))
             .ToArray();
         HashSet<PdfSemanticElement> positionedSet = positioned.ToHashSet();
         PdfSemanticElement[] flowElements = semanticPage.Elements
@@ -1084,7 +1100,7 @@ public static class PdfHtmlConverter
             FootnoteContext.Create(page.PageNumber, semanticPage.Elements),
             positioned,
             flowElements,
-            SemanticFigureRegions(page, semanticPage).ToArray());
+            figureRegions);
     }
 
     private static ContinuousParagraphMerge? TryCreateContinuousParagraphMerge(
@@ -1500,6 +1516,7 @@ public static class PdfHtmlConverter
         PdfLayoutPage page,
         IReadOnlyList<PdfSemanticElement> elements,
         FootnoteContext footnotes,
+        IReadOnlyList<PdfLayoutRectangle> figureRegions,
         float scale)
     {
         if (elements.Count == 0)
@@ -1508,9 +1525,12 @@ public static class PdfHtmlConverter
         }
 
         PdfSemanticElement[] flowArtifacts = elements
+            .Where(element => !IsFigureLabelFlowElement(element, figureRegions))
             .Where(element => !IsContinuousPositionedPageArtifact(page, element))
             .ToArray();
-        foreach (PdfSemanticElement element in elements.Where(element => IsContinuousPositionedPageArtifact(page, element)))
+        foreach (PdfSemanticElement element in elements
+            .Where(element => !IsFigureLabelFlowElement(element, figureRegions))
+            .Where(element => IsContinuousPositionedPageArtifact(page, element)))
         {
             WritePositionedSemanticElement(html, page, element, footnotes, scale);
         }
@@ -1580,6 +1600,11 @@ public static class PdfHtmlConverter
             }
 
             if (omitSimplePageNumberFooters && IsSimplePageNumberFooter(element, page))
+            {
+                continue;
+            }
+
+            if (IsFigureLabelFlowElement(element, figureRegions))
             {
                 continue;
             }
@@ -1665,7 +1690,8 @@ public static class PdfHtmlConverter
             .Where(image => RectanglesIntersect(image.Bounds, region, 2f))
             .ToArray();
         PdfLayoutPath[] paths = FigureRegionPaths(page, semanticPage, region).ToArray();
-        if (images.Length == 0 && paths.Length == 0)
+        PdfTextRun[] textRuns = FigureRegionTextRuns(page, region).ToArray();
+        if (images.Length == 0 && paths.Length == 0 && textRuns.Length == 0)
         {
             return false;
         }
@@ -1713,6 +1739,11 @@ public static class PdfHtmlConverter
             WriteVectorPath(html, path);
         }
 
+        foreach (PdfTextRun run in textRuns)
+        {
+            WriteFigureTextRun(html, run);
+        }
+
         html.Append("</svg></")
             .Append(tagName)
             .AppendLine(">");
@@ -1728,6 +1759,118 @@ public static class PdfHtmlConverter
             .Where(path => !IsSemanticFlowRulePath(page, semanticPage, path))
             .Where(path => path.Bounds.Width > 0.1f || path.Bounds.Height > 0.1f)
             .Where(path => RectanglesIntersect(path.Bounds, region, 2f));
+    }
+
+    private static IEnumerable<PdfTextRun> FigureRegionTextRuns(PdfLayoutPage page, PdfLayoutRectangle region)
+    {
+        return page.Runs
+            .Where(IsFigureLabelRun)
+            .Where(run => RectanglesIntersect(run.PageBounds, region, 2f))
+            .OrderBy(static run => run.PageBounds.Y)
+            .ThenBy(static run => run.PageBounds.X);
+    }
+
+    private static void WriteFigureTextRun(StringBuilder html, PdfTextRun run)
+    {
+        PdfLayoutRectangle bounds = run.PageBounds;
+        float direction = NormalizeDirection(run.Direction);
+        float fontSize = MathF.Max(0.5f, run.FontSize);
+        string text = ReconstructText(run.Glyphs);
+        if (string.IsNullOrEmpty(text))
+        {
+            text = run.Text;
+        }
+
+        html.Append("<text class=\"pdf-semantic-figure-text\" x=\"")
+            .Append(SvgNumber(bounds.X))
+            .Append("\" y=\"")
+            .Append(SvgNumber(FigureTextY(bounds, direction, fontSize)))
+            .Append("\"");
+        string? transform = FigureTextTransform(bounds, direction);
+        if (transform != null)
+        {
+            html.Append(" transform=\"")
+                .Append(HtmlAttribute(transform))
+                .Append('"');
+        }
+
+        float textLength = FigureTextLength(bounds, direction);
+        if (textLength > 0.01f)
+        {
+            html.Append(" textLength=\"")
+                .Append(SvgNumber(textLength))
+                .Append("\" lengthAdjust=\"spacingAndGlyphs\"");
+        }
+
+        html.Append(" style=\"font-size:")
+            .Append(CssPoints(fontSize))
+            .Append(";font-family:")
+            .Append(CssFontFamily(run.FontName))
+            .Append(";fill:")
+            .Append(ColorHex(run.Color));
+        if (run.Color.Alpha < 0.999f)
+        {
+            html.Append(";fill-opacity:")
+                .Append(SvgNumber(run.Color.Alpha));
+        }
+
+        html.Append("\">")
+            .Append(Html(text))
+            .Append("</text>");
+    }
+
+    private static float FigureTextY(PdfLayoutRectangle bounds, float direction, float fontSize)
+    {
+        if (MathF.Abs(direction - 90f) < 0.01f)
+        {
+            return bounds.Bottom;
+        }
+
+        if (MathF.Abs(direction - 270f) < 0.01f)
+        {
+            return bounds.Y;
+        }
+
+        return bounds.Y + MathF.Min(fontSize, bounds.Height + fontSize * 0.25f);
+    }
+
+    private static string? FigureTextTransform(PdfLayoutRectangle bounds, float direction)
+    {
+        if (MathF.Abs(direction - 90f) < 0.01f)
+        {
+            return "rotate(-90 " + SvgNumber(bounds.X) + " " + SvgNumber(bounds.Bottom) + ")";
+        }
+
+        if (MathF.Abs(direction - 270f) < 0.01f)
+        {
+            return "rotate(90 " + SvgNumber(bounds.X) + " " + SvgNumber(bounds.Y) + ")";
+        }
+
+        if (MathF.Abs(direction - 180f) < 0.01f)
+        {
+            return "rotate(180 " + SvgNumber(bounds.X + bounds.Width / 2f) + " " +
+                SvgNumber(bounds.Y + bounds.Height / 2f) + ")";
+        }
+
+        return null;
+    }
+
+    private static float FigureTextLength(PdfLayoutRectangle bounds, float direction)
+    {
+        return MathF.Abs(direction - 90f) < 0.01f || MathF.Abs(direction - 270f) < 0.01f
+            ? bounds.Height
+            : bounds.Width;
+    }
+
+    private static float NormalizeDirection(float direction)
+    {
+        float normalized = direction % 360f;
+        if (normalized < 0)
+        {
+            normalized += 360f;
+        }
+
+        return normalized;
     }
 
     private static void WriteSvgImage(StringBuilder html, PdfLayoutImage image, PdfLayoutImageAsset asset)
@@ -1783,7 +1926,8 @@ public static class PdfHtmlConverter
             }
         }
 
-        foreach (PdfLayoutRectangle region in MergeGraphicRegions(regions))
+        foreach (PdfLayoutRectangle region in MergeGraphicRegions(regions)
+            .Select(region => ExpandFigureRegionWithLabels(page, region)))
         {
             yield return region;
         }
@@ -1793,6 +1937,137 @@ public static class PdfHtmlConverter
     {
         return bounds.Width >= page.Width * 0.18f &&
             bounds.Height >= MathF.Max(18f, page.Height * 0.035f);
+    }
+
+    private static PdfLayoutRectangle ExpandFigureRegionWithLabels(PdfLayoutPage page, PdfLayoutRectangle region)
+    {
+        PdfLayoutRectangle searchRegion = ExpandRectangle(region, 24f, 72f);
+        PdfLayoutRectangle[] labelBounds = page.Runs
+            .Where(IsFigureLabelRun)
+            .Where(run => RectanglesIntersect(run.PageBounds, searchRegion, 2f))
+            .Select(static run => run.PageBounds)
+            .ToArray();
+        if (labelBounds.Length == 0)
+        {
+            return region;
+        }
+
+        PdfLayoutRectangle expanded = UnionRectangles(labelBounds.Append(region));
+        return ExpandRectangle(expanded, 2f, 2f);
+    }
+
+    private static bool IsFigureLabelFlowElement(
+        PdfSemanticElement element,
+        IReadOnlyList<PdfLayoutRectangle> figureRegions)
+    {
+        if (figureRegions.Count == 0 ||
+            element.Kind is PdfSemanticElementKind.Table or PdfSemanticElementKind.Footnote or PdfSemanticElementKind.Footer ||
+            IsFigureCaption(element))
+        {
+            return false;
+        }
+
+        PdfTextRun[] allRuns = element.Lines
+            .SelectMany(static line => line.Runs)
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .ToArray();
+        if (LooksLikeEscapedFigureLabelText(element.Text) &&
+            figureRegions.Any(region => RectanglesIntersect(element.Bounds, ExpandRectangle(region, 24f, 72f), 2f)))
+        {
+            return true;
+        }
+
+        if (IsFigureMetadataFlowElement(element, figureRegions))
+        {
+            return true;
+        }
+
+        return allRuns.Length > 0 &&
+            allRuns.All(IsFigureLabelRun) &&
+            allRuns.All(run => figureRegions.Any(region => RectanglesIntersect(run.PageBounds, region, 2f)));
+    }
+
+    private static bool IsFigureMetadataFlowElement(
+        PdfSemanticElement element,
+        IReadOnlyList<PdfLayoutRectangle> figureRegions)
+    {
+        if (figureRegions.Count == 0 ||
+            IsFigureCaption(element) ||
+            element.Text.Length > 120 ||
+            element.Kind is PdfSemanticElementKind.Table or PdfSemanticElementKind.Footnote or PdfSemanticElementKind.Footer)
+        {
+            return false;
+        }
+
+        PdfTextRun[] runs = element.Lines
+            .SelectMany(static line => line.Runs)
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .ToArray();
+        return runs.Length > 0 &&
+            runs.All(IsFigureMetadataRun) &&
+            figureRegions.Any(region => RectanglesIntersect(element.Bounds, ExpandRectangle(region, 24f, 72f), 2f));
+    }
+
+    private static bool IsFigureMetadataRun(PdfTextRun run)
+    {
+        return MathF.Abs(NormalizeDirection(run.Direction)) < 0.01f &&
+            run.FontSize >= 11f &&
+            NormalizeFontName(run.FontName).Contains("Arial", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool LooksLikeEscapedFigureLabelText(string text)
+    {
+        string[] tokens = text
+            .Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+        if (tokens.Length < 8)
+        {
+            return false;
+        }
+
+        int shortTokens = tokens.Count(static token => token.Length <= 2);
+        return shortTokens >= tokens.Length * 0.6f;
+    }
+
+    private static bool ShouldKeepInFlowForFigureRendering(
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        IReadOnlyList<PdfLayoutRectangle> figureRegions)
+    {
+        if (IsFigureLabelFlowElement(element, figureRegions))
+        {
+            return true;
+        }
+
+        if (!IsFigureCaption(element) || figureRegions.Count == 0)
+        {
+            return false;
+        }
+
+        PdfTextRun[] directedRuns = element.Lines
+            .SelectMany(static line => line.Runs)
+            .Where(static run => MathF.Abs(run.Direction) > 0.01f)
+            .ToArray();
+        return directedRuns.Length > 0 &&
+            directedRuns.All(run => IsFigureLabelRun(run) &&
+                figureRegions.Any(region => RectanglesIntersect(run.PageBounds, region, 2f)));
+    }
+
+    private static bool IsFigureLabelRun(PdfTextRun run)
+    {
+        if (string.IsNullOrWhiteSpace(run.Text))
+        {
+            return false;
+        }
+
+        float direction = NormalizeDirection(run.Direction);
+        if (MathF.Abs(direction - 90f) < 0.01f ||
+            MathF.Abs(direction - 270f) < 0.01f ||
+            MathF.Abs(direction - 180f) < 0.01f)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static IEnumerable<PdfLayoutRectangle> MergeGraphicRegions(IEnumerable<PdfLayoutRectangle> regions)
@@ -2600,9 +2875,8 @@ public static class PdfHtmlConverter
         return element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading or PdfSemanticElementKind.Footnote &&
             !IsFormulaBlock(element) &&
             element.Lines.Count > 0 &&
-            element.Lines.All(static line =>
-                MathF.Abs(line.Direction) < 0.01f &&
-                line.Runs.Count > 0);
+            element.Lines.All(static line => line.Runs.Count > 0) &&
+            element.Lines.Any(static line => line.Runs.Any(static run => MathF.Abs(run.Direction) < 0.01f));
     }
 
     private static void WriteRichSemanticText(
@@ -2685,6 +2959,11 @@ public static class PdfHtmlConverter
             .ToArray();
         if (glyphs.Length == 0)
         {
+            if (line.Runs.Count > 0 && line.Runs.All(IsFigureLabelRun))
+            {
+                return [];
+            }
+
             return [new InlineTextSegment(line.Text, null, InlineBaselineRole.Normal)];
         }
 
