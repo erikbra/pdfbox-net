@@ -113,10 +113,13 @@ public sealed class PdfSemanticExtractorTest
         Assert.Equal(5, complexityTable.TableRows.Count);
         Assert.Equal("Layer Type", complexityTable.TableRows[0].Cells[0].Text);
         Assert.Equal("Sequential Operations", complexityTable.TableRows[0].Cells[2].Text);
+        Assert.True(complexityTable.TableRows[0].IsHeader);
         Assert.Contains(complexityTable.TableRows, row =>
             !row.IsHeader &&
             row.Cells[0].Text == "Self-Attention" &&
             row.Cells[1].Text.Contains("O(n2", StringComparison.Ordinal));
+        Assert.Contains(complexityTable.TableRows.SelectMany(static row => row.Cells), cell =>
+            cell.BorderTop || cell.BorderBottom);
         Assert.DoesNotContain(semantic.Pages[5].Elements, element =>
             element.Kind == PdfSemanticElementKind.Paragraph &&
             element.Text.StartsWith("Layer Type", StringComparison.Ordinal));
@@ -126,8 +129,13 @@ public sealed class PdfSemanticExtractorTest
             element.Text.Contains("Transformer (big)", StringComparison.Ordinal));
         Assert.True(bleuTable.TableRows.Count >= 10);
         Assert.True(bleuTable.TableRows[0].IsHeader);
-        Assert.Contains(bleuTable.TableRows[0].Cells, cell =>
-            cell.Text.Contains("BLEU", StringComparison.Ordinal));
+        Assert.True(bleuTable.TableRows[1].IsHeader);
+        Assert.Equal("BLEU", bleuTable.TableRows[0].Cells[1].Text);
+        Assert.Equal("Training Cost (FLOPs)", bleuTable.TableRows[0].Cells[4].Text);
+        Assert.Equal("EN-DE", bleuTable.TableRows[1].Cells[1].Text);
+        Assert.Equal("EN-FR", bleuTable.TableRows[1].Cells[2].Text);
+        Assert.Equal("EN-DE", bleuTable.TableRows[1].Cells[3].Text);
+        Assert.Equal("EN-FR", bleuTable.TableRows[1].Cells[4].Text);
         Assert.Contains(bleuTable.TableRows, row =>
             !row.IsHeader &&
             row.Cells[0].Text == "ByteNet [18]" &&
@@ -139,6 +147,40 @@ public sealed class PdfSemanticExtractorTest
         Assert.DoesNotContain(semantic.Pages[7].Elements, element =>
             element.Kind == PdfSemanticElementKind.Paragraph &&
             element.Text.StartsWith("BLEU Training Cost", StringComparison.Ordinal));
+
+        PdfSemanticElement variationTable = Assert.Single(semantic.Pages[8].Elements, element =>
+            element.Kind == PdfSemanticElementKind.Table &&
+            element.Text.Contains("Pdrop", StringComparison.Ordinal) &&
+            element.Text.Contains("base", StringComparison.Ordinal) &&
+            element.Text.Contains("big", StringComparison.Ordinal));
+        Assert.Equal(13, variationTable.TableRows.Max(static row => row.Cells.Count));
+        Assert.True(variationTable.TableRows[0].IsHeader);
+        Assert.True(variationTable.TableRows[1].IsHeader);
+        Assert.Equal("", variationTable.TableRows[0].Cells[0].Text);
+        Assert.Equal("N", variationTable.TableRows[1].Cells[1].Text);
+        Assert.Equal("train", variationTable.TableRows[0].Cells[9].Text);
+        Assert.Equal("steps", variationTable.TableRows[1].Cells[9].Text);
+        Assert.Equal("×106", variationTable.TableRows[1].Cells[12].Text);
+        Assert.Contains(variationTable.TableRows, row =>
+            !row.IsHeader &&
+            row.Cells[0].Text == "big" &&
+            row.Cells[12].Text == "213");
+        Assert.Contains(variationTable.TableRows.SelectMany(static row => row.Cells), cell => cell.BorderRight);
+
+        PdfSemanticElement parserTable = Assert.Single(semantic.Pages[9].Elements, element =>
+            element.Kind == PdfSemanticElementKind.Table &&
+            element.Text.Contains("Parser", StringComparison.Ordinal) &&
+            element.Text.Contains("WSJ 23 F1", StringComparison.Ordinal));
+        Assert.Equal(3, parserTable.TableRows.Max(static row => row.Cells.Count));
+        Assert.True(parserTable.TableRows[0].IsHeader);
+        Assert.Equal("Parser", parserTable.TableRows[0].Cells[0].Text);
+        Assert.Equal("Training", parserTable.TableRows[0].Cells[1].Text);
+        Assert.Equal("WSJ 23 F1", parserTable.TableRows[0].Cells[2].Text);
+        Assert.Contains(parserTable.TableRows, row =>
+            !row.IsHeader &&
+            row.Cells[0].Text.StartsWith("Vinyals & Kaiser", StringComparison.Ordinal) &&
+            row.Cells[2].Text == "88.3");
+        Assert.Contains(parserTable.TableRows.SelectMany(static row => row.Cells), cell => cell.BorderRight);
     }
 
     private static PdfSemanticElement Heading(PdfSemanticPage page, string text)
@@ -167,7 +209,7 @@ public sealed class PdfSemanticExtractorTest
         {
             IncludeImages = false,
             IncludeLinks = false,
-            IncludePaths = false
+            IncludePaths = true
         });
         return PdfSemanticExtractor.Extract(layout);
     }

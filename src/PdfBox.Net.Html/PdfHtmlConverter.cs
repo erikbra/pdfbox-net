@@ -374,6 +374,22 @@ public static class PdfHtmlConverter
           font-weight: 600;
         }
 
+        .pdf-semantic-table-cell-border-top {
+          border-top: 0.45pt solid #6b7280;
+        }
+
+        .pdf-semantic-table-cell-border-right {
+          border-right: 0.45pt solid #6b7280;
+        }
+
+        .pdf-semantic-table-cell-border-bottom {
+          border-bottom-color: #6b7280;
+        }
+
+        .pdf-semantic-table-cell-border-left {
+          border-left: 0.45pt solid #6b7280;
+        }
+
         .pdf-semantic-table td:not(:first-child),
         .pdf-semantic-table th:not(:first-child) {
           text-align: right;
@@ -1974,7 +1990,7 @@ public static class PdfHtmlConverter
     {
         if (element.Kind == PdfSemanticElementKind.Table && element.TableRows.Count > 0)
         {
-            WriteSemanticTable(html, element);
+            WriteSemanticTable(html, element, footnotes, page);
             return;
         }
 
@@ -2005,7 +2021,11 @@ public static class PdfHtmlConverter
             .AppendLine(">");
     }
 
-    private static void WriteSemanticTable(StringBuilder html, PdfSemanticElement element)
+    private static void WriteSemanticTable(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
     {
         html.Append("      <table class=\"")
             .Append(SemanticClassNames(element, allowMeasuredWidth: false))
@@ -2024,7 +2044,7 @@ public static class PdfHtmlConverter
             html.AppendLine("        <thead>");
             foreach (PdfSemanticTableRow row in headerRows)
             {
-                WriteSemanticTableRow(html, row, header: true);
+                WriteSemanticTableRow(html, row, footnotes, page, header: true);
             }
 
             html.AppendLine("        </thead>");
@@ -2033,14 +2053,19 @@ public static class PdfHtmlConverter
         html.AppendLine("        <tbody>");
         foreach (PdfSemanticTableRow row in bodyRows.Length == 0 ? headerRows : bodyRows)
         {
-            WriteSemanticTableRow(html, row, header: false);
+            WriteSemanticTableRow(html, row, footnotes, page, header: false);
         }
 
         html.AppendLine("        </tbody>");
         html.AppendLine("      </table>");
     }
 
-    private static void WriteSemanticTableRow(StringBuilder html, PdfSemanticTableRow row, bool header)
+    private static void WriteSemanticTableRow(
+        StringBuilder html,
+        PdfSemanticTableRow row,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page,
+        bool header)
     {
         string cellTag = header ? "th" : "td";
         html.AppendLine("          <tr>");
@@ -2053,23 +2078,16 @@ public static class PdfHtmlConverter
                 html.Append(" scope=\"col\"");
             }
 
-            html.Append('>');
-            if (cell.Lines.Count > 0)
+            string cellClass = SemanticTableCellClassNames(cell);
+            if (cellClass.Length > 0)
             {
-                for (int index = 0; index < cell.Lines.Count; index++)
-                {
-                    if (index > 0)
-                    {
-                        html.Append("<br />");
-                    }
+                html.Append(" class=\"")
+                    .Append(cellClass)
+                    .Append('"');
+            }
 
-                    html.Append(Html(cell.Lines[index].Text));
-                }
-            }
-            else
-            {
-                html.Append(Html(cell.Text));
-            }
+            html.Append('>');
+            WriteSemanticTableCell(html, cell, footnotes, page);
 
             html.Append("</")
                 .Append(cellTag)
@@ -2077,6 +2095,67 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("          </tr>");
+    }
+
+    private static string SemanticTableCellClassNames(PdfSemanticTableCell cell)
+    {
+        List<string> classes = [];
+        if (cell.BorderTop)
+        {
+            classes.Add("pdf-semantic-table-cell-border-top");
+        }
+
+        if (cell.BorderRight)
+        {
+            classes.Add("pdf-semantic-table-cell-border-right");
+        }
+
+        if (cell.BorderBottom)
+        {
+            classes.Add("pdf-semantic-table-cell-border-bottom");
+        }
+
+        if (cell.BorderLeft)
+        {
+            classes.Add("pdf-semantic-table-cell-border-left");
+        }
+
+        return string.Join(" ", classes);
+    }
+
+    private static void WriteSemanticTableCell(
+        StringBuilder html,
+        PdfSemanticTableCell cell,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        if (cell.Lines.Count == 0)
+        {
+            html.Append(Html(cell.Text));
+            return;
+        }
+
+        PdfSemanticElement cellElement = new(
+            PdfSemanticElementKind.Paragraph,
+            cell.Text,
+            cell.Bounds,
+            cell.Lines);
+        for (int index = 0; index < cell.Lines.Count; index++)
+        {
+            if (index > 0)
+            {
+                html.Append("<br />");
+            }
+
+            PdfSemanticLine line = cell.Lines[index];
+            List<InlineTextSegment> segments = InlineTextSegments(
+                line,
+                page,
+                cellElement,
+                includeAttachedInlineMath: false).ToList();
+            string lineText = string.Concat(segments.Select(static segment => segment.Text));
+            WriteInlineTextSegments(html, line, segments, lineText, footnotes);
+        }
     }
 
     private static string TableAriaLabel(PdfSemanticElement element)
@@ -2424,13 +2503,19 @@ public static class PdfHtmlConverter
     private static IReadOnlyList<InlineTextSegment> InlineTextSegments(
         PdfSemanticLine line,
         PdfLayoutPage? page,
-        PdfSemanticElement element)
+        PdfSemanticElement element,
+        bool includeAttachedInlineMath = true)
     {
-        (PdfTextRun Run, PdfTextGlyph Glyph)[] glyphs = line.Runs
+        IEnumerable<(PdfTextRun Run, PdfTextGlyph Glyph)> glyphSource = line.Runs
             .Where(static run => MathF.Abs(run.Direction) < 0.01f)
             .SelectMany(static run => run.Glyphs.Select(glyph => (Run: run, Glyph: glyph)))
-            .Where(static item => !string.IsNullOrEmpty(item.Glyph.Text))
-            .Concat(AttachedInlineMathGlyphs(line, page, element))
+            .Where(static item => !string.IsNullOrEmpty(item.Glyph.Text));
+        if (includeAttachedInlineMath)
+        {
+            glyphSource = glyphSource.Concat(AttachedInlineMathGlyphs(line, page, element));
+        }
+
+        (PdfTextRun Run, PdfTextGlyph Glyph)[] glyphs = glyphSource
             .OrderBy(static item => item.Glyph.Bounds.X)
             .ThenBy(static item => item.Glyph.Bounds.Y)
             .ToArray();

@@ -512,22 +512,67 @@ public class PdfHtmlConverterTest
         Assert.Contains(complexityTable.Elements("thead").Descendants("th"), header =>
             header.Value.Contains("Sequential", StringComparison.Ordinal) &&
             header.Value.Contains("Operations", StringComparison.Ordinal));
-        Assert.Contains(complexityTable.Elements("tbody").Descendants("td"), cell =>
+        XElement selfAttentionComplexity = Assert.Single(complexityTable.Elements("tbody").Descendants("td"), cell =>
             cell.Value.Contains("O(n2", StringComparison.Ordinal));
+        Assert.Contains(selfAttentionComplexity.Descendants("sup"), superscript =>
+            superscript.Value == "2" &&
+            HasClass(superscript, "pdf-semantic-math"));
+        Assert.Contains(complexityTable.Descendants("sub"), subscript =>
+            subscript.Value == "k" &&
+            HasClass(subscript, "pdf-semantic-math"));
+        Assert.Contains(complexityTable.Descendants(), cell =>
+            HasClass(cell, "pdf-semantic-table-cell-border-bottom") ||
+            HasClass(cell, "pdf-semantic-table-cell-border-top"));
         Assert.DoesNotContain(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
             paragraph.Value.StartsWith("Layer Type", StringComparison.Ordinal));
 
         XElement bleuTable = Assert.Single(semanticTables, table =>
             table.Value.Contains("Transformer (big)", StringComparison.Ordinal) &&
             table.Value.Contains("28.4", StringComparison.Ordinal));
-        Assert.Contains(bleuTable.Elements("thead").Descendants("th"), header =>
-            header.Value.Contains("BLEU", StringComparison.Ordinal));
+        XElement[] bleuHeaderRows = bleuTable.Elements("thead").Elements("tr").ToArray();
+        Assert.Equal(2, bleuHeaderRows.Length);
+        Assert.Equal(new[] { "Model", "BLEU", "", "", "Training Cost (FLOPs)" },
+            bleuHeaderRows[0].Elements("th").Select(static header => header.Value).ToArray());
+        Assert.Equal(new[] { "", "EN-DE", "EN-FR", "EN-DE", "EN-FR" },
+            bleuHeaderRows[1].Elements("th").Select(static header => header.Value).ToArray());
         Assert.Contains(bleuTable.Elements("tbody").Descendants("td"), cell =>
             cell.Value == "ByteNet [18]");
         Assert.Contains(bleuTable.Elements("tbody").Descendants("td"), cell =>
             cell.Value == "23.75");
         Assert.Contains(bleuTable.Elements("tbody").Descendants("td"), cell =>
             cell.Value == "Transformer (big)");
+        Assert.Contains(bleuTable.Descendants(), cell =>
+            HasClass(cell, "pdf-semantic-table-cell-border-bottom"));
+
+        XElement variationTable = Assert.Single(semanticTables, table =>
+            table.Value.Contains("Pdrop", StringComparison.Ordinal) &&
+            table.Value.Contains("base", StringComparison.Ordinal) &&
+            table.Value.Contains("big", StringComparison.Ordinal));
+        XElement[] variationHeaderRows = variationTable.Elements("thead").Elements("tr").ToArray();
+        Assert.Equal(2, variationHeaderRows.Length);
+        Assert.Equal("train", variationHeaderRows[0].Elements("th").ElementAt(9).Value);
+        Assert.Equal("steps", variationHeaderRows[1].Elements("th").ElementAt(9).Value);
+        Assert.Equal("params", variationHeaderRows[0].Elements("th").ElementAt(12).Value);
+        XElement parameterScaleHeader = variationHeaderRows[1].Elements("th").ElementAt(12);
+        Assert.Contains("×106", parameterScaleHeader.Value, StringComparison.Ordinal);
+        Assert.Contains(parameterScaleHeader.Descendants("sup"), superscript => superscript.Value == "6");
+        Assert.Contains(variationTable.Elements("tbody").Elements("tr"), row =>
+            row.Elements("td").First().Value == "big" &&
+            row.Elements("td").Last().Value == "213");
+        Assert.Contains(variationTable.Descendants(), cell =>
+            HasClass(cell, "pdf-semantic-table-cell-border-right"));
+
+        XElement parserTable = Assert.Single(semanticTables, table =>
+            table.Value.Contains("Parser", StringComparison.Ordinal) &&
+            table.Value.Contains("WSJ 23 F1", StringComparison.Ordinal));
+        XElement parserHeaderRow = Assert.Single(parserTable.Elements("thead").Elements("tr"));
+        Assert.Equal(new[] { "Parser", "Training", "WSJ 23 F1" },
+            parserHeaderRow.Elements("th").Select(static header => header.Value).ToArray());
+        Assert.Contains(parserTable.Elements("tbody").Elements("tr"), row =>
+            row.Elements("td").First().Value.StartsWith("Vinyals & Kaiser", StringComparison.Ordinal) &&
+            row.Elements("td").Last().Value == "88.3");
+        Assert.Contains(parserTable.Descendants(), cell =>
+            HasClass(cell, "pdf-semantic-table-cell-border-right"));
     }
 
     [Fact]

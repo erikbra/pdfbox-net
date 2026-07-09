@@ -86,11 +86,22 @@ public sealed class PdfSemanticTableRow
 /// </summary>
 public sealed class PdfSemanticTableCell
 {
-    public PdfSemanticTableCell(string text, PdfLayoutRectangle bounds, IReadOnlyList<PdfSemanticLine> lines)
+    public PdfSemanticTableCell(
+        string text,
+        PdfLayoutRectangle bounds,
+        IReadOnlyList<PdfSemanticLine> lines,
+        bool borderTop = false,
+        bool borderRight = false,
+        bool borderBottom = false,
+        bool borderLeft = false)
     {
         Text = text;
         Bounds = bounds;
         Lines = lines.ToArray();
+        BorderTop = borderTop;
+        BorderRight = borderRight;
+        BorderBottom = borderBottom;
+        BorderLeft = borderLeft;
     }
 
     public string Text { get; }
@@ -98,6 +109,14 @@ public sealed class PdfSemanticTableCell
     public PdfLayoutRectangle Bounds { get; }
 
     public IReadOnlyList<PdfSemanticLine> Lines { get; }
+
+    public bool BorderTop { get; }
+
+    public bool BorderRight { get; }
+
+    public bool BorderBottom { get; }
+
+    public bool BorderLeft { get; }
 }
 
 /// <summary>

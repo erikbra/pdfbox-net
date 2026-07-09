@@ -14,6 +14,7 @@ public static class PdfSemanticExtractor
     private static readonly Regex SymbolFootnoteMarkerPattern = new(@"^[*∗†‡]\s*$", RegexOptions.Compiled);
     private static readonly Regex NumericFootnoteMarkerPattern = new(@"^\d{1,2}\s*$", RegexOptions.Compiled);
     private static readonly Regex WhitespacePattern = new(@"\s+", RegexOptions.Compiled);
+    private const int MaximumDetectedTableColumnCount = 16;
 
     public static PdfSemanticDocument Extract(PdfLayoutDocument layout, PdfSemanticExtractionOptions? options = null)
     {
@@ -778,6 +779,12 @@ public static class PdfSemanticExtractor
         int index = 0;
         while (index < rows.Length)
         {
+            if (IsConsumed(rows[index], consumed))
+            {
+                index++;
+                continue;
+            }
+
             if (!IsTableLikeRow(rows[index], page))
             {
                 index++;
@@ -791,8 +798,14 @@ public static class PdfSemanticExtractor
             while (index < rows.Length)
             {
                 TableSourceRow row = rows[index];
+                if (IsConsumed(row, consumed))
+                {
+                    break;
+                }
+
                 float gap = MathF.Max(0f, row.Bounds.Y - group[^1].Bounds.Bottom);
-                if (gap > MathF.Max(lineStep * 1.7f, bodyFontSize * 2.1f))
+                if (gap > MathF.Max(lineStep * 1.7f, bodyFontSize * 2.1f) &&
+                    !IsLooseTableContinuation(group, row, page, gap, lineStep, bodyFontSize))
                 {
                     break;
                 }
@@ -815,14 +828,14 @@ public static class PdfSemanticExtractor
                 break;
             }
 
-            PrependTableLeadRows(rows, start, group, page, lineStep, bodyFontSize);
+            PrependTableLeadRows(rows, start, group, page, lineStep, bodyFontSize, consumed);
             if (!IsValidTableGroup(group, tableLikeRowCount, page))
             {
                 index = start + 1;
                 continue;
             }
 
-            yield return CreateTableElement(group, consumed);
+            yield return CreateTableElement(page, group, consumed);
         }
     }
 
@@ -832,12 +845,18 @@ public static class PdfSemanticExtractor
         List<TableSourceRow> group,
         PdfLayoutPage page,
         float lineStep,
-        float bodyFontSize)
+        float bodyFontSize,
+        HashSet<int> consumed)
     {
         float[] anchors = TableColumnAnchors(group);
         for (int index = startIndex - 1; index >= 0; index--)
         {
             TableSourceRow row = rows[index];
+            if (IsConsumed(row, consumed))
+            {
+                break;
+            }
+
             float gap = MathF.Max(0f, group[0].Bounds.Y - row.Bounds.Bottom);
             if (gap > MathF.Max(lineStep * 1.7f, bodyFontSize * 2.1f))
             {
@@ -853,6 +872,11 @@ public static class PdfSemanticExtractor
 
             group.Insert(0, row);
         }
+    }
+
+    private static bool IsConsumed(TableSourceRow row, HashSet<int> consumed)
+    {
+        return row.Lines.All(line => consumed.Contains(line.Index));
     }
 
     private static IEnumerable<TableSourceRow> BuildTableSourceRows(
@@ -907,7 +931,7 @@ public static class PdfSemanticExtractor
             return null;
         }
 
-        float splitGap = MathF.Max(10f, bodyFontSize * 1.35f);
+        float splitGap = MathF.Max(5.5f, bodyFontSize * 0.65f);
         List<List<PdfTextRun>> clusters = [];
         List<PdfTextRun> current = [];
         PdfTextRun? previous = null;
@@ -949,7 +973,7 @@ public static class PdfSemanticExtractor
 
     private static bool IsTableLikeRow(TableSourceRow row, PdfLayoutPage page)
     {
-        if (row.Cells.Count < 3 || row.Cells.Count > 12)
+        if (row.Cells.Count < 3 || row.Cells.Count > MaximumDetectedTableColumnCount)
         {
             return false;
         }
@@ -968,6 +992,31 @@ public static class PdfSemanticExtractor
         return compactCellCount >= row.Cells.Count - 1;
     }
 
+    private static bool IsLooseTableContinuation(
+        IReadOnlyList<TableSourceRow> existingRows,
+        TableSourceRow row,
+        PdfLayoutPage page,
+        float gap,
+        float lineStep,
+        float bodyFontSize)
+    {
+        if (gap > MathF.Max(lineStep * 12f, bodyFontSize * 12f) ||
+            row.Cells.Count == 0 ||
+            row.Cells.Count > MaximumTableColumnCount(existingRows) + 1 ||
+            LooksLikeProse(row.Text))
+        {
+            return false;
+        }
+
+        float[] anchors = TableColumnAnchors(existingRows);
+        if (anchors.Length >= 3 && IsCompatibleWithTableColumns(row, anchors, page))
+        {
+            return true;
+        }
+
+        return IsTableRowWithinExistingBounds(existingRows, row, page);
+    }
+
     private static bool IsTableContinuationRow(
         IReadOnlyList<TableSourceRow> existingRows,
         TableSourceRow row,
@@ -983,18 +1032,43 @@ public static class PdfSemanticExtractor
             return true;
         }
 
-        if (row.Cells.Count >= 3)
-        {
-            return false;
-        }
-
         if (LooksLikeProse(row.Text))
         {
             return false;
         }
 
         float[] anchors = TableColumnAnchors(existingRows);
-        return anchors.Length >= 3 && IsCompatibleWithTableColumns(row, anchors, page);
+        if (anchors.Length < 3)
+        {
+            return false;
+        }
+
+        if (IsCompatibleWithTableColumns(row, anchors, page))
+        {
+            return true;
+        }
+
+        return IsTableRowWithinExistingBounds(existingRows, row, page);
+    }
+
+    private static bool IsTableRowWithinExistingBounds(
+        IReadOnlyList<TableSourceRow> existingRows,
+        TableSourceRow row,
+        PdfLayoutPage page)
+    {
+        PdfLayoutRectangle existingBounds = PdfLayoutRectangle.Union(existingRows.Select(static existing => existing.Bounds));
+        float overlap = HorizontalOverlap(existingBounds, row.Bounds);
+        if (row.Cells.Count >= 3 &&
+            overlap >= MathF.Min(existingBounds.Width, row.Bounds.Width) * 0.65f)
+        {
+            return true;
+        }
+
+        int numericCells = row.Cells.Count(static cell => LooksLikeNumericTableValue(cell.Text));
+        return row.Cells.Count >= 3 &&
+            numericCells >= row.Cells.Count - 1 &&
+            row.Bounds.X >= existingBounds.X - page.Width * 0.04f &&
+            row.Bounds.Right <= existingBounds.Right + page.Width * 0.04f;
     }
 
     private static bool IsValidTableGroup(
@@ -1027,10 +1101,14 @@ public static class PdfSemanticExtractor
         float tolerance = MathF.Max(32f, page.Width * 0.075f);
         int matches = row.Cells.Count(cell =>
             columnCenters.Min(center => MathF.Abs(center - cell.CenterX)) <= tolerance);
-        return matches >= Math.Min(row.Cells.Count, Math.Max(2, columnCenters.Count - 1));
+        int requiredMatches = Math.Min(
+            row.Cells.Count,
+            Math.Max(2, (int)MathF.Ceiling(columnCenters.Count * 0.60f)));
+        return matches >= requiredMatches;
     }
 
     private static PdfSemanticElement CreateTableElement(
+        PdfLayoutPage page,
         IReadOnlyList<TableSourceRow> sourceRows,
         HashSet<int> consumed)
     {
@@ -1047,12 +1125,13 @@ public static class PdfSemanticExtractor
         bool hasSeenDataRow = false;
         foreach (TableSourceRow sourceRow in sourceRows)
         {
-            bool isDataRow = LooksLikeTableDataRow(sourceRow);
+            bool isHeaderRow = !hasSeenDataRow && LooksLikeTableHeaderRow(sourceRow);
+            bool isDataRow = !isHeaderRow && LooksLikeTableDataRow(sourceRow);
             PdfSemanticTableRow semanticRow = CreateTableRow(sourceRow, columnCenters, isHeader: !hasSeenDataRow && !isDataRow);
             if (!hasSeenDataRow &&
                 !isDataRow &&
-                sourceRow.Cells.Count < columnCenters.Length &&
-                tableRows.Count > 0)
+                tableRows.Count > 0 &&
+                ShouldMergeHeaderContinuation(sourceRow, semanticRow))
             {
                 tableRows[^1] = MergeHeaderContinuation(tableRows[^1], semanticRow);
             }
@@ -1074,12 +1153,13 @@ public static class PdfSemanticExtractor
         string text = string.Join(
             Environment.NewLine,
             tableRows.Select(static row => string.Join("\t", row.Cells.Select(static cell => cell.Text))));
+        PdfLayoutRectangle bounds = PdfLayoutRectangle.Union(sourceRows.Select(static row => row.Bounds));
         return new PdfSemanticElement(
             PdfSemanticElementKind.Table,
             text,
-            PdfLayoutRectangle.Union(sourceRows.Select(static row => row.Bounds)),
+            bounds,
             lines,
-            tableRows: tableRows);
+            tableRows: ApplyTableRules(page, bounds, tableRows));
     }
 
     private static PdfSemanticTableRow CreateTableRow(
@@ -1188,10 +1268,22 @@ public static class PdfSemanticExtractor
                 return new PdfSemanticTableCell(
                     cell.Text + " " + next.Text,
                     PdfLayoutRectangle.Union([cell.Bounds, next.Bounds]),
-                    cell.Lines.Concat(next.Lines).ToArray());
+                    cell.Lines.Concat(next.Lines).ToArray(),
+                    cell.BorderTop || next.BorderTop,
+                    cell.BorderRight || next.BorderRight,
+                    cell.BorderBottom || next.BorderBottom,
+                    cell.BorderLeft || next.BorderLeft);
             })
             .ToArray();
         return new PdfSemanticTableRow(cells, isHeader: true);
+    }
+
+    private static bool ShouldMergeHeaderContinuation(
+        TableSourceRow sourceRow,
+        PdfSemanticTableRow continuation)
+    {
+        int nonEmptyCells = continuation.Cells.Count(static cell => !string.IsNullOrWhiteSpace(cell.Text));
+        return sourceRow.Cells.Count <= 1 && nonEmptyCells == 1;
     }
 
     private static bool LooksLikeTableDataRow(TableSourceRow row)
@@ -1199,6 +1291,286 @@ public static class PdfSemanticExtractor
         return row.Cells.Any(static cell => cell.Text.Any(char.IsDigit)) &&
             !row.Text.Contains("FLOPs", StringComparison.OrdinalIgnoreCase) &&
             !row.Text.Contains("BLEU", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool LooksLikeTableHeaderRow(TableSourceRow row)
+    {
+        string[] cells = row.Cells.Select(static cell => cell.Text.Trim()).ToArray();
+        if (cells.Any(static text =>
+                string.Equals(text, "BLEU", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(text, "PPL", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(text, "(dev)", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(text, "steps", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(text, "params", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(text, "Parser", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(text, "Training", StringComparison.OrdinalIgnoreCase) ||
+                text.StartsWith("Training Cost", StringComparison.OrdinalIgnoreCase) ||
+                text.StartsWith("WSJ 23", StringComparison.OrdinalIgnoreCase) ||
+                text.Contains("FLOPs", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        int shortCells = row.Cells.Count(static cell => cell.Text.Trim().Length <= 18);
+        int numericDataCells = row.Cells.Count(static cell => LooksLikeNumericTableValue(cell.Text));
+        return row.Cells.Count >= 3 &&
+            shortCells >= row.Cells.Count - 1 &&
+            numericDataCells <= Math.Max(1, row.Cells.Count / 4);
+    }
+
+    private static bool LooksLikeNumericTableValue(string text)
+    {
+        string trimmed = text.Trim();
+        return trimmed.Length > 0 &&
+            trimmed.Any(static character => char.IsDigit(character)) &&
+            trimmed.All(static character =>
+                char.IsDigit(character) ||
+                character is '.' or ',' or '-' or '+' or '·' or '×' or '/' or '(' or ')' ||
+                char.IsWhiteSpace(character) ||
+                char.IsLetter(character));
+    }
+
+    private static IReadOnlyList<PdfSemanticTableRow> ApplyTableRules(
+        PdfLayoutPage page,
+        PdfLayoutRectangle tableBounds,
+        IReadOnlyList<PdfSemanticTableRow> rows)
+    {
+        TableRule[] rules = TableRules(page, tableBounds).ToArray();
+        if (rules.Length == 0 || rows.Count == 0)
+        {
+            return rows;
+        }
+
+        MutableCellBorders[][] borders = rows
+            .Select(row => row.Cells.Select(static _ => new MutableCellBorders()).ToArray())
+            .ToArray();
+        PdfLayoutRectangle[] rowBounds = rows
+            .Select(row => PdfLayoutRectangle.Union(row.Cells.Select(static cell => cell.Bounds)))
+            .ToArray();
+        float[] rowCenters = rowBounds.Select(static bounds => bounds.Y + bounds.Height / 2f).ToArray();
+        float[] columnCenters = TableColumnCenters(rows);
+
+        foreach (TableRule rule in rules)
+        {
+            if (rule.Orientation == TableRuleOrientation.Horizontal)
+            {
+                ApplyHorizontalTableRule(rule.Bounds, rows, rowCenters, borders);
+            }
+            else
+            {
+                ApplyVerticalTableRule(rule.Bounds, rows, rowBounds, columnCenters, borders);
+            }
+        }
+
+        return rows
+            .Select((row, rowIndex) => new PdfSemanticTableRow(
+                row.Cells
+                    .Select((cell, cellIndex) =>
+                    {
+                        MutableCellBorders cellBorders = borders[rowIndex][cellIndex];
+                        return new PdfSemanticTableCell(
+                            cell.Text,
+                            cell.Bounds,
+                            cell.Lines,
+                            cell.BorderTop || cellBorders.Top,
+                            cell.BorderRight || cellBorders.Right,
+                            cell.BorderBottom || cellBorders.Bottom,
+                            cell.BorderLeft || cellBorders.Left);
+                    })
+                    .ToArray(),
+                row.IsHeader))
+            .ToArray();
+    }
+
+    private static IEnumerable<TableRule> TableRules(PdfLayoutPage page, PdfLayoutRectangle tableBounds)
+    {
+        PdfLayoutRectangle expanded = ExpandRectangle(tableBounds, 8f, 8f);
+        foreach (PdfLayoutPath path in page.Paths)
+        {
+            foreach (PdfLayoutRectangle bounds in PathRuleSegments(path))
+            {
+                if (!Intersects(expanded, bounds))
+                {
+                    continue;
+                }
+
+                if (bounds.Width >= 12f && bounds.Width >= MathF.Max(0.1f, bounds.Height) * 8f)
+                {
+                    yield return new TableRule(TableRuleOrientation.Horizontal, bounds);
+                }
+                else if (bounds.Height >= 6f && bounds.Height >= MathF.Max(0.1f, bounds.Width) * 8f)
+                {
+                    yield return new TableRule(TableRuleOrientation.Vertical, bounds);
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<PdfLayoutRectangle> PathRuleSegments(PdfLayoutPath path)
+    {
+        PdfLayoutPathCommand? previous = null;
+        foreach (PdfLayoutPathCommand command in path.Commands)
+        {
+            if (command.Kind == PdfLayoutPathCommandKind.MoveTo)
+            {
+                previous = command;
+                continue;
+            }
+
+            if (command.Kind != PdfLayoutPathCommandKind.LineTo || previous == null)
+            {
+                continue;
+            }
+
+            PdfLayoutPathCommand start = previous.Value;
+            float x = MathF.Min(start.X1, command.X1);
+            float y = MathF.Min(start.Y1, command.Y1);
+            float width = MathF.Abs(command.X1 - start.X1);
+            float height = MathF.Abs(command.Y1 - start.Y1);
+            yield return new PdfLayoutRectangle(x, y, width, height);
+            previous = command;
+        }
+    }
+
+    private static void ApplyHorizontalTableRule(
+        PdfLayoutRectangle rule,
+        IReadOnlyList<PdfSemanticTableRow> rows,
+        IReadOnlyList<float> rowCenters,
+        MutableCellBorders[][] borders)
+    {
+        if (rowCenters.Count == 0)
+        {
+            return;
+        }
+
+        float y = rule.Y + rule.Height / 2f;
+        if (y <= rowCenters[0])
+        {
+            MarkHorizontalCells(rows[0], borders[0], rule, top: true);
+            return;
+        }
+
+        if (y >= rowCenters[^1])
+        {
+            MarkHorizontalCells(rows[^1], borders[^1], rule, top: false);
+            return;
+        }
+
+        int previousRowIndex = 0;
+        for (int index = 0; index + 1 < rowCenters.Count; index++)
+        {
+            if (y >= rowCenters[index] && y <= rowCenters[index + 1])
+            {
+                previousRowIndex = index;
+                break;
+            }
+        }
+
+        MarkHorizontalCells(rows[previousRowIndex], borders[previousRowIndex], rule, top: false);
+    }
+
+    private static void MarkHorizontalCells(
+        PdfSemanticTableRow row,
+        IReadOnlyList<MutableCellBorders> borders,
+        PdfLayoutRectangle rule,
+        bool top)
+    {
+        for (int index = 0; index < row.Cells.Count; index++)
+        {
+            PdfSemanticTableCell cell = row.Cells[index];
+            if (HorizontalOverlap(cell.Bounds, rule) <= 0f)
+            {
+                continue;
+            }
+
+            if (top)
+            {
+                borders[index].Top = true;
+            }
+            else
+            {
+                borders[index].Bottom = true;
+            }
+        }
+    }
+
+    private static void ApplyVerticalTableRule(
+        PdfLayoutRectangle rule,
+        IReadOnlyList<PdfSemanticTableRow> rows,
+        IReadOnlyList<PdfLayoutRectangle> rowBounds,
+        IReadOnlyList<float> columnCenters,
+        MutableCellBorders[][] borders)
+    {
+        if (columnCenters.Count == 0)
+        {
+            return;
+        }
+
+        float x = rule.X + rule.Width / 2f;
+        int leftColumn = 0;
+        for (int index = 0; index + 1 < columnCenters.Count; index++)
+        {
+            if (x >= columnCenters[index] && x <= columnCenters[index + 1])
+            {
+                leftColumn = index;
+                break;
+            }
+        }
+
+        for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+        {
+            if (VerticalOverlap(rowBounds[rowIndex], rule) <= 0f ||
+                leftColumn >= rows[rowIndex].Cells.Count)
+            {
+                continue;
+            }
+
+            borders[rowIndex][leftColumn].Right = true;
+            if (leftColumn + 1 < rows[rowIndex].Cells.Count)
+            {
+                borders[rowIndex][leftColumn + 1].Left = true;
+            }
+        }
+    }
+
+    private static float[] TableColumnCenters(IReadOnlyList<PdfSemanticTableRow> rows)
+    {
+        int columnCount = rows.Max(static row => row.Cells.Count);
+        return Enumerable
+            .Range(0, columnCount)
+            .Select(index => rows
+                .Where(row => index < row.Cells.Count)
+                .Select(row => row.Cells[index].Bounds.X + row.Cells[index].Bounds.Width / 2f)
+                .DefaultIfEmpty()
+                .Average())
+            .ToArray();
+    }
+
+    private static bool Intersects(PdfLayoutRectangle first, PdfLayoutRectangle second)
+    {
+        return first.X <= second.Right &&
+            first.Right >= second.X &&
+            first.Y <= second.Bottom &&
+            first.Bottom >= second.Y;
+    }
+
+    private static float HorizontalOverlap(PdfLayoutRectangle first, PdfLayoutRectangle second)
+    {
+        return MathF.Min(first.Right, second.Right) - MathF.Max(first.X, second.X);
+    }
+
+    private static float VerticalOverlap(PdfLayoutRectangle first, PdfLayoutRectangle second)
+    {
+        return MathF.Min(first.Bottom, second.Bottom) - MathF.Max(first.Y, second.Y);
+    }
+
+    private static PdfLayoutRectangle ExpandRectangle(PdfLayoutRectangle bounds, float horizontal, float vertical)
+    {
+        return new PdfLayoutRectangle(
+            bounds.X - horizontal,
+            bounds.Y - vertical,
+            bounds.Width + horizontal + horizontal,
+            bounds.Height + vertical + vertical);
     }
 
     private static bool LooksLikeProse(string text)
@@ -1978,6 +2350,25 @@ public static class PdfSemanticExtractor
         public IReadOnlyList<PdfTextRun> Runs { get; }
 
         public float CenterX => Bounds.X + Bounds.Width / 2f;
+    }
+
+    private sealed class MutableCellBorders
+    {
+        public bool Top { get; set; }
+
+        public bool Right { get; set; }
+
+        public bool Bottom { get; set; }
+
+        public bool Left { get; set; }
+    }
+
+    private readonly record struct TableRule(TableRuleOrientation Orientation, PdfLayoutRectangle Bounds);
+
+    private enum TableRuleOrientation
+    {
+        Horizontal,
+        Vertical
     }
 
     private readonly record struct ColorKeyValue(
