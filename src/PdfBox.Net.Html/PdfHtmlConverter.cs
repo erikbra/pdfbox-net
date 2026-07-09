@@ -2602,6 +2602,7 @@ public static class PdfHtmlConverter
         PromoteMathIdentifierSubscripts(segments);
         RepairCommonMathOperatorOmissions(segments);
         RemoveDuplicateAdjacentSubscripts(segments);
+        MergeAdjacentTextSegments(segments);
 
         return segments;
     }
@@ -3228,6 +3229,40 @@ public static class PdfHtmlConverter
         }
     }
 
+    private static void MergeAdjacentTextSegments(List<InlineTextSegment> segments)
+    {
+        for (int index = 0; index + 1 < segments.Count;)
+        {
+            InlineTextSegment first = segments[index];
+            InlineTextSegment second = segments[index + 1];
+            if (CanMergeTextSegments(first, second))
+            {
+                segments[index] = first with { Text = first.Text + second.Text };
+                segments.RemoveAt(index + 1);
+                continue;
+            }
+
+            index++;
+        }
+    }
+
+    private static bool CanMergeTextSegments(InlineTextSegment first, InlineTextSegment second)
+    {
+        if (first.Run == null ||
+            second.Run == null ||
+            first.Role != InlineBaselineRole.Normal ||
+            second.Role != InlineBaselineRole.Normal ||
+            HasMathFont(first.Run.FontName) ||
+            HasMathFont(second.Run.FontName))
+        {
+            return false;
+        }
+
+        return string.Equals(NormalizeFontName(first.Run.FontName), NormalizeFontName(second.Run.FontName), StringComparison.Ordinal) &&
+            MathF.Abs(first.Run.FontSize - second.Run.FontSize) < 0.01f &&
+            first.Run.Color.Equals(second.Run.Color);
+    }
+
     private static string CompactText(string text)
     {
         StringBuilder compact = new(text.Length);
@@ -3821,6 +3856,7 @@ public static class PdfHtmlConverter
         {
             InlineBaselineRole.Subscript => "sub",
             InlineBaselineRole.Superscript => "sup",
+            InlineBaselineRole.Normal when HasCssClass(className, "pdf-semantic-bold") => "strong",
             _ => className.Length > 0 ? "span" : ""
         };
 
@@ -3853,6 +3889,13 @@ public static class PdfHtmlConverter
                 .Append(tagName)
                 .Append('>');
         }
+    }
+
+    private static bool HasCssClass(string className, string cssClass)
+    {
+        return className
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Contains(cssClass, StringComparer.Ordinal);
     }
 
     private static bool IsFootnoteReferenceSegment(

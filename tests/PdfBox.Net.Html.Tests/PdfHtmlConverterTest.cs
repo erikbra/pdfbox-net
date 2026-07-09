@@ -570,6 +570,26 @@ public class PdfHtmlConverterTest
             transformerBig.Elements("td").ElementAt(2).Descendants().Any(value => HasClass(value, "pdf-semantic-bold")));
         Assert.DoesNotContain("border-bottom: 0.35pt solid #d1d5db", html.Css, StringComparison.Ordinal);
 
+        XElement residualDropoutParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
+            paragraph.Value.Contains("Residual Dropout", StringComparison.Ordinal) &&
+            paragraph.Value.Contains("For the base model", StringComparison.Ordinal));
+        Assert.Contains(residualDropoutParagraph.Descendants("strong"), strong =>
+            strong.Value == "Residual" &&
+            HasClass(strong, "pdf-semantic-bold"));
+        Assert.Contains(residualDropoutParagraph.Descendants("strong"), strong =>
+            strong.Value == "Dropout" &&
+            HasClass(strong, "pdf-semantic-bold"));
+
+        XElement labelSmoothingParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
+            paragraph.Value.Contains("Label Smoothing", StringComparison.Ordinal) &&
+            paragraph.Value.Contains("label smoothing of value", StringComparison.Ordinal));
+        Assert.Contains(labelSmoothingParagraph.Descendants("strong"), strong =>
+            strong.Value == "Label" &&
+            HasClass(strong, "pdf-semantic-bold"));
+        Assert.Contains(labelSmoothingParagraph.Descendants("strong"), strong =>
+            strong.Value == "Smoothing" &&
+            HasClass(strong, "pdf-semantic-bold"));
+
         XElement variationTable = Assert.Single(semanticTables, table =>
             table.Value.Contains("Pdrop", StringComparison.Ordinal) &&
             table.Value.Contains("base", StringComparison.Ordinal) &&
