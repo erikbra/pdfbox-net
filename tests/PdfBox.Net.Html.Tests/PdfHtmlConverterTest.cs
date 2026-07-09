@@ -535,6 +535,14 @@ public class PdfHtmlConverterTest
             bleuHeaderRows[0].Elements("th").Select(static header => header.Value).ToArray());
         Assert.Equal(new[] { "", "EN-DE", "EN-FR", "EN-DE", "EN-FR" },
             bleuHeaderRows[1].Elements("th").Select(static header => header.Value).ToArray());
+        XElement[] bleuGroupHeaders = bleuHeaderRows[0].Elements("th").ToArray();
+        Assert.All(bleuGroupHeaders, header =>
+            Assert.True(HasClass(header, "pdf-semantic-table-cell-border-top")));
+        Assert.False(HasClass(bleuGroupHeaders[0], "pdf-semantic-table-cell-border-bottom"));
+        Assert.True(HasClass(bleuGroupHeaders[1], "pdf-semantic-table-cell-border-bottom"));
+        Assert.True(HasClass(bleuGroupHeaders[2], "pdf-semantic-table-cell-border-bottom"));
+        Assert.True(HasClass(bleuGroupHeaders[3], "pdf-semantic-table-cell-border-bottom"));
+        Assert.True(HasClass(bleuGroupHeaders[4], "pdf-semantic-table-cell-border-bottom"));
         Assert.Contains(bleuTable.Elements("tbody").Descendants("td"), cell =>
             cell.Value == "ByteNet [18]");
         Assert.Contains(bleuTable.Elements("tbody").Descendants("td"), cell =>
@@ -543,6 +551,24 @@ public class PdfHtmlConverterTest
             cell.Value == "Transformer (big)");
         Assert.Contains(bleuTable.Descendants(), cell =>
             HasClass(cell, "pdf-semantic-table-cell-border-bottom"));
+        XElement convS2SEnsembleBleu = Assert.Single(bleuTable.Elements("tbody").Descendants("td"), cell =>
+            cell.Value == "41.29");
+        Assert.True(HasClass(convS2SEnsembleBleu, "pdf-semantic-bold") ||
+            convS2SEnsembleBleu.Descendants().Any(value => HasClass(value, "pdf-semantic-bold")));
+        XElement transformerBase = Assert.Single(bleuTable.Elements("tbody").Elements("tr"), row =>
+            row.Elements("td").First().Value == "Transformer (base model)");
+        XElement transformerBaseCost = transformerBase.Elements("td").Last();
+        Assert.True(HasClass(transformerBaseCost, "pdf-semantic-bold") ||
+            transformerBaseCost.Descendants().Any(value => HasClass(value, "pdf-semantic-bold")));
+        XElement transformerBig = Assert.Single(bleuTable.Elements("tbody").Elements("tr"), row =>
+            row.Elements("td").First().Value == "Transformer (big)");
+        Assert.All(transformerBig.Elements("td"), cell =>
+            Assert.True(HasClass(cell, "pdf-semantic-table-cell-border-bottom")));
+        Assert.True(HasClass(transformerBig.Elements("td").ElementAt(1), "pdf-semantic-bold") ||
+            transformerBig.Elements("td").ElementAt(1).Descendants().Any(value => HasClass(value, "pdf-semantic-bold")));
+        Assert.True(HasClass(transformerBig.Elements("td").ElementAt(2), "pdf-semantic-bold") ||
+            transformerBig.Elements("td").ElementAt(2).Descendants().Any(value => HasClass(value, "pdf-semantic-bold")));
+        Assert.DoesNotContain("border-bottom: 0.35pt solid #d1d5db", html.Css, StringComparison.Ordinal);
 
         XElement variationTable = Assert.Single(semanticTables, table =>
             table.Value.Contains("Pdrop", StringComparison.Ordinal) &&

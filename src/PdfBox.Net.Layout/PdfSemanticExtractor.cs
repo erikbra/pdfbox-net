@@ -1478,7 +1478,7 @@ public static class PdfSemanticExtractor
         for (int index = 0; index < row.Cells.Count; index++)
         {
             PdfSemanticTableCell cell = row.Cells[index];
-            if (HorizontalOverlap(cell.Bounds, rule) <= 0f)
+            if (!HorizontallyTouchesRule(cell.Bounds, rule))
             {
                 continue;
             }
@@ -1492,6 +1492,22 @@ public static class PdfSemanticExtractor
                 borders[index].Bottom = true;
             }
         }
+    }
+
+    private static bool HorizontallyTouchesRule(PdfLayoutRectangle cellBounds, PdfLayoutRectangle rule)
+    {
+        if (HorizontalOverlap(cellBounds, rule) > 0f)
+        {
+            return true;
+        }
+
+        if (cellBounds.Width > 0.5f)
+        {
+            return false;
+        }
+
+        float centerX = cellBounds.X + cellBounds.Width / 2f;
+        return centerX >= rule.X - 0.5f && centerX <= rule.Right + 0.5f;
     }
 
     private static void ApplyVerticalTableRule(

@@ -136,6 +136,12 @@ public sealed class PdfSemanticExtractorTest
         Assert.Equal("EN-FR", bleuTable.TableRows[1].Cells[2].Text);
         Assert.Equal("EN-DE", bleuTable.TableRows[1].Cells[3].Text);
         Assert.Equal("EN-FR", bleuTable.TableRows[1].Cells[4].Text);
+        Assert.All(bleuTable.TableRows[0].Cells, cell => Assert.True(cell.BorderTop));
+        Assert.False(bleuTable.TableRows[0].Cells[0].BorderBottom);
+        Assert.True(bleuTable.TableRows[0].Cells[1].BorderBottom);
+        Assert.True(bleuTable.TableRows[0].Cells[2].BorderBottom);
+        Assert.True(bleuTable.TableRows[0].Cells[3].BorderBottom);
+        Assert.True(bleuTable.TableRows[0].Cells[4].BorderBottom);
         Assert.Contains(bleuTable.TableRows, row =>
             !row.IsHeader &&
             row.Cells[0].Text == "ByteNet [18]" &&
@@ -144,6 +150,10 @@ public sealed class PdfSemanticExtractorTest
             !row.IsHeader &&
             row.Cells[0].Text == "Transformer (big)" &&
             row.Cells.Any(cell => cell.Text == "28.4"));
+        PdfSemanticTableRow transformerBig = Assert.Single(bleuTable.TableRows, row =>
+            !row.IsHeader &&
+            row.Cells[0].Text == "Transformer (big)");
+        Assert.All(transformerBig.Cells, cell => Assert.True(cell.BorderBottom));
         Assert.DoesNotContain(semantic.Pages[7].Elements, element =>
             element.Kind == PdfSemanticElementKind.Paragraph &&
             element.Text.StartsWith("BLEU Training Cost", StringComparison.Ordinal));

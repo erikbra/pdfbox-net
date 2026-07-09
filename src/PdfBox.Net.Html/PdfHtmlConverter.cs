@@ -182,6 +182,10 @@ public static class PdfHtmlConverter
           font-style: italic;
         }
 
+        .pdf-semantic-bold {
+          font-weight: 600;
+        }
+
         .pdf-semantic-inline-fraction {
           display: inline-block;
           font-size: 0.72em;
@@ -363,15 +367,15 @@ public static class PdfHtmlConverter
 
         .pdf-semantic-table th,
         .pdf-semantic-table td {
-          border-bottom: 0.35pt solid #d1d5db;
+          border: 0;
           padding: 2pt 4pt;
           text-align: left;
           vertical-align: top;
         }
 
         .pdf-semantic-table thead th {
-          border-bottom-color: #6b7280;
           font-weight: 600;
+          text-align: center;
         }
 
         .pdf-semantic-table-cell-border-top {
@@ -383,15 +387,14 @@ public static class PdfHtmlConverter
         }
 
         .pdf-semantic-table-cell-border-bottom {
-          border-bottom-color: #6b7280;
+          border-bottom: 0.45pt solid #6b7280;
         }
 
         .pdf-semantic-table-cell-border-left {
           border-left: 0.45pt solid #6b7280;
         }
 
-        .pdf-semantic-table td:not(:first-child),
-        .pdf-semantic-table th:not(:first-child) {
+        .pdf-semantic-table td:not(:first-child) {
           text-align: right;
         }
 
@@ -2120,7 +2123,21 @@ public static class PdfHtmlConverter
             classes.Add("pdf-semantic-table-cell-border-left");
         }
 
+        if (IsBoldTableCell(cell))
+        {
+            classes.Add("pdf-semantic-bold");
+        }
+
         return string.Join(" ", classes);
+    }
+
+    private static bool IsBoldTableCell(PdfSemanticTableCell cell)
+    {
+        PdfTextRun[] runs = cell.Lines
+            .SelectMany(static line => line.Runs)
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .ToArray();
+        return runs.Length > 0 && runs.All(static run => IsBoldFont(run.FontName));
     }
 
     private static void WriteSemanticTableCell(
@@ -3854,10 +3871,13 @@ public static class PdfHtmlConverter
     {
         List<string> classes = [];
         string normalizedFontName = NormalizeFontName(run.FontName);
+        bool lineIsBold = IsBoldFont(line.DominantFontName);
+        bool runIsBold = IsBoldFont(normalizedFontName);
         float fontSize = MathF.Round(run.FontSize * 2f) / 2f;
         if (!string.Equals(normalizedFontName, line.DominantFontName, StringComparison.Ordinal) ||
             HasMathFont(normalizedFontName) ||
-            IsItalicFont(normalizedFontName))
+            IsItalicFont(normalizedFontName) ||
+            (runIsBold && !lineIsBold))
         {
             classes.Add("pdf-semantic-inline-run");
             classes.Add(FontClass(normalizedFontName));
@@ -3891,6 +3911,11 @@ public static class PdfHtmlConverter
         if (IsItalicFont(normalizedFontName))
         {
             classes.Add("pdf-semantic-italic");
+        }
+
+        if (runIsBold && !lineIsBold)
+        {
+            classes.Add("pdf-semantic-bold");
         }
 
         return string.Join(" ", classes.Distinct(StringComparer.Ordinal));
@@ -4289,6 +4314,16 @@ public static class PdfHtmlConverter
         return normalized.Contains("Italic", StringComparison.OrdinalIgnoreCase) ||
             normalized.Contains("Ital", StringComparison.OrdinalIgnoreCase) ||
             normalized.StartsWith("CMMI", StringComparison.Ordinal);
+    }
+
+    private static bool IsBoldFont(string fontName)
+    {
+        string normalized = NormalizeFontName(fontName);
+        return normalized.Contains("Bold", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Medi", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("CMBX", StringComparison.Ordinal) ||
+            normalized.StartsWith("CMMIB", StringComparison.Ordinal) ||
+            normalized.StartsWith("CMBSY", StringComparison.Ordinal);
     }
 
     private static bool HasFormulaSignal(string text)
