@@ -849,6 +849,60 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_4ppHighlightingFixtureUsesFittedTextForCompressedGlyphBoxes()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("4PP-Highlighting.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+        XElement[] fittedRuns = ElementsByClass(dom, "pdf-text-run-svg").ToArray();
+        XElement[] textRuns = ElementsByClass(dom, "pdf-text-run").ToArray();
+
+        Assert.NotEmpty(fittedRuns);
+        Assert.Equal(layout.Pages[0].Runs.Count, textRuns.Length);
+        Assert.True(TextCoverage(layout.Text, dom.Root?.Value ?? "") >= 0.99);
+        foreach (XElement textRun in textRuns.Take(8))
+        {
+            Dictionary<string, string> style = ParseStyle(textRun.Attribute("style")?.Value ?? "");
+            Assert.True(ParsePoints(style["font-size"]) < 6);
+        }
+    }
+
+    [Fact]
+    public void Convert_AcroFormFixtureEmitsWidgetAppearanceImageOverlays()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("Acroform-PDFBOX-2333.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfLayoutImage[] appearanceImages = layout.Pages[0].Images
+            .Where(image => image.Kind == PdfLayoutImageKind.AnnotationAppearance)
+            .ToArray();
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+        XElement[] imageElements = ElementsByClass(dom, "pdf-image")
+            .Where(element => (element.Attribute("data-asset-id")?.Value ?? string.Empty).Contains("-annotation-", StringComparison.Ordinal))
+            .ToArray();
+
+        Assert.True(appearanceImages.Length >= 10);
+        Assert.Equal(appearanceImages.Length, imageElements.Length);
+        Assert.Equal(appearanceImages.Length, html.Assets.Count(asset => asset.ContentType == "image/png"));
+        Assert.All(appearanceImages, image =>
+        {
+            Assert.True(image.Bounds.Width > 0);
+            Assert.True(image.Bounds.Height > 0);
+            Assert.True(image.IntrinsicWidth > 0);
+            Assert.True(image.IntrinsicHeight > 0);
+        });
+    }
+
+    [Fact]
     public async Task Convert_RenderedInHeadlessBrowserMatchesLayoutGeometry()
     {
         using PDDocument document = CreateTextDocument("""
@@ -1389,6 +1443,11 @@ public class PdfHtmlConverterTest
             AppContext.BaseDirectory,
             "../../../../../artifacts/html-render-tests",
             testName));
+    }
+
+    private static string FixturePath(string fileName)
+    {
+        return Path.Combine(AppContext.BaseDirectory, "Fixtures", fileName);
     }
 
     private static (int Width, int Height) PngDimensions(byte[] png)

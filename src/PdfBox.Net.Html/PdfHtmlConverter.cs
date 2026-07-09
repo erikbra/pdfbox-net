@@ -45,6 +45,26 @@ public static class PdfHtmlConverter
           z-index: 1;
         }
 
+        .pdf-text-run-copy {
+          color: transparent;
+          display: block;
+          left: 0;
+          line-height: 1;
+          position: absolute;
+          top: 0;
+          white-space: pre;
+        }
+
+        .pdf-text-run-svg {
+          display: block;
+          height: 100%;
+          left: 0;
+          overflow: visible;
+          position: absolute;
+          top: 0;
+          width: 100%;
+        }
+
         .pdf-semantic-element {
           box-sizing: border-box;
           color: #111827;
@@ -847,6 +867,7 @@ public static class PdfHtmlConverter
 
     private static void WriteTextRun(StringBuilder html, PdfTextRun run, float scale)
     {
+        float fontSize = FixedTextFontSize(run);
         html.Append("    <span class=\"pdf-text-run\" data-font=\"")
             .Append(HtmlAttribute(run.FontName))
             .Append("\" style=\"position:absolute;left:")
@@ -858,14 +879,72 @@ public static class PdfHtmlConverter
             .Append(";height:")
             .Append(CssPoints(run.Bounds.Height * scale))
             .Append(";font-size:")
-            .Append(CssPoints(run.FontSize * scale))
+            .Append(CssPoints(fontSize * scale))
             .Append(";font-family:")
             .Append(CssFontFamily(run.FontName))
             .Append(";color:")
             .Append(ColorHex(run.Color))
-            .Append("\">")
+            .Append("\">");
+
+        if (ShouldUseFittedText(run))
+        {
+            WriteFittedTextRun(html, run, fontSize, scale);
+        }
+        else
+        {
+            html.Append(Html(run.Text));
+        }
+
+        html.AppendLine("</span>");
+    }
+
+    private static void WriteFittedTextRun(StringBuilder html, PdfTextRun run, float fontSize, float scale)
+    {
+        string color = ColorHex(run.Color);
+        html.Append("<span class=\"pdf-text-run-copy\" aria-hidden=\"true\">")
             .Append(Html(run.Text))
-            .AppendLine("</span>");
+            .Append("</span><svg class=\"pdf-text-run-svg\" viewBox=\"0 0 ")
+            .Append(SvgNumber(run.Bounds.Width * scale))
+            .Append(' ')
+            .Append(SvgNumber(run.Bounds.Height * scale))
+            .Append("\" preserveAspectRatio=\"none\" aria-hidden=\"true\">")
+            .Append("<text x=\"0\" y=\"")
+            .Append(SvgNumber(run.Bounds.Height * scale * 0.92f))
+            .Append("\" textLength=\"")
+            .Append(SvgNumber(run.Bounds.Width * scale))
+            .Append("\" lengthAdjust=\"spacingAndGlyphs\" xml:space=\"preserve\" style=\"font-size:")
+            .Append(CssPoints(fontSize * scale))
+            .Append(";font-family:")
+            .Append(CssFontFamily(run.FontName))
+            .Append(";fill:")
+            .Append(color);
+
+        if (run.Color.Alpha < 0.999f)
+        {
+            html.Append(";fill-opacity:")
+                .Append(SvgNumber(run.Color.Alpha));
+        }
+
+        html.Append("\">")
+            .Append(Html(run.Text))
+            .Append("</text></svg>");
+    }
+
+    private static bool ShouldUseFittedText(PdfTextRun run)
+    {
+        return run.FontSize > 0 &&
+            run.Bounds.Height > 0 &&
+            run.Bounds.Width > 0 &&
+            MathF.Abs(run.Direction) < 0.01f &&
+            run.Bounds.Height / run.FontSize < 0.55f &&
+            !string.IsNullOrWhiteSpace(run.Text);
+    }
+
+    private static float FixedTextFontSize(PdfTextRun run)
+    {
+        return ShouldUseFittedText(run)
+            ? MathF.Max(0.5f, run.Bounds.Height * 1.25f)
+            : run.FontSize;
     }
 
     private static void WriteSemanticPage(

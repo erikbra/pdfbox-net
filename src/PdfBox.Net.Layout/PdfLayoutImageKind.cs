@@ -13,5 +13,10 @@ public enum PdfLayoutImageKind
     /// <summary>
     /// Inline image embedded directly in a content stream.
     /// </summary>
-    InlineImage
+    InlineImage,
+
+    /// <summary>
+    /// Rasterized annotation appearance placed over the page content.
+    /// </summary>
+    AnnotationAppearance
 }

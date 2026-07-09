@@ -12,6 +12,7 @@ using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.Rendering;
 using PdfBox.Net.Text;
 using PdfBox.Net.Util;
 
@@ -63,10 +64,12 @@ public static class PdfLayoutExtractor
             _currentPage = null;
 
             int pageNumber = 1;
+            int pageIndex = 0;
             foreach (PDPage page in document.GetPages())
             {
-                _pages.Add(new PageBuilder(pageNumber, page, _options));
+                _pages.Add(new PageBuilder(pageNumber, pageIndex, page, document, _options));
                 pageNumber++;
+                pageIndex++;
             }
         }
 
@@ -142,7 +145,9 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutLink> _links = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
 
-        public PageBuilder(int pageNumber, PDPage page, PdfLayoutOptions options)
+        private const float AnnotationAppearanceScale = 2f;
+
+        public PageBuilder(int pageNumber, int pageIndex, PDPage page, PDDocument document, PdfLayoutOptions options)
         {
             _pageNumber = pageNumber;
             PDRectangle mediaBox = page.GetMediaBox();
@@ -162,6 +167,11 @@ public static class PdfLayoutExtractor
             if (options.IncludeImages || options.IncludePaths)
             {
                 CollectGraphics(page, options);
+            }
+
+            if (options.IncludeAnnotationAppearances && options.IncludeImageAssets)
+            {
+                CollectAnnotationAppearances(document, pageIndex, page);
             }
         }
 
@@ -236,6 +246,175 @@ public static class PdfLayoutExtractor
             _imageAssets.AddRange(collector.ImageAssets);
             _paths.AddRange(collector.Paths);
             _diagnostics.AddRange(collector.Diagnostics);
+        }
+
+        private void CollectAnnotationAppearances(PDDocument document, int pageIndex, PDPage page)
+        {
+            if (_rotation != 0)
+            {
+                if (page.GetAnnotations().Any(ShouldCollectAnnotationAppearance))
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "annotation-rotation-unsupported",
+                        "Annotation appearance geometry is not collected for rotated pages yet.",
+                        _pageNumber));
+                }
+
+                return;
+            }
+
+            if (!RenderingBackend.IsRegistered)
+            {
+                if (page.GetAnnotations().Any(ShouldCollectAnnotationAppearance))
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "annotation-appearance-backend-missing",
+                        "Annotation appearances require a registered rendering backend and were skipped.",
+                        _pageNumber));
+                }
+
+                return;
+            }
+
+            HashSet<string> seenAnnotationAppearances = new(StringComparer.Ordinal);
+            PDAnnotation[] annotations = page.GetAnnotations()
+                .Where(ShouldCollectAnnotationAppearance)
+                .Where(annotation => seenAnnotationAppearances.Add(AnnotationAppearanceKey(annotation)))
+                .ToArray();
+            if (annotations.Length == 0)
+            {
+                return;
+            }
+
+            PDFRenderer renderer = new(document);
+            try
+            {
+                renderer.SetAnnotationsFilter(_ => false);
+                using BufferedImage withoutAnnotations = renderer.RenderImage(pageIndex, AnnotationAppearanceScale, ImageType.RGB);
+                renderer.SetAnnotationsFilter(annotation => annotation is PDAnnotation pdAnnotation && ShouldCollectAnnotationAppearance(pdAnnotation));
+                using BufferedImage withAnnotations = renderer.RenderImage(pageIndex, AnnotationAppearanceScale, ImageType.RGB);
+
+                for (int annotationIndex = 0; annotationIndex < annotations.Length; annotationIndex++)
+                {
+                    CollectAnnotationAppearanceAsset(withAnnotations, withoutAnnotations, annotations[annotationIndex], annotationIndex);
+                }
+            }
+            catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException or NotSupportedException)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "annotation-appearance-export-failed",
+                    "Annotation appearance export failed: " + ex.Message,
+                    _pageNumber));
+            }
+        }
+
+        private static bool ShouldCollectAnnotationAppearance(PDAnnotation annotation)
+        {
+            PDRectangle? rectangle = annotation.GetRectangle();
+            return rectangle != null &&
+                rectangle.GetWidth() > 0 &&
+                rectangle.GetHeight() > 0 &&
+                annotation is not PDAnnotationLink &&
+                !annotation.IsHidden() &&
+                !annotation.IsInvisible() &&
+                !annotation.IsNoView();
+        }
+
+        private static string AnnotationAppearanceKey(PDAnnotation annotation)
+        {
+            PDRectangle rectangle = annotation.GetRectangle()
+                ?? throw new InvalidOperationException("Annotation appearance key requires a rectangle.");
+            return string.Join(
+                "|",
+                annotation.GetSubtype() ?? string.Empty,
+                MathF.Round(rectangle.GetLowerLeftX(), 3).ToString(CultureInfo.InvariantCulture),
+                MathF.Round(rectangle.GetLowerLeftY(), 3).ToString(CultureInfo.InvariantCulture),
+                MathF.Round(rectangle.GetUpperRightX(), 3).ToString(CultureInfo.InvariantCulture),
+                MathF.Round(rectangle.GetUpperRightY(), 3).ToString(CultureInfo.InvariantCulture));
+        }
+
+        private void CollectAnnotationAppearanceAsset(
+            BufferedImage withAnnotations,
+            BufferedImage withoutAnnotations,
+            PDAnnotation annotation,
+            int annotationIndex)
+        {
+            PDRectangle? rectangle = annotation.GetRectangle();
+            if (rectangle == null)
+            {
+                return;
+            }
+
+            PdfLayoutRectangle bounds = NormalizePdfRectangle(rectangle);
+            if (bounds.Width <= 0 || bounds.Height <= 0)
+            {
+                return;
+            }
+
+            int x = Math.Clamp((int)MathF.Floor(bounds.X * AnnotationAppearanceScale), 0, withAnnotations.Width - 1);
+            int y = Math.Clamp((int)MathF.Floor(bounds.Y * AnnotationAppearanceScale), 0, withAnnotations.Height - 1);
+            int right = Math.Clamp((int)MathF.Ceiling(bounds.Right * AnnotationAppearanceScale), x + 1, withAnnotations.Width);
+            int bottom = Math.Clamp((int)MathF.Ceiling(bounds.Bottom * AnnotationAppearanceScale), y + 1, withAnnotations.Height);
+            int width = right - x;
+            int height = bottom - y;
+            using BufferedImage appearance = new(width, height, BufferedImage.TYPE_INT_ARGB);
+            int changedPixels = 0;
+
+            for (int py = 0; py < height; py++)
+            {
+                for (int px = 0; px < width; px++)
+                {
+                    int withPixel = withAnnotations.GetRgb(x + px, y + py);
+                    int withoutPixel = withoutAnnotations.GetRgb(x + px, y + py);
+                    int alpha = DifferenceAlpha(withPixel, withoutPixel);
+                    if (alpha == 0)
+                    {
+                        appearance.SetRgb(px, py, 0);
+                        continue;
+                    }
+
+                    changedPixels++;
+                    appearance.SetRgb(px, py, (alpha << 24) | (withPixel & 0x00FFFFFF));
+                }
+            }
+
+            if (changedPixels < Math.Max(4, width * height / 1000))
+            {
+                return;
+            }
+
+            string assetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-annotation-{annotationIndex.ToString(CultureInfo.InvariantCulture)}";
+            byte[] data = RenderingBackend.Current.ImageCodec.Encode(appearance, EncodedImageFormat.Png, 100);
+            int index = _images.Count;
+            _images.Add(new PdfLayoutImage(
+                index,
+                assetId,
+                PdfLayoutImageKind.AnnotationAppearance,
+                bounds,
+                new PdfLayoutTransform(1, 0, 0, 1, bounds.X, bounds.Y),
+                width,
+                height,
+                8,
+                "DeviceRGB",
+                true,
+                annotation.GetSubtype()));
+            _imageAssets.Add(new PdfLayoutImageAsset(
+                assetId,
+                $"assets/images/{assetId}.png",
+                "image/png",
+                data));
+        }
+
+        private static int DifferenceAlpha(int first, int second)
+        {
+            int redDelta = Math.Abs(((first >> 16) & 0xFF) - ((second >> 16) & 0xFF));
+            int greenDelta = Math.Abs(((first >> 8) & 0xFF) - ((second >> 8) & 0xFF));
+            int blueDelta = Math.Abs((first & 0xFF) - (second & 0xFF));
+            int delta = Math.Max(redDelta, Math.Max(greenDelta, blueDelta));
+            return delta < 4 ? 0 : Math.Clamp(delta * 2, 32, 255);
         }
 
         private void CollectLinks(PDPage page)

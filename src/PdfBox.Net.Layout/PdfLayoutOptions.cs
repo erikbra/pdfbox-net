@@ -31,6 +31,12 @@ public sealed class PdfLayoutOptions
     public bool IncludeImageAssets { get; init; }
 
     /// <summary>
+    /// Gets or sets whether annotation appearances should be exported as positioned image assets when
+    /// a rendering backend is registered.
+    /// </summary>
+    public bool IncludeAnnotationAppearances { get; init; } = true;
+
+    /// <summary>
     /// Gets or sets whether text positions should be sorted into visual reading order.
     /// </summary>
     public bool SortTextByPosition { get; init; } = true;
