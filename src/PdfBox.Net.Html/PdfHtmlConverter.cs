@@ -406,20 +406,20 @@ public static class PdfHtmlConverter
           font-weight: 400;
         }
 
-        .pdf-semantic-table-cell-border-top {
-          border-top: 0.45pt solid #6b7280;
+        .pdf-semantic-table .pdf-semantic-table-cell-border-top {
+          border-top: 0.45pt solid currentColor;
         }
 
-        .pdf-semantic-table-cell-border-right {
-          border-right: 0.45pt solid #6b7280;
+        .pdf-semantic-table .pdf-semantic-table-cell-border-right {
+          border-right: 0.45pt solid currentColor;
         }
 
-        .pdf-semantic-table-cell-border-bottom {
-          border-bottom: 0.45pt solid #6b7280;
+        .pdf-semantic-table .pdf-semantic-table-cell-border-bottom {
+          border-bottom: 0.45pt solid currentColor;
         }
 
-        .pdf-semantic-table-cell-border-left {
-          border-left: 0.45pt solid #6b7280;
+        .pdf-semantic-table .pdf-semantic-table-cell-border-left {
+          border-left: 0.45pt solid currentColor;
         }
 
         .pdf-semantic-table td:not(:first-child) {

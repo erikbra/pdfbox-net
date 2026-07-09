@@ -565,6 +565,9 @@ public class PdfHtmlConverterTest
         Assert.Contains(complexityTable.Descendants(), cell =>
             HasClass(cell, "pdf-semantic-table-cell-border-bottom") ||
             HasClass(cell, "pdf-semantic-table-cell-border-top"));
+        Assert.Contains(".pdf-semantic-table .pdf-semantic-table-cell-border-top", html.Css, StringComparison.Ordinal);
+        Assert.Contains("border-top: 0.45pt solid currentColor", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-table .pdf-semantic-table-cell-border-bottom", html.Css, StringComparison.Ordinal);
         Assert.DoesNotContain(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
             paragraph.Value.StartsWith("Layer Type", StringComparison.Ordinal));
 
