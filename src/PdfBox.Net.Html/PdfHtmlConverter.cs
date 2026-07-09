@@ -378,6 +378,10 @@ public static class PdfHtmlConverter
           text-align: center;
         }
 
+        .pdf-semantic-table tbody th {
+          font-weight: 400;
+        }
+
         .pdf-semantic-table-cell-border-top {
           border-top: 0.45pt solid #6b7280;
         }
@@ -396,6 +400,16 @@ public static class PdfHtmlConverter
 
         .pdf-semantic-table td:not(:first-child) {
           text-align: right;
+        }
+
+        .pdf-semantic-table td[colspan],
+        .pdf-semantic-table th[colspan],
+        .pdf-semantic-table-row-group-header {
+          text-align: center;
+        }
+
+        .pdf-semantic-table-row-group-header {
+          vertical-align: middle;
         }
 
         .pdf-semantic-authors {
@@ -2070,15 +2084,39 @@ public static class PdfHtmlConverter
         PdfLayoutPage? page,
         bool header)
     {
-        string cellTag = header ? "th" : "td";
         html.AppendLine("          <tr>");
         foreach (PdfSemanticTableCell cell in row.Cells)
         {
+            if (cell.IsPlaceholder)
+            {
+                continue;
+            }
+
+            bool rowGroupHeader = !header && IsSemanticTableRowGroupHeader(cell);
+            string cellTag = header || rowGroupHeader ? "th" : "td";
             html.Append("            <")
                 .Append(cellTag);
             if (header)
             {
                 html.Append(" scope=\"col\"");
+            }
+            else if (rowGroupHeader)
+            {
+                html.Append(" scope=\"rowgroup\"");
+            }
+
+            if (cell.RowSpan > 1)
+            {
+                html.Append(" rowspan=\"")
+                    .Append(cell.RowSpan.ToString(CultureInfo.InvariantCulture))
+                    .Append('"');
+            }
+
+            if (cell.ColumnSpan > 1)
+            {
+                html.Append(" colspan=\"")
+                    .Append(cell.ColumnSpan.ToString(CultureInfo.InvariantCulture))
+                    .Append('"');
             }
 
             string cellClass = SemanticTableCellClassNames(cell);
@@ -2128,7 +2166,22 @@ public static class PdfHtmlConverter
             classes.Add("pdf-semantic-bold");
         }
 
+        if (IsSemanticTableRowGroupHeader(cell))
+        {
+            classes.Add("pdf-semantic-table-row-group-header");
+        }
+
         return string.Join(" ", classes);
+    }
+
+    private static bool IsSemanticTableRowGroupHeader(PdfSemanticTableCell cell)
+    {
+        string text = cell.Text.Trim();
+        return cell.RowSpan > 1 &&
+            text.Length == 3 &&
+            text[0] == '(' &&
+            text[2] == ')' &&
+            char.IsUpper(text[1]);
     }
 
     private static bool IsBoldTableCell(PdfSemanticTableCell cell)

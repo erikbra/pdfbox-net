@@ -169,6 +169,48 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticTextMode_EmitsArxivVariationTableSpans()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement variationTable = Assert.Single(dom.Descendants("table"), table =>
+            table.Value.Contains("Pdrop", StringComparison.Ordinal) &&
+            table.Value.Contains("positional embedding instead of sinusoids", StringComparison.Ordinal));
+        XElement groupA = Assert.Single(variationTable.Descendants("th"), cell => cell.Value.Trim() == "(A)");
+        Assert.Equal("rowgroup", groupA.Attribute("scope")?.Value);
+        Assert.Equal("4", groupA.Attribute("rowspan")?.Value);
+        Assert.Contains("pdf-semantic-table-row-group-header", groupA.Attribute("class")?.Value);
+
+        XElement groupB = Assert.Single(variationTable.Descendants("th"), cell => cell.Value.Trim() == "(B)");
+        Assert.Equal("2", groupB.Attribute("rowspan")?.Value);
+        XElement groupC = Assert.Single(variationTable.Descendants("th"), cell => cell.Value.Trim() == "(C)");
+        Assert.Equal("7", groupC.Attribute("rowspan")?.Value);
+        XElement groupD = Assert.Single(variationTable.Descendants("th"), cell => cell.Value.Trim() == "(D)");
+        Assert.Equal("4", groupD.Attribute("rowspan")?.Value);
+
+        XElement descriptorCell = Assert.Single(variationTable.Descendants("td"), cell =>
+            cell.Value.Contains("positional embedding instead of sinusoids", StringComparison.Ordinal));
+        Assert.Equal("9", descriptorCell.Attribute("colspan")?.Value);
+        Assert.DoesNotContain(variationTable.Descendants("tr"), row =>
+            row.Elements().Count() == 1 &&
+            row.Value.Trim() is "(A)" or "(B)" or "(D)");
+        Assert.Contains(".pdf-semantic-table td[colspan]", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-table-row-group-header", html.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Convert_SemanticTextMode_ReservesGraphicRegionsAndPromotesFlowRulesToCss()
     {
         using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));

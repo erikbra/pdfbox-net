@@ -1150,16 +1150,19 @@ public static class PdfSemanticExtractor
             .SelectMany(static row => row.Lines)
             .Select(static line => line.SemanticLine)
             .ToArray();
+        PdfLayoutRectangle bounds = PdfLayoutRectangle.Union(sourceRows.Select(static row => row.Bounds));
+        PdfSemanticTableRow[] structuredRows = ApplyTableStructure(ApplyTableRules(page, bounds, tableRows)).ToArray();
         string text = string.Join(
             Environment.NewLine,
-            tableRows.Select(static row => string.Join("\t", row.Cells.Select(static cell => cell.Text))));
-        PdfLayoutRectangle bounds = PdfLayoutRectangle.Union(sourceRows.Select(static row => row.Bounds));
+            structuredRows.Select(static row => string.Join("\t", row.Cells
+                .Where(static cell => !cell.IsPlaceholder)
+                .Select(static cell => cell.Text))));
         return new PdfSemanticElement(
             PdfSemanticElementKind.Table,
             text,
             bounds,
             lines,
-            tableRows: ApplyTableRules(page, bounds, tableRows));
+            tableRows: structuredRows);
     }
 
     private static PdfSemanticTableRow CreateTableRow(
@@ -1272,7 +1275,10 @@ public static class PdfSemanticExtractor
                     cell.BorderTop || next.BorderTop,
                     cell.BorderRight || next.BorderRight,
                     cell.BorderBottom || next.BorderBottom,
-                    cell.BorderLeft || next.BorderLeft);
+                    cell.BorderLeft || next.BorderLeft,
+                    Math.Max(cell.RowSpan, next.RowSpan),
+                    Math.Max(cell.ColumnSpan, next.ColumnSpan),
+                    cell.IsPlaceholder && next.IsPlaceholder);
             })
             .ToArray();
         return new PdfSemanticTableRow(cells, isHeader: true);
@@ -1375,11 +1381,262 @@ public static class PdfSemanticExtractor
                             cell.BorderTop || cellBorders.Top,
                             cell.BorderRight || cellBorders.Right,
                             cell.BorderBottom || cellBorders.Bottom,
-                            cell.BorderLeft || cellBorders.Left);
+                            cell.BorderLeft || cellBorders.Left,
+                            cell.RowSpan,
+                            cell.ColumnSpan,
+                            cell.IsPlaceholder);
                     })
                     .ToArray(),
                 row.IsHeader))
             .ToArray();
+    }
+
+    private static IReadOnlyList<PdfSemanticTableRow> ApplyTableStructure(IReadOnlyList<PdfSemanticTableRow> rows)
+    {
+        if (rows.Count == 0)
+        {
+            return rows;
+        }
+
+        return ApplyDescriptorColumnSpans(ApplyRowGroupSpans(rows));
+    }
+
+    private static IReadOnlyList<PdfSemanticTableRow> ApplyRowGroupSpans(IReadOnlyList<PdfSemanticTableRow> rows)
+    {
+        List<PdfSemanticTableRow> structuredRows = rows.ToList();
+        int headerRowCount = structuredRows.TakeWhile(static row => row.IsHeader).Count();
+        for (int rowIndex = headerRowCount; rowIndex < structuredRows.Count; rowIndex++)
+        {
+            if (structuredRows[rowIndex].Cells.Count == 0)
+            {
+                continue;
+            }
+
+            string groupLabel = structuredRows[rowIndex].Cells[0].Text.Trim();
+            if (!LooksLikeTableGroupLabel(groupLabel))
+            {
+                continue;
+            }
+
+            int groupStart = PreviousTableGroupBoundary(structuredRows, rowIndex, headerRowCount) + 1;
+            int groupEnd = NextTableGroupBoundary(structuredRows, rowIndex);
+            if (groupEnd < groupStart)
+            {
+                continue;
+            }
+
+            bool labelOnlyRow = IsTableGroupLabelOnlyRow(structuredRows[rowIndex]);
+            int[] dataRowIndexes = Enumerable
+                .Range(groupStart, groupEnd - groupStart + 1)
+                .Where(index => !labelOnlyRow || index != rowIndex)
+                .Where(index => !structuredRows[index].IsHeader)
+                .Where(index => TableRowHasDataBeyondFirstColumn(structuredRows[index]))
+                .ToArray();
+            if (dataRowIndexes.Length <= 1)
+            {
+                continue;
+            }
+
+            int targetRowIndex = dataRowIndexes[0];
+            PdfSemanticTableCell labelCell = structuredRows[rowIndex].Cells[0];
+            PdfSemanticTableCell targetCell = structuredRows[targetRowIndex].Cells[0];
+            PdfSemanticTableCell[] firstColumnCells = dataRowIndexes
+                .Where(index => structuredRows[index].Cells.Count > 0)
+                .Select(index => structuredRows[index].Cells[0])
+                .Append(labelCell)
+                .ToArray();
+            PdfSemanticTableCell rowGroupCell = new(
+                groupLabel,
+                PdfLayoutRectangle.Union(firstColumnCells.Select(static cell => cell.Bounds)),
+                labelCell.Lines.Count > 0 ? labelCell.Lines : targetCell.Lines,
+                firstColumnCells.Any(static cell => cell.BorderTop),
+                firstColumnCells.Any(static cell => cell.BorderRight),
+                firstColumnCells.Any(static cell => cell.BorderBottom),
+                firstColumnCells.Any(static cell => cell.BorderLeft),
+                rowSpan: dataRowIndexes.Length);
+            structuredRows[targetRowIndex] = ReplaceTableCell(structuredRows[targetRowIndex], 0, rowGroupCell);
+
+            foreach (int coveredRowIndex in dataRowIndexes.Skip(1))
+            {
+                structuredRows[coveredRowIndex] = ReplaceTableCell(
+                    structuredRows[coveredRowIndex],
+                    0,
+                    CreatePlaceholderCell(structuredRows[coveredRowIndex].Cells[0]));
+            }
+
+            if (labelOnlyRow)
+            {
+                structuredRows.RemoveAt(rowIndex);
+                rowIndex--;
+            }
+            else if (rowIndex != targetRowIndex)
+            {
+                structuredRows[rowIndex] = ReplaceTableCell(
+                    structuredRows[rowIndex],
+                    0,
+                    CreatePlaceholderCell(structuredRows[rowIndex].Cells[0]));
+            }
+        }
+
+        return structuredRows;
+    }
+
+    private static IReadOnlyList<PdfSemanticTableRow> ApplyDescriptorColumnSpans(IReadOnlyList<PdfSemanticTableRow> rows)
+    {
+        int headerRowCount = rows.TakeWhile(static row => row.IsHeader).Count();
+        int metricColumnIndex = FirstMetricColumnIndex(rows.Take(headerRowCount).ToArray());
+        if (metricColumnIndex <= 2)
+        {
+            return rows;
+        }
+
+        List<PdfSemanticTableRow> structuredRows = rows.ToList();
+        for (int rowIndex = headerRowCount; rowIndex < structuredRows.Count; rowIndex++)
+        {
+            PdfSemanticTableRow row = structuredRows[rowIndex];
+            if (row.Cells.Count <= metricColumnIndex ||
+                !LooksLikeTableGroupLabel(row.Cells[0].Text.Trim()))
+            {
+                continue;
+            }
+
+            int descriptorColumnIndex = Enumerable
+                .Range(1, metricColumnIndex - 1)
+                .FirstOrDefault(index => LooksLikeWideDescriptorCell(row.Cells[index].Text));
+            if (descriptorColumnIndex == 0)
+            {
+                continue;
+            }
+
+            PdfSemanticTableCell[] cells = row.Cells.ToArray();
+            PdfSemanticTableCell descriptorCell = cells[descriptorColumnIndex];
+            PdfSemanticTableCell[] spannedCells = cells
+                .Skip(1)
+                .Take(metricColumnIndex - 1)
+                .Append(descriptorCell)
+                .ToArray();
+            cells[1] = new PdfSemanticTableCell(
+                descriptorCell.Text,
+                PdfLayoutRectangle.Union(spannedCells.Select(static cell => cell.Bounds)),
+                descriptorCell.Lines,
+                spannedCells.Any(static cell => cell.BorderTop),
+                spannedCells.Any(static cell => cell.BorderRight),
+                spannedCells.Any(static cell => cell.BorderBottom),
+                spannedCells.Any(static cell => cell.BorderLeft),
+                columnSpan: metricColumnIndex - 1);
+            for (int columnIndex = 2; columnIndex < metricColumnIndex; columnIndex++)
+            {
+                cells[columnIndex] = CreatePlaceholderCell(cells[columnIndex]);
+            }
+
+            structuredRows[rowIndex] = new PdfSemanticTableRow(cells, row.IsHeader);
+        }
+
+        return structuredRows;
+    }
+
+    private static int PreviousTableGroupBoundary(
+        IReadOnlyList<PdfSemanticTableRow> rows,
+        int rowIndex,
+        int headerRowCount)
+    {
+        for (int index = rowIndex - 1; index >= headerRowCount; index--)
+        {
+            if (HasBottomBorder(rows[index]))
+            {
+                return index;
+            }
+        }
+
+        return headerRowCount - 1;
+    }
+
+    private static int NextTableGroupBoundary(IReadOnlyList<PdfSemanticTableRow> rows, int rowIndex)
+    {
+        for (int index = rowIndex; index < rows.Count; index++)
+        {
+            if (HasBottomBorder(rows[index]))
+            {
+                return index;
+            }
+        }
+
+        return rows.Count - 1;
+    }
+
+    private static int FirstMetricColumnIndex(IReadOnlyList<PdfSemanticTableRow> headerRows)
+    {
+        int columnCount = headerRows.Count == 0 ? 0 : headerRows.Max(static row => row.Cells.Count);
+        for (int columnIndex = 1; columnIndex < columnCount; columnIndex++)
+        {
+            string headerText = string.Join(" ", headerRows
+                .Where(row => columnIndex < row.Cells.Count)
+                .Select(row => row.Cells[columnIndex].Text));
+            if (headerText.Contains("PPL", StringComparison.OrdinalIgnoreCase) ||
+                headerText.Contains("BLEU", StringComparison.OrdinalIgnoreCase) ||
+                headerText.Contains("WSJ 23", StringComparison.OrdinalIgnoreCase))
+            {
+                return columnIndex;
+            }
+        }
+
+        return -1;
+    }
+
+    private static bool LooksLikeTableGroupLabel(string text)
+    {
+        return text.Length == 3 &&
+            text[0] == '(' &&
+            text[2] == ')' &&
+            char.IsUpper(text[1]);
+    }
+
+    private static bool IsTableGroupLabelOnlyRow(PdfSemanticTableRow row)
+    {
+        return row.Cells.Count > 0 &&
+            LooksLikeTableGroupLabel(row.Cells[0].Text.Trim()) &&
+            row.Cells.Skip(1).All(static cell => string.IsNullOrWhiteSpace(cell.Text));
+    }
+
+    private static bool TableRowHasDataBeyondFirstColumn(PdfSemanticTableRow row)
+    {
+        return row.Cells.Skip(1).Any(static cell => !cell.IsPlaceholder && !string.IsNullOrWhiteSpace(cell.Text));
+    }
+
+    private static bool LooksLikeWideDescriptorCell(string text)
+    {
+        string trimmed = text.Trim();
+        return trimmed.Length >= 12 &&
+            trimmed.Contains(' ', StringComparison.Ordinal) &&
+            trimmed.Any(char.IsLetter);
+    }
+
+    private static bool HasBottomBorder(PdfSemanticTableRow row)
+    {
+        return row.Cells.Any(static cell => cell.BorderBottom);
+    }
+
+    private static PdfSemanticTableRow ReplaceTableCell(
+        PdfSemanticTableRow row,
+        int cellIndex,
+        PdfSemanticTableCell replacement)
+    {
+        PdfSemanticTableCell[] cells = row.Cells.ToArray();
+        cells[cellIndex] = replacement;
+        return new PdfSemanticTableRow(cells, row.IsHeader);
+    }
+
+    private static PdfSemanticTableCell CreatePlaceholderCell(PdfSemanticTableCell cell)
+    {
+        return new PdfSemanticTableCell(
+            "",
+            cell.Bounds,
+            [],
+            cell.BorderTop,
+            cell.BorderRight,
+            cell.BorderBottom,
+            cell.BorderLeft,
+            isPlaceholder: true);
     }
 
     private static IEnumerable<TableRule> TableRules(PdfLayoutPage page, PdfLayoutRectangle tableBounds)

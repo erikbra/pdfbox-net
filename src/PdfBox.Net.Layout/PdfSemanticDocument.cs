@@ -93,7 +93,10 @@ public sealed class PdfSemanticTableCell
         bool borderTop = false,
         bool borderRight = false,
         bool borderBottom = false,
-        bool borderLeft = false)
+        bool borderLeft = false,
+        int rowSpan = 1,
+        int columnSpan = 1,
+        bool isPlaceholder = false)
     {
         Text = text;
         Bounds = bounds;
@@ -102,6 +105,9 @@ public sealed class PdfSemanticTableCell
         BorderRight = borderRight;
         BorderBottom = borderBottom;
         BorderLeft = borderLeft;
+        RowSpan = Math.Max(1, rowSpan);
+        ColumnSpan = Math.Max(1, columnSpan);
+        IsPlaceholder = isPlaceholder;
     }
 
     public string Text { get; }
@@ -117,6 +123,12 @@ public sealed class PdfSemanticTableCell
     public bool BorderBottom { get; }
 
     public bool BorderLeft { get; }
+
+    public int RowSpan { get; }
+
+    public int ColumnSpan { get; }
+
+    public bool IsPlaceholder { get; }
 }
 
 /// <summary>

@@ -177,6 +177,40 @@ public sealed class PdfSemanticExtractorTest
             row.Cells[12].Text == "213");
         Assert.Contains(variationTable.TableRows.SelectMany(static row => row.Cells), cell => cell.BorderRight);
 
+        PdfSemanticTableRow groupA = Assert.Single(variationTable.TableRows, row => row.Cells[0].Text == "(A)");
+        Assert.Equal(4, groupA.Cells[0].RowSpan);
+        Assert.Equal("1", groupA.Cells[4].Text);
+        Assert.Equal("512", groupA.Cells[5].Text);
+        Assert.Equal("5.29", groupA.Cells[10].Text);
+        Assert.Contains(variationTable.TableRows, row =>
+            row.Cells[0].IsPlaceholder &&
+            row.Cells[4].Text == "32" &&
+            row.Cells[5].Text == "16" &&
+            row.Cells[6].Text == "16");
+
+        PdfSemanticTableRow groupB = Assert.Single(variationTable.TableRows, row => row.Cells[0].Text == "(B)");
+        Assert.Equal(2, groupB.Cells[0].RowSpan);
+        Assert.Equal("16", groupB.Cells[5].Text);
+        Assert.Equal("58", groupB.Cells[12].Text);
+
+        PdfSemanticTableRow groupC = Assert.Single(variationTable.TableRows, row => row.Cells[0].Text == "(C)");
+        Assert.Equal(7, groupC.Cells[0].RowSpan);
+        Assert.Equal("2", groupC.Cells[1].Text);
+        Assert.Equal("6.11", groupC.Cells[10].Text);
+
+        PdfSemanticTableRow groupD = Assert.Single(variationTable.TableRows, row => row.Cells[0].Text == "(D)");
+        Assert.Equal(4, groupD.Cells[0].RowSpan);
+        Assert.Equal("0.0", groupD.Cells[7].Text);
+        Assert.Equal("5.77", groupD.Cells[10].Text);
+
+        PdfSemanticTableRow groupE = Assert.Single(variationTable.TableRows, row => row.Cells[0].Text == "(E)");
+        Assert.Equal("positional embedding instead of sinusoids", groupE.Cells[1].Text);
+        Assert.Equal(9, groupE.Cells[1].ColumnSpan);
+        Assert.All(groupE.Cells.Skip(2).Take(8), cell => Assert.True(cell.IsPlaceholder));
+        Assert.DoesNotContain(variationTable.TableRows, row =>
+            row.Cells[0].Text is "(A)" or "(B)" or "(D)" &&
+            row.Cells.Skip(1).All(static cell => string.IsNullOrWhiteSpace(cell.Text)));
+
         PdfSemanticElement parserTable = Assert.Single(semantic.Pages[9].Elements, element =>
             element.Kind == PdfSemanticElementKind.Table &&
             element.Text.Contains("Parser", StringComparison.Ordinal) &&
