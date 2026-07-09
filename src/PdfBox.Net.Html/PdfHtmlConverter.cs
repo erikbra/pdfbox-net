@@ -365,6 +365,10 @@ public static class PdfHtmlConverter
           width: 100%;
         }
 
+        .pdf-semantic-table.pdf-semantic-measured-width {
+          width: min(100%, var(--pdf-semantic-width, 100%));
+        }
+
         .pdf-semantic-table th,
         .pdf-semantic-table td {
           border: 0;
@@ -402,6 +406,8 @@ public static class PdfHtmlConverter
           text-align: right;
         }
 
+        .pdf-semantic-table-centered-cells th,
+        .pdf-semantic-table-centered-cells td,
         .pdf-semantic-table td[colspan],
         .pdf-semantic-table th[colspan],
         .pdf-semantic-table-row-group-header {
@@ -2045,10 +2051,19 @@ public static class PdfHtmlConverter
         PdfLayoutPage? page)
     {
         html.Append("      <table class=\"")
-            .Append(SemanticClassNames(element, allowMeasuredWidth: false))
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth: true))
             .Append("\" aria-label=\"")
             .Append(HtmlAttribute(TableAriaLabel(element)))
-            .AppendLine("\">");
+            .Append('"');
+        string style = FlowSemanticStyle(element, page, allowMeasuredWidth: true);
+        if (style.Length > 0)
+        {
+            html.Append(" style=\"")
+                .Append(HtmlAttribute(style))
+                .Append('"');
+        }
+
+        html.AppendLine(">");
 
         PdfSemanticTableRow[] headerRows = element.TableRows
             .TakeWhile(static row => row.IsHeader)
@@ -4130,6 +4145,21 @@ public static class PdfHtmlConverter
             }
         }
 
+        if (element.Kind == PdfSemanticElementKind.Table && page != null)
+        {
+            if (allowMeasuredWidth &&
+                TryGetTableWidthPercent(page, element, out float widthPercent) &&
+                ShouldUseMeasuredTableWidth(widthPercent))
+            {
+                classes.Add("pdf-semantic-measured-width");
+            }
+
+            if (ShouldCenterTableCells(element))
+            {
+                classes.Add("pdf-semantic-table-centered-cells");
+            }
+        }
+
         return string.Join(" ", classes);
     }
 
@@ -4152,6 +4182,20 @@ public static class PdfHtmlConverter
         {
             styles.Add("--pdf-semantic-width:" + CssPercent(widthPercent));
             string? alignSelf = ParagraphAlignSelf(page, element);
+            if (alignSelf != null)
+            {
+                styles.Add("--pdf-semantic-align-self:" + alignSelf);
+            }
+        }
+
+        if (allowMeasuredWidth &&
+            page != null &&
+            element.Kind == PdfSemanticElementKind.Table &&
+            TryGetTableWidthPercent(page, element, out float tableWidthPercent) &&
+            ShouldUseMeasuredTableWidth(tableWidthPercent))
+        {
+            styles.Add("--pdf-semantic-width:" + CssPercent(tableWidthPercent));
+            string? alignSelf = TableAlignSelf(page, element);
             if (alignSelf != null)
             {
                 styles.Add("--pdf-semantic-align-self:" + alignSelf);
@@ -4243,6 +4287,106 @@ public static class PdfHtmlConverter
     private static bool ShouldUseMeasuredParagraphWidth(float widthPercent)
     {
         return widthPercent <= 92f;
+    }
+
+    private static bool TryGetTableWidthPercent(
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        out float widthPercent)
+    {
+        widthPercent = 100f;
+        if (element.Kind != PdfSemanticElementKind.Table || element.Bounds.Width <= 0.01f)
+        {
+            return false;
+        }
+
+        float flowWidth = SemanticFlowWidth(page);
+        if (flowWidth <= 0.01f)
+        {
+            return false;
+        }
+
+        widthPercent = Math.Clamp((element.Bounds.Width / flowWidth) * 100f, 25f, 100f);
+        return true;
+    }
+
+    private static bool ShouldUseMeasuredTableWidth(float widthPercent)
+    {
+        return widthPercent <= 97f;
+    }
+
+    private static string? TableAlignSelf(PdfLayoutPage page, PdfSemanticElement element)
+    {
+        float elementCenter = element.Bounds.X + (element.Bounds.Width / 2f);
+        return MathF.Abs(elementCenter - (page.Width / 2f)) <= page.Width * 0.06f
+            ? "center"
+            : null;
+    }
+
+    private static bool ShouldCenterTableCells(PdfSemanticElement element)
+    {
+        int columnCount = element.TableRows.Count == 0
+            ? 0
+            : element.TableRows.Max(static row => row.Cells.Count);
+        if (columnCount < 2)
+        {
+            return false;
+        }
+
+        List<PdfLayoutRectangle>[] columnCells = Enumerable
+            .Range(0, columnCount)
+            .Select(static _ => new List<PdfLayoutRectangle>())
+            .ToArray();
+        foreach (PdfSemanticTableRow row in element.TableRows)
+        {
+            for (int columnIndex = 0; columnIndex < row.Cells.Count; columnIndex++)
+            {
+                PdfSemanticTableCell cell = row.Cells[columnIndex];
+                if (cell.IsPlaceholder ||
+                    cell.ColumnSpan != 1 ||
+                    string.IsNullOrWhiteSpace(cell.Text) ||
+                    cell.Bounds.Width <= 0.5f)
+                {
+                    continue;
+                }
+
+                columnCells[columnIndex].Add(cell.Bounds);
+            }
+        }
+
+        int eligibleColumns = columnCells.Count(static cells => cells.Count >= 3);
+        if (eligibleColumns < 2)
+        {
+            return false;
+        }
+
+        int centeredColumns = columnCells.Count(static cells => cells.Count >= 3 && LooksLikeCenteredTableColumn(cells));
+        return centeredColumns >= Math.Max(2, (int)MathF.Ceiling(eligibleColumns * 0.6f));
+    }
+
+    private static bool LooksLikeCenteredTableColumn(IReadOnlyList<PdfLayoutRectangle> cells)
+    {
+        float centerSpread = StandardDeviation(cells.Select(static cell => cell.X + cell.Width / 2f));
+        float leftSpread = StandardDeviation(cells.Select(static cell => cell.X));
+        float rightSpread = StandardDeviation(cells.Select(static cell => cell.Right));
+        float averageWidth = cells.Average(static cell => cell.Width);
+        float tolerance = MathF.Max(1.25f, averageWidth * 0.08f);
+        return centerSpread <= MathF.Min(leftSpread, rightSpread) * 0.65f &&
+            leftSpread >= centerSpread + tolerance &&
+            rightSpread >= centerSpread + tolerance;
+    }
+
+    private static float StandardDeviation(IEnumerable<float> values)
+    {
+        float[] sample = values.ToArray();
+        if (sample.Length == 0)
+        {
+            return 0f;
+        }
+
+        float mean = sample.Average();
+        float variance = sample.Sum(value => MathF.Pow(value - mean, 2f)) / sample.Length;
+        return MathF.Sqrt(variance);
     }
 
     private static string? ParagraphAlignSelf(PdfLayoutPage page, PdfSemanticElement element)

@@ -653,6 +653,11 @@ public class PdfHtmlConverterTest
         XElement parserTable = Assert.Single(semanticTables, table =>
             table.Value.Contains("Parser", StringComparison.Ordinal) &&
             table.Value.Contains("WSJ 23 F1", StringComparison.Ordinal));
+        Assert.Contains("pdf-semantic-measured-width", parserTable.Attribute("class")?.Value);
+        Assert.Contains("pdf-semantic-table-centered-cells", parserTable.Attribute("class")?.Value);
+        Dictionary<string, string> parserTableStyle = ParseStyle(parserTable.Attribute("style")?.Value ?? "");
+        Assert.InRange(ParsePercent(parserTableStyle["--pdf-semantic-width"]), 80f, 97f);
+        Assert.Equal("center", parserTableStyle["--pdf-semantic-align-self"]);
         XElement parserHeaderRow = Assert.Single(parserTable.Elements("thead").Elements("tr"));
         Assert.Equal(new[] { "Parser", "Training", "WSJ 23 F1" },
             parserHeaderRow.Elements("th").Select(static header => header.Value).ToArray());

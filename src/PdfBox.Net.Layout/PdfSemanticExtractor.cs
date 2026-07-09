@@ -1150,8 +1150,9 @@ public static class PdfSemanticExtractor
             .SelectMany(static row => row.Lines)
             .Select(static line => line.SemanticLine)
             .ToArray();
-        PdfLayoutRectangle bounds = PdfLayoutRectangle.Union(sourceRows.Select(static row => row.Bounds));
-        PdfSemanticTableRow[] structuredRows = ApplyTableStructure(ApplyTableRules(page, bounds, tableRows)).ToArray();
+        PdfLayoutRectangle textBounds = PdfLayoutRectangle.Union(sourceRows.Select(static row => row.Bounds));
+        PdfLayoutRectangle bounds = TableVisualBounds(page, textBounds);
+        PdfSemanticTableRow[] structuredRows = ApplyTableStructure(ApplyTableRules(page, textBounds, tableRows)).ToArray();
         string text = string.Join(
             Environment.NewLine,
             structuredRows.Select(static row => string.Join("\t", row.Cells
@@ -1637,6 +1638,16 @@ public static class PdfSemanticExtractor
             cell.BorderBottom,
             cell.BorderLeft,
             isPlaceholder: true);
+    }
+
+    private static PdfLayoutRectangle TableVisualBounds(PdfLayoutPage page, PdfLayoutRectangle textBounds)
+    {
+        PdfLayoutRectangle[] rules = TableRules(page, textBounds)
+            .Select(static rule => rule.Bounds)
+            .ToArray();
+        return rules.Length == 0
+            ? textBounds
+            : PdfLayoutRectangle.Union(rules.Append(textBounds));
     }
 
     private static IEnumerable<TableRule> TableRules(PdfLayoutPage page, PdfLayoutRectangle tableBounds)
