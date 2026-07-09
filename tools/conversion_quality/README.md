@@ -31,9 +31,9 @@ CI also writes and uploads `artifacts/conversion-quality-smoke/html-review`.
 That directory is a human review bundle for real PDF fixtures: each example
 contains the original `source.pdf`, generated `index.html`, CSS/assets,
 `summary.md`, diagnostics, and a `compare.html` page that shows the PDF and
-generated HTML side by side. Each example also contains `quality/quality-report.md`
+continuous semantic HTML side by side. Each example also contains `quality/quality-report.md`
 and `quality/quality-report.json`, plus page-level PNG artifacts from the
-source PDF render, browser-rendered HTML, and a foreground-mask diff. These
+source PDF render, browser-rendered continuous semantic HTML, and a foreground-mask diff. These
 quality probe findings are non-gating: `needs-review` means the artifact found
 a likely visual or structural conversion issue for humans to inspect, not that
 the CI step failed. Download the `conversion-quality-smoke-*` workflow artifact

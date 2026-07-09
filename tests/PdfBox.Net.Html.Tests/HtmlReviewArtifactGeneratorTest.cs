@@ -86,8 +86,14 @@ public sealed class HtmlReviewArtifactGeneratorTest
 
         using JsonDocument quality = JsonDocument.Parse(File.ReadAllText(qualityReportJson));
         Assert.Equal(1, quality.RootElement.GetProperty("Schema").GetInt32());
+        Assert.Equal("../semantic-continuous/index.html", quality.RootElement.GetProperty("Html").GetString());
+        Assert.Equal("Synthetic test manifest.", quality.RootElement.GetProperty("Notes").GetString());
         Assert.True(quality.RootElement.GetProperty("IssueCategories").GetArrayLength() > 0);
+        Assert.True(quality.RootElement.GetProperty("Limitations").GetArrayLength() > 0);
         Assert.True(example.QualityStatus.Length > 0);
+        string qualityMarkdown = File.ReadAllText(qualityReportMarkdown);
+        Assert.Contains("- Sample notes: Synthetic test manifest.", qualityMarkdown);
+        Assert.Contains("## Current Limitations", qualityMarkdown);
         string[] qualityArtifacts = quality.RootElement.GetProperty("Artifacts")
             .EnumerateArray()
             .Select(static artifact => artifact.GetString() ?? "")
@@ -138,6 +144,7 @@ public sealed class HtmlReviewArtifactGeneratorTest
 
         Assert.Equal("needs-review", report.Status);
         Assert.Contains(report.Checks, check => check.Id == "word-boundaries" && check.Status == "needs-review");
+        Assert.Contains(report.Limitations, limitation => limitation.Contains("word boundaries", StringComparison.Ordinal));
         Assert.True(File.Exists(Path.Combine(outputDirectory, "quality-report.json")));
         Assert.True(File.Exists(Path.Combine(outputDirectory, "quality-report.md")));
     }

@@ -131,13 +131,15 @@ public static class HtmlReviewArtifactGenerator
         continuousSemanticHtml.WriteToDirectory(Path.Combine(exampleDirectory, "semantic-continuous"));
         string copiedSourcePdf = Path.Combine(exampleDirectory, "source.pdf");
         File.Copy(sourcePdf, copiedSourcePdf, overwrite: true);
+        string continuousSemanticDirectory = Path.Combine(exampleDirectory, "semantic-continuous");
         PdfHtmlQualityReport qualityReport = new PdfHtmlQualityProbe()
             .AnalyzeAsync(new PdfHtmlQualityProbeOptions(
                 copiedSourcePdf,
-                exampleDirectory,
+                continuousSemanticDirectory,
                 layout,
                 Path.Combine(exampleDirectory, "quality"),
-                example.QualityPages ?? 2))
+                example.QualityPages ?? 2,
+                example.Notes))
             .GetAwaiter()
             .GetResult();
 
