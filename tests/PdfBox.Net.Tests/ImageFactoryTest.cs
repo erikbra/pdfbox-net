@@ -174,6 +174,22 @@ public class ImageFactoryTest
     }
 
     [Fact]
+    public void PdfImageExporter_ExportPng_PreservesXObjectSoftMaskAlpha()
+    {
+        using PDDocument doc = new();
+        PDImageXObject image = LosslessFactory.CreateFromRawData(doc, [255, 0, 0, 255, 0, 0], 2, 1, 8, 3);
+        PDImageXObject softMask = LosslessFactory.CreateFromRawData(doc, [255, 0], 2, 1, 8, 1);
+        image.GetCOSObject()!.SetItem(COSName.SMASK, softMask.GetCOSObject());
+
+        PdfImageExportResult result = PdfImageExporter.ExportPng(image);
+
+        using BufferedImage exported = RenderingBackend.Current.ImageCodec.Decode(result.Data)
+            ?? throw new InvalidOperationException("The exported PNG could not be decoded.");
+        Assert.Equal(0xFF, (exported.GetRgb(0, 0) >> 24) & 0xFF);
+        Assert.Equal(0x00, (exported.GetRgb(1, 0) >> 24) & 0xFF);
+    }
+
+    [Fact]
     public void PdfImageExporter_ExportPng_ExportsInlineImage()
     {
         COSDictionary parameters = new();
