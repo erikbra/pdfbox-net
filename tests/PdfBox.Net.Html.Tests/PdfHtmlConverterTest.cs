@@ -19,6 +19,7 @@ namespace PdfBox.Net.Html.Tests;
 
 public class PdfHtmlConverterTest
 {
+
     [Fact]
     public void Convert_EmitsPageContainersMatchingLayoutDimensions()
     {
@@ -275,6 +276,54 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_TransparencyGroups_EmitNestedSvgOpacity()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutPage attentionVisualizationPage = layout.Pages[12];
+        Assert.Contains(attentionVisualizationPage.VectorGroups, group => group.Opacity < 0.1f);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+
+        Assert.Contains("class=\"pdf-vector-group\"", html.Html, StringComparison.Ordinal);
+        Assert.Contains("Attention Visualizations", html.Html, StringComparison.Ordinal);
+        Assert.DoesNotContain("Input-Input Layer5", html.Html, StringComparison.Ordinal);
+        float[] groupOpacities = Regex.Matches(html.Html, "<g class=\"pdf-vector-group\"[^>]* opacity=\"(?<opacity>[^\"]+)\"")
+            .Select(match => float.Parse(match.Groups["opacity"].Value, CultureInfo.InvariantCulture))
+            .ToArray();
+        Assert.Contains(groupOpacities, opacity => opacity < 0.1f);
+        XDocument dom = ParseHtml(html.Html);
+        XElement attentionVisualization = Assert.Single(ElementsByClass(dom, "pdf-semantic-figure"), figure =>
+            figure.Attribute("data-source-page")?.Value == "13");
+        Assert.Contains(attentionVisualization.Descendants(), element =>
+            HasClass(element, "pdf-vector-group") &&
+            element.Attribute("opacity")?.Value == "0" &&
+            element.Descendants().Any(path =>
+                path.Name.LocalName == "path" &&
+                path.Attribute("fill")?.Value == "#D3D3D3"));
+        Assert.Contains(attentionVisualization.Descendants(), element =>
+            HasClass(element, "pdf-vector-group") &&
+            element.Attribute("opacity")?.Value == "0.533" &&
+            element.Descendants().Any(path =>
+                path.Name.LocalName == "path" &&
+                path.Attribute("fill")?.Value == "#E377C2"));
+        Assert.Contains(attentionVisualization.Descendants(), element =>
+            HasClass(element, "pdf-vector-group") &&
+            element.Attribute("clip-path")?.Value.StartsWith("url(#pdf-vector-figure-13-", StringComparison.Ordinal) == true);
+        Assert.Contains(attentionVisualization.Descendants(), element =>
+            element.Name.LocalName == "clipPath" &&
+            element.Descendants().Any(rectangle =>
+                rectangle.Name.LocalName == "rect" &&
+                rectangle.Attribute("x")?.Value == "108" &&
+                rectangle.Attribute("y")?.Value.StartsWith("100.787", StringComparison.Ordinal) == true));
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_EmitsSoftPageMarkersInsteadOfFixedPages()
     {
         using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
@@ -377,8 +426,13 @@ public class PdfHtmlConverterTest
             paragraph.Value.Contains("In A tt p en u", StringComparison.Ordinal));
         XElement figureThreeCaption = Assert.Single(ElementsByClass(dom, "pdf-semantic-caption"), caption =>
             caption.Value.StartsWith("Figure 3:", StringComparison.Ordinal));
+        Assert.Equal("figcaption", figureThreeCaption.Name.LocalName);
         Assert.Contains("Best viewed in color.", figureThreeCaption.Value, StringComparison.Ordinal);
         Assert.DoesNotContain("registration registration", figureThreeCaption.Value, StringComparison.Ordinal);
+        XElement figureFiveCaption = Assert.Single(ElementsByClass(dom, "pdf-semantic-caption"), caption =>
+            caption.Value.StartsWith("Figure 5:", StringComparison.Ordinal));
+        Assert.Equal("figcaption", figureFiveCaption.Name.LocalName);
+        Assert.Contains("figcaption.pdf-semantic-caption", html.Css, StringComparison.Ordinal);
         Assert.DoesNotContain("Input-Input Layer5", dom.Root?.Value ?? "", StringComparison.Ordinal);
         Assert.Empty(ElementsByClass(dom, "pdf-semantic-figure-space"));
         Assert.Contains(".pdf-semantic-formula", html.Css, StringComparison.Ordinal);
@@ -390,6 +444,7 @@ public class PdfHtmlConverterTest
         Assert.Contains(".pdf-semantic-italic", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-inline-footnotes", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-radical", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-formula-attached-suffix", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-table", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-inline-summation", html.Css, StringComparison.Ordinal);
 
@@ -457,8 +512,13 @@ public class PdfHtmlConverterTest
         Assert.True(ParsePoints(formulaStyle["--pdf-semantic-formula-height"]) > 60f);
         XElement[] formulaRuns = formula.Elements().Where(static element =>
             HasClass(element, "pdf-semantic-formula-run")).ToArray();
-        Assert.Contains(formulaRuns, run => run.Value.Contains("MultiHead", StringComparison.Ordinal));
-        Assert.Contains(formulaRuns, run => run.Value.Contains("Where", StringComparison.Ordinal));
+        Assert.True(formulaRuns.Length > 100);
+        Assert.Contains("MultiHead", string.Concat(formulaRuns.Select(static run => run.Value)), StringComparison.Ordinal);
+        Assert.Contains("Where", string.Concat(formulaRuns.Select(static run => run.Value)), StringComparison.Ordinal);
+        Assert.Contains(formulaRuns, run =>
+            run.Value == "1" && HasClass(run, "pdf-semantic-formula-attached-suffix"));
+        Assert.Contains(formulaRuns, run =>
+            run.Value == "i" && HasClass(run, "pdf-semantic-formula-attached-suffix"));
         Assert.DoesNotContain("In this work", formula.Value, StringComparison.Ordinal);
 
         XElement attentionFormula = Assert.Single(ElementsByClass(dom, "pdf-semantic-formula"), element =>
@@ -548,9 +608,9 @@ public class PdfHtmlConverterTest
             element.Attribute("aria-label")?.Value.Contains("warmup_steps", StringComparison.Ordinal) == true);
         Assert.Equal("math", learningRateFormula.Attribute("role")?.Value);
         Assert.Contains("(3)", learningRateFormula.Value, StringComparison.Ordinal);
-        Assert.Contains(learningRateFormula.Descendants(), element =>
-            HasClass(element, "pdf-semantic-formula-run") &&
-            element.Value.Contains("warmup", StringComparison.Ordinal));
+        Assert.Contains("warmup", learningRateFormula.Value, StringComparison.Ordinal);
+        Assert.Single(ElementsByClass(dom, "pdf-semantic-formula"), element =>
+            element.Attribute("aria-label")?.Value.Contains("lrate", StringComparison.Ordinal) == true);
 
         XElement regularizationParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
             paragraph.Value.Contains("For the base model, we use a rate of", StringComparison.Ordinal));
@@ -581,6 +641,10 @@ public class PdfHtmlConverterTest
         Assert.Contains(complexityTable.Descendants(), cell =>
             HasClass(cell, "pdf-semantic-table-cell-border-bottom") ||
             HasClass(cell, "pdf-semantic-table-cell-border-top"));
+        XElement selfAttentionLabel = Assert.Single(complexityTable.Elements("tbody").Descendants("td"), cell =>
+            cell.Value == "Self-Attention");
+        Assert.Contains("pdf-semantic-table-cell-align-left", selfAttentionLabel.Attribute("class")?.Value);
+        Assert.Contains("pdf-semantic-table-cell-align-center", selfAttentionComplexity.Attribute("class")?.Value);
         Assert.Contains(".pdf-semantic-table .pdf-semantic-table-cell-border-top", html.Css, StringComparison.Ordinal);
         Assert.Contains("border-top: 0.45pt solid currentColor", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-table .pdf-semantic-table-cell-border-bottom", html.Css, StringComparison.Ordinal);
@@ -592,18 +656,19 @@ public class PdfHtmlConverterTest
             table.Value.Contains("28.4", StringComparison.Ordinal));
         XElement[] bleuHeaderRows = bleuTable.Elements("thead").Elements("tr").ToArray();
         Assert.Equal(2, bleuHeaderRows.Length);
-        Assert.Equal(new[] { "Model", "BLEU", "", "", "Training Cost (FLOPs)" },
+        Assert.Equal(new[] { "Model", "BLEU", "Training Cost (FLOPs)" },
             bleuHeaderRows[0].Elements("th").Select(static header => header.Value).ToArray());
-        Assert.Equal(new[] { "", "EN-DE", "EN-FR", "EN-DE", "EN-FR" },
+        Assert.Equal(new[] { "EN-DE", "EN-FR", "EN-DE", "EN-FR" },
             bleuHeaderRows[1].Elements("th").Select(static header => header.Value).ToArray());
         XElement[] bleuGroupHeaders = bleuHeaderRows[0].Elements("th").ToArray();
+        Assert.Equal("2", bleuGroupHeaders[0].Attribute("rowspan")?.Value);
+        Assert.Equal("2", bleuGroupHeaders[1].Attribute("colspan")?.Value);
+        Assert.Equal("2", bleuGroupHeaders[2].Attribute("colspan")?.Value);
         Assert.All(bleuGroupHeaders, header =>
             Assert.True(HasClass(header, "pdf-semantic-table-cell-border-top")));
         Assert.False(HasClass(bleuGroupHeaders[0], "pdf-semantic-table-cell-border-bottom"));
         Assert.True(HasClass(bleuGroupHeaders[1], "pdf-semantic-table-cell-border-bottom"));
         Assert.True(HasClass(bleuGroupHeaders[2], "pdf-semantic-table-cell-border-bottom"));
-        Assert.True(HasClass(bleuGroupHeaders[3], "pdf-semantic-table-cell-border-bottom"));
-        Assert.True(HasClass(bleuGroupHeaders[4], "pdf-semantic-table-cell-border-bottom"));
         Assert.Contains(bleuTable.Elements("tbody").Descendants("td"), cell =>
             cell.Value == "ByteNet [18]");
         Assert.Contains(bleuTable.Elements("tbody").Descendants("td"), cell =>
@@ -657,10 +722,11 @@ public class PdfHtmlConverterTest
             table.Value.Contains("big", StringComparison.Ordinal));
         XElement[] variationHeaderRows = variationTable.Elements("thead").Elements("tr").ToArray();
         Assert.Equal(2, variationHeaderRows.Length);
-        Assert.Equal("train", variationHeaderRows[0].Elements("th").ElementAt(9).Value);
-        Assert.Equal("steps", variationHeaderRows[1].Elements("th").ElementAt(9).Value);
-        Assert.Equal("params", variationHeaderRows[0].Elements("th").ElementAt(12).Value);
-        XElement parameterScaleHeader = variationHeaderRows[1].Elements("th").ElementAt(12);
+        Assert.Contains(variationHeaderRows[0].Elements("th"), header => header.Value == "train");
+        Assert.Contains(variationHeaderRows[1].Elements("th"), header => header.Value == "steps");
+        Assert.Contains(variationHeaderRows[0].Elements("th"), header => header.Value == "params");
+        XElement parameterScaleHeader = Assert.Single(variationHeaderRows[1].Elements("th"), header =>
+            header.Value.Contains("×106", StringComparison.Ordinal));
         Assert.Contains("×106", parameterScaleHeader.Value, StringComparison.Ordinal);
         Assert.Contains(parameterScaleHeader.Descendants("sup"), superscript => superscript.Value == "6");
         Assert.Contains(variationTable.Elements("tbody").Elements("tr"), row =>
@@ -673,7 +739,7 @@ public class PdfHtmlConverterTest
             table.Value.Contains("Parser", StringComparison.Ordinal) &&
             table.Value.Contains("WSJ 23 F1", StringComparison.Ordinal));
         Assert.Contains("pdf-semantic-measured-width", parserTable.Attribute("class")?.Value);
-        Assert.Contains("pdf-semantic-table-centered-cells", parserTable.Attribute("class")?.Value);
+        Assert.DoesNotContain("pdf-semantic-table-centered-cells", parserTable.Attribute("class")?.Value ?? "");
         Dictionary<string, string> parserTableStyle = ParseStyle(parserTable.Attribute("style")?.Value ?? "");
         Assert.InRange(ParsePercent(parserTableStyle["--pdf-semantic-width"]), 80f, 97f);
         Assert.Equal("center", parserTableStyle["--pdf-semantic-align-self"]);
@@ -685,6 +751,8 @@ public class PdfHtmlConverterTest
             row.Elements("td").Last().Value == "88.3");
         Assert.Contains(parserTable.Descendants(), cell =>
             HasClass(cell, "pdf-semantic-table-cell-border-right"));
+        Assert.Contains(parserTable.Descendants(), cell =>
+            HasClass(cell, "pdf-semantic-table-cell-align-center"));
     }
 
     [Fact]
@@ -833,12 +901,37 @@ public class PdfHtmlConverterTest
               })
             """);
 
+        string[] overflowDetails = await page.EvaluateAsync<string[]>(
+            """
+            () => Array.from(document.querySelectorAll(".pdf-semantic-page"))
+              .slice(0, 7)
+              .map((page, index) => {
+                const flow = page.querySelector(".pdf-semantic-flow");
+                if (!flow) {
+                  return `page ${index + 1}: no semantic flow`;
+                }
+
+                const pageBottom = page.getBoundingClientRect().bottom;
+                const child = Array.from(flow.children)
+                  .map(child => ({ child, box: child.getBoundingClientRect() }))
+                  .sort((left, right) => right.box.bottom - left.box.bottom)[0];
+                if (!child) {
+                  return `page ${index + 1}: no flow children`;
+                }
+
+                const classes = child.child.getAttribute("class") || child.child.tagName.toLowerCase();
+                const text = (child.child.textContent || "").trim().replace(/\s+/g, " ").slice(0, 120);
+                return `page ${index + 1}: ${classes}; bottom=${child.box.bottom.toFixed(3)}; pageBottom=${pageBottom.toFixed(3)}; text=${text}`;
+              })
+            """);
+
         Assert.True(overflows.Length >= 7);
+        Assert.Equal(overflows.Length, overflowDetails.Length);
         for (int index = 0; index < overflows.Length; index++)
         {
             Assert.True(
                 overflows[index] <= 1.0,
-                $"Semantic flow on page {index + 1} extends {overflows[index]:0.###} CSS pixels below the page.");
+                $"Semantic flow on page {index + 1} extends {overflows[index]:0.###} CSS pixels below the page. {overflowDetails[index]}");
         }
     }
 

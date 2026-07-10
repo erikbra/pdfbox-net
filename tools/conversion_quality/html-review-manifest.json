@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "description": "HTML conversion review examples generated in CI. Download the artifact and open html-review/index.html, or open an example compare.html to view the source PDF and generated HTML side by side.",
+  "description": "HTML conversion review examples generated in CI. Download the artifact and open html-examples/index.html, or open an example compare.html to view the source PDF and generated HTML side by side.",
   "examples": [
     {
       "id": "arxiv-sample",

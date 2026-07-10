@@ -275,6 +275,10 @@ public static class PdfHtmlConverter
           white-space: pre;
         }
 
+        .pdf-semantic-formula-attached-suffix {
+          transform: translateX(-0.15em);
+        }
+
         .pdf-semantic-formula-radical {
           transform: translateY(5pt);
         }
@@ -382,6 +386,10 @@ public static class PdfHtmlConverter
           line-height: 1.18;
         }
 
+        figcaption.pdf-semantic-caption {
+          font-weight: normal;
+        }
+
         .pdf-semantic-table {
           border-collapse: collapse;
           line-height: 1.15;
@@ -432,12 +440,22 @@ public static class PdfHtmlConverter
           text-align: right;
         }
 
-        .pdf-semantic-table-centered-cells th,
-        .pdf-semantic-table-centered-cells td,
+        .pdf-semantic-table td.pdf-semantic-table-cell-align-left,
+        .pdf-semantic-table th.pdf-semantic-table-cell-align-left {
+          text-align: left;
+        }
+
+        .pdf-semantic-table td.pdf-semantic-table-cell-align-center,
+        .pdf-semantic-table th.pdf-semantic-table-cell-align-center,
         .pdf-semantic-table td[colspan],
         .pdf-semantic-table th[colspan],
         .pdf-semantic-table-row-group-header {
           text-align: center;
+        }
+
+        .pdf-semantic-table td.pdf-semantic-table-cell-align-right,
+        .pdf-semantic-table th.pdf-semantic-table-cell-align-right {
+          text-align: right;
         }
 
         .pdf-semantic-table-row-group-header {
@@ -743,7 +761,7 @@ public static class PdfHtmlConverter
         }
         else
         {
-            foreach (PdfTextRun run in page.Runs)
+            foreach (PdfTextRun run in page.Runs.Where(run => !IsCoveredByTransparencyFallback(page, run.PageBounds)))
             {
                 WriteTextRun(html, run, scale);
             }
@@ -789,6 +807,7 @@ public static class PdfHtmlConverter
     {
         PdfLayoutPath[] paths = page.Paths
             .Where(path => semanticPage == null || !IsSemanticFlowRulePath(page, semanticPage, path))
+            .Where(path => !IsCoveredByTransparencyFallback(page, path.Bounds))
             .ToArray();
         if (paths.Length == 0)
         {
@@ -807,12 +826,177 @@ public static class PdfHtmlConverter
             .Append(CssPoints(page.Height * scale))
             .AppendLine("\" aria-hidden=\"true\">");
 
-        foreach (PdfLayoutPath path in paths)
-        {
-            WriteVectorPath(html, path);
-        }
+        WriteVectorContent(
+            html,
+            paths,
+            page.VectorGroups,
+            $"pdf-vector-page-{page.PageNumber.ToString(CultureInfo.InvariantCulture)}");
 
         html.AppendLine("    </svg>");
+    }
+
+    private static void WriteVectorContent(
+        StringBuilder html,
+        IReadOnlyList<PdfLayoutPath> paths,
+        IReadOnlyList<PdfLayoutVectorGroup> vectorGroups,
+        string clipIdPrefix)
+    {
+        const int rootVectorGroupIndex = -1;
+        Dictionary<int, PdfLayoutPath> pathsByIndex = paths.ToDictionary(path => path.Index);
+        HashSet<int> includedPathIndexes = pathsByIndex.Keys.ToHashSet();
+        PdfLayoutVectorGroup[] groups = vectorGroups
+            .Where(group => group.HasPaths)
+            .Where(group => paths.Any(path => path.Index >= group.FirstPathIndex && path.Index <= group.LastPathIndex))
+            .ToArray();
+        if (groups.Length == 0)
+        {
+            foreach (PdfLayoutPath path in paths)
+            {
+                WriteVectorPath(html, path);
+            }
+
+            return;
+        }
+
+        HashSet<int> groupIndexes = groups.Select(group => group.Index).ToHashSet();
+        Dictionary<int, PdfLayoutVectorGroup[]> groupsByParent = groups
+            .GroupBy(group => group.ParentIndex is int parentIndex && groupIndexes.Contains(parentIndex)
+                ? parentIndex
+                : rootVectorGroupIndex)
+            .ToDictionary(
+                group => group.Key,
+                group => group
+                    .OrderBy(vectorGroup => vectorGroup.FirstPathIndex)
+                    .ThenByDescending(vectorGroup => vectorGroup.LastPathIndex)
+                    .ToArray());
+        WriteVectorDefinitions(html, groups, clipIdPrefix);
+        int lastPathIndex = paths.Max(path => path.Index);
+        WriteVectorContentRange(
+            html,
+            pathsByIndex,
+            includedPathIndexes,
+            groupsByParent,
+            clipIdPrefix,
+            rootVectorGroupIndex,
+            0,
+            lastPathIndex);
+    }
+
+    private static void WriteVectorContentRange(
+        StringBuilder html,
+        IReadOnlyDictionary<int, PdfLayoutPath> pathsByIndex,
+        IReadOnlySet<int> includedPathIndexes,
+        IReadOnlyDictionary<int, PdfLayoutVectorGroup[]> groupsByParent,
+        string clipIdPrefix,
+        int parentIndex,
+        int firstPathIndex,
+        int lastPathIndex)
+    {
+        int pathIndex = firstPathIndex;
+        if (groupsByParent.TryGetValue(parentIndex, out PdfLayoutVectorGroup[]? childGroups))
+        {
+            foreach (PdfLayoutVectorGroup group in childGroups)
+            {
+                WriteVectorPathsBefore(html, pathsByIndex, includedPathIndexes, ref pathIndex, group.FirstPathIndex);
+                if (group.LastPathIndex < pathIndex)
+                {
+                    continue;
+                }
+
+                html.Append("      <g class=\"pdf-vector-group\" data-vector-group-index=\"")
+                    .Append(group.Index.ToString(CultureInfo.InvariantCulture))
+                    .Append("\" opacity=\"")
+                    .Append(SvgNumber(group.Opacity))
+                    .Append('"');
+                if (group.IsIsolated)
+                {
+                    html.Append(" style=\"isolation:isolate\"");
+                }
+
+                if (group.ClipBounds.HasValue)
+                {
+                    html.Append(" clip-path=\"url(#")
+                        .Append(VectorClipPathId(clipIdPrefix, group))
+                        .Append(")\"");
+                }
+
+                if (group.IsKnockout)
+                {
+                    html.Append(" data-knockout=\"true\"");
+                }
+
+                html.AppendLine(">");
+                WriteVectorContentRange(
+                    html,
+                    pathsByIndex,
+                    includedPathIndexes,
+                    groupsByParent,
+                    clipIdPrefix,
+                    group.Index,
+                    pathIndex,
+                    group.LastPathIndex);
+                html.AppendLine("      </g>");
+                pathIndex = group.LastPathIndex + 1;
+            }
+        }
+
+        WriteVectorPathsBefore(html, pathsByIndex, includedPathIndexes, ref pathIndex, lastPathIndex + 1);
+    }
+
+    private static void WriteVectorDefinitions(
+        StringBuilder html,
+        IReadOnlyList<PdfLayoutVectorGroup> groups,
+        string clipIdPrefix)
+    {
+        PdfLayoutVectorGroup[] clippedGroups = groups
+            .Where(static group => group.ClipBounds.HasValue)
+            .ToArray();
+        if (clippedGroups.Length == 0)
+        {
+            return;
+        }
+
+        html.AppendLine("      <defs>");
+        foreach (PdfLayoutVectorGroup group in clippedGroups)
+        {
+            PdfLayoutRectangle bounds = group.ClipBounds!.Value;
+            html.Append("        <clipPath id=\"")
+                .Append(VectorClipPathId(clipIdPrefix, group))
+                .Append("\"><rect x=\"")
+                .Append(SvgNumber(bounds.X))
+                .Append("\" y=\"")
+                .Append(SvgNumber(bounds.Y))
+                .Append("\" width=\"")
+                .Append(SvgNumber(bounds.Width))
+                .Append("\" height=\"")
+                .Append(SvgNumber(bounds.Height))
+                .AppendLine("\" /></clipPath>");
+        }
+
+        html.AppendLine("      </defs>");
+    }
+
+    private static string VectorClipPathId(string clipIdPrefix, PdfLayoutVectorGroup group)
+    {
+        return clipIdPrefix + "-clip-" + group.Index.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static void WriteVectorPathsBefore(
+        StringBuilder html,
+        IReadOnlyDictionary<int, PdfLayoutPath> pathsByIndex,
+        IReadOnlySet<int> includedPathIndexes,
+        ref int pathIndex,
+        int exclusivePathIndex)
+    {
+        while (pathIndex < exclusivePathIndex)
+        {
+            if (includedPathIndexes.Contains(pathIndex) && pathsByIndex.TryGetValue(pathIndex, out PdfLayoutPath? path))
+            {
+                WriteVectorPath(html, path);
+            }
+
+            pathIndex++;
+        }
     }
 
     private static void WriteVectorPath(StringBuilder html, PdfLayoutPath path)
@@ -1734,10 +1918,11 @@ public static class PdfHtmlConverter
             }
         }
 
-        foreach (PdfLayoutPath path in paths)
-        {
-            WriteVectorPath(html, path);
-        }
+        WriteVectorContent(
+            html,
+            paths,
+            page.VectorGroups,
+            $"pdf-vector-figure-{page.PageNumber.ToString(CultureInfo.InvariantCulture)}-{MathF.Round(region.X).ToString(CultureInfo.InvariantCulture)}-{MathF.Round(region.Y).ToString(CultureInfo.InvariantCulture)}");
 
         foreach (PdfTextRun run in textRuns)
         {
@@ -1758,6 +1943,7 @@ public static class PdfHtmlConverter
         return page.Paths
             .Where(path => !IsSemanticFlowRulePath(page, semanticPage, path))
             .Where(path => path.Bounds.Width > 0.1f || path.Bounds.Height > 0.1f)
+            .Where(path => !IsCoveredByTransparencyFallback(page, path.Bounds))
             .Where(path => RectanglesIntersect(path.Bounds, region, 2f));
     }
 
@@ -1765,6 +1951,7 @@ public static class PdfHtmlConverter
     {
         return page.Runs
             .Where(IsFigureLabelRun)
+            .Where(run => !IsCoveredByTransparencyFallback(page, run.PageBounds))
             .Where(run => RectanglesIntersect(run.PageBounds, region, 2f))
             .OrderBy(static run => run.PageBounds.Y)
             .ThenBy(static run => run.PageBounds.X);
@@ -1894,6 +2081,13 @@ public static class PdfHtmlConverter
             second.Right >= first.X - tolerance &&
             first.Bottom >= second.Y - tolerance &&
             second.Bottom >= first.Y - tolerance;
+    }
+
+    private static bool IsCoveredByTransparencyFallback(PdfLayoutPage page, PdfLayoutRectangle bounds)
+    {
+        return page.Images
+            .Where(static image => image.Kind == PdfLayoutImageKind.TransparencyGroupFallback)
+            .Any(image => RectanglesIntersect(bounds, image.Bounds, 0));
     }
 
     private static IEnumerable<PdfLayoutRectangle> SemanticFigureRegions(
@@ -2371,6 +2565,11 @@ public static class PdfHtmlConverter
             return;
         }
 
+        if (IsFormulaDecorationElement(element))
+        {
+            return;
+        }
+
         if (page != null && IsFormulaBlock(element))
         {
             WriteFormulaBlock(html, page, element);
@@ -2425,12 +2624,13 @@ public static class PdfHtmlConverter
         PdfSemanticTableRow[] bodyRows = element.TableRows
             .Skip(headerRows.Length)
             .ToArray();
+        TableCellAlignment[] columnAlignments = TableColumnAlignments(element.TableRows, headerRows.Length);
         if (headerRows.Length > 0)
         {
             html.AppendLine("        <thead>");
             foreach (PdfSemanticTableRow row in headerRows)
             {
-                WriteSemanticTableRow(html, row, footnotes, page, header: true);
+                WriteSemanticTableRow(html, row, footnotes, page, header: true, columnAlignments);
             }
 
             html.AppendLine("        </thead>");
@@ -2439,7 +2639,7 @@ public static class PdfHtmlConverter
         html.AppendLine("        <tbody>");
         foreach (PdfSemanticTableRow row in bodyRows.Length == 0 ? headerRows : bodyRows)
         {
-            WriteSemanticTableRow(html, row, footnotes, page, header: false);
+            WriteSemanticTableRow(html, row, footnotes, page, header: false, columnAlignments);
         }
 
         html.AppendLine("        </tbody>");
@@ -2451,11 +2651,13 @@ public static class PdfHtmlConverter
         PdfSemanticTableRow row,
         FootnoteContext footnotes,
         PdfLayoutPage? page,
-        bool header)
+        bool header,
+        IReadOnlyList<TableCellAlignment> columnAlignments)
     {
         html.AppendLine("          <tr>");
-        foreach (PdfSemanticTableCell cell in row.Cells)
+        for (int columnIndex = 0; columnIndex < row.Cells.Count; columnIndex++)
         {
+            PdfSemanticTableCell cell = row.Cells[columnIndex];
             if (cell.IsPlaceholder)
             {
                 continue;
@@ -2488,7 +2690,10 @@ public static class PdfHtmlConverter
                     .Append('"');
             }
 
-            string cellClass = SemanticTableCellClassNames(cell);
+            TableCellAlignment alignment = columnIndex < columnAlignments.Count
+                ? columnAlignments[columnIndex]
+                : TableCellAlignment.Default;
+            string cellClass = SemanticTableCellClassNames(cell, alignment);
             if (cellClass.Length > 0)
             {
                 html.Append(" class=\"")
@@ -2507,7 +2712,7 @@ public static class PdfHtmlConverter
         html.AppendLine("          </tr>");
     }
 
-    private static string SemanticTableCellClassNames(PdfSemanticTableCell cell)
+    private static string SemanticTableCellClassNames(PdfSemanticTableCell cell, TableCellAlignment alignment)
     {
         List<string> classes = [];
         if (cell.BorderTop)
@@ -2540,7 +2745,86 @@ public static class PdfHtmlConverter
             classes.Add("pdf-semantic-table-row-group-header");
         }
 
+        if (alignment != TableCellAlignment.Default && cell.ColumnSpan == 1)
+        {
+            classes.Add("pdf-semantic-table-cell-align-" + alignment.ToString().ToLowerInvariant());
+        }
+
         return string.Join(" ", classes);
+    }
+
+    private static TableCellAlignment[] TableColumnAlignments(
+        IReadOnlyList<PdfSemanticTableRow> rows,
+        int headerRowCount)
+    {
+        int columnCount = rows.Count == 0 ? 0 : rows.Max(static row => row.Cells.Count);
+        if (columnCount == 0)
+        {
+            return [];
+        }
+
+        IReadOnlyList<PdfSemanticTableRow> sourceRows = rows.Skip(headerRowCount).ToArray();
+        if (sourceRows.Count == 0)
+        {
+            sourceRows = rows;
+        }
+
+        List<PdfLayoutRectangle>[] columnCells = Enumerable
+            .Range(0, columnCount)
+            .Select(static _ => new List<PdfLayoutRectangle>())
+            .ToArray();
+        foreach (PdfSemanticTableRow row in sourceRows)
+        {
+            for (int columnIndex = 0; columnIndex < row.Cells.Count; columnIndex++)
+            {
+                PdfSemanticTableCell cell = row.Cells[columnIndex];
+                if (cell.IsPlaceholder ||
+                    cell.ColumnSpan != 1 ||
+                    string.IsNullOrWhiteSpace(cell.Text) ||
+                    cell.Bounds.Width <= 0.5f)
+                {
+                    continue;
+                }
+
+                columnCells[columnIndex].Add(cell.Bounds);
+            }
+        }
+
+        return columnCells.Select(DetectTableColumnAlignment).ToArray();
+    }
+
+    private static TableCellAlignment DetectTableColumnAlignment(IReadOnlyList<PdfLayoutRectangle> cells)
+    {
+        if (cells.Count < 3)
+        {
+            return TableCellAlignment.Default;
+        }
+
+        float centerSpread = StandardDeviation(cells.Select(static cell => cell.X + cell.Width / 2f));
+        float leftSpread = StandardDeviation(cells.Select(static cell => cell.X));
+        float rightSpread = StandardDeviation(cells.Select(static cell => cell.Right));
+        float averageWidth = cells.Average(static cell => cell.Width);
+        float tolerance = MathF.Max(0.75f, averageWidth * 0.04f);
+        if (centerSpread <= MathF.Min(leftSpread, rightSpread) * 0.65f &&
+            leftSpread >= centerSpread + tolerance &&
+            rightSpread >= centerSpread + tolerance)
+        {
+            return TableCellAlignment.Center;
+        }
+
+        if (leftSpread <= MathF.Min(centerSpread, rightSpread) * 0.65f &&
+            centerSpread >= leftSpread + tolerance)
+        {
+            return TableCellAlignment.Left;
+        }
+
+        if (rightSpread <= MathF.Min(centerSpread, leftSpread) * 0.65f &&
+            centerSpread >= rightSpread + tolerance)
+        {
+            return TableCellAlignment.Right;
+        }
+
+        return TableCellAlignment.Default;
     }
 
     private static bool IsSemanticTableRowGroupHeader(PdfSemanticTableCell cell)
@@ -2632,26 +2916,33 @@ public static class PdfHtmlConverter
                 WriteFormulaVectorLayer(html, bounds, paths);
             }
 
-            foreach (PdfTextRun run in runs)
+            PdfTextGlyph[] glyphs = FormulaGlyphs(runs).ToArray();
+            for (int glyphIndex = 0; glyphIndex < glyphs.Length; glyphIndex++)
             {
+                PdfTextGlyph glyph = glyphs[glyphIndex];
                 html.Append("<span class=\"pdf-semantic-formula-run");
-                if (IsFormulaRadicalRun(run))
+                if (IsFormulaRadicalGlyph(glyph))
                 {
                     html.Append(" pdf-semantic-formula-radical");
                 }
 
+                if (glyphIndex > 0 && IsFormulaAttachedSuffix(glyphs[glyphIndex - 1], glyph))
+                {
+                    html.Append(" pdf-semantic-formula-attached-suffix");
+                }
+
                 html.Append("\" style=\"left:")
-                    .Append(CssPoints(run.Bounds.X - bounds.X))
+                    .Append(CssPoints(glyph.Bounds.X - bounds.X))
                     .Append(";top:")
-                    .Append(CssPoints(run.Bounds.Y - bounds.Y))
+                    .Append(CssPoints(glyph.Bounds.Y - bounds.Y))
                     .Append(";font-family:")
-                    .Append(CssFontFamily(NormalizeFontName(run.FontName)))
+                    .Append(CssFontFamily(NormalizeFontName(glyph.FontName)))
                     .Append(";font-size:")
-                    .Append(CssPoints(run.FontSize))
+                    .Append(CssPoints(glyph.FontSize))
                     .Append(";color:")
-                    .Append(ColorHex(run.Color))
+                    .Append(ColorHex(glyph.Color))
                     .Append("\">")
-                    .Append(Html(FormulaRunText(run)))
+                    .Append(Html(glyph.Text))
                     .Append("</span>");
             }
         }
@@ -2683,9 +2974,7 @@ public static class PdfHtmlConverter
             .Where(static run => MathF.Abs(run.Direction) < 0.01f)
             .Where(run => RectanglesIntersect(run.Bounds, coreBounds, 0.75f) ||
                 RectanglesIntersect(run.Bounds, bounds, 0.75f) && IsFormulaRunCandidate(run) ||
-                IsFormulaAdjacentRun(page, bounds, run))
-            .OrderBy(static run => run.Bounds.Y)
-            .ThenBy(static run => run.Bounds.X);
+                IsFormulaAdjacentRun(page, bounds, run));
     }
 
     private static IEnumerable<PdfLayoutPath> FormulaPaths(PdfLayoutPage page, PdfLayoutRectangle bounds)
@@ -2706,20 +2995,28 @@ public static class PdfHtmlConverter
                 text.All(static character => character is '(' or ')' or ',' or '.' or '=' or '+' or '-' or '/' or ':' or ';'));
     }
 
-    private static bool IsFormulaRadicalRun(PdfTextRun run)
+    private static IEnumerable<PdfTextGlyph> FormulaGlyphs(IEnumerable<PdfTextRun> runs)
     {
-        return run.Text.Trim() == "√";
+        return runs
+            .SelectMany(static run => run.Glyphs)
+            .Where(static glyph => !string.IsNullOrEmpty(glyph.Text));
     }
 
-    private static string FormulaRunText(PdfTextRun run)
+    private static bool IsFormulaRadicalGlyph(PdfTextGlyph glyph)
     {
-        if (run.Glyphs.Count <= 1)
+        return glyph.Text.Trim() == "√";
+    }
+
+    private static bool IsFormulaAttachedSuffix(PdfTextGlyph previous, PdfTextGlyph current)
+    {
+        if (current.FontSize >= previous.FontSize * 0.85f)
         {
-            return run.Text;
+            return false;
         }
 
-        string reconstructed = ReconstructText(run.Glyphs);
-        return reconstructed.Length == 0 ? run.Text : reconstructed;
+        float gap = current.Bounds.X - previous.Bounds.Right;
+        float tolerance = MathF.Max(1.5f, current.FontSize * 0.25f);
+        return gap >= -tolerance && gap <= tolerance;
     }
 
     private static void WriteFormulaVectorLayer(
@@ -3109,6 +3406,7 @@ public static class PdfHtmlConverter
         }
 
         return HasMathBaseInLineToLeft(lineGlyphs, glyph) ||
+            HasMathBaseInLineToRight(lineGlyphs, glyph) ||
             HasCompactFractionStemInLine(lineGlyphs, glyph);
     }
 
@@ -4433,6 +4731,11 @@ public static class PdfHtmlConverter
 
     private static string SemanticTagName(PdfSemanticElement element)
     {
+        if (IsFigureCaption(element))
+        {
+            return "figcaption";
+        }
+
         return element.Kind switch
         {
             PdfSemanticElementKind.Heading => "h" + Math.Clamp(element.HeadingLevel, 1, 6).ToString(CultureInfo.InvariantCulture),
@@ -4512,10 +4815,6 @@ public static class PdfHtmlConverter
                 classes.Add("pdf-semantic-measured-width");
             }
 
-            if (ShouldCenterTableCells(element))
-            {
-                classes.Add("pdf-semantic-table-centered-cells");
-            }
         }
 
         return string.Join(" ", classes);
@@ -4681,59 +4980,6 @@ public static class PdfHtmlConverter
             : null;
     }
 
-    private static bool ShouldCenterTableCells(PdfSemanticElement element)
-    {
-        int columnCount = element.TableRows.Count == 0
-            ? 0
-            : element.TableRows.Max(static row => row.Cells.Count);
-        if (columnCount < 2)
-        {
-            return false;
-        }
-
-        List<PdfLayoutRectangle>[] columnCells = Enumerable
-            .Range(0, columnCount)
-            .Select(static _ => new List<PdfLayoutRectangle>())
-            .ToArray();
-        foreach (PdfSemanticTableRow row in element.TableRows)
-        {
-            for (int columnIndex = 0; columnIndex < row.Cells.Count; columnIndex++)
-            {
-                PdfSemanticTableCell cell = row.Cells[columnIndex];
-                if (cell.IsPlaceholder ||
-                    cell.ColumnSpan != 1 ||
-                    string.IsNullOrWhiteSpace(cell.Text) ||
-                    cell.Bounds.Width <= 0.5f)
-                {
-                    continue;
-                }
-
-                columnCells[columnIndex].Add(cell.Bounds);
-            }
-        }
-
-        int eligibleColumns = columnCells.Count(static cells => cells.Count >= 3);
-        if (eligibleColumns < 2)
-        {
-            return false;
-        }
-
-        int centeredColumns = columnCells.Count(static cells => cells.Count >= 3 && LooksLikeCenteredTableColumn(cells));
-        return centeredColumns >= Math.Max(2, (int)MathF.Ceiling(eligibleColumns * 0.6f));
-    }
-
-    private static bool LooksLikeCenteredTableColumn(IReadOnlyList<PdfLayoutRectangle> cells)
-    {
-        float centerSpread = StandardDeviation(cells.Select(static cell => cell.X + cell.Width / 2f));
-        float leftSpread = StandardDeviation(cells.Select(static cell => cell.X));
-        float rightSpread = StandardDeviation(cells.Select(static cell => cell.Right));
-        float averageWidth = cells.Average(static cell => cell.Width);
-        float tolerance = MathF.Max(1.25f, averageWidth * 0.08f);
-        return centerSpread <= MathF.Min(leftSpread, rightSpread) * 0.65f &&
-            leftSpread >= centerSpread + tolerance &&
-            rightSpread >= centerSpread + tolerance;
-    }
-
     private static float StandardDeviation(IEnumerable<float> values)
     {
         float[] sample = values.ToArray();
@@ -4829,9 +5075,17 @@ public static class PdfHtmlConverter
     {
         return element.Kind == PdfSemanticElementKind.Paragraph &&
             !IsFigureCaption(element) &&
+            !IsFormulaDecorationElement(element) &&
             !IsInlineFormulaFragment(element) &&
             (element.Lines.Any(IsDisplayFormulaLine) ||
                 IsCompactCenteredFormulaElement(element));
+    }
+
+    private static bool IsFormulaDecorationElement(PdfSemanticElement element)
+    {
+        string compact = CompactText(element.Text);
+        return compact.Length is > 0 and <= 3 &&
+            compact.All(static character => character is '·' or '−' or '+' or '=' or ',' or '.');
     }
 
     private static bool IsCompactCenteredFormulaElement(PdfSemanticElement element)
@@ -5514,6 +5768,14 @@ public static class PdfHtmlConverter
         Normal,
         Subscript,
         Superscript
+    }
+
+    private enum TableCellAlignment
+    {
+        Default,
+        Left,
+        Center,
+        Right
     }
 
     private readonly record struct InlineTextSegment(

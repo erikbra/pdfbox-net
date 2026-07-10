@@ -31,6 +31,12 @@ public sealed class PdfLayoutOptions
     public bool IncludeImageAssets { get; init; }
 
     /// <summary>
+    /// Gets or sets whether compact transparency groups should be rasterized as image fallbacks when a rendering
+    /// backend is registered. Disabled by default so normal HTML conversion continues to preserve vector paths.
+    /// </summary>
+    public bool IncludeTransparencyGroupFallbacks { get; init; }
+
+    /// <summary>
     /// Gets or sets whether annotation appearances should be exported as positioned image assets when
     /// a rendering backend is registered.
     /// </summary>

@@ -6,6 +6,7 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Interactive.Action;
@@ -130,6 +131,8 @@ public static class PdfLayoutExtractor
     private sealed class PageBuilder
     {
         private readonly int _pageNumber;
+        private readonly int _pageIndex;
+        private readonly PDDocument _document;
         private readonly PdfLayoutRectangle _mediaBox;
         private readonly PdfLayoutRectangle _cropBox;
         private readonly float _width;
@@ -142,14 +145,18 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutImage> _images = new();
         private readonly List<PdfLayoutImageAsset> _imageAssets = new();
         private readonly List<PdfLayoutPath> _paths = new();
+        private readonly List<PdfLayoutVectorGroup> _vectorGroups = new();
         private readonly List<PdfLayoutLink> _links = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
 
         private const float AnnotationAppearanceScale = 2f;
+        private const float TransparencyGroupRasterScale = 3f;
 
         public PageBuilder(int pageNumber, int pageIndex, PDPage page, PDDocument document, PdfLayoutOptions options)
         {
             _pageNumber = pageNumber;
+            _pageIndex = pageIndex;
+            _document = document;
             PDRectangle mediaBox = page.GetMediaBox();
             PDRectangle cropBox = page.GetCropBox();
             _mediaBox = PdfLayoutRectangle.FromPdfRectangle(mediaBox);
@@ -213,6 +220,7 @@ public static class PdfLayoutExtractor
                 _blocks,
                 _images,
                 _paths,
+                _vectorGroups,
                 _links,
                 _diagnostics);
         }
@@ -245,7 +253,163 @@ public static class PdfLayoutExtractor
             _images.AddRange(collector.Images);
             _imageAssets.AddRange(collector.ImageAssets);
             _paths.AddRange(collector.Paths);
+            _vectorGroups.AddRange(collector.VectorGroups);
             _diagnostics.AddRange(collector.Diagnostics);
+
+            if (options.IncludeImageAssets && options.IncludeTransparencyGroupFallbacks)
+            {
+                CollectTransparencyGroupFallbacks(collector.TransparencyGroupBounds);
+            }
+        }
+
+        private void CollectTransparencyGroupFallbacks(IReadOnlyList<PdfLayoutRectangle> groupBounds)
+        {
+            PdfLayoutRectangle[] fallbackBounds = MergeTransparencyGroupBounds(groupBounds
+                .Select(ExpandTransparencyGroupBounds))
+                .Where(IsCompactTransparencyGroup)
+                .ToArray();
+            if (fallbackBounds.Length == 0)
+            {
+                return;
+            }
+
+            if (_rotation != 0)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "transparency-group-rasterization-rotation-unsupported",
+                    "Transparency-group raster fallbacks are not collected for rotated pages yet.",
+                    _pageNumber));
+                return;
+            }
+
+            if (!RenderingBackend.IsRegistered)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "transparency-group-rasterization-backend-missing",
+                    "Transparency-group fallback rendering requires a registered rendering backend.",
+                    _pageNumber));
+                return;
+            }
+
+            try
+            {
+                PDFRenderer renderer = new(_document);
+                using BufferedImage pageImage = renderer.RenderImage(
+                    _pageIndex,
+                    TransparencyGroupRasterScale,
+                    ImageType.RGB);
+                for (int fallbackIndex = 0; fallbackIndex < fallbackBounds.Length; fallbackIndex++)
+                {
+                    PdfLayoutRectangle bounds = fallbackBounds[fallbackIndex];
+                    using BufferedImage image = CropPageImage(pageImage, bounds, TransparencyGroupRasterScale);
+                    string assetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-transparency-group-{fallbackIndex.ToString(CultureInfo.InvariantCulture)}";
+                    byte[] data = RenderingBackend.Current.ImageCodec.Encode(image, EncodedImageFormat.Png, 100);
+                    int index = _images.Count;
+                    _images.Add(new PdfLayoutImage(
+                        index,
+                        assetId,
+                        PdfLayoutImageKind.TransparencyGroupFallback,
+                        bounds,
+                        new PdfLayoutTransform(1, 0, 0, 1, bounds.X, bounds.Y),
+                        image.Width,
+                        image.Height,
+                        8,
+                        "DeviceRGB",
+                        true,
+                        "transparency-group"));
+                    _imageAssets.Add(new PdfLayoutImageAsset(
+                        assetId,
+                        $"assets/images/{assetId}.png",
+                        "image/png",
+                        data));
+                }
+            }
+            catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException or NotSupportedException)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "transparency-group-rasterization-failed",
+                    "Transparency-group fallback rendering failed: " + ex.Message,
+                    _pageNumber));
+            }
+        }
+
+        private PdfLayoutRectangle ExpandTransparencyGroupBounds(PdfLayoutRectangle bounds)
+        {
+            const float padding = 18f;
+            float left = MathF.Max(0, bounds.X - padding);
+            float top = MathF.Max(0, bounds.Y - padding);
+            float right = MathF.Min(_width, bounds.Right + padding);
+            float bottom = MathF.Min(_height, bounds.Bottom + 3f);
+            return new PdfLayoutRectangle(left, top, right - left, bottom - top);
+        }
+
+        private static IEnumerable<PdfLayoutRectangle> MergeTransparencyGroupBounds(
+            IEnumerable<PdfLayoutRectangle> regions)
+        {
+            List<PdfLayoutRectangle> merged = [];
+            foreach (PdfLayoutRectangle region in regions
+                .OrderBy(static region => region.Y)
+                .ThenBy(static region => region.X))
+            {
+                PdfLayoutRectangle combined = region;
+                bool mergedRegion;
+                do
+                {
+                    mergedRegion = false;
+                    for (int index = merged.Count - 1; index >= 0; index--)
+                    {
+                        if (!RectanglesTouch(merged[index], combined, 2f))
+                        {
+                            continue;
+                        }
+
+                        combined = PdfLayoutRectangle.Union([merged[index], combined]);
+                        merged.RemoveAt(index);
+                        mergedRegion = true;
+                    }
+                }
+                while (mergedRegion);
+
+                merged.Add(combined);
+            }
+
+            return merged;
+        }
+
+        private static bool RectanglesTouch(PdfLayoutRectangle first, PdfLayoutRectangle second, float tolerance)
+        {
+            return first.Right >= second.X - tolerance &&
+                second.Right >= first.X - tolerance &&
+                first.Bottom >= second.Y - tolerance &&
+                second.Bottom >= first.Y - tolerance;
+        }
+
+        private bool IsCompactTransparencyGroup(PdfLayoutRectangle bounds)
+        {
+            return bounds.Width >= 24f &&
+                bounds.Height >= 24f &&
+                bounds.Width * bounds.Height <= _width * _height * 0.65f;
+        }
+
+        private static BufferedImage CropPageImage(BufferedImage pageImage, PdfLayoutRectangle bounds, float scale)
+        {
+            int left = Math.Clamp((int)MathF.Floor(bounds.X * scale), 0, pageImage.Width - 1);
+            int top = Math.Clamp((int)MathF.Floor(bounds.Y * scale), 0, pageImage.Height - 1);
+            int right = Math.Clamp((int)MathF.Ceiling(bounds.Right * scale), left + 1, pageImage.Width);
+            int bottom = Math.Clamp((int)MathF.Ceiling(bounds.Bottom * scale), top + 1, pageImage.Height);
+            BufferedImage crop = new(right - left, bottom - top, BufferedImage.TYPE_INT_RGB);
+            for (int y = top; y < bottom; y++)
+            {
+                for (int x = left; x < right; x++)
+                {
+                    crop.SetRgb(x - left, y - top, pageImage.GetRgb(x, y));
+                }
+            }
+
+            return crop;
         }
 
         private void CollectAnnotationAppearances(PDDocument document, int pageIndex, PDPage page)
@@ -577,9 +741,148 @@ public static class PdfLayoutExtractor
 
         private static IEnumerable<PdfTextLine> CreateLines(IReadOnlyList<PdfTextGlyph> glyphs, PdfLayoutOptions options)
         {
+            List<TextLineBucket> buckets = [];
+            foreach (PdfTextGlyph glyph in glyphs.Where(static glyph => IsHorizontalDirection(glyph.Direction)))
+            {
+                if (string.IsNullOrEmpty(glyph.Text))
+                {
+                    continue;
+                }
+
+                TextLineBucket? bucket = null;
+                float closestTopDelta = float.MaxValue;
+                foreach (TextLineBucket candidate in buckets)
+                {
+                    if (MathF.Abs(candidate.Direction - glyph.Direction) > 0.01f)
+                    {
+                        continue;
+                    }
+
+                    float topDelta = MathF.Abs(candidate.Top - glyph.Bounds.Y);
+                    if (topDelta <= options.SameLineTolerance && topDelta < closestTopDelta)
+                    {
+                        bucket = candidate;
+                        closestTopDelta = topDelta;
+                    }
+                }
+
+                if (bucket == null)
+                {
+                    bucket = new TextLineBucket(glyph.Direction, glyph.Bounds.Y);
+                    buckets.Add(bucket);
+                }
+
+                bucket.Add(glyph);
+            }
+
+            MergeInlineMathAttachmentBuckets(buckets);
+            foreach (TextLineBucket bucket in buckets
+                .OrderBy(static bucket => bucket.Top)
+                .ThenBy(static bucket => bucket.Left))
+            {
+                yield return CreateLine(OrderLineGlyphs(bucket.Glyphs), options);
+            }
+
+            foreach (PdfTextLine line in CreateOrderedLines(
+                glyphs.Where(static glyph => !IsHorizontalDirection(glyph.Direction)),
+                options))
+            {
+                yield return line;
+            }
+        }
+
+        private static void MergeInlineMathAttachmentBuckets(List<TextLineBucket> buckets)
+        {
+            foreach (TextLineBucket attachment in buckets
+                .OrderBy(static bucket => bucket.MaximumFontSize)
+                .ToArray())
+            {
+                if (!buckets.Contains(attachment))
+                {
+                    continue;
+                }
+
+                List<PdfTextGlyph> attachedGlyphs = [];
+                foreach (PdfTextGlyph glyph in attachment.Glyphs.ToArray())
+                {
+                    TextLineBucket? target = buckets
+                        .Where(bucket => !ReferenceEquals(bucket, attachment))
+                        .Where(bucket => MathF.Abs(bucket.Direction - attachment.Direction) < 0.01f)
+                        .Where(bucket => glyph.FontSize <= bucket.MaximumFontSize * 0.75f)
+                        .Where(bucket => AttachmentGlyphIsNearBucket(glyph, bucket))
+                        .Where(bucket => HasNearbyTeXMathGlyph(bucket, glyph))
+                        .OrderBy(bucket => AttachmentGlyphDistance(glyph, bucket))
+                        .FirstOrDefault();
+                    if (target == null)
+                    {
+                        continue;
+                    }
+
+                    target.Add(glyph);
+                    attachedGlyphs.Add(glyph);
+                }
+
+                attachment.RemoveRange(attachedGlyphs);
+                if (attachment.Glyphs.Count == 0)
+                {
+                    buckets.Remove(attachment);
+                }
+            }
+        }
+
+        private static bool AttachmentGlyphIsNearBucket(PdfTextGlyph attachment, TextLineBucket target)
+        {
+            PdfLayoutRectangle targetBounds = target.Bounds;
+            float verticalDistance = MathF.Abs(
+                attachment.Bounds.Y + (attachment.Bounds.Height / 2f) -
+                (targetBounds.Y + (targetBounds.Height / 2f)));
+            float horizontalGap = HorizontalGap(attachment.Bounds, targetBounds);
+            return verticalDistance <= MathF.Max(7f, target.MaximumFontSize * 0.9f) &&
+                horizontalGap <= MathF.Max(8f, target.MaximumFontSize * 1.5f);
+        }
+
+        private static bool HasNearbyTeXMathGlyph(TextLineBucket target, PdfTextGlyph attachment)
+        {
+            foreach (PdfTextGlyph targetGlyph in target.Glyphs)
+            {
+                if (!IsTeXMathFont(targetGlyph.FontName) ||
+                    HorizontalGap(attachment.Bounds, targetGlyph.Bounds) > 12f)
+                {
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsTeXMathFont(string fontName)
+        {
+            string baseName = fontName[(fontName.LastIndexOf('+') + 1)..];
+            return baseName.StartsWith("CM", StringComparison.OrdinalIgnoreCase) ||
+                baseName.StartsWith("MSBM", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static float AttachmentGlyphDistance(PdfTextGlyph attachment, TextLineBucket target)
+        {
+            PdfLayoutRectangle targetBounds = target.Bounds;
+            return HorizontalGap(attachment.Bounds, targetBounds) + MathF.Abs(
+                attachment.Bounds.Y + (attachment.Bounds.Height / 2f) -
+                (targetBounds.Y + (targetBounds.Height / 2f)));
+        }
+
+        private static float HorizontalGap(PdfLayoutRectangle first, PdfLayoutRectangle second)
+        {
+            return MathF.Max(0, MathF.Max(first.X - second.Right, second.X - first.Right));
+        }
+
+        private static IEnumerable<PdfTextLine> CreateOrderedLines(
+            IEnumerable<PdfTextGlyph> glyphs,
+            PdfLayoutOptions options)
+        {
             List<PdfTextGlyph> currentLine = new();
             float currentTop = 0;
-
             foreach (PdfTextGlyph glyph in glyphs)
             {
                 if (string.IsNullOrEmpty(glyph.Text))
@@ -611,6 +914,32 @@ public static class PdfLayoutExtractor
             {
                 yield return CreateLine(currentLine, options);
             }
+        }
+
+        private static bool IsHorizontalDirection(float direction)
+        {
+            float normalized = direction % 360f;
+            if (normalized < 0)
+            {
+                normalized += 360f;
+            }
+
+            return MathF.Abs(normalized) < 0.01f || MathF.Abs(normalized - 180f) < 0.01f;
+        }
+
+        private static IReadOnlyList<PdfTextGlyph> OrderLineGlyphs(IReadOnlyList<PdfTextGlyph> glyphs)
+        {
+            float direction = glyphs[0].Direction % 360f;
+            if (direction < 0)
+            {
+                direction += 360f;
+            }
+
+            return MathF.Abs(direction - 180f) < 0.01f
+                ? glyphs.OrderByDescending(static glyph => glyph.Bounds.X).ThenBy(static glyph => glyph.Bounds.Y).ToArray()
+                : MathF.Abs(direction - 90f) < 0.01f || MathF.Abs(direction - 270f) < 0.01f
+                    ? glyphs.OrderBy(static glyph => glyph.Bounds.Y).ThenBy(static glyph => glyph.Bounds.X).ToArray()
+                    : glyphs.OrderBy(static glyph => glyph.Bounds.X).ThenBy(static glyph => glyph.Bounds.Y).ToArray();
         }
 
         private static PdfTextLine CreateLine(IReadOnlyList<PdfTextGlyph> glyphs, PdfLayoutOptions options)
@@ -695,6 +1024,66 @@ public static class PdfLayoutExtractor
                 glyphs,
                 PdfLayoutRectangle.Union(glyphs.Select(glyph => glyph.PageBounds)));
         }
+
+        private sealed class TextLineBucket
+        {
+            private float _topTotal;
+
+            public TextLineBucket(float direction, float top)
+            {
+                Direction = direction;
+                Top = top;
+                Left = float.MaxValue;
+            }
+
+            public float Direction { get; }
+
+            public float Top { get; private set; }
+
+            public float Left { get; private set; }
+
+            public float MaximumFontSize { get; private set; }
+
+            public PdfLayoutRectangle Bounds => PdfLayoutRectangle.Union(Glyphs.Select(static glyph => glyph.Bounds));
+
+            public List<PdfTextGlyph> Glyphs { get; } = [];
+
+            public void Add(PdfTextGlyph glyph)
+            {
+                Glyphs.Add(glyph);
+                _topTotal += glyph.Bounds.Y;
+                Top = _topTotal / Glyphs.Count;
+                Left = MathF.Min(Left, glyph.Bounds.X);
+                MaximumFontSize = MathF.Max(MaximumFontSize, glyph.FontSize);
+            }
+
+            public void AddRange(IEnumerable<PdfTextGlyph> glyphs)
+            {
+                foreach (PdfTextGlyph glyph in glyphs)
+                {
+                    Add(glyph);
+                }
+            }
+
+            public void RemoveRange(IEnumerable<PdfTextGlyph> glyphs)
+            {
+                foreach (PdfTextGlyph glyph in glyphs)
+                {
+                    Glyphs.Remove(glyph);
+                }
+
+                PdfTextGlyph[] remainingGlyphs = Glyphs.ToArray();
+                Glyphs.Clear();
+                _topTotal = 0;
+                Top = 0;
+                Left = float.MaxValue;
+                MaximumFontSize = 0;
+                foreach (PdfTextGlyph glyph in remainingGlyphs)
+                {
+                    Add(glyph);
+                }
+            }
+        }
     }
 
     private static PdfLayoutColor ResolveGraphicsColor(
@@ -736,7 +1125,12 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutImage> _images = new();
         private readonly List<PdfLayoutImageAsset> _imageAssets = new();
         private readonly List<PdfLayoutPath> _paths = new();
+        private readonly List<PdfLayoutVectorGroup> _vectorGroups = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
+        private readonly Stack<List<PdfLayoutRectangle>> _vectorGroupPathBounds = new();
+        private readonly Stack<VectorGroupBuilder> _activeVectorGroups = new();
+        private readonly List<PdfLayoutRectangle> _transparencyGroupBounds = new();
+        private int _nextVectorGroupIndex;
         private bool _reportedRotatedImage;
         private bool _reportedRotatedPath;
         private bool _reportedClipping;
@@ -765,7 +1159,11 @@ public static class PdfLayoutExtractor
 
         public IReadOnlyList<PdfLayoutPath> Paths => _paths;
 
+        public IReadOnlyList<PdfLayoutVectorGroup> VectorGroups => _vectorGroups;
+
         public IReadOnlyList<PdfLayoutDiagnostic> Diagnostics => _diagnostics;
+
+        public IReadOnlyList<PdfLayoutRectangle> TransparencyGroupBounds => _transparencyGroupBounds;
 
         public override void XObject(PDXObject xobject)
         {
@@ -774,6 +1172,58 @@ public static class PdfLayoutExtractor
                 if (_includeImages)
                 {
                     CollectXObjectImage(image, ResolveSourceName(xobject));
+                }
+
+                return;
+            }
+
+            if (xobject is PDFormXObject form)
+            {
+                PDGraphicsState graphicsState = GetGraphicsState();
+                bool isTransparencyGroup = xobject is PDTransparencyGroup;
+                float fillOpacity = isTransparencyGroup
+                    ? Math.Clamp(graphicsState.GetNonStrokeAlphaConstant(), 0f, 1f)
+                    : 1f;
+                float strokeOpacity = isTransparencyGroup
+                    ? Math.Clamp(graphicsState.GetAlphaConstant(), 0f, 1f)
+                    : 1f;
+                if (isTransparencyGroup && MathF.Abs(fillOpacity - strokeOpacity) > 0.001f)
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "transparency-group-mixed-alpha",
+                        "Transparency group uses distinct stroke and fill alpha values; SVG uses the fill alpha for group compositing.",
+                        _pageNumber));
+                }
+
+                PDTransparencyGroupAttributes? attributes = form.GetGroup();
+                VectorGroupBuilder group = new(
+                    _nextVectorGroupIndex++,
+                    _activeVectorGroups.TryPeek(out VectorGroupBuilder? parent) ? parent.Index : null,
+                    _paths.Count,
+                    CurrentClipBounds(graphicsState),
+                    fillOpacity,
+                    attributes?.IsIsolated() ?? false,
+                    attributes?.IsKnockout() ?? false);
+                _activeVectorGroups.Push(group);
+                _vectorGroupPathBounds.Push([]);
+                try
+                {
+                    base.XObject(xobject);
+                }
+                finally
+                {
+                    List<PdfLayoutRectangle> pathBounds = _vectorGroupPathBounds.Pop();
+                    VectorGroupBuilder completedGroup = _activeVectorGroups.Pop();
+                    if (pathBounds.Count > 0)
+                    {
+                        PdfLayoutRectangle bounds = PdfLayoutRectangle.Union(pathBounds);
+                        _vectorGroups.Add(completedGroup.Build(_paths.Count - 1, bounds));
+                        if (isTransparencyGroup)
+                        {
+                            _transparencyGroupBounds.Add(bounds);
+                        }
+                    }
                 }
 
                 return;
@@ -792,12 +1242,24 @@ public static class PdfLayoutExtractor
 
         public override void Clip(int windingRule)
         {
-            if (_includePaths && !_reportedClipping && GetCurrentPathSegments().Count > 0)
+            if (_includePaths &&
+                _activeVectorGroups.TryPeek(out VectorGroupBuilder? group) &&
+                group.FirstPathIndex == _paths.Count)
+            {
+                PdfLayoutPathCommand[] commands = NormalizePath(
+                    GetCurrentPathSegments(),
+                    GetGraphicsState().GetCurrentTransformationMatrix());
+                if (commands.Length > 0)
+                {
+                    group.IntersectClipBounds(Bounds(commands));
+                }
+            }
+            else if (_includePaths && !_reportedClipping && GetCurrentPathSegments().Count > 0)
             {
                 _diagnostics.Add(new PdfLayoutDiagnostic(
                     PdfLayoutDiagnosticSeverity.Warning,
                     "path-clipping-unsupported",
-                    "Vector path clipping is not represented in HTML SVG overlays yet.",
+                    "A clip path was introduced after vector painting began in the same form; SVG keeps the form bounds but cannot split that paint sequence yet.",
                     _pageNumber));
                 _reportedClipping = true;
             }
@@ -863,13 +1325,18 @@ public static class PdfLayoutExtractor
             }
 
             int index = _paths.Count;
+            PdfLayoutRectangle bounds = Bounds(commands);
             _paths.Add(new PdfLayoutPath(
                 index,
                 commands,
-                Bounds(commands),
+                bounds,
                 includeFill ? ResolveColor(graphicsState.GetNonStrokingColor(), graphicsState.GetNonStrokeAlphaConstant(), index, "fill") : null,
                 includeStroke ? StrokeStyle(graphicsState, index) : null,
                 fillRule));
+            foreach (List<PdfLayoutRectangle> groupPathBounds in _vectorGroupPathBounds)
+            {
+                groupPathBounds.Add(bounds);
+            }
         }
 
         private PdfLayoutStrokeStyle StrokeStyle(PDGraphicsState graphicsState, int index)
@@ -883,6 +1350,102 @@ public static class PdfLayoutExtractor
                 graphicsState.GetMiterLimit(),
                 dashPattern.GetDashArray().Select(dash => MathF.Max(0, TransformWidth(graphicsState, dash))).ToArray(),
                 MathF.Max(0, TransformWidth(graphicsState, dashPattern.GetPhaseStart())));
+        }
+
+        private PdfLayoutRectangle? CurrentClipBounds(PDGraphicsState graphicsState)
+        {
+            PdfLayoutRectangle? result = null;
+            foreach (PDRectangle bounds in graphicsState.GetCurrentClippingBounds())
+            {
+                PdfLayoutRectangle normalized = NormalizePdfBox(
+                    bounds.GetLowerLeftX(),
+                    bounds.GetLowerLeftY(),
+                    bounds.GetUpperRightX(),
+                    bounds.GetUpperRightY());
+                result = result is PdfLayoutRectangle existing
+                    ? Intersect(existing, normalized)
+                    : normalized;
+            }
+
+            return result;
+        }
+
+        private static PdfLayoutRectangle Intersect(PdfLayoutRectangle first, PdfLayoutRectangle second)
+        {
+            float left = MathF.Max(first.X, second.X);
+            float top = MathF.Max(first.Y, second.Y);
+            float right = MathF.Min(first.Right, second.Right);
+            float bottom = MathF.Min(first.Bottom, second.Bottom);
+            return new PdfLayoutRectangle(
+                left,
+                top,
+                MathF.Max(0, right - left),
+                MathF.Max(0, bottom - top));
+        }
+
+        private sealed class VectorGroupBuilder
+        {
+            public VectorGroupBuilder(
+                int index,
+                int? parentIndex,
+                int firstPathIndex,
+                PdfLayoutRectangle? clipBounds,
+                float opacity,
+                bool isIsolated,
+                bool isKnockout)
+            {
+                Index = index;
+                ParentIndex = parentIndex;
+                FirstPathIndex = firstPathIndex;
+                ClipBounds = clipBounds;
+                Opacity = opacity;
+                IsIsolated = isIsolated;
+                IsKnockout = isKnockout;
+            }
+
+            public int Index { get; }
+
+            public int? ParentIndex { get; }
+
+            public int FirstPathIndex { get; }
+
+            public PdfLayoutRectangle? ClipBounds { get; private set; }
+
+            public float Opacity { get; }
+
+            public bool IsIsolated { get; }
+
+            public bool IsKnockout { get; }
+
+            public void IntersectClipBounds(PdfLayoutRectangle bounds)
+            {
+                if (bounds.Width <= 0 || bounds.Height <= 0)
+                {
+                    return;
+                }
+
+                if (ClipBounds is not PdfLayoutRectangle existing)
+                {
+                    ClipBounds = bounds;
+                    return;
+                }
+
+                ClipBounds = Intersect(existing, bounds);
+            }
+
+            public PdfLayoutVectorGroup Build(int lastPathIndex, PdfLayoutRectangle bounds)
+            {
+                return new PdfLayoutVectorGroup(
+                    Index,
+                    ParentIndex,
+                    FirstPathIndex,
+                    lastPathIndex,
+                    bounds,
+                    ClipBounds,
+                    Opacity,
+                    IsIsolated,
+                    IsKnockout);
+            }
         }
 
         private PdfLayoutColor ResolveColor(PDColor color, float alpha, int index, string paintKind)

@@ -18,5 +18,11 @@ public enum PdfLayoutImageKind
     /// <summary>
     /// Rasterized annotation appearance placed over the page content.
     /// </summary>
-    AnnotationAppearance
+    AnnotationAppearance,
+
+    /// <summary>
+    /// Rasterized fallback for a compact PDF transparency group whose compositing cannot be represented by
+    /// independent HTML SVG paths.
+    /// </summary>
+    TransparencyGroupFallback
 }

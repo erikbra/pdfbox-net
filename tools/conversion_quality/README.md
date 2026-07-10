@@ -27,7 +27,7 @@ The command writes:
 - `summary.md`, with the same result in a compact table suitable for CI step
   summaries.
 
-CI also writes and uploads `artifacts/conversion-quality-smoke/html-review`.
+CI also writes and uploads `artifacts/conversion-quality-smoke/html-examples`.
 That directory is a human review bundle for real PDF fixtures: each example
 contains the original `source.pdf`, generated `index.html`, CSS/assets,
 `summary.md`, diagnostics, and a `compare.html` page that shows the PDF and
@@ -37,7 +37,7 @@ source PDF render, browser-rendered continuous semantic HTML, and a foreground-m
 quality probe findings are non-gating: `needs-review` means the artifact found
 a likely visual or structural conversion issue for humans to inspect, not that
 the CI step failed. Download the `conversion-quality-smoke-*` workflow artifact
-and open `html-review/index.html` to browse the examples.
+and open `html-examples/index.html` to browse the examples.
 
 The HTML quality probe currently checks:
 

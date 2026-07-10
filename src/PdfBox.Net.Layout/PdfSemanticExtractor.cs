@@ -717,7 +717,8 @@ public static class PdfSemanticExtractor
                 {
                     if (current.Count > 0 &&
                         (ShouldAttachFormulaArtifact(current, line, lineStep) ||
-                            ShouldAttachInlineArtifact(current, line, lineStep)))
+                            ShouldAttachInlineArtifact(current, line, lineStep) ||
+                            ShouldAttachInlineMathContinuation(current, line, lineStep)))
                     {
                         current.Add(line);
                         previous = line;
@@ -1152,7 +1153,8 @@ public static class PdfSemanticExtractor
             .ToArray();
         PdfLayoutRectangle textBounds = PdfLayoutRectangle.Union(sourceRows.Select(static row => row.Bounds));
         PdfLayoutRectangle bounds = TableVisualBounds(page, textBounds);
-        PdfSemanticTableRow[] structuredRows = ApplyTableStructure(ApplyTableRules(page, textBounds, tableRows)).ToArray();
+        PdfSemanticTableRow[] structuredRows = ApplyTableHeaderSpans(
+            ApplyTableStructure(ApplyTableRules(page, textBounds, tableRows))).ToArray();
         string text = string.Join(
             Environment.NewLine,
             structuredRows.Select(static row => string.Join("\t", row.Cells
@@ -1400,6 +1402,114 @@ public static class PdfSemanticExtractor
         }
 
         return ApplyDescriptorColumnSpans(ApplyRowGroupSpans(rows));
+    }
+
+    private static IReadOnlyList<PdfSemanticTableRow> ApplyTableHeaderSpans(IReadOnlyList<PdfSemanticTableRow> rows)
+    {
+        int headerRowCount = rows.TakeWhile(static row => row.IsHeader).Count();
+        if (headerRowCount < 2)
+        {
+            return rows;
+        }
+
+        List<PdfSemanticTableRow> structuredRows = rows.ToList();
+        for (int headerRowIndex = 0; headerRowIndex < headerRowCount - 1; headerRowIndex++)
+        {
+            PdfSemanticTableRow upperHeader = structuredRows[headerRowIndex];
+            PdfSemanticTableRow lowerHeader = structuredRows[headerRowIndex + 1];
+            PdfSemanticTableCell[] upperCells = upperHeader.Cells.ToArray();
+            PdfSemanticTableCell[] lowerCells = lowerHeader.Cells.ToArray();
+            if (upperCells.Length == 0 || lowerCells.Length == 0)
+            {
+                continue;
+            }
+
+            (int ColumnIndex, PdfSemanticTableCell Cell)[] parentCells = upperHeader.Cells
+                .Select((cell, columnIndex) => (columnIndex, cell))
+                .Where(static entry => !entry.cell.IsPlaceholder && !string.IsNullOrWhiteSpace(entry.cell.Text))
+                .OrderBy(static entry => entry.cell.Bounds.X + entry.cell.Bounds.Width / 2f)
+                .ToArray();
+            (int ColumnIndex, PdfSemanticTableCell Cell)[] childCells = lowerHeader.Cells
+                .Select((cell, columnIndex) => (columnIndex, cell))
+                .Where(static entry => !entry.cell.IsPlaceholder && !string.IsNullOrWhiteSpace(entry.cell.Text))
+                .ToArray();
+            if (parentCells.Length == 0)
+            {
+                continue;
+            }
+
+            foreach ((int parentColumnIndex, PdfSemanticTableCell parentCell) in parentCells)
+            {
+                (int ColumnIndex, PdfSemanticTableCell Cell)[] children = childCells
+                    .Where(child => NearestHeaderParent(parentCells, child.Cell) == parentColumnIndex)
+                    .OrderBy(static child => child.ColumnIndex)
+                    .ToArray();
+                if (children.Length >= 2)
+                {
+                    int targetColumnIndex = children[0].ColumnIndex;
+                    upperCells[targetColumnIndex] = new PdfSemanticTableCell(
+                        parentCell.Text,
+                        parentCell.Bounds,
+                        parentCell.Lines,
+                        parentCell.BorderTop,
+                        parentCell.BorderRight,
+                        parentCell.BorderBottom,
+                        parentCell.BorderLeft,
+                        columnSpan: children.Length);
+
+                    foreach ((int childColumnIndex, _) in children.Skip(1))
+                    {
+                        upperCells[childColumnIndex] = CreatePlaceholderCell(upperCells[childColumnIndex]);
+                    }
+
+                    if (parentColumnIndex != targetColumnIndex)
+                    {
+                        upperCells[parentColumnIndex] = CreatePlaceholderCell(upperCells[parentColumnIndex]);
+                    }
+
+                    continue;
+                }
+
+                if (children.Length != 0 || parentColumnIndex >= lowerCells.Length)
+                {
+                    continue;
+                }
+
+                PdfSemanticTableCell lowerCell = lowerCells[parentColumnIndex];
+                if (lowerCell.IsPlaceholder || !string.IsNullOrWhiteSpace(lowerCell.Text))
+                {
+                    continue;
+                }
+
+                upperCells[parentColumnIndex] = new PdfSemanticTableCell(
+                    parentCell.Text,
+                    parentCell.Bounds,
+                    parentCell.Lines,
+                    parentCell.BorderTop,
+                    parentCell.BorderRight,
+                    parentCell.BorderBottom,
+                    parentCell.BorderLeft,
+                    rowSpan: 2);
+                lowerCells[parentColumnIndex] = CreatePlaceholderCell(lowerCell);
+            }
+
+            structuredRows[headerRowIndex] = new PdfSemanticTableRow(upperCells, isHeader: true);
+            structuredRows[headerRowIndex + 1] = new PdfSemanticTableRow(lowerCells, isHeader: true);
+        }
+
+        return structuredRows;
+    }
+
+    private static int NearestHeaderParent(
+        IReadOnlyList<(int ColumnIndex, PdfSemanticTableCell Cell)> parentCells,
+        PdfSemanticTableCell childCell)
+    {
+        float childCenter = childCell.Bounds.X + childCell.Bounds.Width / 2f;
+        return parentCells
+            .OrderBy(parent => MathF.Abs((parent.Cell.Bounds.X + parent.Cell.Bounds.Width / 2f) - childCenter))
+            .ThenBy(static parent => parent.ColumnIndex)
+            .First()
+            .ColumnIndex;
     }
 
     private static IReadOnlyList<PdfSemanticTableRow> ApplyRowGroupSpans(IReadOnlyList<PdfSemanticTableRow> rows)
@@ -1953,6 +2063,32 @@ public static class PdfSemanticExtractor
         }
 
         return current.Any(line => IsInlineWithTextLine(line, artifact));
+    }
+
+    private static bool ShouldAttachInlineMathContinuation(
+        IReadOnlyList<LineCandidate> current,
+        LineCandidate artifact,
+        float lineStep)
+    {
+        if (!HasMathFont(artifact) ||
+            artifact.Bounds.Width > 120f ||
+            current.Count == 0)
+        {
+            return false;
+        }
+
+        string text = artifact.Text.TrimStart();
+        if (text.Length == 0 || !char.IsLetter(text[0]))
+        {
+            return false;
+        }
+
+        LineCandidate previous = current[^1];
+        float verticalGap = artifact.Bounds.Y - previous.Bounds.Bottom;
+        return verticalGap >= -lineStep * 0.25f &&
+            verticalGap <= lineStep * 1.8f &&
+            MathF.Abs(artifact.Bounds.X - previous.Bounds.X) <= 16f &&
+            !EndsSentence(previous.Text);
     }
 
     private static bool IsInlineWithTextLine(LineCandidate textLine, LineCandidate artifact)

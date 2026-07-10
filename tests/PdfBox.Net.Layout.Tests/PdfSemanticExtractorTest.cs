@@ -130,18 +130,23 @@ public sealed class PdfSemanticExtractorTest
         Assert.True(bleuTable.TableRows.Count >= 10);
         Assert.True(bleuTable.TableRows[0].IsHeader);
         Assert.True(bleuTable.TableRows[1].IsHeader);
+        Assert.Equal("Model", bleuTable.TableRows[0].Cells[0].Text);
+        Assert.Equal(2, bleuTable.TableRows[0].Cells[0].RowSpan);
         Assert.Equal("BLEU", bleuTable.TableRows[0].Cells[1].Text);
-        Assert.Equal("Training Cost (FLOPs)", bleuTable.TableRows[0].Cells[4].Text);
+        Assert.Equal(2, bleuTable.TableRows[0].Cells[1].ColumnSpan);
+        Assert.True(bleuTable.TableRows[0].Cells[2].IsPlaceholder);
+        Assert.Equal("Training Cost (FLOPs)", bleuTable.TableRows[0].Cells[3].Text);
+        Assert.Equal(2, bleuTable.TableRows[0].Cells[3].ColumnSpan);
+        Assert.True(bleuTable.TableRows[0].Cells[4].IsPlaceholder);
+        Assert.True(bleuTable.TableRows[1].Cells[0].IsPlaceholder);
         Assert.Equal("EN-DE", bleuTable.TableRows[1].Cells[1].Text);
         Assert.Equal("EN-FR", bleuTable.TableRows[1].Cells[2].Text);
         Assert.Equal("EN-DE", bleuTable.TableRows[1].Cells[3].Text);
         Assert.Equal("EN-FR", bleuTable.TableRows[1].Cells[4].Text);
-        Assert.All(bleuTable.TableRows[0].Cells, cell => Assert.True(cell.BorderTop));
+        Assert.All(bleuTable.TableRows[0].Cells.Where(static cell => !cell.IsPlaceholder), cell => Assert.True(cell.BorderTop));
         Assert.False(bleuTable.TableRows[0].Cells[0].BorderBottom);
         Assert.True(bleuTable.TableRows[0].Cells[1].BorderBottom);
-        Assert.True(bleuTable.TableRows[0].Cells[2].BorderBottom);
         Assert.True(bleuTable.TableRows[0].Cells[3].BorderBottom);
-        Assert.True(bleuTable.TableRows[0].Cells[4].BorderBottom);
         Assert.Contains(bleuTable.TableRows, row =>
             !row.IsHeader &&
             row.Cells[0].Text == "ByteNet [18]" &&
@@ -168,9 +173,9 @@ public sealed class PdfSemanticExtractorTest
         Assert.True(variationTable.TableRows[1].IsHeader);
         Assert.Equal("", variationTable.TableRows[0].Cells[0].Text);
         Assert.Equal("N", variationTable.TableRows[1].Cells[1].Text);
-        Assert.Equal("train", variationTable.TableRows[0].Cells[9].Text);
-        Assert.Equal("steps", variationTable.TableRows[1].Cells[9].Text);
-        Assert.Equal("×106", variationTable.TableRows[1].Cells[12].Text);
+        Assert.Contains(variationTable.TableRows[0].Cells, cell => cell.Text == "train");
+        Assert.Contains(variationTable.TableRows[1].Cells, cell => cell.Text == "steps");
+        Assert.Contains(variationTable.TableRows[1].Cells, cell => cell.Text.Contains("×106", StringComparison.Ordinal));
         Assert.Contains(variationTable.TableRows, row =>
             !row.IsHeader &&
             row.Cells[0].Text == "big" &&

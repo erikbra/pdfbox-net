@@ -18,6 +18,7 @@ public sealed class PdfLayoutPage
         IReadOnlyList<PdfTextBlock> blocks,
         IReadOnlyList<PdfLayoutImage> images,
         IReadOnlyList<PdfLayoutPath> paths,
+        IReadOnlyList<PdfLayoutVectorGroup> vectorGroups,
         IReadOnlyList<PdfLayoutLink> links,
         IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
     {
@@ -33,6 +34,7 @@ public sealed class PdfLayoutPage
         Blocks = blocks.ToArray();
         Images = images.ToArray();
         Paths = paths.ToArray();
+        VectorGroups = vectorGroups.ToArray();
         Links = links.ToArray();
         Diagnostics = diagnostics.ToArray();
     }
@@ -96,6 +98,11 @@ public sealed class PdfLayoutPage
     /// Gets vector path paint operations on this page.
     /// </summary>
     public IReadOnlyList<PdfLayoutPath> Paths { get; }
+
+    /// <summary>
+    /// Gets transparency groups that retain the compositing hierarchy for vector paths.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutVectorGroup> VectorGroups { get; }
 
     /// <summary>
     /// Gets link annotations on this page.
