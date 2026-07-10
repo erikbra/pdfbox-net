@@ -159,6 +159,51 @@ public sealed class HtmlReviewArtifactGeneratorTest
     }
 
     [Fact]
+    public async Task AnalyzeAsync_ExtractsSelfDescribingFixtureExpectations()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        PdfLayoutDocument layout;
+        using (PDDocument document = CreateTextDocument("The patch should look like the reference image."))
+        {
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <body>
+              <section class="pdf-page" data-page-number="1" style="position:relative;width:612pt;height:792pt;background:white">
+                <span class="pdf-text-run" style="position:absolute;left:72pt;top:80pt;font-size:12pt">The patch should look like the reference image.</span>
+              </section>
+            </body>
+            </html>
+            """);
+
+        string outputDirectory = Path.Combine(tempDirectory.Path, "quality");
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            outputDirectory,
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        PdfHtmlQualityCheck expectation = Assert.Single(report.Checks, check => check.Id == "fixture-expectation");
+        Assert.Equal("passed", expectation.Status);
+        Assert.Contains("should look like the reference image", expectation.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(report.IssueCategories, category => category.Id == "fixture-expectations" && category.Status == "passed");
+        string qualityMarkdown = File.ReadAllText(Path.Combine(outputDirectory, "quality-report.md"));
+        Assert.Contains("## Fixture Expectations", qualityMarkdown);
+        Assert.Contains("should look like the reference image", qualityMarkdown, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task Generate_ComparisonPaneSplitterResizesInBrowser()
     {
         using TempDirectory tempDirectory = new();
@@ -221,7 +266,7 @@ public sealed class HtmlReviewArtifactGeneratorTest
         Assert.True(int.Parse(await page.Locator("[data-splitter]").GetAttributeAsync("aria-valuenow") ?? "0") > 50);
     }
 
-    private static PDDocument CreateTextDocument()
+    private static PDDocument CreateTextDocument(string text = "Review artifact sample")
     {
         PDDocument document = new();
         PDPage page = new();
@@ -229,11 +274,11 @@ public sealed class HtmlReviewArtifactGeneratorTest
 
         COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
         pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
-        pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream("""
+        pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream($"""
             BT
             /F1 12 Tf
             72 700 Td
-            (Review artifact sample) Tj
+            ({text}) Tj
             ET
             """));
         return document;

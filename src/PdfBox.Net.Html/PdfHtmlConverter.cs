@@ -1210,15 +1210,43 @@ public static class PdfHtmlConverter
             run.Bounds.Height > 0 &&
             run.Bounds.Width > 0 &&
             MathF.Abs(run.Direction) < 0.01f &&
-            run.Bounds.Height / run.FontSize < 0.55f &&
-            !string.IsNullOrWhiteSpace(run.Text);
+            !string.IsNullOrWhiteSpace(run.Text) &&
+            (HasCompressedGlyphBounds(run) ||
+                HasUntrustedBrowserFontMetrics(run.FontName) &&
+                !HasMathFont(run.FontName) &&
+                !IsSymbolFont(run.FontName));
     }
 
     private static float FixedTextFontSize(PdfTextRun run)
     {
-        return ShouldUseFittedText(run)
+        return HasCompressedGlyphBounds(run)
             ? MathF.Max(0.5f, run.Bounds.Height * 1.25f)
             : run.FontSize;
+    }
+
+    private static bool HasCompressedGlyphBounds(PdfTextRun run)
+    {
+        return run.Bounds.Height / run.FontSize < 0.55f;
+    }
+
+    private static bool HasUntrustedBrowserFontMetrics(string fontName)
+    {
+        string normalized = NormalizeFontName(fontName);
+        return !normalized.Contains("Arial", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Helvetica", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Times", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Nimbus", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Courier", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Mono", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Verdana", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Tahoma", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsSymbolFont(string fontName)
+    {
+        string normalized = NormalizeFontName(fontName);
+        return normalized.Contains("Symbol", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Dingbats", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void WriteSemanticPage(

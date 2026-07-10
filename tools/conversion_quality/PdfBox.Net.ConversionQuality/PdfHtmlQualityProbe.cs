@@ -24,6 +24,18 @@ public sealed class PdfHtmlQualityProbe
     private const double PdfMissReviewThreshold = 0.10;
     private const double BrowserMissReviewThreshold = 0.10;
 
+    private static readonly string[] FixtureExpectationSignals =
+    [
+        "should look",
+        "should match",
+        "should be",
+        "should not",
+        "must be",
+        "expected result",
+        "not rendered correctly",
+        "no x must be visible"
+    ];
+
     private static readonly Encoding Utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -222,6 +234,16 @@ public sealed class PdfHtmlQualityProbe
 
         TextQualityMetrics textMetrics = TextQualityMetrics.Create(referenceText, snapshot.Text);
         pageChecks.Add(CreateWordBoundaryCheck(pageNumber, textMetrics));
+        foreach (string expectation in ExtractFixtureExpectations(layoutPage))
+        {
+            pageChecks.Add(new PdfHtmlQualityCheck(
+                "fixture-expectation",
+                "fixture",
+                Passed,
+                pageNumber,
+                expectation,
+                new Dictionary<string, double>()));
+        }
 
         int imageOverlaps = CountOverlaps(snapshot.TextRuns, snapshot.Images, minArea: 4, minTextFraction: 0.10);
         int vectorOverlaps = CountOverlaps(
@@ -824,6 +846,11 @@ public sealed class PdfHtmlQualityProbe
                 CombinedStatus(checks.Where(static check => check.Id == "visual-foreground-mask")),
                 VisualForegroundEvidence(pages)),
             new PdfHtmlQualityIssueCategory(
+                "fixture-expectations",
+                "Source fixture expectations",
+                FixtureExpectationStatus(checks),
+                FixtureExpectationEvidence(checks)),
+            new PdfHtmlQualityIssueCategory(
                 "probe-setup",
                 "Probe setup and tool availability",
                 setupChecks.Length == 0 ? Passed : CombinedStatus(setupChecks),
@@ -888,6 +915,30 @@ public sealed class PdfHtmlQualityProbe
         double maxPdfMiss = visuals.Max(static visual => visual.PdfMissRatio ?? 0);
         double maxHtmlMiss = visuals.Max(static visual => visual.HtmlMissRatio ?? 0);
         return $"Max foreground delta is {FormatRatio(maxDelta)}; max source-only foreground ratio is {FormatRatio(maxPdfMiss)}; max HTML-only foreground ratio is {FormatRatio(maxHtmlMiss)}.";
+    }
+
+    private static string FixtureExpectationStatus(IReadOnlyList<PdfHtmlQualityCheck> checks)
+    {
+        return checks.Any(static check => check.Id == "fixture-expectation")
+            ? Passed
+            : Skipped;
+    }
+
+    private static string FixtureExpectationEvidence(IReadOnlyList<PdfHtmlQualityCheck> checks)
+    {
+        PdfHtmlQualityCheck[] expectations = checks
+            .Where(static check => check.Id == "fixture-expectation")
+            .ToArray();
+        if (expectations.Length == 0)
+        {
+            return "The source PDF does not contain recognizable self-describing fixture expectations.";
+        }
+
+        int pageCount = expectations
+            .Select(static check => check.PageNumber)
+            .Distinct()
+            .Count();
+        return $"Captured {expectations.Length} source-authored expectation(s) across {pageCount} page(s); they are shown beside the visual evidence for manual comparison.";
     }
 
     private static string SetupEvidence(IReadOnlyList<PdfHtmlQualityCheck> setupChecks)
@@ -1085,6 +1136,30 @@ public sealed class PdfHtmlQualityProbe
             markdown.AppendLine(" |");
         }
 
+        PdfHtmlQualityCheck[] fixtureExpectations = report.Checks
+            .Where(static check => check.Id == "fixture-expectation")
+            .ToArray();
+        if (fixtureExpectations.Length > 0)
+        {
+            markdown.AppendLine();
+            markdown.AppendLine("## Fixture Expectations");
+            markdown.AppendLine();
+            markdown.AppendLine("These source-authored statements describe the intended appearance and make the corresponding visual diffs easier to interpret.");
+            markdown.AppendLine();
+            foreach (IGrouping<int?, PdfHtmlQualityCheck> page in fixtureExpectations.GroupBy(static check => check.PageNumber))
+            {
+                string pageLabel = page.Key is int pageNumber
+                    ? $"Page {pageNumber.ToString(CultureInfo.InvariantCulture)}"
+                    : "Document";
+                markdown.AppendLine($"- {pageLabel}:");
+                foreach (PdfHtmlQualityCheck expectation in page)
+                {
+                    markdown.Append("  - ");
+                    markdown.AppendLine(WebUtility.HtmlEncode(expectation.Message));
+                }
+            }
+        }
+
         markdown.AppendLine();
         markdown.AppendLine("## Current Limitations");
         markdown.AppendLine();
@@ -1138,6 +1213,10 @@ public sealed class PdfHtmlQualityProbe
         IReadOnlyList<string> visualArtifacts,
         IEnumerable<PdfHtmlQualityCheck> checks)
     {
+        PdfHtmlQualityCheck[] pageChecks = checks.ToArray();
+        PdfHtmlQualityCheck[] fixtureExpectations = pageChecks
+            .Where(static check => check.Id == "fixture-expectation")
+            .ToArray();
         StringBuilder html = new();
         html.AppendLine("<!doctype html>");
         html.AppendLine("<html lang=\"en\">");
@@ -1173,9 +1252,24 @@ public sealed class PdfHtmlQualityProbe
         }
 
         html.AppendLine("  </div>");
+        if (fixtureExpectations.Length > 0)
+        {
+            html.AppendLine("  <h2>Fixture Expectations</h2>");
+            html.AppendLine("  <p>These statements were extracted from the source PDF and describe the intended result.</p>");
+            html.AppendLine("  <ul>");
+            foreach (PdfHtmlQualityCheck expectation in fixtureExpectations)
+            {
+                html.Append("    <li>");
+                html.Append(WebUtility.HtmlEncode(expectation.Message));
+                html.AppendLine("</li>");
+            }
+
+            html.AppendLine("  </ul>");
+        }
+
         html.AppendLine("  <h2>Checks</h2>");
         html.AppendLine("  <code>");
-        foreach (PdfHtmlQualityCheck check in checks)
+        foreach (PdfHtmlQualityCheck check in pageChecks.Where(static check => check.Id != "fixture-expectation"))
         {
             html.Append(WebUtility.HtmlEncode($"{check.Status} {check.Id}: {check.Message}"));
             html.Append('\n');
@@ -1190,6 +1284,72 @@ public sealed class PdfHtmlQualityProbe
     private static string RelativePath(string baseDirectory, string path)
     {
         return Path.GetRelativePath(baseDirectory, path).Replace(Path.DirectorySeparatorChar, '/');
+    }
+
+    private static IReadOnlyList<string> ExtractFixtureExpectations(PdfLayoutPage page)
+    {
+        string[] lines = page.Lines
+            .Select(static line => NormalizeFixtureText(line.Text))
+            .Where(static line => line.Length > 0)
+            .ToArray();
+        List<string> expectations = [];
+        for (int index = 0; index < lines.Length; index++)
+        {
+            string candidate = lines[index];
+            if (NeedsFixtureContinuation(candidate) && index + 1 < lines.Length)
+            {
+                string next = lines[index + 1];
+                if (candidate.Length + next.Length + 1 <= 280)
+                {
+                    candidate += " " + next;
+                }
+            }
+
+            candidate = CollapseRepeatedFixtureText(candidate);
+            if (FixtureExpectationSignals.Any(signal => candidate.Contains(signal, StringComparison.OrdinalIgnoreCase)))
+            {
+                AddUnique(expectations, candidate);
+            }
+        }
+
+        return expectations.Take(12).ToArray();
+    }
+
+    private static string NormalizeFixtureText(string text)
+    {
+        return Regex.Replace(text.Trim(), @"\s+", " ");
+    }
+
+    private static bool EndsFixtureStatement(string text)
+    {
+        return text.EndsWith(".", StringComparison.Ordinal) ||
+            text.EndsWith('!') ||
+            text.EndsWith('?');
+    }
+
+    private static bool NeedsFixtureContinuation(string text)
+    {
+        return !EndsFixtureStatement(text) &&
+            (text.EndsWith("should look", StringComparison.OrdinalIgnoreCase) ||
+                text.EndsWith("should match", StringComparison.OrdinalIgnoreCase) ||
+                text.EndsWith("expected result:", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string CollapseRepeatedFixtureText(string text)
+    {
+        string collapsed = text;
+        for (int length = text.Length / 2; length >= 12; length--)
+        {
+            if (!text.AsSpan(0, length).SequenceEqual(text.AsSpan(length, length)))
+            {
+                continue;
+            }
+
+            collapsed = text[..length] + text[(length * 2)..];
+            break;
+        }
+
+        return collapsed;
     }
 
     private static void RecreateDirectory(string path)

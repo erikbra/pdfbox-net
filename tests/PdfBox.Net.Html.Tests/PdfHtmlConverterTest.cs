@@ -1156,6 +1156,44 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_UsesMeasuredSvgTextForUnknownBrowserFontMetrics()
+    {
+        PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutRectangle textBounds = new(72f, 80f, 180f, 16f);
+        PdfTextGlyph glyph = new("Custom display title", "SubsetDisplayFont", 20f, 0f, textBounds, black);
+        PdfTextRun run = new("Custom display title", "SubsetDisplayFont", 20f, 0f, textBounds, black, [glyph]);
+        PdfTextLine line = new(run.Text, textBounds, [run]);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [glyph],
+            [run],
+            [line],
+            [new PdfTextBlock(run.Text, textBounds, [line])],
+            [],
+            [],
+            [],
+            [],
+            []);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement fittedRun = Assert.Single(ElementsByClass(dom, "pdf-text-run"));
+        XElement fittedText = Assert.Single(fittedRun.Descendants(), element => HasClass(element, "pdf-text-run-svg"))
+            .Descendants()
+            .Single(element => element.Name.LocalName == "text");
+        Assert.Equal("180", fittedText.Attribute("textLength")?.Value);
+        Assert.Equal("spacingAndGlyphs", fittedText.Attribute("lengthAdjust")?.Value);
+        Dictionary<string, string> style = ParseStyle(fittedRun.Attribute("style")?.Value ?? "");
+        Assert.Equal(20f, ParsePoints(style["font-size"]));
+    }
+
+    [Fact]
     public void Convert_AcroFormFixtureEmitsWidgetAppearanceImageOverlays()
     {
         using PDDocument document = Loader.LoadPDF(FixturePath("Acroform-PDFBOX-2333.pdf"));
