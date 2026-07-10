@@ -501,6 +501,20 @@ public sealed class PdfHtmlQualityProbe
         PdfLayoutPage layoutPage,
         BrowserPageSnapshot snapshot)
     {
+        bool sourceHasVisibleContent = layoutPage.Glyphs.Count > 0 || layoutPage.Images.Count > 0 || layoutPage.Paths.Count > 0;
+        bool htmlHasVisibleContent = snapshot.TextRuns.Count > 0 || snapshot.Images.Count > 0 || snapshot.VectorPaths.Count > 0;
+        if (!sourceHasVisibleContent && !htmlHasVisibleContent)
+        {
+            checks.Add(new PdfHtmlQualityCheck(
+                "page-dimensions",
+                "layout",
+                Skipped,
+                layoutPage.PageNumber,
+                "The PDF and generated HTML page regions are both empty, so page geometry is not meaningful.",
+                new Dictionary<string, double>()));
+            return;
+        }
+
         double expectedWidth = layoutPage.Width * CssPixelsPerPoint;
         double expectedHeight = layoutPage.Height * CssPixelsPerPoint;
         double widthDelta = Math.Abs(expectedWidth - snapshot.Width);

@@ -345,6 +345,46 @@ public sealed class HtmlReviewArtifactGeneratorTest
     }
 
     [Fact]
+    public async Task AnalyzeAsync_SkipsGeometryForEmptyContinuousPage()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        PdfLayoutDocument layout;
+        using (PDDocument document = new())
+        {
+            document.AddPage(new PDPage());
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <body>
+              <main class="pdf-semantic-document-flow" style="width:816px">
+                <div class="pdf-semantic-page-break pdf-semantic-page-start" data-page-number="1"></div>
+              </main>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        Assert.Contains(report.Checks, check => check.Id == "page-dimensions" && check.Status == "skipped");
+        Assert.DoesNotContain(report.Checks, check => check.Id == "page-dimensions" && check.Status == "needs-review");
+    }
+
+    [Fact]
     public async Task Generate_ComparisonPaneSplitterResizesInBrowser()
     {
         using TempDirectory tempDirectory = new();
