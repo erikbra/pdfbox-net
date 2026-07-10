@@ -415,6 +415,39 @@ public sealed class PdfHtmlQualityProbe
                 copy.querySelectorAll(".pdf-text-run-svg").forEach(node => node.remove());
                 return copy.textContent || "";
               };
+              const nodeFollows = (node, reference) =>
+                Boolean(reference.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING);
+              const nodePrecedes = (node, reference) =>
+                Boolean(reference.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_PRECEDING);
+              const readableRegionText = element => {
+                const containsCurrentMarker = element.contains(marker);
+                const containsNextMarker = nextMarker && element.contains(nextMarker);
+                if (!containsCurrentMarker && !containsNextMarker) {
+                  return readableText(element);
+                }
+
+                const text = [];
+                const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+                while (walker.nextNode()) {
+                  const node = walker.currentNode;
+                  const parent = node.parentElement;
+                  if (parent && parent.closest(".pdf-text-run-svg")) {
+                    continue;
+                  }
+
+                  if (containsCurrentMarker && !nodeFollows(node, marker)) {
+                    continue;
+                  }
+
+                  if (containsNextMarker && !nodePrecedes(node, nextMarker)) {
+                    continue;
+                  }
+
+                  text.push(node.nodeValue || "");
+                }
+
+                return text.join("");
+              };
               const readBox = element => {
                 const box = element.getBoundingClientRect();
                 return {
@@ -422,25 +455,31 @@ public sealed class PdfHtmlQualityProbe
                   y: box.y - region.y,
                   width: box.width,
                   height: box.height,
-                  text: readableText(element)
+                  text: readableRegionText(element)
                 };
               };
 
               const textElements = Array.from(flow.querySelectorAll(
-                ".pdf-text-run,.pdf-semantic-element,.pdf-semantic-line-grid-cell,.pdf-semantic-column-run"))
-                .filter(element => !element.classList.contains("pdf-semantic-page-break") && intersects(element));
+                ".pdf-text-run,.pdf-semantic-element,.pdf-semantic-figure,.pdf-semantic-line-grid-cell,.pdf-semantic-column-run"))
+                .filter(element => !element.classList.contains("pdf-semantic-page-break") && intersects(element))
+                .filter(element => readableRegionText(element).trim().length > 0);
               const imageElements = Array.from(flow.querySelectorAll(".pdf-image,.pdf-semantic-figure,img,svg image"))
                 .filter(intersects);
               const vectorElements = Array.from(flow.querySelectorAll(".pdf-vector-path"))
                 .filter(intersects);
+              const usesSpatialTextGrid = Array.from(flow.querySelectorAll(
+                ".pdf-semantic-line-grid,.pdf-semantic-columns"))
+                .some(intersects);
 
               return JSON.stringify({
                 width: region.width,
                 height: region.height,
-                text: textElements.map(readableText).join("\n"),
+                text: textElements.map(readableRegionText).join("\n"),
                 textRuns: textElements.map(readBox),
                 images: imageElements.map(readBox),
-                vectorPaths: vectorElements.map(readBox)
+                vectorPaths: vectorElements.map(readBox),
+                isSemanticFlow: true,
+                usesSpatialTextGrid
               });
             }
             """,
@@ -466,15 +505,24 @@ public sealed class PdfHtmlQualityProbe
         double expectedHeight = layoutPage.Height * CssPixelsPerPoint;
         double widthDelta = Math.Abs(expectedWidth - snapshot.Width);
         double heightDelta = Math.Abs(expectedHeight - snapshot.Height);
+        bool isReflowedSemanticPage = snapshot.IsSemanticFlow && !snapshot.UsesSpatialTextGrid;
         bool withinTolerance = widthDelta <= 1.0 && heightDelta <= 1.0;
+        string status = isReflowedSemanticPage
+            ? (widthDelta <= 1.0 ? Passed : NeedsReview)
+            : (withinTolerance ? Passed : NeedsReview);
+        string message = isReflowedSemanticPage
+            ? widthDelta <= 1.0
+                ? "Continuous semantic HTML preserves page width; page height is intentionally reflowed between soft source-page markers."
+                : "Continuous semantic HTML width differs from the PDF page width."
+            : withinTolerance
+                ? "Browser page dimensions match the PDF page dimensions."
+                : "Browser page dimensions differ from the PDF page dimensions.";
         checks.Add(new PdfHtmlQualityCheck(
             "page-dimensions",
             "layout",
-            withinTolerance ? Passed : NeedsReview,
+            status,
             layoutPage.PageNumber,
-            withinTolerance
-                ? "Browser page dimensions match the PDF page dimensions."
-                : "Browser page dimensions differ from the PDF page dimensions.",
+            message,
             new Dictionary<string, double>
             {
                 ["expectedWidthPx"] = expectedWidth,
@@ -494,14 +542,17 @@ public sealed class PdfHtmlQualityProbe
     {
         int expected = layoutPage.Runs.Count;
         int actual = snapshot.TextRuns.Count;
+        bool semanticGrouping = snapshot.IsSemanticFlow && !snapshot.UsesSpatialTextGrid;
         checks.Add(new PdfHtmlQualityCheck(
             "text-run-count",
             "structure",
-            expected == actual ? Passed : NeedsReview,
+            semanticGrouping ? Skipped : (expected == actual ? Passed : NeedsReview),
             pageNumber,
-            expected == actual
-                ? "The browser DOM contains the same number of text runs as the extracted layout."
-                : $"The browser DOM contains {actual} text runs, but the extracted layout contains {expected}.",
+            semanticGrouping
+                ? "Continuous semantic HTML intentionally groups extracted text runs into paragraphs and other semantic elements."
+                : expected == actual
+                    ? "The browser DOM contains the same number of text runs as the extracted layout."
+                    : $"The browser DOM contains {actual} text runs, but the extracted layout contains {expected}.",
             new Dictionary<string, double>
             {
                 ["layoutTextRuns"] = expected,
@@ -517,6 +568,7 @@ public sealed class PdfHtmlQualityProbe
             double minimumCoverage = metrics.SourceWordCount < 10 ? 0.95 : 0.90;
             needsReview = metrics.TokenCoverage < minimumCoverage ||
                 metrics.WordCountRatio < 0.85 ||
+                metrics.WordCountRatio > 1.15 ||
                 metrics.LongHtmlTokens > metrics.LongSourceTokens + 4;
         }
         else if (metrics.HtmlWordCount > 0)
@@ -858,7 +910,7 @@ public sealed class PdfHtmlQualityProbe
                 VisualForegroundEvidence(pages)),
             new PdfHtmlQualityIssueCategory(
                 "fixture-expectations",
-                "Source fixture expectations",
+                "Source fixture expectations (manual review)",
                 FixtureExpectationStatus(checks),
                 FixtureExpectationEvidence(checks)),
             new PdfHtmlQualityIssueCategory(
@@ -896,9 +948,12 @@ public sealed class PdfHtmlQualityProbe
         }
 
         int maxRunDelta = pages.Max(static page => Math.Abs(page.LayoutTextRuns - page.HtmlTextRuns));
+        int semanticGroupingChecks = checks.Count(static check => check.Id == "text-run-count" && check.Status == Skipped);
         return dimensionIssues > 0 || runCountIssues > 0
             ? $"{dimensionIssues} page dimension check(s) and {runCountIssues} text-run count check(s) need review; max run-count delta is {maxRunDelta}."
-            : $"Page dimensions and text-run counts passed; max run-count delta is {maxRunDelta}.";
+            : semanticGroupingChecks > 0
+                ? $"Page dimensions passed where measured; {semanticGroupingChecks} continuous semantic-flow run-count check(s) were skipped because source runs are intentionally grouped."
+                : $"Page dimensions and text-run counts passed; max run-count delta is {maxRunDelta}.";
     }
 
     private static string ObjectWrappingEvidence(IReadOnlyList<PdfHtmlQualityPageReport> pages)
@@ -931,7 +986,7 @@ public sealed class PdfHtmlQualityProbe
     private static string FixtureExpectationStatus(IReadOnlyList<PdfHtmlQualityCheck> checks)
     {
         return checks.Any(static check => check.Id == "fixture-expectation")
-            ? Passed
+            ? NeedsReview
             : Skipped;
     }
 
@@ -949,7 +1004,7 @@ public sealed class PdfHtmlQualityProbe
             .Select(static check => check.PageNumber)
             .Distinct()
             .Count();
-        return $"Captured {expectations.Length} source-authored expectation(s) across {pageCount} page(s); they are shown beside the visual evidence for manual comparison.";
+        return $"Captured {expectations.Length} source-authored acceptance statement(s) across {pageCount} page(s); compare them with the visual evidence before treating the fixture as passed.";
     }
 
     private static string SetupEvidence(IReadOnlyList<PdfHtmlQualityCheck> setupChecks)
@@ -1488,8 +1543,110 @@ public sealed class PdfHtmlQualityProbe
             return new TextReference(
                 "pdfbox-net-run-fallback",
                 layout.Pages.Take(pageLimit)
-                    .Select(static page => string.Join(Environment.NewLine, page.Runs.Select(run => run.Text)))
+                    .Select(ReconstructLayoutPageText)
                     .ToArray());
+        }
+
+        private static string ReconstructLayoutPageText(PdfLayoutPage page)
+        {
+            return string.Join(
+                Environment.NewLine,
+                page.Lines.Select(static line => ReconstructLineText(line.Runs.SelectMany(static run => run.Glyphs))));
+        }
+
+        private static string ReconstructLineText(IEnumerable<PdfTextGlyph> glyphSource)
+        {
+            PdfTextGlyph[] glyphs = glyphSource
+                .Where(static glyph => !string.IsNullOrEmpty(glyph.Text))
+                .OrderBy(static glyph => glyph.Bounds.X)
+                .ThenBy(static glyph => glyph.Bounds.Y)
+                .ToArray();
+            if (glyphs.Length == 0)
+            {
+                return "";
+            }
+
+            StringBuilder text = new();
+            PdfTextGlyph? previous = null;
+            foreach (PdfTextGlyph glyph in glyphs)
+            {
+                if (previous != null && ShouldInsertWordBoundary(previous, glyph))
+                {
+                    AppendSpaceIfNeeded(text);
+                }
+
+                if (string.IsNullOrWhiteSpace(glyph.Text))
+                {
+                    AppendSpaceIfNeeded(text);
+                }
+                else
+                {
+                    text.Append(glyph.Text);
+                }
+
+                previous = glyph;
+            }
+
+            return CollapseWhitespace(text.ToString());
+        }
+
+        private static bool ShouldInsertWordBoundary(PdfTextGlyph previous, PdfTextGlyph glyph)
+        {
+            if (glyph.Bounds.X <= previous.Bounds.X || glyph.Text.Length == 0 || previous.Text.Length == 0)
+            {
+                return false;
+            }
+
+            if (NoSpaceBefore(glyph.Text[0]) || NoSpaceAfter(previous.Text[^1]))
+            {
+                return false;
+            }
+
+            float gap = glyph.Bounds.X - previous.Bounds.Right;
+            float threshold = MathF.Max(0.8f, MathF.Min(previous.FontSize, glyph.FontSize) * 0.16f);
+            return gap > threshold;
+        }
+
+        private static void AppendSpaceIfNeeded(StringBuilder text)
+        {
+            if (text.Length > 0 && text[^1] != ' ')
+            {
+                text.Append(' ');
+            }
+        }
+
+        private static string CollapseWhitespace(string text)
+        {
+            StringBuilder normalized = new(text.Length);
+            bool pendingWhitespace = false;
+            foreach (char character in text.Trim())
+            {
+                if (char.IsWhiteSpace(character))
+                {
+                    pendingWhitespace = normalized.Length > 0;
+                    continue;
+                }
+
+                if (pendingWhitespace)
+                {
+                    normalized.Append(' ');
+                    pendingWhitespace = false;
+                }
+
+                normalized.Append(character);
+            }
+
+            return normalized.ToString();
+        }
+
+        private static bool NoSpaceBefore(char character)
+        {
+            return character is ',' or '.' or ';' or ':' or '!' or '?' or ')' or ']' or '}' or '\'' or '’';
+        }
+
+        private static bool NoSpaceAfter(char character)
+        {
+            return character is '(' or '[' or '{' or '“' or '"';
         }
     }
 
@@ -1572,6 +1729,10 @@ public sealed class PdfHtmlQualityProbe
         public List<BrowserBox> Images { get; set; } = [];
 
         public List<BrowserBox> VectorPaths { get; set; } = [];
+
+        public bool IsSemanticFlow { get; set; }
+
+        public bool UsesSpatialTextGrid { get; set; }
     }
 
     private sealed record BrowserPageCapture(BrowserPageSnapshot Snapshot, byte[] Png);

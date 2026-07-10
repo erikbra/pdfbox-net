@@ -197,7 +197,7 @@ public sealed class HtmlReviewArtifactGeneratorTest
         PdfHtmlQualityCheck expectation = Assert.Single(report.Checks, check => check.Id == "fixture-expectation");
         Assert.Equal("passed", expectation.Status);
         Assert.Contains("should look like the reference image", expectation.Message, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains(report.IssueCategories, category => category.Id == "fixture-expectations" && category.Status == "passed");
+        Assert.Contains(report.IssueCategories, category => category.Id == "fixture-expectations" && category.Status == "needs-review");
         string qualityMarkdown = File.ReadAllText(Path.Combine(outputDirectory, "quality-report.md"));
         Assert.Contains("## Fixture Expectations", qualityMarkdown);
         Assert.Contains("should look like the reference image", qualityMarkdown, StringComparison.OrdinalIgnoreCase);
@@ -293,6 +293,58 @@ public sealed class HtmlReviewArtifactGeneratorTest
     }
 
     [Fact]
+    public async Task AnalyzeAsync_SplitsContinuousTextAtInlineSourcePageMarkers()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        using (PDDocument document = new())
+        {
+            document.AddPage(new PDPage());
+            document.AddPage(new PDPage());
+            document.Save(sourcePdf);
+        }
+
+        PdfLayoutDocument layout = CreateSyntheticLayout("Page one", "Page two");
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <style>
+              .pdf-semantic-inline-page-break { display:block; height:12px; }
+              .after-page-break { display:block; }
+            </style>
+            <body>
+              <main class="pdf-semantic-document-flow" style="width:816px;padding-bottom:24px">
+                <div class="pdf-semantic-page-break pdf-semantic-page-start" data-page-number="1"></div>
+                <p class="pdf-semantic-element" style="padding-bottom:24px">Page one<span class="pdf-semantic-page-break pdf-semantic-inline-page-break" data-page-number="2"></span><span class="after-page-break">Page two</span></p>
+              </main>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 2),
+            TestContext.Current.CancellationToken);
+
+        Assert.All(report.Pages, page =>
+        {
+            Assert.Equal(2, page.SourceWordCount);
+            Assert.Equal(2, page.HtmlWordCount);
+            Assert.Equal(1d, page.TextTokenCoverage);
+        });
+        Assert.All(
+            report.Checks.Where(check => check.Id == "text-run-count"),
+            check => Assert.Equal("skipped", check.Status));
+    }
+
+    [Fact]
     public async Task Generate_ComparisonPaneSplitterResizesInBrowser()
     {
         using TempDirectory tempDirectory = new();
@@ -371,6 +423,53 @@ public sealed class HtmlReviewArtifactGeneratorTest
             ET
             """));
         return document;
+    }
+
+    private static PdfLayoutDocument CreateSyntheticLayout(params string[] pageTexts)
+    {
+        PdfLayoutRectangle pageBounds = new(0, 0, 612, 792);
+        PdfLayoutColor black = new(0, 0, 0, 1, "DeviceRGB");
+        List<PdfLayoutPage> pages = [];
+        for (int index = 0; index < pageTexts.Length; index++)
+        {
+            string[] words = pageTexts[index].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            List<PdfTextGlyph> glyphs = [];
+            float x = 72;
+            foreach (string word in words)
+            {
+                float width = Math.Max(4, word.Length * 6);
+                glyphs.Add(new PdfTextGlyph(word, "Helvetica", 12, 0, new PdfLayoutRectangle(x, 72, width, 12), black));
+                x += width + 3;
+            }
+
+            PdfTextRun run = new(
+                string.Concat(words),
+                "Helvetica",
+                12,
+                0,
+                new PdfLayoutRectangle(72, 72, x - 75, 12),
+                black,
+                glyphs);
+            PdfTextLine line = new(string.Concat(words), run.Bounds, [run]);
+            pages.Add(new PdfLayoutPage(
+                index + 1,
+                pageBounds,
+                pageBounds,
+                612,
+                792,
+                0,
+                glyphs,
+                [run],
+                [line],
+                [],
+                [],
+                [],
+                [],
+                [],
+                []));
+        }
+
+        return new PdfLayoutDocument(pages, []);
     }
 
     private static COSStream CreateContentStream(string contentStream)
