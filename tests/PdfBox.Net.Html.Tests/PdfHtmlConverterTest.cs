@@ -19,6 +19,62 @@ namespace PdfBox.Net.Html.Tests;
 
 public class PdfHtmlConverterTest
 {
+    [Fact]
+    public void Convert_SemanticContinuousFlow_UsesFixedLayoutFallbackForSpatialPages()
+    {
+        using PDDocument columnsDocument = Loader.LoadPDF(FixturePath("4PP-Highlighting.pdf"));
+        PdfLayoutDocument columnsLayout = PdfLayoutExtractor.Extract(columnsDocument);
+        PdfHtmlDocument columnsHtml = PdfHtmlConverter.Convert(columnsLayout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument columnsDom = ParseHtml(columnsHtml.Html);
+        XElement columnsFallback = Assert.Single(ElementsByClass(columnsDom, "pdf-semantic-layout-fallback-page"));
+        Assert.Contains("pdf-page", columnsFallback.Attribute("class")?.Value);
+        Assert.Equal(columnsLayout.Pages[0].Runs.Count, columnsFallback.Descendants()
+            .Count(element => HasClass(element, "pdf-text-run")));
+        Assert.Contains(".pdf-semantic-layout-fallback-page", columnsHtml.Css, StringComparison.Ordinal);
+
+        using PDDocument formDocument = Loader.LoadPDF(FixturePath("Acroform-PDFBOX-2333.pdf"));
+        PdfLayoutDocument formLayout = PdfLayoutExtractor.Extract(formDocument, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+        PdfHtmlDocument formHtml = PdfHtmlConverter.Convert(formLayout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument formDom = ParseHtml(formHtml.Html);
+        XElement formFallback = Assert.Single(ElementsByClass(formDom, "pdf-semantic-layout-fallback-page"));
+        Assert.Equal(formLayout.Pages[0].Images.Count, formFallback.Descendants()
+            .Count(element => HasClass(element, "pdf-image")));
+
+        using PDDocument sparseDocument = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            72 700 Td
+            (Title) Tj
+            ET
+            BT
+            /F1 12 Tf
+            285 650 Td
+            (Placed expression) Tj
+            ET
+            """);
+        PdfLayoutDocument sparseLayout = PdfLayoutExtractor.Extract(sparseDocument);
+        PdfHtmlDocument sparseHtml = PdfHtmlConverter.Convert(sparseLayout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument sparseDom = ParseHtml(sparseHtml.Html);
+        XElement sparseFallback = Assert.Single(ElementsByClass(sparseDom, "pdf-semantic-layout-fallback-page"));
+        Assert.Equal(sparseLayout.Pages[0].Runs.Count, sparseFallback.Descendants()
+            .Count(element => HasClass(element, "pdf-text-run")));
+    }
+
 
     [Fact]
     public void Convert_EmitsPageContainersMatchingLayoutDimensions()

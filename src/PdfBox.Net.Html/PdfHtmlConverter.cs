@@ -78,6 +78,16 @@ public static class PdfHtmlConverter
           box-sizing: border-box;
         }
 
+        .pdf-semantic-layout-fallback-page {
+          flex: none;
+          margin: 24pt -72pt;
+          max-width: none;
+        }
+
+        .pdf-semantic-layout-fallback-page:first-child {
+          margin-top: 0;
+        }
+
         .pdf-semantic-document-flow {
           background: var(--pdf-page-background);
           box-shadow: 0 1pt 4pt var(--pdf-page-edge-shadow);
@@ -720,12 +730,18 @@ public static class PdfHtmlConverter
         IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
         float scale,
         PdfSemanticPage? semanticPage,
-        PdfHtmlTextMode textMode)
+        PdfHtmlTextMode textMode,
+        string? additionalClass = null)
     {
         html.Append("  <section class=\"pdf-page");
         if (textMode == PdfHtmlTextMode.Semantic)
         {
             html.Append(" pdf-semantic-page");
+        }
+
+        if (!string.IsNullOrWhiteSpace(additionalClass))
+        {
+            html.Append(' ').Append(additionalClass);
         }
 
         html.Append("\" data-page-number=\"")
@@ -1191,6 +1207,11 @@ public static class PdfHtmlConverter
         HashSet<int> inlinePageBreaks = [];
         for (int index = 0; index + 1 < pages.Length; index++)
         {
+            if (pages[index].UsesFixedLayoutFallback || pages[index + 1].UsesFixedLayoutFallback)
+            {
+                continue;
+            }
+
             ContinuousParagraphMerge? merge = TryCreateContinuousParagraphMerge(pages[index], pages[index + 1]);
             if (merge == null)
             {
@@ -1230,11 +1251,36 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("  <main class=\"pdf-semantic-document-flow\">");
-        html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
+        bool flowOpen = false;
 
         for (int index = 0; index < pages.Length; index++)
         {
             ContinuousPageContext context = pages[index];
+            if (context.UsesFixedLayoutFallback)
+            {
+                if (flowOpen)
+                {
+                    html.AppendLine("    </article>");
+                    flowOpen = false;
+                }
+
+                WritePage(
+                    html,
+                    context.Page,
+                    imageAssets,
+                    scale,
+                    semanticPage: null,
+                    PdfHtmlTextMode.FixedLayout,
+                    additionalClass: "pdf-semantic-layout-fallback-page");
+                continue;
+            }
+
+            if (!flowOpen)
+            {
+                html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
+                flowOpen = true;
+            }
+
             if (!inlinePageBreaks.Contains(context.Page.PageNumber))
             {
                 WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
@@ -1263,7 +1309,11 @@ public static class PdfHtmlConverter
                 paragraphMerges.GetValueOrDefault(index));
         }
 
-        html.AppendLine("    </article>");
+        if (flowOpen)
+        {
+            html.AppendLine("    </article>");
+        }
+
         html.AppendLine("  </main>");
     }
 
@@ -1284,7 +1334,94 @@ public static class PdfHtmlConverter
             FootnoteContext.Create(page.PageNumber, semanticPage.Elements),
             positioned,
             flowElements,
-            figureRegions);
+            figureRegions,
+            RequiresFixedLayoutFallback(page, semanticPage));
+    }
+
+    private static bool RequiresFixedLayoutFallback(PdfLayoutPage page, PdfSemanticPage semanticPage)
+    {
+        if (page.Runs.Count == 0)
+        {
+            return page.Images.Count > 0 || page.Paths.Count > 0;
+        }
+
+        if (HasSideBySideTextColumns(page, semanticPage))
+        {
+            return true;
+        }
+
+        if (page.Lines.Count >= 40 &&
+            semanticPage.Elements.Count <= 3 &&
+            BodyParagraphCount(semanticPage) <= 2)
+        {
+            return true;
+        }
+
+        if (page.Images.Count >= 8 ||
+            page.Paths.Count >= 100 && page.Images.Count >= 4 ||
+            page.Images.Count >= 2 && page.Paths.Count >= 8 && BodyParagraphCount(semanticPage) < 6)
+        {
+            return true;
+        }
+
+        if (page.Lines.Count <= 8 &&
+            page.Runs.Count <= 20 &&
+            PageContentTop(page) > page.Height * 0.07f)
+        {
+            return true;
+        }
+
+        return semanticPage.Elements.Count <= 1 &&
+            PageContentTop(page) > page.Height * 0.14f;
+    }
+
+    private static bool HasSideBySideTextColumns(PdfLayoutPage page, PdfSemanticPage semanticPage)
+    {
+        if (semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Table) ||
+            page.Lines.Count < 20)
+        {
+            return false;
+        }
+
+        PdfTextLine[] shortHorizontalLines = page.Lines
+            .Where(static line => !string.IsNullOrWhiteSpace(line.Text))
+            .Where(static line => line.Runs.Any(run => MathF.Abs(run.Direction) < 0.01f))
+            .Where(line => line.Bounds.Width <= page.Width * 0.42f)
+            .ToArray();
+        PdfTextLine[] leftColumn = shortHorizontalLines
+            .Where(line => line.Bounds.X < page.Width * 0.42f)
+            .ToArray();
+        PdfTextLine[] rightColumn = shortHorizontalLines
+            .Where(line => line.Bounds.X > page.Width * 0.58f)
+            .ToArray();
+        if (leftColumn.Length < 12 || rightColumn.Length < 12)
+        {
+            return false;
+        }
+
+        float leftTop = leftColumn.Min(static line => line.Bounds.Y);
+        float leftBottom = leftColumn.Max(static line => line.Bounds.Bottom);
+        float rightTop = rightColumn.Min(static line => line.Bounds.Y);
+        float rightBottom = rightColumn.Max(static line => line.Bounds.Bottom);
+        float overlap = MathF.Max(0, MathF.Min(leftBottom, rightBottom) - MathF.Max(leftTop, rightTop));
+        return overlap >= MathF.Min(leftBottom - leftTop, rightBottom - rightTop) * 0.45f;
+    }
+
+    private static int BodyParagraphCount(PdfSemanticPage semanticPage)
+    {
+        return semanticPage.Elements.Count(static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.Length >= 40);
+    }
+
+    private static float PageContentTop(PdfLayoutPage page)
+    {
+        return page.Runs
+            .Select(static run => run.Bounds.Y)
+            .Concat(page.Images.Select(static image => image.Bounds.Y))
+            .Concat(page.Paths.Select(static path => path.Bounds.Y))
+            .DefaultIfEmpty(0)
+            .Min();
     }
 
     private static ContinuousParagraphMerge? TryCreateContinuousParagraphMerge(
@@ -5791,7 +5928,8 @@ public static class PdfHtmlConverter
             FootnoteContext footnotes,
             IReadOnlyList<PdfSemanticElement> positionedElements,
             IReadOnlyList<PdfSemanticElement> flowElements,
-            IReadOnlyList<PdfLayoutRectangle> figureRegions)
+            IReadOnlyList<PdfLayoutRectangle> figureRegions,
+            bool usesFixedLayoutFallback)
         {
             Page = page;
             SemanticPage = semanticPage;
@@ -5799,6 +5937,7 @@ public static class PdfHtmlConverter
             PositionedElements = positionedElements;
             FlowElements = flowElements;
             FigureRegions = figureRegions;
+            UsesFixedLayoutFallback = usesFixedLayoutFallback;
         }
 
         public PdfLayoutPage Page { get; }
@@ -5812,6 +5951,8 @@ public static class PdfHtmlConverter
         public IReadOnlyList<PdfSemanticElement> FlowElements { get; }
 
         public IReadOnlyList<PdfLayoutRectangle> FigureRegions { get; }
+
+        public bool UsesFixedLayoutFallback { get; }
     }
 
     private sealed class ContinuousParagraphMerge

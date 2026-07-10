@@ -724,7 +724,7 @@ public static class PdfLayoutExtractor
                 vertical ? height : width,
                 vertical ? width : height);
             return new PdfTextGlyph(
-                position.GetUnicode(),
+                NormalizeGlyphText(position),
                 position.GetFont().GetName(),
                 position.GetFontSizeInPtFloat(),
                 direction,
@@ -737,6 +737,23 @@ public static class PdfLayoutExtractor
             {
                 PageBounds = pageBounds
             };
+        }
+
+        private static string NormalizeGlyphText(TextPosition position)
+        {
+            string text = position.GetUnicode();
+            string fontName = position.GetFont().GetName();
+            if (!fontName.Contains("Math", StringComparison.OrdinalIgnoreCase) ||
+                text.Length < 2 ||
+                text.Length % 2 != 0)
+            {
+                return text;
+            }
+
+            int halfLength = text.Length / 2;
+            return text.AsSpan(0, halfLength).SequenceEqual(text.AsSpan(halfLength))
+                ? text[..halfLength]
+                : text;
         }
 
         private static IEnumerable<PdfTextLine> CreateLines(IReadOnlyList<PdfTextGlyph> glyphs, PdfLayoutOptions options)
