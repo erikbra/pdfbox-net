@@ -1508,6 +1508,7 @@ public static class PdfLayoutExtractor
         private readonly Stack<List<PdfLayoutRectangle>> _vectorGroupPathBounds = new();
         private readonly Stack<VectorGroupBuilder> _activeVectorGroups = new();
         private readonly List<PdfLayoutRectangle> _transparencyGroupBounds = new();
+        private bool _reportedShapeAlphaPath;
         private int _nextVectorGroupIndex;
         private readonly HashSet<int> _reportedUnsupportedShadingTypes = [];
         private bool _reportedRotatedImage;
@@ -1743,13 +1744,24 @@ public static class PdfLayoutExtractor
 
             int index = _paths.Count;
             PdfLayoutRectangle bounds = Bounds(commands);
+            bool usesShapeAlpha = graphicsState.GetAlphaSource();
             _paths.Add(new PdfLayoutPath(
                 index,
                 commands,
                 bounds,
                 includeFill ? ResolveColor(graphicsState.GetNonStrokingColor(), graphicsState.GetNonStrokeAlphaConstant(), index, "fill") : null,
                 includeStroke ? StrokeStyle(graphicsState, index) : null,
-                fillRule));
+                fillRule,
+                usesShapeAlpha));
+            if (usesShapeAlpha && !_reportedShapeAlphaPath)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "shape-alpha-vector-unsupported",
+                    "A vector path uses PDF shape-alpha compositing. The HTML converter omits the unsupported vector path instead of rendering an incorrect solid opacity effect.",
+                    _pageNumber));
+                _reportedShapeAlphaPath = true;
+            }
             foreach (List<PdfLayoutRectangle> groupPathBounds in _vectorGroupPathBounds)
             {
                 groupPathBounds.Add(bounds);

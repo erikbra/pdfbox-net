@@ -4,8 +4,10 @@ using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Common.Function;
+using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
@@ -14,6 +16,31 @@ namespace PdfBox.Net.Layout.Tests;
 
 public class PdfLayoutExtractorTest
 {
+    [Fact]
+    public void Extract_ShapeAlphaPath_IsMarkedForAnHtmlFallback()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDExtendedGraphicsState graphicsState = new();
+        graphicsState.SetAlphaSourceFlag(true);
+        graphicsState.SetNonStrokingAlphaConstant(0.75f);
+        graphicsState.SetBlendMode(BlendMode.MULTIPLY);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.SetGraphicsStateParameters(graphicsState);
+            content.SetNonStrokingColor(0f, 0f, 0f);
+            content.AddRect(72, 700, 120, 24);
+            content.Fill();
+        }
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutPage layoutPage = Assert.Single(layout.Pages);
+        Assert.True(Assert.Single(layoutPage.Paths).UsesShapeAlpha);
+        Assert.Contains(layoutPage.Diagnostics, diagnostic => diagnostic.Code == "shape-alpha-vector-unsupported");
+    }
+
     [Fact]
     public void Extract_AxialShading_CapturesSvgGradientGeometryAndStops()
     {

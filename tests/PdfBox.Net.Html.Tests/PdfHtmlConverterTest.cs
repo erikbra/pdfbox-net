@@ -1361,6 +1361,47 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_ShapeAlphaPath_DoesNotEmitAnIncorrectSvgOpacityArtifact()
+    {
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPath path = new(
+            0,
+            [
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, 72f, 80f, 0f, 0f, 0f, 0f),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, 192f, 80f, 0f, 0f, 0f, 0f),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, 192f, 104f, 0f, 0f, 0f, 0f),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0f, 0f, 0f, 0f, 0f, 0f)
+            ],
+            new PdfLayoutRectangle(72f, 80f, 120f, 24f),
+            new PdfLayoutColor(0f, 0f, 0f, 0.75f, "DeviceCMYK"),
+            null,
+            1,
+            usesShapeAlpha: true);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [path],
+            [],
+            [],
+            [],
+            []);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+
+        Assert.DoesNotContain("data-path-index=\"0\"", html.Html, StringComparison.Ordinal);
+        Assert.DoesNotContain("pdf-vector-layer", html.Html, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Convert_FixedTextPreservesFontPresentationAndCorrectsAdjacentTransformedRuns()
     {
         PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");

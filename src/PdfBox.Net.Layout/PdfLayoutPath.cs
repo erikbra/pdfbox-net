@@ -11,7 +11,8 @@ public sealed class PdfLayoutPath
         PdfLayoutRectangle bounds,
         PdfLayoutColor? fillColor,
         PdfLayoutStrokeStyle? stroke,
-        int? fillRule)
+        int? fillRule,
+        bool usesShapeAlpha = false)
     {
         Index = index;
         Commands = commands.ToArray();
@@ -19,6 +20,7 @@ public sealed class PdfLayoutPath
         FillColor = fillColor;
         Stroke = stroke;
         FillRule = fillRule;
+        UsesShapeAlpha = usesShapeAlpha;
     }
 
     /// <summary>
@@ -50,6 +52,16 @@ public sealed class PdfLayoutPath
     /// Gets the PDF fill rule when the path is filled. 0 is even-odd, 1 is non-zero winding.
     /// </summary>
     public int? FillRule { get; }
+
+    /// <summary>
+    /// Gets whether the path uses PDF shape-alpha compositing.
+    /// </summary>
+    /// <remarks>
+    /// SVG has no equivalent to the PDF alpha-source flag. Rendering such a path as a
+    /// normal SVG opacity can create a solid visual artifact, so HTML exporters can use
+    /// this flag to select a suitable fallback.
+    /// </remarks>
+    public bool UsesShapeAlpha { get; }
 
     /// <summary>
     /// Gets whether the path has a fill paint operation.

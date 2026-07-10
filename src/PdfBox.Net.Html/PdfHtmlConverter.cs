@@ -967,6 +967,7 @@ public static class PdfHtmlConverter
     {
         return page.Paths
             .Where(path => semanticPage == null || !IsSemanticFlowRulePath(page, semanticPage, path))
+            .Where(static path => !path.UsesShapeAlpha)
             .Where(path => !IsCoveredByTransparencyFallback(page, path.Bounds))
             .ToArray();
     }
