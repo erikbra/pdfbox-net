@@ -410,6 +410,11 @@ public sealed class PdfHtmlQualityProbe
                   box.bottom > region.y &&
                   box.top < region.bottom;
               };
+              const readableText = element => {
+                const copy = element.cloneNode(true);
+                copy.querySelectorAll(".pdf-text-run-svg").forEach(node => node.remove());
+                return copy.textContent || "";
+              };
               const readBox = element => {
                 const box = element.getBoundingClientRect();
                 return {
@@ -420,13 +425,9 @@ public sealed class PdfHtmlQualityProbe
                   text: readableText(element)
                 };
               };
-              const readableText = element => {
-                const copy = element.cloneNode(true);
-                copy.querySelectorAll(".pdf-text-run-svg").forEach(node => node.remove());
-                return copy.textContent || "";
-              };
 
-              const textElements = Array.from(flow.querySelectorAll(".pdf-text-run,.pdf-semantic-element"))
+              const textElements = Array.from(flow.querySelectorAll(
+                ".pdf-text-run,.pdf-semantic-element,.pdf-semantic-line-grid-cell,.pdf-semantic-column-run"))
                 .filter(element => !element.classList.contains("pdf-semantic-page-break") && intersects(element));
               const imageElements = Array.from(flow.querySelectorAll(".pdf-image,.pdf-semantic-figure,img,svg image"))
                 .filter(intersects);
@@ -1485,8 +1486,10 @@ public sealed class PdfHtmlQualityProbe
             }
 
             return new TextReference(
-                "pdfbox-net-layout-fallback",
-                layout.Pages.Take(pageLimit).Select(static page => page.Text).ToArray());
+                "pdfbox-net-run-fallback",
+                layout.Pages.Take(pageLimit)
+                    .Select(static page => string.Join(Environment.NewLine, page.Runs.Select(run => run.Text)))
+                    .ToArray());
         }
     }
 
