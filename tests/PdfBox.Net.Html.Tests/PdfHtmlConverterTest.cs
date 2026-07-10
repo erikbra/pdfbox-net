@@ -128,6 +128,120 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_UsesFixedLayoutForFullPageVectorBackdrops()
+    {
+        using PDDocument document = CreateTextDocument("""
+            q
+            0.95 0.82 0.25 rg
+            0 0 612 792 re
+            f
+            Q
+            BT
+            /F1 10 Tf
+            72 750 Td
+            (Backdrop layout line 01) Tj
+            0 -20 Td (Backdrop layout line 02) Tj
+            0 -20 Td (Backdrop layout line 03) Tj
+            0 -20 Td (Backdrop layout line 04) Tj
+            0 -20 Td (Backdrop layout line 05) Tj
+            0 -20 Td (Backdrop layout line 06) Tj
+            0 -20 Td (Backdrop layout line 07) Tj
+            0 -20 Td (Backdrop layout line 08) Tj
+            0 -20 Td (Backdrop layout line 09) Tj
+            0 -20 Td (Backdrop layout line 10) Tj
+            0 -20 Td (Backdrop layout line 11) Tj
+            0 -20 Td (Backdrop layout line 12) Tj
+            0 -20 Td (Backdrop layout line 13) Tj
+            0 -20 Td (Backdrop layout line 14) Tj
+            0 -20 Td (Backdrop layout line 15) Tj
+            0 -20 Td (Backdrop layout line 16) Tj
+            0 -20 Td (Backdrop layout line 17) Tj
+            0 -20 Td (Backdrop layout line 18) Tj
+            0 -20 Td (Backdrop layout line 19) Tj
+            0 -20 Td (Backdrop layout line 20) Tj
+            ET
+            """);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(document), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Single(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_PreservesAnnotationAndAutomaticTextLinks()
+    {
+        using PDDocument annotationDocument = CreateLinkedTextDocument(textY: 760);
+        PdfHtmlDocument annotationHtml = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(annotationDocument), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument annotationDom = ParseHtml(annotationHtml.Html);
+
+        XElement annotationLink = Assert.Single(ElementsByClass(annotationDom, "pdf-semantic-link"));
+        Assert.Equal("https://example.com/pdfbox", annotationLink.Attribute("href")?.Value);
+        Assert.Equal("uri", annotationLink.Attribute("data-link-kind")?.Value);
+        Assert.Empty(ElementsByClass(annotationDom, "pdf-link-overlay"));
+
+        using PDDocument automaticDocument = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            72 760 Td
+            (Contact hello@example.com or https://example.com/pdfbox.) Tj
+            ET
+            """);
+        PdfHtmlDocument automaticHtml = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(automaticDocument), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument automaticDom = ParseHtml(automaticHtml.Html);
+
+        Assert.Contains(automaticDom.Descendants("a"), link =>
+            link.Attribute("href")?.Value == "mailto:hello@example.com");
+        Assert.Contains(automaticDom.Descendants("a"), link =>
+            link.Attribute("href")?.Value == "https://example.com/pdfbox");
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsBulletLinesAsListItems()
+    {
+        using PDDocument document = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            72 700 Td
+            (\225 First member) Tj
+            0 -18 Td (\225 Second member) Tj
+            0 -18 Td (\225 Third member) Tj
+            0 -18 Td (\225 Fourth member) Tj
+            0 -18 Td (\225 Fifth member) Tj
+            0 -18 Td (\225 Sixth member) Tj
+            0 -18 Td (\225 Seventh member) Tj
+            0 -18 Td (\225 Eighth member) Tj
+            0 -18 Td (\225 Ninth member) Tj
+            ET
+            """);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(document), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement list = Assert.Single(dom.Descendants("ul"));
+        Assert.Equal(new[]
+            {
+                "First member", "Second member", "Third member", "Fourth member", "Fifth member",
+                "Sixth member", "Seventh member", "Eighth member", "Ninth member"
+            },
+            list.Elements("li").Select(item => item.Value.Trim()).ToArray());
+    }
+
+    [Fact]
     public async Task Convert_SemanticContinuousFlow_RendersDetectedGridWithSourceGeometry()
     {
         using PDDocument document = Loader.LoadPDF(FixturePath("4PP-Highlighting.pdf"));
@@ -2142,17 +2256,17 @@ public class PdfHtmlConverterTest
         return document;
     }
 
-    private static PDDocument CreateLinkedTextDocument()
+    private static PDDocument CreateLinkedTextDocument(float textY = 700)
     {
-        PDDocument document = CreateTextDocument("""
+        PDDocument document = CreateTextDocument($"""
             BT
             /F1 12 Tf
-            72 700 Td
+            72 {textY.ToString(CultureInfo.InvariantCulture)} Td
             (Linked text) Tj
             ET
             """);
         PDAnnotationLink link = new();
-        link.SetRectangle(new PDRectangle(72, 680, 120, 24));
+        link.SetRectangle(new PDRectangle(72, textY - 20, 120, 24));
         PDActionURI action = new();
         action.SetURI("https://example.com/pdfbox");
         link.SetAction(action);

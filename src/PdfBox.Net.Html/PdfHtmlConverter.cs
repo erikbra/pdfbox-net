@@ -429,6 +429,25 @@ public static class PdfHtmlConverter
           margin-bottom: 6pt;
         }
 
+        .pdf-semantic-list {
+          line-height: 1.18;
+          margin: 0 0 6pt;
+          padding-left: 1.35em;
+        }
+
+        .pdf-semantic-list > li {
+          margin: 0 0 2pt;
+          padding-left: 0.2em;
+        }
+
+        .pdf-semantic-link,
+        .pdf-semantic-auto-link {
+          color: inherit;
+          text-decoration: underline;
+          text-decoration-thickness: 0.06em;
+          text-underline-offset: 0.12em;
+        }
+
         .pdf-semantic-justified {
           text-align: justify;
           text-align-last: left;
@@ -1552,6 +1571,11 @@ public static class PdfHtmlConverter
             return page.Images.Count > 0 || page.Paths.Count > 0;
         }
 
+        if (HasFullPageVectorBackdrop(page))
+        {
+            return true;
+        }
+
         if (HasSideBySideTextColumns(page, semanticPage))
         {
             return true;
@@ -1580,6 +1604,22 @@ public static class PdfHtmlConverter
 
         return semanticPage.Elements.Count <= 1 &&
             PageContentTop(page) > page.Height * 0.14f;
+    }
+
+    private static bool HasFullPageVectorBackdrop(PdfLayoutPage page)
+    {
+        PdfLayoutPath[] filledPaths = page.Paths
+            .Where(static path => path.IsFilled)
+            .Where(static path => path.Bounds.Width > 2f && path.Bounds.Height > 2f)
+            .ToArray();
+        if (filledPaths.Length == 0)
+        {
+            return false;
+        }
+
+        PdfLayoutRectangle backdrop = UnionRectangles(filledPaths.Select(static path => path.Bounds));
+        return backdrop.Width >= page.Width * 0.78f &&
+            backdrop.Height >= page.Height * 0.78f;
     }
 
     private static bool HasSideBySideTextColumns(PdfLayoutPage page, PdfSemanticPage semanticPage)
@@ -2472,6 +2512,12 @@ public static class PdfHtmlConverter
                 continue;
             }
 
+            if (IsBulletListItem(element))
+            {
+                index = WriteAdjacentSemanticList(html, flowElements, index, footnotes, page);
+                continue;
+            }
+
             WriteFlowSemanticElement(
                 html,
                 element,
@@ -3205,6 +3251,12 @@ public static class PdfHtmlConverter
             return;
         }
 
+        if (IsBulletList(element))
+        {
+            WriteSemanticList(html, element, footnotes, page);
+            return;
+        }
+
         string tagName = SemanticTagName(element);
         html.Append("      <")
             .Append(tagName)
@@ -3224,6 +3276,105 @@ public static class PdfHtmlConverter
         html.Append("</")
             .Append(tagName)
             .AppendLine(">");
+    }
+
+    private static bool IsBulletList(PdfSemanticElement element)
+    {
+        return element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Lines.Count >= 2 &&
+            element.Lines.All(static line => ListMarkerLength(line.Text) > 0);
+    }
+
+    private static bool IsBulletListItem(PdfSemanticElement element)
+    {
+        return element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Lines.Count == 1 &&
+            ListMarkerLength(element.Lines[0].Text) > 0;
+    }
+
+    private static int ListMarkerLength(string text)
+    {
+        int index = 0;
+        while (index < text.Length && char.IsWhiteSpace(text[index]))
+        {
+            index++;
+        }
+
+        return index < text.Length && text[index] is '\u0095' or '\u2022' or '\u25e6' or '\u25aa' or '\u2219'
+            ? index + 1
+            : 0;
+    }
+
+    private static void WriteSemanticList(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        html.Append("      <ul class=\"")
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-list\">")
+            .AppendLine();
+        foreach (PdfSemanticLine line in element.Lines)
+        {
+            WriteSemanticListItem(html, line, element, footnotes, page);
+        }
+
+        html.AppendLine("      </ul>");
+    }
+
+    private static int WriteAdjacentSemanticList(
+        StringBuilder html,
+        IReadOnlyList<PdfSemanticElement> elements,
+        int startIndex,
+        FootnoteContext footnotes,
+        PdfLayoutPage page)
+    {
+        PdfSemanticElement first = elements[startIndex];
+        html.Append("      <ul class=\"")
+            .Append(SemanticClassNames(first, page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-list\">")
+            .AppendLine();
+        int index = startIndex;
+        while (index < elements.Count && IsBulletListItem(elements[index]))
+        {
+            PdfSemanticElement element = elements[index];
+            WriteSemanticListItem(html, element.Lines[0], element, footnotes, page);
+            index++;
+        }
+
+        html.AppendLine("      </ul>");
+        return index - 1;
+    }
+
+    private static void WriteSemanticListItem(
+        StringBuilder html,
+        PdfSemanticLine line,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        List<InlineTextSegment> segments = InlineTextSegments(line, page, element).ToList();
+        TrimListMarker(segments);
+        string lineText = string.Concat(segments.Select(static segment => segment.Text));
+        html.Append("        <li>");
+        WriteInlineTextSegments(html, line, segments, lineText, footnotes);
+        html.AppendLine("</li>");
+    }
+
+    private static void TrimListMarker(List<InlineTextSegment> segments)
+    {
+        int marker = ListMarkerLength(string.Concat(segments.Select(static segment => segment.Text)));
+        int remaining = marker;
+        for (int index = 0; index < segments.Count && remaining > 0; index++)
+        {
+            InlineTextSegment segment = segments[index];
+            int consumed = Math.Min(remaining, segment.Text.Length);
+            segments[index] = segment with { Text = segment.Text[consumed..] };
+            remaining -= consumed;
+        }
+
+        TrimLeadingWhitespace(segments);
     }
 
     private static void WriteSemanticTable(
@@ -3774,6 +3925,14 @@ public static class PdfHtmlConverter
 
         if (element.Kind is PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
         {
+            if (element.Kind == PdfSemanticElementKind.Header &&
+                page != null &&
+                CanWriteRichSemanticText(element))
+            {
+                WriteRichSemanticText(html, element, footnotes, page);
+                return;
+            }
+
             for (int index = 0; index < element.Lines.Count; index++)
             {
                 if (index > 0)
@@ -3798,7 +3957,7 @@ public static class PdfHtmlConverter
 
     private static bool CanWriteRichSemanticText(PdfSemanticElement element)
     {
-        return element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading or PdfSemanticElementKind.Footnote &&
+        return element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading or PdfSemanticElementKind.Footnote or PdfSemanticElementKind.Header &&
             !IsFormulaBlock(element) &&
             element.Lines.Count > 0 &&
             element.Lines.All(static line => line.Runs.Count > 0) &&
@@ -3944,7 +4103,11 @@ public static class PdfHtmlConverter
                 segments.Add(new InlineTextSegment(" ", null, InlineBaselineRole.Normal));
             }
 
-            segments.Add(new InlineTextSegment(glyph.Text, run, role));
+            segments.Add(new InlineTextSegment(
+                glyph.Text,
+                run,
+                role,
+                SemanticLinkForGlyph(page, glyph.PageBounds)));
             previous = glyph;
             previousRole = role;
             suppressNextWordBoundaryAfterIntrusiveGlyph = false;
@@ -3954,9 +4117,57 @@ public static class PdfHtmlConverter
         PromoteMathIdentifierSubscripts(segments);
         RepairCommonMathOperatorOmissions(segments);
         RemoveDuplicateAdjacentSubscripts(segments);
+        AssociateLinkWhitespace(segments);
         MergeAdjacentTextSegments(segments);
 
         return segments;
+    }
+
+    private static PdfLayoutLink? SemanticLinkForGlyph(PdfLayoutPage? page, PdfLayoutRectangle glyphBounds)
+    {
+        if (page == null)
+        {
+            return null;
+        }
+
+        return page.Links
+            .Where(HasSemanticLinkTarget)
+            .Where(link => LinkBounds(link).Any(bounds => RectanglesIntersect(bounds, glyphBounds, 0.25f)))
+            .OrderBy(link => LinkBounds(link).Min(bounds => bounds.Width * bounds.Height))
+            .FirstOrDefault();
+    }
+
+    private static bool HasSemanticLinkTarget(PdfLayoutLink link)
+    {
+        return !string.IsNullOrWhiteSpace(link.Uri) ||
+            !string.IsNullOrWhiteSpace(link.Destination) ||
+            link.DestinationPageNumber.HasValue;
+    }
+
+    private static IReadOnlyList<PdfLayoutRectangle> LinkBounds(PdfLayoutLink link)
+    {
+        return link.QuadBounds.Count == 0 ? [link.Bounds] : link.QuadBounds;
+    }
+
+    private static void AssociateLinkWhitespace(List<InlineTextSegment> segments)
+    {
+        for (int index = 0; index < segments.Count; index++)
+        {
+            InlineTextSegment segment = segments[index];
+            if (!string.IsNullOrWhiteSpace(segment.Text) || segment.Link != null)
+            {
+                continue;
+            }
+
+            InlineTextSegment? before = NearestTextSegment(segments, index, -1);
+            InlineTextSegment? after = NearestTextSegment(segments, index, 1);
+            if (before is { Link: { } beforeLink } &&
+                after is { Link: { } afterLink } &&
+                ReferenceEquals(beforeLink, afterLink))
+            {
+                segments[index] = segment with { Link = beforeLink };
+            }
+        }
     }
 
     private static IEnumerable<(PdfTextRun Run, PdfTextGlyph Glyph)> AttachedInlineMathGlyphs(
@@ -4613,7 +4824,8 @@ public static class PdfHtmlConverter
 
         return string.Equals(NormalizeFontName(first.Run.FontName), NormalizeFontName(second.Run.FontName), StringComparison.Ordinal) &&
             MathF.Abs(first.Run.FontSize - second.Run.FontSize) < 0.01f &&
-            first.Run.Color.Equals(second.Run.Color);
+            first.Run.Color.Equals(second.Run.Color) &&
+            ReferenceEquals(first.Link, second.Link);
     }
 
     private static string CompactText(string text)
@@ -4911,6 +5123,7 @@ public static class PdfHtmlConverter
         FootnoteContext footnotes)
     {
         int offset = 0;
+        PdfLayoutLink? activeLink = null;
         for (int index = 0; index < segments.Count; index++)
         {
             InlineTextSegment segment = segments[index];
@@ -4923,6 +5136,16 @@ public static class PdfHtmlConverter
             {
                 offset += segment.Text.Length;
                 continue;
+            }
+
+            bool startsCompactFraction = index + 2 < segments.Count &&
+                IsCompactSquareRootSegment(segments[index]) &&
+                IsCompactFractionNumeratorOne(segments[index + 1]);
+            bool startsCompactSummation = segments[index].Text is "∑" or "Σ";
+            if ((startsCompactFraction || startsCompactSummation) && activeLink != null)
+            {
+                html.Append("</a>");
+                activeLink = null;
             }
 
             if (TryWriteCompactInverseSquareRootFraction(html, line, segments, index, out int consumedSegments, out int consumedLength))
@@ -4939,9 +5162,46 @@ public static class PdfHtmlConverter
                 continue;
             }
 
+            if (!ReferenceEquals(activeLink, segment.Link))
+            {
+                if (activeLink != null)
+                {
+                    html.Append("</a>");
+                }
+
+                if (segment.Link != null)
+                {
+                    WriteSemanticLinkStart(html, segment.Link);
+                }
+
+                activeLink = segment.Link;
+            }
+
             WriteInlineTextSegment(html, line, segment, lineText, offset, footnotes);
             offset += segment.Text.Length;
         }
+
+        if (activeLink != null)
+        {
+            html.Append("</a>");
+        }
+    }
+
+    private static void WriteSemanticLinkStart(StringBuilder html, PdfLayoutLink link)
+    {
+        html.Append("<a class=\"pdf-semantic-link\" href=\"")
+            .Append(HtmlAttribute(LinkHref(link)))
+            .Append("\" data-link-kind=\"")
+            .Append(HtmlAttribute(link.Kind.ToString().ToLowerInvariant()))
+            .Append('"');
+        if (!string.IsNullOrWhiteSpace(link.Uri))
+        {
+            html.Append(" data-uri=\"")
+                .Append(HtmlAttribute(link.Uri))
+                .Append('"');
+        }
+
+        html.Append('>');
     }
 
     private static bool TryWriteCompactInverseSquareRootFraction(
@@ -6317,6 +6577,18 @@ public static class PdfHtmlConverter
     {
         for (int index = 0; index < text.Length; index++)
         {
+            if (TryAutomaticLink(text, index, out int linkLength, out string? href))
+            {
+                string linkText = text.Substring(index, linkLength);
+                html.Append("<a class=\"pdf-semantic-auto-link\" href=\"")
+                    .Append(HtmlAttribute(href!))
+                    .Append("\">")
+                    .Append(Html(linkText))
+                    .Append("</a>");
+                index += linkLength - 1;
+                continue;
+            }
+
             string marker = text[index].ToString();
             int boundaryIndex = boundaryOffset + index;
             if (footnotes.Contains(marker) &&
@@ -6337,6 +6609,81 @@ public static class PdfHtmlConverter
 
             html.Append(Html(text[index].ToString()));
         }
+    }
+
+    private static bool TryAutomaticLink(string text, int start, out int length, out string? href)
+    {
+        length = 0;
+        href = null;
+        if (start > 0 && IsLinkCharacter(text[start - 1]))
+        {
+            return false;
+        }
+
+        if (text.AsSpan(start).StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+            text.AsSpan(start).StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+        {
+            int end = start;
+            while (end < text.Length && !char.IsWhiteSpace(text[end]) && text[end] is not '<' and not '>')
+            {
+                end++;
+            }
+
+            while (end > start && text[end - 1] is '.' or ',' or ';' or ':' or '!' or '?' or ')')
+            {
+                end--;
+            }
+
+            if (end > start)
+            {
+                length = end - start;
+                href = text.Substring(start, length);
+                return true;
+            }
+        }
+
+        int at = text.IndexOf('@', start);
+        if (at <= start || at - start > 64 ||
+            !text.AsSpan(start, at - start).ToString().All(IsEmailLocalCharacter))
+        {
+            return false;
+        }
+
+        int emailEnd = at + 1;
+        while (emailEnd < text.Length && IsEmailDomainCharacter(text[emailEnd]))
+        {
+            emailEnd++;
+        }
+
+        if (emailEnd <= at + 1)
+        {
+            return false;
+        }
+
+        string email = text.Substring(start, emailEnd - start);
+        if (!email[(at - start + 1)..].Contains('.', StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        length = email.Length;
+        href = "mailto:" + email;
+        return true;
+    }
+
+    private static bool IsLinkCharacter(char character)
+    {
+        return char.IsLetterOrDigit(character) || character is '.' or '-' or '_' or '+' or '@' or '/';
+    }
+
+    private static bool IsEmailLocalCharacter(char character)
+    {
+        return char.IsLetterOrDigit(character) || character is '.' or '-' or '_' or '+';
+    }
+
+    private static bool IsEmailDomainCharacter(char character)
+    {
+        return char.IsLetterOrDigit(character) || character is '.' or '-';
     }
 
     private static bool IsFootnoteReferenceBoundary(string text, int index)
@@ -6410,7 +6757,8 @@ public static class PdfHtmlConverter
     private readonly record struct InlineTextSegment(
         string Text,
         PdfTextRun? Run,
-        InlineBaselineRole Role);
+        InlineBaselineRole Role,
+        PdfLayoutLink? Link = null);
 
     private sealed class ContinuousPageContext
     {
