@@ -1308,6 +1308,57 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_FixedTextPreservesFontPresentationAndCorrectsAdjacentTransformedRuns()
+    {
+        PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfTextRun bold = CreateRun("Bold text", "ABCDEF+SourceSansPro-Bold", 10f, new PdfLayoutRectangle(72f, 80f, 42f, 7f), black);
+        PdfTextRun italic = CreateRun("Italic text", "ABCDEF+SourceSansPro-Italic", 10f, new PdfLayoutRectangle(72f, 100f, 44f, 7f), black);
+        PdfTextRun transformed = CreateRun("Transformed text fragment", "ABCDEF+SourceSansPro-Regular", 6.563f, new PdfLayoutRectangle(72f, 121.17f, 122.168f, 5.25f), black);
+        PdfTextRun adjacent = CreateRun(" continues on the same baseline", "ABCDEF+SourceSansPro-Regular", 10f, new PdfLayoutRectangle(194.33f, 119.805f, 180f, 6.615f), black);
+        PdfTextRun[] runs = [bold, italic, transformed, adjacent];
+        PdfTextLine[] lines = runs
+            .Select(run => new PdfTextLine(run.Text, run.Bounds, [run]))
+            .ToArray();
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            runs.SelectMany(run => run.Glyphs).ToArray(),
+            runs,
+            lines,
+            [new PdfTextBlock(string.Join(" ", runs.Select(run => run.Text)), new PdfLayoutRectangle(72f, 80f, 302.33f, 46.42f), lines)],
+            [],
+            [],
+            [],
+            [],
+            []);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement boldElement = Assert.Single(ElementsByClass(dom, "pdf-text-run"), element =>
+            element.Attribute("data-font")?.Value.Contains("Bold", StringComparison.Ordinal) == true);
+        XElement italicElement = Assert.Single(ElementsByClass(dom, "pdf-text-run"), element =>
+            element.Attribute("data-font")?.Value.Contains("Italic", StringComparison.Ordinal) == true);
+        Dictionary<string, string> boldStyle = ParseStyle(boldElement.Attribute("style")?.Value ?? "");
+        Dictionary<string, string> italicStyle = ParseStyle(italicElement.Attribute("style")?.Value ?? "");
+        Assert.Equal("700", boldStyle["font-weight"]);
+        Assert.Equal("italic", italicStyle["font-style"]);
+
+        XElement boldSvgText = Assert.Single(boldElement.Descendants(), element => element.Name.LocalName == "text");
+        Dictionary<string, string> boldSvgStyle = ParseStyle(boldSvgText.Attribute("style")?.Value ?? "");
+        Assert.Equal("700", boldSvgStyle["font-weight"]);
+
+        XElement transformedElement = Assert.Single(ElementsByClass(dom, "pdf-text-run"), element =>
+            element.Value.Contains("Transformed text fragment", StringComparison.Ordinal));
+        Dictionary<string, string> transformedStyle = ParseStyle(transformedElement.Attribute("style")?.Value ?? "");
+        Assert.Equal(10f, ParsePoints(transformedStyle["font-size"]));
+    }
+
+    [Fact]
     public void Convert_AcroFormFixtureEmitsWidgetAppearanceImageOverlays()
     {
         using PDDocument document = Loader.LoadPDF(FixturePath("Acroform-PDFBOX-2333.pdf"));
@@ -2242,6 +2293,17 @@ public class PdfHtmlConverterTest
                 yield return reference;
             }
         }
+    }
+
+    private static PdfTextRun CreateRun(
+        string text,
+        string fontName,
+        float fontSize,
+        PdfLayoutRectangle bounds,
+        PdfLayoutColor color)
+    {
+        PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
+        return new PdfTextRun(text, fontName, fontSize, 0f, bounds, color, [glyph]);
     }
 
     private static PDDocument CreateTextDocument(string contentStream)

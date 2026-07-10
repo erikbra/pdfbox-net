@@ -888,7 +888,7 @@ public static class PdfHtmlConverter
         {
             foreach (PdfTextRun run in page.Runs.Where(run => !IsCoveredByTransparencyFallback(page, run.PageBounds)))
             {
-                WriteTextRun(html, run, scale);
+                WriteTextRun(html, run, scale, FixedTextFontSize(run, page.Runs));
             }
         }
 
@@ -1215,9 +1215,8 @@ public static class PdfHtmlConverter
         html.AppendLine(" />");
     }
 
-    private static void WriteTextRun(StringBuilder html, PdfTextRun run, float scale)
+    private static void WriteTextRun(StringBuilder html, PdfTextRun run, float scale, float fontSize)
     {
-        float fontSize = FixedTextFontSize(run);
         html.Append("    <span class=\"pdf-text-run\" data-font=\"")
             .Append(HtmlAttribute(run.FontName))
             .Append("\" style=\"position:absolute;left:")
@@ -1232,6 +1231,7 @@ public static class PdfHtmlConverter
             .Append(CssPoints(fontSize * scale))
             .Append(";font-family:")
             .Append(CssFontFamily(run.FontName))
+            .Append(FixedTextFontPresentation(run))
             .Append(";color:")
             .Append(ColorHex(run.Color))
             .Append("\">");
@@ -1266,6 +1266,7 @@ public static class PdfHtmlConverter
             .Append(CssPoints(fontSize * scale))
             .Append(";font-family:")
             .Append(CssFontFamily(run.FontName))
+            .Append(FixedTextFontPresentation(run))
             .Append(";fill:")
             .Append(color);
 
@@ -1293,11 +1294,68 @@ public static class PdfHtmlConverter
                 !IsSymbolFont(run.FontName));
     }
 
-    private static float FixedTextFontSize(PdfTextRun run)
+    private static float FixedTextFontSize(
+        PdfTextRun run,
+        IReadOnlyList<PdfTextRun>? pageRuns = null)
     {
-        return HasCompressedGlyphBounds(run)
+        float fontSize = HasCompressedGlyphBounds(run)
             ? MathF.Max(0.5f, run.Bounds.Height * 1.25f)
             : run.FontSize;
+        return pageRuns == null
+            ? fontSize
+            : CorrectTransformedTextFontSize(run, fontSize, pageRuns);
+    }
+
+    private static float CorrectTransformedTextFontSize(
+        PdfTextRun run,
+        float fontSize,
+        IReadOnlyList<PdfTextRun> pageRuns)
+    {
+        if (fontSize >= 8f ||
+            run.Text.Length < 8 ||
+            !run.Text.Any(char.IsLetterOrDigit) ||
+            fontSize <= 0)
+        {
+            return fontSize;
+        }
+
+        PdfTextRun? adjacentRun = pageRuns
+            .Where(candidate => !ReferenceEquals(candidate, run))
+            .Where(candidate => string.Equals(
+                NormalizeFontName(candidate.FontName),
+                NormalizeFontName(run.FontName),
+                StringComparison.Ordinal))
+            .Where(candidate => candidate.FontSize >= fontSize * 1.35f)
+            .Where(candidate => MathF.Abs(RunBaseline(candidate) - RunBaseline(run)) <= 0.75f)
+            .Where(candidate => MathF.Min(
+                MathF.Abs(candidate.Bounds.X - run.Bounds.Right),
+                MathF.Abs(run.Bounds.X - candidate.Bounds.Right)) <= 1.5f)
+            .OrderBy(candidate => MathF.Min(
+                MathF.Abs(candidate.Bounds.X - run.Bounds.Right),
+                MathF.Abs(run.Bounds.X - candidate.Bounds.Right)))
+            .FirstOrDefault();
+        return adjacentRun?.FontSize ?? fontSize;
+    }
+
+    private static float RunBaseline(PdfTextRun run)
+    {
+        return run.Bounds.Bottom;
+    }
+
+    private static string FixedTextFontPresentation(PdfTextRun run)
+    {
+        StringBuilder style = new();
+        if (IsBoldFont(run.FontName))
+        {
+            style.Append(";font-weight:700");
+        }
+
+        if (IsItalicFont(run.FontName))
+        {
+            style.Append(";font-style:italic");
+        }
+
+        return style.ToString();
     }
 
     private static bool HasCompressedGlyphBounds(PdfTextRun run)
