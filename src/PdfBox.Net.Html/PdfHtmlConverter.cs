@@ -88,6 +88,74 @@ public static class PdfHtmlConverter
           margin-top: 0;
         }
 
+        .pdf-semantic-line-grid {
+          align-self: stretch;
+          box-sizing: border-box;
+          display: flex;
+          flex: none;
+          flex-direction: column;
+          margin: 0 0 0 -108pt;
+          max-width: none;
+          padding: var(--pdf-semantic-grid-top, 0) var(--pdf-semantic-grid-right, 0) 0 var(--pdf-semantic-grid-left, 0);
+          width: calc(100% + 216pt);
+        }
+
+        .pdf-semantic-page-start + .pdf-semantic-line-grid {
+          margin-top: -68pt;
+        }
+
+        .pdf-semantic-line-grid-row {
+          column-gap: 0;
+          display: grid;
+          grid-template-columns: repeat(var(--pdf-semantic-grid-columns, 2), minmax(0, 1fr));
+          min-height: var(--pdf-semantic-grid-row-height, auto);
+        }
+
+        .pdf-semantic-line-grid-cell {
+          justify-self: start;
+          line-height: var(--pdf-semantic-grid-row-height, 1);
+          min-width: 0;
+          overflow: visible;
+          white-space: pre;
+        }
+
+        .pdf-semantic-line-grid-highlight {
+          background-color: var(--pdf-semantic-grid-highlight);
+          min-width: var(--pdf-semantic-grid-highlight-width, auto);
+        }
+
+        .pdf-semantic-columns {
+          align-self: stretch;
+          box-sizing: border-box;
+          column-gap: 0;
+          display: grid;
+          grid-template-columns: repeat(var(--pdf-semantic-column-count, 2), minmax(0, 1fr));
+          margin: 0 0 0 -108pt;
+          max-width: none;
+          padding: var(--pdf-semantic-columns-top, 0) var(--pdf-semantic-columns-right, 0) 0 var(--pdf-semantic-columns-left, 0);
+          width: calc(100% + 216pt);
+        }
+
+        .pdf-semantic-page-start + .pdf-semantic-columns {
+          margin-top: -68pt;
+        }
+
+        .pdf-semantic-column {
+          min-width: 0;
+        }
+
+        .pdf-semantic-column-run {
+          display: block;
+          line-height: var(--pdf-semantic-column-row-height, 1);
+          min-height: var(--pdf-semantic-column-row-height, auto);
+          overflow: visible;
+          white-space: pre;
+        }
+
+        .pdf-semantic-column-run.pdf-semantic-line-grid-highlight {
+          width: fit-content;
+        }
+
         .pdf-semantic-document-flow {
           background: var(--pdf-page-background);
           box-shadow: 0 1pt 4pt var(--pdf-page-edge-shadow);
@@ -1207,7 +1275,12 @@ public static class PdfHtmlConverter
         HashSet<int> inlinePageBreaks = [];
         for (int index = 0; index + 1 < pages.Length; index++)
         {
-            if (pages[index].UsesFixedLayoutFallback || pages[index + 1].UsesFixedLayoutFallback)
+            if (pages[index].UsesFixedLayoutFallback ||
+                pages[index].LineGrid != null ||
+                pages[index].Columns != null ||
+                pages[index + 1].UsesFixedLayoutFallback ||
+                pages[index + 1].LineGrid != null ||
+                pages[index + 1].Columns != null)
             {
                 continue;
             }
@@ -1256,6 +1329,40 @@ public static class PdfHtmlConverter
         for (int index = 0; index < pages.Length; index++)
         {
             ContinuousPageContext context = pages[index];
+            if (context.LineGrid != null)
+            {
+                if (!flowOpen)
+                {
+                    html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
+                    flowOpen = true;
+                }
+
+                if (!inlinePageBreaks.Contains(context.Page.PageNumber))
+                {
+                    WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
+                }
+
+                WriteSemanticLineGrid(html, context.LineGrid, scale);
+                continue;
+            }
+
+            if (context.Columns != null)
+            {
+                if (!flowOpen)
+                {
+                    html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
+                    flowOpen = true;
+                }
+
+                if (!inlinePageBreaks.Contains(context.Page.PageNumber))
+                {
+                    WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
+                }
+
+                WriteSemanticColumns(html, context.Columns, scale);
+                continue;
+            }
+
             if (context.UsesFixedLayoutFallback)
             {
                 if (flowOpen)
@@ -1319,6 +1426,10 @@ public static class PdfHtmlConverter
 
     private static ContinuousPageContext CreateContinuousPageContext(PdfLayoutPage page, PdfSemanticPage semanticPage)
     {
+        PdfSemanticLineGrid? lineGrid = TryCreateSemanticLineGrid(page, semanticPage);
+        PdfSemanticColumns? columns = lineGrid == null
+            ? TryCreateSemanticColumns(page, semanticPage)
+            : null;
         PdfLayoutRectangle[] figureRegions = SemanticFigureRegions(page, semanticPage).ToArray();
         PdfSemanticElement[] positioned = semanticPage.Elements
             .Where(IsPositionedSemanticElement)
@@ -1335,11 +1446,22 @@ public static class PdfHtmlConverter
             positioned,
             flowElements,
             figureRegions,
-            RequiresFixedLayoutFallback(page, semanticPage));
+            lineGrid,
+            columns,
+            RequiresFixedLayoutFallback(page, semanticPage, lineGrid, columns));
     }
 
-    private static bool RequiresFixedLayoutFallback(PdfLayoutPage page, PdfSemanticPage semanticPage)
+    private static bool RequiresFixedLayoutFallback(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        PdfSemanticLineGrid? lineGrid,
+        PdfSemanticColumns? columns)
     {
+        if (lineGrid != null || columns != null)
+        {
+            return false;
+        }
+
         if (page.Runs.Count == 0)
         {
             return page.Images.Count > 0 || page.Paths.Count > 0;
@@ -1405,6 +1527,291 @@ public static class PdfHtmlConverter
         float rightBottom = rightColumn.Max(static line => line.Bounds.Bottom);
         float overlap = MathF.Max(0, MathF.Min(leftBottom, rightBottom) - MathF.Max(leftTop, rightTop));
         return overlap >= MathF.Min(leftBottom - leftTop, rightBottom - rightTop) * 0.45f;
+    }
+
+    private static PdfSemanticLineGrid? TryCreateSemanticLineGrid(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage)
+    {
+        if (!TryGetTwoColumnRuns(page, semanticPage, out PdfTextRun[] candidateLines, out LineGridColumn[] gridColumns, out float pitch))
+        {
+            return null;
+        }
+
+        float columnTolerance = page.Width * 0.06f;
+
+        List<LineGridRow> rows = [];
+        foreach (PdfTextRun line in candidateLines
+            .OrderBy(static run => run.Bounds.Y)
+            .ThenBy(static run => run.Bounds.X))
+        {
+            int columnIndex = NearestGridColumn(gridColumns, line.Bounds.X);
+            if (columnIndex < 0 || MathF.Abs(gridColumns[columnIndex].Left - line.Bounds.X) > columnTolerance)
+            {
+                return null;
+            }
+
+            float rowTolerance = MathF.Max(1f, line.Bounds.Height * 0.4f);
+            LineGridRow? row = rows
+                .Where(row => MathF.Abs(row.Top - line.Bounds.Y) <= rowTolerance)
+                .OrderBy(row => MathF.Abs(row.Top - line.Bounds.Y))
+                .FirstOrDefault();
+            if (row == null)
+            {
+                row = new LineGridRow(line.Bounds.Y, gridColumns.Length);
+                rows.Add(row);
+            }
+
+            if (!row.TryAdd(columnIndex, line))
+            {
+                return null;
+            }
+        }
+
+        if (rows.Count < 12 || rows.Any(row => row.Cells.Any(static cell => cell == null)))
+        {
+            return null;
+        }
+
+        rows.Sort(static (first, second) => first.Top.CompareTo(second.Top));
+        float rightInset = MathF.Max(0, page.Width - gridColumns[0].Left - pitch * gridColumns.Length);
+        return new PdfSemanticLineGrid(
+            page,
+            rows,
+            gridColumns.Length,
+            gridColumns[0].Left,
+            rightInset);
+    }
+
+    private static PdfSemanticColumns? TryCreateSemanticColumns(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage)
+    {
+        if (!TryGetTwoColumnRuns(page, semanticPage, out _, out LineGridColumn[] columns, out float pitch))
+        {
+            return null;
+        }
+
+        float rightInset = MathF.Max(0, page.Width - columns[0].Left - pitch * columns.Length);
+        return new PdfSemanticColumns(page, columns, columns[0].Left, rightInset);
+    }
+
+    private static bool TryGetTwoColumnRuns(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        out PdfTextRun[] candidateRuns,
+        out LineGridColumn[] gridColumns,
+        out float pitch)
+    {
+        candidateRuns = [];
+        gridColumns = [];
+        pitch = 0;
+        if (semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Table) ||
+            page.Lines.Count < 24)
+        {
+            return false;
+        }
+
+        PdfTextRun[] horizontalRuns = page.Runs
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .ToArray();
+        candidateRuns = horizontalRuns
+            .Where(run => run.Bounds.Width <= page.Width * 0.42f)
+            .OrderBy(static run => run.Bounds.X)
+            .ThenBy(static run => run.Bounds.Y)
+            .ToArray();
+        int candidateRunCount = candidateRuns.Length;
+        if (candidateRunCount < horizontalRuns.Length * 0.95f)
+        {
+            return false;
+        }
+
+        float columnTolerance = page.Width * 0.06f;
+        List<LineGridColumn> columns = [];
+        foreach (PdfTextRun run in candidateRuns)
+        {
+            LineGridColumn? column = columns
+                .Where(column => MathF.Abs(column.Left - run.Bounds.X) <= columnTolerance)
+                .OrderBy(column => MathF.Abs(column.Left - run.Bounds.X))
+                .FirstOrDefault();
+            if (column == null)
+            {
+                column = new LineGridColumn(run.Bounds.X);
+                columns.Add(column);
+            }
+
+            column.Add(run);
+        }
+
+        gridColumns = columns
+            .Where(column => column.Lines.Count >= 12)
+            .OrderBy(static column => column.Left)
+            .ToArray();
+        if (gridColumns.Length != 2 ||
+            gridColumns.Any(column => column.Lines.Count < candidateRunCount * 0.35f))
+        {
+            return false;
+        }
+
+        pitch = gridColumns[1].Left - gridColumns[0].Left;
+        return pitch >= page.Width * 0.25f && pitch <= page.Width * 0.7f;
+    }
+
+    private static int NearestGridColumn(IReadOnlyList<LineGridColumn> columns, float left)
+    {
+        int index = -1;
+        float distance = float.MaxValue;
+        for (int candidate = 0; candidate < columns.Count; candidate++)
+        {
+            float candidateDistance = MathF.Abs(columns[candidate].Left - left);
+            if (candidateDistance < distance)
+            {
+                distance = candidateDistance;
+                index = candidate;
+            }
+        }
+
+        return index;
+    }
+
+    private static void WriteSemanticLineGrid(StringBuilder html, PdfSemanticLineGrid grid, float scale)
+    {
+        html.Append("      <section class=\"pdf-semantic-line-grid\" style=\"--pdf-semantic-grid-columns:")
+            .Append(grid.ColumnCount.ToString(CultureInfo.InvariantCulture))
+            .Append(";--pdf-semantic-grid-left:")
+            .Append(CssPoints(grid.LeftInset * scale))
+            .Append(";--pdf-semantic-grid-right:")
+            .Append(CssPoints(grid.RightInset * scale))
+            .Append(";--pdf-semantic-grid-top:")
+            .Append(CssPoints(grid.Rows[0].Top * scale))
+            .AppendLine("\">");
+
+        LineGridRow? previous = null;
+        foreach (LineGridRow row in grid.Rows)
+        {
+            float marginTop = previous == null
+                ? 0
+                : MathF.Max(0, row.Top - previous.Bottom) * scale;
+            html.Append("        <div class=\"pdf-semantic-line-grid-row\" style=\"--pdf-semantic-grid-row-height:")
+                .Append(CssPoints(row.Height * scale));
+            if (marginTop > 0.01f)
+            {
+                html.Append(";margin-top:")
+                    .Append(CssPoints(marginTop));
+            }
+
+            html.AppendLine("\">");
+            foreach (PdfTextRun? cell in row.Cells)
+            {
+                PdfTextRun run = cell!;
+                PdfLayoutColor? highlight = GridHighlightColor(grid.Page, run);
+                html.Append("          <span class=\"pdf-semantic-line-grid-cell");
+                if (highlight.HasValue)
+                {
+                    html.Append(" pdf-semantic-line-grid-highlight");
+                }
+
+                html.Append("\" style=\"font-family:")
+                    .Append(CssFontFamily(run.FontName))
+                    .Append(";font-size:")
+                    .Append(CssPoints(FixedTextFontSize(run) * scale))
+                    .Append(";color:")
+                    .Append(ColorHex(run.Color));
+                if (highlight is PdfLayoutColor highlightColor)
+                {
+                    html.Append(";--pdf-semantic-grid-highlight:")
+                        .Append(ColorHex(highlightColor))
+                        .Append(";--pdf-semantic-grid-highlight-width:")
+                        .Append(CssPoints(run.Bounds.Width * scale));
+                }
+
+                html.Append("\">")
+                    .Append(Html(run.Text))
+                    .AppendLine("</span>");
+            }
+
+            html.AppendLine("        </div>");
+            previous = row;
+        }
+
+        html.AppendLine("      </section>");
+    }
+
+    private static void WriteSemanticColumns(StringBuilder html, PdfSemanticColumns columns, float scale)
+    {
+        float top = columns.Columns
+            .SelectMany(static column => column.Lines)
+            .Min(static run => run.Bounds.Y);
+        html.Append("      <section class=\"pdf-semantic-columns\" style=\"--pdf-semantic-column-count:")
+            .Append(columns.Columns.Count.ToString(CultureInfo.InvariantCulture))
+            .Append(";--pdf-semantic-columns-left:")
+            .Append(CssPoints(columns.LeftInset * scale))
+            .Append(";--pdf-semantic-columns-right:")
+            .Append(CssPoints(columns.RightInset * scale))
+            .Append(";--pdf-semantic-columns-top:")
+            .Append(CssPoints(top * scale))
+            .AppendLine("\">");
+
+        foreach (LineGridColumn column in columns.Columns)
+        {
+            html.AppendLine("        <div class=\"pdf-semantic-column\">");
+            PdfTextRun? previous = null;
+            foreach (PdfTextRun run in column.Lines.OrderBy(static run => run.Bounds.Y))
+            {
+                float marginTop = previous == null
+                    ? MathF.Max(0, run.Bounds.Y - top) * scale
+                    : MathF.Max(0, run.Bounds.Y - previous.Bounds.Bottom) * scale;
+                PdfLayoutColor? highlight = GridHighlightColor(columns.Page, run);
+                html.Append("          <span class=\"pdf-semantic-column-run");
+                if (highlight.HasValue)
+                {
+                    html.Append(" pdf-semantic-line-grid-highlight");
+                }
+
+                html.Append("\" style=\"--pdf-semantic-column-row-height:")
+                    .Append(CssPoints(run.Bounds.Height * scale));
+                if (marginTop > 0.01f)
+                {
+                    html.Append(";margin-top:")
+                        .Append(CssPoints(marginTop));
+                }
+
+                html.Append(";font-family:")
+                    .Append(CssFontFamily(run.FontName))
+                    .Append(";font-size:")
+                    .Append(CssPoints(FixedTextFontSize(run) * scale))
+                    .Append(";color:")
+                    .Append(ColorHex(run.Color));
+                if (highlight is PdfLayoutColor highlightColor)
+                {
+                    html.Append(";--pdf-semantic-grid-highlight:")
+                        .Append(ColorHex(highlightColor))
+                        .Append(";--pdf-semantic-grid-highlight-width:")
+                        .Append(CssPoints(run.Bounds.Width * scale));
+                }
+
+                html.Append("\">")
+                    .Append(Html(run.Text))
+                    .AppendLine("</span>");
+                previous = run;
+            }
+
+            html.AppendLine("        </div>");
+        }
+
+        html.AppendLine("      </section>");
+    }
+
+    private static PdfLayoutColor? GridHighlightColor(PdfLayoutPage page, PdfTextRun run)
+    {
+        return page.Paths
+            .Where(static path => path.FillColor.HasValue)
+            .Where(path => path.Bounds.Width <= page.Width * 0.12f)
+            .Where(path => path.Bounds.Height <= MathF.Max(12f, run.Bounds.Height * 2f))
+            .Where(path => RectanglesIntersect(path.Bounds, run.Bounds, 1f))
+            .Select(static path => path.FillColor)
+            .FirstOrDefault();
     }
 
     private static int BodyParagraphCount(PdfSemanticPage semanticPage)
@@ -5929,6 +6336,8 @@ public static class PdfHtmlConverter
             IReadOnlyList<PdfSemanticElement> positionedElements,
             IReadOnlyList<PdfSemanticElement> flowElements,
             IReadOnlyList<PdfLayoutRectangle> figureRegions,
+            PdfSemanticLineGrid? lineGrid,
+            PdfSemanticColumns? columns,
             bool usesFixedLayoutFallback)
         {
             Page = page;
@@ -5937,6 +6346,8 @@ public static class PdfHtmlConverter
             PositionedElements = positionedElements;
             FlowElements = flowElements;
             FigureRegions = figureRegions;
+            LineGrid = lineGrid;
+            Columns = columns;
             UsesFixedLayoutFallback = usesFixedLayoutFallback;
         }
 
@@ -5952,7 +6363,114 @@ public static class PdfHtmlConverter
 
         public IReadOnlyList<PdfLayoutRectangle> FigureRegions { get; }
 
+        public PdfSemanticLineGrid? LineGrid { get; }
+
+        public PdfSemanticColumns? Columns { get; }
+
         public bool UsesFixedLayoutFallback { get; }
+    }
+
+    private sealed class PdfSemanticLineGrid
+    {
+        public PdfSemanticLineGrid(
+            PdfLayoutPage page,
+            IReadOnlyList<LineGridRow> rows,
+            int columnCount,
+            float leftInset,
+            float rightInset)
+        {
+            Page = page;
+            Rows = rows;
+            ColumnCount = columnCount;
+            LeftInset = leftInset;
+            RightInset = rightInset;
+        }
+
+        public PdfLayoutPage Page { get; }
+
+        public IReadOnlyList<LineGridRow> Rows { get; }
+
+        public int ColumnCount { get; }
+
+        public float LeftInset { get; }
+
+        public float RightInset { get; }
+    }
+
+    private sealed class PdfSemanticColumns
+    {
+        public PdfSemanticColumns(
+            PdfLayoutPage page,
+            IReadOnlyList<LineGridColumn> columns,
+            float leftInset,
+            float rightInset)
+        {
+            Page = page;
+            Columns = columns;
+            LeftInset = leftInset;
+            RightInset = rightInset;
+        }
+
+        public PdfLayoutPage Page { get; }
+
+        public IReadOnlyList<LineGridColumn> Columns { get; }
+
+        public float LeftInset { get; }
+
+        public float RightInset { get; }
+    }
+
+    private sealed class LineGridColumn
+    {
+        private float _leftTotal;
+
+        public LineGridColumn(float left)
+        {
+            Left = left;
+        }
+
+        public float Left { get; private set; }
+
+        public List<PdfTextRun> Lines { get; } = [];
+
+        public void Add(PdfTextRun line)
+        {
+            Lines.Add(line);
+            _leftTotal += line.Bounds.X;
+            Left = _leftTotal / Lines.Count;
+        }
+    }
+
+    private sealed class LineGridRow
+    {
+        public LineGridRow(float top, int columnCount)
+        {
+            Top = top;
+            Cells = new PdfTextRun?[columnCount];
+        }
+
+        public float Top { get; }
+
+        public PdfTextRun?[] Cells { get; }
+
+        public float Height => Cells
+            .Where(static cell => cell != null)
+            .Select(static cell => cell!.Bounds.Height)
+            .DefaultIfEmpty(0)
+            .Max();
+
+        public float Bottom => Top + Height;
+
+        public bool TryAdd(int columnIndex, PdfTextRun line)
+        {
+            if (Cells[columnIndex] != null)
+            {
+                return false;
+            }
+
+            Cells[columnIndex] = line;
+            return true;
+        }
     }
 
     private sealed class ContinuousParagraphMerge

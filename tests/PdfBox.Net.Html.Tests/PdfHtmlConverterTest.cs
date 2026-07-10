@@ -30,11 +30,63 @@ public class PdfHtmlConverterTest
             SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
         });
         XDocument columnsDom = ParseHtml(columnsHtml.Html);
-        XElement columnsFallback = Assert.Single(ElementsByClass(columnsDom, "pdf-semantic-layout-fallback-page"));
-        Assert.Contains("pdf-page", columnsFallback.Attribute("class")?.Value);
-        Assert.Equal(columnsLayout.Pages[0].Runs.Count, columnsFallback.Descendants()
-            .Count(element => HasClass(element, "pdf-text-run")));
-        Assert.Contains(".pdf-semantic-layout-fallback-page", columnsHtml.Css, StringComparison.Ordinal);
+        XElement columnsGrid = Assert.Single(ElementsByClass(columnsDom, "pdf-semantic-line-grid"));
+        XElement[] gridRows = columnsGrid.Descendants()
+            .Where(element => HasClass(element, "pdf-semantic-line-grid-row"))
+            .ToArray();
+        Assert.Equal(84, gridRows.Length);
+        Assert.All(gridRows, row => Assert.Equal(2, row.Descendants()
+            .Count(element => HasClass(element, "pdf-semantic-line-grid-cell"))));
+        Assert.Equal(16, columnsGrid.Descendants()
+            .Count(element => HasClass(element, "pdf-semantic-line-grid-highlight")));
+        Assert.Empty(ElementsByClass(columnsDom, "pdf-semantic-layout-fallback-page"));
+        Assert.Contains(".pdf-semantic-line-grid", columnsHtml.Css, StringComparison.Ordinal);
+
+        using PDDocument staggeredColumnsDocument = CreateTextDocument("""
+            BT
+            /F1 10 Tf
+            72 700 Td
+            (left 01) Tj
+            0 -14 Td (left 02) Tj
+            0 -14 Td (left 03) Tj
+            0 -14 Td (left 04) Tj
+            0 -14 Td (left 05) Tj
+            0 -14 Td (left 06) Tj
+            0 -14 Td (left 07) Tj
+            0 -14 Td (left 08) Tj
+            0 -14 Td (left 09) Tj
+            0 -14 Td (left 10) Tj
+            0 -14 Td (left 11) Tj
+            0 -14 Td (left 12) Tj
+            ET
+            BT
+            /F1 10 Tf
+            330 665 Td
+            (right 01) Tj
+            0 -14 Td (right 02) Tj
+            0 -14 Td (right 03) Tj
+            0 -14 Td (right 04) Tj
+            0 -14 Td (right 05) Tj
+            0 -14 Td (right 06) Tj
+            0 -14 Td (right 07) Tj
+            0 -14 Td (right 08) Tj
+            0 -14 Td (right 09) Tj
+            0 -14 Td (right 10) Tj
+            0 -14 Td (right 11) Tj
+            0 -14 Td (right 12) Tj
+            ET
+            """);
+        PdfLayoutDocument staggeredColumnsLayout = PdfLayoutExtractor.Extract(staggeredColumnsDocument);
+        PdfHtmlDocument staggeredColumnsHtml = PdfHtmlConverter.Convert(staggeredColumnsLayout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument staggeredColumnsDom = ParseHtml(staggeredColumnsHtml.Html);
+        Assert.Equal(2, ElementsByClass(staggeredColumnsDom, "pdf-semantic-column").Count());
+        Assert.Equal(24, ElementsByClass(staggeredColumnsDom, "pdf-semantic-column-run").Count());
+        Assert.Empty(ElementsByClass(staggeredColumnsDom, "pdf-semantic-layout-fallback-page"));
+        Assert.Contains(".pdf-semantic-columns", staggeredColumnsHtml.Css, StringComparison.Ordinal);
 
         using PDDocument formDocument = Loader.LoadPDF(FixturePath("Acroform-PDFBOX-2333.pdf"));
         PdfLayoutDocument formLayout = PdfLayoutExtractor.Extract(formDocument, new PdfLayoutOptions
@@ -73,6 +125,69 @@ public class PdfHtmlConverterTest
         XElement sparseFallback = Assert.Single(ElementsByClass(sparseDom, "pdf-semantic-layout-fallback-page"));
         Assert.Equal(sparseLayout.Pages[0].Runs.Count, sparseFallback.Descendants()
             .Count(element => HasClass(element, "pdf-text-run")));
+    }
+
+    [Fact]
+    public async Task Convert_SemanticContinuousFlow_RendersDetectedGridWithSourceGeometry()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("4PP-Highlighting.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize
+            {
+                Width = 1000,
+                Height = 1400
+            }
+        });
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        GridRenderMetrics metrics = await page.EvaluateAsync<GridRenderMetrics>(
+            """
+            () => {
+              const grid = document.querySelector(".pdf-semantic-line-grid");
+              const rows = Array.from(grid.querySelectorAll(".pdf-semantic-line-grid-row"));
+              const firstRow = rows[0].getBoundingClientRect();
+              const secondRow = rows[1].getBoundingClientRect();
+              const firstCells = Array.from(rows[0].querySelectorAll(".pdf-semantic-line-grid-cell"));
+              const firstCell = firstCells[0].getBoundingClientRect();
+              const secondCell = firstCells[1].getBoundingClientRect();
+              const gridBox = grid.getBoundingClientRect();
+              const firstHighlight = grid.querySelector(".pdf-semantic-line-grid-highlight").getBoundingClientRect();
+              return {
+                rowCount: rows.length,
+                highlightCount: grid.querySelectorAll(".pdf-semantic-line-grid-highlight").length,
+                firstCellLeft: firstCell.left - gridBox.left,
+                secondCellLeft: secondCell.left - gridBox.left,
+                firstCellTop: firstCell.top - gridBox.top,
+                firstRowStep: secondRow.top - firstRow.top,
+                firstHighlightWidth: firstHighlight.width
+              };
+            }
+            """);
+
+        const float cssPixelsPerPoint = 96f / 72f;
+        Assert.Equal(84, metrics.RowCount);
+        Assert.Equal(16, metrics.HighlightCount);
+        AssertWithin(1f, 36f * cssPixelsPerPoint, (float)metrics.FirstCellLeft);
+        AssertWithin(1f, 306f * cssPixelsPerPoint, (float)metrics.SecondCellLeft);
+        AssertWithin(1f, 44.579f * cssPixelsPerPoint, (float)metrics.FirstCellTop);
+        AssertWithin(1f, (52.679f - 44.579f) * cssPixelsPerPoint, (float)metrics.FirstRowStep);
+        AssertWithin(1f, 16.141f * cssPixelsPerPoint, (float)metrics.FirstHighlightWidth);
     }
 
 
@@ -1652,6 +1767,23 @@ public class PdfHtmlConverterTest
         public double PageSixFooterCenterOffset { get; set; }
 
         public double ChildRightOverflow { get; set; }
+    }
+
+    private sealed class GridRenderMetrics
+    {
+        public int RowCount { get; set; }
+
+        public int HighlightCount { get; set; }
+
+        public double FirstCellLeft { get; set; }
+
+        public double SecondCellLeft { get; set; }
+
+        public double FirstCellTop { get; set; }
+
+        public double FirstRowStep { get; set; }
+
+        public double FirstHighlightWidth { get; set; }
     }
 
     private sealed class BrowserRenderComparison
