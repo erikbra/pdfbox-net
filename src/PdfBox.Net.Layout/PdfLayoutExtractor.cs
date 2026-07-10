@@ -167,17 +167,17 @@ public static class PdfLayoutExtractor
             _reportedUnsupportedFonts.Clear();
         }
 
-        public void Collect(PDFont font, int pageNumber)
+        public bool Collect(PDFont font, int pageNumber)
         {
             if (!_includeAssets || string.IsNullOrWhiteSpace(font.GetName()))
             {
-                return;
+                return false;
             }
 
             string fontName = font.GetName();
             if (_assetHashByFontName.ContainsKey(fontName))
             {
-                return;
+                return true;
             }
 
             if (!TryReadBrowserFontProgram(font, out FontProgram program, out string? unsupportedReason))
@@ -191,9 +191,15 @@ public static class PdfLayoutExtractor
                         pageNumber));
                 }
 
-                return;
+                return false;
             }
 
+            AddProgram(fontName, program);
+            return true;
+        }
+
+        private void AddProgram(string fontName, FontProgram program)
+        {
             string hash = Convert.ToHexString(SHA256.HashData(program.Data)).ToLowerInvariant();
             string assetId = "pdf-font-" + hash[..16];
             if (!_assetsByHash.TryGetValue(hash, out FontAssetBuilder? asset))
@@ -204,7 +210,9 @@ public static class PdfLayoutExtractor
                     $"assets/fonts/{assetId}.{extension}",
                     program.ContentType,
                     program.CssFormat,
-                    program.Data);
+                    program.Data,
+                    program.CssFontStyle,
+                    program.CssFontWeight);
                 _assetsByHash.Add(hash, asset);
             }
 
@@ -218,17 +226,20 @@ public static class PdfLayoutExtractor
             unsupportedReason = null;
             PDFontDescriptor? descriptor = font.GetFontDescriptor();
             COSDictionary? descriptorDictionary = descriptor?.GetCOSObject();
-            if (descriptorDictionary is null)
+            if (descriptor is null || descriptorDictionary is null)
             {
                 return false;
             }
+
+            string cssFontStyle = CssFontStyle(font.GetName(), descriptor);
+            int cssFontWeight = CssFontWeight(font.GetName(), descriptor);
 
             if (descriptorDictionary.GetDictionaryObject(FontFile2Key) is COSStream trueTypeStream)
             {
                 byte[] data = ReadStream(trueTypeStream);
                 if (TryGetSfntFormat(data, out string contentType, out string cssFormat))
                 {
-                    program = new FontProgram(data, contentType, cssFormat);
+                    program = new FontProgram(data, contentType, cssFormat, cssFontStyle, cssFontWeight);
                     return true;
                 }
 
@@ -239,20 +250,20 @@ public static class PdfLayoutExtractor
             if (descriptorDictionary.GetDictionaryObject(FontFile3Key) is COSStream fontFile3)
             {
                 string? subtype = fontFile3.GetNameAsString(SubtypeKey);
-                if (!string.Equals(subtype, "OpenType", StringComparison.Ordinal))
+                if (string.Equals(subtype, "OpenType", StringComparison.Ordinal))
                 {
-                    unsupportedReason = $"FontFile3 subtype '{subtype ?? "unknown"}' is a raw PDF font program rather than an OpenType web font.";
+                    byte[] data = ReadStream(fontFile3);
+                    if (TryGetSfntFormat(data, out string contentType, out string cssFormat))
+                    {
+                        program = new FontProgram(data, contentType, cssFormat, cssFontStyle, cssFontWeight);
+                        return true;
+                    }
+
+                    unsupportedReason = "OpenType FontFile3 does not contain a browser-readable sfnt program.";
                     return false;
                 }
 
-                byte[] data = ReadStream(fontFile3);
-                if (TryGetSfntFormat(data, out string contentType, out string cssFormat))
-                {
-                    program = new FontProgram(data, contentType, cssFormat);
-                    return true;
-                }
-
-                unsupportedReason = "OpenType FontFile3 does not contain a browser-readable sfnt program.";
+                unsupportedReason = $"FontFile3 subtype '{subtype ?? "unknown"}' is not a browser-readable sfnt program.";
                 return false;
             }
 
@@ -262,6 +273,29 @@ public static class PdfLayoutExtractor
             }
 
             return false;
+        }
+
+        private static string CssFontStyle(string fontName, PDFontDescriptor descriptor)
+        {
+            return descriptor.IsItalic() || MathF.Abs(descriptor.GetItalicAngle()) > 0.01f ||
+                   fontName.Contains("Italic", StringComparison.OrdinalIgnoreCase) ||
+                   fontName.Contains("Oblique", StringComparison.OrdinalIgnoreCase)
+                ? "italic"
+                : "normal";
+        }
+
+        private static int CssFontWeight(string fontName, PDFontDescriptor descriptor)
+        {
+            float descriptorWeight = descriptor.GetFontWeight();
+            if (descriptorWeight > 0)
+            {
+                return Math.Clamp((int)MathF.Round(descriptorWeight / 100f) * 100, 100, 900);
+            }
+
+            return descriptor.IsForceBold() || fontName.Contains("Bold", StringComparison.OrdinalIgnoreCase) ||
+                   fontName.Contains("Black", StringComparison.OrdinalIgnoreCase)
+                ? 700
+                : 400;
         }
 
         private static byte[] ReadStream(COSStream stream)
@@ -299,19 +333,33 @@ public static class PdfLayoutExtractor
             return false;
         }
 
-        private readonly record struct FontProgram(byte[] Data, string ContentType, string CssFormat);
+        private readonly record struct FontProgram(
+            byte[] Data,
+            string ContentType,
+            string CssFormat,
+            string CssFontStyle,
+            int CssFontWeight);
 
         private sealed class FontAssetBuilder
         {
             private readonly HashSet<string> _fontNames = new(StringComparer.Ordinal);
 
-            public FontAssetBuilder(string assetId, string relativePath, string contentType, string cssFormat, byte[] data)
+            public FontAssetBuilder(
+                string assetId,
+                string relativePath,
+                string contentType,
+                string cssFormat,
+                byte[] data,
+                string cssFontStyle,
+                int cssFontWeight)
             {
                 AssetId = assetId;
                 RelativePath = relativePath;
                 ContentType = contentType;
                 CssFormat = cssFormat;
                 Data = data;
+                CssFontStyle = cssFontStyle;
+                CssFontWeight = cssFontWeight;
             }
 
             public string AssetId { get; }
@@ -324,6 +372,10 @@ public static class PdfLayoutExtractor
 
             public byte[] Data { get; }
 
+            public string CssFontStyle { get; }
+
+            public int CssFontWeight { get; }
+
             public void AddFontName(string fontName) => _fontNames.Add(fontName);
 
             public PdfLayoutFontAsset Build() => new(
@@ -332,7 +384,9 @@ public static class PdfLayoutExtractor
                 RelativePath,
                 ContentType,
                 CssFormat,
-                Data);
+                Data,
+                CssFontStyle,
+                CssFontWeight);
         }
     }
 
@@ -927,7 +981,7 @@ public static class PdfLayoutExtractor
             EmbeddedFontAssetCollector fontAssets)
         {
             PDFont font = position.GetFont();
-            fontAssets.Collect(font, _pageNumber);
+            bool hasBrowserFontAsset = fontAssets.Collect(font, _pageNumber);
             float height = MathF.Max(0, position.GetHeightDir());
             float width = MathF.Max(0, position.GetWidthDirAdj());
             float y = position.GetYDirAdj() - height;
@@ -951,7 +1005,8 @@ public static class PdfLayoutExtractor
                 textColors.GetValueOrDefault(position, new PdfLayoutColor(0, 0, 0, 1, null)))
             {
                 PageBounds = pageBounds,
-                Outline = TryCreateGlyphOutline(position, font)
+                Outline = hasBrowserFontAsset ? null : TryCreateGlyphOutline(position, font),
+                UsesBrowserFontAsset = hasBrowserFontAsset
             };
         }
 
@@ -1453,6 +1508,7 @@ public static class PdfLayoutExtractor
         private readonly Stack<List<PdfLayoutRectangle>> _vectorGroupPathBounds = new();
         private readonly Stack<VectorGroupBuilder> _activeVectorGroups = new();
         private readonly List<PdfLayoutRectangle> _transparencyGroupBounds = new();
+        private bool _reportedShapeAlphaPath;
         private int _nextVectorGroupIndex;
         private readonly HashSet<int> _reportedUnsupportedShadingTypes = [];
         private bool _reportedRotatedImage;
@@ -1688,13 +1744,24 @@ public static class PdfLayoutExtractor
 
             int index = _paths.Count;
             PdfLayoutRectangle bounds = Bounds(commands);
+            bool usesShapeAlpha = graphicsState.GetAlphaSource();
             _paths.Add(new PdfLayoutPath(
                 index,
                 commands,
                 bounds,
                 includeFill ? ResolveColor(graphicsState.GetNonStrokingColor(), graphicsState.GetNonStrokeAlphaConstant(), index, "fill") : null,
                 includeStroke ? StrokeStyle(graphicsState, index) : null,
-                fillRule));
+                fillRule,
+                usesShapeAlpha));
+            if (usesShapeAlpha && !_reportedShapeAlphaPath)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "shape-alpha-vector-unsupported",
+                    "A vector path uses PDF shape-alpha compositing. The HTML converter omits the unsupported vector path instead of rendering an incorrect solid opacity effect.",
+                    _pageNumber));
+                _reportedShapeAlphaPath = true;
+            }
             foreach (List<PdfLayoutRectangle> groupPathBounds in _vectorGroupPathBounds)
             {
                 groupPathBounds.Add(bounds);

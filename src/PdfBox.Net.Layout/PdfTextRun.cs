@@ -64,4 +64,9 @@ public sealed class PdfTextRun
     /// Gets the glyphs that make up the run.
     /// </summary>
     public IReadOnlyList<PdfTextGlyph> Glyphs { get; }
+
+    /// <summary>
+    /// Gets whether every glyph in the run uses an exported browser font asset.
+    /// </summary>
+    public bool UsesBrowserFontAsset => Glyphs.Count > 0 && Glyphs.All(static glyph => glyph.UsesBrowserFontAsset);
 }

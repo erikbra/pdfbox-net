@@ -20,4 +20,9 @@ public sealed record PdfTextGlyph(
     /// Gets the optional PDF glyph outline in normalized page coordinates when the embedded font cannot be used by a browser.
     /// </summary>
     public IReadOnlyList<PdfLayoutPathCommand>? Outline { get; init; }
+
+    /// <summary>
+    /// Gets whether the glyph's exact PDF font has been exported as a browser-loadable asset.
+    /// </summary>
+    public bool UsesBrowserFontAsset { get; init; }
 }

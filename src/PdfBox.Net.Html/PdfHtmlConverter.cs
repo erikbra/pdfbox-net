@@ -763,9 +763,9 @@ public static class PdfHtmlConverter
                     .Append("') format('")
                     .Append(asset.CssFormat)
                     .Append("');font-display:block;font-style:")
-                    .Append(IsItalicFont(fontName) ? "italic" : "normal")
+                    .Append(asset.CssFontStyle)
                     .Append(";font-weight:")
-                    .Append(IsBoldFont(fontName) ? "700" : "400")
+                    .Append(asset.CssFontWeight.ToString(CultureInfo.InvariantCulture))
                     .AppendLine("}");
             }
         }
@@ -967,6 +967,7 @@ public static class PdfHtmlConverter
     {
         return page.Paths
             .Where(path => semanticPage == null || !IsSemanticFlowRulePath(page, semanticPage, path))
+            .Where(static path => !path.UsesShapeAlpha)
             .Where(path => !IsCoveredByTransparencyFallback(page, path.Bounds))
             .ToArray();
     }
@@ -1458,7 +1459,8 @@ public static class PdfHtmlConverter
 
     private static bool ShouldUseFittedText(PdfTextRun run)
     {
-        return run.FontSize > 0 &&
+        return !run.UsesBrowserFontAsset &&
+            run.FontSize > 0 &&
             run.Bounds.Height > 0 &&
             run.Bounds.Width > 0 &&
             MathF.Abs(run.Direction) < 0.01f &&

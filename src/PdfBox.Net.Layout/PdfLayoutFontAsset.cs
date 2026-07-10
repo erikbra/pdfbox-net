@@ -11,7 +11,9 @@ public sealed class PdfLayoutFontAsset
         string relativePath,
         string contentType,
         string cssFormat,
-        byte[] data)
+        byte[] data,
+        string cssFontStyle = "normal",
+        int cssFontWeight = 400)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(assetId);
         ArgumentNullException.ThrowIfNull(fontNames);
@@ -19,6 +21,7 @@ public sealed class PdfLayoutFontAsset
         ArgumentException.ThrowIfNullOrWhiteSpace(contentType);
         ArgumentException.ThrowIfNullOrWhiteSpace(cssFormat);
         ArgumentNullException.ThrowIfNull(data);
+        ArgumentException.ThrowIfNullOrWhiteSpace(cssFontStyle);
 
         AssetId = assetId;
         FontNames = fontNames.Where(static name => !string.IsNullOrWhiteSpace(name))
@@ -28,6 +31,8 @@ public sealed class PdfLayoutFontAsset
         ContentType = contentType;
         CssFormat = cssFormat;
         Data = data.ToArray();
+        CssFontStyle = cssFontStyle;
+        CssFontWeight = Math.Clamp(cssFontWeight, 100, 900);
     }
 
     /// <summary>
@@ -54,6 +59,16 @@ public sealed class PdfLayoutFontAsset
     /// Gets the CSS <c>format()</c> value for the font program.
     /// </summary>
     public string CssFormat { get; }
+
+    /// <summary>
+    /// Gets the CSS font-style derived from the PDF font descriptor.
+    /// </summary>
+    public string CssFontStyle { get; }
+
+    /// <summary>
+    /// Gets the CSS/OpenType weight derived from the PDF font descriptor.
+    /// </summary>
+    public int CssFontWeight { get; }
 
     /// <summary>
     /// Gets the raw OpenType or TrueType program bytes.
