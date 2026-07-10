@@ -9,6 +9,7 @@ using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.State;
+using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
@@ -145,6 +146,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutImage> _images = new();
         private readonly List<PdfLayoutImageAsset> _imageAssets = new();
         private readonly List<PdfLayoutPath> _paths = new();
+        private readonly List<PdfLayoutShading> _shadings = new();
         private readonly List<PdfLayoutVectorGroup> _vectorGroups = new();
         private readonly List<PdfLayoutLink> _links = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
@@ -220,6 +222,7 @@ public static class PdfLayoutExtractor
                 _blocks,
                 _images,
                 _paths,
+                _shadings,
                 _vectorGroups,
                 _links,
                 _diagnostics);
@@ -253,6 +256,7 @@ public static class PdfLayoutExtractor
             _images.AddRange(collector.Images);
             _imageAssets.AddRange(collector.ImageAssets);
             _paths.AddRange(collector.Paths);
+            _shadings.AddRange(collector.Shadings);
             _vectorGroups.AddRange(collector.VectorGroups);
             _diagnostics.AddRange(collector.Diagnostics);
 
@@ -1142,12 +1146,14 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutImage> _images = new();
         private readonly List<PdfLayoutImageAsset> _imageAssets = new();
         private readonly List<PdfLayoutPath> _paths = new();
+        private readonly List<PdfLayoutShading> _shadings = new();
         private readonly List<PdfLayoutVectorGroup> _vectorGroups = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
         private readonly Stack<List<PdfLayoutRectangle>> _vectorGroupPathBounds = new();
         private readonly Stack<VectorGroupBuilder> _activeVectorGroups = new();
         private readonly List<PdfLayoutRectangle> _transparencyGroupBounds = new();
         private int _nextVectorGroupIndex;
+        private readonly HashSet<int> _reportedUnsupportedShadingTypes = [];
         private bool _reportedRotatedImage;
         private bool _reportedRotatedPath;
         private bool _reportedClipping;
@@ -1175,6 +1181,8 @@ public static class PdfLayoutExtractor
         public IReadOnlyList<PdfLayoutImageAsset> ImageAssets => _imageAssets;
 
         public IReadOnlyList<PdfLayoutPath> Paths => _paths;
+
+        public IReadOnlyList<PdfLayoutShading> Shadings => _shadings;
 
         public IReadOnlyList<PdfLayoutVectorGroup> VectorGroups => _vectorGroups;
 
@@ -1254,6 +1262,42 @@ public static class PdfLayoutExtractor
             if (_includeImages)
             {
                 CollectInlineImage(pdImage);
+            }
+        }
+
+        public override void ShadingFill(COSName shadingName)
+        {
+            if (!_includePaths || _rotation != 0)
+            {
+                return;
+            }
+
+            PDShading? shading = GetResources()?.GetShading(shadingName);
+            if (shading is not PDShadingType2 axial)
+            {
+                if (shading is not null && _reportedUnsupportedShadingTypes.Add(shading.GetShadingType()))
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "shading-type-unsupported",
+                        $"PDF shading type {shading.GetShadingType().ToString(CultureInfo.InvariantCulture)} is not yet representable as browser SVG.",
+                        _pageNumber));
+                }
+
+                return;
+            }
+
+            try
+            {
+                CollectShading(axial);
+            }
+            catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "shading-collection-failed",
+                    "PDF shading could not be collected: " + ex.Message,
+                    _pageNumber));
             }
         }
 
@@ -1354,6 +1398,103 @@ public static class PdfLayoutExtractor
             {
                 groupPathBounds.Add(bounds);
             }
+        }
+
+        private void CollectShading(PDShadingType2 shading)
+        {
+            float[]? coordinates = shading.GetCoords()?.ToFloatArray();
+            int coordinateCount = shading is PDShadingType3 ? 6 : 4;
+            if (coordinates is null || coordinates.Length < coordinateCount)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "shading-coordinates-missing",
+                    "PDF shading has no usable coordinate array.",
+                    _pageNumber));
+                return;
+            }
+
+            PDGraphicsState graphicsState = GetGraphicsState();
+            Matrix ctm = graphicsState.GetCurrentTransformationMatrix();
+            (float startX, float startY) = NormalizePoint(coordinates[0], coordinates[1], ctm);
+            float startRadius = shading is PDShadingType3
+                ? TransformWidth(graphicsState, coordinates[2])
+                : 0;
+            int endOffset = shading is PDShadingType3 ? 3 : 2;
+            (float endX, float endY) = NormalizePoint(coordinates[endOffset], coordinates[endOffset + 1], ctm);
+            float endRadius = shading is PDShadingType3
+                ? TransformWidth(graphicsState, coordinates[5])
+                : 0;
+            PdfLayoutRectangle bounds = CurrentClipBounds(graphicsState)
+                ?? ShadingBounds(shading, ctm)
+                ?? new PdfLayoutRectangle(0, 0, _cropBox.Width, _cropBox.Height);
+            PdfLayoutGradientStop[] stops = CreateShadingStops(shading, graphicsState.GetNonStrokeAlphaConstant());
+            if (stops.Length < 2 || bounds.Width <= 0 || bounds.Height <= 0)
+            {
+                return;
+            }
+
+            _shadings.Add(new PdfLayoutShading(
+                _shadings.Count,
+                shading.GetShadingType(),
+                bounds,
+                startX,
+                startY,
+                startRadius,
+                endX,
+                endY,
+                endRadius,
+                stops));
+        }
+
+        private PdfLayoutRectangle? ShadingBounds(PDShading shading, Matrix ctm)
+        {
+            PDRectangle? boundingBox = shading.GetBBox();
+            if (boundingBox is null)
+            {
+                return null;
+            }
+
+            (float lowerLeftX, float lowerLeftY) = NormalizePoint(
+                boundingBox.GetLowerLeftX(),
+                boundingBox.GetLowerLeftY(),
+                ctm);
+            (float upperRightX, float upperRightY) = NormalizePoint(
+                boundingBox.GetUpperRightX(),
+                boundingBox.GetUpperRightY(),
+                ctm);
+            float left = MathF.Min(lowerLeftX, upperRightX);
+            float top = MathF.Min(lowerLeftY, upperRightY);
+            return new PdfLayoutRectangle(
+                left,
+                top,
+                MathF.Abs(upperRightX - lowerLeftX),
+                MathF.Abs(upperRightY - lowerLeftY));
+        }
+
+        private PdfLayoutGradientStop[] CreateShadingStops(PDShading shading, float alpha)
+        {
+            const int stopCount = 9;
+            float[] domain = shading is PDShadingType2 axial
+                ? axial.GetDomain()?.ToFloatArray() ?? [0, 1]
+                : [0, 1];
+            float domainStart = domain.Length > 0 ? domain[0] : 0;
+            float domainEnd = domain.Length > 1 ? domain[1] : 1;
+            PdfLayoutGradientStop[] stops = new PdfLayoutGradientStop[stopCount];
+            for (int index = 0; index < stopCount; index++)
+            {
+                float offset = index / (float)(stopCount - 1);
+                float input = domainStart + ((domainEnd - domainStart) * offset);
+                PdfLayoutColor color = ResolveGraphicsColor(
+                    new PDColor(shading.EvalFunction(input), shading.GetColorSpace()),
+                    alpha,
+                    _pageNumber,
+                    _diagnostics,
+                    "shading");
+                stops[index] = new PdfLayoutGradientStop(offset, color);
+            }
+
+            return stops;
         }
 
         private PdfLayoutStrokeStyle StrokeStyle(PDGraphicsState graphicsState, int index)

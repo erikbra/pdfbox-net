@@ -23,9 +23,12 @@
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
@@ -229,6 +232,25 @@ public class RenderingSmokeTest
         Assert.Equal(255, r);
         Assert.Equal(255, g);
         Assert.Equal(255, b);
+    }
+
+    [Fact]
+    public void RenderImage_AxialShading_InterpolatesAcrossTheGradient()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.ShadingFill(CreateAxialShading());
+        }
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+        int start = image.GetRgb(110, 392);
+        int end = image.GetRgb(390, 392);
+
+        Assert.True(((start >> 16) & 0xFF) > (start & 0xFF), "Expected the start of the shading to be red-dominant.");
+        Assert.True((end & 0xFF) > ((end >> 16) & 0xFF), "Expected the end of the shading to be blue-dominant.");
     }
 
     [Fact]
@@ -564,6 +586,23 @@ public class RenderingSmokeTest
         Assert.Equal(0, grayPixels);
         AssertNotWhite(image.GetRgb(110, row), "inside the black half of the scaled image");
         AssertWhite(image.GetRgb(130, row), "inside the white half of the scaled image");
+    }
+
+    private static PDShadingType2 CreateAxialShading()
+    {
+        COSDictionary functionDictionary = new();
+        functionDictionary.SetInt(COSName.FUNCTION_TYPE, 2);
+        functionDictionary.SetItem(COSName.DOMAIN, COSArray.Of(0f, 1f));
+        functionDictionary.SetItem(COSName.C0, COSArray.Of(1f, 0f, 0f));
+        functionDictionary.SetItem(COSName.C1, COSArray.Of(0f, 0f, 1f));
+        functionDictionary.SetFloat(COSName.N, 1f);
+
+        PDShadingType2 shading = new(new COSDictionary());
+        shading.SetShadingType(PDShading.SHADING_TYPE2);
+        shading.SetColorSpace(PDDeviceRGB.Instance);
+        shading.SetCoords(COSArray.Of(100f, 400f, 400f, 400f));
+        shading.SetFunction(new PDFunctionType2(functionDictionary));
+        return shading;
     }
 
     private static void AssertRedDominant(int argb, string context)

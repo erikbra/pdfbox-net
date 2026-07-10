@@ -1293,6 +1293,7 @@ public class PdfHtmlConverterTest
             [],
             [],
             [],
+            [],
             []);
         PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
         XDocument dom = ParseHtml(html.Html);
@@ -1305,6 +1306,54 @@ public class PdfHtmlConverterTest
         Assert.Equal("spacingAndGlyphs", fittedText.Attribute("lengthAdjust")?.Value);
         Dictionary<string, string> style = ParseStyle(fittedRun.Attribute("style")?.Value ?? "");
         Assert.Equal(20f, ParsePoints(style["font-size"]));
+    }
+
+    [Fact]
+    public void Convert_AxialShading_EmitsAnSvgGradientLayer()
+    {
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutShading shading = new(
+            0,
+            2,
+            new PdfLayoutRectangle(72f, 300f, 240f, 80f),
+            72f,
+            340f,
+            0f,
+            312f,
+            340f,
+            0f,
+            [
+                new PdfLayoutGradientStop(0f, new PdfLayoutColor(1f, 0f, 0f, 1f, "DeviceRGB")),
+                new PdfLayoutGradientStop(1f, new PdfLayoutColor(0f, 0f, 1f, 1f, "DeviceRGB"))
+            ]);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [shading],
+            [],
+            [],
+            []);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement shadingLayer = Assert.Single(ElementsByClass(dom, "pdf-shading-layer"));
+        XElement gradient = Assert.Single(shadingLayer.Descendants(), element => element.Name.LocalName == "linearGradient");
+        Assert.Equal("72", gradient.Attribute("x1")?.Value);
+        Assert.Equal("312", gradient.Attribute("x2")?.Value);
+        Assert.Equal(2, gradient.Descendants().Count(element => element.Name.LocalName == "stop"));
+        XElement rectangle = Assert.Single(ElementsByClass(dom, "pdf-shading"));
+        Assert.Equal("80", rectangle.Attribute("height")?.Value);
     }
 
     [Fact]
@@ -1331,6 +1380,7 @@ public class PdfHtmlConverterTest
             runs,
             lines,
             [new PdfTextBlock(string.Join(" ", runs.Select(run => run.Text)), new PdfLayoutRectangle(72f, 80f, 302.33f, 46.42f), lines)],
+            [],
             [],
             [],
             [],

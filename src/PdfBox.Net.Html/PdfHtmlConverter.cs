@@ -880,6 +880,11 @@ public static class PdfHtmlConverter
                 "foreground");
         }
 
+        if (page.Shadings.Count > 0)
+        {
+            WriteShadingLayer(html, page, scale);
+        }
+
         if (textMode == PdfHtmlTextMode.Semantic && semanticPage != null)
         {
             WriteSemanticPage(html, page, semanticPage, scale);
@@ -993,6 +998,105 @@ public static class PdfHtmlConverter
             $"pdf-vector-page-{page.PageNumber.ToString(CultureInfo.InvariantCulture)}-{layerName}");
 
         html.AppendLine("    </svg>");
+    }
+
+    private static void WriteShadingLayer(StringBuilder html, PdfLayoutPage page, float scale)
+    {
+        html.Append("    <svg class=\"pdf-shading-layer\" data-shading-count=\"")
+            .Append(page.Shadings.Count.ToString(CultureInfo.InvariantCulture))
+            .Append("\" viewBox=\"0 0 ")
+            .Append(SvgNumber(page.Width))
+            .Append(' ')
+            .Append(SvgNumber(page.Height))
+            .Append("\" style=\"position:absolute;left:0;top:0;width:")
+            .Append(CssPoints(page.Width * scale))
+            .Append(";height:")
+            .Append(CssPoints(page.Height * scale))
+            .AppendLine("\" aria-hidden=\"true\">");
+        html.AppendLine("      <defs>");
+        foreach (PdfLayoutShading shading in page.Shadings)
+        {
+            WriteShadingDefinition(html, page, shading);
+        }
+
+        html.AppendLine("      </defs>");
+        foreach (PdfLayoutShading shading in page.Shadings)
+        {
+            html.Append("      <rect class=\"pdf-shading\" data-shading-index=\"")
+                .Append(shading.Index.ToString(CultureInfo.InvariantCulture))
+                .Append("\" x=\"")
+                .Append(SvgNumber(shading.Bounds.X))
+                .Append("\" y=\"")
+                .Append(SvgNumber(shading.Bounds.Y))
+                .Append("\" width=\"")
+                .Append(SvgNumber(shading.Bounds.Width))
+                .Append("\" height=\"")
+                .Append(SvgNumber(shading.Bounds.Height))
+                .Append("\"")
+                .Append(" fill=\"url(#")
+                .Append(ShadingId(page, shading))
+                .AppendLine(")\" />");
+        }
+
+        html.AppendLine("    </svg>");
+    }
+
+    private static void WriteShadingDefinition(StringBuilder html, PdfLayoutPage page, PdfLayoutShading shading)
+    {
+        string id = ShadingId(page, shading);
+        if (shading.ShadingType == 3)
+        {
+            html.Append("        <radialGradient id=\"")
+                .Append(id)
+                .Append("\" gradientUnits=\"userSpaceOnUse\" cx=\"")
+                .Append(SvgNumber(shading.EndX))
+                .Append("\" cy=\"")
+                .Append(SvgNumber(shading.EndY))
+                .Append("\" r=\"")
+                .Append(SvgNumber(shading.EndRadius))
+                .Append("\" fx=\"")
+                .Append(SvgNumber(shading.StartX))
+                .Append("\" fy=\"")
+                .Append(SvgNumber(shading.StartY))
+                .AppendLine("\">");
+            WriteShadingStops(html, shading.Stops);
+            html.AppendLine("        </radialGradient>");
+            return;
+        }
+
+        html.Append("        <linearGradient id=\"")
+            .Append(id)
+            .Append("\" gradientUnits=\"userSpaceOnUse\" x1=\"")
+            .Append(SvgNumber(shading.StartX))
+            .Append("\" y1=\"")
+            .Append(SvgNumber(shading.StartY))
+            .Append("\" x2=\"")
+            .Append(SvgNumber(shading.EndX))
+            .Append("\" y2=\"")
+            .Append(SvgNumber(shading.EndY))
+            .AppendLine("\">");
+        WriteShadingStops(html, shading.Stops);
+        html.AppendLine("        </linearGradient>");
+    }
+
+    private static void WriteShadingStops(StringBuilder html, IReadOnlyList<PdfLayoutGradientStop> stops)
+    {
+        foreach (PdfLayoutGradientStop stop in stops)
+        {
+            html.Append("          <stop offset=\"")
+                .Append(SvgNumber(stop.Offset * 100))
+                .Append("%\" stop-color=\"")
+                .Append(ColorHex(stop.Color))
+                .Append("\" stop-opacity=\"")
+                .Append(SvgNumber(stop.Color.Alpha))
+                .AppendLine("\" />");
+        }
+    }
+
+    private static string ShadingId(PdfLayoutPage page, PdfLayoutShading shading)
+    {
+        return "pdf-shading-page-" + page.PageNumber.ToString(CultureInfo.InvariantCulture) +
+            "-" + shading.Index.ToString(CultureInfo.InvariantCulture);
     }
 
     private static void WriteVectorContent(

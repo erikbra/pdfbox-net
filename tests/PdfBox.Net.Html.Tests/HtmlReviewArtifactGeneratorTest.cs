@@ -506,6 +506,7 @@ public sealed class HtmlReviewArtifactGeneratorTest
                 [],
                 [],
                 [],
+                [],
                 []));
         }
 
