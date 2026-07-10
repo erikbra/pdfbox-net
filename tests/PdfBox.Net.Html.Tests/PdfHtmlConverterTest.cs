@@ -659,6 +659,13 @@ public class PdfHtmlConverterTest
         XElement article = Assert.Single(documentFlow.Elements("article"), element =>
             HasClass(element, "pdf-semantic-flow") &&
             HasClass(element, "pdf-semantic-continuous-flow"));
+        XElement[] authorBlocks = ElementsByClass(dom, "pdf-semantic-author-block").ToArray();
+        Assert.Equal(8, authorBlocks.Length);
+        Assert.DoesNotContain(authorBlocks, author =>
+            author.Attribute("class")?.Value.Contains("pdf-font-", StringComparison.Ordinal) == true ||
+            author.Attribute("class")?.Value.Contains("pdf-color-", StringComparison.Ordinal) == true);
+        Assert.Contains(authorBlocks, author => author.Descendants("span").Any(span =>
+            span.Attribute("class")?.Value.Contains("pdf-font-", StringComparison.Ordinal) == true));
         XElement[] pageBreaks = ElementsByClass(dom, "pdf-semantic-page-break").ToArray();
         Assert.Equal(layout.Pages.Count, pageBreaks.Length);
         Assert.Equal("page-1", pageBreaks[0].Attribute("id")?.Value);
@@ -740,6 +747,10 @@ public class PdfHtmlConverterTest
         Assert.Contains(".pdf-semantic-formula-attached-suffix", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-table", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-inline-summation", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-font-cmr10{", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-font-size-9{", html.Css, StringComparison.Ordinal);
+        Assert.DoesNotContain(".pdf-font-cmr6{", html.Css, StringComparison.Ordinal);
+        Assert.DoesNotContain(".pdf-font-size-7{", html.Css, StringComparison.Ordinal);
 
         XElement continuedParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-page-spanning"), paragraph =>
             paragraph.Value.StartsWith("An attention function can be described", StringComparison.Ordinal));

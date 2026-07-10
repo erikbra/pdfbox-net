@@ -734,11 +734,13 @@ public static class PdfHtmlConverter
 
         html.AppendLine("</body>");
         html.AppendLine("</html>");
+        string htmlText = html.ToString();
+        HashSet<string> usedClassNames = ExtractClassNames(htmlText);
         PdfHtmlAsset[] assets = imageAssets.Values
             .Select(asset => new PdfHtmlAsset(asset.RelativePath, asset.ContentType, asset.Data))
             .Concat(layout.FontAssets.Select(asset => new PdfHtmlAsset(asset.RelativePath, asset.ContentType, asset.Data)))
             .ToArray();
-        return new PdfHtmlDocument(html.ToString(), cssPath, BuildCss(semantic, layout.FontAssets, cssPath), assets);
+        return new PdfHtmlDocument(htmlText, cssPath, BuildCss(semantic, layout.FontAssets, cssPath, usedClassNames), assets);
     }
 
     private static void WriteFontFaces(
@@ -770,7 +772,8 @@ public static class PdfHtmlConverter
     private static string BuildCss(
         PdfSemanticDocument? semantic,
         IReadOnlyList<PdfLayoutFontAsset> fontAssets,
-        string cssPath)
+        string cssPath,
+        IReadOnlySet<string> usedClassNames)
     {
         StringBuilder css = new();
         WriteFontFaces(css, fontAssets, cssPath);
@@ -790,6 +793,11 @@ public static class PdfHtmlConverter
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal))
         {
+            if (!usedClassNames.Contains(FontClass(fontName)))
+            {
+                continue;
+            }
+
             css.Append('.')
                 .Append(FontClass(fontName))
                 .Append("{font-family:")
@@ -805,6 +813,11 @@ public static class PdfHtmlConverter
             .Distinct()
             .Order())
         {
+            if (!usedClassNames.Contains(FontSizeClass(fontSize)))
+            {
+                continue;
+            }
+
             css.Append('.')
                 .Append(FontSizeClass(fontSize))
                 .Append("{font-size:")
@@ -823,6 +836,11 @@ public static class PdfHtmlConverter
             .ThenBy(static color => color.Blue)
             .ThenBy(static color => color.Alpha))
         {
+            if (!usedClassNames.Contains(ColorClass(color)))
+            {
+                continue;
+            }
+
             css.Append('.')
                 .Append(ColorClass(color))
                 .Append("{color:")
@@ -837,6 +855,37 @@ public static class PdfHtmlConverter
         }
 
         return css.ToString();
+    }
+
+    private static HashSet<string> ExtractClassNames(string html)
+    {
+        HashSet<string> classNames = new(StringComparer.Ordinal);
+        const string marker = "class=\"";
+        int searchStart = 0;
+        while (searchStart < html.Length)
+        {
+            int classStart = html.IndexOf(marker, searchStart, StringComparison.Ordinal);
+            if (classStart < 0)
+            {
+                break;
+            }
+
+            classStart += marker.Length;
+            int classEnd = html.IndexOf('\"', classStart);
+            if (classEnd < 0)
+            {
+                break;
+            }
+
+            foreach (string className in html[classStart..classEnd].Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            {
+                classNames.Add(className);
+            }
+
+            searchStart = classEnd + 1;
+        }
+
+        return classNames;
     }
 
     private static void WritePage(
@@ -5870,11 +5919,15 @@ public static class PdfHtmlConverter
         List<string> classes =
         [
             "pdf-semantic-element",
-            SemanticClassName(element.Kind),
-            FontClass(SemanticFontName(element)),
-            FontSizeClass(SemanticFontSize(element)),
-            ColorClass(SemanticColor(element))
+            SemanticClassName(element.Kind)
         ];
+        if (element.Kind != PdfSemanticElementKind.AuthorBlock)
+        {
+            classes.Add(FontClass(SemanticFontName(element)));
+            classes.Add(FontSizeClass(SemanticFontSize(element)));
+            classes.Add(ColorClass(SemanticColor(element)));
+        }
+
         if (IsTitleElement(element))
         {
             classes.Add("pdf-semantic-title");
