@@ -2168,12 +2168,118 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         byte g = (byte)((rgb >> 8) & 0xFF);
         byte b = (byte)(rgb & 0xFF);
         byte a = (byte)Math.Round(Math.Clamp(graphicsState.GetNonStrokeAlphaConstant(), 0f, 1f) * 255f);
-        return new SKPaint
+        SKPaint paint = new()
         {
             Color = new SKColor(r, g, b, a),
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
         };
+
+        SKShader? shader = CreateShadingShader(shading, graphicsState);
+        if (shader is not null)
+        {
+            paint.Shader = shader;
+        }
+
+        return paint;
+    }
+
+    private SKShader? CreateShadingShader(PDShading shading, PDGraphicsState graphicsState)
+    {
+        try
+        {
+            return shading switch
+            {
+                PDShadingType3 radial => CreateRadialShadingShader(radial, graphicsState),
+                PDShadingType2 axial => CreateAxialShadingShader(axial, graphicsState),
+                _ => null
+            };
+        }
+        catch (Exception ex) when (IsRecoverableRenderingException(ex))
+        {
+            return null;
+        }
+    }
+
+    private SKShader? CreateAxialShadingShader(PDShadingType2 shading, PDGraphicsState graphicsState)
+    {
+        float[]? coordinates = shading.GetCoords()?.ToFloatArray();
+        if (coordinates is null || coordinates.Length < 4)
+        {
+            return null;
+        }
+
+        (SKColor[] colors, float[] positions) = CreateShadingGradientStops(shading, graphicsState);
+        if (colors.Length < 2)
+        {
+            return null;
+        }
+
+        Matrix matrix = graphicsState.GetCurrentTransformationMatrix();
+        (float startX, float startY) = PdfToCanvas(coordinates[0], coordinates[1], matrix);
+        (float endX, float endY) = PdfToCanvas(coordinates[2], coordinates[3], matrix);
+        return SKShader.CreateLinearGradient(
+            new SKPoint(startX, startY),
+            new SKPoint(endX, endY),
+            colors,
+            positions,
+            SKShaderTileMode.Clamp);
+    }
+
+    private SKShader? CreateRadialShadingShader(PDShadingType3 shading, PDGraphicsState graphicsState)
+    {
+        float[]? coordinates = shading.GetCoords()?.ToFloatArray();
+        if (coordinates is null || coordinates.Length < 6)
+        {
+            return null;
+        }
+
+        (SKColor[] colors, float[] positions) = CreateShadingGradientStops(shading, graphicsState);
+        if (colors.Length < 2)
+        {
+            return null;
+        }
+
+        Matrix matrix = graphicsState.GetCurrentTransformationMatrix();
+        (float startX, float startY) = PdfToCanvas(coordinates[0], coordinates[1], matrix);
+        (float endX, float endY) = PdfToCanvas(coordinates[3], coordinates[4], matrix);
+        float startRadius = TransformWidth(graphicsState, coordinates[2]);
+        float endRadius = TransformWidth(graphicsState, coordinates[5]);
+        return SKShader.CreateTwoPointConicalGradient(
+            new SKPoint(startX, startY),
+            startRadius,
+            new SKPoint(endX, endY),
+            endRadius,
+            colors,
+            positions,
+            SKShaderTileMode.Clamp);
+    }
+
+    private static (SKColor[] Colors, float[] Positions) CreateShadingGradientStops(
+        PDShadingType2 shading,
+        PDGraphicsState graphicsState)
+    {
+        const int stopCount = 9;
+        float[] domain = shading.GetDomain()?.ToFloatArray() ?? [0, 1];
+        float domainStart = domain.Length > 0 ? domain[0] : 0;
+        float domainEnd = domain.Length > 1 ? domain[1] : 1;
+        byte alpha = (byte)Math.Round(Math.Clamp(graphicsState.GetNonStrokeAlphaConstant(), 0f, 1f) * 255f);
+        SKColor[] colors = new SKColor[stopCount];
+        float[] positions = new float[stopCount];
+        for (int index = 0; index < stopCount; index++)
+        {
+            float position = index / (float)(stopCount - 1);
+            float input = domainStart + ((domainEnd - domainStart) * position);
+            int rgb = SafeToRgb(new PDColor(shading.EvalFunction(input), shading.GetColorSpace()), 0);
+            colors[index] = new SKColor(
+                (byte)((rgb >> 16) & 0xFF),
+                (byte)((rgb >> 8) & 0xFF),
+                (byte)(rgb & 0xFF),
+                alpha);
+            positions[index] = position;
+        }
+
+        return (colors, positions);
     }
 
     private static bool IsRecoverableRenderingException(Exception ex)

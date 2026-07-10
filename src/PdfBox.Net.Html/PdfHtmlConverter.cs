@@ -78,6 +78,84 @@ public static class PdfHtmlConverter
           box-sizing: border-box;
         }
 
+        .pdf-semantic-layout-fallback-page {
+          flex: none;
+          margin: 24pt -72pt;
+          max-width: none;
+        }
+
+        .pdf-semantic-layout-fallback-page:first-child {
+          margin-top: 0;
+        }
+
+        .pdf-semantic-line-grid {
+          align-self: stretch;
+          box-sizing: border-box;
+          display: flex;
+          flex: none;
+          flex-direction: column;
+          margin: 0 0 0 -108pt;
+          max-width: none;
+          padding: var(--pdf-semantic-grid-top, 0) var(--pdf-semantic-grid-right, 0) 0 var(--pdf-semantic-grid-left, 0);
+          width: calc(100% + 216pt);
+        }
+
+        .pdf-semantic-page-start + .pdf-semantic-line-grid {
+          margin-top: -68pt;
+        }
+
+        .pdf-semantic-line-grid-row {
+          column-gap: 0;
+          display: grid;
+          grid-template-columns: repeat(var(--pdf-semantic-grid-columns, 2), minmax(0, 1fr));
+          min-height: var(--pdf-semantic-grid-row-height, auto);
+        }
+
+        .pdf-semantic-line-grid-cell {
+          justify-self: start;
+          line-height: var(--pdf-semantic-grid-row-height, 1);
+          min-width: 0;
+          overflow: visible;
+          white-space: pre;
+        }
+
+        .pdf-semantic-line-grid-highlight {
+          background-color: var(--pdf-semantic-grid-highlight);
+          min-width: var(--pdf-semantic-grid-highlight-width, auto);
+        }
+
+        .pdf-semantic-columns {
+          align-self: stretch;
+          box-sizing: border-box;
+          column-gap: 0;
+          display: grid;
+          grid-template-columns: repeat(var(--pdf-semantic-column-count, 2), minmax(0, 1fr));
+          margin: 0 0 0 -108pt;
+          max-width: none;
+          padding: var(--pdf-semantic-columns-top, 0) var(--pdf-semantic-columns-right, 0) 0 var(--pdf-semantic-columns-left, 0);
+          width: calc(100% + 216pt);
+        }
+
+        .pdf-semantic-page-start + .pdf-semantic-columns {
+          margin-top: -68pt;
+        }
+
+        .pdf-semantic-column {
+          min-width: 0;
+        }
+
+        .pdf-semantic-column-run {
+          display: block;
+          line-height: var(--pdf-semantic-column-row-height, 1);
+          min-height: var(--pdf-semantic-column-row-height, auto);
+          overflow: visible;
+          white-space: pre;
+        }
+
+        .pdf-semantic-column-run.pdf-semantic-line-grid-highlight {
+          width: fit-content;
+        }
+
         .pdf-semantic-document-flow {
           background: var(--pdf-page-background);
           box-shadow: 0 1pt 4pt var(--pdf-page-edge-shadow);
@@ -349,6 +427,25 @@ public static class PdfHtmlConverter
         .pdf-semantic-paragraph {
           line-height: 1.18;
           margin-bottom: 6pt;
+        }
+
+        .pdf-semantic-list {
+          line-height: 1.18;
+          margin: 0 0 6pt;
+          padding-left: 1.35em;
+        }
+
+        .pdf-semantic-list > li {
+          margin: 0 0 2pt;
+          padding-left: 0.2em;
+        }
+
+        .pdf-semantic-link,
+        .pdf-semantic-auto-link {
+          color: inherit;
+          text-decoration: underline;
+          text-decoration-thickness: 0.06em;
+          text-underline-offset: 0.12em;
         }
 
         .pdf-semantic-justified {
@@ -643,18 +740,50 @@ public static class PdfHtmlConverter
         html.AppendLine("</html>");
         PdfHtmlAsset[] assets = imageAssets.Values
             .Select(asset => new PdfHtmlAsset(asset.RelativePath, asset.ContentType, asset.Data))
+            .Concat(layout.FontAssets.Select(asset => new PdfHtmlAsset(asset.RelativePath, asset.ContentType, asset.Data)))
             .ToArray();
-        return new PdfHtmlDocument(html.ToString(), cssPath, BuildCss(semantic), assets);
+        return new PdfHtmlDocument(html.ToString(), cssPath, BuildCss(semantic, layout.FontAssets, cssPath), assets);
     }
 
-    private static string BuildCss(PdfSemanticDocument? semantic)
+    private static void WriteFontFaces(
+        StringBuilder css,
+        IReadOnlyList<PdfLayoutFontAsset> fontAssets,
+        string cssPath)
     {
+        foreach (PdfLayoutFontAsset asset in fontAssets.OrderBy(static asset => asset.AssetId, StringComparer.Ordinal))
+        {
+            foreach (string fontName in asset.FontNames
+                .Where(static name => !string.IsNullOrWhiteSpace(name))
+                .Distinct(StringComparer.Ordinal))
+            {
+                css.Append("@font-face{font-family:")
+                    .Append(CssFontFamilyName(fontName))
+                    .Append(";src:url('")
+                    .Append(CssUrlRelativeToStylesheet(cssPath, asset.RelativePath))
+                    .Append("') format('")
+                    .Append(asset.CssFormat)
+                    .Append("');font-display:block;font-style:")
+                    .Append(IsItalicFont(fontName) ? "italic" : "normal")
+                    .Append(";font-weight:")
+                    .Append(IsBoldFont(fontName) ? "700" : "400")
+                    .AppendLine("}");
+            }
+        }
+    }
+
+    private static string BuildCss(
+        PdfSemanticDocument? semantic,
+        IReadOnlyList<PdfLayoutFontAsset> fontAssets,
+        string cssPath)
+    {
+        StringBuilder css = new();
+        WriteFontFaces(css, fontAssets, cssPath);
+        css.Append(Css);
         if (semantic == null)
         {
-            return Css;
+            return css.ToString();
         }
 
-        StringBuilder css = new(Css);
         css.AppendLine();
         foreach (string fontName in semantic.Elements
             .SelectMany(static element => element.Lines)
@@ -720,12 +849,18 @@ public static class PdfHtmlConverter
         IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
         float scale,
         PdfSemanticPage? semanticPage,
-        PdfHtmlTextMode textMode)
+        PdfHtmlTextMode textMode,
+        string? additionalClass = null)
     {
         html.Append("  <section class=\"pdf-page");
         if (textMode == PdfHtmlTextMode.Semantic)
         {
             html.Append(" pdf-semantic-page");
+        }
+
+        if (!string.IsNullOrWhiteSpace(additionalClass))
+        {
+            html.Append(' ').Append(additionalClass);
         }
 
         html.Append("\" data-page-number=\"")
@@ -738,6 +873,23 @@ public static class PdfHtmlConverter
             .Append(CssPoints(page.Height * scale))
             .AppendLine("\">");
 
+        PdfLayoutPath[] vectorPaths = RenderableVectorPaths(
+            page,
+            textMode == PdfHtmlTextMode.Semantic ? semanticPage : null);
+        PdfLayoutPath[] imageBackdrops = vectorPaths
+            .Where(path => IsImageBackdropPath(path, page.Images))
+            .ToArray();
+        if (imageBackdrops.Length > 0)
+        {
+            WriteVectorLayer(
+                html,
+                page,
+                scale,
+                imageBackdrops,
+                "pdf-vector-layer pdf-vector-background-layer",
+                "background");
+        }
+
         foreach (PdfLayoutImage image in page.Images)
         {
             if (imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
@@ -746,13 +898,23 @@ public static class PdfHtmlConverter
             }
         }
 
-        if (page.Paths.Count > 0)
+        PdfLayoutPath[] foregroundPaths = vectorPaths
+            .Except(imageBackdrops)
+            .ToArray();
+        if (foregroundPaths.Length > 0)
         {
             WriteVectorLayer(
                 html,
                 page,
                 scale,
-                textMode == PdfHtmlTextMode.Semantic ? semanticPage : null);
+                foregroundPaths,
+                "pdf-vector-layer",
+                "foreground");
+        }
+
+        if (page.Shadings.Count > 0)
+        {
+            WriteShadingLayer(html, page, scale);
         }
 
         if (textMode == PdfHtmlTextMode.Semantic && semanticPage != null)
@@ -763,7 +925,7 @@ public static class PdfHtmlConverter
         {
             foreach (PdfTextRun run in page.Runs.Where(run => !IsCoveredByTransparencyFallback(page, run.PageBounds)))
             {
-                WriteTextRun(html, run, scale);
+                WriteTextRun(html, run, scale, FixedTextFontSize(run, page.Runs));
             }
         }
 
@@ -799,23 +961,58 @@ public static class PdfHtmlConverter
             .AppendLine("\" />");
     }
 
+    private static PdfLayoutPath[] RenderableVectorPaths(
+        PdfLayoutPage page,
+        PdfSemanticPage? semanticPage)
+    {
+        return page.Paths
+            .Where(path => semanticPage == null || !IsSemanticFlowRulePath(page, semanticPage, path))
+            .Where(path => !IsCoveredByTransparencyFallback(page, path.Bounds))
+            .ToArray();
+    }
+
+    private static bool IsImageBackdropPath(PdfLayoutPath path, IReadOnlyList<PdfLayoutImage> images)
+    {
+        if (!path.IsFilled || path.FillColor is not PdfLayoutColor fillColor || fillColor.Alpha < 0.999f)
+        {
+            return false;
+        }
+
+        return images
+            .Where(static image => image.Kind != PdfLayoutImageKind.TransparencyGroupFallback)
+            .Any(image => ContainsWithTolerance(path.Bounds, image.Bounds, 0.25f));
+    }
+
+    private static bool ContainsWithTolerance(
+        PdfLayoutRectangle outer,
+        PdfLayoutRectangle inner,
+        float tolerance)
+    {
+        return outer.X <= inner.X + tolerance &&
+            outer.Y <= inner.Y + tolerance &&
+            outer.Right >= inner.Right - tolerance &&
+            outer.Bottom >= inner.Bottom - tolerance;
+    }
+
     private static void WriteVectorLayer(
         StringBuilder html,
         PdfLayoutPage page,
         float scale,
-        PdfSemanticPage? semanticPage)
+        IReadOnlyList<PdfLayoutPath> paths,
+        string cssClass,
+        string layerName)
     {
-        PdfLayoutPath[] paths = page.Paths
-            .Where(path => semanticPage == null || !IsSemanticFlowRulePath(page, semanticPage, path))
-            .Where(path => !IsCoveredByTransparencyFallback(page, path.Bounds))
-            .ToArray();
-        if (paths.Length == 0)
+        if (paths.Count == 0)
         {
             return;
         }
 
-        html.Append("    <svg class=\"pdf-vector-layer\" data-path-count=\"")
-            .Append(paths.Length.ToString(CultureInfo.InvariantCulture))
+        html.Append("    <svg class=\"")
+            .Append(cssClass)
+            .Append("\" data-vector-layer=\"")
+            .Append(layerName)
+            .Append("\" data-path-count=\"")
+            .Append(paths.Count.ToString(CultureInfo.InvariantCulture))
             .Append("\" viewBox=\"0 0 ")
             .Append(SvgNumber(page.Width))
             .Append(' ')
@@ -830,9 +1027,108 @@ public static class PdfHtmlConverter
             html,
             paths,
             page.VectorGroups,
-            $"pdf-vector-page-{page.PageNumber.ToString(CultureInfo.InvariantCulture)}");
+            $"pdf-vector-page-{page.PageNumber.ToString(CultureInfo.InvariantCulture)}-{layerName}");
 
         html.AppendLine("    </svg>");
+    }
+
+    private static void WriteShadingLayer(StringBuilder html, PdfLayoutPage page, float scale)
+    {
+        html.Append("    <svg class=\"pdf-shading-layer\" data-shading-count=\"")
+            .Append(page.Shadings.Count.ToString(CultureInfo.InvariantCulture))
+            .Append("\" viewBox=\"0 0 ")
+            .Append(SvgNumber(page.Width))
+            .Append(' ')
+            .Append(SvgNumber(page.Height))
+            .Append("\" style=\"position:absolute;left:0;top:0;width:")
+            .Append(CssPoints(page.Width * scale))
+            .Append(";height:")
+            .Append(CssPoints(page.Height * scale))
+            .AppendLine("\" aria-hidden=\"true\">");
+        html.AppendLine("      <defs>");
+        foreach (PdfLayoutShading shading in page.Shadings)
+        {
+            WriteShadingDefinition(html, page, shading);
+        }
+
+        html.AppendLine("      </defs>");
+        foreach (PdfLayoutShading shading in page.Shadings)
+        {
+            html.Append("      <rect class=\"pdf-shading\" data-shading-index=\"")
+                .Append(shading.Index.ToString(CultureInfo.InvariantCulture))
+                .Append("\" x=\"")
+                .Append(SvgNumber(shading.Bounds.X))
+                .Append("\" y=\"")
+                .Append(SvgNumber(shading.Bounds.Y))
+                .Append("\" width=\"")
+                .Append(SvgNumber(shading.Bounds.Width))
+                .Append("\" height=\"")
+                .Append(SvgNumber(shading.Bounds.Height))
+                .Append("\"")
+                .Append(" fill=\"url(#")
+                .Append(ShadingId(page, shading))
+                .AppendLine(")\" />");
+        }
+
+        html.AppendLine("    </svg>");
+    }
+
+    private static void WriteShadingDefinition(StringBuilder html, PdfLayoutPage page, PdfLayoutShading shading)
+    {
+        string id = ShadingId(page, shading);
+        if (shading.ShadingType == 3)
+        {
+            html.Append("        <radialGradient id=\"")
+                .Append(id)
+                .Append("\" gradientUnits=\"userSpaceOnUse\" cx=\"")
+                .Append(SvgNumber(shading.EndX))
+                .Append("\" cy=\"")
+                .Append(SvgNumber(shading.EndY))
+                .Append("\" r=\"")
+                .Append(SvgNumber(shading.EndRadius))
+                .Append("\" fx=\"")
+                .Append(SvgNumber(shading.StartX))
+                .Append("\" fy=\"")
+                .Append(SvgNumber(shading.StartY))
+                .AppendLine("\">");
+            WriteShadingStops(html, shading.Stops);
+            html.AppendLine("        </radialGradient>");
+            return;
+        }
+
+        html.Append("        <linearGradient id=\"")
+            .Append(id)
+            .Append("\" gradientUnits=\"userSpaceOnUse\" x1=\"")
+            .Append(SvgNumber(shading.StartX))
+            .Append("\" y1=\"")
+            .Append(SvgNumber(shading.StartY))
+            .Append("\" x2=\"")
+            .Append(SvgNumber(shading.EndX))
+            .Append("\" y2=\"")
+            .Append(SvgNumber(shading.EndY))
+            .AppendLine("\">");
+        WriteShadingStops(html, shading.Stops);
+        html.AppendLine("        </linearGradient>");
+    }
+
+    private static void WriteShadingStops(StringBuilder html, IReadOnlyList<PdfLayoutGradientStop> stops)
+    {
+        foreach (PdfLayoutGradientStop stop in stops)
+        {
+            html.Append("          <stop offset=\"")
+                .Append(SvgNumber(stop.Offset * 100))
+                .Append("%\" stop-color=\"")
+                .Append(ColorHex(stop.Color))
+                .Append("\" stop-opacity=\"")
+                .Append(SvgNumber(stop.Color.Alpha))
+                .AppendLine("\" />");
+        }
+    }
+
+    private static string ShadingId(PdfLayoutPage page, PdfLayoutShading shading)
+    {
+        return "pdf-shading-page-" + page.PageNumber.ToString(CultureInfo.InvariantCulture) +
+            "-" + shading.Index.ToString(CultureInfo.InvariantCulture);
     }
 
     private static void WriteVectorContent(
@@ -1055,9 +1351,8 @@ public static class PdfHtmlConverter
         html.AppendLine(" />");
     }
 
-    private static void WriteTextRun(StringBuilder html, PdfTextRun run, float scale)
+    private static void WriteTextRun(StringBuilder html, PdfTextRun run, float scale, float fontSize)
     {
-        float fontSize = FixedTextFontSize(run);
         html.Append("    <span class=\"pdf-text-run\" data-font=\"")
             .Append(HtmlAttribute(run.FontName))
             .Append("\" style=\"position:absolute;left:")
@@ -1072,11 +1367,16 @@ public static class PdfHtmlConverter
             .Append(CssPoints(fontSize * scale))
             .Append(";font-family:")
             .Append(CssFontFamily(run.FontName))
+            .Append(FixedTextFontPresentation(run))
             .Append(";color:")
             .Append(ColorHex(run.Color))
             .Append("\">");
 
-        if (ShouldUseFittedText(run))
+        if (HasGlyphOutlineFallback(run))
+        {
+            WriteGlyphOutlineTextRun(html, run);
+        }
+        else if (ShouldUseFittedText(run))
         {
             WriteFittedTextRun(html, run, fontSize, scale);
         }
@@ -1086,6 +1386,41 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("</span>");
+    }
+
+    private static void WriteGlyphOutlineTextRun(StringBuilder html, PdfTextRun run)
+    {
+        html.Append("<span class=\"pdf-text-run-copy\" aria-hidden=\"true\">")
+            .Append(Html(run.Text))
+            .Append("</span><svg class=\"pdf-text-run-svg pdf-text-run-outline\" viewBox=\"0 0 ")
+            .Append(SvgNumber(run.Bounds.Width))
+            .Append(' ')
+            .Append(SvgNumber(run.Bounds.Height))
+            .Append("\" preserveAspectRatio=\"none\" aria-hidden=\"true\">");
+
+        foreach (PdfTextGlyph glyph in run.Glyphs)
+        {
+            if (glyph.Outline is not { Count: > 0 } outline)
+            {
+                continue;
+            }
+
+            html.Append("<path d=\"")
+                .Append(HtmlAttribute(SvgPathData(outline, run.Bounds.X, run.Bounds.Y)))
+                .Append("\" fill=\"")
+                .Append(ColorHex(run.Color))
+                .Append('"');
+            if (run.Color.Alpha < 0.999f)
+            {
+                html.Append(" fill-opacity=\"")
+                    .Append(SvgNumber(run.Color.Alpha))
+                    .Append('"');
+            }
+
+            html.AppendLine(" />");
+        }
+
+        html.Append("</svg>");
     }
 
     private static void WriteFittedTextRun(StringBuilder html, PdfTextRun run, float fontSize, float scale)
@@ -1106,6 +1441,7 @@ public static class PdfHtmlConverter
             .Append(CssPoints(fontSize * scale))
             .Append(";font-family:")
             .Append(CssFontFamily(run.FontName))
+            .Append(FixedTextFontPresentation(run))
             .Append(";fill:")
             .Append(color);
 
@@ -1126,15 +1462,105 @@ public static class PdfHtmlConverter
             run.Bounds.Height > 0 &&
             run.Bounds.Width > 0 &&
             MathF.Abs(run.Direction) < 0.01f &&
-            run.Bounds.Height / run.FontSize < 0.55f &&
-            !string.IsNullOrWhiteSpace(run.Text);
+            !string.IsNullOrWhiteSpace(run.Text) &&
+            (HasCompressedGlyphBounds(run) ||
+                HasUntrustedBrowserFontMetrics(run.FontName) &&
+                !HasMathFont(run.FontName) &&
+                !IsSymbolFont(run.FontName));
     }
 
-    private static float FixedTextFontSize(PdfTextRun run)
+    private static bool HasGlyphOutlineFallback(PdfTextRun run)
     {
-        return ShouldUseFittedText(run)
+        return run.Glyphs.Count > 0 && run.Glyphs.All(static glyph => glyph.Outline is not null);
+    }
+
+    private static float FixedTextFontSize(
+        PdfTextRun run,
+        IReadOnlyList<PdfTextRun>? pageRuns = null)
+    {
+        float fontSize = HasCompressedGlyphBounds(run)
             ? MathF.Max(0.5f, run.Bounds.Height * 1.25f)
             : run.FontSize;
+        return pageRuns == null
+            ? fontSize
+            : CorrectTransformedTextFontSize(run, fontSize, pageRuns);
+    }
+
+    private static float CorrectTransformedTextFontSize(
+        PdfTextRun run,
+        float fontSize,
+        IReadOnlyList<PdfTextRun> pageRuns)
+    {
+        if (fontSize >= 8f ||
+            run.Text.Length < 8 ||
+            !run.Text.Any(char.IsLetterOrDigit) ||
+            fontSize <= 0)
+        {
+            return fontSize;
+        }
+
+        PdfTextRun? adjacentRun = pageRuns
+            .Where(candidate => !ReferenceEquals(candidate, run))
+            .Where(candidate => string.Equals(
+                NormalizeFontName(candidate.FontName),
+                NormalizeFontName(run.FontName),
+                StringComparison.Ordinal))
+            .Where(candidate => candidate.FontSize >= fontSize * 1.35f)
+            .Where(candidate => MathF.Abs(RunBaseline(candidate) - RunBaseline(run)) <= 0.75f)
+            .Where(candidate => MathF.Min(
+                MathF.Abs(candidate.Bounds.X - run.Bounds.Right),
+                MathF.Abs(run.Bounds.X - candidate.Bounds.Right)) <= 1.5f)
+            .OrderBy(candidate => MathF.Min(
+                MathF.Abs(candidate.Bounds.X - run.Bounds.Right),
+                MathF.Abs(run.Bounds.X - candidate.Bounds.Right)))
+            .FirstOrDefault();
+        return adjacentRun?.FontSize ?? fontSize;
+    }
+
+    private static float RunBaseline(PdfTextRun run)
+    {
+        return run.Bounds.Bottom;
+    }
+
+    private static string FixedTextFontPresentation(PdfTextRun run)
+    {
+        StringBuilder style = new();
+        if (IsBoldFont(run.FontName))
+        {
+            style.Append(";font-weight:700");
+        }
+
+        if (IsItalicFont(run.FontName))
+        {
+            style.Append(";font-style:italic");
+        }
+
+        return style.ToString();
+    }
+
+    private static bool HasCompressedGlyphBounds(PdfTextRun run)
+    {
+        return run.Bounds.Height / run.FontSize < 0.55f;
+    }
+
+    private static bool HasUntrustedBrowserFontMetrics(string fontName)
+    {
+        string normalized = NormalizeFontName(fontName);
+        return !normalized.Contains("Arial", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Helvetica", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Times", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Nimbus", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Courier", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Mono", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Verdana", StringComparison.OrdinalIgnoreCase) &&
+            !normalized.Contains("Tahoma", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsSymbolFont(string fontName)
+    {
+        string normalized = NormalizeFontName(fontName);
+        return normalized.Contains("Symbol", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Dingbats", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void WriteSemanticPage(
@@ -1191,6 +1617,16 @@ public static class PdfHtmlConverter
         HashSet<int> inlinePageBreaks = [];
         for (int index = 0; index + 1 < pages.Length; index++)
         {
+            if (pages[index].UsesFixedLayoutFallback ||
+                pages[index].LineGrid != null ||
+                pages[index].Columns != null ||
+                pages[index + 1].UsesFixedLayoutFallback ||
+                pages[index + 1].LineGrid != null ||
+                pages[index + 1].Columns != null)
+            {
+                continue;
+            }
+
             ContinuousParagraphMerge? merge = TryCreateContinuousParagraphMerge(pages[index], pages[index + 1]);
             if (merge == null)
             {
@@ -1230,11 +1666,70 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("  <main class=\"pdf-semantic-document-flow\">");
-        html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
+        bool flowOpen = false;
 
         for (int index = 0; index < pages.Length; index++)
         {
             ContinuousPageContext context = pages[index];
+            if (context.LineGrid != null)
+            {
+                if (!flowOpen)
+                {
+                    html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
+                    flowOpen = true;
+                }
+
+                if (!inlinePageBreaks.Contains(context.Page.PageNumber))
+                {
+                    WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
+                }
+
+                WriteSemanticLineGrid(html, context.LineGrid, scale);
+                continue;
+            }
+
+            if (context.Columns != null)
+            {
+                if (!flowOpen)
+                {
+                    html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
+                    flowOpen = true;
+                }
+
+                if (!inlinePageBreaks.Contains(context.Page.PageNumber))
+                {
+                    WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
+                }
+
+                WriteSemanticColumns(html, context.Columns, scale);
+                continue;
+            }
+
+            if (context.UsesFixedLayoutFallback)
+            {
+                if (flowOpen)
+                {
+                    html.AppendLine("    </article>");
+                    flowOpen = false;
+                }
+
+                WritePage(
+                    html,
+                    context.Page,
+                    imageAssets,
+                    scale,
+                    semanticPage: null,
+                    PdfHtmlTextMode.FixedLayout,
+                    additionalClass: "pdf-semantic-layout-fallback-page");
+                continue;
+            }
+
+            if (!flowOpen)
+            {
+                html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
+                flowOpen = true;
+            }
+
             if (!inlinePageBreaks.Contains(context.Page.PageNumber))
             {
                 WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
@@ -1263,12 +1758,20 @@ public static class PdfHtmlConverter
                 paragraphMerges.GetValueOrDefault(index));
         }
 
-        html.AppendLine("    </article>");
+        if (flowOpen)
+        {
+            html.AppendLine("    </article>");
+        }
+
         html.AppendLine("  </main>");
     }
 
     private static ContinuousPageContext CreateContinuousPageContext(PdfLayoutPage page, PdfSemanticPage semanticPage)
     {
+        PdfSemanticLineGrid? lineGrid = TryCreateSemanticLineGrid(page, semanticPage);
+        PdfSemanticColumns? columns = lineGrid == null
+            ? TryCreateSemanticColumns(page, semanticPage)
+            : null;
         PdfLayoutRectangle[] figureRegions = SemanticFigureRegions(page, semanticPage).ToArray();
         PdfSemanticElement[] positioned = semanticPage.Elements
             .Where(IsPositionedSemanticElement)
@@ -1284,7 +1787,411 @@ public static class PdfHtmlConverter
             FootnoteContext.Create(page.PageNumber, semanticPage.Elements),
             positioned,
             flowElements,
-            figureRegions);
+            figureRegions,
+            lineGrid,
+            columns,
+            RequiresFixedLayoutFallback(page, semanticPage, lineGrid, columns));
+    }
+
+    private static bool RequiresFixedLayoutFallback(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        PdfSemanticLineGrid? lineGrid,
+        PdfSemanticColumns? columns)
+    {
+        if (lineGrid != null || columns != null)
+        {
+            return false;
+        }
+
+        if (page.Runs.Count == 0)
+        {
+            return page.Images.Count > 0 || page.Paths.Count > 0;
+        }
+
+        if (HasFullPageVectorBackdrop(page))
+        {
+            return true;
+        }
+
+        if (HasSideBySideTextColumns(page, semanticPage))
+        {
+            return true;
+        }
+
+        if (page.Lines.Count >= 40 &&
+            semanticPage.Elements.Count <= 3 &&
+            BodyParagraphCount(semanticPage) <= 2)
+        {
+            return true;
+        }
+
+        if (page.Images.Count >= 8 ||
+            page.Paths.Count >= 100 && page.Images.Count >= 4 ||
+            page.Images.Count >= 2 && page.Paths.Count >= 8 && BodyParagraphCount(semanticPage) < 6)
+        {
+            return true;
+        }
+
+        if (page.Lines.Count <= 8 &&
+            page.Runs.Count <= 20 &&
+            PageContentTop(page) > page.Height * 0.07f)
+        {
+            return true;
+        }
+
+        return semanticPage.Elements.Count <= 1 &&
+            PageContentTop(page) > page.Height * 0.14f;
+    }
+
+    private static bool HasFullPageVectorBackdrop(PdfLayoutPage page)
+    {
+        PdfLayoutPath[] filledPaths = page.Paths
+            .Where(static path => path.IsFilled)
+            .Where(static path => path.Bounds.Width > 2f && path.Bounds.Height > 2f)
+            .ToArray();
+        if (filledPaths.Length == 0)
+        {
+            return false;
+        }
+
+        PdfLayoutRectangle backdrop = UnionRectangles(filledPaths.Select(static path => path.Bounds));
+        return backdrop.Width >= page.Width * 0.78f &&
+            backdrop.Height >= page.Height * 0.78f;
+    }
+
+    private static bool HasSideBySideTextColumns(PdfLayoutPage page, PdfSemanticPage semanticPage)
+    {
+        if (semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Table) ||
+            page.Lines.Count < 20)
+        {
+            return false;
+        }
+
+        PdfTextLine[] shortHorizontalLines = page.Lines
+            .Where(static line => !string.IsNullOrWhiteSpace(line.Text))
+            .Where(static line => line.Runs.Any(run => MathF.Abs(run.Direction) < 0.01f))
+            .Where(line => line.Bounds.Width <= page.Width * 0.42f)
+            .ToArray();
+        PdfTextLine[] leftColumn = shortHorizontalLines
+            .Where(line => line.Bounds.X < page.Width * 0.42f)
+            .ToArray();
+        PdfTextLine[] rightColumn = shortHorizontalLines
+            .Where(line => line.Bounds.X > page.Width * 0.58f)
+            .ToArray();
+        if (leftColumn.Length < 12 || rightColumn.Length < 12)
+        {
+            return false;
+        }
+
+        float leftTop = leftColumn.Min(static line => line.Bounds.Y);
+        float leftBottom = leftColumn.Max(static line => line.Bounds.Bottom);
+        float rightTop = rightColumn.Min(static line => line.Bounds.Y);
+        float rightBottom = rightColumn.Max(static line => line.Bounds.Bottom);
+        float overlap = MathF.Max(0, MathF.Min(leftBottom, rightBottom) - MathF.Max(leftTop, rightTop));
+        return overlap >= MathF.Min(leftBottom - leftTop, rightBottom - rightTop) * 0.45f;
+    }
+
+    private static PdfSemanticLineGrid? TryCreateSemanticLineGrid(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage)
+    {
+        if (!TryGetTwoColumnRuns(page, semanticPage, out PdfTextRun[] candidateLines, out LineGridColumn[] gridColumns, out float pitch))
+        {
+            return null;
+        }
+
+        float columnTolerance = page.Width * 0.06f;
+
+        List<LineGridRow> rows = [];
+        foreach (PdfTextRun line in candidateLines
+            .OrderBy(static run => run.Bounds.Y)
+            .ThenBy(static run => run.Bounds.X))
+        {
+            int columnIndex = NearestGridColumn(gridColumns, line.Bounds.X);
+            if (columnIndex < 0 || MathF.Abs(gridColumns[columnIndex].Left - line.Bounds.X) > columnTolerance)
+            {
+                return null;
+            }
+
+            float rowTolerance = MathF.Max(1f, line.Bounds.Height * 0.4f);
+            LineGridRow? row = rows
+                .Where(row => MathF.Abs(row.Top - line.Bounds.Y) <= rowTolerance)
+                .OrderBy(row => MathF.Abs(row.Top - line.Bounds.Y))
+                .FirstOrDefault();
+            if (row == null)
+            {
+                row = new LineGridRow(line.Bounds.Y, gridColumns.Length);
+                rows.Add(row);
+            }
+
+            if (!row.TryAdd(columnIndex, line))
+            {
+                return null;
+            }
+        }
+
+        if (rows.Count < 12 || rows.Any(row => row.Cells.Any(static cell => cell == null)))
+        {
+            return null;
+        }
+
+        rows.Sort(static (first, second) => first.Top.CompareTo(second.Top));
+        float rightInset = MathF.Max(0, page.Width - gridColumns[0].Left - pitch * gridColumns.Length);
+        return new PdfSemanticLineGrid(
+            page,
+            rows,
+            gridColumns.Length,
+            gridColumns[0].Left,
+            rightInset);
+    }
+
+    private static PdfSemanticColumns? TryCreateSemanticColumns(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage)
+    {
+        if (!TryGetTwoColumnRuns(page, semanticPage, out _, out LineGridColumn[] columns, out float pitch))
+        {
+            return null;
+        }
+
+        float rightInset = MathF.Max(0, page.Width - columns[0].Left - pitch * columns.Length);
+        return new PdfSemanticColumns(page, columns, columns[0].Left, rightInset);
+    }
+
+    private static bool TryGetTwoColumnRuns(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        out PdfTextRun[] candidateRuns,
+        out LineGridColumn[] gridColumns,
+        out float pitch)
+    {
+        candidateRuns = [];
+        gridColumns = [];
+        pitch = 0;
+        if (semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Table) ||
+            page.Lines.Count < 24)
+        {
+            return false;
+        }
+
+        PdfTextRun[] horizontalRuns = page.Runs
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .ToArray();
+        candidateRuns = horizontalRuns
+            .Where(run => run.Bounds.Width <= page.Width * 0.42f)
+            .OrderBy(static run => run.Bounds.X)
+            .ThenBy(static run => run.Bounds.Y)
+            .ToArray();
+        int candidateRunCount = candidateRuns.Length;
+        if (candidateRunCount < horizontalRuns.Length * 0.95f)
+        {
+            return false;
+        }
+
+        float columnTolerance = page.Width * 0.06f;
+        List<LineGridColumn> columns = [];
+        foreach (PdfTextRun run in candidateRuns)
+        {
+            LineGridColumn? column = columns
+                .Where(column => MathF.Abs(column.Left - run.Bounds.X) <= columnTolerance)
+                .OrderBy(column => MathF.Abs(column.Left - run.Bounds.X))
+                .FirstOrDefault();
+            if (column == null)
+            {
+                column = new LineGridColumn(run.Bounds.X);
+                columns.Add(column);
+            }
+
+            column.Add(run);
+        }
+
+        gridColumns = columns
+            .Where(column => column.Lines.Count >= 12)
+            .OrderBy(static column => column.Left)
+            .ToArray();
+        if (gridColumns.Length != 2 ||
+            gridColumns.Any(column => column.Lines.Count < candidateRunCount * 0.35f))
+        {
+            return false;
+        }
+
+        pitch = gridColumns[1].Left - gridColumns[0].Left;
+        return pitch >= page.Width * 0.25f && pitch <= page.Width * 0.7f;
+    }
+
+    private static int NearestGridColumn(IReadOnlyList<LineGridColumn> columns, float left)
+    {
+        int index = -1;
+        float distance = float.MaxValue;
+        for (int candidate = 0; candidate < columns.Count; candidate++)
+        {
+            float candidateDistance = MathF.Abs(columns[candidate].Left - left);
+            if (candidateDistance < distance)
+            {
+                distance = candidateDistance;
+                index = candidate;
+            }
+        }
+
+        return index;
+    }
+
+    private static void WriteSemanticLineGrid(StringBuilder html, PdfSemanticLineGrid grid, float scale)
+    {
+        html.Append("      <section class=\"pdf-semantic-line-grid\" style=\"--pdf-semantic-grid-columns:")
+            .Append(grid.ColumnCount.ToString(CultureInfo.InvariantCulture))
+            .Append(";--pdf-semantic-grid-left:")
+            .Append(CssPoints(grid.LeftInset * scale))
+            .Append(";--pdf-semantic-grid-right:")
+            .Append(CssPoints(grid.RightInset * scale))
+            .Append(";--pdf-semantic-grid-top:")
+            .Append(CssPoints(grid.Rows[0].Top * scale))
+            .AppendLine("\">");
+
+        LineGridRow? previous = null;
+        foreach (LineGridRow row in grid.Rows)
+        {
+            float marginTop = previous == null
+                ? 0
+                : MathF.Max(0, row.Top - previous.Bottom) * scale;
+            html.Append("        <div class=\"pdf-semantic-line-grid-row\" style=\"--pdf-semantic-grid-row-height:")
+                .Append(CssPoints(row.Height * scale));
+            if (marginTop > 0.01f)
+            {
+                html.Append(";margin-top:")
+                    .Append(CssPoints(marginTop));
+            }
+
+            html.AppendLine("\">");
+            foreach (PdfTextRun? cell in row.Cells)
+            {
+                PdfTextRun run = cell!;
+                PdfLayoutColor? highlight = GridHighlightColor(grid.Page, run);
+                html.Append("          <span class=\"pdf-semantic-line-grid-cell");
+                if (highlight.HasValue)
+                {
+                    html.Append(" pdf-semantic-line-grid-highlight");
+                }
+
+                html.Append("\" style=\"font-family:")
+                    .Append(CssFontFamily(run.FontName))
+                    .Append(";font-size:")
+                    .Append(CssPoints(FixedTextFontSize(run) * scale))
+                    .Append(";color:")
+                    .Append(ColorHex(run.Color));
+                if (highlight is PdfLayoutColor highlightColor)
+                {
+                    html.Append(";--pdf-semantic-grid-highlight:")
+                        .Append(ColorHex(highlightColor))
+                        .Append(";--pdf-semantic-grid-highlight-width:")
+                        .Append(CssPoints(run.Bounds.Width * scale));
+                }
+
+                html.Append("\">")
+                    .Append(Html(run.Text))
+                    .AppendLine("</span>");
+            }
+
+            html.AppendLine("        </div>");
+            previous = row;
+        }
+
+        html.AppendLine("      </section>");
+    }
+
+    private static void WriteSemanticColumns(StringBuilder html, PdfSemanticColumns columns, float scale)
+    {
+        float top = columns.Columns
+            .SelectMany(static column => column.Lines)
+            .Min(static run => run.Bounds.Y);
+        html.Append("      <section class=\"pdf-semantic-columns\" style=\"--pdf-semantic-column-count:")
+            .Append(columns.Columns.Count.ToString(CultureInfo.InvariantCulture))
+            .Append(";--pdf-semantic-columns-left:")
+            .Append(CssPoints(columns.LeftInset * scale))
+            .Append(";--pdf-semantic-columns-right:")
+            .Append(CssPoints(columns.RightInset * scale))
+            .Append(";--pdf-semantic-columns-top:")
+            .Append(CssPoints(top * scale))
+            .AppendLine("\">");
+
+        foreach (LineGridColumn column in columns.Columns)
+        {
+            html.AppendLine("        <div class=\"pdf-semantic-column\">");
+            PdfTextRun? previous = null;
+            foreach (PdfTextRun run in column.Lines.OrderBy(static run => run.Bounds.Y))
+            {
+                float marginTop = previous == null
+                    ? MathF.Max(0, run.Bounds.Y - top) * scale
+                    : MathF.Max(0, run.Bounds.Y - previous.Bounds.Bottom) * scale;
+                PdfLayoutColor? highlight = GridHighlightColor(columns.Page, run);
+                html.Append("          <span class=\"pdf-semantic-column-run");
+                if (highlight.HasValue)
+                {
+                    html.Append(" pdf-semantic-line-grid-highlight");
+                }
+
+                html.Append("\" style=\"--pdf-semantic-column-row-height:")
+                    .Append(CssPoints(run.Bounds.Height * scale));
+                if (marginTop > 0.01f)
+                {
+                    html.Append(";margin-top:")
+                        .Append(CssPoints(marginTop));
+                }
+
+                html.Append(";font-family:")
+                    .Append(CssFontFamily(run.FontName))
+                    .Append(";font-size:")
+                    .Append(CssPoints(FixedTextFontSize(run) * scale))
+                    .Append(";color:")
+                    .Append(ColorHex(run.Color));
+                if (highlight is PdfLayoutColor highlightColor)
+                {
+                    html.Append(";--pdf-semantic-grid-highlight:")
+                        .Append(ColorHex(highlightColor))
+                        .Append(";--pdf-semantic-grid-highlight-width:")
+                        .Append(CssPoints(run.Bounds.Width * scale));
+                }
+
+                html.Append("\">")
+                    .Append(Html(run.Text))
+                    .AppendLine("</span>");
+                previous = run;
+            }
+
+            html.AppendLine("        </div>");
+        }
+
+        html.AppendLine("      </section>");
+    }
+
+    private static PdfLayoutColor? GridHighlightColor(PdfLayoutPage page, PdfTextRun run)
+    {
+        return page.Paths
+            .Where(static path => path.FillColor.HasValue)
+            .Where(path => path.Bounds.Width <= page.Width * 0.12f)
+            .Where(path => path.Bounds.Height <= MathF.Max(12f, run.Bounds.Height * 2f))
+            .Where(path => RectanglesIntersect(path.Bounds, run.Bounds, 1f))
+            .Select(static path => path.FillColor)
+            .FirstOrDefault();
+    }
+
+    private static int BodyParagraphCount(PdfSemanticPage semanticPage)
+    {
+        return semanticPage.Elements.Count(static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.Length >= 40);
+    }
+
+    private static float PageContentTop(PdfLayoutPage page)
+    {
+        return page.Runs
+            .Select(static run => run.Bounds.Y)
+            .Concat(page.Images.Select(static image => image.Bounds.Y))
+            .Concat(page.Paths.Select(static path => path.Bounds.Y))
+            .DefaultIfEmpty(0)
+            .Min();
     }
 
     private static ContinuousParagraphMerge? TryCreateContinuousParagraphMerge(
@@ -1840,6 +2747,12 @@ public static class PdfHtmlConverter
                     footnotes,
                     page,
                     DecorativeFootnoteRulePath(page, semanticPage));
+                continue;
+            }
+
+            if (IsBulletListItem(element))
+            {
+                index = WriteAdjacentSemanticList(html, flowElements, index, footnotes, page);
                 continue;
             }
 
@@ -2576,6 +3489,12 @@ public static class PdfHtmlConverter
             return;
         }
 
+        if (IsBulletList(element))
+        {
+            WriteSemanticList(html, element, footnotes, page);
+            return;
+        }
+
         string tagName = SemanticTagName(element);
         html.Append("      <")
             .Append(tagName)
@@ -2595,6 +3514,105 @@ public static class PdfHtmlConverter
         html.Append("</")
             .Append(tagName)
             .AppendLine(">");
+    }
+
+    private static bool IsBulletList(PdfSemanticElement element)
+    {
+        return element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Lines.Count >= 2 &&
+            element.Lines.All(static line => ListMarkerLength(line.Text) > 0);
+    }
+
+    private static bool IsBulletListItem(PdfSemanticElement element)
+    {
+        return element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Lines.Count == 1 &&
+            ListMarkerLength(element.Lines[0].Text) > 0;
+    }
+
+    private static int ListMarkerLength(string text)
+    {
+        int index = 0;
+        while (index < text.Length && char.IsWhiteSpace(text[index]))
+        {
+            index++;
+        }
+
+        return index < text.Length && text[index] is '\u0095' or '\u2022' or '\u25e6' or '\u25aa' or '\u2219'
+            ? index + 1
+            : 0;
+    }
+
+    private static void WriteSemanticList(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        html.Append("      <ul class=\"")
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-list\">")
+            .AppendLine();
+        foreach (PdfSemanticLine line in element.Lines)
+        {
+            WriteSemanticListItem(html, line, element, footnotes, page);
+        }
+
+        html.AppendLine("      </ul>");
+    }
+
+    private static int WriteAdjacentSemanticList(
+        StringBuilder html,
+        IReadOnlyList<PdfSemanticElement> elements,
+        int startIndex,
+        FootnoteContext footnotes,
+        PdfLayoutPage page)
+    {
+        PdfSemanticElement first = elements[startIndex];
+        html.Append("      <ul class=\"")
+            .Append(SemanticClassNames(first, page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-list\">")
+            .AppendLine();
+        int index = startIndex;
+        while (index < elements.Count && IsBulletListItem(elements[index]))
+        {
+            PdfSemanticElement element = elements[index];
+            WriteSemanticListItem(html, element.Lines[0], element, footnotes, page);
+            index++;
+        }
+
+        html.AppendLine("      </ul>");
+        return index - 1;
+    }
+
+    private static void WriteSemanticListItem(
+        StringBuilder html,
+        PdfSemanticLine line,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        List<InlineTextSegment> segments = InlineTextSegments(line, page, element).ToList();
+        TrimListMarker(segments);
+        string lineText = string.Concat(segments.Select(static segment => segment.Text));
+        html.Append("        <li>");
+        WriteInlineTextSegments(html, line, segments, lineText, footnotes);
+        html.AppendLine("</li>");
+    }
+
+    private static void TrimListMarker(List<InlineTextSegment> segments)
+    {
+        int marker = ListMarkerLength(string.Concat(segments.Select(static segment => segment.Text)));
+        int remaining = marker;
+        for (int index = 0; index < segments.Count && remaining > 0; index++)
+        {
+            InlineTextSegment segment = segments[index];
+            int consumed = Math.Min(remaining, segment.Text.Length);
+            segments[index] = segment with { Text = segment.Text[consumed..] };
+            remaining -= consumed;
+        }
+
+        TrimLeadingWhitespace(segments);
     }
 
     private static void WriteSemanticTable(
@@ -3145,6 +4163,14 @@ public static class PdfHtmlConverter
 
         if (element.Kind is PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
         {
+            if (element.Kind == PdfSemanticElementKind.Header &&
+                page != null &&
+                CanWriteRichSemanticText(element))
+            {
+                WriteRichSemanticText(html, element, footnotes, page);
+                return;
+            }
+
             for (int index = 0; index < element.Lines.Count; index++)
             {
                 if (index > 0)
@@ -3169,7 +4195,7 @@ public static class PdfHtmlConverter
 
     private static bool CanWriteRichSemanticText(PdfSemanticElement element)
     {
-        return element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading or PdfSemanticElementKind.Footnote &&
+        return element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading or PdfSemanticElementKind.Footnote or PdfSemanticElementKind.Header &&
             !IsFormulaBlock(element) &&
             element.Lines.Count > 0 &&
             element.Lines.All(static line => line.Runs.Count > 0) &&
@@ -3315,7 +4341,11 @@ public static class PdfHtmlConverter
                 segments.Add(new InlineTextSegment(" ", null, InlineBaselineRole.Normal));
             }
 
-            segments.Add(new InlineTextSegment(glyph.Text, run, role));
+            segments.Add(new InlineTextSegment(
+                glyph.Text,
+                run,
+                role,
+                SemanticLinkForGlyph(page, glyph.PageBounds)));
             previous = glyph;
             previousRole = role;
             suppressNextWordBoundaryAfterIntrusiveGlyph = false;
@@ -3325,9 +4355,57 @@ public static class PdfHtmlConverter
         PromoteMathIdentifierSubscripts(segments);
         RepairCommonMathOperatorOmissions(segments);
         RemoveDuplicateAdjacentSubscripts(segments);
+        AssociateLinkWhitespace(segments);
         MergeAdjacentTextSegments(segments);
 
         return segments;
+    }
+
+    private static PdfLayoutLink? SemanticLinkForGlyph(PdfLayoutPage? page, PdfLayoutRectangle glyphBounds)
+    {
+        if (page == null)
+        {
+            return null;
+        }
+
+        return page.Links
+            .Where(HasSemanticLinkTarget)
+            .Where(link => LinkBounds(link).Any(bounds => RectanglesIntersect(bounds, glyphBounds, 0.25f)))
+            .OrderBy(link => LinkBounds(link).Min(bounds => bounds.Width * bounds.Height))
+            .FirstOrDefault();
+    }
+
+    private static bool HasSemanticLinkTarget(PdfLayoutLink link)
+    {
+        return !string.IsNullOrWhiteSpace(link.Uri) ||
+            !string.IsNullOrWhiteSpace(link.Destination) ||
+            link.DestinationPageNumber.HasValue;
+    }
+
+    private static IReadOnlyList<PdfLayoutRectangle> LinkBounds(PdfLayoutLink link)
+    {
+        return link.QuadBounds.Count == 0 ? [link.Bounds] : link.QuadBounds;
+    }
+
+    private static void AssociateLinkWhitespace(List<InlineTextSegment> segments)
+    {
+        for (int index = 0; index < segments.Count; index++)
+        {
+            InlineTextSegment segment = segments[index];
+            if (!string.IsNullOrWhiteSpace(segment.Text) || segment.Link != null)
+            {
+                continue;
+            }
+
+            InlineTextSegment? before = NearestTextSegment(segments, index, -1);
+            InlineTextSegment? after = NearestTextSegment(segments, index, 1);
+            if (before is { Link: { } beforeLink } &&
+                after is { Link: { } afterLink } &&
+                ReferenceEquals(beforeLink, afterLink))
+            {
+                segments[index] = segment with { Link = beforeLink };
+            }
+        }
     }
 
     private static IEnumerable<(PdfTextRun Run, PdfTextGlyph Glyph)> AttachedInlineMathGlyphs(
@@ -3984,7 +5062,8 @@ public static class PdfHtmlConverter
 
         return string.Equals(NormalizeFontName(first.Run.FontName), NormalizeFontName(second.Run.FontName), StringComparison.Ordinal) &&
             MathF.Abs(first.Run.FontSize - second.Run.FontSize) < 0.01f &&
-            first.Run.Color.Equals(second.Run.Color);
+            first.Run.Color.Equals(second.Run.Color) &&
+            ReferenceEquals(first.Link, second.Link);
     }
 
     private static string CompactText(string text)
@@ -4282,6 +5361,7 @@ public static class PdfHtmlConverter
         FootnoteContext footnotes)
     {
         int offset = 0;
+        PdfLayoutLink? activeLink = null;
         for (int index = 0; index < segments.Count; index++)
         {
             InlineTextSegment segment = segments[index];
@@ -4294,6 +5374,16 @@ public static class PdfHtmlConverter
             {
                 offset += segment.Text.Length;
                 continue;
+            }
+
+            bool startsCompactFraction = index + 2 < segments.Count &&
+                IsCompactSquareRootSegment(segments[index]) &&
+                IsCompactFractionNumeratorOne(segments[index + 1]);
+            bool startsCompactSummation = segments[index].Text is "∑" or "Σ";
+            if ((startsCompactFraction || startsCompactSummation) && activeLink != null)
+            {
+                html.Append("</a>");
+                activeLink = null;
             }
 
             if (TryWriteCompactInverseSquareRootFraction(html, line, segments, index, out int consumedSegments, out int consumedLength))
@@ -4310,9 +5400,46 @@ public static class PdfHtmlConverter
                 continue;
             }
 
+            if (!ReferenceEquals(activeLink, segment.Link))
+            {
+                if (activeLink != null)
+                {
+                    html.Append("</a>");
+                }
+
+                if (segment.Link != null)
+                {
+                    WriteSemanticLinkStart(html, segment.Link);
+                }
+
+                activeLink = segment.Link;
+            }
+
             WriteInlineTextSegment(html, line, segment, lineText, offset, footnotes);
             offset += segment.Text.Length;
         }
+
+        if (activeLink != null)
+        {
+            html.Append("</a>");
+        }
+    }
+
+    private static void WriteSemanticLinkStart(StringBuilder html, PdfLayoutLink link)
+    {
+        html.Append("<a class=\"pdf-semantic-link\" href=\"")
+            .Append(HtmlAttribute(LinkHref(link)))
+            .Append("\" data-link-kind=\"")
+            .Append(HtmlAttribute(link.Kind.ToString().ToLowerInvariant()))
+            .Append('"');
+        if (!string.IsNullOrWhiteSpace(link.Uri))
+        {
+            html.Append(" data-uri=\"")
+                .Append(HtmlAttribute(link.Uri))
+                .Append('"');
+        }
+
+        html.Append('>');
     }
 
     private static bool TryWriteCompactInverseSquareRootFraction(
@@ -5688,6 +6815,18 @@ public static class PdfHtmlConverter
     {
         for (int index = 0; index < text.Length; index++)
         {
+            if (TryAutomaticLink(text, index, out int linkLength, out string? href))
+            {
+                string linkText = text.Substring(index, linkLength);
+                html.Append("<a class=\"pdf-semantic-auto-link\" href=\"")
+                    .Append(HtmlAttribute(href!))
+                    .Append("\">")
+                    .Append(Html(linkText))
+                    .Append("</a>");
+                index += linkLength - 1;
+                continue;
+            }
+
             string marker = text[index].ToString();
             int boundaryIndex = boundaryOffset + index;
             if (footnotes.Contains(marker) &&
@@ -5708,6 +6847,81 @@ public static class PdfHtmlConverter
 
             html.Append(Html(text[index].ToString()));
         }
+    }
+
+    private static bool TryAutomaticLink(string text, int start, out int length, out string? href)
+    {
+        length = 0;
+        href = null;
+        if (start > 0 && IsLinkCharacter(text[start - 1]))
+        {
+            return false;
+        }
+
+        if (text.AsSpan(start).StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+            text.AsSpan(start).StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+        {
+            int end = start;
+            while (end < text.Length && !char.IsWhiteSpace(text[end]) && text[end] is not '<' and not '>')
+            {
+                end++;
+            }
+
+            while (end > start && text[end - 1] is '.' or ',' or ';' or ':' or '!' or '?' or ')')
+            {
+                end--;
+            }
+
+            if (end > start)
+            {
+                length = end - start;
+                href = text.Substring(start, length);
+                return true;
+            }
+        }
+
+        int at = text.IndexOf('@', start);
+        if (at <= start || at - start > 64 ||
+            !text.AsSpan(start, at - start).ToString().All(IsEmailLocalCharacter))
+        {
+            return false;
+        }
+
+        int emailEnd = at + 1;
+        while (emailEnd < text.Length && IsEmailDomainCharacter(text[emailEnd]))
+        {
+            emailEnd++;
+        }
+
+        if (emailEnd <= at + 1)
+        {
+            return false;
+        }
+
+        string email = text.Substring(start, emailEnd - start);
+        if (!email[(at - start + 1)..].Contains('.', StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        length = email.Length;
+        href = "mailto:" + email;
+        return true;
+    }
+
+    private static bool IsLinkCharacter(char character)
+    {
+        return char.IsLetterOrDigit(character) || character is '.' or '-' or '_' or '+' or '@' or '/';
+    }
+
+    private static bool IsEmailLocalCharacter(char character)
+    {
+        return char.IsLetterOrDigit(character) || character is '.' or '-' or '_' or '+';
+    }
+
+    private static bool IsEmailDomainCharacter(char character)
+    {
+        return char.IsLetterOrDigit(character) || character is '.' or '-';
     }
 
     private static bool IsFootnoteReferenceBoundary(string text, int index)
@@ -5781,7 +6995,8 @@ public static class PdfHtmlConverter
     private readonly record struct InlineTextSegment(
         string Text,
         PdfTextRun? Run,
-        InlineBaselineRole Role);
+        InlineBaselineRole Role,
+        PdfLayoutLink? Link = null);
 
     private sealed class ContinuousPageContext
     {
@@ -5791,7 +7006,10 @@ public static class PdfHtmlConverter
             FootnoteContext footnotes,
             IReadOnlyList<PdfSemanticElement> positionedElements,
             IReadOnlyList<PdfSemanticElement> flowElements,
-            IReadOnlyList<PdfLayoutRectangle> figureRegions)
+            IReadOnlyList<PdfLayoutRectangle> figureRegions,
+            PdfSemanticLineGrid? lineGrid,
+            PdfSemanticColumns? columns,
+            bool usesFixedLayoutFallback)
         {
             Page = page;
             SemanticPage = semanticPage;
@@ -5799,6 +7017,9 @@ public static class PdfHtmlConverter
             PositionedElements = positionedElements;
             FlowElements = flowElements;
             FigureRegions = figureRegions;
+            LineGrid = lineGrid;
+            Columns = columns;
+            UsesFixedLayoutFallback = usesFixedLayoutFallback;
         }
 
         public PdfLayoutPage Page { get; }
@@ -5812,6 +7033,115 @@ public static class PdfHtmlConverter
         public IReadOnlyList<PdfSemanticElement> FlowElements { get; }
 
         public IReadOnlyList<PdfLayoutRectangle> FigureRegions { get; }
+
+        public PdfSemanticLineGrid? LineGrid { get; }
+
+        public PdfSemanticColumns? Columns { get; }
+
+        public bool UsesFixedLayoutFallback { get; }
+    }
+
+    private sealed class PdfSemanticLineGrid
+    {
+        public PdfSemanticLineGrid(
+            PdfLayoutPage page,
+            IReadOnlyList<LineGridRow> rows,
+            int columnCount,
+            float leftInset,
+            float rightInset)
+        {
+            Page = page;
+            Rows = rows;
+            ColumnCount = columnCount;
+            LeftInset = leftInset;
+            RightInset = rightInset;
+        }
+
+        public PdfLayoutPage Page { get; }
+
+        public IReadOnlyList<LineGridRow> Rows { get; }
+
+        public int ColumnCount { get; }
+
+        public float LeftInset { get; }
+
+        public float RightInset { get; }
+    }
+
+    private sealed class PdfSemanticColumns
+    {
+        public PdfSemanticColumns(
+            PdfLayoutPage page,
+            IReadOnlyList<LineGridColumn> columns,
+            float leftInset,
+            float rightInset)
+        {
+            Page = page;
+            Columns = columns;
+            LeftInset = leftInset;
+            RightInset = rightInset;
+        }
+
+        public PdfLayoutPage Page { get; }
+
+        public IReadOnlyList<LineGridColumn> Columns { get; }
+
+        public float LeftInset { get; }
+
+        public float RightInset { get; }
+    }
+
+    private sealed class LineGridColumn
+    {
+        private float _leftTotal;
+
+        public LineGridColumn(float left)
+        {
+            Left = left;
+        }
+
+        public float Left { get; private set; }
+
+        public List<PdfTextRun> Lines { get; } = [];
+
+        public void Add(PdfTextRun line)
+        {
+            Lines.Add(line);
+            _leftTotal += line.Bounds.X;
+            Left = _leftTotal / Lines.Count;
+        }
+    }
+
+    private sealed class LineGridRow
+    {
+        public LineGridRow(float top, int columnCount)
+        {
+            Top = top;
+            Cells = new PdfTextRun?[columnCount];
+        }
+
+        public float Top { get; }
+
+        public PdfTextRun?[] Cells { get; }
+
+        public float Height => Cells
+            .Where(static cell => cell != null)
+            .Select(static cell => cell!.Bounds.Height)
+            .DefaultIfEmpty(0)
+            .Max();
+
+        public float Bottom => Top + Height;
+
+        public bool TryAdd(int columnIndex, PdfTextRun line)
+        {
+            if (Cells[columnIndex] != null)
+            {
+                return false;
+            }
+
+            Cells[columnIndex] = line;
+            return true;
+        }
     }
 
     private sealed class ContinuousParagraphMerge
@@ -6006,6 +7336,12 @@ public static class PdfHtmlConverter
     }
 
     private static string SvgPathData(IReadOnlyList<PdfLayoutPathCommand> commands)
+        => SvgPathData(commands, 0, 0);
+
+    private static string SvgPathData(
+        IReadOnlyList<PdfLayoutPathCommand> commands,
+        float xOffset,
+        float yOffset)
     {
         StringBuilder builder = new();
         foreach (PdfLayoutPathCommand command in commands)
@@ -6019,29 +7355,29 @@ public static class PdfHtmlConverter
             {
                 case PdfLayoutPathCommandKind.MoveTo:
                     builder.Append("M ")
-                        .Append(SvgNumber(command.X1))
+                        .Append(SvgNumber(command.X1 - xOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.Y1));
+                        .Append(SvgNumber(command.Y1 - yOffset));
                     break;
                 case PdfLayoutPathCommandKind.LineTo:
                     builder.Append("L ")
-                        .Append(SvgNumber(command.X1))
+                        .Append(SvgNumber(command.X1 - xOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.Y1));
+                        .Append(SvgNumber(command.Y1 - yOffset));
                     break;
                 case PdfLayoutPathCommandKind.CurveTo:
                     builder.Append("C ")
-                        .Append(SvgNumber(command.X1))
+                        .Append(SvgNumber(command.X1 - xOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.Y1))
+                        .Append(SvgNumber(command.Y1 - yOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.X2))
+                        .Append(SvgNumber(command.X2 - xOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.Y2))
+                        .Append(SvgNumber(command.Y2 - yOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.X3))
+                        .Append(SvgNumber(command.X3 - xOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.Y3));
+                        .Append(SvgNumber(command.Y3 - yOffset));
                     break;
                 case PdfLayoutPathCommandKind.ClosePath:
                     builder.Append('Z');
@@ -6098,9 +7434,23 @@ public static class PdfHtmlConverter
         }
 
         string fallback = FontFallback(fontName);
+        return CssFontFamilyName(fontName) + ", " + fallback;
+    }
+
+    private static string CssFontFamilyName(string fontName)
+    {
         string escaped = fontName.Replace("\\", "\\\\", StringComparison.Ordinal)
             .Replace("'", "\\'", StringComparison.Ordinal);
-        return "'" + escaped + "', " + fallback;
+        return "'" + escaped + "'";
+    }
+
+    private static string CssUrlRelativeToStylesheet(string cssPath, string assetPath)
+    {
+        string? stylesheetDirectory = Path.GetDirectoryName(cssPath.Replace('/', Path.DirectorySeparatorChar));
+        string relativePath = Path.GetRelativePath(
+            string.IsNullOrWhiteSpace(stylesheetDirectory) ? "." : stylesheetDirectory,
+            assetPath.Replace('/', Path.DirectorySeparatorChar));
+        return relativePath.Replace(Path.DirectorySeparatorChar, '/').Replace("'", "%27", StringComparison.Ordinal);
     }
 
     private static string FontFallback(string fontName)

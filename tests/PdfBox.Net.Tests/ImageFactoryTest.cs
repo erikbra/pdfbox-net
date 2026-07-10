@@ -174,6 +174,22 @@ public class ImageFactoryTest
     }
 
     [Fact]
+    public void PdfImageExporter_ExportPng_PreservesXObjectSoftMaskAlpha()
+    {
+        using PDDocument doc = new();
+        PDImageXObject image = LosslessFactory.CreateFromRawData(doc, [255, 0, 0, 255, 0, 0], 2, 1, 8, 3);
+        PDImageXObject softMask = LosslessFactory.CreateFromRawData(doc, [255, 0], 2, 1, 8, 1);
+        image.GetCOSObject()!.SetItem(COSName.SMASK, softMask.GetCOSObject());
+
+        PdfImageExportResult result = PdfImageExporter.ExportPng(image);
+
+        using BufferedImage exported = RenderingBackend.Current.ImageCodec.Decode(result.Data)
+            ?? throw new InvalidOperationException("The exported PNG could not be decoded.");
+        Assert.Equal(0xFF, (exported.GetRgb(0, 0) >> 24) & 0xFF);
+        Assert.Equal(0x00, (exported.GetRgb(1, 0) >> 24) & 0xFF);
+    }
+
+    [Fact]
     public void PdfImageExporter_ExportPng_ExportsInlineImage()
     {
         COSDictionary parameters = new();
@@ -264,6 +280,23 @@ public class ImageFactoryTest
         byte[] rgb = SampledImageReader.GetRGBImage(img);
 
         Assert.Equal([0, 0, 0, 255, 255, 255], rgb);
+    }
+
+    [Fact]
+    public void SampledImageReader_GetRGBImage_UnpacksSixteenBitGraySamples()
+    {
+        using PDDocument doc = new();
+        PDImageXObject img = LosslessFactory.CreateFromRawData(
+            doc,
+            [0x00, 0x00, 0x80, 0x00, 0xFF, 0xFF],
+            3,
+            1,
+            16,
+            1);
+
+        byte[] rgb = SampledImageReader.GetRGBImage(img);
+
+        Assert.Equal([0, 0, 0, 128, 128, 128, 255, 255, 255], rgb);
     }
 
     // ─── CCITTFactory ─────────────────────────────────────────────────────────

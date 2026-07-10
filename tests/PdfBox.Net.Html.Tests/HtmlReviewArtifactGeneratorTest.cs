@@ -159,6 +159,232 @@ public sealed class HtmlReviewArtifactGeneratorTest
     }
 
     [Fact]
+    public async Task AnalyzeAsync_ExtractsSelfDescribingFixtureExpectations()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        PdfLayoutDocument layout;
+        using (PDDocument document = CreateTextDocument("The patch should look like the reference image."))
+        {
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <body>
+              <section class="pdf-page" data-page-number="1" style="position:relative;width:612pt;height:792pt;background:white">
+                <span class="pdf-text-run" style="position:absolute;left:72pt;top:80pt;font-size:12pt">The patch should look like the reference image.</span>
+              </section>
+            </body>
+            </html>
+            """);
+
+        string outputDirectory = Path.Combine(tempDirectory.Path, "quality");
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            outputDirectory,
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        PdfHtmlQualityCheck expectation = Assert.Single(report.Checks, check => check.Id == "fixture-expectation");
+        Assert.Equal("passed", expectation.Status);
+        Assert.Contains("should look like the reference image", expectation.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(report.IssueCategories, category => category.Id == "fixture-expectations" && category.Status == "needs-review");
+        string qualityMarkdown = File.ReadAllText(Path.Combine(outputDirectory, "quality-report.md"));
+        Assert.Contains("## Fixture Expectations", qualityMarkdown);
+        Assert.Contains("should look like the reference image", qualityMarkdown, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_DoesNotDoubleCountMeasuredSvgText()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        PdfLayoutDocument layout;
+        using (PDDocument document = CreateTextDocument("Measured display title"))
+        {
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <body>
+              <section class="pdf-page" data-page-number="1" style="position:relative;width:612pt;height:792pt;background:white">
+                <span class="pdf-text-run" style="position:absolute;left:72pt;top:80pt;font-size:12pt">
+                  <span class="pdf-text-run-copy" aria-hidden="true">Measured display title</span>
+                  <svg class="pdf-text-run-svg" aria-hidden="true"><text>Measured display title</text></svg>
+                </span>
+              </section>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        PdfHtmlQualityPageReport page = Assert.Single(report.Pages);
+        Assert.Equal(3, page.HtmlWordCount);
+        Assert.Equal(1d, page.TextTokenCoverage);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_RecognizesSemanticGridCellsAsTextRuns()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        PdfLayoutDocument layout;
+        using (PDDocument document = CreateTextDocument("Grid review text"))
+        {
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <body>
+              <main class="pdf-semantic-document-flow">
+                <div class="pdf-semantic-page-break pdf-semantic-page-start" data-page-number="1"></div>
+                <section class="pdf-semantic-line-grid">
+                  <span class="pdf-semantic-line-grid-cell">Grid review text</span>
+                </section>
+              </main>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        PdfHtmlQualityPageReport page = Assert.Single(report.Pages);
+        Assert.Equal(layout.Pages[0].Runs.Count, page.HtmlTextRuns);
+        Assert.Equal(3, page.HtmlWordCount);
+        Assert.Equal(1d, page.TextTokenCoverage);
+        Assert.Contains(report.Checks, check => check.Id == "text-run-count" && check.Status == "passed");
+        Assert.Contains(report.Checks, check => check.Id == "word-boundaries" && check.Status == "passed");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_SplitsContinuousTextAtInlineSourcePageMarkers()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        using (PDDocument document = new())
+        {
+            document.AddPage(new PDPage());
+            document.AddPage(new PDPage());
+            document.Save(sourcePdf);
+        }
+
+        PdfLayoutDocument layout = CreateSyntheticLayout("Page one", "Page two");
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <style>
+              .pdf-semantic-inline-page-break { display:block; height:12px; }
+              .after-page-break { display:block; }
+            </style>
+            <body>
+              <main class="pdf-semantic-document-flow" style="width:816px;padding-bottom:24px">
+                <div class="pdf-semantic-page-break pdf-semantic-page-start" data-page-number="1"></div>
+                <p class="pdf-semantic-element" style="padding-bottom:24px">Page one<span class="pdf-semantic-page-break pdf-semantic-inline-page-break" data-page-number="2"></span><span class="after-page-break">Page two</span></p>
+              </main>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 2),
+            TestContext.Current.CancellationToken);
+
+        Assert.All(report.Pages, page =>
+        {
+            Assert.Equal(2, page.SourceWordCount);
+            Assert.Equal(2, page.HtmlWordCount);
+            Assert.Equal(1d, page.TextTokenCoverage);
+        });
+        Assert.All(
+            report.Checks.Where(check => check.Id == "text-run-count"),
+            check => Assert.Equal("skipped", check.Status));
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_SkipsGeometryForEmptyContinuousPage()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        PdfLayoutDocument layout;
+        using (PDDocument document = new())
+        {
+            document.AddPage(new PDPage());
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <body>
+              <main class="pdf-semantic-document-flow" style="width:816px">
+                <div class="pdf-semantic-page-break pdf-semantic-page-start" data-page-number="1"></div>
+              </main>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        Assert.Contains(report.Checks, check => check.Id == "page-dimensions" && check.Status == "skipped");
+        Assert.DoesNotContain(report.Checks, check => check.Id == "page-dimensions" && check.Status == "needs-review");
+    }
+
+    [Fact]
     public async Task Generate_ComparisonPaneSplitterResizesInBrowser()
     {
         using TempDirectory tempDirectory = new();
@@ -221,7 +447,7 @@ public sealed class HtmlReviewArtifactGeneratorTest
         Assert.True(int.Parse(await page.Locator("[data-splitter]").GetAttributeAsync("aria-valuenow") ?? "0") > 50);
     }
 
-    private static PDDocument CreateTextDocument()
+    private static PDDocument CreateTextDocument(string text = "Review artifact sample")
     {
         PDDocument document = new();
         PDPage page = new();
@@ -229,14 +455,62 @@ public sealed class HtmlReviewArtifactGeneratorTest
 
         COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
         pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
-        pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream("""
+        pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream($"""
             BT
             /F1 12 Tf
             72 700 Td
-            (Review artifact sample) Tj
+            ({text}) Tj
             ET
             """));
         return document;
+    }
+
+    private static PdfLayoutDocument CreateSyntheticLayout(params string[] pageTexts)
+    {
+        PdfLayoutRectangle pageBounds = new(0, 0, 612, 792);
+        PdfLayoutColor black = new(0, 0, 0, 1, "DeviceRGB");
+        List<PdfLayoutPage> pages = [];
+        for (int index = 0; index < pageTexts.Length; index++)
+        {
+            string[] words = pageTexts[index].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            List<PdfTextGlyph> glyphs = [];
+            float x = 72;
+            foreach (string word in words)
+            {
+                float width = Math.Max(4, word.Length * 6);
+                glyphs.Add(new PdfTextGlyph(word, "Helvetica", 12, 0, new PdfLayoutRectangle(x, 72, width, 12), black));
+                x += width + 3;
+            }
+
+            PdfTextRun run = new(
+                string.Concat(words),
+                "Helvetica",
+                12,
+                0,
+                new PdfLayoutRectangle(72, 72, x - 75, 12),
+                black,
+                glyphs);
+            PdfTextLine line = new(string.Concat(words), run.Bounds, [run]);
+            pages.Add(new PdfLayoutPage(
+                index + 1,
+                pageBounds,
+                pageBounds,
+                612,
+                792,
+                0,
+                glyphs,
+                [run],
+                [line],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                []));
+        }
+
+        return new PdfLayoutDocument(pages, []);
     }
 
     private static COSStream CreateContentStream(string contentStream)

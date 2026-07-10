@@ -205,7 +205,7 @@ public class FilterTest
         byte[] decoded = Decode(new DCTFilter(), encoded, new COSDictionary());
 
         Assert.Equal(343 * 287 * 4, decoded.Length);
-        Assert.NotEqual(new byte[16], decoded[..16]);
+        Assert.Equal([255, 255, 255, 255], decoded[..4]);
     }
 
     [Fact]

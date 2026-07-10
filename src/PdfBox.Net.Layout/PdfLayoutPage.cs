@@ -21,6 +21,43 @@ public sealed class PdfLayoutPage
         IReadOnlyList<PdfLayoutVectorGroup> vectorGroups,
         IReadOnlyList<PdfLayoutLink> links,
         IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
+        : this(
+            pageNumber,
+            mediaBox,
+            cropBox,
+            width,
+            height,
+            rotation,
+            glyphs,
+            runs,
+            lines,
+            blocks,
+            images,
+            paths,
+            [],
+            vectorGroups,
+            links,
+            diagnostics)
+    {
+    }
+
+    public PdfLayoutPage(
+        int pageNumber,
+        PdfLayoutRectangle mediaBox,
+        PdfLayoutRectangle cropBox,
+        float width,
+        float height,
+        int rotation,
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        IReadOnlyList<PdfTextRun> runs,
+        IReadOnlyList<PdfTextLine> lines,
+        IReadOnlyList<PdfTextBlock> blocks,
+        IReadOnlyList<PdfLayoutImage> images,
+        IReadOnlyList<PdfLayoutPath> paths,
+        IReadOnlyList<PdfLayoutShading> shadings,
+        IReadOnlyList<PdfLayoutVectorGroup> vectorGroups,
+        IReadOnlyList<PdfLayoutLink> links,
+        IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
     {
         PageNumber = pageNumber;
         MediaBox = mediaBox;
@@ -34,6 +71,7 @@ public sealed class PdfLayoutPage
         Blocks = blocks.ToArray();
         Images = images.ToArray();
         Paths = paths.ToArray();
+        Shadings = shadings.ToArray();
         VectorGroups = vectorGroups.ToArray();
         Links = links.ToArray();
         Diagnostics = diagnostics.ToArray();
@@ -98,6 +136,11 @@ public sealed class PdfLayoutPage
     /// Gets vector path paint operations on this page.
     /// </summary>
     public IReadOnlyList<PdfLayoutPath> Paths { get; }
+
+    /// <summary>
+    /// Gets browser-representable axial and radial shading paint operations on the page.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutShading> Shadings { get; }
 
     /// <summary>
     /// Gets transparency groups that retain the compositing hierarchy for vector paths.

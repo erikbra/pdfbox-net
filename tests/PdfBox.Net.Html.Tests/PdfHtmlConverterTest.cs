@@ -6,19 +6,307 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.Playwright;
 using PdfBox.Net.COS;
+using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Html.Tests;
 
 public class PdfHtmlConverterTest
 {
+    [Fact]
+    public void Convert_SemanticContinuousFlow_UsesFixedLayoutFallbackForSpatialPages()
+    {
+        using PDDocument columnsDocument = Loader.LoadPDF(FixturePath("4PP-Highlighting.pdf"));
+        PdfLayoutDocument columnsLayout = PdfLayoutExtractor.Extract(columnsDocument);
+        PdfHtmlDocument columnsHtml = PdfHtmlConverter.Convert(columnsLayout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument columnsDom = ParseHtml(columnsHtml.Html);
+        XElement columnsGrid = Assert.Single(ElementsByClass(columnsDom, "pdf-semantic-line-grid"));
+        XElement[] gridRows = columnsGrid.Descendants()
+            .Where(element => HasClass(element, "pdf-semantic-line-grid-row"))
+            .ToArray();
+        Assert.Equal(84, gridRows.Length);
+        Assert.All(gridRows, row => Assert.Equal(2, row.Descendants()
+            .Count(element => HasClass(element, "pdf-semantic-line-grid-cell"))));
+        Assert.Equal(16, columnsGrid.Descendants()
+            .Count(element => HasClass(element, "pdf-semantic-line-grid-highlight")));
+        Assert.Empty(ElementsByClass(columnsDom, "pdf-semantic-layout-fallback-page"));
+        Assert.Contains(".pdf-semantic-line-grid", columnsHtml.Css, StringComparison.Ordinal);
+
+        using PDDocument staggeredColumnsDocument = CreateTextDocument("""
+            BT
+            /F1 10 Tf
+            72 700 Td
+            (left 01) Tj
+            0 -14 Td (left 02) Tj
+            0 -14 Td (left 03) Tj
+            0 -14 Td (left 04) Tj
+            0 -14 Td (left 05) Tj
+            0 -14 Td (left 06) Tj
+            0 -14 Td (left 07) Tj
+            0 -14 Td (left 08) Tj
+            0 -14 Td (left 09) Tj
+            0 -14 Td (left 10) Tj
+            0 -14 Td (left 11) Tj
+            0 -14 Td (left 12) Tj
+            ET
+            BT
+            /F1 10 Tf
+            330 665 Td
+            (right 01) Tj
+            0 -14 Td (right 02) Tj
+            0 -14 Td (right 03) Tj
+            0 -14 Td (right 04) Tj
+            0 -14 Td (right 05) Tj
+            0 -14 Td (right 06) Tj
+            0 -14 Td (right 07) Tj
+            0 -14 Td (right 08) Tj
+            0 -14 Td (right 09) Tj
+            0 -14 Td (right 10) Tj
+            0 -14 Td (right 11) Tj
+            0 -14 Td (right 12) Tj
+            ET
+            """);
+        PdfLayoutDocument staggeredColumnsLayout = PdfLayoutExtractor.Extract(staggeredColumnsDocument);
+        PdfHtmlDocument staggeredColumnsHtml = PdfHtmlConverter.Convert(staggeredColumnsLayout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument staggeredColumnsDom = ParseHtml(staggeredColumnsHtml.Html);
+        Assert.Equal(2, ElementsByClass(staggeredColumnsDom, "pdf-semantic-column").Count());
+        Assert.Equal(24, ElementsByClass(staggeredColumnsDom, "pdf-semantic-column-run").Count());
+        Assert.Empty(ElementsByClass(staggeredColumnsDom, "pdf-semantic-layout-fallback-page"));
+        Assert.Contains(".pdf-semantic-columns", staggeredColumnsHtml.Css, StringComparison.Ordinal);
+
+        using PDDocument formDocument = Loader.LoadPDF(FixturePath("Acroform-PDFBOX-2333.pdf"));
+        PdfLayoutDocument formLayout = PdfLayoutExtractor.Extract(formDocument, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+        PdfHtmlDocument formHtml = PdfHtmlConverter.Convert(formLayout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument formDom = ParseHtml(formHtml.Html);
+        XElement formFallback = Assert.Single(ElementsByClass(formDom, "pdf-semantic-layout-fallback-page"));
+        Assert.Equal(formLayout.Pages[0].Images.Count, formFallback.Descendants()
+            .Count(element => HasClass(element, "pdf-image")));
+
+        using PDDocument sparseDocument = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            72 700 Td
+            (Title) Tj
+            ET
+            BT
+            /F1 12 Tf
+            285 650 Td
+            (Placed expression) Tj
+            ET
+            """);
+        PdfLayoutDocument sparseLayout = PdfLayoutExtractor.Extract(sparseDocument);
+        PdfHtmlDocument sparseHtml = PdfHtmlConverter.Convert(sparseLayout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument sparseDom = ParseHtml(sparseHtml.Html);
+        XElement sparseFallback = Assert.Single(ElementsByClass(sparseDom, "pdf-semantic-layout-fallback-page"));
+        Assert.Equal(sparseLayout.Pages[0].Runs.Count, sparseFallback.Descendants()
+            .Count(element => HasClass(element, "pdf-text-run")));
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_UsesFixedLayoutForFullPageVectorBackdrops()
+    {
+        using PDDocument document = CreateTextDocument("""
+            q
+            0.95 0.82 0.25 rg
+            0 0 612 792 re
+            f
+            Q
+            BT
+            /F1 10 Tf
+            72 750 Td
+            (Backdrop layout line 01) Tj
+            0 -20 Td (Backdrop layout line 02) Tj
+            0 -20 Td (Backdrop layout line 03) Tj
+            0 -20 Td (Backdrop layout line 04) Tj
+            0 -20 Td (Backdrop layout line 05) Tj
+            0 -20 Td (Backdrop layout line 06) Tj
+            0 -20 Td (Backdrop layout line 07) Tj
+            0 -20 Td (Backdrop layout line 08) Tj
+            0 -20 Td (Backdrop layout line 09) Tj
+            0 -20 Td (Backdrop layout line 10) Tj
+            0 -20 Td (Backdrop layout line 11) Tj
+            0 -20 Td (Backdrop layout line 12) Tj
+            0 -20 Td (Backdrop layout line 13) Tj
+            0 -20 Td (Backdrop layout line 14) Tj
+            0 -20 Td (Backdrop layout line 15) Tj
+            0 -20 Td (Backdrop layout line 16) Tj
+            0 -20 Td (Backdrop layout line 17) Tj
+            0 -20 Td (Backdrop layout line 18) Tj
+            0 -20 Td (Backdrop layout line 19) Tj
+            0 -20 Td (Backdrop layout line 20) Tj
+            ET
+            """);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(document), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Single(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_PreservesAnnotationAndAutomaticTextLinks()
+    {
+        using PDDocument annotationDocument = CreateLinkedTextDocument(textY: 760);
+        PdfHtmlDocument annotationHtml = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(annotationDocument), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument annotationDom = ParseHtml(annotationHtml.Html);
+
+        XElement annotationLink = Assert.Single(ElementsByClass(annotationDom, "pdf-semantic-link"));
+        Assert.Equal("https://example.com/pdfbox", annotationLink.Attribute("href")?.Value);
+        Assert.Equal("uri", annotationLink.Attribute("data-link-kind")?.Value);
+        Assert.Empty(ElementsByClass(annotationDom, "pdf-link-overlay"));
+
+        using PDDocument automaticDocument = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            72 760 Td
+            (Contact hello@example.com or https://example.com/pdfbox.) Tj
+            ET
+            """);
+        PdfHtmlDocument automaticHtml = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(automaticDocument), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument automaticDom = ParseHtml(automaticHtml.Html);
+
+        Assert.Contains(automaticDom.Descendants("a"), link =>
+            link.Attribute("href")?.Value == "mailto:hello@example.com");
+        Assert.Contains(automaticDom.Descendants("a"), link =>
+            link.Attribute("href")?.Value == "https://example.com/pdfbox");
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsBulletLinesAsListItems()
+    {
+        using PDDocument document = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            72 700 Td
+            (\225 First member) Tj
+            0 -18 Td (\225 Second member) Tj
+            0 -18 Td (\225 Third member) Tj
+            0 -18 Td (\225 Fourth member) Tj
+            0 -18 Td (\225 Fifth member) Tj
+            0 -18 Td (\225 Sixth member) Tj
+            0 -18 Td (\225 Seventh member) Tj
+            0 -18 Td (\225 Eighth member) Tj
+            0 -18 Td (\225 Ninth member) Tj
+            ET
+            """);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(document), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement list = Assert.Single(dom.Descendants("ul"));
+        Assert.Equal(new[]
+            {
+                "First member", "Second member", "Third member", "Fourth member", "Fifth member",
+                "Sixth member", "Seventh member", "Eighth member", "Ninth member"
+            },
+            list.Elements("li").Select(item => item.Value.Trim()).ToArray());
+    }
+
+    [Fact]
+    public async Task Convert_SemanticContinuousFlow_RendersDetectedGridWithSourceGeometry()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("4PP-Highlighting.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize
+            {
+                Width = 1000,
+                Height = 1400
+            }
+        });
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        GridRenderMetrics metrics = await page.EvaluateAsync<GridRenderMetrics>(
+            """
+            () => {
+              const grid = document.querySelector(".pdf-semantic-line-grid");
+              const rows = Array.from(grid.querySelectorAll(".pdf-semantic-line-grid-row"));
+              const firstRow = rows[0].getBoundingClientRect();
+              const secondRow = rows[1].getBoundingClientRect();
+              const firstCells = Array.from(rows[0].querySelectorAll(".pdf-semantic-line-grid-cell"));
+              const firstCell = firstCells[0].getBoundingClientRect();
+              const secondCell = firstCells[1].getBoundingClientRect();
+              const gridBox = grid.getBoundingClientRect();
+              const firstHighlight = grid.querySelector(".pdf-semantic-line-grid-highlight").getBoundingClientRect();
+              return {
+                rowCount: rows.length,
+                highlightCount: grid.querySelectorAll(".pdf-semantic-line-grid-highlight").length,
+                firstCellLeft: firstCell.left - gridBox.left,
+                secondCellLeft: secondCell.left - gridBox.left,
+                firstCellTop: firstCell.top - gridBox.top,
+                firstRowStep: secondRow.top - firstRow.top,
+                firstHighlightWidth: firstHighlight.width
+              };
+            }
+            """);
+
+        const float cssPixelsPerPoint = 96f / 72f;
+        Assert.Equal(84, metrics.RowCount);
+        Assert.Equal(16, metrics.HighlightCount);
+        AssertWithin(1f, 36f * cssPixelsPerPoint, (float)metrics.FirstCellLeft);
+        AssertWithin(1f, 306f * cssPixelsPerPoint, (float)metrics.SecondCellLeft);
+        AssertWithin(1f, 44.579f * cssPixelsPerPoint, (float)metrics.FirstCellTop);
+        AssertWithin(1f, (52.679f - 44.579f) * cssPixelsPerPoint, (float)metrics.FirstRowStep);
+        AssertWithin(1f, 16.141f * cssPixelsPerPoint, (float)metrics.FirstHighlightWidth);
+    }
+
 
     [Fact]
     public void Convert_EmitsPageContainersMatchingLayoutDimensions()
@@ -985,6 +1273,145 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_UsesMeasuredSvgTextForUnknownBrowserFontMetrics()
+    {
+        PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutRectangle textBounds = new(72f, 80f, 180f, 16f);
+        PdfTextGlyph glyph = new("Custom display title", "SubsetDisplayFont", 20f, 0f, textBounds, black);
+        PdfTextRun run = new("Custom display title", "SubsetDisplayFont", 20f, 0f, textBounds, black, [glyph]);
+        PdfTextLine line = new(run.Text, textBounds, [run]);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [glyph],
+            [run],
+            [line],
+            [new PdfTextBlock(run.Text, textBounds, [line])],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement fittedRun = Assert.Single(ElementsByClass(dom, "pdf-text-run"));
+        XElement fittedText = Assert.Single(fittedRun.Descendants(), element => HasClass(element, "pdf-text-run-svg"))
+            .Descendants()
+            .Single(element => element.Name.LocalName == "text");
+        Assert.Equal("180", fittedText.Attribute("textLength")?.Value);
+        Assert.Equal("spacingAndGlyphs", fittedText.Attribute("lengthAdjust")?.Value);
+        Dictionary<string, string> style = ParseStyle(fittedRun.Attribute("style")?.Value ?? "");
+        Assert.Equal(20f, ParsePoints(style["font-size"]));
+    }
+
+    [Fact]
+    public void Convert_AxialShading_EmitsAnSvgGradientLayer()
+    {
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutShading shading = new(
+            0,
+            2,
+            new PdfLayoutRectangle(72f, 300f, 240f, 80f),
+            72f,
+            340f,
+            0f,
+            312f,
+            340f,
+            0f,
+            [
+                new PdfLayoutGradientStop(0f, new PdfLayoutColor(1f, 0f, 0f, 1f, "DeviceRGB")),
+                new PdfLayoutGradientStop(1f, new PdfLayoutColor(0f, 0f, 1f, 1f, "DeviceRGB"))
+            ]);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [shading],
+            [],
+            [],
+            []);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement shadingLayer = Assert.Single(ElementsByClass(dom, "pdf-shading-layer"));
+        XElement gradient = Assert.Single(shadingLayer.Descendants(), element => element.Name.LocalName == "linearGradient");
+        Assert.Equal("72", gradient.Attribute("x1")?.Value);
+        Assert.Equal("312", gradient.Attribute("x2")?.Value);
+        Assert.Equal(2, gradient.Descendants().Count(element => element.Name.LocalName == "stop"));
+        XElement rectangle = Assert.Single(ElementsByClass(dom, "pdf-shading"));
+        Assert.Equal("80", rectangle.Attribute("height")?.Value);
+    }
+
+    [Fact]
+    public void Convert_FixedTextPreservesFontPresentationAndCorrectsAdjacentTransformedRuns()
+    {
+        PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfTextRun bold = CreateRun("Bold text", "ABCDEF+SourceSansPro-Bold", 10f, new PdfLayoutRectangle(72f, 80f, 42f, 7f), black);
+        PdfTextRun italic = CreateRun("Italic text", "ABCDEF+SourceSansPro-Italic", 10f, new PdfLayoutRectangle(72f, 100f, 44f, 7f), black);
+        PdfTextRun transformed = CreateRun("Transformed text fragment", "ABCDEF+SourceSansPro-Regular", 6.563f, new PdfLayoutRectangle(72f, 121.17f, 122.168f, 5.25f), black);
+        PdfTextRun adjacent = CreateRun(" continues on the same baseline", "ABCDEF+SourceSansPro-Regular", 10f, new PdfLayoutRectangle(194.33f, 119.805f, 180f, 6.615f), black);
+        PdfTextRun[] runs = [bold, italic, transformed, adjacent];
+        PdfTextLine[] lines = runs
+            .Select(run => new PdfTextLine(run.Text, run.Bounds, [run]))
+            .ToArray();
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            runs.SelectMany(run => run.Glyphs).ToArray(),
+            runs,
+            lines,
+            [new PdfTextBlock(string.Join(" ", runs.Select(run => run.Text)), new PdfLayoutRectangle(72f, 80f, 302.33f, 46.42f), lines)],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement boldElement = Assert.Single(ElementsByClass(dom, "pdf-text-run"), element =>
+            element.Attribute("data-font")?.Value.Contains("Bold", StringComparison.Ordinal) == true);
+        XElement italicElement = Assert.Single(ElementsByClass(dom, "pdf-text-run"), element =>
+            element.Attribute("data-font")?.Value.Contains("Italic", StringComparison.Ordinal) == true);
+        Dictionary<string, string> boldStyle = ParseStyle(boldElement.Attribute("style")?.Value ?? "");
+        Dictionary<string, string> italicStyle = ParseStyle(italicElement.Attribute("style")?.Value ?? "");
+        Assert.Equal("700", boldStyle["font-weight"]);
+        Assert.Equal("italic", italicStyle["font-style"]);
+
+        XElement boldSvgText = Assert.Single(boldElement.Descendants(), element => element.Name.LocalName == "text");
+        Dictionary<string, string> boldSvgStyle = ParseStyle(boldSvgText.Attribute("style")?.Value ?? "");
+        Assert.Equal("700", boldSvgStyle["font-weight"]);
+
+        XElement transformedElement = Assert.Single(ElementsByClass(dom, "pdf-text-run"), element =>
+            element.Value.Contains("Transformed text fragment", StringComparison.Ordinal));
+        Dictionary<string, string> transformedStyle = ParseStyle(transformedElement.Attribute("style")?.Value ?? "");
+        Assert.Equal(10f, ParsePoints(transformedStyle["font-size"]));
+    }
+
+    [Fact]
     public void Convert_AcroFormFixtureEmitsWidgetAppearanceImageOverlays()
     {
         using PDDocument document = Loader.LoadPDF(FixturePath("Acroform-PDFBOX-2333.pdf"));
@@ -1111,6 +1538,84 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public async Task Convert_EmbeddedTrueTypeFont_ExportsAndLoadsFontFace()
+    {
+        byte[] sourceFont = File.ReadAllBytes(FixturePath("LiberationSans-Regular.ttf"));
+        using PDDocument document = CreateEmbeddedTrueTypeDocument(sourceFont);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeFontAssets = true
+        });
+
+        PdfLayoutFontAsset font = Assert.Single(layout.FontAssets);
+        Assert.Contains("EmbeddedLiberation", font.FontNames);
+        Assert.Equal("font/ttf", font.ContentType);
+        Assert.Equal("truetype", font.CssFormat);
+        Assert.Equal(sourceFont, font.Data);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        PdfHtmlAsset exported = Assert.Single(html.Assets, asset => asset.RelativePath == font.RelativePath);
+        Assert.Equal(sourceFont, exported.Data);
+        Assert.Contains("@font-face{font-family:'EmbeddedLiberation'", html.Css, StringComparison.Ordinal);
+        Assert.Contains("src:url('fonts/", html.Css, StringComparison.Ordinal);
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync();
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        bool loaded = await page.EvaluateAsync<bool>(
+            "() => document.fonts.ready.then(() => Array.from(document.fonts).some(font => font.family === 'EmbeddedLiberation' && font.status === 'loaded'))");
+        Assert.True(loaded, "The generated @font-face must load the embedded font from the emitted asset.");
+    }
+
+    [Fact]
+    public void Convert_GlyphOutlineFallback_EmitsOriginalSvgPath()
+    {
+        PdfLayoutColor black = new(0, 0, 0, 1, "DeviceRGB");
+        PdfTextGlyph glyph = new("A", "EmbeddedCff", 12, 0, new PdfLayoutRectangle(72, 72, 8, 12), black)
+        {
+            Outline =
+            [
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, 72, 84, 0, 0, 0, 0),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, 76, 72, 0, 0, 0, 0),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, 80, 84, 0, 0, 0, 0),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0, 0, 0, 0, 0, 0)
+            ]
+        };
+        PdfTextRun run = new("A", "EmbeddedCff", 12, 0, glyph.Bounds, black, [glyph]);
+        PdfTextLine line = new("A", glyph.Bounds, [run]);
+        PdfTextBlock block = new("A", glyph.Bounds, [line]);
+        PdfLayoutPage page = new(
+            1,
+            new PdfLayoutRectangle(0, 0, 612, 792),
+            new PdfLayoutRectangle(0, 0, 612, 792),
+            612,
+            792,
+            0,
+            [glyph],
+            [run],
+            [line],
+            [block],
+            [],
+            [],
+            [],
+            [],
+            []);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+
+        Assert.Contains("pdf-text-run-outline", html.Html, StringComparison.Ordinal);
+        Assert.Contains("d=\"M 0 12 L 4 0 L 8 12 Z\"", html.Html, StringComparison.Ordinal);
+        Assert.DoesNotContain("textLength=\"8\"", html.Html, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Convert_EmitsInlineImageElementWithExportedAsset()
     {
         using PDDocument document = CreateInlineImageDocument();
@@ -1132,6 +1637,38 @@ public class PdfHtmlConverterTest
         Assert.Equal(asset.RelativePath, image.Attribute("src")?.Value);
         Assert.Equal("page-1-image-0", image.Attribute("data-asset-id")?.Value);
         Assert.Null(image.Attribute("data-source-name"));
+    }
+
+    [Fact]
+    public void Convert_PaintsContainingVectorBackdropsBeforeImages()
+    {
+        using PDDocument document = CreateImageWithVectorBackdropDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+        XElement page = Assert.Single(ElementsByClass(dom, "pdf-page"));
+        XElement backdropLayer = Assert.Single(ElementsByClass(dom, "pdf-vector-background-layer"));
+        XElement image = Assert.Single(ElementsByClass(dom, "pdf-image"));
+        XElement foregroundLayer = Assert.Single(page.Elements(), element =>
+            HasClass(element, "pdf-vector-layer") &&
+            !HasClass(element, "pdf-vector-background-layer"));
+
+        Assert.Equal("background", backdropLayer.Attribute("data-vector-layer")?.Value);
+        Assert.Equal("foreground", foregroundLayer.Attribute("data-vector-layer")?.Value);
+        Assert.Equal("0", Assert.Single(backdropLayer.Descendants(),
+                element => HasClass(element, "pdf-vector-path"))
+            .Attribute("data-path-index")?.Value);
+        Assert.Equal("1", Assert.Single(foregroundLayer.Descendants(),
+                element => HasClass(element, "pdf-vector-path"))
+            .Attribute("data-path-index")?.Value);
+
+        XElement[] children = page.Elements().ToArray();
+        Assert.True(Array.IndexOf(children, backdropLayer) < Array.IndexOf(children, image));
+        Assert.True(Array.IndexOf(children, image) < Array.IndexOf(children, foregroundLayer));
     }
 
     [Fact]
@@ -1598,6 +2135,23 @@ public class PdfHtmlConverterTest
         public double ChildRightOverflow { get; set; }
     }
 
+    private sealed class GridRenderMetrics
+    {
+        public int RowCount { get; set; }
+
+        public int HighlightCount { get; set; }
+
+        public double FirstCellLeft { get; set; }
+
+        public double SecondCellLeft { get; set; }
+
+        public double FirstCellTop { get; set; }
+
+        public double FirstRowStep { get; set; }
+
+        public double FirstHighlightWidth { get; set; }
+    }
+
     private sealed class BrowserRenderComparison
     {
         public BrowserRenderComparison(List<string> mismatches, byte[] browserPagePng, byte[] pdfPagePng)
@@ -1872,6 +2426,17 @@ public class PdfHtmlConverterTest
         }
     }
 
+    private static PdfTextRun CreateRun(
+        string text,
+        string fontName,
+        float fontSize,
+        PdfLayoutRectangle bounds,
+        PdfLayoutColor color)
+    {
+        PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
+        return new PdfTextRun(text, fontName, fontSize, 0f, bounds, color, [glyph]);
+    }
+
     private static PDDocument CreateTextDocument(string contentStream)
     {
         PDDocument document = new();
@@ -1884,17 +2449,47 @@ public class PdfHtmlConverterTest
         return document;
     }
 
-    private static PDDocument CreateLinkedTextDocument()
+    private static PDDocument CreateEmbeddedTrueTypeDocument(byte[] fontBytes)
     {
-        PDDocument document = CreateTextDocument("""
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        TrueTypeFont trueTypeFont = new TTFParser().Parse(fontBytes);
+        COSDictionary descriptor = new();
+        descriptor.SetItem(COSName.GetPDFName("FontFile2"), CreateBinaryStream(document, fontBytes));
+
+        COSDictionary fontDictionary = new();
+        fontDictionary.SetName(COSName.GetPDFName("Subtype"), "TrueType");
+        fontDictionary.SetName(COSName.GetPDFName("BaseFont"), "EmbeddedLiberation");
+        fontDictionary.SetItem(COSName.GetPDFName("FontDescriptor"), descriptor);
+
+        PDResources resources = new();
+        resources.Put(COSName.GetPDFName("F1"), new PDTrueTypeFont(fontDictionary, trueTypeFont));
+        page.SetResources(resources);
+
+        COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
+        pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream("""
             BT
             /F1 12 Tf
             72 700 Td
+            (Embedded font) Tj
+            ET
+            """));
+        return document;
+    }
+
+    private static PDDocument CreateLinkedTextDocument(float textY = 700)
+    {
+        PDDocument document = CreateTextDocument($"""
+            BT
+            /F1 12 Tf
+            72 {textY.ToString(CultureInfo.InvariantCulture)} Td
             (Linked text) Tj
             ET
             """);
         PDAnnotationLink link = new();
-        link.SetRectangle(new PDRectangle(72, 680, 120, 24));
+        link.SetRectangle(new PDRectangle(72, textY - 20, 120, 24));
         PDActionURI action = new();
         action.SetURI("https://example.com/pdfbox");
         link.SetAction(action);
@@ -1918,6 +2513,33 @@ public class PdfHtmlConverterTest
         using (PDPageContentStream content = new(document, page))
         {
             content.DrawImage(image, 72, 600, 120, 60);
+        }
+
+        return document;
+    }
+
+    private static PDDocument CreateImageWithVectorBackdropDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        byte[] rgb =
+        [
+            255, 0, 0,
+            0, 255, 0,
+            0, 0, 255,
+            255, 255, 255
+        ];
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, rgb, 2, 2, 8, 3);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.SetNonStrokingColor(1f, 1f, 1f);
+            content.AddRect(60, 590, 144, 80);
+            content.Fill();
+            content.DrawImage(image, 72, 600, 120, 60);
+            content.SetNonStrokingColor(1f, 0f, 0f);
+            content.AddRect(210, 600, 12, 12);
+            content.Fill();
         }
 
         return document;
@@ -1955,6 +2577,14 @@ public class PdfHtmlConverterTest
         using Stream output = stream.CreateOutputStream();
         byte[] bytes = Encoding.Latin1.GetBytes(contentStream);
         output.Write(bytes, 0, bytes.Length);
+        return stream;
+    }
+
+    private static COSStream CreateBinaryStream(PDDocument document, byte[] data)
+    {
+        COSStream stream = new PDStream(document).GetCOSObject();
+        using Stream output = stream.CreateOutputStream();
+        output.Write(data);
         return stream;
     }
 

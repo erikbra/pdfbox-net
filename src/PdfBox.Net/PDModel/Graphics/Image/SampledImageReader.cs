@@ -92,10 +92,10 @@ internal static class SampledImageReader
             throw new IOException("Image stream is empty");
         }
 
-        if (bitsPerComponent is < 1 or > 8)
+        if (bitsPerComponent is < 1 or > 16)
         {
             throw new NotSupportedException(
-                $"SampledImageReader.GetRGBImage supports 1- to 8-bit images, not {bitsPerComponent}-bit images.");
+                $"SampledImageReader.GetRGBImage supports 1- to 16-bit images, not {bitsPerComponent}-bit images.");
         }
 
         return FromPackedSamples(colorSpace, imageData, width, height, bitsPerComponent, decodeArray);

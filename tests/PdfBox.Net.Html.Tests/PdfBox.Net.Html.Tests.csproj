@@ -39,6 +39,9 @@
     <Content Include="..\PdfBox.Net.Tests\Fixtures\TextExtraction\Issue412\Acroform-PDFBOX-2333.pdf" Link="Fixtures\Acroform-PDFBOX-2333.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\..\src\PdfBox.Net.Examples\Resources\ttf\LiberationSans-Regular.ttf" Link="Fixtures\LiberationSans-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

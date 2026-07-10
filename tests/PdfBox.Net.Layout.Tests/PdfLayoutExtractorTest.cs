@@ -3,7 +3,10 @@ using PdfBox.Net.COS;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Common.Function;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 
@@ -11,6 +14,33 @@ namespace PdfBox.Net.Layout.Tests;
 
 public class PdfLayoutExtractorTest
 {
+    [Fact]
+    public void Extract_AxialShading_CapturesSvgGradientGeometryAndStops()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDShadingType2 shading = CreateAxialShading();
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.ShadingFill(shading);
+        }
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutShading extracted = Assert.Single(Assert.Single(layout.Pages).Shadings);
+        Assert.Equal(PDShading.SHADING_TYPE2, extracted.ShadingType);
+        Assert.Equal(100, extracted.StartX, 3);
+        Assert.Equal(392, extracted.StartY, 3);
+        Assert.Equal(400, extracted.EndX, 3);
+        Assert.Equal(392, extracted.EndY, 3);
+        Assert.Equal(9, extracted.Stops.Count);
+        Assert.True(extracted.Stops[0].Color.Red > 0.99f);
+        Assert.True(extracted.Stops[0].Color.Blue < 0.01f);
+        Assert.True(extracted.Stops[^1].Color.Red < 0.01f);
+        Assert.True(extracted.Stops[^1].Color.Blue > 0.99f);
+    }
+
     [Fact]
     public void Extract_SinglePageText_CapturesGlyphRunsLinesAndBounds()
     {
@@ -386,6 +416,23 @@ public class PdfLayoutExtractorTest
     private static void AssertClose(float expected, float actual)
     {
         Assert.InRange(actual, expected - 0.01f, expected + 0.01f);
+    }
+
+    private static PDShadingType2 CreateAxialShading()
+    {
+        COSDictionary functionDictionary = new();
+        functionDictionary.SetInt(COSName.FUNCTION_TYPE, 2);
+        functionDictionary.SetItem(COSName.DOMAIN, COSArray.Of(0f, 1f));
+        functionDictionary.SetItem(COSName.C0, COSArray.Of(1f, 0f, 0f));
+        functionDictionary.SetItem(COSName.C1, COSArray.Of(0f, 0f, 1f));
+        functionDictionary.SetFloat(COSName.N, 1f);
+
+        PDShadingType2 shading = new(new COSDictionary());
+        shading.SetShadingType(PDShading.SHADING_TYPE2);
+        shading.SetColorSpace(PDDeviceRGB.Instance);
+        shading.SetCoords(COSArray.Of(100f, 400f, 400f, 400f));
+        shading.SetFunction(new PDFunctionType2(functionDictionary));
+        return shading;
     }
 
     private static PDDocument CreateTextDocument(string contentStream)
