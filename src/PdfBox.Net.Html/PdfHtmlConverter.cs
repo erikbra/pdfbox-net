@@ -740,18 +740,50 @@ public static class PdfHtmlConverter
         html.AppendLine("</html>");
         PdfHtmlAsset[] assets = imageAssets.Values
             .Select(asset => new PdfHtmlAsset(asset.RelativePath, asset.ContentType, asset.Data))
+            .Concat(layout.FontAssets.Select(asset => new PdfHtmlAsset(asset.RelativePath, asset.ContentType, asset.Data)))
             .ToArray();
-        return new PdfHtmlDocument(html.ToString(), cssPath, BuildCss(semantic), assets);
+        return new PdfHtmlDocument(html.ToString(), cssPath, BuildCss(semantic, layout.FontAssets, cssPath), assets);
     }
 
-    private static string BuildCss(PdfSemanticDocument? semantic)
+    private static void WriteFontFaces(
+        StringBuilder css,
+        IReadOnlyList<PdfLayoutFontAsset> fontAssets,
+        string cssPath)
     {
+        foreach (PdfLayoutFontAsset asset in fontAssets.OrderBy(static asset => asset.AssetId, StringComparer.Ordinal))
+        {
+            foreach (string fontName in asset.FontNames
+                .Where(static name => !string.IsNullOrWhiteSpace(name))
+                .Distinct(StringComparer.Ordinal))
+            {
+                css.Append("@font-face{font-family:")
+                    .Append(CssFontFamilyName(fontName))
+                    .Append(";src:url('")
+                    .Append(CssUrlRelativeToStylesheet(cssPath, asset.RelativePath))
+                    .Append("') format('")
+                    .Append(asset.CssFormat)
+                    .Append("');font-display:block;font-style:")
+                    .Append(IsItalicFont(fontName) ? "italic" : "normal")
+                    .Append(";font-weight:")
+                    .Append(IsBoldFont(fontName) ? "700" : "400")
+                    .AppendLine("}");
+            }
+        }
+    }
+
+    private static string BuildCss(
+        PdfSemanticDocument? semantic,
+        IReadOnlyList<PdfLayoutFontAsset> fontAssets,
+        string cssPath)
+    {
+        StringBuilder css = new();
+        WriteFontFaces(css, fontAssets, cssPath);
+        css.Append(Css);
         if (semantic == null)
         {
-            return Css;
+            return css.ToString();
         }
 
-        StringBuilder css = new(Css);
         css.AppendLine();
         foreach (string fontName in semantic.Elements
             .SelectMany(static element => element.Lines)
@@ -1340,7 +1372,11 @@ public static class PdfHtmlConverter
             .Append(ColorHex(run.Color))
             .Append("\">");
 
-        if (ShouldUseFittedText(run))
+        if (HasGlyphOutlineFallback(run))
+        {
+            WriteGlyphOutlineTextRun(html, run);
+        }
+        else if (ShouldUseFittedText(run))
         {
             WriteFittedTextRun(html, run, fontSize, scale);
         }
@@ -1350,6 +1386,41 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("</span>");
+    }
+
+    private static void WriteGlyphOutlineTextRun(StringBuilder html, PdfTextRun run)
+    {
+        html.Append("<span class=\"pdf-text-run-copy\" aria-hidden=\"true\">")
+            .Append(Html(run.Text))
+            .Append("</span><svg class=\"pdf-text-run-svg pdf-text-run-outline\" viewBox=\"0 0 ")
+            .Append(SvgNumber(run.Bounds.Width))
+            .Append(' ')
+            .Append(SvgNumber(run.Bounds.Height))
+            .Append("\" preserveAspectRatio=\"none\" aria-hidden=\"true\">");
+
+        foreach (PdfTextGlyph glyph in run.Glyphs)
+        {
+            if (glyph.Outline is not { Count: > 0 } outline)
+            {
+                continue;
+            }
+
+            html.Append("<path d=\"")
+                .Append(HtmlAttribute(SvgPathData(outline, run.Bounds.X, run.Bounds.Y)))
+                .Append("\" fill=\"")
+                .Append(ColorHex(run.Color))
+                .Append('"');
+            if (run.Color.Alpha < 0.999f)
+            {
+                html.Append(" fill-opacity=\"")
+                    .Append(SvgNumber(run.Color.Alpha))
+                    .Append('"');
+            }
+
+            html.AppendLine(" />");
+        }
+
+        html.Append("</svg>");
     }
 
     private static void WriteFittedTextRun(StringBuilder html, PdfTextRun run, float fontSize, float scale)
@@ -1396,6 +1467,11 @@ public static class PdfHtmlConverter
                 HasUntrustedBrowserFontMetrics(run.FontName) &&
                 !HasMathFont(run.FontName) &&
                 !IsSymbolFont(run.FontName));
+    }
+
+    private static bool HasGlyphOutlineFallback(PdfTextRun run)
+    {
+        return run.Glyphs.Count > 0 && run.Glyphs.All(static glyph => glyph.Outline is not null);
     }
 
     private static float FixedTextFontSize(
@@ -7260,6 +7336,12 @@ public static class PdfHtmlConverter
     }
 
     private static string SvgPathData(IReadOnlyList<PdfLayoutPathCommand> commands)
+        => SvgPathData(commands, 0, 0);
+
+    private static string SvgPathData(
+        IReadOnlyList<PdfLayoutPathCommand> commands,
+        float xOffset,
+        float yOffset)
     {
         StringBuilder builder = new();
         foreach (PdfLayoutPathCommand command in commands)
@@ -7273,29 +7355,29 @@ public static class PdfHtmlConverter
             {
                 case PdfLayoutPathCommandKind.MoveTo:
                     builder.Append("M ")
-                        .Append(SvgNumber(command.X1))
+                        .Append(SvgNumber(command.X1 - xOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.Y1));
+                        .Append(SvgNumber(command.Y1 - yOffset));
                     break;
                 case PdfLayoutPathCommandKind.LineTo:
                     builder.Append("L ")
-                        .Append(SvgNumber(command.X1))
+                        .Append(SvgNumber(command.X1 - xOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.Y1));
+                        .Append(SvgNumber(command.Y1 - yOffset));
                     break;
                 case PdfLayoutPathCommandKind.CurveTo:
                     builder.Append("C ")
-                        .Append(SvgNumber(command.X1))
+                        .Append(SvgNumber(command.X1 - xOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.Y1))
+                        .Append(SvgNumber(command.Y1 - yOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.X2))
+                        .Append(SvgNumber(command.X2 - xOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.Y2))
+                        .Append(SvgNumber(command.Y2 - yOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.X3))
+                        .Append(SvgNumber(command.X3 - xOffset))
                         .Append(' ')
-                        .Append(SvgNumber(command.Y3));
+                        .Append(SvgNumber(command.Y3 - yOffset));
                     break;
                 case PdfLayoutPathCommandKind.ClosePath:
                     builder.Append('Z');
@@ -7352,9 +7434,23 @@ public static class PdfHtmlConverter
         }
 
         string fallback = FontFallback(fontName);
+        return CssFontFamilyName(fontName) + ", " + fallback;
+    }
+
+    private static string CssFontFamilyName(string fontName)
+    {
         string escaped = fontName.Replace("\\", "\\\\", StringComparison.Ordinal)
             .Replace("'", "\\'", StringComparison.Ordinal);
-        return "'" + escaped + "', " + fallback;
+        return "'" + escaped + "'";
+    }
+
+    private static string CssUrlRelativeToStylesheet(string cssPath, string assetPath)
+    {
+        string? stylesheetDirectory = Path.GetDirectoryName(cssPath.Replace('/', Path.DirectorySeparatorChar));
+        string relativePath = Path.GetRelativePath(
+            string.IsNullOrWhiteSpace(stylesheetDirectory) ? "." : stylesheetDirectory,
+            assetPath.Replace('/', Path.DirectorySeparatorChar));
+        return relativePath.Replace(Path.DirectorySeparatorChar, '/').Replace("'", "%27", StringComparison.Ordinal);
     }
 
     private static string FontFallback(string fontName)

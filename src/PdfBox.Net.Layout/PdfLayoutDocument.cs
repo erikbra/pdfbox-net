@@ -6,7 +6,7 @@ namespace PdfBox.Net.Layout;
 public sealed class PdfLayoutDocument
 {
     public PdfLayoutDocument(IReadOnlyList<PdfLayoutPage> pages, IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
-        : this(pages, [], diagnostics)
+        : this(pages, [], [], diagnostics)
     {
     }
 
@@ -14,9 +14,19 @@ public sealed class PdfLayoutDocument
         IReadOnlyList<PdfLayoutPage> pages,
         IReadOnlyList<PdfLayoutImageAsset> imageAssets,
         IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
+        : this(pages, imageAssets, [], diagnostics)
+    {
+    }
+
+    public PdfLayoutDocument(
+        IReadOnlyList<PdfLayoutPage> pages,
+        IReadOnlyList<PdfLayoutImageAsset> imageAssets,
+        IReadOnlyList<PdfLayoutFontAsset> fontAssets,
+        IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
     {
         Pages = pages.ToArray();
         ImageAssets = imageAssets.ToArray();
+        FontAssets = fontAssets.ToArray();
         Diagnostics = diagnostics.ToArray();
     }
 
@@ -29,6 +39,11 @@ public sealed class PdfLayoutDocument
     /// Gets exported image assets referenced by page image placements.
     /// </summary>
     public IReadOnlyList<PdfLayoutImageAsset> ImageAssets { get; }
+
+    /// <summary>
+    /// Gets browser-safe embedded font programs referenced by the text layout.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutFontAsset> FontAssets { get; }
 
     /// <summary>
     /// Gets document-level diagnostics.

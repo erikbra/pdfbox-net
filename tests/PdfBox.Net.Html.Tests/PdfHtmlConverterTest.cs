@@ -6,13 +6,16 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.Playwright;
 using PdfBox.Net.COS;
+using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Html.Tests;
@@ -1535,6 +1538,84 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public async Task Convert_EmbeddedTrueTypeFont_ExportsAndLoadsFontFace()
+    {
+        byte[] sourceFont = File.ReadAllBytes(FixturePath("LiberationSans-Regular.ttf"));
+        using PDDocument document = CreateEmbeddedTrueTypeDocument(sourceFont);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeFontAssets = true
+        });
+
+        PdfLayoutFontAsset font = Assert.Single(layout.FontAssets);
+        Assert.Contains("EmbeddedLiberation", font.FontNames);
+        Assert.Equal("font/ttf", font.ContentType);
+        Assert.Equal("truetype", font.CssFormat);
+        Assert.Equal(sourceFont, font.Data);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        PdfHtmlAsset exported = Assert.Single(html.Assets, asset => asset.RelativePath == font.RelativePath);
+        Assert.Equal(sourceFont, exported.Data);
+        Assert.Contains("@font-face{font-family:'EmbeddedLiberation'", html.Css, StringComparison.Ordinal);
+        Assert.Contains("src:url('fonts/", html.Css, StringComparison.Ordinal);
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync();
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        bool loaded = await page.EvaluateAsync<bool>(
+            "() => document.fonts.ready.then(() => Array.from(document.fonts).some(font => font.family === 'EmbeddedLiberation' && font.status === 'loaded'))");
+        Assert.True(loaded, "The generated @font-face must load the embedded font from the emitted asset.");
+    }
+
+    [Fact]
+    public void Convert_GlyphOutlineFallback_EmitsOriginalSvgPath()
+    {
+        PdfLayoutColor black = new(0, 0, 0, 1, "DeviceRGB");
+        PdfTextGlyph glyph = new("A", "EmbeddedCff", 12, 0, new PdfLayoutRectangle(72, 72, 8, 12), black)
+        {
+            Outline =
+            [
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, 72, 84, 0, 0, 0, 0),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, 76, 72, 0, 0, 0, 0),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, 80, 84, 0, 0, 0, 0),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0, 0, 0, 0, 0, 0)
+            ]
+        };
+        PdfTextRun run = new("A", "EmbeddedCff", 12, 0, glyph.Bounds, black, [glyph]);
+        PdfTextLine line = new("A", glyph.Bounds, [run]);
+        PdfTextBlock block = new("A", glyph.Bounds, [line]);
+        PdfLayoutPage page = new(
+            1,
+            new PdfLayoutRectangle(0, 0, 612, 792),
+            new PdfLayoutRectangle(0, 0, 612, 792),
+            612,
+            792,
+            0,
+            [glyph],
+            [run],
+            [line],
+            [block],
+            [],
+            [],
+            [],
+            [],
+            []);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+
+        Assert.Contains("pdf-text-run-outline", html.Html, StringComparison.Ordinal);
+        Assert.Contains("d=\"M 0 12 L 4 0 L 8 12 Z\"", html.Html, StringComparison.Ordinal);
+        Assert.DoesNotContain("textLength=\"8\"", html.Html, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Convert_EmitsInlineImageElementWithExportedAsset()
     {
         using PDDocument document = CreateInlineImageDocument();
@@ -2368,6 +2449,36 @@ public class PdfHtmlConverterTest
         return document;
     }
 
+    private static PDDocument CreateEmbeddedTrueTypeDocument(byte[] fontBytes)
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        TrueTypeFont trueTypeFont = new TTFParser().Parse(fontBytes);
+        COSDictionary descriptor = new();
+        descriptor.SetItem(COSName.GetPDFName("FontFile2"), CreateBinaryStream(document, fontBytes));
+
+        COSDictionary fontDictionary = new();
+        fontDictionary.SetName(COSName.GetPDFName("Subtype"), "TrueType");
+        fontDictionary.SetName(COSName.GetPDFName("BaseFont"), "EmbeddedLiberation");
+        fontDictionary.SetItem(COSName.GetPDFName("FontDescriptor"), descriptor);
+
+        PDResources resources = new();
+        resources.Put(COSName.GetPDFName("F1"), new PDTrueTypeFont(fontDictionary, trueTypeFont));
+        page.SetResources(resources);
+
+        COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
+        pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream("""
+            BT
+            /F1 12 Tf
+            72 700 Td
+            (Embedded font) Tj
+            ET
+            """));
+        return document;
+    }
+
     private static PDDocument CreateLinkedTextDocument(float textY = 700)
     {
         PDDocument document = CreateTextDocument($"""
@@ -2466,6 +2577,14 @@ public class PdfHtmlConverterTest
         using Stream output = stream.CreateOutputStream();
         byte[] bytes = Encoding.Latin1.GetBytes(contentStream);
         output.Write(bytes, 0, bytes.Length);
+        return stream;
+    }
+
+    private static COSStream CreateBinaryStream(PDDocument document, byte[] data)
+    {
+        COSStream stream = new PDStream(document).GetCOSObject();
+        using Stream output = stream.CreateOutputStream();
+        output.Write(data);
         return stream;
     }
 

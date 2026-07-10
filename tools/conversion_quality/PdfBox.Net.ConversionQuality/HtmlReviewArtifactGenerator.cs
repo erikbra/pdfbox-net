@@ -103,7 +103,8 @@ public static class HtmlReviewArtifactGenerator
                 using PDDocument document = Loader.LoadPDF(sourcePdf);
                 layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
                 {
-                    IncludeImageAssets = true
+                    IncludeImageAssets = true,
+                    IncludeFontAssets = true
                 });
                 html = PdfHtmlConverter.Convert(layout);
                 semanticHtml = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions

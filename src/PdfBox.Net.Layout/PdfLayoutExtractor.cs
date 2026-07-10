@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.COS;
@@ -13,10 +14,12 @@ using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
+using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
 using PdfBox.Net.Text;
 using PdfBox.Net.Util;
+using PdfBox.Net.Util.Geometry;
 
 namespace PdfBox.Net.Layout;
 
@@ -48,11 +51,13 @@ public static class PdfLayoutExtractor
         private readonly List<PageBuilder> _pages = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
         private readonly Dictionary<TextPosition, PdfLayoutColor> _textColors = new(ReferenceEqualityComparer.Instance);
+        private readonly EmbeddedFontAssetCollector _fontAssets;
         private PageBuilder? _currentPage;
 
         public LayoutTextStripper(PdfLayoutOptions options)
         {
             _options = options;
+            _fontAssets = new EmbeddedFontAssetCollector(options.IncludeFontAssets, _diagnostics);
             SetSortByPosition(options.SortTextByPosition);
             SetSuppressDuplicateOverlappingText(options.SuppressDuplicateOverlappingText);
             SetShouldSeparateByBeads(options.SeparateByBeads);
@@ -63,6 +68,7 @@ public static class PdfLayoutExtractor
             _pages.Clear();
             _diagnostics.Clear();
             _textColors.Clear();
+            _fontAssets.Clear();
             _currentPage = null;
 
             int pageNumber = 1;
@@ -99,7 +105,7 @@ public static class PdfLayoutExtractor
                 textPositions.Sort(new TextPositionComparator());
             }
 
-            _currentPage.SetTextPositions(textPositions, _options, _textColors);
+            _currentPage.SetTextPositions(textPositions, _options, _textColors, _fontAssets);
         }
 
         protected override void ProcessTextPosition(TextPosition text)
@@ -122,10 +128,211 @@ public static class PdfLayoutExtractor
         {
             PdfLayoutPage[] pages = _pages.Select(page => page.Build()).ToArray();
             PdfLayoutImageAsset[] imageAssets = _pages.SelectMany(page => page.ImageAssets).ToArray();
+            PdfLayoutFontAsset[] fontAssets = _fontAssets.Assets.ToArray();
             PdfLayoutDiagnostic[] diagnostics = _diagnostics
                 .Concat(pages.SelectMany(page => page.Diagnostics))
                 .ToArray();
-            return new PdfLayoutDocument(pages, imageAssets, diagnostics);
+            return new PdfLayoutDocument(pages, imageAssets, fontAssets, diagnostics);
+        }
+    }
+
+    private sealed class EmbeddedFontAssetCollector
+    {
+        private static readonly COSName FontFileKey = COSName.GetPDFName("FontFile");
+        private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
+        private static readonly COSName FontFile3Key = COSName.GetPDFName("FontFile3");
+        private static readonly COSName SubtypeKey = COSName.GetPDFName("Subtype");
+
+        private readonly bool _includeAssets;
+        private readonly List<PdfLayoutDiagnostic> _diagnostics;
+        private readonly Dictionary<string, FontAssetBuilder> _assetsByHash = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, string> _assetHashByFontName = new(StringComparer.Ordinal);
+        private readonly HashSet<string> _reportedUnsupportedFonts = new(StringComparer.Ordinal);
+
+        public EmbeddedFontAssetCollector(bool includeAssets, List<PdfLayoutDiagnostic> diagnostics)
+        {
+            _includeAssets = includeAssets;
+            _diagnostics = diagnostics;
+        }
+
+        public IReadOnlyList<PdfLayoutFontAsset> Assets => _assetsByHash.Values
+            .OrderBy(static asset => asset.AssetId, StringComparer.Ordinal)
+            .Select(static asset => asset.Build())
+            .ToArray();
+
+        public void Clear()
+        {
+            _assetsByHash.Clear();
+            _assetHashByFontName.Clear();
+            _reportedUnsupportedFonts.Clear();
+        }
+
+        public void Collect(PDFont font, int pageNumber)
+        {
+            if (!_includeAssets || string.IsNullOrWhiteSpace(font.GetName()))
+            {
+                return;
+            }
+
+            string fontName = font.GetName();
+            if (_assetHashByFontName.ContainsKey(fontName))
+            {
+                return;
+            }
+
+            if (!TryReadBrowserFontProgram(font, out FontProgram program, out string? unsupportedReason))
+            {
+                if (!string.IsNullOrWhiteSpace(unsupportedReason) && _reportedUnsupportedFonts.Add(fontName))
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "embedded-font-web-unsupported",
+                        $"Embedded font '{fontName}' is not emitted as CSS: {unsupportedReason}",
+                        pageNumber));
+                }
+
+                return;
+            }
+
+            string hash = Convert.ToHexString(SHA256.HashData(program.Data)).ToLowerInvariant();
+            string assetId = "pdf-font-" + hash[..16];
+            if (!_assetsByHash.TryGetValue(hash, out FontAssetBuilder? asset))
+            {
+                string extension = program.CssFormat == "opentype" ? "otf" : "ttf";
+                asset = new FontAssetBuilder(
+                    assetId,
+                    $"assets/fonts/{assetId}.{extension}",
+                    program.ContentType,
+                    program.CssFormat,
+                    program.Data);
+                _assetsByHash.Add(hash, asset);
+            }
+
+            asset.AddFontName(fontName);
+            _assetHashByFontName[fontName] = hash;
+        }
+
+        private static bool TryReadBrowserFontProgram(PDFont font, out FontProgram program, out string? unsupportedReason)
+        {
+            program = default;
+            unsupportedReason = null;
+            PDFontDescriptor? descriptor = font.GetFontDescriptor();
+            COSDictionary? descriptorDictionary = descriptor?.GetCOSObject();
+            if (descriptorDictionary is null)
+            {
+                return false;
+            }
+
+            if (descriptorDictionary.GetDictionaryObject(FontFile2Key) is COSStream trueTypeStream)
+            {
+                byte[] data = ReadStream(trueTypeStream);
+                if (TryGetSfntFormat(data, out string contentType, out string cssFormat))
+                {
+                    program = new FontProgram(data, contentType, cssFormat);
+                    return true;
+                }
+
+                unsupportedReason = "FontFile2 does not contain a browser-readable sfnt program.";
+                return false;
+            }
+
+            if (descriptorDictionary.GetDictionaryObject(FontFile3Key) is COSStream fontFile3)
+            {
+                string? subtype = fontFile3.GetNameAsString(SubtypeKey);
+                if (!string.Equals(subtype, "OpenType", StringComparison.Ordinal))
+                {
+                    unsupportedReason = $"FontFile3 subtype '{subtype ?? "unknown"}' is a raw PDF font program rather than an OpenType web font.";
+                    return false;
+                }
+
+                byte[] data = ReadStream(fontFile3);
+                if (TryGetSfntFormat(data, out string contentType, out string cssFormat))
+                {
+                    program = new FontProgram(data, contentType, cssFormat);
+                    return true;
+                }
+
+                unsupportedReason = "OpenType FontFile3 does not contain a browser-readable sfnt program.";
+                return false;
+            }
+
+            if (descriptorDictionary.GetDictionaryObject(FontFileKey) is COSStream)
+            {
+                unsupportedReason = "Type 1 FontFile programs are not supported by browser @font-face.";
+            }
+
+            return false;
+        }
+
+        private static byte[] ReadStream(COSStream stream)
+        {
+            using Stream input = stream.CreateInputStream();
+            using MemoryStream output = new();
+            input.CopyTo(output);
+            return output.ToArray();
+        }
+
+        private static bool TryGetSfntFormat(byte[] data, out string contentType, out string cssFormat)
+        {
+            contentType = string.Empty;
+            cssFormat = string.Empty;
+            if (data.Length < 4)
+            {
+                return false;
+            }
+
+            ReadOnlySpan<byte> signature = data.AsSpan(0, 4);
+            if (signature.SequenceEqual("OTTO"u8))
+            {
+                contentType = "font/otf";
+                cssFormat = "opentype";
+                return true;
+            }
+
+            if (signature.SequenceEqual("\0\x01\0\0"u8) || signature.SequenceEqual("true"u8))
+            {
+                contentType = "font/ttf";
+                cssFormat = "truetype";
+                return true;
+            }
+
+            return false;
+        }
+
+        private readonly record struct FontProgram(byte[] Data, string ContentType, string CssFormat);
+
+        private sealed class FontAssetBuilder
+        {
+            private readonly HashSet<string> _fontNames = new(StringComparer.Ordinal);
+
+            public FontAssetBuilder(string assetId, string relativePath, string contentType, string cssFormat, byte[] data)
+            {
+                AssetId = assetId;
+                RelativePath = relativePath;
+                ContentType = contentType;
+                CssFormat = cssFormat;
+                Data = data;
+            }
+
+            public string AssetId { get; }
+
+            public string RelativePath { get; }
+
+            public string ContentType { get; }
+
+            public string CssFormat { get; }
+
+            public byte[] Data { get; }
+
+            public void AddFontName(string fontName) => _fontNames.Add(fontName);
+
+            public PdfLayoutFontAsset Build() => new(
+                AssetId,
+                _fontNames.Order(StringComparer.Ordinal).ToArray(),
+                RelativePath,
+                ContentType,
+                CssFormat,
+                Data);
         }
     }
 
@@ -187,14 +394,15 @@ public static class PdfLayoutExtractor
         public void SetTextPositions(
             IReadOnlyList<TextPosition> textPositions,
             PdfLayoutOptions options,
-            IReadOnlyDictionary<TextPosition, PdfLayoutColor> textColors)
+            IReadOnlyDictionary<TextPosition, PdfLayoutColor> textColors,
+            EmbeddedFontAssetCollector fontAssets)
         {
             _glyphs.Clear();
             _runs.Clear();
             _lines.Clear();
             _blocks.Clear();
 
-            _glyphs.AddRange(textPositions.Select(position => CreateGlyph(position, textColors)));
+            _glyphs.AddRange(textPositions.Select(position => CreateGlyph(position, textColors, fontAssets)));
             _lines.AddRange(CreateLines(_glyphs, options));
             _runs.AddRange(_lines.SelectMany(line => line.Runs));
 
@@ -713,10 +921,13 @@ public static class PdfLayoutExtractor
             return (PdfLayoutLinkKind.Destination, null, destination.GetType().Name, null);
         }
 
-        private static PdfTextGlyph CreateGlyph(
+        private PdfTextGlyph CreateGlyph(
             TextPosition position,
-            IReadOnlyDictionary<TextPosition, PdfLayoutColor> textColors)
+            IReadOnlyDictionary<TextPosition, PdfLayoutColor> textColors,
+            EmbeddedFontAssetCollector fontAssets)
         {
+            PDFont font = position.GetFont();
+            fontAssets.Collect(font, _pageNumber);
             float height = MathF.Max(0, position.GetHeightDir());
             float width = MathF.Max(0, position.GetWidthDirAdj());
             float y = position.GetYDirAdj() - height;
@@ -729,7 +940,7 @@ public static class PdfLayoutExtractor
                 vertical ? width : height);
             return new PdfTextGlyph(
                 NormalizeGlyphText(position),
-                position.GetFont().GetName(),
+                font.GetName(),
                 position.GetFontSizeInPtFloat(),
                 direction,
                 new PdfLayoutRectangle(
@@ -739,8 +950,98 @@ public static class PdfLayoutExtractor
                     height),
                 textColors.GetValueOrDefault(position, new PdfLayoutColor(0, 0, 0, 1, null)))
             {
-                PageBounds = pageBounds
+                PageBounds = pageBounds,
+                Outline = TryCreateGlyphOutline(position, font)
             };
+        }
+
+        private PdfLayoutPathCommand[]? TryCreateGlyphOutline(TextPosition position, PDFont font)
+        {
+            // Raw CFF programs are valid PDF fonts but cannot be referenced by CSS @font-face.
+            // Preserve their original outlines so the visible HTML remains faithful and the text copy remains selectable.
+            if (font is not PDType1CFont cffFont || position.GetCharacterCodes() is not [int code])
+            {
+                return null;
+            }
+
+            try
+            {
+                GeneralPath path = cffFont.GetNormalizedPath(code);
+                if (path.Segments.Count == 0)
+                {
+                    return [];
+                }
+
+                Matrix glyphMatrix = Matrix.Concatenate(position.GetTextMatrix(), font.GetFontMatrix());
+                List<PdfLayoutPathCommand> commands = new(path.Segments.Count);
+                (float X, float Y) current = default;
+                foreach (GeneralPath.Segment segment in path.Segments)
+                {
+                    switch (segment.Type)
+                    {
+                        case GeneralPath.SegmentType.MoveTo:
+                            current = NormalizeGlyphOutlinePoint(segment.X1, segment.Y1, glyphMatrix);
+                            commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, current.X, current.Y, 0, 0, 0, 0));
+                            break;
+                        case GeneralPath.SegmentType.LineTo:
+                            current = NormalizeGlyphOutlinePoint(segment.X1, segment.Y1, glyphMatrix);
+                            commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, current.X, current.Y, 0, 0, 0, 0));
+                            break;
+                        case GeneralPath.SegmentType.QuadTo:
+                        {
+                            (float X, float Y) control = NormalizeGlyphOutlinePoint(segment.X1, segment.Y1, glyphMatrix);
+                            (float X, float Y) end = NormalizeGlyphOutlinePoint(segment.X2, segment.Y2, glyphMatrix);
+                            commands.Add(new PdfLayoutPathCommand(
+                                PdfLayoutPathCommandKind.CurveTo,
+                                current.X + ((control.X - current.X) * (2f / 3f)),
+                                current.Y + ((control.Y - current.Y) * (2f / 3f)),
+                                end.X + ((control.X - end.X) * (2f / 3f)),
+                                end.Y + ((control.Y - end.Y) * (2f / 3f)),
+                                end.X,
+                                end.Y));
+                            current = end;
+                            break;
+                        }
+                        case GeneralPath.SegmentType.CurveTo:
+                        {
+                            (float X, float Y) control1 = NormalizeGlyphOutlinePoint(segment.X1, segment.Y1, glyphMatrix);
+                            (float X, float Y) control2 = NormalizeGlyphOutlinePoint(segment.X2, segment.Y2, glyphMatrix);
+                            (float X, float Y) end = NormalizeGlyphOutlinePoint(segment.X3, segment.Y3, glyphMatrix);
+                            commands.Add(new PdfLayoutPathCommand(
+                                PdfLayoutPathCommandKind.CurveTo,
+                                control1.X,
+                                control1.Y,
+                                control2.X,
+                                control2.Y,
+                                end.X,
+                                end.Y));
+                            current = end;
+                            break;
+                        }
+                        case GeneralPath.SegmentType.Close:
+                            commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0, 0, 0, 0, 0, 0));
+                            break;
+                    }
+                }
+
+                return commands.ToArray();
+            }
+            catch (IOException ex)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "glyph-outline-collection-failed",
+                    "Embedded CFF glyph outlines could not be collected: " + ex.Message,
+                    _pageNumber));
+                return null;
+            }
+        }
+
+        private (float X, float Y) NormalizeGlyphOutlinePoint(float x, float y, Matrix glyphMatrix)
+        {
+            Vector point = glyphMatrix.Transform(x, y);
+            float cropTop = _cropBox.Y + _cropBox.Height;
+            return (point.GetX() - _cropBox.X, cropTop - point.GetY());
         }
 
         private static string NormalizeGlyphText(TextPosition position)
