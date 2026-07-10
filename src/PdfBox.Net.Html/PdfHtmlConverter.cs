@@ -1200,7 +1200,7 @@ public static class PdfHtmlConverter
                     continue;
                 }
 
-                html.Append("      <g class=\"pdf-vector-group\" data-vector-group-index=\"")
+                html.Append("      <g data-vector-group-index=\"")
                     .Append(group.Index.ToString(CultureInfo.InvariantCulture))
                     .Append("\" opacity=\"")
                     .Append(SvgNumber(group.Opacity))
@@ -1298,7 +1298,7 @@ public static class PdfHtmlConverter
 
     private static void WriteVectorPath(StringBuilder html, PdfLayoutPath path)
     {
-        html.Append("      <path class=\"pdf-vector-path\" data-path-index=\"")
+        html.Append("      <path data-path-index=\"")
             .Append(path.Index.ToString(CultureInfo.InvariantCulture))
             .Append("\" d=\"")
             .Append(HtmlAttribute(SvgPathData(path.Commands)))
