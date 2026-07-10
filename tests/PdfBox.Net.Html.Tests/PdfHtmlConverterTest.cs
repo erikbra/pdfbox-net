@@ -1344,6 +1344,38 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_PaintsContainingVectorBackdropsBeforeImages()
+    {
+        using PDDocument document = CreateImageWithVectorBackdropDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+        XElement page = Assert.Single(ElementsByClass(dom, "pdf-page"));
+        XElement backdropLayer = Assert.Single(ElementsByClass(dom, "pdf-vector-background-layer"));
+        XElement image = Assert.Single(ElementsByClass(dom, "pdf-image"));
+        XElement foregroundLayer = Assert.Single(page.Elements(), element =>
+            HasClass(element, "pdf-vector-layer") &&
+            !HasClass(element, "pdf-vector-background-layer"));
+
+        Assert.Equal("background", backdropLayer.Attribute("data-vector-layer")?.Value);
+        Assert.Equal("foreground", foregroundLayer.Attribute("data-vector-layer")?.Value);
+        Assert.Equal("0", Assert.Single(backdropLayer.Descendants(),
+                element => HasClass(element, "pdf-vector-path"))
+            .Attribute("data-path-index")?.Value);
+        Assert.Equal("1", Assert.Single(foregroundLayer.Descendants(),
+                element => HasClass(element, "pdf-vector-path"))
+            .Attribute("data-path-index")?.Value);
+
+        XElement[] children = page.Elements().ToArray();
+        Assert.True(Array.IndexOf(children, backdropLayer) < Array.IndexOf(children, image));
+        Assert.True(Array.IndexOf(children, image) < Array.IndexOf(children, foregroundLayer));
+    }
+
+    [Fact]
     public async Task Convert_RenderedImageInHeadlessBrowserMatchesLayoutGeometry()
     {
         using PDDocument document = CreateImageDocument();
@@ -2144,6 +2176,33 @@ public class PdfHtmlConverterTest
         using (PDPageContentStream content = new(document, page))
         {
             content.DrawImage(image, 72, 600, 120, 60);
+        }
+
+        return document;
+    }
+
+    private static PDDocument CreateImageWithVectorBackdropDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        byte[] rgb =
+        [
+            255, 0, 0,
+            0, 255, 0,
+            0, 0, 255,
+            255, 255, 255
+        ];
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, rgb, 2, 2, 8, 3);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.SetNonStrokingColor(1f, 1f, 1f);
+            content.AddRect(60, 590, 144, 80);
+            content.Fill();
+            content.DrawImage(image, 72, 600, 120, 60);
+            content.SetNonStrokingColor(1f, 0f, 0f);
+            content.AddRect(210, 600, 12, 12);
+            content.Fill();
         }
 
         return document;

@@ -204,6 +204,49 @@ public sealed class HtmlReviewArtifactGeneratorTest
     }
 
     [Fact]
+    public async Task AnalyzeAsync_DoesNotDoubleCountMeasuredSvgText()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        PdfLayoutDocument layout;
+        using (PDDocument document = CreateTextDocument("Measured display title"))
+        {
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <body>
+              <section class="pdf-page" data-page-number="1" style="position:relative;width:612pt;height:792pt;background:white">
+                <span class="pdf-text-run" style="position:absolute;left:72pt;top:80pt;font-size:12pt">
+                  <span class="pdf-text-run-copy" aria-hidden="true">Measured display title</span>
+                  <svg class="pdf-text-run-svg" aria-hidden="true"><text>Measured display title</text></svg>
+                </span>
+              </section>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        PdfHtmlQualityPageReport page = Assert.Single(report.Pages);
+        Assert.Equal(3, page.HtmlWordCount);
+        Assert.Equal(1d, page.TextTokenCoverage);
+    }
+
+    [Fact]
     public async Task Generate_ComparisonPaneSplitterResizesInBrowser()
     {
         using TempDirectory tempDirectory = new();

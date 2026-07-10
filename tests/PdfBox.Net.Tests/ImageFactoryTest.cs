@@ -266,6 +266,23 @@ public class ImageFactoryTest
         Assert.Equal([0, 0, 0, 255, 255, 255], rgb);
     }
 
+    [Fact]
+    public void SampledImageReader_GetRGBImage_UnpacksSixteenBitGraySamples()
+    {
+        using PDDocument doc = new();
+        PDImageXObject img = LosslessFactory.CreateFromRawData(
+            doc,
+            [0x00, 0x00, 0x80, 0x00, 0xFF, 0xFF],
+            3,
+            1,
+            16,
+            1);
+
+        byte[] rgb = SampledImageReader.GetRGBImage(img);
+
+        Assert.Equal([0, 0, 0, 128, 128, 128, 255, 255, 255], rgb);
+    }
+
     // ─── CCITTFactory ─────────────────────────────────────────────────────────
 
     [Fact]

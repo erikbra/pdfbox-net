@@ -822,6 +822,23 @@ public static class PdfHtmlConverter
             .Append(CssPoints(page.Height * scale))
             .AppendLine("\">");
 
+        PdfLayoutPath[] vectorPaths = RenderableVectorPaths(
+            page,
+            textMode == PdfHtmlTextMode.Semantic ? semanticPage : null);
+        PdfLayoutPath[] imageBackdrops = vectorPaths
+            .Where(path => IsImageBackdropPath(path, page.Images))
+            .ToArray();
+        if (imageBackdrops.Length > 0)
+        {
+            WriteVectorLayer(
+                html,
+                page,
+                scale,
+                imageBackdrops,
+                "pdf-vector-layer pdf-vector-background-layer",
+                "background");
+        }
+
         foreach (PdfLayoutImage image in page.Images)
         {
             if (imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
@@ -830,13 +847,18 @@ public static class PdfHtmlConverter
             }
         }
 
-        if (page.Paths.Count > 0)
+        PdfLayoutPath[] foregroundPaths = vectorPaths
+            .Except(imageBackdrops)
+            .ToArray();
+        if (foregroundPaths.Length > 0)
         {
             WriteVectorLayer(
                 html,
                 page,
                 scale,
-                textMode == PdfHtmlTextMode.Semantic ? semanticPage : null);
+                foregroundPaths,
+                "pdf-vector-layer",
+                "foreground");
         }
 
         if (textMode == PdfHtmlTextMode.Semantic && semanticPage != null)
@@ -883,23 +905,58 @@ public static class PdfHtmlConverter
             .AppendLine("\" />");
     }
 
+    private static PdfLayoutPath[] RenderableVectorPaths(
+        PdfLayoutPage page,
+        PdfSemanticPage? semanticPage)
+    {
+        return page.Paths
+            .Where(path => semanticPage == null || !IsSemanticFlowRulePath(page, semanticPage, path))
+            .Where(path => !IsCoveredByTransparencyFallback(page, path.Bounds))
+            .ToArray();
+    }
+
+    private static bool IsImageBackdropPath(PdfLayoutPath path, IReadOnlyList<PdfLayoutImage> images)
+    {
+        if (!path.IsFilled || path.FillColor is not PdfLayoutColor fillColor || fillColor.Alpha < 0.999f)
+        {
+            return false;
+        }
+
+        return images
+            .Where(static image => image.Kind != PdfLayoutImageKind.TransparencyGroupFallback)
+            .Any(image => ContainsWithTolerance(path.Bounds, image.Bounds, 0.25f));
+    }
+
+    private static bool ContainsWithTolerance(
+        PdfLayoutRectangle outer,
+        PdfLayoutRectangle inner,
+        float tolerance)
+    {
+        return outer.X <= inner.X + tolerance &&
+            outer.Y <= inner.Y + tolerance &&
+            outer.Right >= inner.Right - tolerance &&
+            outer.Bottom >= inner.Bottom - tolerance;
+    }
+
     private static void WriteVectorLayer(
         StringBuilder html,
         PdfLayoutPage page,
         float scale,
-        PdfSemanticPage? semanticPage)
+        IReadOnlyList<PdfLayoutPath> paths,
+        string cssClass,
+        string layerName)
     {
-        PdfLayoutPath[] paths = page.Paths
-            .Where(path => semanticPage == null || !IsSemanticFlowRulePath(page, semanticPage, path))
-            .Where(path => !IsCoveredByTransparencyFallback(page, path.Bounds))
-            .ToArray();
-        if (paths.Length == 0)
+        if (paths.Count == 0)
         {
             return;
         }
 
-        html.Append("    <svg class=\"pdf-vector-layer\" data-path-count=\"")
-            .Append(paths.Length.ToString(CultureInfo.InvariantCulture))
+        html.Append("    <svg class=\"")
+            .Append(cssClass)
+            .Append("\" data-vector-layer=\"")
+            .Append(layerName)
+            .Append("\" data-path-count=\"")
+            .Append(paths.Count.ToString(CultureInfo.InvariantCulture))
             .Append("\" viewBox=\"0 0 ")
             .Append(SvgNumber(page.Width))
             .Append(' ')
@@ -914,7 +971,7 @@ public static class PdfHtmlConverter
             html,
             paths,
             page.VectorGroups,
-            $"pdf-vector-page-{page.PageNumber.ToString(CultureInfo.InvariantCulture)}");
+            $"pdf-vector-page-{page.PageNumber.ToString(CultureInfo.InvariantCulture)}-{layerName}");
 
         html.AppendLine("    </svg>");
     }

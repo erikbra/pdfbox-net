@@ -327,6 +327,11 @@ public sealed class PdfHtmlQualityProbe
                 """
                 root => {
                   const pageBox = root.getBoundingClientRect();
+                  const readableText = element => {
+                    const copy = element.cloneNode(true);
+                    copy.querySelectorAll(".pdf-text-run-svg").forEach(node => node.remove());
+                    return copy.textContent || "";
+                  };
                   const readBox = element => {
                     const box = element.getBoundingClientRect();
                     return {
@@ -334,13 +339,13 @@ public sealed class PdfHtmlQualityProbe
                       y: box.y - pageBox.y,
                       width: box.width,
                       height: box.height,
-                      text: element.textContent || ""
+                      text: readableText(element)
                     };
                   };
                   return JSON.stringify({
                     width: pageBox.width,
                     height: pageBox.height,
-                    text: root.innerText || "",
+                    text: readableText(root),
                     textRuns: Array.from(root.querySelectorAll(".pdf-text-run")).map(readBox),
                     images: Array.from(root.querySelectorAll(".pdf-image")).map(readBox),
                     vectorPaths: Array.from(root.querySelectorAll(".pdf-vector-path")).map(readBox)
@@ -412,8 +417,13 @@ public sealed class PdfHtmlQualityProbe
                   y: box.y - region.y,
                   width: box.width,
                   height: box.height,
-                  text: element.textContent || ""
+                  text: readableText(element)
                 };
+              };
+              const readableText = element => {
+                const copy = element.cloneNode(true);
+                copy.querySelectorAll(".pdf-text-run-svg").forEach(node => node.remove());
+                return copy.textContent || "";
               };
 
               const textElements = Array.from(flow.querySelectorAll(".pdf-text-run,.pdf-semantic-element"))
@@ -426,7 +436,7 @@ public sealed class PdfHtmlQualityProbe
               return JSON.stringify({
                 width: region.width,
                 height: region.height,
-                text: textElements.map(element => element.innerText || element.textContent || "").join("\n"),
+                text: textElements.map(readableText).join("\n"),
                 textRuns: textElements.map(readBox),
                 images: imageElements.map(readBox),
                 vectorPaths: vectorElements.map(readBox)
