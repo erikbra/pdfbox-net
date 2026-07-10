@@ -731,7 +731,7 @@ public class PdfHtmlConverterTest
         Assert.Contains(".pdf-semantic-formula", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-run", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-vector-layer", html.Css, StringComparison.Ordinal);
-        Assert.Contains(".pdf-semantic-inline-run", html.Css, StringComparison.Ordinal);
+        Assert.DoesNotContain(".pdf-semantic-inline-run", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-inline-fraction", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-math", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-italic", html.Css, StringComparison.Ordinal);

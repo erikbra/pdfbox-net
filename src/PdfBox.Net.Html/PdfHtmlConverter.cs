@@ -268,10 +268,6 @@ public static class PdfHtmlConverter
           margin: 8pt 0;
         }
 
-        .pdf-semantic-inline-run {
-          white-space: normal;
-        }
-
         .pdf-semantic-math {
           font-family: "Times New Roman", Times, serif;
         }
@@ -5775,27 +5771,16 @@ public static class PdfHtmlConverter
             IsItalicFont(normalizedFontName) ||
             (runIsBold && !lineIsBold))
         {
-            classes.Add("pdf-semantic-inline-run");
             classes.Add(FontClass(normalizedFontName));
         }
 
         if (MathF.Abs(fontSize - line.DominantFontSize) > 0.25f)
         {
-            if (classes.Count == 0)
-            {
-                classes.Add("pdf-semantic-inline-run");
-            }
-
             classes.Add(FontSizeClass(fontSize));
         }
 
         if (!string.Equals(ColorClass(run.Color), ColorClass(line.Color), StringComparison.Ordinal))
         {
-            if (classes.Count == 0)
-            {
-                classes.Add("pdf-semantic-inline-run");
-            }
-
             classes.Add(ColorClass(run.Color));
         }
 
