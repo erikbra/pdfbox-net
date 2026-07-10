@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Microsoft.Playwright;
 using PdfBox.Net.COS;
 using PdfBox.Net.ConversionQuality;
 using PdfBox.Net.Layout;
@@ -68,22 +69,40 @@ public sealed class HtmlReviewArtifactGeneratorTest
         Assert.True(File.Exists(qualityReportJson));
         Assert.True(File.Exists(qualityReportMarkdown));
         Assert.Equal(File.ReadAllBytes(sourcePdf), File.ReadAllBytes(copiedSource));
-        Assert.Contains("source.pdf", File.ReadAllText(compare));
-        Assert.Contains("index.html", File.ReadAllText(compare));
-        Assert.Contains("semantic/index.html", File.ReadAllText(compare));
-        Assert.Contains("semantic-continuous/index.html", File.ReadAllText(compare));
-        Assert.Contains("quality/quality-report.md", File.ReadAllText(compare));
+        string comparisonHtml = File.ReadAllText(compare);
+        Assert.Contains("source.pdf", comparisonHtml);
+        Assert.Contains("semantic-continuous/index.html", comparisonHtml);
+        Assert.Contains("quality/quality-report.md", comparisonHtml);
+        Assert.DoesNotContain("Fixed-layout HTML", comparisonHtml);
+        Assert.DoesNotContain("<h2>Semantic HTML</h2>", comparisonHtml);
+        Assert.DoesNotContain("semantic/index.html", comparisonHtml);
+        Assert.Contains("data-splitter", comparisonHtml);
+        Assert.Contains("Resize comparison panes", comparisonHtml);
+        Assert.Contains("pointerdown", comparisonHtml);
+        Assert.DoesNotContain("Skia raster fallback", comparisonHtml);
+        Assert.False(Directory.Exists(Path.Combine(exampleDirectory, "semantic-continuous-skia-raster")));
+        Assert.False(File.Exists(Path.Combine(exampleDirectory, "figure-rendering-compare.html")));
         string artifactIndex = File.ReadAllText(Path.Combine(outputDirectory, "index.html"));
         Assert.Contains("review-artifact-sample/compare.html", artifactIndex);
-        Assert.Contains("review-artifact-sample/semantic/index.html", artifactIndex);
+        Assert.DoesNotContain("review-artifact-sample/semantic/index.html", artifactIndex);
+        Assert.DoesNotContain("figure-rendering-compare.html", artifactIndex);
         Assert.Contains("review-artifact-sample/semantic-continuous/index.html", artifactIndex);
         Assert.Contains("review-artifact-sample/quality/quality-report.md", artifactIndex);
-        Assert.Contains("semantic-continuous/index.html", File.ReadAllText(Path.Combine(exampleDirectory, "summary.md")));
+        string summary = File.ReadAllText(Path.Combine(exampleDirectory, "summary.md"));
+        Assert.Contains("semantic-continuous/index.html", summary);
+        Assert.DoesNotContain("figure-rendering-compare.html", summary);
+        Assert.DoesNotContain("semantic/index.html", summary);
 
         using JsonDocument quality = JsonDocument.Parse(File.ReadAllText(qualityReportJson));
         Assert.Equal(1, quality.RootElement.GetProperty("Schema").GetInt32());
+        Assert.Equal("../semantic-continuous/index.html", quality.RootElement.GetProperty("Html").GetString());
+        Assert.Equal("Synthetic test manifest.", quality.RootElement.GetProperty("Notes").GetString());
         Assert.True(quality.RootElement.GetProperty("IssueCategories").GetArrayLength() > 0);
+        Assert.True(quality.RootElement.GetProperty("Limitations").GetArrayLength() > 0);
         Assert.True(example.QualityStatus.Length > 0);
+        string qualityMarkdown = File.ReadAllText(qualityReportMarkdown);
+        Assert.Contains("- Sample notes: Synthetic test manifest.", qualityMarkdown);
+        Assert.Contains("## Current Limitations", qualityMarkdown);
         string[] qualityArtifacts = quality.RootElement.GetProperty("Artifacts")
             .EnumerateArray()
             .Select(static artifact => artifact.GetString() ?? "")
@@ -134,8 +153,72 @@ public sealed class HtmlReviewArtifactGeneratorTest
 
         Assert.Equal("needs-review", report.Status);
         Assert.Contains(report.Checks, check => check.Id == "word-boundaries" && check.Status == "needs-review");
+        Assert.Contains(report.Limitations, limitation => limitation.Contains("word boundaries", StringComparison.Ordinal));
         Assert.True(File.Exists(Path.Combine(outputDirectory, "quality-report.json")));
         Assert.True(File.Exists(Path.Combine(outputDirectory, "quality-report.md")));
+    }
+
+    [Fact]
+    public async Task Generate_ComparisonPaneSplitterResizesInBrowser()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source-input.pdf");
+        using (PDDocument document = CreateTextDocument())
+        {
+            document.Save(sourcePdf);
+        }
+
+        string manifestPath = Path.Combine(tempDirectory.Path, "manifest.json");
+        File.WriteAllText(
+            manifestPath,
+            JsonSerializer.Serialize(
+                new
+                {
+                    schema = 1,
+                    examples = new[]
+                    {
+                        new
+                        {
+                            id = "resizable-comparison",
+                            sourcePdf
+                        }
+                    }
+                }));
+
+        string outputDirectory = Path.Combine(tempDirectory.Path, "html-examples");
+        HtmlReviewArtifactGenerator.Generate(manifestPath, outputDirectory);
+        string comparePath = Path.Combine(outputDirectory, "resizable-comparison", "compare.html");
+
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize
+            {
+                Width = 1400,
+                Height = 900
+            }
+        });
+        await page.GotoAsync(new Uri(comparePath).AbsoluteUri);
+
+        ILocator sourcePane = page.Locator("[data-comparison] > section").First;
+        LocatorBoundingBoxResult before = await sourcePane.BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Source comparison pane did not have a bounding box.");
+        LocatorBoundingBoxResult splitter = await page.Locator("[data-splitter]").BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Comparison splitter did not have a bounding box.");
+
+        await page.Mouse.MoveAsync(splitter.X + (splitter.Width / 2), splitter.Y + (splitter.Height / 2));
+        await page.Mouse.DownAsync();
+        await page.Mouse.MoveAsync(splitter.X + 220, splitter.Y + (splitter.Height / 2));
+        await page.Mouse.UpAsync();
+
+        LocatorBoundingBoxResult after = await sourcePane.BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Resized source comparison pane did not have a bounding box.");
+        Assert.True(after.Width > before.Width + 180, $"Expected source pane width to grow from {before.Width} to {after.Width}.");
+        Assert.True(int.Parse(await page.Locator("[data-splitter]").GetAttributeAsync("aria-valuenow") ?? "0") > 50);
     }
 
     private static PDDocument CreateTextDocument()

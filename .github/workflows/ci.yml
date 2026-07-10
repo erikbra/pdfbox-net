@@ -60,7 +60,7 @@ jobs:
             --no-build \
             -- \
             --manifest tools/conversion_quality/html-review-manifest.json \
-            --out-dir artifacts/conversion-quality-smoke/html-review
+            --out-dir artifacts/conversion-quality-smoke/html-examples
           cat artifacts/conversion-quality-smoke/summary.md
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
             cat artifacts/conversion-quality-smoke/summary.md >> "$GITHUB_STEP_SUMMARY"

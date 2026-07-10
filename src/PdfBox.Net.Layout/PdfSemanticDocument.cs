@@ -41,13 +41,15 @@ public sealed class PdfSemanticElement
         string text,
         PdfLayoutRectangle bounds,
         IReadOnlyList<PdfSemanticLine> lines,
-        int headingLevel = 0)
+        int headingLevel = 0,
+        IReadOnlyList<PdfSemanticTableRow>? tableRows = null)
     {
         Kind = kind;
         Text = text;
         Bounds = bounds;
         Lines = lines.ToArray();
         HeadingLevel = headingLevel;
+        TableRows = tableRows?.ToArray() ?? [];
     }
 
     public PdfSemanticElementKind Kind { get; }
@@ -59,6 +61,74 @@ public sealed class PdfSemanticElement
     public IReadOnlyList<PdfSemanticLine> Lines { get; }
 
     public int HeadingLevel { get; }
+
+    public IReadOnlyList<PdfSemanticTableRow> TableRows { get; }
+}
+
+/// <summary>
+/// A row in an inferred semantic table.
+/// </summary>
+public sealed class PdfSemanticTableRow
+{
+    public PdfSemanticTableRow(IReadOnlyList<PdfSemanticTableCell> cells, bool isHeader)
+    {
+        Cells = cells.ToArray();
+        IsHeader = isHeader;
+    }
+
+    public IReadOnlyList<PdfSemanticTableCell> Cells { get; }
+
+    public bool IsHeader { get; }
+}
+
+/// <summary>
+/// A cell in an inferred semantic table.
+/// </summary>
+public sealed class PdfSemanticTableCell
+{
+    public PdfSemanticTableCell(
+        string text,
+        PdfLayoutRectangle bounds,
+        IReadOnlyList<PdfSemanticLine> lines,
+        bool borderTop = false,
+        bool borderRight = false,
+        bool borderBottom = false,
+        bool borderLeft = false,
+        int rowSpan = 1,
+        int columnSpan = 1,
+        bool isPlaceholder = false)
+    {
+        Text = text;
+        Bounds = bounds;
+        Lines = lines.ToArray();
+        BorderTop = borderTop;
+        BorderRight = borderRight;
+        BorderBottom = borderBottom;
+        BorderLeft = borderLeft;
+        RowSpan = Math.Max(1, rowSpan);
+        ColumnSpan = Math.Max(1, columnSpan);
+        IsPlaceholder = isPlaceholder;
+    }
+
+    public string Text { get; }
+
+    public PdfLayoutRectangle Bounds { get; }
+
+    public IReadOnlyList<PdfSemanticLine> Lines { get; }
+
+    public bool BorderTop { get; }
+
+    public bool BorderRight { get; }
+
+    public bool BorderBottom { get; }
+
+    public bool BorderLeft { get; }
+
+    public int RowSpan { get; }
+
+    public int ColumnSpan { get; }
+
+    public bool IsPlaceholder { get; }
 }
 
 /// <summary>

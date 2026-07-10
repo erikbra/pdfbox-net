@@ -131,13 +131,15 @@ public static class HtmlReviewArtifactGenerator
         continuousSemanticHtml.WriteToDirectory(Path.Combine(exampleDirectory, "semantic-continuous"));
         string copiedSourcePdf = Path.Combine(exampleDirectory, "source.pdf");
         File.Copy(sourcePdf, copiedSourcePdf, overwrite: true);
+        string continuousSemanticDirectory = Path.Combine(exampleDirectory, "semantic-continuous");
         PdfHtmlQualityReport qualityReport = new PdfHtmlQualityProbe()
             .AnalyzeAsync(new PdfHtmlQualityProbeOptions(
                 copiedSourcePdf,
-                exampleDirectory,
+                continuousSemanticDirectory,
                 layout,
                 Path.Combine(exampleDirectory, "quality"),
-                example.QualityPages ?? 2))
+                example.QualityPages ?? 2,
+                example.Notes))
             .GetAwaiter()
             .GetResult();
 
@@ -248,8 +250,6 @@ public static class HtmlReviewArtifactGenerator
             html.Append("</td><td>");
             html.Append($"<a href=\"{directoryName}/compare.html\">compare</a> ");
             html.Append($"<a href=\"{directoryName}/source.pdf\">source PDF</a> ");
-            html.Append($"<a href=\"{directoryName}/index.html\">fixed HTML</a> ");
-            html.Append($"<a href=\"{directoryName}/semantic/index.html\">semantic HTML</a> ");
             html.Append($"<a href=\"{directoryName}/semantic-continuous/index.html\">continuous semantic HTML</a> ");
             html.Append($"<a href=\"{directoryName}/summary.md\">summary</a>");
             AppendQualityArtifactLinks(html, directoryName, result.QualityArtifacts);
@@ -301,8 +301,6 @@ public static class HtmlReviewArtifactGenerator
         }
 
         summary.AppendLine("- Source PDF: [source.pdf](source.pdf)");
-        summary.AppendLine("- Fixed-layout HTML: [index.html](index.html)");
-        summary.AppendLine("- Semantic HTML: [semantic/index.html](semantic/index.html)");
         summary.AppendLine("- Continuous semantic HTML: [semantic-continuous/index.html](semantic-continuous/index.html)");
         summary.AppendLine("- Side-by-side comparison: [compare.html](compare.html)");
         summary.AppendLine("- Quality probe: [quality/quality-report.md](quality/quality-report.md)");
@@ -396,27 +394,66 @@ public static class HtmlReviewArtifactGenerator
         html.AppendLine("    header{height:48px;display:flex;align-items:center;gap:16px;padding:0 16px;background:#fff;border-bottom:1px solid #d1d5db}");
         html.AppendLine("    h1{font-size:16px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}");
         html.AppendLine("    a{color:#0f5ea8}");
-        html.AppendLine("    main{display:grid;grid-template-columns:repeat(4,1fr);height:calc(100vh - 48px)}");
+        html.AppendLine("    main{--left-pane-width:50%;display:grid;grid-template-columns:minmax(240px,var(--left-pane-width)) 10px minmax(240px,1fr);height:calc(100vh - 48px)}");
         html.AppendLine("    section{min-width:0;border-right:1px solid #d1d5db;display:grid;grid-template-rows:32px 1fr}");
-        html.AppendLine("    section:last-child{border-right:0}");
+        html.AppendLine("    section:first-child{border-right:0}");
         html.AppendLine("    h2{font-size:13px;margin:0;padding:8px 12px;background:#e5e7eb}");
         html.AppendLine("    iframe{border:0;width:100%;height:100%;background:#fff}");
-        html.AppendLine("    @media (max-width:1100px){main{grid-template-columns:1fr;height:auto}section{height:80vh;border-right:0;border-bottom:1px solid #d1d5db}}");
+        html.AppendLine("    .splitter{background:#d1d5db;cursor:col-resize;touch-action:none;position:relative;outline:none}");
+        html.AppendLine("    .splitter::after{content:'';position:absolute;inset:0 -4px}");
+        html.AppendLine("    .splitter:hover,.splitter:focus,.splitter.is-dragging{background:#0f5ea8}");
+        html.AppendLine("    @media (max-width:900px){main{display:block;height:auto}section{height:80vh;border-right:0;border-bottom:1px solid #d1d5db}.splitter{display:none}}");
         html.AppendLine("  </style>");
         html.AppendLine("</head>");
         html.AppendLine("<body>");
         html.Append("  <header><h1>");
         html.Append(WebUtility.HtmlEncode(result.Title));
-        html.AppendLine("</h1><a href=\"source.pdf\">source PDF</a><a href=\"index.html\">fixed HTML</a><a href=\"semantic/index.html\">semantic HTML</a><a href=\"semantic-continuous/index.html\">continuous semantic HTML</a><a href=\"quality/quality-report.md\">quality report</a><a href=\"summary.md\">summary</a></header>");
-        html.AppendLine("  <main>");
+        html.AppendLine("</h1><a href=\"source.pdf\">source PDF</a><a href=\"semantic-continuous/index.html\">continuous semantic HTML</a><a href=\"quality/quality-report.md\">quality report</a><a href=\"summary.md\">summary</a></header>");
+        html.AppendLine("  <main data-comparison>");
         html.AppendLine("    <section><h2>Source PDF</h2><iframe title=\"Source PDF\" src=\"source.pdf\"></iframe></section>");
-        html.AppendLine("    <section><h2>Fixed-layout HTML</h2><iframe title=\"Fixed-layout HTML\" src=\"index.html\"></iframe></section>");
-        html.AppendLine("    <section><h2>Semantic HTML</h2><iframe title=\"Semantic HTML\" src=\"semantic/index.html\"></iframe></section>");
+        html.AppendLine("    <div class=\"splitter\" data-splitter role=\"separator\" aria-orientation=\"vertical\" aria-label=\"Resize comparison panes\" aria-valuemin=\"20\" aria-valuemax=\"80\" aria-valuenow=\"50\" tabindex=\"0\"></div>");
         html.AppendLine("    <section><h2>Continuous Semantic HTML</h2><iframe title=\"Continuous Semantic HTML\" src=\"semantic-continuous/index.html\"></iframe></section>");
         html.AppendLine("  </main>");
+        AppendComparisonResizeScript(html);
         html.AppendLine("</body>");
         html.AppendLine("</html>");
         return html.ToString();
+    }
+
+    private static void AppendComparisonResizeScript(StringBuilder html)
+    {
+        html.AppendLine("  <script>");
+        html.AppendLine("    (() => {");
+        html.AppendLine("      const comparison = document.querySelector('[data-comparison]');");
+        html.AppendLine("      const splitter = document.querySelector('[data-splitter]');");
+        html.AppendLine("      if (!comparison || !splitter) return;");
+        html.AppendLine("      const minimumPaneWidth = 240;");
+        html.AppendLine("      let dragging = false;");
+        html.AppendLine("      const setWidth = clientX => {");
+        html.AppendLine("        const bounds = comparison.getBoundingClientRect();");
+        html.AppendLine("        const width = Math.min(Math.max(clientX - bounds.left, minimumPaneWidth), bounds.width - minimumPaneWidth);");
+        html.AppendLine("        comparison.style.setProperty('--left-pane-width', `${Math.round(width)}px`);");
+        html.AppendLine("        splitter.setAttribute('aria-valuenow', Math.round((width / bounds.width) * 100).toString());");
+        html.AppendLine("      };");
+        html.AppendLine("      splitter.addEventListener('pointerdown', event => {");
+        html.AppendLine("        dragging = true;");
+        html.AppendLine("        splitter.classList.add('is-dragging');");
+        html.AppendLine("        splitter.setPointerCapture(event.pointerId);");
+        html.AppendLine("        setWidth(event.clientX);");
+        html.AppendLine("      });");
+        html.AppendLine("      splitter.addEventListener('pointermove', event => { if (dragging) setWidth(event.clientX); });");
+        html.AppendLine("      const stopDragging = () => { dragging = false; splitter.classList.remove('is-dragging'); };");
+        html.AppendLine("      splitter.addEventListener('pointerup', stopDragging);");
+        html.AppendLine("      splitter.addEventListener('pointercancel', stopDragging);");
+        html.AppendLine("      splitter.addEventListener('keydown', event => {");
+        html.AppendLine("        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;");
+        html.AppendLine("        event.preventDefault();");
+        html.AppendLine("        const bounds = comparison.getBoundingClientRect();");
+        html.AppendLine("        const current = Number.parseFloat(getComputedStyle(comparison).getPropertyValue('--left-pane-width')) || bounds.width / 2;");
+        html.AppendLine("        setWidth(bounds.left + current + (event.key === 'ArrowLeft' ? -32 : 32));");
+        html.AppendLine("      });");
+        html.AppendLine("    })();");
+        html.AppendLine("  </script>");
     }
 
     private static void AppendQualityArtifactLinks(

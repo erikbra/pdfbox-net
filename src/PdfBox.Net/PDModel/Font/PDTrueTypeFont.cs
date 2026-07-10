@@ -86,6 +86,14 @@ public partial class PDTrueTypeFont : PDSimpleFont
     public override Matrix GetFontMatrix() => GetFontMatrixFromDictionary();
     public override bool IsDamaged() => false;
 
+    public override float GetWidth(int code)
+    {
+        float width = base.GetWidth(code);
+        return width > 0 || code == 0
+            ? width
+            : GetWidthFromFont(code);
+    }
+
     public override float GetWidthFromFont(int code)
     {
         int gid = CodeToGID(code);

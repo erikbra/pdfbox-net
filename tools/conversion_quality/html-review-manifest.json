@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "description": "HTML conversion review examples generated in CI. Download the artifact and open html-review/index.html, or open an example compare.html to view the source PDF and generated HTML side by side.",
+  "description": "HTML conversion review examples generated in CI. Download the artifact and open html-examples/index.html, or open an example compare.html to view the source PDF and generated HTML side by side.",
   "examples": [
     {
       "id": "arxiv-sample",
@@ -8,6 +8,20 @@
       "sourcePdf": "../../tests/PdfBox.Net.Tests/Fixtures/TextExtraction/Issue412/arxiv-sample.pdf",
       "qualityPages": 2,
       "notes": "Existing multi-page regression fixture. This is useful for seeing current fixed-layout HTML behavior on a real paper-style PDF."
+    },
+    {
+      "id": "pdfbox-4pp-highlighting",
+      "title": "4PP highlighting fixture",
+      "sourcePdf": "../../tests/PdfBox.Net.Tests/Fixtures/TextExtraction/Issue412/4PP-Highlighting.pdf",
+      "qualityPages": 1,
+      "notes": "Readable multi-column fixture with repeated text blocks and highlighted line labels."
+    },
+    {
+      "id": "pdfbox-2333-acroform",
+      "title": "PDFBOX-2333 AcroForm alignment fixture",
+      "sourcePdf": "../../tests/PdfBox.Net.Tests/Fixtures/TextExtraction/Issue412/Acroform-PDFBOX-2333.pdf",
+      "qualityPages": 1,
+      "notes": "Form-heavy fixture with many aligned labels, field boxes, clipped text, and footer placement."
     }
   ]
 }

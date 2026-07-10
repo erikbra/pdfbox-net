@@ -322,6 +322,33 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_TransparencyGroups_RetainsCompositingHierarchy()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutPage attentionVisualizationPage = layout.Pages[12];
+        Assert.Contains("AttentionVisualizations", attentionVisualizationPage.Text, StringComparison.Ordinal);
+        PdfLayoutVectorGroup[] groups = attentionVisualizationPage.VectorGroups.ToArray();
+        Assert.NotEmpty(groups);
+        Assert.Contains(groups, group => group.Opacity < 0.1f);
+        Assert.Contains(groups, group => group.Opacity > 0.8f);
+        Assert.Contains(groups, group =>
+            group.ClipBounds is PdfLayoutRectangle clipBounds &&
+            clipBounds.X is > 107f and < 109f &&
+            clipBounds.Y is > 100f and < 102f &&
+            clipBounds.Width is > 395f and < 397f &&
+            clipBounds.Height is > 200f and < 202f);
+        Assert.All(groups, group =>
+        {
+            Assert.True(group.HasPaths);
+            Assert.InRange(group.FirstPathIndex, 0, attentionVisualizationPage.Paths.Count - 1);
+            Assert.InRange(group.LastPathIndex, group.FirstPathIndex, attentionVisualizationPage.Paths.Count - 1);
+        });
+    }
+
+    [Fact]
     public void Extract_IsDeterministicAcrossRepeatedRuns()
     {
         using PDDocument document = CreateTextDocument("""

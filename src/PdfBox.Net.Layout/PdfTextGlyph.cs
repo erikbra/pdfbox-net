@@ -9,4 +9,10 @@ public sealed record PdfTextGlyph(
     float FontSize,
     float Direction,
     PdfLayoutRectangle Bounds,
-    PdfLayoutColor Color);
+    PdfLayoutColor Color)
+{
+    /// <summary>
+    /// Gets the glyph bounds in normalized page coordinates before direction-adjusted reading order normalization.
+    /// </summary>
+    public PdfLayoutRectangle PageBounds { get; init; } = Bounds;
+}

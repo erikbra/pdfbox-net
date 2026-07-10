@@ -19,6 +19,7 @@ public sealed class PdfHtmlQualityProbe
     private const float CssPixelsPerPoint = 96f / 72f;
     private const int ForegroundLuminanceThreshold = 245;
     private const int ForegroundDilationRadius = 3;
+    private const int ForegroundDimensionTolerancePx = 2;
     private const double ForegroundDeltaReviewThreshold = 0.15;
     private const double PdfMissReviewThreshold = 0.10;
     private const double BrowserMissReviewThreshold = 0.10;
@@ -84,15 +85,18 @@ public sealed class PdfHtmlQualityProbe
         }
 
         IReadOnlyList<PdfHtmlQualityIssueCategory> issueCategories = BuildIssueCategories(pages, checks);
+        IReadOnlyList<string> limitations = BuildCurrentLimitations(options.Notes, pages, checks);
         string status = CombinedStatus(checks);
         PdfHtmlQualityReport report = new(
             Schema: 1,
             Status: status,
             SourcePdf: RelativePath(outputDirectory, sourcePdfPath),
             Html: RelativePath(outputDirectory, htmlPath),
+            Notes: options.Notes ?? "",
             TextReferenceSource: textReference.Source,
             PagesAnalyzed: pages.Count,
             IssueCategories: issueCategories,
+            Limitations: limitations,
             Checks: checks,
             Pages: pages,
             Artifacts: artifacts);
@@ -177,9 +181,9 @@ public sealed class PdfHtmlQualityProbe
         int pageNumber = layoutPage.PageNumber;
         List<PdfHtmlQualityCheck> pageChecks = [];
         List<string> pageArtifacts = [];
-        ILocator pageLocator = browserPage.Locator($".pdf-page[data-page-number='{pageNumber.ToString(CultureInfo.InvariantCulture)}']");
+        BrowserPageCapture? capture = await CaptureBrowserPageAsync(browserPage, pageNumber);
 
-        if (await pageLocator.CountAsync() == 0)
+        if (capture == null)
         {
             pageChecks.Add(new PdfHtmlQualityCheck(
                 "page-rendered",
@@ -211,32 +215,7 @@ public sealed class PdfHtmlQualityProbe
             return;
         }
 
-        string snapshotJson = await pageLocator.EvaluateAsync<string>(
-            """
-            root => {
-              const pageBox = root.getBoundingClientRect();
-              const readBox = element => {
-                const box = element.getBoundingClientRect();
-                return {
-                  x: box.x - pageBox.x,
-                  y: box.y - pageBox.y,
-                  width: box.width,
-                  height: box.height,
-                  text: element.textContent || ""
-                };
-              };
-              return JSON.stringify({
-                width: pageBox.width,
-                height: pageBox.height,
-                text: root.innerText || "",
-                textRuns: Array.from(root.querySelectorAll(".pdf-text-run")).map(readBox),
-                images: Array.from(root.querySelectorAll(".pdf-image")).map(readBox),
-                vectorPaths: Array.from(root.querySelectorAll(".pdf-vector-path")).map(readBox)
-              });
-            }
-            """) ?? "{}";
-        BrowserPageSnapshot snapshot = JsonSerializer.Deserialize<BrowserPageSnapshot>(snapshotJson, JsonOptions)
-            ?? new BrowserPageSnapshot();
+        BrowserPageSnapshot snapshot = capture.Snapshot;
 
         AddPageDimensionCheck(pageChecks, layoutPage, snapshot);
         AddTextRunCountCheck(pageChecks, layoutPage, snapshot, pageNumber);
@@ -282,7 +261,7 @@ public sealed class PdfHtmlQualityProbe
         PdfHtmlVisualMetrics? visualMetrics = await AddVisualChecksAsync(
             sourcePdfPath,
             layoutPage,
-            pageLocator,
+            capture.Png,
             snapshot,
             outputDirectory,
             pageChecks,
@@ -315,6 +294,134 @@ public sealed class PdfHtmlQualityProbe
                 Checks: pageChecks,
                 Artifacts: pageArtifacts));
         }
+    }
+
+    private static async Task<BrowserPageCapture?> CaptureBrowserPageAsync(IPage browserPage, int pageNumber)
+    {
+        ILocator fixedPage = browserPage.Locator($".pdf-page[data-page-number='{pageNumber.ToString(CultureInfo.InvariantCulture)}']");
+        if (await fixedPage.CountAsync() > 0)
+        {
+            string snapshotJson = await fixedPage.EvaluateAsync<string>(
+                """
+                root => {
+                  const pageBox = root.getBoundingClientRect();
+                  const readBox = element => {
+                    const box = element.getBoundingClientRect();
+                    return {
+                      x: box.x - pageBox.x,
+                      y: box.y - pageBox.y,
+                      width: box.width,
+                      height: box.height,
+                      text: element.textContent || ""
+                    };
+                  };
+                  return JSON.stringify({
+                    width: pageBox.width,
+                    height: pageBox.height,
+                    text: root.innerText || "",
+                    textRuns: Array.from(root.querySelectorAll(".pdf-text-run")).map(readBox),
+                    images: Array.from(root.querySelectorAll(".pdf-image")).map(readBox),
+                    vectorPaths: Array.from(root.querySelectorAll(".pdf-vector-path")).map(readBox)
+                  });
+                }
+                """) ?? "{}";
+            BrowserPageSnapshot snapshot = JsonSerializer.Deserialize<BrowserPageSnapshot>(snapshotJson, JsonOptions)
+                ?? new BrowserPageSnapshot();
+            byte[] png = await fixedPage.ScreenshotAsync();
+            return new BrowserPageCapture(snapshot, png);
+        }
+
+        string? continuousSnapshotJson = await browserPage.EvaluateAsync<string?>(
+            """
+            pageNumber => {
+              const flow = document.querySelector(".pdf-semantic-document-flow");
+              const marker = document.querySelector(`.pdf-semantic-page-break[data-page-number="${pageNumber}"]`);
+              if (!flow || !marker) {
+                return null;
+              }
+
+              const flowBox = flow.getBoundingClientRect();
+              const markerBox = marker.getBoundingClientRect();
+              const nextMarker = document.querySelector(`.pdf-semantic-page-break[data-page-number="${pageNumber + 1}"]`);
+              const nextBox = nextMarker ? nextMarker.getBoundingClientRect() : null;
+              const top = marker.classList.contains("pdf-semantic-page-start") ? flowBox.top : markerBox.bottom;
+              const bottom = nextBox ? nextBox.top : flowBox.bottom;
+              const region = {
+                x: flowBox.left,
+                y: top,
+                width: flowBox.width,
+                height: Math.max(1, bottom - top)
+              };
+              region.right = region.x + region.width;
+              region.bottom = region.y + region.height;
+
+              const overlayId = `pdf-quality-page-region-${pageNumber}`;
+              let overlay = document.getElementById(overlayId);
+              if (!overlay) {
+                overlay = document.createElement("div");
+                overlay.id = overlayId;
+                document.body.appendChild(overlay);
+              }
+
+              Object.assign(overlay.style, {
+                position: "absolute",
+                left: `${region.x + window.scrollX}px`,
+                top: `${region.y + window.scrollY}px`,
+                width: `${region.width}px`,
+                height: `${region.height}px`,
+                pointerEvents: "none",
+                background: "transparent",
+                zIndex: "2147483647"
+              });
+
+              const intersects = element => {
+                const box = element.getBoundingClientRect();
+                return box.width > 0 &&
+                  box.height > 0 &&
+                  box.right > region.x &&
+                  box.left < region.right &&
+                  box.bottom > region.y &&
+                  box.top < region.bottom;
+              };
+              const readBox = element => {
+                const box = element.getBoundingClientRect();
+                return {
+                  x: box.x - region.x,
+                  y: box.y - region.y,
+                  width: box.width,
+                  height: box.height,
+                  text: element.textContent || ""
+                };
+              };
+
+              const textElements = Array.from(flow.querySelectorAll(".pdf-text-run,.pdf-semantic-element"))
+                .filter(element => !element.classList.contains("pdf-semantic-page-break") && intersects(element));
+              const imageElements = Array.from(flow.querySelectorAll(".pdf-image,.pdf-semantic-figure,img,svg image"))
+                .filter(intersects);
+              const vectorElements = Array.from(flow.querySelectorAll(".pdf-vector-path"))
+                .filter(intersects);
+
+              return JSON.stringify({
+                width: region.width,
+                height: region.height,
+                text: textElements.map(element => element.innerText || element.textContent || "").join("\n"),
+                textRuns: textElements.map(readBox),
+                images: imageElements.map(readBox),
+                vectorPaths: vectorElements.map(readBox)
+              });
+            }
+            """,
+            pageNumber);
+        if (string.IsNullOrWhiteSpace(continuousSnapshotJson))
+        {
+            return null;
+        }
+
+        BrowserPageSnapshot continuousSnapshot = JsonSerializer.Deserialize<BrowserPageSnapshot>(continuousSnapshotJson, JsonOptions)
+            ?? new BrowserPageSnapshot();
+        ILocator continuousRegion = browserPage.Locator($"#pdf-quality-page-region-{pageNumber.ToString(CultureInfo.InvariantCulture)}");
+        byte[] continuousPng = await continuousRegion.ScreenshotAsync();
+        return new BrowserPageCapture(continuousSnapshot, continuousPng);
     }
 
     private static void AddPageDimensionCheck(
@@ -407,7 +514,7 @@ public sealed class PdfHtmlQualityProbe
     private static async Task<PdfHtmlVisualMetrics?> AddVisualChecksAsync(
         string sourcePdfPath,
         PdfLayoutPage layoutPage,
-        ILocator pageLocator,
+        byte[] browserPng,
         BrowserPageSnapshot snapshot,
         string outputDirectory,
         List<PdfHtmlQualityCheck> checks,
@@ -422,10 +529,7 @@ public sealed class PdfHtmlQualityProbe
 
         try
         {
-            byte[] browserPng = await pageLocator.ScreenshotAsync(new LocatorScreenshotOptions
-            {
-                Path = Path.Combine(outputDirectory, htmlPng)
-            });
+            await File.WriteAllBytesAsync(Path.Combine(outputDirectory, htmlPng), browserPng, cancellationToken);
             artifacts.Add(htmlPng);
 
             using RenderedPdfPage pdfRender = await RenderPdfPageAsync(sourcePdfPath, pageNumber, cancellationToken);
@@ -436,24 +540,32 @@ public sealed class PdfHtmlQualityProbe
             double expectedWidth = layoutPage.Width * CssPixelsPerPoint;
             double expectedHeight = layoutPage.Height * CssPixelsPerPoint;
             bool sameSize = pdfRender.Image.Width == browserImage.Width && pdfRender.Image.Height == browserImage.Height;
+            int widthDelta = Math.Abs(pdfRender.Image.Width - browserImage.Width);
+            int heightDelta = Math.Abs(pdfRender.Image.Height - browserImage.Height);
+            bool comparableSize = widthDelta <= ForegroundDimensionTolerancePx &&
+                heightDelta <= ForegroundDimensionTolerancePx;
             bool pageSizeMatches = Math.Abs(expectedWidth - snapshot.Width) <= 1.0 &&
                 Math.Abs(expectedHeight - snapshot.Height) <= 1.0 &&
-                sameSize;
+                comparableSize;
 
-            if (!sameSize)
+            int comparisonWidth = Math.Min(pdfRender.Image.Width, browserImage.Width);
+            int comparisonHeight = Math.Min(pdfRender.Image.Height, browserImage.Height);
+            if (comparisonWidth <= 0 || comparisonHeight <= 0)
             {
                 checks.Add(new PdfHtmlQualityCheck(
                     "visual-foreground-mask",
                     "visual",
                     NeedsReview,
                     pageNumber,
-                    "PDF render and browser page screenshot have different pixel dimensions, so the foreground mask was not compared.",
+                    "PDF render and browser page screenshot have no overlapping pixel region, so the foreground mask was not compared.",
                     new Dictionary<string, double>
                     {
                         ["pdfWidth"] = pdfRender.Image.Width,
                         ["pdfHeight"] = pdfRender.Image.Height,
                         ["htmlWidth"] = browserImage.Width,
-                        ["htmlHeight"] = browserImage.Height
+                        ["htmlHeight"] = browserImage.Height,
+                        ["widthDelta"] = widthDelta,
+                        ["heightDelta"] = heightDelta
                     }));
                 WriteText(Path.Combine(outputDirectory, visualReportHtml), RenderVisualReport(pageNumber, [sourcePng, htmlPng], []));
                 artifacts.Add(visualReportHtml);
@@ -472,6 +584,8 @@ public sealed class PdfHtmlQualityProbe
             ForegroundShapeStats? stats = ForegroundShapeStats.Create(
                 pdfRender.Image,
                 browserImage,
+                comparisonWidth,
+                comparisonHeight,
                 ForegroundLuminanceThreshold,
                 ForegroundDilationRadius);
             if (stats == null)
@@ -489,6 +603,8 @@ public sealed class PdfHtmlQualityProbe
                 using BufferedImage diff = ForegroundShapeStats.CreateDiffImage(
                     pdfRender.Image,
                     browserImage,
+                    comparisonWidth,
+                    comparisonHeight,
                     ForegroundLuminanceThreshold);
                 await File.WriteAllBytesAsync(
                     Path.Combine(outputDirectory, diffPng),
@@ -496,7 +612,8 @@ public sealed class PdfHtmlQualityProbe
                     cancellationToken);
                 artifacts.Add(diffPng);
 
-                bool needsReview = stats.ForegroundDeltaRatio > ForegroundDeltaReviewThreshold ||
+                bool needsReview = !comparableSize ||
+                    stats.ForegroundDeltaRatio > ForegroundDeltaReviewThreshold ||
                     stats.PdfMissRatio > PdfMissReviewThreshold ||
                     stats.BrowserMissRatio > BrowserMissReviewThreshold;
                 checks.Add(new PdfHtmlQualityCheck(
@@ -504,9 +621,13 @@ public sealed class PdfHtmlQualityProbe
                     "visual",
                     needsReview ? NeedsReview : Passed,
                     pageNumber,
-                    needsReview
+                    !comparableSize
+                        ? "PDF render and browser page screenshot have different pixel dimensions; foreground masks were compared across the overlapping region only."
+                        : needsReview
                         ? "PDF and browser foreground masks differ beyond the current review thresholds."
-                        : "PDF and browser foreground masks match within the current review thresholds.",
+                        : sameSize
+                            ? "PDF and browser foreground masks match within the current review thresholds."
+                            : "PDF and browser foreground masks match within the current review thresholds after allowing a small renderer/browser rounding delta.",
                     new Dictionary<string, double>
                     {
                         ["foregroundDeltaRatio"] = stats.ForegroundDeltaRatio,
@@ -515,7 +636,11 @@ public sealed class PdfHtmlQualityProbe
                         ["pdfWidth"] = pdfRender.Image.Width,
                         ["pdfHeight"] = pdfRender.Image.Height,
                         ["htmlWidth"] = browserImage.Width,
-                        ["htmlHeight"] = browserImage.Height
+                        ["htmlHeight"] = browserImage.Height,
+                        ["comparedWidth"] = comparisonWidth,
+                        ["comparedHeight"] = comparisonHeight,
+                        ["widthDelta"] = widthDelta,
+                        ["heightDelta"] = heightDelta
                     }));
 
                 string[] visualArtifacts = [sourcePng, htmlPng, diffPng];
@@ -775,6 +900,123 @@ public sealed class PdfHtmlQualityProbe
         return string.Join(" ", setupChecks.Select(static check => check.Message));
     }
 
+    private static IReadOnlyList<string> BuildCurrentLimitations(
+        string? notes,
+        IReadOnlyList<PdfHtmlQualityPageReport> pages,
+        IReadOnlyList<PdfHtmlQualityCheck> checks)
+    {
+        List<string> limitations = [];
+        AddManifestNoteLimitations(notes, limitations);
+
+        PdfHtmlQualityCheck[] needsReview = checks
+            .Where(static check => check.Status == NeedsReview)
+            .ToArray();
+        if (needsReview.Any(static check => check.Id == "word-boundaries"))
+        {
+            AddUnique(
+                limitations,
+                "Text reconstruction did not preserve all word boundaries or reading order on the affected page(s).");
+        }
+
+        if (needsReview.Any(static check => check.Id is "page-dimensions" or "text-run-count"))
+        {
+            AddUnique(
+                limitations,
+                "Continuous semantic HTML is evaluated as reflowed content; it may not preserve the original PDF page height, per-glyph run count, or exact page-local geometry.");
+        }
+
+        if (needsReview.Any(static check => check.Id == "text-image-overlap"))
+        {
+            AddUnique(
+                limitations,
+                "Some image-backed content still behaves like fixed-position objects; text may collide with image regions.");
+        }
+
+        if (needsReview.Any(static check => check.Id == "text-vector-overlap"))
+        {
+            AddUnique(
+                limitations,
+                "Large vector overlays are not semantically attached to nearby content; review whether these are decorative backgrounds, table rules, clipping masks, or true text/object collisions.");
+        }
+
+        if (needsReview.Any(static check => check.Id == "visual-foreground-mask"))
+        {
+            bool dimensionMismatch = needsReview.Any(static check =>
+                check.Id == "visual-foreground-mask" &&
+                check.Message.Contains("different pixel dimensions", StringComparison.OrdinalIgnoreCase));
+            if (dimensionMismatch)
+            {
+                AddUnique(
+                    limitations,
+                    "The visual probe compared at least one page using only the overlapping crop because renderer/browser pixel dimensions differed beyond the probe tolerance.");
+            }
+            else
+            {
+                AddUnique(
+                    limitations,
+                    "Visual foreground parity differs beyond the current thresholds; inspect the diff PNGs for unsupported transparency, print-color behavior, formula glyph positioning, image-mask handling, or text placement issues.");
+            }
+        }
+
+        if (pages.Any(static page => page.Visual?.HtmlMissRatio >= BrowserMissReviewThreshold))
+        {
+            AddUnique(
+                limitations,
+                "The HTML contains additional foreground pixels compared with the PDF render on at least one page, which often means duplicated glyphs, fallback text, or unmodeled object masks.");
+        }
+
+        if (limitations.Count == 0)
+        {
+            limitations.Add("No unsupported behavior was detected by the current probe thresholds.");
+        }
+
+        return limitations;
+    }
+
+    private static void AddManifestNoteLimitations(string? notes, List<string> limitations)
+    {
+        if (string.IsNullOrWhiteSpace(notes))
+        {
+            return;
+        }
+
+        string normalized = notes.ToLowerInvariant();
+        if (normalized.Contains("color", StringComparison.Ordinal) ||
+            normalized.Contains("transparency", StringComparison.Ordinal) ||
+            normalized.Contains("production-output", StringComparison.Ordinal))
+        {
+            AddUnique(
+                limitations,
+                "This fixture intentionally exercises print-production features such as color management, overprint, shading, transparency, or masks; the HTML converter currently approximates these rather than preserving production fidelity.");
+        }
+
+        if (normalized.Contains("math", StringComparison.Ordinal) ||
+            normalized.Contains("formula", StringComparison.Ordinal))
+        {
+            AddUnique(
+                limitations,
+                "Mathematical expressions are reconstructed from positioned PDF glyphs; complex fractions, roots, and grouped formula runs may require manual visual review.");
+        }
+
+        if (Regex.IsMatch(
+            normalized,
+            @"\b(acroform|interactive[- ]form|form[- ]heavy|form field|widget)\b",
+            RegexOptions.CultureInvariant))
+        {
+            AddUnique(
+                limitations,
+                "Interactive form and widget appearances are exported visually; editable form semantics are not reconstructed in the generated HTML.");
+        }
+    }
+
+    private static void AddUnique(List<string> values, string value)
+    {
+        if (!values.Contains(value, StringComparer.Ordinal))
+        {
+            values.Add(value);
+        }
+    }
+
     private static string FormatRatio(double value)
     {
         return value.ToString("0.###", CultureInfo.InvariantCulture);
@@ -790,6 +1032,11 @@ public sealed class PdfHtmlQualityProbe
         markdown.AppendLine($"- Status: `{report.Status}`");
         markdown.AppendLine($"- Source PDF: [{report.SourcePdf}]({report.SourcePdf})");
         markdown.AppendLine($"- Generated HTML: [{report.Html}]({report.Html})");
+        if (!string.IsNullOrWhiteSpace(report.Notes))
+        {
+            markdown.AppendLine($"- Sample notes: {report.Notes}");
+        }
+
         markdown.AppendLine($"- Text reference: `{report.TextReferenceSource}`");
         markdown.AppendLine($"- Pages analyzed: {report.PagesAnalyzed}");
         markdown.AppendLine();
@@ -836,6 +1083,15 @@ public sealed class PdfHtmlQualityProbe
             markdown.Append("` | ");
             markdown.Append(WebUtility.HtmlEncode(category.Evidence));
             markdown.AppendLine(" |");
+        }
+
+        markdown.AppendLine();
+        markdown.AppendLine("## Current Limitations");
+        markdown.AppendLine();
+        foreach (string limitation in report.Limitations)
+        {
+            markdown.Append("- ");
+            markdown.AppendLine(limitation);
         }
 
         markdown.AppendLine();
@@ -1145,6 +1401,8 @@ public sealed class PdfHtmlQualityProbe
         public List<BrowserBox> VectorPaths { get; set; } = [];
     }
 
+    private sealed record BrowserPageCapture(BrowserPageSnapshot Snapshot, byte[] Png);
+
     private sealed class BrowserBox
     {
         public double X { get; set; }
@@ -1203,11 +1461,13 @@ public sealed class PdfHtmlQualityProbe
         public static ForegroundShapeStats? Create(
             BufferedImage pdfPage,
             BufferedImage browserPage,
+            int width,
+            int height,
             int luminanceThreshold,
             int dilationRadius)
         {
-            bool[] pdfMask = ForegroundMask(pdfPage, luminanceThreshold);
-            bool[] browserMask = ForegroundMask(browserPage, luminanceThreshold);
+            bool[] pdfMask = ForegroundMask(pdfPage, width, height, luminanceThreshold);
+            bool[] browserMask = ForegroundMask(browserPage, width, height, luminanceThreshold);
             int pdfForeground = pdfMask.Count(static foreground => foreground);
             int browserForeground = browserMask.Count(static foreground => foreground);
             int maxForeground = Math.Max(pdfForeground, browserForeground);
@@ -1216,8 +1476,8 @@ public sealed class PdfHtmlQualityProbe
                 return null;
             }
 
-            bool[] dilatedPdfMask = DilateMask(pdfMask, pdfPage.Width, pdfPage.Height, dilationRadius);
-            bool[] dilatedBrowserMask = DilateMask(browserMask, browserPage.Width, browserPage.Height, dilationRadius);
+            bool[] dilatedPdfMask = DilateMask(pdfMask, width, height, dilationRadius);
+            bool[] dilatedBrowserMask = DilateMask(browserMask, width, height, dilationRadius);
             int pdfMisses = CountMisses(pdfMask, dilatedBrowserMask);
             int browserMisses = CountMisses(browserMask, dilatedPdfMask);
             return new ForegroundShapeStats(
@@ -1229,15 +1489,17 @@ public sealed class PdfHtmlQualityProbe
         public static BufferedImage CreateDiffImage(
             BufferedImage pdfPage,
             BufferedImage browserPage,
+            int width,
+            int height,
             int luminanceThreshold)
         {
-            bool[] pdfMask = ForegroundMask(pdfPage, luminanceThreshold);
-            bool[] browserMask = ForegroundMask(browserPage, luminanceThreshold);
-            BufferedImage diff = new(pdfPage.Width, pdfPage.Height, BufferedImage.TYPE_INT_ARGB);
+            bool[] pdfMask = ForegroundMask(pdfPage, width, height, luminanceThreshold);
+            bool[] browserMask = ForegroundMask(browserPage, width, height, luminanceThreshold);
+            BufferedImage diff = new(width, height, BufferedImage.TYPE_INT_ARGB);
             int index = 0;
-            for (int y = 0; y < pdfPage.Height; y++)
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < pdfPage.Width; x++)
+                for (int x = 0; x < width; x++)
                 {
                     bool pdf = pdfMask[index];
                     bool browser = browserMask[index++];
@@ -1255,13 +1517,17 @@ public sealed class PdfHtmlQualityProbe
             return diff;
         }
 
-        private static bool[] ForegroundMask(BufferedImage image, int luminanceThreshold)
+        private static bool[] ForegroundMask(
+            BufferedImage image,
+            int width,
+            int height,
+            int luminanceThreshold)
         {
-            bool[] mask = new bool[image.Width * image.Height];
+            bool[] mask = new bool[width * height];
             int index = 0;
-            for (int y = 0; y < image.Height; y++)
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < image.Width; x++)
+                for (int x = 0; x < width; x++)
                 {
                     int argb = image.GetRgb(x, y);
                     int alpha = (argb >> 24) & 0xFF;
@@ -1344,16 +1610,19 @@ public sealed record PdfHtmlQualityProbeOptions(
     string HtmlDirectory,
     PdfLayoutDocument Layout,
     string OutputDirectory,
-    int MaxPages = 2);
+    int MaxPages = 2,
+    string? Notes = null);
 
 public sealed record PdfHtmlQualityReport(
     int Schema,
     string Status,
     string SourcePdf,
     string Html,
+    string Notes,
     string TextReferenceSource,
     int PagesAnalyzed,
     IReadOnlyList<PdfHtmlQualityIssueCategory> IssueCategories,
+    IReadOnlyList<string> Limitations,
     IReadOnlyList<PdfHtmlQualityCheck> Checks,
     IReadOnlyList<PdfHtmlQualityPageReport> Pages,
     IReadOnlyList<string> Artifacts);
