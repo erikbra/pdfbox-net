@@ -348,7 +348,7 @@ public sealed class PdfHtmlQualityProbe
                     text: readableText(root),
                     textRuns: Array.from(root.querySelectorAll(".pdf-text-run")).map(readBox),
                     images: Array.from(root.querySelectorAll(".pdf-image")).map(readBox),
-                    vectorPaths: Array.from(root.querySelectorAll(".pdf-vector-path")).map(readBox)
+                    vectorPaths: Array.from(root.querySelectorAll("[data-path-index]")).map(readBox)
                   });
                 }
                 """) ?? "{}";
@@ -465,7 +465,7 @@ public sealed class PdfHtmlQualityProbe
                 .filter(element => readableRegionText(element).trim().length > 0);
               const imageElements = Array.from(flow.querySelectorAll(".pdf-image,.pdf-semantic-figure,img,svg image"))
                 .filter(intersects);
-              const vectorElements = Array.from(flow.querySelectorAll(".pdf-vector-path"))
+              const vectorElements = Array.from(flow.querySelectorAll("[data-path-index]"))
                 .filter(intersects);
               const usesSpatialTextGrid = Array.from(flow.querySelectorAll(
                 ".pdf-semantic-line-grid,.pdf-semantic-columns"))

@@ -579,10 +579,11 @@ public class PdfHtmlConverterTest
             SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
         });
 
-        Assert.Contains("class=\"pdf-vector-group\"", html.Html, StringComparison.Ordinal);
+        Assert.Contains("<g data-vector-group-index=\"", html.Html, StringComparison.Ordinal);
+        Assert.DoesNotContain("class=\"pdf-vector-group\"", html.Html, StringComparison.Ordinal);
         Assert.Contains("Attention Visualizations", html.Html, StringComparison.Ordinal);
         Assert.DoesNotContain("Input-Input Layer5", html.Html, StringComparison.Ordinal);
-        float[] groupOpacities = Regex.Matches(html.Html, "<g class=\"pdf-vector-group\"[^>]* opacity=\"(?<opacity>[^\"]+)\"")
+        float[] groupOpacities = Regex.Matches(html.Html, "<g data-vector-group-index=\"[^\"]+\" opacity=\"(?<opacity>[^\"]+)\"")
             .Select(match => float.Parse(match.Groups["opacity"].Value, CultureInfo.InvariantCulture))
             .ToArray();
         Assert.Contains(groupOpacities, opacity => opacity < 0.1f);
@@ -590,19 +591,22 @@ public class PdfHtmlConverterTest
         XElement attentionVisualization = Assert.Single(ElementsByClass(dom, "pdf-semantic-figure"), figure =>
             figure.Attribute("data-source-page")?.Value == "13");
         Assert.Contains(attentionVisualization.Descendants(), element =>
-            HasClass(element, "pdf-vector-group") &&
+            element.Name.LocalName == "g" &&
+            element.Attribute("data-vector-group-index") != null &&
             element.Attribute("opacity")?.Value == "0" &&
             element.Descendants().Any(path =>
                 path.Name.LocalName == "path" &&
                 path.Attribute("fill")?.Value == "#D3D3D3"));
         Assert.Contains(attentionVisualization.Descendants(), element =>
-            HasClass(element, "pdf-vector-group") &&
+            element.Name.LocalName == "g" &&
+            element.Attribute("data-vector-group-index") != null &&
             element.Attribute("opacity")?.Value == "0.533" &&
             element.Descendants().Any(path =>
                 path.Name.LocalName == "path" &&
                 path.Attribute("fill")?.Value == "#E377C2"));
         Assert.Contains(attentionVisualization.Descendants(), element =>
-            HasClass(element, "pdf-vector-group") &&
+            element.Name.LocalName == "g" &&
+            element.Attribute("data-vector-group-index") != null &&
             element.Attribute("clip-path")?.Value.StartsWith("url(#pdf-vector-figure-13-", StringComparison.Ordinal) == true);
         Assert.Contains(attentionVisualization.Descendants(), element =>
             element.Name.LocalName == "clipPath" &&
@@ -655,6 +659,13 @@ public class PdfHtmlConverterTest
         XElement article = Assert.Single(documentFlow.Elements("article"), element =>
             HasClass(element, "pdf-semantic-flow") &&
             HasClass(element, "pdf-semantic-continuous-flow"));
+        XElement[] authorBlocks = ElementsByClass(dom, "pdf-semantic-author-block").ToArray();
+        Assert.Equal(8, authorBlocks.Length);
+        Assert.DoesNotContain(authorBlocks, author =>
+            author.Attribute("class")?.Value.Contains("pdf-font-", StringComparison.Ordinal) == true ||
+            author.Attribute("class")?.Value.Contains("pdf-color-", StringComparison.Ordinal) == true);
+        Assert.Contains(authorBlocks, author => author.Descendants("span").Any(span =>
+            span.Attribute("class")?.Value.Contains("pdf-font-", StringComparison.Ordinal) == true));
         XElement[] pageBreaks = ElementsByClass(dom, "pdf-semantic-page-break").ToArray();
         Assert.Equal(layout.Pages.Count, pageBreaks.Length);
         Assert.Equal("page-1", pageBreaks[0].Attribute("id")?.Value);
@@ -727,7 +738,7 @@ public class PdfHtmlConverterTest
         Assert.Contains(".pdf-semantic-formula", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-run", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-vector-layer", html.Css, StringComparison.Ordinal);
-        Assert.Contains(".pdf-semantic-inline-run", html.Css, StringComparison.Ordinal);
+        Assert.DoesNotContain(".pdf-semantic-inline-run", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-inline-fraction", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-math", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-italic", html.Css, StringComparison.Ordinal);
@@ -736,6 +747,10 @@ public class PdfHtmlConverterTest
         Assert.Contains(".pdf-semantic-formula-attached-suffix", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-table", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-inline-summation", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-font-cmr10{", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-font-size-9{", html.Css, StringComparison.Ordinal);
+        Assert.DoesNotContain(".pdf-font-cmr6{", html.Css, StringComparison.Ordinal);
+        Assert.DoesNotContain(".pdf-font-size-7{", html.Css, StringComparison.Ordinal);
 
         XElement continuedParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-page-spanning"), paragraph =>
             paragraph.Value.StartsWith("An attention function can be described", StringComparison.Ordinal));
@@ -1749,10 +1764,10 @@ public class PdfHtmlConverterTest
         Assert.Equal("background", backdropLayer.Attribute("data-vector-layer")?.Value);
         Assert.Equal("foreground", foregroundLayer.Attribute("data-vector-layer")?.Value);
         Assert.Equal("0", Assert.Single(backdropLayer.Descendants(),
-                element => HasClass(element, "pdf-vector-path"))
+                element => element.Name.LocalName == "path" && element.Attribute("data-path-index") != null)
             .Attribute("data-path-index")?.Value);
         Assert.Equal("1", Assert.Single(foregroundLayer.Descendants(),
-                element => HasClass(element, "pdf-vector-path"))
+                element => element.Name.LocalName == "path" && element.Attribute("data-path-index") != null)
             .Attribute("data-path-index")?.Value);
 
         XElement[] children = page.Elements().ToArray();
@@ -1825,7 +1840,7 @@ public class PdfHtmlConverterTest
         XElement svg = Assert.Single(ElementsByClass(dom, "pdf-vector-layer"));
         Assert.Equal("1", svg.Attribute("data-path-count")?.Value);
         Assert.Equal("0 0 612 792", svg.Attribute("viewBox")?.Value);
-        XElement path = Assert.Single(ElementsByClass(dom, "pdf-vector-path"));
+        XElement path = Assert.Single(dom.Descendants("path"), element => element.Attribute("data-path-index") != null);
         Assert.Equal("0", path.Attribute("data-path-index")?.Value);
         Assert.Equal("M 72 192 L 192 192 L 192 132 L 72 132 Z", path.Attribute("d")?.Value);
         Assert.Equal("#1A9933", path.Attribute("fill")?.Value);
@@ -1870,7 +1885,7 @@ public class PdfHtmlConverterTest
         const float tolerancePx = 1.0f;
         PdfLayoutPath layoutPath = Assert.Single(Assert.Single(layout.Pages).Paths);
         ILocator pageLocator = page.Locator(".pdf-page");
-        ILocator pathLocator = page.Locator(".pdf-vector-path");
+        ILocator pathLocator = page.Locator("[data-path-index]");
         await pathLocator.WaitForAsync();
         LocatorBoundingBoxResult pageBox = await pageLocator.BoundingBoxAsync()
             ?? throw new InvalidOperationException("Page did not render a bounding box.");
