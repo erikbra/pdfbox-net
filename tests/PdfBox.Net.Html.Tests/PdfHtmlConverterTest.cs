@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.Playwright;
 using PdfBox.Net.COS;
+using PdfBox.Net.FontBox.CFF;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
@@ -1575,6 +1576,53 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public async Task OpenTypeCffWriter_WrapsRawCffAndLoadsFontFace()
+    {
+        byte[] rawCff = CreateMinimalRawType1Cff();
+        CFFType1Font cffFont = Assert.IsType<CFFType1Font>(new CFFParser().Parse(rawCff).Single());
+        Assert.True(
+            OpenTypeCffWriter.TryCreate(
+                cffFont,
+                rawCff,
+                "RawCff",
+                new Dictionary<int, int> { ['A'] = 1 },
+                400,
+                italic: false,
+                out byte[] fontData,
+                out string? failureReason),
+            failureReason);
+        Assert.True(fontData.AsSpan().StartsWith("OTTO"u8));
+        Assert.IsType<OpenTypeFont>(new OTFParser().Parse(fontData));
+
+        using TempDirectory tempDirectory = new();
+        File.WriteAllBytes(Path.Combine(tempDirectory.Path, "raw-cff.otf"), fontData);
+        File.WriteAllText(
+            Path.Combine(tempDirectory.Path, "index.html"),
+            """
+            <!doctype html>
+            <style>
+              @font-face { font-family: 'RawCffWebFont'; src: url('raw-cff.otf') format('opentype'); }
+              body { font-family: 'RawCffWebFont'; }
+            </style>
+            <span>A</span>
+            """);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync();
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        string fontState = await page.EvaluateAsync<string>(
+            "() => document.fonts.ready.then(() => JSON.stringify(Array.from(document.fonts).filter(font => font.family === 'RawCffWebFont').map(font => ({ status: font.status, family: font.family }))))");
+        IReadOnlyList<IConsoleMessage> consoleMessages = await page.ConsoleMessagesAsync();
+        Assert.True(
+            fontState.Contains("\"status\":\"loaded\"", StringComparison.Ordinal),
+            $"Browser font state: {fontState}; console: {string.Join(" | ", consoleMessages.Select(message => message.Text))}");
+    }
+
+    [Fact]
     public void Convert_GlyphOutlineFallback_EmitsOriginalSvgPath()
     {
         PdfLayoutColor black = new(0, 0, 0, 1, "DeviceRGB");
@@ -2477,6 +2525,111 @@ public class PdfHtmlConverterTest
             ET
             """));
         return document;
+    }
+
+    private static byte[] CreateMinimalRawType1Cff()
+    {
+        byte[] nameIndex = BuildCffIndex([Encoding.ASCII.GetBytes("RawCff")]);
+        byte[] stringIndex = BuildCffIndex([]);
+        byte[] globalSubrIndex = BuildCffIndex([]);
+        byte[] privateDictionary = BuildCffDictionary(
+            EncodeCffInteger(0),
+            EncodeCffInteger(10),
+            [6]);
+        byte[] charStringsIndex = BuildCffIndex([[14], [14]]);
+        byte[] charset = [0, 0, 34]; // format 0; glyph 1 is the standard CFF "A" SID.
+        byte[] topDictionary = [];
+        while (true)
+        {
+            byte[] topDictionaryIndex = BuildCffIndex([topDictionary]);
+            int prefixLength = 4 + nameIndex.Length + topDictionaryIndex.Length + stringIndex.Length + globalSubrIndex.Length;
+            int charStringsOffset = prefixLength;
+            int charsetOffset = charStringsOffset + charStringsIndex.Length;
+            int privateOffset = charsetOffset + charset.Length;
+            byte[] nextTopDictionary = BuildCffDictionary(
+                EncodeCffInteger(0), EncodeCffInteger(0), EncodeCffInteger(500), EncodeCffInteger(700), [5],
+                EncodeCffInteger(charStringsOffset), [17],
+                EncodeCffInteger(charsetOffset), [15],
+                EncodeCffInteger(privateDictionary.Length), EncodeCffInteger(privateOffset), [18]);
+            if (nextTopDictionary.SequenceEqual(topDictionary))
+            {
+                topDictionary = nextTopDictionary;
+                break;
+            }
+
+            topDictionary = nextTopDictionary;
+        }
+
+        using MemoryStream output = new();
+        output.Write([1, 0, 4, 1]);
+        output.Write(nameIndex);
+        output.Write(BuildCffIndex([topDictionary]));
+        output.Write(stringIndex);
+        output.Write(globalSubrIndex);
+        output.Write(charStringsIndex);
+        output.Write(charset);
+        output.Write(privateDictionary);
+        return output.ToArray();
+    }
+
+    private static byte[] BuildCffDictionary(params byte[][] parts)
+    {
+        using MemoryStream output = new();
+        foreach (byte[] part in parts)
+        {
+            output.Write(part);
+        }
+
+        return output.ToArray();
+    }
+
+    private static byte[] BuildCffIndex(byte[][] objects)
+    {
+        using MemoryStream output = new();
+        output.WriteByte((byte)(objects.Length >> 8));
+        output.WriteByte((byte)objects.Length);
+        if (objects.Length == 0)
+        {
+            return output.ToArray();
+        }
+
+        output.WriteByte(1);
+        int offset = 1;
+        output.WriteByte(1);
+        foreach (byte[] item in objects)
+        {
+            offset += item.Length;
+            output.WriteByte((byte)offset);
+        }
+
+        foreach (byte[] item in objects)
+        {
+            output.Write(item);
+        }
+
+        return output.ToArray();
+    }
+
+    private static byte[] EncodeCffInteger(int value)
+    {
+        if (value is >= -107 and <= 107)
+        {
+            return [(byte)(value + 139)];
+        }
+
+        if (value is >= 108 and <= 1131)
+        {
+            int adjusted = value - 108;
+            return [(byte)(247 + adjusted / 256), (byte)(adjusted % 256)];
+        }
+
+        if (value is >= -1131 and <= -108)
+        {
+            int adjusted = -value - 108;
+            return [(byte)(251 + adjusted / 256), (byte)(adjusted % 256)];
+        }
+
+        return [28, (byte)(value >> 8), (byte)value];
     }
 
     private static PDDocument CreateLinkedTextDocument(float textY = 700)
