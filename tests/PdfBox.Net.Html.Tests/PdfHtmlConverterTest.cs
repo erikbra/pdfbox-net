@@ -1376,6 +1376,61 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_TensorPatchShading_EmitsAClippedSvgMesh()
+    {
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutShading shading = new(
+            0,
+            7,
+            new PdfLayoutRectangle(72f, 300f, 80f, 80f),
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            [],
+            [
+                new PdfLayoutShadingTriangle(
+                    72f,
+                    300f,
+                    152f,
+                    300f,
+                    72f,
+                    380f,
+                    new PdfLayoutColor(1f, 0f, 0f, 1f, "DeviceRGB"))
+            ]);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [shading],
+            [],
+            [],
+            []);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement mesh = Assert.Single(ElementsByClass(dom, "pdf-tensor-shading"));
+        Assert.Contains("-clip", mesh.Attribute("clip-path")?.Value);
+        XElement triangle = Assert.Single(mesh.Elements(), element => element.Name.LocalName == "path");
+        Assert.Equal("#FF0000", triangle.Attribute("fill")?.Value);
+        Assert.DoesNotContain(
+            mesh.Descendants(),
+            element => element.Name.LocalName.EndsWith("Gradient", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Convert_ShapeAlphaPath_DoesNotEmitAnIncorrectSvgOpacityArtifact()
     {
         PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
