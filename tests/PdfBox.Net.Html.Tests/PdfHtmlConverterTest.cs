@@ -1531,6 +1531,107 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_UsesPdfRunWidthForExportedBrowserFont()
+    {
+        PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutRectangle leadingBounds = new(12f, 80f, 60f, 12f);
+        PdfLayoutRectangle textBounds = new(72f, 80f, 140f, 12f);
+        PdfLayoutRectangle followingBounds = new(212f, 80f, 50f, 12f);
+        PdfTextGlyph leadingGlyph = new("Leading ", "SubsetEmbedded-Regular", 12f, 0f, leadingBounds, black)
+        {
+            UsesBrowserFontAsset = true
+        };
+        PdfTextGlyph glyph = new("Embedded bold segment", "SubsetEmbedded-Bold", 12f, 0f, textBounds, black)
+        {
+            UsesBrowserFontAsset = true
+        };
+        PdfTextGlyph followingGlyph = new(" trailing", "SubsetEmbedded-Regular", 12f, 0f, followingBounds, black)
+        {
+            UsesBrowserFontAsset = true
+        };
+        PdfTextRun leadingRun = new(leadingGlyph.Text, leadingGlyph.FontName, leadingGlyph.FontSize, 0f, leadingBounds, black, [leadingGlyph]);
+        PdfTextRun run = new(glyph.Text, glyph.FontName, glyph.FontSize, 0f, textBounds, black, [glyph]);
+        PdfTextRun followingRun = new(followingGlyph.Text, followingGlyph.FontName, followingGlyph.FontSize, 0f, followingBounds, black, [followingGlyph]);
+        PdfLayoutRectangle lineBounds = new(12f, 80f, 250f, 12f);
+        PdfTextLine line = new(leadingRun.Text + run.Text + followingRun.Text, lineBounds, [leadingRun, run, followingRun]);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [leadingGlyph, glyph, followingGlyph],
+            [leadingRun, run, followingRun],
+            [line],
+            [new PdfTextBlock(run.Text, textBounds, [line])],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(new PdfLayoutDocument([page], [])).Html);
+
+        XElement fittedRun = Assert.Single(
+            ElementsByClass(dom, "pdf-text-run"),
+            element => element.Attribute("data-font")?.Value == "SubsetEmbedded-Bold");
+        XElement fittedText = Assert.Single(fittedRun.Descendants(), element => HasClass(element, "pdf-text-run-svg"))
+            .Descendants()
+            .Single(element => element.Name.LocalName == "text");
+        Assert.Equal("140", fittedText.Attribute("textLength")?.Value);
+        Assert.Equal("spacingAndGlyphs", fittedText.Attribute("lengthAdjust")?.Value);
+        Assert.Contains("font-weight:700", fittedText.Attribute("style")?.Value, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_UsesPdfRunWidthBesideCompressedPunctuation()
+    {
+        PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutRectangle textBounds = new(72f, 80f, 100f, 8f);
+        PdfLayoutRectangle dashBounds = new(172f, 83f, 5f, 5f);
+        PdfTextGlyph textGlyph = new("Text before dash", "SubsetEmbedded-Regular", 10f, 0f, textBounds, black)
+        {
+            UsesBrowserFontAsset = true
+        };
+        PdfTextGlyph dashGlyph = new("–", "SubsetEmbedded-Regular", 10f, 0f, dashBounds, black)
+        {
+            UsesBrowserFontAsset = true
+        };
+        PdfTextRun textRun = new(textGlyph.Text, textGlyph.FontName, textGlyph.FontSize, 0f, textBounds, black, [textGlyph]);
+        PdfTextRun dashRun = new(dashGlyph.Text, dashGlyph.FontName, dashGlyph.FontSize, 0f, dashBounds, black, [dashGlyph]);
+        PdfLayoutRectangle lineBounds = new(72f, 80f, 105f, 8f);
+        PdfTextLine line = new(textRun.Text + dashRun.Text, lineBounds, [textRun, dashRun]);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [textGlyph, dashGlyph],
+            [textRun, dashRun],
+            [line],
+            [new PdfTextBlock(line.Text, lineBounds, [line])],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(new PdfLayoutDocument([page], [])).Html);
+
+        XElement[] fittedRuns = ElementsByClass(dom, "pdf-text-run-svg").ToArray();
+        Assert.Equal(2, fittedRuns.Length);
+        Assert.Contains(fittedRuns, svg => svg.Descendants().Any(text => text.Value == "Text before dash"));
+        Assert.Contains(fittedRuns, svg => svg.Descendants().Any(text => text.Value == "–"));
+    }
+
+    [Fact]
     public void Convert_AxialShading_EmitsAnSvgGradientLayer()
     {
         PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
