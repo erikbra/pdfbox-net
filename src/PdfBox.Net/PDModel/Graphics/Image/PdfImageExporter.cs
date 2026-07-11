@@ -1,3 +1,4 @@
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
@@ -14,11 +15,21 @@ public static class PdfImageExporter
     /// <returns>The exported PNG result.</returns>
     public static PdfImageExportResult ExportPng(PDImageXObject image)
     {
+        return ExportPng(image, null);
+    }
+
+    /// <summary>
+    /// Exports an image XObject as PNG bytes using document-scoped color management.
+    /// </summary>
+    public static PdfImageExportResult ExportPng(
+        PDImageXObject image,
+        PDColorManagementContext? colorManagementContext)
+    {
         ArgumentNullException.ThrowIfNull(image);
         int width = image.GetWidth();
         int height = image.GetHeight();
         return ExportRgbAsPng(
-            SampledImageReader.GetRGBImage(image),
+            SampledImageReader.GetRGBImage(image, colorManagementContext),
             width,
             height,
             CreateSoftMaskAlpha(image, width, height));
@@ -31,8 +42,19 @@ public static class PdfImageExporter
     /// <returns>The exported PNG result.</returns>
     public static PdfImageExportResult ExportPng(PDImage image)
     {
+        return ExportPng(image, null);
+    }
+
+    /// <summary>
+    /// Exports an inline image as PNG bytes using document-scoped color management.
+    /// </summary>
+    public static PdfImageExportResult ExportPng(PDImage image, PDColorManagementContext? colorManagementContext)
+    {
         ArgumentNullException.ThrowIfNull(image);
-        return ExportRgbAsPng(SampledImageReader.GetRGBImage(image), image.GetWidth(), image.GetHeight());
+        return ExportRgbAsPng(
+            SampledImageReader.GetRGBImage(image, colorManagementContext),
+            image.GetWidth(),
+            image.GetHeight());
     }
 
     private static PdfImageExportResult ExportRgbAsPng(byte[] rgb, int width, int height, byte[]? alpha = null)

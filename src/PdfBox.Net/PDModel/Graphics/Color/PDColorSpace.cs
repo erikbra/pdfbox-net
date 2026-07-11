@@ -129,6 +129,12 @@ public abstract class PDColorSpace : COSObjectable
 
     public abstract float[] ToRGB(float[] value);
 
+    internal virtual bool TryConvertToRgb8(byte[] samples, int width, int height, out byte[] rgb)
+    {
+        rgb = [];
+        return false;
+    }
+
     public virtual COSBase GetCOSObject() => _cosObject;
 
     protected static float Clamp(float value)

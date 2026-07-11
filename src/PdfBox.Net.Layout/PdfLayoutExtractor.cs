@@ -52,6 +52,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
         private readonly Dictionary<TextPosition, PdfLayoutColor> _textColors = new(ReferenceEqualityComparer.Instance);
         private readonly EmbeddedFontAssetCollector _fontAssets;
+        private PDColorManagementContext? _colorManagementContext;
         private PageBuilder? _currentPage;
 
         public LayoutTextStripper(PdfLayoutOptions options)
@@ -69,13 +70,20 @@ public static class PdfLayoutExtractor
             _diagnostics.Clear();
             _textColors.Clear();
             _fontAssets.Clear();
+            _colorManagementContext = PDColorManagementContext.Create(document);
             _currentPage = null;
 
             int pageNumber = 1;
             int pageIndex = 0;
             foreach (PDPage page in document.GetPages())
             {
-                _pages.Add(new PageBuilder(pageNumber, pageIndex, page, document, _options));
+                _pages.Add(new PageBuilder(
+                    pageNumber,
+                    pageIndex,
+                    page,
+                    document,
+                    _options,
+                    _colorManagementContext));
                 pageNumber++;
                 pageIndex++;
             }
@@ -115,7 +123,8 @@ public static class PdfLayoutExtractor
                 GetGraphicsState().GetNonStrokeAlphaConstant(),
                 GetCurrentPageNo(),
                 _diagnostics,
-                "text");
+                "text",
+                _colorManagementContext);
             base.ProcessTextPosition(text);
         }
 
@@ -395,6 +404,7 @@ public static class PdfLayoutExtractor
         private readonly int _pageNumber;
         private readonly int _pageIndex;
         private readonly PDDocument _document;
+        private readonly PDColorManagementContext? _colorManagementContext;
         private readonly PdfLayoutRectangle _mediaBox;
         private readonly PdfLayoutRectangle _cropBox;
         private readonly float _width;
@@ -415,11 +425,18 @@ public static class PdfLayoutExtractor
         private const float AnnotationAppearanceScale = 2f;
         private const float TransparencyGroupRasterScale = 3f;
 
-        public PageBuilder(int pageNumber, int pageIndex, PDPage page, PDDocument document, PdfLayoutOptions options)
+        public PageBuilder(
+            int pageNumber,
+            int pageIndex,
+            PDPage page,
+            PDDocument document,
+            PdfLayoutOptions options,
+            PDColorManagementContext? colorManagementContext)
         {
             _pageNumber = pageNumber;
             _pageIndex = pageIndex;
             _document = document;
+            _colorManagementContext = colorManagementContext;
             PDRectangle mediaBox = page.GetMediaBox();
             PDRectangle cropBox = page.GetCropBox();
             _mediaBox = PdfLayoutRectangle.FromPdfRectangle(mediaBox);
@@ -501,7 +518,8 @@ public static class PdfLayoutExtractor
                 _rotation,
                 options.IncludeImages,
                 options.IncludeImageAssets,
-                options.IncludePaths);
+                options.IncludePaths,
+                _colorManagementContext);
             try
             {
                 collector.Run(page);
@@ -1468,17 +1486,24 @@ public static class PdfLayoutExtractor
         float alpha,
         int pageNumber,
         List<PdfLayoutDiagnostic> diagnostics,
-        string context)
+        string context,
+        PDColorManagementContext? colorManagementContext)
     {
         try
         {
-            int rgb = color.ToRGB();
+            PDColorSpace? sourceColorSpace = color.GetColorSpace();
+            PDColorSpace? effectiveColorSpace = sourceColorSpace is null
+                ? null
+                : colorManagementContext?.ResolveDeviceColorSpace(sourceColorSpace) ?? sourceColorSpace;
+            int rgb = effectiveColorSpace is null || ReferenceEquals(effectiveColorSpace, sourceColorSpace)
+                ? color.ToRGB()
+                : new PDColor(color.GetComponents(), effectiveColorSpace).ToRGB();
             return new PdfLayoutColor(
                 ((rgb >> 16) & 0xFF) / 255f,
                 ((rgb >> 8) & 0xFF) / 255f,
                 (rgb & 0xFF) / 255f,
                 Math.Clamp(alpha, 0f, 1f),
-                color.GetColorSpace()?.GetName());
+                sourceColorSpace?.GetName());
         }
         catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException)
         {
@@ -1499,6 +1524,7 @@ public static class PdfLayoutExtractor
         private readonly bool _includeImages;
         private readonly bool _includeImageAssets;
         private readonly bool _includePaths;
+        private readonly PDColorManagementContext? _colorManagementContext;
         private readonly List<PdfLayoutImage> _images = new();
         private readonly List<PdfLayoutImageAsset> _imageAssets = new();
         private readonly List<PdfLayoutPath> _paths = new();
@@ -1522,7 +1548,8 @@ public static class PdfLayoutExtractor
             int rotation,
             bool includeImages,
             bool includeImageAssets,
-            bool includePaths)
+            bool includePaths,
+            PDColorManagementContext? colorManagementContext)
             : base(page)
         {
             _pageNumber = pageNumber;
@@ -1531,6 +1558,7 @@ public static class PdfLayoutExtractor
             _includeImages = includeImages;
             _includeImageAssets = includeImageAssets;
             _includePaths = includePaths;
+            _colorManagementContext = colorManagementContext;
         }
 
         public IReadOnlyList<PdfLayoutImage> Images => _images;
@@ -2057,7 +2085,8 @@ public static class PdfLayoutExtractor
                 alpha,
                 _pageNumber,
                 _diagnostics,
-                "shading");
+                "shading",
+                _colorManagementContext);
             triangles.Add(new PdfLayoutShadingTriangle(
                 p1.X, p1.Y,
                 p2.X, p2.Y,
@@ -2248,7 +2277,8 @@ public static class PdfLayoutExtractor
                     alpha,
                     _pageNumber,
                     _diagnostics,
-                    "shading");
+                    "shading",
+                    _colorManagementContext);
                 stops[index] = new PdfLayoutGradientStop(offset, color);
             }
 
@@ -2376,7 +2406,8 @@ public static class PdfLayoutExtractor
                 alpha,
                 _pageNumber,
                 _diagnostics,
-                $"path {index.ToString(CultureInfo.InvariantCulture)} {paintKind}");
+                $"path {index.ToString(CultureInfo.InvariantCulture)} {paintKind}",
+                _colorManagementContext);
         }
 
         private PdfLayoutPathCommand[] NormalizePath(IReadOnlyList<PathSegment> path, Matrix ctm)
@@ -2552,7 +2583,7 @@ public static class PdfLayoutExtractor
         {
             try
             {
-                PdfImageExportResult result = PdfImageExporter.ExportPng(image);
+                PdfImageExportResult result = PdfImageExporter.ExportPng(image, _colorManagementContext);
                 _imageAssets.Add(new PdfLayoutImageAsset(
                     assetId,
                     $"assets/images/{assetId}.{result.FileExtension}",
@@ -2573,7 +2604,7 @@ public static class PdfLayoutExtractor
         {
             try
             {
-                PdfImageExportResult result = PdfImageExporter.ExportPng(image);
+                PdfImageExportResult result = PdfImageExporter.ExportPng(image, _colorManagementContext);
                 _imageAssets.Add(new PdfLayoutImageAsset(
                     assetId,
                     $"assets/images/{assetId}.{result.FileExtension}",
