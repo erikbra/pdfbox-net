@@ -1925,6 +1925,45 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public async Task Convert_RenderedLinkOverlayInHeadlessBrowserMatchesLayoutGeometry()
+    {
+        using PDDocument document = CreateLinkedTextDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize
+            {
+                Width = 1000,
+                Height = 1200
+            }
+        });
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        const float cssPixelsPerPoint = 96f / 72f;
+        const float tolerancePx = 1.0f;
+        PdfLayoutLink layoutLink = Assert.Single(Assert.Single(layout.Pages).Links);
+        LocatorBoundingBoxResult pageBox = await page.Locator(".pdf-page").BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Page did not render a bounding box.");
+        LocatorBoundingBoxResult linkBox = await page.Locator(".pdf-link-overlay").BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Link overlay did not render a bounding box.");
+
+        AssertWithin(tolerancePx, layoutLink.Bounds.X * cssPixelsPerPoint, (float)(linkBox.X - pageBox.X));
+        AssertWithin(tolerancePx, layoutLink.Bounds.Y * cssPixelsPerPoint, (float)(linkBox.Y - pageBox.Y));
+        AssertWithin(tolerancePx, layoutLink.Bounds.Width * cssPixelsPerPoint, (float)linkBox.Width);
+        AssertWithin(tolerancePx, layoutLink.Bounds.Height * cssPixelsPerPoint, (float)linkBox.Height);
+    }
+
+    [Fact]
     public void Convert_EmitsImageElementWithExportedAssetAndBounds()
     {
         using PDDocument document = CreateImageDocument();
@@ -1951,6 +1990,55 @@ public class PdfHtmlConverterTest
         AssertClose(132, ParsePoints(style["top"]));
         AssertClose(120, ParsePoints(style["width"]));
         AssertClose(60, ParsePoints(style["height"]));
+    }
+
+    [Fact]
+    public void Convert_ReusedImageAssetIsDeterministicAndNotDuplicated()
+    {
+        using PDDocument document = CreateRepeatedImageDocument();
+        PdfLayoutOptions options = new()
+        {
+            IncludeImageAssets = true
+        };
+
+        PdfLayoutDocument firstLayout = PdfLayoutExtractor.Extract(document, options);
+        PdfLayoutDocument secondLayout = PdfLayoutExtractor.Extract(document, options);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(firstLayout);
+        XDocument dom = ParseHtml(html.Html);
+
+        PdfLayoutImage[] placements = Assert.Single(firstLayout.Pages).Images.ToArray();
+        Assert.Equal(2, placements.Length);
+        Assert.Equal("page-1-image-0", placements[0].AssetId);
+        Assert.All(placements, image => Assert.Equal(placements[0].AssetId, image.AssetId));
+        Assert.NotEqual(placements[0].Bounds.X, placements[1].Bounds.X);
+        PdfLayoutImageAsset asset = Assert.Single(firstLayout.ImageAssets);
+        Assert.Equal(placements[0].AssetId, asset.AssetId);
+        Assert.Equal("assets/images/page-1-image-0.png", asset.RelativePath);
+
+        Assert.Equal(
+            firstLayout.Pages.SelectMany(page => page.Images).Select(image => image.AssetId),
+            secondLayout.Pages.SelectMany(page => page.Images).Select(image => image.AssetId));
+        PdfLayoutImageAsset secondAsset = Assert.Single(secondLayout.ImageAssets);
+        Assert.Equal(asset.AssetId, secondAsset.AssetId);
+        Assert.Equal(asset.RelativePath, secondAsset.RelativePath);
+        Assert.Equal(asset.Data, secondAsset.Data);
+
+        PdfHtmlAsset htmlAsset = Assert.Single(html.Assets);
+        Assert.Equal(asset.RelativePath, htmlAsset.RelativePath);
+        XElement[] images = ElementsByClass(dom, "pdf-image").ToArray();
+        Assert.Equal(2, images.Length);
+        Assert.All(images, image =>
+        {
+            Assert.Equal(asset.AssetId, image.Attribute("data-asset-id")?.Value);
+            Assert.Equal(asset.RelativePath, image.Attribute("src")?.Value);
+        });
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+        string imageDirectory = Path.Combine(tempDirectory.Path, "assets", "images");
+        Assert.Equal(
+            [Path.GetFileName(asset.RelativePath)],
+            Directory.GetFiles(imageDirectory).Select(Path.GetFileName));
     }
 
     [Fact]
@@ -3105,6 +3193,28 @@ public class PdfHtmlConverterTest
         using (PDPageContentStream content = new(document, page))
         {
             content.DrawImage(image, 72, 600, 120, 60);
+        }
+
+        return document;
+    }
+
+    private static PDDocument CreateRepeatedImageDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        byte[] rgb =
+        [
+            255, 0, 0,
+            0, 255, 0,
+            0, 0, 255,
+            255, 255, 255
+        ];
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, rgb, 2, 2, 8, 3);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.DrawImage(image, 72, 600, 120, 60);
+            content.DrawImage(image, 240, 600, 120, 60);
         }
 
         return document;

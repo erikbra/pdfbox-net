@@ -51,6 +51,7 @@ public static class PdfLayoutExtractor
         private readonly List<PageBuilder> _pages = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
         private readonly Dictionary<TextPosition, PdfLayoutColor> _textColors = new(ReferenceEqualityComparer.Instance);
+        private readonly ImageAssetCollector _imageAssets = new();
         private readonly EmbeddedFontAssetCollector _fontAssets;
         private PDColorManagementContext? _colorManagementContext;
         private PageBuilder? _currentPage;
@@ -69,6 +70,7 @@ public static class PdfLayoutExtractor
             _pages.Clear();
             _diagnostics.Clear();
             _textColors.Clear();
+            _imageAssets.Clear();
             _fontAssets.Clear();
             _colorManagementContext = PDColorManagementContext.Create(document);
             _currentPage = null;
@@ -83,6 +85,7 @@ public static class PdfLayoutExtractor
                     page,
                     document,
                     _options,
+                    _imageAssets,
                     _colorManagementContext));
                 pageNumber++;
                 pageIndex++;
@@ -136,12 +139,44 @@ public static class PdfLayoutExtractor
         public PdfLayoutDocument CreateDocument()
         {
             PdfLayoutPage[] pages = _pages.Select(page => page.Build()).ToArray();
-            PdfLayoutImageAsset[] imageAssets = _pages.SelectMany(page => page.ImageAssets).ToArray();
+            PdfLayoutImageAsset[] imageAssets = _imageAssets.Assets.ToArray();
             PdfLayoutFontAsset[] fontAssets = _fontAssets.Assets.ToArray();
             PdfLayoutDiagnostic[] diagnostics = _diagnostics
                 .Concat(pages.SelectMany(page => page.Diagnostics))
                 .ToArray();
             return new PdfLayoutDocument(pages, imageAssets, fontAssets, diagnostics);
+        }
+    }
+
+    private sealed class ImageAssetCollector
+    {
+        private readonly Dictionary<string, PdfLayoutImageAsset> _assetsByHash = new(StringComparer.Ordinal);
+
+        public IReadOnlyList<PdfLayoutImageAsset> Assets => _assetsByHash.Values
+            .OrderBy(static asset => asset.AssetId, StringComparer.Ordinal)
+            .ToArray();
+
+        public void Clear() => _assetsByHash.Clear();
+
+        public PdfLayoutImageAsset Add(
+            string preferredAssetId,
+            string fileExtension,
+            string contentType,
+            byte[] data)
+        {
+            string hash = Convert.ToHexString(SHA256.HashData(data)).ToLowerInvariant();
+            if (_assetsByHash.TryGetValue(hash, out PdfLayoutImageAsset? existing))
+            {
+                return existing;
+            }
+
+            PdfLayoutImageAsset asset = new(
+                preferredAssetId,
+                $"assets/images/{preferredAssetId}.{fileExtension}",
+                contentType,
+                data);
+            _assetsByHash.Add(hash, asset);
+            return asset;
         }
     }
 
@@ -415,7 +450,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfTextLine> _lines = new();
         private readonly List<PdfTextBlock> _blocks = new();
         private readonly List<PdfLayoutImage> _images = new();
-        private readonly List<PdfLayoutImageAsset> _imageAssets = new();
+        private readonly ImageAssetCollector _imageAssets;
         private readonly List<PdfLayoutPath> _paths = new();
         private readonly List<PdfLayoutShading> _shadings = new();
         private readonly List<PdfLayoutVectorGroup> _vectorGroups = new();
@@ -432,11 +467,13 @@ public static class PdfLayoutExtractor
             PDPage page,
             PDDocument document,
             PdfLayoutOptions options,
+            ImageAssetCollector imageAssets,
             PDColorManagementContext? colorManagementContext)
         {
             _pageNumber = pageNumber;
             _pageIndex = pageIndex;
             _document = document;
+            _imageAssets = imageAssets;
             _colorManagementContext = colorManagementContext;
             PDRectangle mediaBox = page.GetMediaBox();
             PDRectangle cropBox = page.GetCropBox();
@@ -509,8 +546,6 @@ public static class PdfLayoutExtractor
                 _paintOperations);
         }
 
-        public IReadOnlyList<PdfLayoutImageAsset> ImageAssets => _imageAssets;
-
         private void CollectGraphics(PDPage page, PdfLayoutOptions options)
         {
             LayoutGraphicsCollector collector = new(
@@ -521,6 +556,7 @@ public static class PdfLayoutExtractor
                 options.IncludeImages,
                 options.IncludeImageAssets,
                 options.IncludePaths,
+                _imageAssets,
                 _colorManagementContext);
             try
             {
@@ -536,7 +572,6 @@ public static class PdfLayoutExtractor
             }
 
             _images.AddRange(collector.Images);
-            _imageAssets.AddRange(collector.ImageAssets);
             _paths.AddRange(collector.Paths);
             _shadings.AddRange(collector.Shadings);
             _vectorGroups.AddRange(collector.VectorGroups);
@@ -591,12 +626,13 @@ public static class PdfLayoutExtractor
                 {
                     PdfLayoutRectangle bounds = fallbackBounds[fallbackIndex];
                     using BufferedImage image = CropPageImage(pageImage, bounds, TransparencyGroupRasterScale);
-                    string assetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-transparency-group-{fallbackIndex.ToString(CultureInfo.InvariantCulture)}";
+                    string preferredAssetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-transparency-group-{fallbackIndex.ToString(CultureInfo.InvariantCulture)}";
                     byte[] data = RenderingBackend.Current.ImageCodec.Encode(image, EncodedImageFormat.Png, 100);
+                    PdfLayoutImageAsset asset = _imageAssets.Add(preferredAssetId, "png", "image/png", data);
                     int index = _images.Count;
                     _images.Add(new PdfLayoutImage(
                         index,
-                        assetId,
+                        asset.AssetId,
                         PdfLayoutImageKind.TransparencyGroupFallback,
                         bounds,
                         new PdfLayoutTransform(1, 0, 0, 1, bounds.X, bounds.Y),
@@ -607,11 +643,6 @@ public static class PdfLayoutExtractor
                         true,
                         "transparency-group"));
                     _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
-                    _imageAssets.Add(new PdfLayoutImageAsset(
-                        assetId,
-                        $"assets/images/{assetId}.png",
-                        "image/png",
-                        data));
                 }
             }
             catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException or NotSupportedException)
@@ -838,12 +869,13 @@ public static class PdfLayoutExtractor
                 return;
             }
 
-            string assetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-annotation-{annotationIndex.ToString(CultureInfo.InvariantCulture)}";
+            string preferredAssetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-annotation-{annotationIndex.ToString(CultureInfo.InvariantCulture)}";
             byte[] data = RenderingBackend.Current.ImageCodec.Encode(appearance, EncodedImageFormat.Png, 100);
+            PdfLayoutImageAsset asset = _imageAssets.Add(preferredAssetId, "png", "image/png", data);
             int index = _images.Count;
             _images.Add(new PdfLayoutImage(
                 index,
-                assetId,
+                asset.AssetId,
                 PdfLayoutImageKind.AnnotationAppearance,
                 bounds,
                 new PdfLayoutTransform(1, 0, 0, 1, bounds.X, bounds.Y),
@@ -854,11 +886,6 @@ public static class PdfLayoutExtractor
                 true,
                 annotation.GetSubtype()));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
-            _imageAssets.Add(new PdfLayoutImageAsset(
-                assetId,
-                $"assets/images/{assetId}.png",
-                "image/png",
-                data));
         }
 
         private static int DifferenceAlpha(int first, int second)
@@ -1529,9 +1556,9 @@ public static class PdfLayoutExtractor
         private readonly bool _includeImages;
         private readonly bool _includeImageAssets;
         private readonly bool _includePaths;
+        private readonly ImageAssetCollector _imageAssets;
         private readonly PDColorManagementContext? _colorManagementContext;
         private readonly List<PdfLayoutImage> _images = new();
-        private readonly List<PdfLayoutImageAsset> _imageAssets = new();
         private readonly List<PdfLayoutPath> _paths = new();
         private readonly List<PdfLayoutShading> _shadings = new();
         private readonly List<PdfLayoutVectorGroup> _vectorGroups = new();
@@ -1555,6 +1582,7 @@ public static class PdfLayoutExtractor
             bool includeImages,
             bool includeImageAssets,
             bool includePaths,
+            ImageAssetCollector imageAssets,
             PDColorManagementContext? colorManagementContext)
             : base(page)
         {
@@ -1564,12 +1592,11 @@ public static class PdfLayoutExtractor
             _includeImages = includeImages;
             _includeImageAssets = includeImageAssets;
             _includePaths = includePaths;
+            _imageAssets = imageAssets;
             _colorManagementContext = colorManagementContext;
         }
 
         public IReadOnlyList<PdfLayoutImage> Images => _images;
-
-        public IReadOnlyList<PdfLayoutImageAsset> ImageAssets => _imageAssets;
 
         public IReadOnlyList<PdfLayoutPath> Paths => _paths;
 
@@ -2524,6 +2551,10 @@ public static class PdfLayoutExtractor
             float maxY = Max(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
             int index = _images.Count;
             string assetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-image-{index.ToString(CultureInfo.InvariantCulture)}";
+            if (_includeImageAssets)
+            {
+                assetId = ExportXObjectImageAsset(image, assetId, index);
+            }
 
             _images.Add(new PdfLayoutImage(
                 index,
@@ -2540,11 +2571,6 @@ public static class PdfLayoutExtractor
                 GetGraphicsState().IsNonStrokingOverprint() || GetGraphicsState().IsOverprint(),
                 ExplicitColorants(image.GetColorSpace())));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
-
-            if (_includeImageAssets)
-            {
-                ExportXObjectImageAsset(image, assetId, index);
-            }
         }
 
         private void CollectInlineImage(PDImage image)
@@ -2575,6 +2601,10 @@ public static class PdfLayoutExtractor
             float maxY = Max(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
             int index = _images.Count;
             string assetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-image-{index.ToString(CultureInfo.InvariantCulture)}";
+            if (_includeImageAssets)
+            {
+                assetId = ExportInlineImageAsset(image, assetId, index);
+            }
 
             _images.Add(new PdfLayoutImage(
                 index,
@@ -2591,23 +2621,18 @@ public static class PdfLayoutExtractor
                 GetGraphicsState().IsNonStrokingOverprint() || GetGraphicsState().IsOverprint(),
                 ExplicitColorants(image.GetColorSpace())));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
-
-            if (_includeImageAssets)
-            {
-                ExportInlineImageAsset(image, assetId, index);
-            }
         }
 
-        private void ExportXObjectImageAsset(PDImageXObject image, string assetId, int index)
+        private string ExportXObjectImageAsset(PDImageXObject image, string assetId, int index)
         {
             try
             {
                 PdfImageExportResult result = PdfImageExporter.ExportPng(image, _colorManagementContext);
-                _imageAssets.Add(new PdfLayoutImageAsset(
+                return _imageAssets.Add(
                     assetId,
-                    $"assets/images/{assetId}.{result.FileExtension}",
+                    result.FileExtension,
                     result.ContentType,
-                    result.Data));
+                    result.Data).AssetId;
             }
             catch (Exception ex) when (ex is IOException or InvalidOperationException or NotSupportedException or ArgumentException)
             {
@@ -2616,19 +2641,20 @@ public static class PdfLayoutExtractor
                     "image-asset-export-failed",
                     $"Image {index.ToString(CultureInfo.InvariantCulture)} asset export failed: {ex.Message}",
                     _pageNumber));
+                return assetId;
             }
         }
 
-        private void ExportInlineImageAsset(PDImage image, string assetId, int index)
+        private string ExportInlineImageAsset(PDImage image, string assetId, int index)
         {
             try
             {
                 PdfImageExportResult result = PdfImageExporter.ExportPng(image, _colorManagementContext);
-                _imageAssets.Add(new PdfLayoutImageAsset(
+                return _imageAssets.Add(
                     assetId,
-                    $"assets/images/{assetId}.{result.FileExtension}",
+                    result.FileExtension,
                     result.ContentType,
-                    result.Data));
+                    result.Data).AssetId;
             }
             catch (Exception ex) when (ex is IOException or InvalidOperationException or NotSupportedException or ArgumentException)
             {
@@ -2637,6 +2663,7 @@ public static class PdfLayoutExtractor
                     "image-asset-export-failed",
                     $"Image {index.ToString(CultureInfo.InvariantCulture)} asset export failed: {ex.Message}",
                     _pageNumber));
+                return assetId;
             }
         }
 
