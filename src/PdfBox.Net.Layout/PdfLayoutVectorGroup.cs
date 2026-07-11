@@ -1,3 +1,5 @@
+using PdfBox.Net.PDModel.Graphics;
+
 namespace PdfBox.Net.Layout;
 
 /// <summary>
@@ -19,6 +21,7 @@ public sealed class PdfLayoutVectorGroup
         PdfLayoutRectangle bounds,
         PdfLayoutRectangle? clipBounds,
         float opacity,
+        BlendMode blendMode,
         bool isIsolated,
         bool isKnockout)
     {
@@ -29,6 +32,7 @@ public sealed class PdfLayoutVectorGroup
         Bounds = bounds;
         ClipBounds = clipBounds;
         Opacity = Math.Clamp(opacity, 0f, 1f);
+        BlendMode = blendMode;
         IsIsolated = isIsolated;
         IsKnockout = isKnockout;
     }
@@ -67,6 +71,11 @@ public sealed class PdfLayoutVectorGroup
     /// Gets the group compositing opacity from its invoking graphics state.
     /// </summary>
     public float Opacity { get; }
+
+    /// <summary>
+    /// Gets the blend mode from the graphics state that invoked the group.
+    /// </summary>
+    public BlendMode BlendMode { get; }
 
     /// <summary>
     /// Gets whether the group is isolated from its backdrop.

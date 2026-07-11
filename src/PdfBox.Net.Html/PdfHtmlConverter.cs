@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using PdfBox.Net.Layout;
+using PdfBox.Net.PDModel.Graphics;
 
 namespace PdfBox.Net.Html;
 
@@ -1301,9 +1302,25 @@ public static class PdfHtmlConverter
                     .Append("\" opacity=\"")
                     .Append(SvgNumber(group.Opacity))
                     .Append('"');
-                if (group.IsIsolated)
+                if (group.IsIsolated || group.BlendMode != BlendMode.NORMAL)
                 {
-                    html.Append(" style=\"isolation:isolate\"");
+                    html.Append(" style=\"");
+                    if (group.IsIsolated)
+                    {
+                        html.Append("isolation:isolate");
+                    }
+
+                    if (group.BlendMode != BlendMode.NORMAL)
+                    {
+                        if (group.IsIsolated)
+                        {
+                            html.Append(';');
+                        }
+
+                        html.Append("mix-blend-mode:").Append(CssBlendMode(group.BlendMode));
+                    }
+
+                    html.Append('"');
                 }
 
                 if (group.ClipBounds.HasValue)
@@ -1372,6 +1389,29 @@ public static class PdfHtmlConverter
     private static string VectorClipPathId(string clipIdPrefix, PdfLayoutVectorGroup group)
     {
         return clipIdPrefix + "-clip-" + group.Index.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static string CssBlendMode(BlendMode blendMode)
+    {
+        return blendMode switch
+        {
+            BlendMode.MULTIPLY => "multiply",
+            BlendMode.SCREEN => "screen",
+            BlendMode.OVERLAY => "overlay",
+            BlendMode.DARKEN => "darken",
+            BlendMode.LIGHTEN => "lighten",
+            BlendMode.COLOR_DODGE => "color-dodge",
+            BlendMode.COLOR_BURN => "color-burn",
+            BlendMode.HARD_LIGHT => "hard-light",
+            BlendMode.SOFT_LIGHT => "soft-light",
+            BlendMode.DIFFERENCE => "difference",
+            BlendMode.EXCLUSION => "exclusion",
+            BlendMode.HUE => "hue",
+            BlendMode.SATURATION => "saturation",
+            BlendMode.COLOR => "color",
+            BlendMode.LUMINOSITY => "luminosity",
+            _ => "normal"
+        };
     }
 
     private static void WriteVectorPathsBefore(

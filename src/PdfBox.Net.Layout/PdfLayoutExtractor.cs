@@ -1585,6 +1585,7 @@ public static class PdfLayoutExtractor
                     _paths.Count,
                     CurrentClipBounds(graphicsState),
                     fillOpacity,
+                    graphicsState.GetBlendMode(),
                     attributes?.IsIsolated() ?? false,
                     attributes?.IsKnockout() ?? false);
                 _activeVectorGroups.Push(group);
@@ -2291,6 +2292,7 @@ public static class PdfLayoutExtractor
                 int firstPathIndex,
                 PdfLayoutRectangle? clipBounds,
                 float opacity,
+                BlendMode blendMode,
                 bool isIsolated,
                 bool isKnockout)
             {
@@ -2299,6 +2301,7 @@ public static class PdfLayoutExtractor
                 FirstPathIndex = firstPathIndex;
                 ClipBounds = clipBounds;
                 Opacity = opacity;
+                BlendMode = blendMode;
                 IsIsolated = isIsolated;
                 IsKnockout = isKnockout;
             }
@@ -2312,6 +2315,8 @@ public static class PdfLayoutExtractor
             public PdfLayoutRectangle? ClipBounds { get; private set; }
 
             public float Opacity { get; }
+
+            public BlendMode BlendMode { get; }
 
             public bool IsIsolated { get; }
 
@@ -2343,6 +2348,7 @@ public static class PdfLayoutExtractor
                     bounds,
                     ClipBounds,
                     Opacity,
+                    BlendMode,
                     IsIsolated,
                     IsKnockout);
             }
