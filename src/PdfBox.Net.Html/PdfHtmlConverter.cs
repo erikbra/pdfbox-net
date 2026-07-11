@@ -922,40 +922,47 @@ public static class PdfHtmlConverter
         PdfLayoutPath[] vectorPaths = RenderableVectorPaths(
             page,
             textMode == PdfHtmlTextMode.Semantic ? semanticPage : null);
-        PdfLayoutPath[] imageBackdrops = vectorPaths
-            .Where(path => IsImageBackdropPath(path, page.Images))
-            .ToArray();
-        if (imageBackdrops.Length > 0)
+        if (page.PaintOperations.Count > 0)
         {
-            WriteVectorLayer(
-                html,
-                page,
-                scale,
-                imageBackdrops,
-                "pdf-vector-layer pdf-vector-background-layer",
-                "background");
+            WriteOrderedGraphics(html, page, imageAssets, vectorPaths, scale);
         }
-
-        foreach (PdfLayoutImage image in page.Images)
+        else
         {
-            if (imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
+            PdfLayoutPath[] imageBackdrops = vectorPaths
+                .Where(path => IsImageBackdropPath(path, page.Images))
+                .ToArray();
+            if (imageBackdrops.Length > 0)
             {
-                WriteImage(html, image, asset, scale);
+                WriteVectorLayer(
+                    html,
+                    page,
+                    scale,
+                    imageBackdrops,
+                    "pdf-vector-layer pdf-vector-background-layer",
+                    "background");
             }
-        }
 
-        PdfLayoutPath[] foregroundPaths = vectorPaths
-            .Except(imageBackdrops)
-            .ToArray();
-        if (foregroundPaths.Length > 0)
-        {
-            WriteVectorLayer(
-                html,
-                page,
-                scale,
-                foregroundPaths,
-                "pdf-vector-layer",
-                "foreground");
+            foreach (PdfLayoutImage image in page.Images)
+            {
+                if (imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
+                {
+                    WriteImage(html, image, asset, scale);
+                }
+            }
+
+            PdfLayoutPath[] foregroundPaths = vectorPaths
+                .Except(imageBackdrops)
+                .ToArray();
+            if (foregroundPaths.Length > 0)
+            {
+                WriteVectorLayer(
+                    html,
+                    page,
+                    scale,
+                    foregroundPaths,
+                    "pdf-vector-layer",
+                    "foreground");
+            }
         }
 
         if (page.Shadings.Count > 0)
@@ -981,6 +988,59 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("  </section>");
+    }
+
+    private static void WriteOrderedGraphics(
+        StringBuilder html,
+        PdfLayoutPage page,
+        IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
+        IReadOnlyList<PdfLayoutPath> vectorPaths,
+        float scale)
+    {
+        Dictionary<int, PdfLayoutImage> imagesByIndex = page.Images.ToDictionary(image => image.Index);
+        Dictionary<int, PdfLayoutPath> pathsByIndex = vectorPaths.ToDictionary(path => path.Index);
+        List<PdfLayoutPath> pathBatch = [];
+        int vectorLayerIndex = 0;
+
+        void FlushPaths()
+        {
+            if (pathBatch.Count == 0)
+            {
+                return;
+            }
+
+            WriteVectorLayer(
+                html,
+                page,
+                scale,
+                pathBatch,
+                "pdf-vector-layer",
+                "paint-" + vectorLayerIndex.ToString(CultureInfo.InvariantCulture));
+            vectorLayerIndex++;
+            pathBatch.Clear();
+        }
+
+        foreach (PdfLayoutPaintOperation operation in page.PaintOperations)
+        {
+            if (operation.Kind == PdfLayoutPaintOperationKind.Path)
+            {
+                if (pathsByIndex.TryGetValue(operation.Index, out PdfLayoutPath? path))
+                {
+                    pathBatch.Add(path);
+                }
+
+                continue;
+            }
+
+            FlushPaths();
+            if (imagesByIndex.TryGetValue(operation.Index, out PdfLayoutImage? image) &&
+                imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
+            {
+                WriteImage(html, image, asset, scale);
+            }
+        }
+
+        FlushPaths();
     }
 
     private static void WriteImage(StringBuilder html, PdfLayoutImage image, PdfLayoutImageAsset asset, float scale)

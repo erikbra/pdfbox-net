@@ -17,6 +17,21 @@ namespace PdfBox.Net.Layout.Tests;
 
 public class PdfLayoutExtractorTest
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Extract_PreservesImageAndVectorContentStreamOrder(bool imageFirst)
+    {
+        using PDDocument document = CreateImageAndVectorDocument(imageFirst);
+
+        PdfLayoutPage page = Assert.Single(PdfLayoutExtractor.Extract(document).Pages);
+
+        PdfLayoutPaintOperationKind[] expected = imageFirst
+            ? [PdfLayoutPaintOperationKind.Image, PdfLayoutPaintOperationKind.Path]
+            : [PdfLayoutPaintOperationKind.Path, PdfLayoutPaintOperationKind.Image];
+        Assert.Equal(expected, page.PaintOperations.Select(operation => operation.Kind));
+    }
+
     [Fact]
     public void Extract_OutputIntentManagesDeviceCmykTextAndPathColors()
     {
@@ -545,6 +560,34 @@ public class PdfLayoutExtractorTest
             Math.Abs(managed.Red - naive[0]) > 0.02f ||
             Math.Abs(managed.Green - naive[1]) > 0.02f ||
             Math.Abs(managed.Blue - naive[2]) > 0.02f);
+    }
+
+    private static PDDocument CreateImageAndVectorDocument(bool imageFirst)
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDImageXObject image = LosslessFactory.CreateFromRawData(
+            document,
+            [255, 255, 255],
+            1,
+            1,
+            8,
+            3);
+        using PDPageContentStream content = new(document, page);
+        if (imageFirst)
+        {
+            content.DrawImage(image, 72, 600, 120, 60);
+        }
+
+        content.AddRect(72, 600, 120, 60);
+        content.Fill();
+        if (!imageFirst)
+        {
+            content.DrawImage(image, 72, 600, 120, 60);
+        }
+
+        return document;
     }
 
     private static void AddCmykOutputIntent(PDDocument document)

@@ -1887,14 +1887,16 @@ public class PdfHtmlConverterTest
         PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
         XDocument dom = ParseHtml(html.Html);
         XElement page = Assert.Single(ElementsByClass(dom, "pdf-page"));
-        XElement backdropLayer = Assert.Single(ElementsByClass(dom, "pdf-vector-background-layer"));
         XElement image = Assert.Single(ElementsByClass(dom, "pdf-image"));
-        XElement foregroundLayer = Assert.Single(page.Elements(), element =>
-            HasClass(element, "pdf-vector-layer") &&
-            !HasClass(element, "pdf-vector-background-layer"));
+        XElement[] vectorLayers = page.Elements()
+            .Where(element => HasClass(element, "pdf-vector-layer"))
+            .ToArray();
+        Assert.Equal(2, vectorLayers.Length);
+        XElement backdropLayer = vectorLayers[0];
+        XElement foregroundLayer = vectorLayers[1];
 
-        Assert.Equal("background", backdropLayer.Attribute("data-vector-layer")?.Value);
-        Assert.Equal("foreground", foregroundLayer.Attribute("data-vector-layer")?.Value);
+        Assert.Equal("paint-0", backdropLayer.Attribute("data-vector-layer")?.Value);
+        Assert.Equal("paint-1", foregroundLayer.Attribute("data-vector-layer")?.Value);
         Assert.Equal("0", Assert.Single(backdropLayer.Descendants(),
                 element => element.Name.LocalName == "path" && element.Attribute("data-path-index") != null)
             .Attribute("data-path-index")?.Value);
@@ -1905,6 +1907,28 @@ public class PdfHtmlConverterTest
         XElement[] children = page.Elements().ToArray();
         Assert.True(Array.IndexOf(children, backdropLayer) < Array.IndexOf(children, image));
         Assert.True(Array.IndexOf(children, image) < Array.IndexOf(children, foregroundLayer));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Convert_PreservesImageAndVectorContentStreamOrder(bool imageFirst)
+    {
+        using PDDocument document = CreateImageAndVectorDocument(imageFirst);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout).Html);
+        XElement page = Assert.Single(ElementsByClass(dom, "pdf-page"));
+        XElement image = Assert.Single(ElementsByClass(dom, "pdf-image"));
+        XElement vector = Assert.Single(ElementsByClass(dom, "pdf-vector-layer"));
+        XElement[] children = page.Elements().ToArray();
+
+        Assert.Equal(
+            imageFirst,
+            Array.IndexOf(children, image) < Array.IndexOf(children, vector));
     }
 
     [Fact]
@@ -2881,6 +2905,28 @@ public class PdfHtmlConverterTest
             content.SetNonStrokingColor(1f, 0f, 0f);
             content.AddRect(210, 600, 12, 12);
             content.Fill();
+        }
+
+        return document;
+    }
+
+    private static PDDocument CreateImageAndVectorDocument(bool imageFirst)
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, [255, 255, 255], 1, 1, 8, 3);
+        using PDPageContentStream content = new(document, page);
+        if (imageFirst)
+        {
+            content.DrawImage(image, 72, 600, 120, 60);
+        }
+
+        content.AddRect(72, 600, 120, 60);
+        content.Fill();
+        if (!imageFirst)
+        {
+            content.DrawImage(image, 72, 600, 120, 60);
         }
 
         return document;
