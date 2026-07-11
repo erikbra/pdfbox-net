@@ -1,6 +1,8 @@
 using System.Buffers.Binary;
+using ImageMagick;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
@@ -174,6 +176,37 @@ public class ImageFactoryTest
     }
 
     [Fact]
+    public void PdfImageExporter_OutputIntentDeviceCmyk_UsesSingleBatchTransform()
+    {
+        using PDDocument document = new();
+        using MemoryStream profile = new(ColorProfiles.CoatedFOGRA39.ToByteArray());
+        document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, profile));
+        PDColorManagementContext context = PDColorManagementContext.Create(document)!;
+        byte[] samples = new byte[64 * 4];
+        for (int pixel = 0; pixel < 64; pixel++)
+        {
+            samples[(pixel * 4)] = (byte)(pixel * 4);
+            samples[(pixel * 4) + 1] = 160;
+            samples[(pixel * 4) + 2] = 40;
+            samples[(pixel * 4) + 3] = 20;
+        }
+
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, samples, 64, 1, 8, 4);
+
+        PdfImageExportResult result = PdfImageExporter.ExportPng(image, context);
+
+        using BufferedImage exported = RenderingBackend.Current.ImageCodec.Decode(result.Data)
+            ?? throw new InvalidOperationException("The exported PNG could not be decoded.");
+        int pixelRgb = exported.GetRgb(0, 0) & 0xFFFFFF;
+        float[] naive = PDDeviceCMYK.Instance.ToRGB([0f, 160f / 255f, 40f / 255f, 20f / 255f]);
+        int naiveRgb = ((int)MathF.Round(naive[0] * 255f) << 16) |
+                       ((int)MathF.Round(naive[1] * 255f) << 8) |
+                       (int)MathF.Round(naive[2] * 255f);
+        Assert.NotEqual(naiveRgb, pixelRgb);
+        Assert.Equal(1, context.GetColorTransformOperationCount());
+    }
+
+    [Fact]
     public void PdfImageExporter_ExportPng_PreservesXObjectSoftMaskAlpha()
     {
         using PDDocument doc = new();
@@ -254,6 +287,26 @@ public class ImageFactoryTest
     }
 
     [Fact]
+    public void SampledImageReader_GetRGBImage_TransformsIccRasterAsSingleBatch()
+    {
+        byte[] samples = new byte[64 * 4];
+        for (int pixel = 0; pixel < 64; pixel++)
+        {
+            samples[(pixel * 4)] = (byte)(pixel * 4);
+            samples[(pixel * 4) + 1] = 160;
+            samples[(pixel * 4) + 2] = 40;
+            samples[(pixel * 4) + 3] = 20;
+        }
+
+        PDICCBased colorSpace = CreateIccColorSpace(ColorProfiles.CoatedFOGRA39.ToByteArray(), 4);
+
+        byte[] rgb = SampledImageReader.GetRGBImage(64, 1, 8, colorSpace, samples, null);
+
+        Assert.Equal(64 * 3, rgb.Length);
+        Assert.Equal(1, colorSpace.GetColorTransformOperationCount());
+    }
+
+    [Fact]
     public void SampledImageReader_GetRGBImage_UnpacksTwoBitGraySamples()
     {
         using PDDocument doc = new();
@@ -300,6 +353,21 @@ public class ImageFactoryTest
     }
 
     // ─── CCITTFactory ─────────────────────────────────────────────────────────
+
+    private static PDICCBased CreateIccColorSpace(byte[] profile, int components)
+    {
+        var profileStream = new COSStream();
+        profileStream.SetInt(COSName.GetPDFName("N"), components);
+        using (Stream output = profileStream.CreateOutputStream())
+        {
+            output.Write(profile);
+        }
+
+        var array = new COSArray();
+        array.Add(COSName.GetPDFName("ICCBased"));
+        array.Add(profileStream);
+        return Assert.IsType<PDICCBased>(PDColorSpace.Create(array));
+    }
 
     [Fact]
     public void CCITTFactory_CreateFromFile_CreatesCcittImage()

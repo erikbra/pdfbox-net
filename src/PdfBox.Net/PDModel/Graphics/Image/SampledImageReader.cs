@@ -45,10 +45,16 @@ internal static class SampledImageReader
     /// </summary>
     public static byte[] GetRGBImage(PDImageXObject image)
     {
+        return GetRGBImage(image, null);
+    }
+
+    internal static byte[] GetRGBImage(PDImageXObject image, PDColorManagementContext? colorManagementContext)
+    {
         ArgumentNullException.ThrowIfNull(image);
         (byte[] data, DecodeResult decodeResult) = image.DecodeImageData();
         COSDictionary decodeParameters = decodeResult.GetParameters();
         PDColorSpace colorSpace = decodeResult.GetJPXColorSpace() as PDColorSpace ?? image.GetColorSpace();
+        colorSpace = colorManagementContext?.ResolveDeviceColorSpace(colorSpace) ?? colorSpace;
 
         return GetRGBImage(
             decodeParameters.GetInt(COSName.WIDTH, image.GetWidth()),
@@ -64,17 +70,24 @@ internal static class SampledImageReader
     /// </summary>
     public static byte[] GetRGBImage(PDImage image)
     {
+        return GetRGBImage(image, null);
+    }
+
+    internal static byte[] GetRGBImage(PDImage image, PDColorManagementContext? colorManagementContext)
+    {
         ArgumentNullException.ThrowIfNull(image);
+        PDColorSpace colorSpace = image.GetColorSpace();
+        colorSpace = colorManagementContext?.ResolveDeviceColorSpace(colorSpace) ?? colorSpace;
         return GetRGBImage(
             image.GetWidth(),
             image.GetHeight(),
             image.GetBitsPerComponent(),
-            image.GetColorSpace(),
+            colorSpace,
             image.GetData(),
             image.GetDecode());
     }
 
-    private static byte[] GetRGBImage(
+    internal static byte[] GetRGBImage(
         int width,
         int height,
         int bitsPerComponent,
@@ -121,6 +134,23 @@ internal static class SampledImageReader
         bool isIndexed = colorSpace is PDIndexed;
         float sampleMax = (1 << bitsPerComponent) - 1f;
         float[] decode = GetDecodeArray(colorSpace, bitsPerComponent, components, decodeArray);
+        if (colorSpace is PDICCBased)
+        {
+            byte[] profileSamples = UnpackSamples(
+                imageData,
+                width,
+                height,
+                bitsPerComponent,
+                components,
+                rowBytes,
+                sampleMax,
+                decode);
+            if (colorSpace.TryConvertToRgb8(profileSamples, width, height, out byte[] profileRgb))
+            {
+                return profileRgb;
+            }
+        }
+
         byte[] rgb = new byte[checked(width * height * 3)];
         float[] componentValues = new float[components];
         int dst = 0;
@@ -149,6 +179,41 @@ internal static class SampledImageReader
         }
 
         return rgb;
+    }
+
+    private static byte[] UnpackSamples(
+        byte[] imageData,
+        int width,
+        int height,
+        int bitsPerComponent,
+        int components,
+        int rowBytes,
+        float sampleMax,
+        float[] decode)
+    {
+        byte[] unpacked = new byte[checked(width * height * components)];
+        int destination = 0;
+        for (int y = 0; y < height; y++)
+        {
+            int bitOffset = y * rowBytes * 8;
+            for (int x = 0; x < width; x++)
+            {
+                for (int component = 0; component < components; component++)
+                {
+                    int sample = ReadBits(imageData, bitOffset, bitsPerComponent);
+                    bitOffset += bitsPerComponent;
+                    float dMin = decode[component * 2];
+                    float dMax = decode[(component * 2) + 1];
+                    float decoded = dMin + (sample * ((dMax - dMin) / sampleMax));
+                    unpacked[destination++] = (byte)Math.Clamp(
+                        (int)MathF.Round(Math.Clamp(decoded, 0f, 1f) * 255f),
+                        0,
+                        255);
+                }
+            }
+        }
+
+        return unpacked;
     }
 
     private static int ReadBits(byte[] data, int bitOffset, int count)

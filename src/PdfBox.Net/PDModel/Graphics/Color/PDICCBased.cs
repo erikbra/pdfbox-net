@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
@@ -37,14 +38,25 @@ public sealed class PDICCBased : PDColorSpace
     private readonly PDColorSpace? _alternate;
     private readonly int _numberOfComponents;
     private readonly PDColor _initialColor;
+    private readonly IccColorTransform? _colorTransform;
 
-    private PDICCBased(COSArray array, PDResources? resources) : base(array)
+    private PDICCBased(
+        COSArray array,
+        PDResources? resources,
+        RenderingIntent renderingIntent = RenderingIntent.RELATIVE_COLORIMETRIC) : base(array)
     {
         COSStream? profile = array.Size() > 1 ? array.GetObject(1) as COSStream : null;
-        _numberOfComponents = Math.Max(1, profile?.GetInt(COSName.GetPDFName("N"), 3) ?? 3);
+        byte[] profileData = ReadProfile(profile);
+        int declaredComponents = profile?.GetInt(COSName.GetPDFName("N"), 0) ?? 0;
+        _numberOfComponents = declaredComponents > 0
+            ? declaredComponents
+            : IccColorTransform.TryGetProfileComponents(profileData, out int profileComponents)
+                ? profileComponents
+                : 3;
         COSBase? alternateBase = profile?.GetDictionaryObject(COSName.GetPDFName("Alternate"));
         _alternate = alternateBase is not null ? Create(alternateBase, resources) : GetDeviceFallback(_numberOfComponents);
         _initialColor = new PDColor(new float[_numberOfComponents], this);
+        IccColorTransform.TryCreate(profileData, _numberOfComponents, renderingIntent, out _colorTransform);
     }
 
     public static PDICCBased Create(COSArray array, PDResources? resources)
@@ -72,12 +84,64 @@ public sealed class PDICCBased : PDColorSpace
 
     public override float[] ToRGB(float[] value)
     {
+        float[] transformed = _colorTransform?.ToRgb(value) ?? [];
+        if (transformed.Length == 3)
+        {
+            return transformed;
+        }
+
         if (_alternate is not null)
         {
             return _alternate.ToRGB(value);
         }
 
         return GetDeviceFallback(_numberOfComponents).ToRGB(value);
+    }
+
+    internal override bool TryConvertToRgb8(byte[] samples, int width, int height, out byte[] rgb)
+    {
+        return _colorTransform?.TryConvert(samples, width, height, out rgb) ?? Fail(out rgb);
+    }
+
+    internal int GetColorTransformOperationCount() => _colorTransform?.OperationCount ?? 0;
+
+    internal static bool TryCreateFromProfile(
+        COSStream profile,
+        RenderingIntent renderingIntent,
+        out PDICCBased? colorSpace)
+    {
+        var array = new COSArray();
+        array.Add(ICCBased);
+        array.Add(profile);
+        var candidate = new PDICCBased(array, null, renderingIntent);
+        colorSpace = candidate._colorTransform is null ? null : candidate;
+        return colorSpace is not null;
+    }
+
+    private static byte[] ReadProfile(COSStream? profile)
+    {
+        if (profile is null)
+        {
+            return [];
+        }
+
+        try
+        {
+            using Stream input = profile.CreateInputStream();
+            using MemoryStream output = new();
+            input.CopyTo(output);
+            return output.ToArray();
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException)
+        {
+            return [];
+        }
+    }
+
+    private static bool Fail(out byte[] rgb)
+    {
+        rgb = [];
+        return false;
     }
 
     private static PDColorSpace GetDeviceFallback(int numberOfComponents)

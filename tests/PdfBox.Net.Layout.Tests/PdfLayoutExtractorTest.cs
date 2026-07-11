@@ -1,4 +1,5 @@
 using System.Text;
+using ImageMagick;
 using PdfBox.Net.COS;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
@@ -16,6 +17,73 @@ namespace PdfBox.Net.Layout.Tests;
 
 public class PdfLayoutExtractorTest
 {
+    [Fact]
+    public void Extract_OutputIntentManagesDeviceCmykTextAndPathColors()
+    {
+        using PDDocument document = CreateTextDocument("""
+            0 1 1 0 k
+            BT
+            /F1 12 Tf
+            72 700 Td
+            (Managed) Tj
+            ET
+            72 600 120 60 re
+            f
+            """);
+        AddCmykOutputIntent(document);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutPage page = Assert.Single(layout.Pages);
+        PdfLayoutColor textColor = Assert.Single(page.Runs).Color;
+        PdfLayoutColor pathColor = Assert.Single(page.Paths).FillColor!.Value;
+        float[] naive = PDDeviceCMYK.Instance.ToRGB([0f, 1f, 1f, 0f]);
+        AssertManagedColorDiffers(textColor, naive);
+        AssertManagedColorDiffers(pathColor, naive);
+        Assert.Equal(textColor, pathColor);
+        Assert.Equal("DeviceCMYK", textColor.ColorSpaceName);
+    }
+
+    [Fact]
+    public void Extract_OutputIntentManagesDeviceCmykShadingStops()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        AddCmykOutputIntent(document);
+        PDShadingType2 shading = CreateCmykAxialShading();
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.ShadingFill(shading);
+        }
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutColor managed = Assert.Single(Assert.Single(layout.Pages).Shadings).Stops[0].Color;
+        float[] naive = PDDeviceCMYK.Instance.ToRGB([0f, 1f, 1f, 0f]);
+        AssertManagedColorDiffers(managed, naive);
+        Assert.Equal("DeviceCMYK", managed.ColorSpaceName);
+    }
+
+    [Fact]
+    public void Extract_MalformedOutputIntentPreservesDeviceCmykFallback()
+    {
+        using PDDocument document = CreateTextDocument("""
+            0 1 1 0 k
+            BT
+            /F1 12 Tf
+            72 700 Td
+            (Fallback) Tj
+            ET
+            """);
+        using MemoryStream malformedProfile = new([1, 2, 3, 4]);
+        document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, malformedProfile));
+
+        PdfLayoutColor extracted = Assert.Single(Assert.Single(PdfLayoutExtractor.Extract(document).Pages).Runs).Color;
+
+        Assert.Equal(new PdfLayoutColor(1f, 0f, 0f, 1f, "DeviceCMYK"), extracted);
+    }
+
     [Fact]
     public void Extract_ShapeAlphaPath_IsMarkedForAnHtmlFallback()
     {
@@ -471,6 +539,20 @@ public class PdfLayoutExtractorTest
         Assert.InRange(actual, expected - 0.01f, expected + 0.01f);
     }
 
+    private static void AssertManagedColorDiffers(PdfLayoutColor managed, float[] naive)
+    {
+        Assert.True(
+            Math.Abs(managed.Red - naive[0]) > 0.02f ||
+            Math.Abs(managed.Green - naive[1]) > 0.02f ||
+            Math.Abs(managed.Blue - naive[2]) > 0.02f);
+    }
+
+    private static void AddCmykOutputIntent(PDDocument document)
+    {
+        using MemoryStream profile = new(ColorProfiles.CoatedFOGRA39.ToByteArray());
+        document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, profile));
+    }
+
     private static PDShadingType2 CreateAxialShading()
     {
         COSDictionary functionDictionary = new();
@@ -483,6 +565,23 @@ public class PdfLayoutExtractorTest
         PDShadingType2 shading = new(new COSDictionary());
         shading.SetShadingType(PDShading.SHADING_TYPE2);
         shading.SetColorSpace(PDDeviceRGB.Instance);
+        shading.SetCoords(COSArray.Of(100f, 400f, 400f, 400f));
+        shading.SetFunction(new PDFunctionType2(functionDictionary));
+        return shading;
+    }
+
+    private static PDShadingType2 CreateCmykAxialShading()
+    {
+        COSDictionary functionDictionary = new();
+        functionDictionary.SetInt(COSName.FUNCTION_TYPE, 2);
+        functionDictionary.SetItem(COSName.DOMAIN, COSArray.Of(0f, 1f));
+        functionDictionary.SetItem(COSName.C0, COSArray.Of(0f, 1f, 1f, 0f));
+        functionDictionary.SetItem(COSName.C1, COSArray.Of(1f, 0f, 0f, 0f));
+        functionDictionary.SetFloat(COSName.N, 1f);
+
+        PDShadingType2 shading = new(new COSDictionary());
+        shading.SetShadingType(PDShading.SHADING_TYPE2);
+        shading.SetColorSpace(PDDeviceCMYK.Instance);
         shading.SetCoords(COSArray.Of(100f, 400f, 400f, 400f));
         shading.SetFunction(new PDFunctionType2(functionDictionary));
         return shading;
