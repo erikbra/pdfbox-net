@@ -30,6 +30,7 @@ using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Patterns;
 using PdfBox.Net.PDModel.Graphics.Shading;
+using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
@@ -199,6 +200,76 @@ public class AdvancedRenderingIssue419Test
 
         raster.GetPixel(1, 0, pixel);
         Assert.Equal(255, pixel[3]);
+    }
+
+    [Fact]
+    public void RenderImage_VectorAlphaSoftMask_AppliesGroupAlphaAndBounds()
+    {
+        PDResources resources = new();
+        PDSoftMask softMask = CreateVectorSoftMask(
+            "Alpha",
+            new PDRectangle(100, 300, 100, 40),
+            "0 0 0 rg\n100 300 50 40 re\nf\n");
+        PDExtendedGraphicsState extGState = new();
+        extGState.SetSoftMask(softMask);
+        resources.Put(COSName.GetPDFName("GsMask"), extGState);
+
+        using PDDocument document = CreateDocument(
+            "/GsMask gs\n1 0 0 rg\n100 300 100 40 re\nf\n",
+            resources);
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        AssertRedDominant(image.GetRgb(120, 472), "inside the opaque half of the alpha mask");
+        AssertWhitePixel(image.GetRgb(180, 472), "inside the transparent half of the alpha mask");
+        AssertWhitePixel(image.GetRgb(90, 472), "outside the soft-mask bounds");
+    }
+
+    [Fact]
+    public void RenderImage_VectorLuminositySoftMask_AppliesBackdropAndTransferFunction()
+    {
+        COSDictionary transfer = new();
+        transfer.SetInt(COSName.GetPDFName("FunctionType"), 2);
+        transfer.SetItem(COSName.GetPDFName("Domain"), COSArray.Of(0f, 1f));
+        transfer.SetItem(COSName.GetPDFName("C0"), COSArray.Of(1f));
+        transfer.SetItem(COSName.GetPDFName("C1"), COSArray.Of(0f));
+        transfer.SetFloat(COSName.GetPDFName("N"), 1f);
+
+        PDResources resources = new();
+        PDSoftMask softMask = CreateVectorSoftMask(
+            "Luminosity",
+            new PDRectangle(100, 300, 100, 40),
+            "1 1 1 rg\n100 300 50 40 re\nf\n",
+            COSArray.Of(0f, 0f, 0f),
+            transfer);
+        PDExtendedGraphicsState extGState = new();
+        extGState.SetSoftMask(softMask);
+        resources.Put(COSName.GetPDFName("GsMask"), extGState);
+
+        using PDDocument document = CreateDocument(
+            "/GsMask gs\n0 0 1 rg\n100 300 100 40 re\nf\n",
+            resources);
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        AssertWhitePixel(image.GetRgb(120, 472), "where white luminosity is inverted to transparent");
+        AssertBlueDominant(image.GetRgb(180, 472), "where the black backdrop is inverted to opaque");
+    }
+
+    [Fact]
+    public void RenderImage_TransparencyGroup_ClipsContentToTransformedBounds()
+    {
+        PDTransparencyGroup group = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 40, 30),
+            "0 0 0 rg\n-100 -100 300 300 re\nf\n");
+        group.SetMatrix(new Matrix(1, 0, 0, 1, 120, 320));
+        PDResources resources = new();
+        resources.Put(COSName.GetPDFName("Group"), group);
+
+        using PDDocument document = CreateDocument("/Group Do\n", resources);
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        Assert.True(CountNonWhitePixels(image, 120, 442, 40, 30) > 1000);
+        Assert.Equal(0, CountNonWhitePixels(image, 110, 442, 10, 30));
+        Assert.Equal(0, CountNonWhitePixels(image, 160, 442, 10, 30));
     }
 
     [Fact]
@@ -372,6 +443,34 @@ public class AdvancedRenderingIssue419Test
         return form;
     }
 
+    private static PDSoftMask CreateVectorSoftMask(
+        string subtype,
+        PDRectangle bbox,
+        string contentStream,
+        COSArray? backdropColor = null,
+        COSBase? transferFunction = null)
+    {
+        PDTransparencyGroup group = CreateTransparencyGroup(bbox, contentStream);
+        group.GetGroup()!.GetCOSObject().SetItem(COSName.CS, PDDeviceRGB.Instance.GetCOSObject());
+
+        COSDictionary dictionary = new();
+        dictionary.SetItem(COSName.GetPDFName("S"), COSName.GetPDFName(subtype));
+        dictionary.SetItem(COSName.GetPDFName("G"), group.GetCOSObject());
+        dictionary.SetItem(COSName.GetPDFName("BC"), backdropColor);
+        dictionary.SetItem(COSName.GetPDFName("TR"), transferFunction);
+        return new PDSoftMask(dictionary);
+    }
+
+    private static PDTransparencyGroup CreateTransparencyGroup(PDRectangle bbox, string contentStream)
+    {
+        COSStream stream = new();
+        PDTransparencyGroup group = new(stream);
+        group.SetBBox(bbox);
+        group.SetGroup(new PDTransparencyGroupAttributes());
+        WriteStream(stream, contentStream);
+        return group;
+    }
+
     private static void WriteStream(COSDictionary dictionary, string contentStream)
     {
         COSStream stream = new();
@@ -426,6 +525,33 @@ public class AdvancedRenderingIssue419Test
         }
 
         return count;
+    }
+
+    private static void AssertWhitePixel(int argb, string location)
+    {
+        int red = (argb >> 16) & 0xFF;
+        int green = (argb >> 8) & 0xFF;
+        int blue = argb & 0xFF;
+        Assert.True(red > 245 && green > 245 && blue > 245,
+            $"Expected white {location}, got RGB({red},{green},{blue}).");
+    }
+
+    private static void AssertRedDominant(int argb, string location)
+    {
+        int red = (argb >> 16) & 0xFF;
+        int green = (argb >> 8) & 0xFF;
+        int blue = argb & 0xFF;
+        Assert.True(red > 200 && red > green * 2 && red > blue * 2,
+            $"Expected red {location}, got RGB({red},{green},{blue}).");
+    }
+
+    private static void AssertBlueDominant(int argb, string location)
+    {
+        int red = (argb >> 16) & 0xFF;
+        int green = (argb >> 8) & 0xFF;
+        int blue = argb & 0xFF;
+        Assert.True(blue > 200 && blue > red * 2 && blue > green * 2,
+            $"Expected blue {location}, got RGB({red},{green},{blue}).");
     }
 
     private static int CountVisiblePixels(Raster raster, int width, int height)

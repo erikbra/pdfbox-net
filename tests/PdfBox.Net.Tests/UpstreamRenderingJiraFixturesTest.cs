@@ -12,8 +12,8 @@ public class UpstreamRenderingJiraFixturesTest
         { "PDFBOX-5953", "PDFBOX-5953-mail-test2-repaired.pdf", 0, true },
         { "PDFBOX-5953", "PDFBOX-5953-mail-test2-repaired.pdf", 6, true },
         { "PDFBOX-6024", "PDFBOX-6024-gs-bugzilla689309-reduced-bc1_RGB.pdf", 0, true },
-        { "PDFBOX-6024", "PDFBOX-6024-gs-bugzilla689931-reduced-Multiply.pdf", 0, false },
-        { "PDFBOX-6024", "PDFBOX-6024-gs-bugzilla689931-reduced-Screen.pdf", 0, false },
+        { "PDFBOX-6024", "PDFBOX-6024-gs-bugzilla689931-reduced-Multiply.pdf", 0, true },
+        { "PDFBOX-6024", "PDFBOX-6024-gs-bugzilla689931-reduced-Screen.pdf", 0, true },
     };
 
     [Theory]
