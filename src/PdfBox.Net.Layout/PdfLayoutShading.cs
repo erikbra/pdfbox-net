@@ -15,7 +15,8 @@ public sealed class PdfLayoutShading
         float endX,
         float endY,
         float endRadius,
-        IReadOnlyList<PdfLayoutGradientStop> stops)
+        IReadOnlyList<PdfLayoutGradientStop> stops,
+        IReadOnlyList<PdfLayoutShadingTriangle>? triangles = null)
     {
         Index = index;
         ShadingType = shadingType;
@@ -27,6 +28,7 @@ public sealed class PdfLayoutShading
         EndY = endY;
         EndRadius = endRadius;
         Stops = stops.ToArray();
+        Triangles = triangles?.ToArray() ?? [];
     }
 
     /// <summary>
@@ -35,7 +37,8 @@ public sealed class PdfLayoutShading
     public int Index { get; }
 
     /// <summary>
-    /// Gets the PDF shading type. Browser output currently supports axial (2) and radial (3) shadings.
+    /// Gets the PDF shading type. Browser output currently supports axial (2), radial (3),
+    /// and tensor-product patch mesh (7) shadings.
     /// </summary>
     public int ShadingType { get; }
 
@@ -78,9 +81,26 @@ public sealed class PdfLayoutShading
     /// Gets sampled color stops from the PDF shading function.
     /// </summary>
     public IReadOnlyList<PdfLayoutGradientStop> Stops { get; }
+
+    /// <summary>
+    /// Gets the tessellated mesh used for tensor-product patch shadings.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutShadingTriangle> Triangles { get; }
 }
 
 /// <summary>
 /// A color sample in a browser-representable PDF shading.
 /// </summary>
 public readonly record struct PdfLayoutGradientStop(float Offset, PdfLayoutColor Color);
+
+/// <summary>
+/// A solid-color triangle approximating part of a PDF patch mesh.
+/// </summary>
+public readonly record struct PdfLayoutShadingTriangle(
+    float X1,
+    float Y1,
+    float X2,
+    float Y2,
+    float X3,
+    float Y3,
+    PdfLayoutColor Color);

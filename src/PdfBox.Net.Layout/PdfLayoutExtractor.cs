@@ -1630,7 +1630,7 @@ public static class PdfLayoutExtractor
             }
 
             PDShading? shading = GetResources()?.GetShading(shadingName);
-            if (shading is not PDShadingType2 axial)
+            if (shading is not PDShadingType2 && shading is not PDShadingType7)
             {
                 if (shading is not null && _reportedUnsupportedShadingTypes.Add(shading.GetShadingType()))
                 {
@@ -1646,7 +1646,14 @@ public static class PdfLayoutExtractor
 
             try
             {
-                CollectShading(axial);
+                if (shading is PDShadingType7 tensor)
+                {
+                    CollectTensorShading(tensor);
+                }
+                else
+                {
+                    CollectShading((PDShadingType2)shading!);
+                }
             }
             catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException)
             {
@@ -1813,6 +1820,373 @@ public static class PdfLayoutExtractor
                 endY,
                 endRadius,
                 stops));
+        }
+
+        private void CollectTensorShading(PDShadingType7 shading)
+        {
+            const int targetTriangleBudget = 2048;
+
+            if (shading.GetCOSObject() is not COSStream stream)
+            {
+                return;
+            }
+
+            PDRange? rangeX = shading.GetDecodeForParameter(0);
+            PDRange? rangeY = shading.GetDecodeForParameter(1);
+            int bitsPerFlag = shading.GetBitsPerFlag();
+            int bitsPerCoordinate = shading.GetBitsPerCoordinate();
+            int bitsPerComponent = shading.GetBitsPerComponent();
+            int componentCount = shading.GetNumberOfColorComponents();
+            if (rangeX is null || rangeY is null || componentCount <= 0 ||
+                bitsPerFlag is <= 0 or > 32 || bitsPerCoordinate is <= 0 or > 32 ||
+                bitsPerComponent is <= 0 or > 32)
+            {
+                throw new IOException("Invalid tensor patch mesh parameters.");
+            }
+
+            PDRange[] colorRanges = new PDRange[componentCount];
+            for (int index = 0; index < componentCount; index++)
+            {
+                colorRanges[index] = shading.GetDecodeForParameter(index + 2)
+                    ?? throw new IOException("Range missing in shading /Decode entry.");
+            }
+
+            PDGraphicsState graphicsState = GetGraphicsState();
+            Matrix ctm = graphicsState.GetCurrentTransformationMatrix();
+            float alpha = graphicsState.GetNonStrokeAlphaConstant();
+            List<TensorPatchData> patches = [];
+            TensorPatchData? previousPatch = null;
+            using Stream input = stream.CreateInputStream();
+            BitInput bitInput = new(input);
+            while (bitInput.TryReadBits(bitsPerFlag, out uint rawFlag))
+            {
+                int flag = (int)(rawFlag & 3);
+                TensorPatchData? patch = ReadTensorPatch(
+                    bitInput,
+                    flag,
+                    previousPatch,
+                    bitsPerCoordinate,
+                    bitsPerComponent,
+                    componentCount,
+                    rangeX,
+                    rangeY,
+                    colorRanges);
+                if (patch is null)
+                {
+                    break;
+                }
+
+                patches.Add(patch);
+                previousPatch = patch;
+            }
+
+            if (patches.Count == 0)
+            {
+                return;
+            }
+
+            int subdivisions = Math.Clamp(
+                (int)Math.Floor(Math.Sqrt(targetTriangleBudget / (2d * patches.Count))),
+                1,
+                12);
+            List<PdfLayoutShadingTriangle> triangles = [];
+            foreach (TensorPatchData patch in patches)
+            {
+                TessellateTensorPatch(patch, shading, ctm, alpha, subdivisions, triangles);
+            }
+
+            if (triangles.Count == 0)
+            {
+                return;
+            }
+
+            PdfLayoutRectangle bounds = CurrentClipBounds(graphicsState) ?? TriangleBounds(triangles);
+            _shadings.Add(new PdfLayoutShading(
+                _shadings.Count,
+                shading.GetShadingType(),
+                bounds,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                [],
+                triangles));
+        }
+
+        private static TensorPatchData? ReadTensorPatch(
+            BitInput input,
+            int flag,
+            TensorPatchData? previousPatch,
+            int bitsPerCoordinate,
+            int bitsPerComponent,
+            int componentCount,
+            PDRange rangeX,
+            PDRange rangeY,
+            IReadOnlyList<PDRange> colorRanges)
+        {
+            PointValue[] points = new PointValue[16];
+            float[][] colors = Enumerable.Range(0, 4).Select(_ => new float[componentCount]).ToArray();
+            int pointStart = 0;
+            int colorStart = 0;
+            if (flag != 0)
+            {
+                if (previousPatch is null)
+                {
+                    return null;
+                }
+
+                PointValue[] edge = previousPatch.GetImplicitEdge(flag);
+                float[][] implicitColors = previousPatch.GetImplicitColors(flag);
+                Array.Copy(edge, points, edge.Length);
+                Array.Copy(implicitColors[0], colors[0], componentCount);
+                Array.Copy(implicitColors[1], colors[1], componentCount);
+                pointStart = 4;
+                colorStart = 2;
+            }
+
+            ulong maxCoordinate = MaxSample(bitsPerCoordinate);
+            ulong maxComponent = MaxSample(bitsPerComponent);
+            for (int index = pointStart; index < points.Length; index++)
+            {
+                if (!input.TryReadBits(bitsPerCoordinate, out uint sourceX) ||
+                    !input.TryReadBits(bitsPerCoordinate, out uint sourceY))
+                {
+                    return null;
+                }
+
+                points[index] = new PointValue(
+                    Interpolate(sourceX, maxCoordinate, rangeX.GetMin(), rangeX.GetMax()),
+                    Interpolate(sourceY, maxCoordinate, rangeY.GetMin(), rangeY.GetMax()));
+            }
+
+            for (int corner = colorStart; corner < colors.Length; corner++)
+            {
+                for (int component = 0; component < componentCount; component++)
+                {
+                    if (!input.TryReadBits(bitsPerComponent, out uint sourceColor))
+                    {
+                        return null;
+                    }
+
+                    colors[corner][component] = Interpolate(
+                        sourceColor,
+                        maxComponent,
+                        colorRanges[component].GetMin(),
+                        colorRanges[component].GetMax());
+                }
+            }
+
+            return new TensorPatchData(points, colors);
+        }
+
+        private void TessellateTensorPatch(
+            TensorPatchData patch,
+            PDShadingType7 shading,
+            Matrix ctm,
+            float alpha,
+            int subdivisions,
+            ICollection<PdfLayoutShadingTriangle> triangles)
+        {
+            PointValue[][] points = new PointValue[subdivisions + 1][];
+            for (int vIndex = 0; vIndex <= subdivisions; vIndex++)
+            {
+                points[vIndex] = new PointValue[subdivisions + 1];
+                double v = vIndex / (double)subdivisions;
+                for (int uIndex = 0; uIndex <= subdivisions; uIndex++)
+                {
+                    double u = uIndex / (double)subdivisions;
+                    PointValue point = patch.Evaluate(u, v);
+                    (float x, float y) = NormalizePoint(point.X, point.Y, ctm);
+                    points[vIndex][uIndex] = new PointValue(x, y);
+                }
+            }
+
+            for (int vIndex = 0; vIndex < subdivisions; vIndex++)
+            {
+                for (int uIndex = 0; uIndex < subdivisions; uIndex++)
+                {
+                    PointValue p00 = points[vIndex][uIndex];
+                    PointValue p10 = points[vIndex][uIndex + 1];
+                    PointValue p01 = points[vIndex + 1][uIndex];
+                    PointValue p11 = points[vIndex + 1][uIndex + 1];
+                    AddTensorTriangle(patch, shading, alpha, p00, p10, p01,
+                        (uIndex + (1d / 3)) / subdivisions,
+                        (vIndex + (1d / 3)) / subdivisions,
+                        triangles);
+                    AddTensorTriangle(patch, shading, alpha, p01, p10, p11,
+                        (uIndex + (2d / 3)) / subdivisions,
+                        (vIndex + (2d / 3)) / subdivisions,
+                        triangles);
+                }
+            }
+        }
+
+        private void AddTensorTriangle(
+            TensorPatchData patch,
+            PDShadingType7 shading,
+            float alpha,
+            PointValue p1,
+            PointValue p2,
+            PointValue p3,
+            double u,
+            double v,
+            ICollection<PdfLayoutShadingTriangle> triangles)
+        {
+            float[] parameters = patch.EvaluateColor(u, v);
+            float[] components = shading.GetFunction() is null ? parameters : shading.EvalFunction(parameters);
+            PdfLayoutColor color = ResolveGraphicsColor(
+                new PDColor(components, shading.GetColorSpace()),
+                alpha,
+                _pageNumber,
+                _diagnostics,
+                "shading");
+            triangles.Add(new PdfLayoutShadingTriangle(
+                p1.X, p1.Y,
+                p2.X, p2.Y,
+                p3.X, p3.Y,
+                color));
+        }
+
+        private static PdfLayoutRectangle TriangleBounds(IReadOnlyList<PdfLayoutShadingTriangle> triangles)
+        {
+            float left = triangles.Min(triangle => MathF.Min(triangle.X1, MathF.Min(triangle.X2, triangle.X3)));
+            float top = triangles.Min(triangle => MathF.Min(triangle.Y1, MathF.Min(triangle.Y2, triangle.Y3)));
+            float right = triangles.Max(triangle => MathF.Max(triangle.X1, MathF.Max(triangle.X2, triangle.X3)));
+            float bottom = triangles.Max(triangle => MathF.Max(triangle.Y1, MathF.Max(triangle.Y2, triangle.Y3)));
+            return new PdfLayoutRectangle(left, top, right - left, bottom - top);
+        }
+
+        private static ulong MaxSample(int bits) => bits == 32 ? uint.MaxValue : (1UL << bits) - 1;
+
+        private static float Interpolate(uint source, ulong sourceMax, float destinationMin, float destinationMax)
+        {
+            return destinationMin + ((float)(source / (double)sourceMax) * (destinationMax - destinationMin));
+        }
+
+        private readonly record struct PointValue(float X, float Y);
+
+        private sealed class TensorPatchData
+        {
+            private readonly PointValue[][] _controlPoints;
+
+            public TensorPatchData(PointValue[] points, float[][] colors)
+            {
+                Colors = colors;
+                _controlPoints = Enumerable.Range(0, 4).Select(_ => new PointValue[4]).ToArray();
+                for (int index = 0; index < 4; index++)
+                {
+                    _controlPoints[0][index] = points[index];
+                    _controlPoints[3][index] = points[9 - index];
+                }
+
+                _controlPoints[1][0] = points[11];
+                _controlPoints[1][1] = points[12];
+                _controlPoints[1][2] = points[13];
+                _controlPoints[1][3] = points[4];
+                _controlPoints[2][0] = points[10];
+                _controlPoints[2][1] = points[15];
+                _controlPoints[2][2] = points[14];
+                _controlPoints[2][3] = points[5];
+            }
+
+            public float[][] Colors { get; }
+
+            public PointValue Evaluate(double u, double v)
+            {
+                double[] bu = Bernstein(u);
+                double[] bv = Bernstein(v);
+                double x = 0;
+                double y = 0;
+                for (int row = 0; row < 4; row++)
+                {
+                    for (int column = 0; column < 4; column++)
+                    {
+                        double weight = bu[row] * bv[column];
+                        x += _controlPoints[row][column].X * weight;
+                        y += _controlPoints[row][column].Y * weight;
+                    }
+                }
+
+                return new PointValue((float)x, (float)y);
+            }
+
+            public float[] EvaluateColor(double u, double v)
+            {
+                float[] result = new float[Colors[0].Length];
+                for (int component = 0; component < result.Length; component++)
+                {
+                    result[component] = (float)(
+                        ((1 - v) * (((1 - u) * Colors[0][component]) + (u * Colors[3][component]))) +
+                        (v * (((1 - u) * Colors[1][component]) + (u * Colors[2][component]))));
+                }
+
+                return result;
+            }
+
+            public PointValue[] GetImplicitEdge(int flag)
+            {
+                return flag switch
+                {
+                    1 => Enumerable.Range(0, 4).Select(index => _controlPoints[index][3]).ToArray(),
+                    2 => Enumerable.Range(0, 4).Select(index => _controlPoints[3][3 - index]).ToArray(),
+                    3 => Enumerable.Range(0, 4).Select(index => _controlPoints[3 - index][0]).ToArray(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(flag))
+                };
+            }
+
+            public float[][] GetImplicitColors(int flag)
+            {
+                return flag switch
+                {
+                    1 => [Colors[1], Colors[2]],
+                    2 => [Colors[2], Colors[3]],
+                    3 => [Colors[3], Colors[0]],
+                    _ => throw new ArgumentOutOfRangeException(nameof(flag))
+                };
+            }
+
+            private static double[] Bernstein(double value)
+            {
+                double inverse = 1 - value;
+                return
+                [
+                    inverse * inverse * inverse,
+                    3 * value * inverse * inverse,
+                    3 * value * value * inverse,
+                    value * value * value
+                ];
+            }
+        }
+
+        private sealed class BitInput(Stream input)
+        {
+            private int _bitsRemaining;
+            private int _currentByte;
+
+            public bool TryReadBits(int count, out uint value)
+            {
+                value = 0;
+                for (int index = 0; index < count; index++)
+                {
+                    if (_bitsRemaining == 0)
+                    {
+                        _currentByte = input.ReadByte();
+                        if (_currentByte < 0)
+                        {
+                            return false;
+                        }
+
+                        _bitsRemaining = 8;
+                    }
+
+                    value = (value << 1) | (uint)((_currentByte >> (_bitsRemaining - 1)) & 1);
+                    _bitsRemaining--;
+                }
+
+                return true;
+            }
         }
 
         private PdfLayoutRectangle? ShadingBounds(PDShading shading, Matrix ctm)

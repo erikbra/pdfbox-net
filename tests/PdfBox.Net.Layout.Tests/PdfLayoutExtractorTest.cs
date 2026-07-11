@@ -69,6 +69,32 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_TensorPatchShading_CapturesAColoredTriangleMesh()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDShadingType7 shading = CreateTensorPatchShading(document, patchCount: 8);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.AddRect(100, 500, 100, 100);
+            content.Clip();
+            content.ShadingFill(shading);
+        }
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutPage layoutPage = Assert.Single(layout.Pages);
+        PdfLayoutShading extracted = Assert.Single(layoutPage.Shadings);
+        Assert.Equal(PDShading.SHADING_TYPE7, extracted.ShadingType);
+        Assert.Equal(1936, extracted.Triangles.Count);
+        Assert.True(extracted.Triangles.Count <= 2048);
+        Assert.Contains(extracted.Triangles, triangle => triangle.Color.Red > triangle.Color.Blue);
+        Assert.Contains(extracted.Triangles, triangle => triangle.Color.Blue > triangle.Color.Red);
+        Assert.DoesNotContain(layoutPage.Diagnostics, diagnostic => diagnostic.Code == "shading-type-unsupported");
+    }
+
+    [Fact]
     public void Extract_SinglePageText_CapturesGlyphRunsLinesAndBounds()
     {
         using PDDocument document = CreateTextDocument("""
@@ -459,6 +485,53 @@ public class PdfLayoutExtractorTest
         shading.SetColorSpace(PDDeviceRGB.Instance);
         shading.SetCoords(COSArray.Of(100f, 400f, 400f, 400f));
         shading.SetFunction(new PDFunctionType2(functionDictionary));
+        return shading;
+    }
+
+    private static PDShadingType7 CreateTensorPatchShading(PDDocument document, int patchCount)
+    {
+        COSStream stream = document.GetDocument().CreateCOSStream();
+        PDShadingType7 shading = new(stream);
+        shading.SetShadingType(PDShading.SHADING_TYPE7);
+        shading.SetColorSpace(PDDeviceRGB.Instance);
+        shading.SetBitsPerFlag(8);
+        shading.SetBitsPerCoordinate(8);
+        shading.SetBitsPerComponent(8);
+        shading.SetDecodeValues(COSArray.Of(100f, 200f, 500f, 600f, 0f, 1f, 0f, 1f, 0f, 1f));
+
+        byte[] coordinates =
+        [
+            0, 0,
+            0, 85,
+            0, 170,
+            0, 255,
+            85, 255,
+            170, 255,
+            255, 255,
+            255, 170,
+            255, 85,
+            255, 0,
+            170, 0,
+            85, 0,
+            85, 85,
+            85, 170,
+            170, 170,
+            170, 85
+        ];
+        byte[] colors =
+        [
+            255, 0, 0,
+            0, 255, 0,
+            0, 0, 255,
+            255, 255, 255
+        ];
+        using Stream output = stream.CreateOutputStream();
+        for (int index = 0; index < patchCount; index++)
+        {
+            output.WriteByte(0);
+            output.Write(coordinates);
+            output.Write(colors);
+        }
         return shading;
     }
 

@@ -1095,11 +1095,31 @@ public static class PdfHtmlConverter
         foreach (PdfLayoutShading shading in page.Shadings)
         {
             WriteShadingDefinition(html, page, shading);
+            if (shading.ShadingType == 7)
+            {
+                html.Append("        <clipPath id=\"")
+                    .Append(ShadingId(page, shading))
+                    .Append("-clip\"><rect x=\"")
+                    .Append(SvgNumber(shading.Bounds.X))
+                    .Append("\" y=\"")
+                    .Append(SvgNumber(shading.Bounds.Y))
+                    .Append("\" width=\"")
+                    .Append(SvgNumber(shading.Bounds.Width))
+                    .Append("\" height=\"")
+                    .Append(SvgNumber(shading.Bounds.Height))
+                    .AppendLine("\" /></clipPath>");
+            }
         }
 
         html.AppendLine("      </defs>");
         foreach (PdfLayoutShading shading in page.Shadings)
         {
+            if (shading.ShadingType == 7)
+            {
+                WriteTensorShading(html, page, shading);
+                continue;
+            }
+
             html.Append("      <rect class=\"pdf-shading\" data-shading-index=\"")
                 .Append(shading.Index.ToString(CultureInfo.InvariantCulture))
                 .Append("\" x=\"")
@@ -1121,6 +1141,11 @@ public static class PdfHtmlConverter
 
     private static void WriteShadingDefinition(StringBuilder html, PdfLayoutPage page, PdfLayoutShading shading)
     {
+        if (shading.ShadingType == 7)
+        {
+            return;
+        }
+
         string id = ShadingId(page, shading);
         if (shading.ShadingType == 3)
         {
@@ -1155,6 +1180,32 @@ public static class PdfHtmlConverter
             .AppendLine("\">");
         WriteShadingStops(html, shading.Stops);
         html.AppendLine("        </linearGradient>");
+    }
+
+    private static void WriteTensorShading(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfLayoutShading shading)
+    {
+        html.Append("      <g class=\"pdf-shading pdf-tensor-shading\" data-shading-index=\"")
+            .Append(shading.Index.ToString(CultureInfo.InvariantCulture))
+            .Append("\" clip-path=\"url(#")
+            .Append(ShadingId(page, shading))
+            .AppendLine("-clip)\">");
+        foreach (PdfLayoutShadingTriangle triangle in shading.Triangles)
+        {
+            html.Append("        <path d=\"M ")
+                .Append(SvgNumber(triangle.X1)).Append(' ').Append(SvgNumber(triangle.Y1))
+                .Append(" L ").Append(SvgNumber(triangle.X2)).Append(' ').Append(SvgNumber(triangle.Y2))
+                .Append(" L ").Append(SvgNumber(triangle.X3)).Append(' ').Append(SvgNumber(triangle.Y3))
+                .Append(" Z\" fill=\"").Append(ColorHex(triangle.Color))
+                .Append("\" fill-opacity=\"").Append(SvgNumber(triangle.Color.Alpha))
+                .Append("\" stroke=\"").Append(ColorHex(triangle.Color))
+                .Append("\" stroke-opacity=\"").Append(SvgNumber(triangle.Color.Alpha))
+                .AppendLine("\" stroke-width=\"0.1\" />");
+        }
+
+        html.AppendLine("      </g>");
     }
 
     private static void WriteShadingStops(StringBuilder html, IReadOnlyList<PdfLayoutGradientStop> stops)
