@@ -1000,6 +1000,7 @@ public static class PdfHtmlConverter
         Dictionary<int, PdfLayoutImage> imagesByIndex = page.Images.ToDictionary(image => image.Index);
         Dictionary<int, PdfLayoutPath> pathsByIndex = vectorPaths.ToDictionary(path => path.Index);
         List<PdfLayoutPath> pathBatch = [];
+        PdfLayoutPath[] precedingUnderpaint = [];
         int vectorLayerIndex = 0;
 
         void FlushPaths()
@@ -1024,6 +1025,11 @@ public static class PdfHtmlConverter
         {
             if (operation.Kind == PdfLayoutPaintOperationKind.Path)
             {
+                if (pathBatch.Count == 0)
+                {
+                    precedingUnderpaint = [];
+                }
+
                 if (pathsByIndex.TryGetValue(operation.Index, out PdfLayoutPath? path))
                 {
                     pathBatch.Add(path);
@@ -1032,13 +1038,17 @@ public static class PdfHtmlConverter
                 continue;
             }
 
-            PdfLayoutPath[] immediateUnderpaint = pathBatch.ToArray();
+            if (pathBatch.Count > 0)
+            {
+                precedingUnderpaint = pathBatch.ToArray();
+            }
+
             FlushPaths();
             if (imagesByIndex.TryGetValue(operation.Index, out PdfLayoutImage? image) &&
                 imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
             {
                 WriteImage(html, image, asset, scale);
-                PdfLayoutPath[] preservedSpotUnderpaint = immediateUnderpaint
+                PdfLayoutPath[] preservedSpotUnderpaint = precedingUnderpaint
                     .Where(path => IsPreservedSpotUnderpaint(path, image))
                     .ToArray();
                 if (preservedSpotUnderpaint.Length > 0)
@@ -1339,9 +1349,10 @@ public static class PdfHtmlConverter
             .ToArray();
         if (groups.Length == 0)
         {
+            WriteVectorDefinitions(html, [], paths, clipIdPrefix);
             foreach (PdfLayoutPath path in paths)
             {
-                WriteVectorPath(html, path);
+                WriteVectorPath(html, path, clipIdPrefix);
             }
 
             return;
@@ -1358,7 +1369,7 @@ public static class PdfHtmlConverter
                     .OrderBy(vectorGroup => vectorGroup.FirstPathIndex)
                     .ThenByDescending(vectorGroup => vectorGroup.LastPathIndex)
                     .ToArray());
-        WriteVectorDefinitions(html, groups, clipIdPrefix);
+        WriteVectorDefinitions(html, groups, paths, clipIdPrefix);
         int lastPathIndex = paths.Max(path => path.Index);
         WriteVectorContentRange(
             html,
@@ -1386,7 +1397,13 @@ public static class PdfHtmlConverter
         {
             foreach (PdfLayoutVectorGroup group in childGroups)
             {
-                WriteVectorPathsBefore(html, pathsByIndex, includedPathIndexes, ref pathIndex, group.FirstPathIndex);
+                WriteVectorPathsBefore(
+                    html,
+                    pathsByIndex,
+                    includedPathIndexes,
+                    clipIdPrefix,
+                    ref pathIndex,
+                    group.FirstPathIndex);
                 if (group.LastPathIndex < pathIndex)
                 {
                     continue;
@@ -1445,18 +1462,28 @@ public static class PdfHtmlConverter
             }
         }
 
-        WriteVectorPathsBefore(html, pathsByIndex, includedPathIndexes, ref pathIndex, lastPathIndex + 1);
+        WriteVectorPathsBefore(
+            html,
+            pathsByIndex,
+            includedPathIndexes,
+            clipIdPrefix,
+            ref pathIndex,
+            lastPathIndex + 1);
     }
 
     private static void WriteVectorDefinitions(
         StringBuilder html,
         IReadOnlyList<PdfLayoutVectorGroup> groups,
+        IReadOnlyList<PdfLayoutPath> paths,
         string clipIdPrefix)
     {
         PdfLayoutVectorGroup[] clippedGroups = groups
             .Where(static group => group.ClipBounds.HasValue)
             .ToArray();
-        if (clippedGroups.Length == 0)
+        PdfLayoutPath[] clippedPaths = paths
+            .Where(static path => path.ClipBounds.HasValue)
+            .ToArray();
+        if (clippedGroups.Length == 0 && clippedPaths.Length == 0)
         {
             return;
         }
@@ -1478,12 +1505,33 @@ public static class PdfHtmlConverter
                 .AppendLine("\" /></clipPath>");
         }
 
+        foreach (PdfLayoutPath path in clippedPaths)
+        {
+            PdfLayoutRectangle bounds = path.ClipBounds!.Value;
+            html.Append("        <clipPath id=\"")
+                .Append(VectorClipPathId(clipIdPrefix, path))
+                .Append("\"><rect x=\"")
+                .Append(SvgNumber(bounds.X))
+                .Append("\" y=\"")
+                .Append(SvgNumber(bounds.Y))
+                .Append("\" width=\"")
+                .Append(SvgNumber(bounds.Width))
+                .Append("\" height=\"")
+                .Append(SvgNumber(bounds.Height))
+                .AppendLine("\" /></clipPath>");
+        }
+
         html.AppendLine("      </defs>");
     }
 
     private static string VectorClipPathId(string clipIdPrefix, PdfLayoutVectorGroup group)
     {
         return clipIdPrefix + "-clip-" + group.Index.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static string VectorClipPathId(string clipIdPrefix, PdfLayoutPath path)
+    {
+        return clipIdPrefix + "-path-clip-" + path.Index.ToString(CultureInfo.InvariantCulture);
     }
 
     private static string CssBlendMode(BlendMode blendMode)
@@ -1513,6 +1561,7 @@ public static class PdfHtmlConverter
         StringBuilder html,
         IReadOnlyDictionary<int, PdfLayoutPath> pathsByIndex,
         IReadOnlySet<int> includedPathIndexes,
+        string clipIdPrefix,
         ref int pathIndex,
         int exclusivePathIndex)
     {
@@ -1520,20 +1569,30 @@ public static class PdfHtmlConverter
         {
             if (includedPathIndexes.Contains(pathIndex) && pathsByIndex.TryGetValue(pathIndex, out PdfLayoutPath? path))
             {
-                WriteVectorPath(html, path);
+                WriteVectorPath(html, path, clipIdPrefix);
             }
 
             pathIndex++;
         }
     }
 
-    private static void WriteVectorPath(StringBuilder html, PdfLayoutPath path)
+    private static void WriteVectorPath(
+        StringBuilder html,
+        PdfLayoutPath path,
+        string? clipIdPrefix = null)
     {
         html.Append("      <path data-path-index=\"")
             .Append(path.Index.ToString(CultureInfo.InvariantCulture))
             .Append("\" d=\"")
             .Append(HtmlAttribute(SvgPathData(path.Commands)))
             .Append("\"");
+
+        if (path.ClipBounds.HasValue && clipIdPrefix is not null)
+        {
+            html.Append(" clip-path=\"url(#")
+                .Append(VectorClipPathId(clipIdPrefix, path))
+                .Append(")\"");
+        }
 
         if (path.FillColor is PdfLayoutColor fill)
         {

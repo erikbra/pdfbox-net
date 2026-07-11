@@ -129,6 +129,48 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_ConsecutiveOverprintingDeviceNImages_PreserveBothUnderlyingProcessMarks()
+    {
+        using PDDocument document = CreateIndexedDeviceNOverprintDocument(
+            imageOverprint: true,
+            imageColorants: ["Cyan", "Black", "SpotGreen", "SpotRed"],
+            placementCount: 2);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout).Html);
+
+        Assert.Equal(2, dom.Descendants().Count(element =>
+            element.Name.LocalName == "path" && element.Attribute("data-path-index")?.Value == "0"));
+        Assert.Equal(2, dom.Descendants().Count(element =>
+            element.Name.LocalName == "path" && element.Attribute("data-path-index")?.Value == "1"));
+    }
+
+    [Fact]
+    public void Convert_FormScopedClips_AreAppliedToIndividualPaths()
+    {
+        using PDDocument document = CreateFormScopedClipDocument();
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfLayoutPage page = Assert.Single(layout.Pages);
+        Assert.Equal(2, page.Paths.Count);
+        Assert.NotNull(page.Paths[0].ClipBounds);
+        Assert.NotNull(page.Paths[1].ClipBounds);
+        Assert.NotEqual(page.Paths[0].ClipBounds, page.Paths[1].ClipBounds);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout).Html);
+        XElement[] paths = dom.Descendants()
+            .Where(element => element.Name.LocalName == "path" && element.Attribute("data-path-index") is not null)
+            .ToArray();
+        Assert.Equal(2, paths.Length);
+        Assert.All(paths, path => Assert.StartsWith("url(#pdf-vector-page-1-", path.Attribute("clip-path")?.Value));
+        Assert.Equal(2, dom.Descendants().Count(element =>
+            element.Name.LocalName == "clipPath" && element.Attribute("id")?.Value.Contains("path-clip", StringComparison.Ordinal) == true));
+    }
+
+    [Fact]
     public void Convert_TransparencyGroup_EmitsInvokingBlendMode()
     {
         using PDDocument document = new();
@@ -3018,7 +3060,8 @@ public class PdfHtmlConverterTest
 
     private static PDDocument CreateIndexedDeviceNOverprintDocument(
         bool imageOverprint,
-        IReadOnlyList<string> imageColorants)
+        IReadOnlyList<string> imageColorants,
+        int placementCount = 1)
     {
         PDDocument document = new();
         PDPage page = new();
@@ -3049,13 +3092,46 @@ public class PdfHtmlConverterTest
         graphicsState.SetNonStrokingOverprintControl(imageOverprint);
         using (PDPageContentStream content = new(document, page))
         {
-            content.SetNonStrokingColor(0f, 0f, 1f, 0f);
-            content.AddRect(10, 10, 20, 20);
-            content.Fill();
+            for (int index = 0; index < placementCount; index++)
+            {
+                content.SetNonStrokingColor(0f, 0f, 1f, 0f);
+                content.AddRect(10 + index * 30, 10, 20, 20);
+                content.Fill();
+            }
+
             content.SetGraphicsStateParameters(graphicsState);
-            content.DrawImage(image, 10, 10, 20, 20);
+            for (int index = 0; index < placementCount; index++)
+            {
+                content.DrawImage(image, 10 + index * 30, 10, 20, 20);
+            }
         }
 
+        return document;
+    }
+
+    private static PDDocument CreateFormScopedClipDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDFormXObject form = new(new PDStream(document));
+        form.SetBBox(new PDRectangle(0, 0, 100, 100));
+        using (PDFormContentStream content = new(form))
+        {
+            content.SaveGraphicsState();
+            content.AddRect(0, 0, 20, 20);
+            content.Clip();
+            content.SetNonStrokingColor(1f, 0f, 0f);
+            content.AddRect(0, 0, 20, 20);
+            content.Fill();
+            content.RestoreGraphicsState();
+            content.SetNonStrokingColor(0f, 0f, 1f);
+            content.AddRect(60, 60, 20, 20);
+            content.Fill();
+        }
+
+        using PDPageContentStream pageContent = new(document, page);
+        pageContent.DrawForm(form);
         return document;
     }
 
