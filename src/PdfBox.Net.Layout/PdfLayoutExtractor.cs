@@ -1753,11 +1753,14 @@ public static class PdfLayoutExtractor
             int index = _paths.Count;
             PdfLayoutRectangle bounds = Bounds(commands);
             bool usesShapeAlpha = graphicsState.GetAlphaSource();
+            bool suppressFill = includeFill && IsProcessColorOverprintNoOp(graphicsState);
             _paths.Add(new PdfLayoutPath(
                 index,
                 commands,
                 bounds,
-                includeFill ? ResolveColor(graphicsState.GetNonStrokingColor(), graphicsState.GetNonStrokeAlphaConstant(), index, "fill") : null,
+                includeFill && !suppressFill
+                    ? ResolveColor(graphicsState.GetNonStrokingColor(), graphicsState.GetNonStrokeAlphaConstant(), index, "fill")
+                    : null,
                 includeStroke ? StrokeStyle(graphicsState, index) : null,
                 fillRule,
                 usesShapeAlpha));
@@ -1774,6 +1777,18 @@ public static class PdfLayoutExtractor
             {
                 groupPathBounds.Add(bounds);
             }
+        }
+
+        private static bool IsProcessColorOverprintNoOp(PDGraphicsState graphicsState)
+        {
+            if (!graphicsState.IsNonStrokingOverprint() || graphicsState.GetOverprintMode() != 1)
+            {
+                return false;
+            }
+
+            PDColor color = graphicsState.GetNonStrokingColor();
+            return color.GetColorSpace() is PDDeviceCMYK &&
+                color.GetComponents().All(static component => component == 0f);
         }
 
         private void CollectShading(PDShadingType2 shading)

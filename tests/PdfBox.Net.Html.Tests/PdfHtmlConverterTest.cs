@@ -27,6 +27,50 @@ namespace PdfBox.Net.Html.Tests;
 public class PdfHtmlConverterTest
 {
     [Fact]
+    public void Convert_DeviceCmykWhiteOverprintModeOne_DoesNotPaintFill()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        PDExtendedGraphicsState overprintModeZero = new();
+        overprintModeZero.SetNonStrokingOverprintControl(true);
+        overprintModeZero.SetOverprintMode(0);
+        PDExtendedGraphicsState overprintModeOne = new();
+        overprintModeOne.SetNonStrokingOverprintControl(true);
+        overprintModeOne.SetOverprintMode(1);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.SetNonStrokingColor(0f, 0f, 0f, 0f);
+            content.AddRect(10, 10, 10, 10);
+            content.Fill();
+            content.SetGraphicsStateParameters(overprintModeZero);
+            content.AddRect(30, 10, 10, 10);
+            content.Fill();
+            content.SetGraphicsStateParameters(overprintModeOne);
+            content.AddRect(50, 10, 10, 10);
+            content.Fill();
+        }
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        IReadOnlyList<PdfLayoutPath> paths = Assert.Single(layout.Pages).Paths;
+        Assert.Equal(3, paths.Count);
+        Assert.True(paths[0].IsFilled);
+        Assert.True(paths[1].IsFilled);
+        Assert.False(paths[2].IsFilled);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+        XElement[] vectorPaths = dom.Descendants()
+            .Where(element => element.Name.LocalName == "path" && element.Attribute("data-path-index") is not null)
+            .ToArray();
+        Assert.Equal("#FFFFFF", vectorPaths[0].Attribute("fill")?.Value);
+        Assert.Equal("#FFFFFF", vectorPaths[1].Attribute("fill")?.Value);
+        Assert.Equal("none", vectorPaths[2].Attribute("fill")?.Value);
+    }
+
+    [Fact]
     public void Convert_TransparencyGroup_EmitsInvokingBlendMode()
     {
         using PDDocument document = new();
