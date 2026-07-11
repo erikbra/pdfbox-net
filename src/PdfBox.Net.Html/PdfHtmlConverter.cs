@@ -1032,15 +1032,50 @@ public static class PdfHtmlConverter
                 continue;
             }
 
+            PdfLayoutPath[] immediateUnderpaint = pathBatch.ToArray();
             FlushPaths();
             if (imagesByIndex.TryGetValue(operation.Index, out PdfLayoutImage? image) &&
                 imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
             {
                 WriteImage(html, image, asset, scale);
+                PdfLayoutPath[] preservedSpotUnderpaint = immediateUnderpaint
+                    .Where(path => IsPreservedSpotUnderpaint(path, image))
+                    .ToArray();
+                if (preservedSpotUnderpaint.Length > 0)
+                {
+                    WriteVectorLayer(
+                        html,
+                        page,
+                        scale,
+                        preservedSpotUnderpaint,
+                        "pdf-vector-layer pdf-overprint-preserved-layer",
+                        "overprint-" + vectorLayerIndex.ToString(CultureInfo.InvariantCulture));
+                    vectorLayerIndex++;
+                }
             }
         }
 
         FlushPaths();
+    }
+
+    private static bool IsPreservedSpotUnderpaint(PdfLayoutPath path, PdfLayoutImage image)
+    {
+        if (!image.Overprint || path.ColorantNames.Count == 0 || image.ColorantNames.Count == 0 ||
+            !BoundsOverlap(path.Bounds, image.Bounds))
+        {
+            return false;
+        }
+
+        HashSet<string> imageColorants = new(image.ColorantNames, StringComparer.OrdinalIgnoreCase);
+        return path.ColorantNames.All(colorant => !imageColorants.Contains(colorant));
+    }
+
+    private static bool BoundsOverlap(PdfLayoutRectangle first, PdfLayoutRectangle second)
+    {
+        return first.X < second.X + second.Width &&
+            first.X + first.Width > second.X &&
+            first.Y < second.Y + second.Height &&
+            first.Y + first.Height > second.Y;
     }
 
     private static void WriteImage(StringBuilder html, PdfLayoutImage image, PdfLayoutImageAsset asset, float scale)

@@ -82,6 +82,11 @@ public sealed class PDIndexed : PDColorSpace
 
     public override string GetName() => Indexed.GetName();
 
+    /// <summary>
+    /// Gets the color space in which the indexed lookup table values are defined.
+    /// </summary>
+    public PDColorSpace GetBaseColorSpace() => _baseColorSpace;
+
     public override int GetNumberOfComponents() => 1;
 
     public override float[] GetDefaultDecode(int bitsPerComponent) => [0f, _highValue];

@@ -16,7 +16,9 @@ public sealed class PdfLayoutImage
         int bitsPerComponent,
         string? colorSpaceName,
         bool interpolate,
-        string? sourceName)
+        string? sourceName,
+        bool overprint = false,
+        IReadOnlyList<string>? colorantNames = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(assetId);
 
@@ -31,6 +33,8 @@ public sealed class PdfLayoutImage
         ColorSpaceName = colorSpaceName;
         Interpolate = interpolate;
         SourceName = sourceName;
+        Overprint = overprint;
+        ColorantNames = colorantNames?.ToArray() ?? [];
     }
 
     /// <summary>
@@ -87,4 +91,14 @@ public sealed class PdfLayoutImage
     /// Gets the PDF resource name when the image was resolved from a named resource.
     /// </summary>
     public string? SourceName { get; }
+
+    /// <summary>
+    /// Gets whether the image is painted with PDF overprint enabled.
+    /// </summary>
+    public bool Overprint { get; }
+
+    /// <summary>
+    /// Gets explicit Separation or DeviceN colorants painted by the image.
+    /// </summary>
+    public IReadOnlyList<string> ColorantNames { get; }
 }

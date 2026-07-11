@@ -1799,7 +1799,10 @@ public static class PdfLayoutExtractor
                     : null,
                 includeStroke ? StrokeStyle(graphicsState, index) : null,
                 fillRule,
-                usesShapeAlpha));
+                usesShapeAlpha,
+                ExplicitColorants(
+                    includeFill ? graphicsState.GetNonStrokingColor() : null,
+                    includeStroke ? graphicsState.GetStrokingColor() : null)));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Path, index));
             if (usesShapeAlpha && !_reportedShapeAlphaPath)
             {
@@ -2532,7 +2535,9 @@ public static class PdfLayoutExtractor
                 image.GetBitsPerComponent(),
                 ColorSpaceName(image, index),
                 image.GetInterpolate(),
-                sourceName));
+                sourceName,
+                GetGraphicsState().IsNonStrokingOverprint() || GetGraphicsState().IsOverprint(),
+                ExplicitColorants(image.GetColorSpace())));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
 
             if (_includeImageAssets)
@@ -2581,7 +2586,9 @@ public static class PdfLayoutExtractor
                 image.GetBitsPerComponent(),
                 ColorSpaceName(image, index),
                 image.GetInterpolate(),
-                null));
+                null,
+                GetGraphicsState().IsNonStrokingOverprint() || GetGraphicsState().IsOverprint(),
+                ExplicitColorants(image.GetColorSpace())));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
 
             if (_includeImageAssets)
@@ -2630,6 +2637,58 @@ public static class PdfLayoutExtractor
                     $"Image {index.ToString(CultureInfo.InvariantCulture)} asset export failed: {ex.Message}",
                     _pageNumber));
             }
+        }
+
+        private static string[] ExplicitColorants(params PDColorSpace?[] colorSpaces)
+        {
+            return colorSpaces
+                .Where(static colorSpace => colorSpace is not null)
+                .SelectMany(static colorSpace => ColorantsFor(colorSpace!))
+                .Where(static name =>
+                    !string.IsNullOrWhiteSpace(name) &&
+                    !string.Equals(name, "None", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(name, "All", StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }
+
+        private static string[] ExplicitColorants(params PDColor?[] colors)
+        {
+            return colors
+                .Where(static color => color is not null)
+                .SelectMany(static color => ColorantsFor(color!))
+                .Where(static name =>
+                    !string.IsNullOrWhiteSpace(name) &&
+                    !string.Equals(name, "None", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(name, "All", StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }
+
+        private static IEnumerable<string> ColorantsFor(PDColor color)
+        {
+            PDColorSpace? colorSpace = color.GetColorSpace();
+            if (colorSpace is not PDDeviceCMYK)
+            {
+                return colorSpace is null ? [] : ColorantsFor(colorSpace);
+            }
+
+            string[] processColorants = ["Cyan", "Magenta", "Yellow", "Black"];
+            float[] components = color.GetComponents();
+            return processColorants
+                .Where((_, index) => index < components.Length && components[index] > 0.0001f)
+                .ToArray();
+        }
+
+        private static IEnumerable<string> ColorantsFor(PDColorSpace colorSpace)
+        {
+            return colorSpace switch
+            {
+                PDIndexed indexed => ColorantsFor(indexed.GetBaseColorSpace()),
+                PDSeparation separation => [separation.GetColorantName()],
+                PDDeviceN deviceN => deviceN.GetColorantNames(),
+                _ => Array.Empty<string>()
+            };
         }
 
         private string? ResolveSourceName(PDXObject xobject)
