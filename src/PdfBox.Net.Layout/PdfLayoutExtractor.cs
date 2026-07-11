@@ -545,7 +545,7 @@ public static class PdfLayoutExtractor
 
             if (options.IncludeImageAssets && options.IncludeTransparencyGroupFallbacks)
             {
-                CollectTransparencyGroupFallbacks(collector.TransparencyGroupBounds);
+                CollectTransparencyGroupFallbacks(collector.KnockoutTransparencyGroupBounds);
             }
         }
 
@@ -1581,7 +1581,7 @@ public static class PdfLayoutExtractor
 
         public IReadOnlyList<PdfLayoutPaintOperation> PaintOperations => _paintOperations;
 
-        public IReadOnlyList<PdfLayoutRectangle> TransparencyGroupBounds => _transparencyGroupBounds;
+        public IReadOnlyList<PdfLayoutRectangle> KnockoutTransparencyGroupBounds => _transparencyGroupBounds;
 
         public override void XObject(PDXObject xobject)
         {
@@ -1638,7 +1638,7 @@ public static class PdfLayoutExtractor
                     {
                         PdfLayoutRectangle bounds = PdfLayoutRectangle.Union(pathBounds);
                         _vectorGroups.Add(completedGroup.Build(_paths.Count - 1, bounds));
-                        if (isTransparencyGroup)
+                        if (isTransparencyGroup && attributes?.IsKnockout() == true)
                         {
                             _transparencyGroupBounds.Add(bounds);
                         }

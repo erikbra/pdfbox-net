@@ -104,7 +104,8 @@ public static class HtmlReviewArtifactGenerator
                 layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
                 {
                     IncludeImageAssets = true,
-                    IncludeFontAssets = true
+                    IncludeFontAssets = true,
+                    IncludeTransparencyGroupFallbacks = true
                 });
                 html = PdfHtmlConverter.Convert(layout);
                 semanticHtml = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
