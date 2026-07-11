@@ -978,7 +978,7 @@ public static class PdfHtmlConverter
         {
             foreach (PdfTextRun run in page.Runs.Where(run => !IsCoveredByTransparencyFallback(page, run.PageBounds)))
             {
-                WriteTextRun(html, run, scale, FixedTextFontSize(run, page.Runs));
+                WriteTextRun(html, run, scale, FixedTextFontSize(run, page.Runs), page.Runs);
             }
         }
 
@@ -1642,7 +1642,12 @@ public static class PdfHtmlConverter
         html.AppendLine(" />");
     }
 
-    private static void WriteTextRun(StringBuilder html, PdfTextRun run, float scale, float fontSize)
+    private static void WriteTextRun(
+        StringBuilder html,
+        PdfTextRun run,
+        float scale,
+        float fontSize,
+        IReadOnlyList<PdfTextRun> pageRuns)
     {
         html.Append("    <span class=\"pdf-text-run\" data-font=\"")
             .Append(HtmlAttribute(run.FontName))
@@ -1667,7 +1672,7 @@ public static class PdfHtmlConverter
         {
             WriteGlyphOutlineTextRun(html, run);
         }
-        else if (ShouldUseFittedText(run))
+        else if (ShouldUseFittedText(run, pageRuns))
         {
             WriteFittedTextRun(html, run, fontSize, scale);
         }
@@ -1747,18 +1752,42 @@ public static class PdfHtmlConverter
             .Append("</text></svg>");
     }
 
-    private static bool ShouldUseFittedText(PdfTextRun run)
+    private static bool ShouldUseFittedText(PdfTextRun run, IReadOnlyList<PdfTextRun> pageRuns)
     {
-        return !run.UsesBrowserFontAsset &&
-            run.FontSize > 0 &&
+        return run.FontSize > 0 &&
             run.Bounds.Height > 0 &&
             run.Bounds.Width > 0 &&
             MathF.Abs(run.Direction) < 0.01f &&
             !string.IsNullOrWhiteSpace(run.Text) &&
-            (HasCompressedGlyphBounds(run) ||
-                HasUntrustedBrowserFontMetrics(run.FontName) &&
-                !HasMathFont(run.FontName) &&
-                !IsSymbolFont(run.FontName));
+            (run.UsesBrowserFontAsset
+                ? HasCompressedGlyphBounds(run) || HasTightlyAdjacentRun(run, pageRuns)
+                : HasCompressedGlyphBounds(run) ||
+                    HasUntrustedBrowserFontMetrics(run.FontName) &&
+                    !HasMathFont(run.FontName) &&
+                    !IsSymbolFont(run.FontName));
+    }
+
+    private static bool HasTightlyAdjacentRun(PdfTextRun run, IReadOnlyList<PdfTextRun> pageRuns)
+    {
+        return pageRuns.Any(candidate =>
+            !ReferenceEquals(candidate, run) &&
+            !string.IsNullOrWhiteSpace(candidate.Text) &&
+            MathF.Abs(candidate.Direction) < 0.01f &&
+            (HasDistinctFixedTextPresentation(run, candidate) || HasCompressedGlyphBounds(candidate)) &&
+            MathF.Abs(RunBaseline(candidate) - RunBaseline(run)) <= 0.75f &&
+            MathF.Min(
+                MathF.Abs(candidate.Bounds.X - run.Bounds.Right),
+                MathF.Abs(run.Bounds.X - candidate.Bounds.Right)) <= 1.5f);
+    }
+
+    private static bool HasDistinctFixedTextPresentation(PdfTextRun first, PdfTextRun second)
+    {
+        return !string.Equals(
+                NormalizeFontName(first.FontName),
+                NormalizeFontName(second.FontName),
+                StringComparison.Ordinal) ||
+            MathF.Abs(first.FontSize - second.FontSize) > 0.01f ||
+            !string.Equals(ColorClass(first.Color), ColorClass(second.Color), StringComparison.Ordinal);
     }
 
     private static bool HasGlyphOutlineFallback(PdfTextRun run)
