@@ -21,6 +21,7 @@ using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Rendering;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Html.Tests;
 
@@ -98,6 +99,32 @@ public class PdfHtmlConverterTest
 
         PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
         Assert.Contains("style=\"mix-blend-mode:multiply\"", html.Html, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(true, false, 1)]
+    [InlineData(true, true, 1)]
+    [InlineData(false, false, 0)]
+    [InlineData(false, true, 0)]
+    public void Extract_TransparencyGroupFallback_SelectsOnlyCompactKnockoutGroups(
+        bool knockout,
+        bool isolated,
+        int expectedFallbacks)
+    {
+        using PDDocument document = CreateCompactTransparencyGroupDocument(knockout, isolated);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true,
+            IncludeTransparencyGroupFallbacks = true
+        });
+
+        PdfLayoutImage[] fallbacks = Assert.Single(layout.Pages).Images
+            .Where(image => image.Kind == PdfLayoutImageKind.TransparencyGroupFallback)
+            .ToArray();
+        Assert.Equal(expectedFallbacks, fallbacks.Length);
+        Assert.Equal(expectedFallbacks, layout.ImageAssets.Count(asset =>
+            asset.AssetId.Contains("transparency-group", StringComparison.Ordinal)));
     }
 
     [Fact]
@@ -2929,6 +2956,30 @@ public class PdfHtmlConverterTest
             content.DrawImage(image, 72, 600, 120, 60);
         }
 
+        return document;
+    }
+
+    private static PDDocument CreateCompactTransparencyGroupDocument(bool knockout, bool isolated)
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDTransparencyGroup group = new(new PDStream(document));
+        group.SetBBox(new PDRectangle(0, 0, 40, 40));
+        PDTransparencyGroupAttributes attributes = new();
+        attributes.GetCOSObject().SetBoolean(COSName.K, knockout);
+        attributes.GetCOSObject().SetBoolean(COSName.GetPDFName("I"), isolated);
+        group.SetGroup(attributes);
+        using (Stream formContent = group.GetContentStream().CreateOutputStream())
+        {
+            formContent.Write(Encoding.ASCII.GetBytes("1 0 0 rg\n0 0 40 40 re\nf\n"));
+        }
+
+        using PDPageContentStream pageContent = new(document, page);
+        pageContent.SaveGraphicsState();
+        pageContent.Transform(new Matrix(1, 0, 0, 1, 100, 300));
+        pageContent.DrawForm(group);
+        pageContent.RestoreGraphicsState();
         return document;
     }
 

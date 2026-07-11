@@ -26,8 +26,10 @@ using System.Text;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Form;
+using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.Patterns;
 using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Graphics.State;
@@ -273,6 +275,128 @@ public class AdvancedRenderingIssue419Test
     }
 
     [Fact]
+    public void RenderImage_KnockoutTransparencyGroup_ReplacesEarlierGroupObjectInOverlap()
+    {
+        PDTransparencyGroup group = CreateOverlappingTransparencyGroup(knockout: true);
+        group.SetMatrix(new Matrix(1, 0, 0, 1, 100, 300));
+        PDResources resources = new();
+        resources.Put(COSName.GetPDFName("Group"), group);
+
+        using PDDocument document = CreateDocument("/Group Do\n", resources);
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        (int red, int green, int blue) = GetRgb(image.GetRgb(130, 472));
+        Assert.InRange(red, 115, 140);
+        Assert.InRange(green, 115, 140);
+        Assert.InRange(blue, 240, 255);
+    }
+
+    [Fact]
+    public void RenderImage_NonKnockoutTransparencyGroup_CompositesOverEarlierGroupObject()
+    {
+        PDTransparencyGroup group = CreateOverlappingTransparencyGroup(knockout: false);
+        group.SetMatrix(new Matrix(1, 0, 0, 1, 100, 300));
+        PDResources resources = new();
+        resources.Put(COSName.GetPDFName("Group"), group);
+
+        using PDDocument document = CreateDocument("/Group Do\n", resources);
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        (int red, int green, int blue) = GetRgb(image.GetRgb(130, 472));
+        Assert.InRange(red, 115, 140);
+        Assert.InRange(green, 50, 75);
+        Assert.InRange(blue, 175, 205);
+    }
+
+    [Fact]
+    public void RenderImage_DeviceCmykKnockoutGroup_BlendsChildAgainstOriginalBackdrop()
+    {
+        using PDDocument withEarlierObject = CreateDeviceCmykKnockoutDocument(includeEarlierObject: true);
+        using PDDocument withoutEarlierObject = CreateDeviceCmykKnockoutDocument(includeEarlierObject: false);
+        using BufferedImage actual = new PDFRenderer(withEarlierObject).RenderImage(0, 1f, ImageType.RGB);
+        using BufferedImage expected = new PDFRenderer(withoutEarlierObject).RenderImage(0, 1f, ImageType.RGB);
+
+        (int actualRed, int actualGreen, int actualBlue) = GetRgb(actual.GetRgb(130, 472));
+        (int expectedRed, int expectedGreen, int expectedBlue) = GetRgb(expected.GetRgb(130, 472));
+        Assert.InRange(Math.Abs(actualRed - expectedRed), 0, 2);
+        Assert.InRange(Math.Abs(actualGreen - expectedGreen), 0, 2);
+        Assert.InRange(Math.Abs(actualBlue - expectedBlue), 0, 2);
+    }
+
+    [Fact]
+    public void RenderImage_ZeroOpacityKnockoutChild_ClearsEarlierObjectUsingGeometryShape()
+    {
+        PDResources groupResources = new();
+        PDExtendedGraphicsState halfAlpha = new();
+        halfAlpha.SetNonStrokingAlphaConstant(0.5f);
+        groupResources.Put(COSName.GetPDFName("Half"), halfAlpha);
+        PDExtendedGraphicsState zeroAlpha = new();
+        zeroAlpha.SetNonStrokingAlphaConstant(0f);
+        groupResources.Put(COSName.GetPDFName("Zero"), zeroAlpha);
+
+        PDTransparencyGroup group = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 60, 40),
+            "/Half gs\n1 0 0 rg\n0 0 40 40 re\nf\n/Zero gs\n0 0 1 rg\n20 0 40 40 re\nf\n");
+        group.SetResources(groupResources);
+        group.GetGroup()!.GetCOSObject().SetBoolean(COSName.GetPDFName("I"), true);
+        group.GetGroup()!.GetCOSObject().SetBoolean(COSName.K, true);
+        group.SetMatrix(new Matrix(1, 0, 0, 1, 100, 300));
+        PDResources pageResources = new();
+        pageResources.Put(COSName.GetPDFName("Group"), group);
+
+        using PDDocument document = CreateDocument("/Group Do\n", pageResources);
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        AssertRedDominant(image.GetRgb(110, 472), "outside the zero-opacity child's shape");
+        AssertWhitePixel(image.GetRgb(130, 472), "inside the zero-opacity child's knockout shape");
+    }
+
+    [Fact]
+    public void RenderImage_KnockoutImageShape_PreservesIntrinsicSoftMaskAlpha()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        PDImageXObject image = LosslessFactory.CreateFromRawData(
+            document,
+            [0, 0, 0, 0, 0, 0],
+            2,
+            1,
+            8,
+            3);
+        PDImageXObject softMask = LosslessFactory.CreateFromRawData(document, [255, 0], 2, 1, 8, 1);
+        image.GetCOSObject()!.SetItem(COSName.SMASK, softMask.GetCOSObject());
+
+        PDResources groupResources = new();
+        groupResources.Put(COSName.GetPDFName("Image"), image);
+        PDTransparencyGroup group = new(new PDStream(document));
+        group.SetBBox(new PDRectangle(0, 0, 60, 40));
+        group.SetResources(groupResources);
+        PDTransparencyGroupAttributes attributes = new();
+        attributes.GetCOSObject().SetBoolean(COSName.GetPDFName("I"), true);
+        attributes.GetCOSObject().SetBoolean(COSName.K, true);
+        group.SetGroup(attributes);
+        group.SetMatrix(new Matrix(1, 0, 0, 1, 100, 300));
+        WriteStream(
+            (COSStream)group.GetCOSObject()!,
+            "1 0 0 rg\n0 0 60 40 re\nf\nq\n40 0 0 40 20 0 cm\n/Image Do\nQ\n");
+
+        PDResources pageResources = new();
+        pageResources.Put(COSName.GetPDFName("Group"), group);
+        page.SetResources(pageResources);
+        WriteStream((COSDictionary)page.GetCOSObject(), "/Group Do\n");
+
+        using BufferedImage rendered = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        AssertRedDominant(rendered.GetRgb(110, 472), "before the image");
+        (int opaqueRed, int opaqueGreen, int opaqueBlue) = GetRgb(rendered.GetRgb(130, 472));
+        Assert.True(opaqueRed < 20 && opaqueGreen < 20 && opaqueBlue < 20,
+            $"Expected the opaque image pixel to replace red, got RGB({opaqueRed},{opaqueGreen},{opaqueBlue}).");
+        AssertRedDominant(rendered.GetRgb(150, 472), "under the transparent image pixel");
+    }
+
+    [Fact]
     public void TilingPaint_CreateContext_RendersPatternCell()
     {
         using PDDocument document = CreateDocument(string.Empty);
@@ -469,6 +593,55 @@ public class AdvancedRenderingIssue419Test
         group.SetGroup(new PDTransparencyGroupAttributes());
         WriteStream(stream, contentStream);
         return group;
+    }
+
+    private static PDTransparencyGroup CreateOverlappingTransparencyGroup(bool knockout)
+    {
+        PDResources resources = new();
+        PDExtendedGraphicsState halfAlpha = new();
+        halfAlpha.SetNonStrokingAlphaConstant(0.5f);
+        resources.Put(COSName.GetPDFName("Half"), halfAlpha);
+
+        PDTransparencyGroup group = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 60, 40),
+            "/Half gs\n1 0 0 rg\n0 0 40 40 re\nf\n0 0 1 rg\n20 0 40 40 re\nf\n");
+        group.SetResources(resources);
+        group.GetGroup()!.GetCOSObject().SetBoolean(COSName.GetPDFName("I"), true);
+        group.GetGroup()!.GetCOSObject().SetBoolean(COSName.K, knockout);
+        return group;
+    }
+
+    private static PDDocument CreateDeviceCmykKnockoutDocument(bool includeEarlierObject)
+    {
+        PDResources groupResources = new();
+        PDExtendedGraphicsState halfNormal = new();
+        halfNormal.SetNonStrokingAlphaConstant(0.5f);
+        groupResources.Put(COSName.GetPDFName("HalfNormal"), halfNormal);
+        PDExtendedGraphicsState halfMultiply = new();
+        halfMultiply.SetNonStrokingAlphaConstant(0.5f);
+        halfMultiply.SetBlendMode(BlendMode.MULTIPLY);
+        groupResources.Put(COSName.GetPDFName("HalfMultiply"), halfMultiply);
+
+        string firstObject = includeEarlierObject
+            ? "/HalfNormal gs\n0 1 1 0 k\n0 0 40 40 re\nf\n"
+            : string.Empty;
+        PDTransparencyGroup group = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 60, 40),
+            firstObject + "/HalfMultiply gs\n1 1 0 0 k\n20 0 40 40 re\nf\n");
+        group.SetResources(groupResources);
+        group.GetGroup()!.GetCOSObject().SetBoolean(COSName.GetPDFName("I"), false);
+        group.GetGroup()!.GetCOSObject().SetBoolean(COSName.K, true);
+        group.GetGroup()!.GetCOSObject().SetItem(COSName.CS, PDDeviceCMYK.Instance.GetCOSObject());
+        group.SetMatrix(new Matrix(1, 0, 0, 1, 100, 300));
+
+        PDResources pageResources = new();
+        pageResources.Put(COSName.GetPDFName("Group"), group);
+        return CreateDocument("0.8 g\n100 300 60 40 re\nf\n/Group Do\n", pageResources);
+    }
+
+    private static (int Red, int Green, int Blue) GetRgb(int argb)
+    {
+        return ((argb >> 16) & 0xFF, (argb >> 8) & 0xFF, argb & 0xFF);
     }
 
     private static void WriteStream(COSDictionary dictionary, string contentStream)
