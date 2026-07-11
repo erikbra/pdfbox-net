@@ -12,8 +12,10 @@ using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.State;
@@ -69,6 +71,103 @@ public class PdfHtmlConverterTest
         Assert.Equal("#FFFFFF", vectorPaths[0].Attribute("fill")?.Value);
         Assert.Equal("#FFFFFF", vectorPaths[1].Attribute("fill")?.Value);
         Assert.Equal("none", vectorPaths[2].Attribute("fill")?.Value);
+    }
+
+    [Fact]
+    public void Convert_OverprintingIndexedDeviceNImage_PreservesUnderlyingAbsentProcessColorant()
+    {
+        using PDDocument document = CreateIndexedDeviceNOverprintDocument(
+            imageOverprint: true,
+            imageColorants: ["Cyan", "Black", "SpotGreen", "SpotRed"]);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+        PdfLayoutPage page = Assert.Single(layout.Pages);
+        PdfLayoutPath spotPath = Assert.Single(page.Paths);
+        PdfLayoutImage image = Assert.Single(page.Images);
+        Assert.Equal(
+            [
+                new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Path, spotPath.Index),
+                new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, image.Index)
+            ],
+            page.PaintOperations);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+        XElement[] orderedPaints = dom.Descendants()
+            .Where(element =>
+                element.Name.LocalName == "img" ||
+                (element.Name.LocalName == "path" && element.Attribute("data-path-index")?.Value == "0"))
+            .ToArray();
+
+        Assert.Equal(["path", "img", "path"], orderedPaints.Select(element => element.Name.LocalName));
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, true)]
+    public void Convert_IndexedDeviceNImage_DoesNotReplayOrdinaryOrMatchingProcessPaint(
+        bool imageOverprint,
+        bool imageContainsProcessYellow)
+    {
+        string[] imageColorants = imageContainsProcessYellow
+            ? ["Cyan", "Black", "SpotGreen", "Yellow"]
+            : ["Cyan", "Black", "SpotGreen", "SpotRed"];
+        using PDDocument document = CreateIndexedDeviceNOverprintDocument(imageOverprint, imageColorants);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Single(dom.Descendants(), element =>
+            element.Name.LocalName == "path" && element.Attribute("data-path-index")?.Value == "0");
+    }
+
+    [Fact]
+    public void Convert_ConsecutiveOverprintingDeviceNImages_PreserveBothUnderlyingProcessMarks()
+    {
+        using PDDocument document = CreateIndexedDeviceNOverprintDocument(
+            imageOverprint: true,
+            imageColorants: ["Cyan", "Black", "SpotGreen", "SpotRed"],
+            placementCount: 2);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout).Html);
+
+        Assert.Equal(2, dom.Descendants().Count(element =>
+            element.Name.LocalName == "path" && element.Attribute("data-path-index")?.Value == "0"));
+        Assert.Equal(2, dom.Descendants().Count(element =>
+            element.Name.LocalName == "path" && element.Attribute("data-path-index")?.Value == "1"));
+    }
+
+    [Fact]
+    public void Convert_FormScopedClips_AreAppliedToIndividualPaths()
+    {
+        using PDDocument document = CreateFormScopedClipDocument();
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfLayoutPage page = Assert.Single(layout.Pages);
+        Assert.Equal(2, page.Paths.Count);
+        Assert.NotNull(page.Paths[0].ClipBounds);
+        Assert.NotNull(page.Paths[1].ClipBounds);
+        Assert.NotEqual(page.Paths[0].ClipBounds, page.Paths[1].ClipBounds);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout).Html);
+        XElement[] paths = dom.Descendants()
+            .Where(element => element.Name.LocalName == "path" && element.Attribute("data-path-index") is not null)
+            .ToArray();
+        Assert.Equal(2, paths.Length);
+        Assert.All(paths, path => Assert.StartsWith("url(#pdf-vector-page-1-", path.Attribute("clip-path")?.Value));
+        Assert.Equal(2, dom.Descendants().Count(element =>
+            element.Name.LocalName == "clipPath" && element.Attribute("id")?.Value.Contains("path-clip", StringComparison.Ordinal) == true));
     }
 
     [Fact]
@@ -2957,6 +3056,100 @@ public class PdfHtmlConverterTest
         }
 
         return document;
+    }
+
+    private static PDDocument CreateIndexedDeviceNOverprintDocument(
+        bool imageOverprint,
+        IReadOnlyList<string> imageColorants,
+        int placementCount = 1)
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        PDDeviceN deviceN = new(
+            imageColorants.ToList(),
+            PDDeviceRGB.Instance,
+            CreateType4Function("{ pop }", imageColorants.Count, 3));
+        byte[] lookup = new byte[imageColorants.Count];
+        Array.Fill(lookup, (byte)255);
+        PDIndexed indexed = PDIndexed.Create(deviceN, 0, lookup);
+
+        PDStream imageStream = new(document);
+        using (Stream output = imageStream.CreateOutputStream())
+        {
+            output.WriteByte(0);
+        }
+
+        COSStream imageDictionary = imageStream.GetCOSObject();
+        imageDictionary.SetInt(COSName.WIDTH, 1);
+        imageDictionary.SetInt(COSName.HEIGHT, 1);
+        imageDictionary.SetInt(COSName.BITS_PER_COMPONENT, 8);
+        imageDictionary.SetItem(COSName.COLORSPACE, indexed.GetCOSObject());
+        PDImageXObject image = new(imageStream, null);
+
+        PDExtendedGraphicsState graphicsState = new();
+        graphicsState.SetNonStrokingOverprintControl(imageOverprint);
+        using (PDPageContentStream content = new(document, page))
+        {
+            for (int index = 0; index < placementCount; index++)
+            {
+                content.SetNonStrokingColor(0f, 0f, 1f, 0f);
+                content.AddRect(10 + index * 30, 10, 20, 20);
+                content.Fill();
+            }
+
+            content.SetGraphicsStateParameters(graphicsState);
+            for (int index = 0; index < placementCount; index++)
+            {
+                content.DrawImage(image, 10 + index * 30, 10, 20, 20);
+            }
+        }
+
+        return document;
+    }
+
+    private static PDDocument CreateFormScopedClipDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDFormXObject form = new(new PDStream(document));
+        form.SetBBox(new PDRectangle(0, 0, 100, 100));
+        using (PDFormContentStream content = new(form))
+        {
+            content.SaveGraphicsState();
+            content.AddRect(0, 0, 20, 20);
+            content.Clip();
+            content.SetNonStrokingColor(1f, 0f, 0f);
+            content.AddRect(0, 0, 20, 20);
+            content.Fill();
+            content.RestoreGraphicsState();
+            content.SetNonStrokingColor(0f, 0f, 1f);
+            content.AddRect(60, 60, 20, 20);
+            content.Fill();
+        }
+
+        using PDPageContentStream pageContent = new(document, page);
+        pageContent.DrawForm(form);
+        return document;
+    }
+
+    private static PDFunctionType4 CreateType4Function(
+        string functionText,
+        int inputComponents,
+        int outputComponents)
+    {
+        COSStream stream = new();
+        stream.SetInt(COSName.FUNCTION_TYPE, 4);
+        stream.SetItem(COSName.DOMAIN, COSArray.Of(Enumerable.Repeat(new[] { 0f, 1f }, inputComponents).SelectMany(x => x).ToArray()));
+        stream.SetItem(COSName.RANGE, COSArray.Of(Enumerable.Repeat(new[] { 0f, 1f }, outputComponents).SelectMany(x => x).ToArray()));
+        using (Stream output = stream.CreateOutputStream())
+        {
+            output.Write(Encoding.ASCII.GetBytes(functionText));
+        }
+
+        return new PDFunctionType4(stream);
     }
 
     private static PDDocument CreateCompactTransparencyGroupDocument(bool knockout, bool isolated)

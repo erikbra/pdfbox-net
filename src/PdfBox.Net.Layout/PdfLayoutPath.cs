@@ -12,7 +12,9 @@ public sealed class PdfLayoutPath
         PdfLayoutColor? fillColor,
         PdfLayoutStrokeStyle? stroke,
         int? fillRule,
-        bool usesShapeAlpha = false)
+        bool usesShapeAlpha = false,
+        IReadOnlyList<string>? colorantNames = null,
+        PdfLayoutRectangle? clipBounds = null)
     {
         Index = index;
         Commands = commands.ToArray();
@@ -21,6 +23,8 @@ public sealed class PdfLayoutPath
         Stroke = stroke;
         FillRule = fillRule;
         UsesShapeAlpha = usesShapeAlpha;
+        ColorantNames = colorantNames?.ToArray() ?? [];
+        ClipBounds = clipBounds;
     }
 
     /// <summary>
@@ -62,6 +66,16 @@ public sealed class PdfLayoutPath
     /// this flag to select a suitable fallback.
     /// </remarks>
     public bool UsesShapeAlpha { get; }
+
+    /// <summary>
+    /// Gets explicit Separation or DeviceN colorants painted by this path.
+    /// </summary>
+    public IReadOnlyList<string> ColorantNames { get; }
+
+    /// <summary>
+    /// Gets the effective rectangular clip for this path when it differs from its containing group.
+    /// </summary>
+    public PdfLayoutRectangle? ClipBounds { get; }
 
     /// <summary>
     /// Gets whether the path has a fill paint operation.

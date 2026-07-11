@@ -1704,24 +1704,16 @@ public static class PdfLayoutExtractor
 
         public override void Clip(int windingRule)
         {
-            if (_includePaths &&
+            bool clipPrecedesVectorPainting =
                 _activeVectorGroups.TryPeek(out VectorGroupBuilder? group) &&
-                group.FirstPathIndex == _paths.Count)
-            {
-                PdfLayoutPathCommand[] commands = NormalizePath(
-                    GetCurrentPathSegments(),
-                    GetGraphicsState().GetCurrentTransformationMatrix());
-                if (commands.Length > 0)
-                {
-                    group.IntersectClipBounds(Bounds(commands));
-                }
-            }
-            else if (_includePaths && !_reportedClipping && GetCurrentPathSegments().Count > 0)
+                group.FirstPathIndex == _paths.Count;
+            if (_includePaths && !clipPrecedesVectorPainting &&
+                !_reportedClipping && GetCurrentPathSegments().Count > 0)
             {
                 _diagnostics.Add(new PdfLayoutDiagnostic(
                     PdfLayoutDiagnosticSeverity.Warning,
                     "path-clipping-unsupported",
-                    "A clip path was introduced after vector painting began in the same form; SVG keeps the form bounds but cannot split that paint sequence yet.",
+                    "A clip path was introduced after vector painting began in the same form; SVG retains its conservative rectangular bounds per subsequent path.",
                     _pageNumber));
                 _reportedClipping = true;
             }
@@ -1790,6 +1782,7 @@ public static class PdfLayoutExtractor
             PdfLayoutRectangle bounds = Bounds(commands);
             bool usesShapeAlpha = graphicsState.GetAlphaSource();
             bool suppressFill = includeFill && IsProcessColorOverprintNoOp(graphicsState);
+            PdfLayoutRectangle? clipBounds = DistinctPathClipBounds(graphicsState);
             _paths.Add(new PdfLayoutPath(
                 index,
                 commands,
@@ -1799,7 +1792,11 @@ public static class PdfLayoutExtractor
                     : null,
                 includeStroke ? StrokeStyle(graphicsState, index) : null,
                 fillRule,
-                usesShapeAlpha));
+                usesShapeAlpha,
+                ExplicitColorants(
+                    includeFill ? graphicsState.GetNonStrokingColor() : null,
+                    includeStroke ? graphicsState.GetStrokingColor() : null),
+                clipBounds));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Path, index));
             if (usesShapeAlpha && !_reportedShapeAlphaPath)
             {
@@ -2338,6 +2335,29 @@ public static class PdfLayoutExtractor
                 MathF.Max(0, bottom - top));
         }
 
+        private PdfLayoutRectangle? DistinctPathClipBounds(PDGraphicsState graphicsState)
+        {
+            PdfLayoutRectangle? current = CurrentClipBounds(graphicsState);
+            PdfLayoutRectangle baseline = _activeVectorGroups.TryPeek(out VectorGroupBuilder? group) &&
+                group.ClipBounds is PdfLayoutRectangle groupClip
+                    ? groupClip
+                    : new PdfLayoutRectangle(0, 0, _cropBox.Width, _cropBox.Height);
+            return current is PdfLayoutRectangle clip && !RectanglesApproximatelyEqual(clip, baseline)
+                ? clip
+                : null;
+        }
+
+        private static bool RectanglesApproximatelyEqual(
+            PdfLayoutRectangle first,
+            PdfLayoutRectangle second,
+            float tolerance = 0.01f)
+        {
+            return MathF.Abs(first.X - second.X) <= tolerance &&
+                MathF.Abs(first.Y - second.Y) <= tolerance &&
+                MathF.Abs(first.Width - second.Width) <= tolerance &&
+                MathF.Abs(first.Height - second.Height) <= tolerance;
+        }
+
         private sealed class VectorGroupBuilder
         {
             public VectorGroupBuilder(
@@ -2366,7 +2386,7 @@ public static class PdfLayoutExtractor
 
             public int FirstPathIndex { get; }
 
-            public PdfLayoutRectangle? ClipBounds { get; private set; }
+            public PdfLayoutRectangle? ClipBounds { get; }
 
             public float Opacity { get; }
 
@@ -2375,22 +2395,6 @@ public static class PdfLayoutExtractor
             public bool IsIsolated { get; }
 
             public bool IsKnockout { get; }
-
-            public void IntersectClipBounds(PdfLayoutRectangle bounds)
-            {
-                if (bounds.Width <= 0 || bounds.Height <= 0)
-                {
-                    return;
-                }
-
-                if (ClipBounds is not PdfLayoutRectangle existing)
-                {
-                    ClipBounds = bounds;
-                    return;
-                }
-
-                ClipBounds = Intersect(existing, bounds);
-            }
 
             public PdfLayoutVectorGroup Build(int lastPathIndex, PdfLayoutRectangle bounds)
             {
@@ -2532,7 +2536,9 @@ public static class PdfLayoutExtractor
                 image.GetBitsPerComponent(),
                 ColorSpaceName(image, index),
                 image.GetInterpolate(),
-                sourceName));
+                sourceName,
+                GetGraphicsState().IsNonStrokingOverprint() || GetGraphicsState().IsOverprint(),
+                ExplicitColorants(image.GetColorSpace())));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
 
             if (_includeImageAssets)
@@ -2581,7 +2587,9 @@ public static class PdfLayoutExtractor
                 image.GetBitsPerComponent(),
                 ColorSpaceName(image, index),
                 image.GetInterpolate(),
-                null));
+                null,
+                GetGraphicsState().IsNonStrokingOverprint() || GetGraphicsState().IsOverprint(),
+                ExplicitColorants(image.GetColorSpace())));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
 
             if (_includeImageAssets)
@@ -2630,6 +2638,58 @@ public static class PdfLayoutExtractor
                     $"Image {index.ToString(CultureInfo.InvariantCulture)} asset export failed: {ex.Message}",
                     _pageNumber));
             }
+        }
+
+        private static string[] ExplicitColorants(params PDColorSpace?[] colorSpaces)
+        {
+            return colorSpaces
+                .Where(static colorSpace => colorSpace is not null)
+                .SelectMany(static colorSpace => ColorantsFor(colorSpace!))
+                .Where(static name =>
+                    !string.IsNullOrWhiteSpace(name) &&
+                    !string.Equals(name, "None", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(name, "All", StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }
+
+        private static string[] ExplicitColorants(params PDColor?[] colors)
+        {
+            return colors
+                .Where(static color => color is not null)
+                .SelectMany(static color => ColorantsFor(color!))
+                .Where(static name =>
+                    !string.IsNullOrWhiteSpace(name) &&
+                    !string.Equals(name, "None", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(name, "All", StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }
+
+        private static IEnumerable<string> ColorantsFor(PDColor color)
+        {
+            PDColorSpace? colorSpace = color.GetColorSpace();
+            if (colorSpace is not PDDeviceCMYK)
+            {
+                return colorSpace is null ? [] : ColorantsFor(colorSpace);
+            }
+
+            string[] processColorants = ["Cyan", "Magenta", "Yellow", "Black"];
+            float[] components = color.GetComponents();
+            return processColorants
+                .Where((_, index) => index < components.Length && components[index] > 0.0001f)
+                .ToArray();
+        }
+
+        private static IEnumerable<string> ColorantsFor(PDColorSpace colorSpace)
+        {
+            return colorSpace switch
+            {
+                PDIndexed indexed => ColorantsFor(indexed.GetBaseColorSpace()),
+                PDSeparation separation => [separation.GetColorantName()],
+                PDDeviceN deviceN => deviceN.GetColorantNames(),
+                _ => Array.Empty<string>()
+            };
         }
 
         private string? ResolveSourceName(PDXObject xobject)
