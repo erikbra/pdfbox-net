@@ -33,6 +33,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.PDModel.Annotations;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
@@ -539,24 +540,11 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         _currentPoint = p3;
     }
 
-    private static IPaint ApplySoftMaskToPaint(IPaint parentPaint, PDSoftMask softMask)
+    private BufferedImage AdjustImage(BufferedImage gray)
     {
-        return parentPaint;
-    }
-
-    private static BufferedImage AdjustImage(BufferedImage gray)
-    {
+        // The Skia group bitmap is already rendered in device orientation. Keep the Java-shaped
+        // hook for Paint consumers, but no second rotation/scaling pass is necessary here.
         return gray;
-    }
-
-    private IPaint GetStrokingPaint()
-    {
-        return Color.Black;
-    }
-
-    protected virtual IPaint GetNonStrokingPaint()
-    {
-        return Color.Black;
     }
 
     private Stroke GetStroke()
@@ -833,7 +821,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
     public void ShowTransparencyGroup(PDTransparencyGroup form)
     {
-        ShowForm(form);
+        ShowTransparencyGroupOnGraphics(form, _graphics!);
     }
 
     public override void XObject(PDXObject xobject)
@@ -861,7 +849,64 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
     protected virtual void ShowTransparencyGroupOnGraphics(PDTransparencyGroup form, Graphics2D graphics)
     {
-        ShowTransparencyGroup(form);
+        if (!IsContentRendered() || graphics?.GetSkiaCanvas() is not SKCanvas canvas)
+        {
+            return;
+        }
+
+        Graphics2D? savedGraphics = _graphics;
+        _graphics = graphics;
+        try
+        {
+            PDGraphicsState graphicsState = GetGraphicsState();
+            using TransparencyGroup group = CreateTransparencyGroup(
+                form,
+                false,
+                graphicsState.GetCurrentTransformationMatrix(),
+                null);
+            if (group.GetImage() is not BufferedImage image)
+            {
+                return;
+            }
+
+            canvas.Save();
+            try
+            {
+                ApplyCurrentClip(canvas);
+                using SoftMaskData? softMask = CreateSoftMaskData(graphicsState.GetSoftMask());
+                canvas.SaveLayer();
+                try
+                {
+                    canvas.ResetMatrix();
+                    using SKPaint paint = new()
+                    {
+                        IsAntialias = true,
+                        Color = SKColors.White.WithAlpha((byte)Math.Round(
+                            Math.Clamp(graphicsState.GetNonStrokeAlphaConstant(), 0f, 1f) * 255f)),
+                        BlendMode = ToSkiaBlendMode(graphicsState.GetBlendMode()),
+                    };
+                    canvas.DrawBitmap(
+                        image.GetSkiaBitmap(),
+                        0,
+                        0,
+                        SkiaRenderingBackend.ImageSamplingOptions,
+                        paint);
+                    ApplySoftMaskToCurrentLayer(canvas, softMask);
+                }
+                finally
+                {
+                    canvas.Restore();
+                }
+            }
+            finally
+            {
+                canvas.Restore();
+            }
+        }
+        finally
+        {
+            _graphics = savedGraphics;
+        }
     }
 
     int IPageDrawerPeer.GetSubsampling(PDImage pdImage, AffineTransform at)
@@ -874,24 +919,9 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         ShowTransparencyGroupOnGraphics(form, graphics);
     }
 
-    private TransparencyGroup CreateTransparencyGroup(PDTransparencyGroup form, bool isSoftMask, Matrix ctm, PDColor backdropColor)
+    private TransparencyGroup CreateTransparencyGroup(PDTransparencyGroup form, bool isSoftMask, Matrix ctm, PDColor? backdropColor)
     {
-        return new TransparencyGroup(form, isSoftMask, ctm, backdropColor);
-    }
-
-    private static BufferedImage Create2ByteGrayAlphaImage(int width, int height)
-    {
-        return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-    }
-
-    private static bool IsGray(PDColorSpace colorSpace)
-    {
-        return false;
-    }
-
-    private static bool HasBlendMode(PDTransparencyGroup group, ISet<COSBase> groupsDone)
-    {
-        return false;
+        return new TransparencyGroup(this, form, isSoftMask, ctm, backdropColor);
     }
 
     public override void BeginMarkedContentSequence(COSName tag, COSDictionary? properties)
@@ -1044,7 +1074,55 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         try
         {
             ApplyCurrentClip(canvas);
-            draw(canvas);
+            PDSoftMask? softMask = GetGraphicsState().GetSoftMask();
+            if (softMask is null)
+            {
+                draw(canvas);
+                return;
+            }
+
+            using SoftMaskData? mask = CreateSoftMaskData(softMask);
+            if (mask is null)
+            {
+                draw(canvas);
+                return;
+            }
+
+            canvas.SaveLayer();
+            try
+            {
+                draw(canvas);
+                ApplySoftMaskToCurrentLayer(canvas, mask);
+            }
+            finally
+            {
+                canvas.Restore();
+            }
+        }
+        finally
+        {
+            canvas.Restore();
+        }
+    }
+
+    private static void ApplySoftMaskToCurrentLayer(SKCanvas canvas, SoftMaskData? mask)
+    {
+        if (mask is null)
+        {
+            return;
+        }
+
+        canvas.Save();
+        try
+        {
+            canvas.ResetMatrix();
+            using SKPaint maskPaint = new() { BlendMode = SKBlendMode.DstIn, IsAntialias = true };
+            canvas.DrawBitmap(
+                mask.Image.GetSkiaBitmap(),
+                0,
+                0,
+                SkiaRenderingBackend.ImageSamplingOptions,
+                maskPaint);
         }
         finally
         {
@@ -1868,6 +1946,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         {
             IsAntialias = true,
             Color = SKColors.White.WithAlpha((byte)Math.Round(alpha * 255f)),
+            BlendMode = ToSkiaBlendMode(graphicsState.GetBlendMode()),
         };
     }
 
@@ -1965,6 +2044,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             Color = new SKColor(r, g, b, a),
             IsAntialias = true,
             Style = stroke ? SKPaintStyle.Stroke : SKPaintStyle.Fill,
+            BlendMode = ToSkiaBlendMode(graphicsState.GetBlendMode()),
         };
         if (shader is not null)
         {
@@ -2173,6 +2253,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             Color = new SKColor(r, g, b, a),
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
+            BlendMode = ToSkiaBlendMode(graphicsState.GetBlendMode()),
         };
 
         SKShader? shader = CreateShadingShader(shading, graphicsState);
@@ -2290,20 +2371,285 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             or ArgumentException;
     }
 
-    private sealed class TransparencyGroup
+    private SoftMaskData? CreateSoftMaskData(PDSoftMask? softMask)
     {
-        private readonly BufferedImage _image = new(1, 1, BufferedImage.TYPE_INT_ARGB);
-        private readonly PDRectangle _bbox = new();
+        PDTransparencyGroup? form = softMask?.GetGroup();
+        if (form is null)
+        {
+            return null;
+        }
+
+        string? subType = softMask!.GetSubType()?.GetName();
+        bool isAlpha = string.Equals(subType, "Alpha", StringComparison.Ordinal);
+        bool isLuminosity = string.Equals(subType, "Luminosity", StringComparison.Ordinal);
+        if (!isAlpha && !isLuminosity)
+        {
+            return null;
+        }
+
+        PDColor? backdropColor = null;
+        if (isLuminosity && softMask.GetBackdropColor() is COSArray backdropArray)
+        {
+            PDColorSpace? colorSpace = form.GetGroup()?.GetColorSpace(form.GetResources());
+            if (colorSpace is not null && colorSpace.GetNumberOfComponents() == backdropArray.Size())
+            {
+                backdropColor = new PDColor(backdropArray, colorSpace);
+            }
+        }
+
+        using TransparencyGroup group = CreateTransparencyGroup(
+            form,
+            true,
+            softMask.GetInitialTransformationMatrix() ?? GetGraphicsState().GetCurrentTransformationMatrix(),
+            backdropColor);
+        if (group.GetImage() is not BufferedImage source)
+        {
+            return null;
+        }
+
+        BufferedImage gray = new(source.Width, source.Height, BufferedImage.TYPE_INT_ARGB);
+        gray.Clear(Color.Transparent);
+        PDFunction? transferFunction = softMask.GetTransferFunction();
+        Rectangle2D groupBounds = group.GetBounds();
+        int minX = Math.Clamp((int)Math.Floor(groupBounds.X), 0, source.Width);
+        int minY = Math.Clamp((int)Math.Floor(groupBounds.Y), 0, source.Height);
+        int maxX = Math.Clamp((int)Math.Ceiling(groupBounds.X + groupBounds.Width), 0, source.Width);
+        int maxY = Math.Clamp((int)Math.Ceiling(groupBounds.Y + groupBounds.Height), 0, source.Height);
+        for (int y = minY; y < maxY; y++)
+        {
+            for (int x = minX; x < maxX; x++)
+            {
+                int argb = source.GetRgb(x, y);
+                int alpha = (argb >> 24) & 0xFF;
+                float maskValue;
+                if (isAlpha)
+                {
+                    maskValue = alpha / 255f;
+                }
+                else
+                {
+                    float red = ((argb >> 16) & 0xFF) / 255f;
+                    float green = ((argb >> 8) & 0xFF) / 255f;
+                    float blue = (argb & 0xFF) / 255f;
+                    maskValue = ((0.3f * red) + (0.59f * green) + (0.11f * blue)) * (alpha / 255f);
+                }
+
+                if (transferFunction is not null)
+                {
+                    try
+                    {
+                        float[] result = transferFunction.Eval([maskValue]);
+                        if (result.Length > 0)
+                        {
+                            maskValue = result[0];
+                        }
+                    }
+                    catch (Exception ex) when (IsRecoverableRenderingException(ex))
+                    {
+                        // Match PDFBox's best-effort rendering when a transfer function is malformed.
+                    }
+                }
+
+                int maskAlpha = (int)MathF.Round(Math.Clamp(maskValue, 0f, 1f) * 255f);
+                gray.SetRgb(x, y, (maskAlpha << 24) | 0x00FFFFFF);
+            }
+        }
+
+        gray = AdjustImage(gray);
+        return new SoftMaskData(
+            gray,
+            new Rectangle2D(0, 0, gray.Width, gray.Height),
+            backdropColor,
+            transferFunction);
+    }
+
+    private void RenderTransparencyGroupContent(
+        PDTransparencyGroup form,
+        Graphics2D groupGraphics,
+        bool isSoftMask,
+        Matrix ctm)
+    {
+        Graphics2D? savedGraphics = _graphics;
+        PDGraphicsState graphicsState = GetGraphicsState();
+        Matrix savedCtm = graphicsState.GetCurrentTransformationMatrix();
+        BlendMode savedBlendMode = graphicsState.GetBlendMode();
+        float savedStrokeAlpha = graphicsState.GetAlphaConstant();
+        float savedFillAlpha = graphicsState.GetNonStrokeAlphaConstant();
+        PDSoftMask? savedSoftMask = graphicsState.GetSoftMask();
+        PDColorSpace savedStrokingColorSpace = graphicsState.GetStrokingColorSpace();
+        PDColorSpace savedNonStrokingColorSpace = graphicsState.GetNonStrokingColorSpace();
+        PDColor savedStrokingColor = graphicsState.GetStrokingColor();
+        PDColor savedNonStrokingColor = graphicsState.GetNonStrokingColor();
+
+        _graphics = groupGraphics;
+        try
+        {
+            graphicsState.SetCurrentTransformationMatrix(ctm);
+            graphicsState.SetBlendMode(BlendMode.NORMAL);
+            graphicsState.SetAlphaConstant(1f);
+            graphicsState.SetNonStrokeAlphaConstant(1f);
+            graphicsState.SetSoftMask(null);
+            if (isSoftMask)
+            {
+                // Soft masks are resolved while the parent paint operator still owns its current
+                // path. The mask stream starts with an independent path, as in PDFBox's saved
+                // linePath handling; the parent Skia path has already been materialized by then.
+                EndPath();
+                graphicsState.SetStrokingColorSpace(PDDeviceGray.Instance);
+                graphicsState.SetNonStrokingColorSpace(PDDeviceGray.Instance);
+                graphicsState.SetStrokingColor(PDDeviceGray.Instance.GetInitialColor());
+                graphicsState.SetNonStrokingColor(PDDeviceGray.Instance.GetInitialColor());
+            }
+
+            base.XObject(form);
+        }
+        finally
+        {
+            graphicsState.SetCurrentTransformationMatrix(savedCtm);
+            graphicsState.SetBlendMode(savedBlendMode);
+            graphicsState.SetAlphaConstant(savedStrokeAlpha);
+            graphicsState.SetNonStrokeAlphaConstant(savedFillAlpha);
+            graphicsState.SetSoftMask(savedSoftMask);
+            graphicsState.SetStrokingColorSpace(savedStrokingColorSpace);
+            graphicsState.SetNonStrokingColorSpace(savedNonStrokingColorSpace);
+            graphicsState.SetStrokingColor(savedStrokingColor);
+            graphicsState.SetNonStrokingColor(savedNonStrokingColor);
+            _graphics = savedGraphics;
+        }
+    }
+
+    private static SKBlendMode ToSkiaBlendMode(BlendMode blendMode)
+    {
+        return blendMode switch
+        {
+            BlendMode.MULTIPLY => SKBlendMode.Multiply,
+            BlendMode.SCREEN => SKBlendMode.Screen,
+            BlendMode.OVERLAY => SKBlendMode.Overlay,
+            BlendMode.DARKEN => SKBlendMode.Darken,
+            BlendMode.LIGHTEN => SKBlendMode.Lighten,
+            BlendMode.COLOR_DODGE => SKBlendMode.ColorDodge,
+            BlendMode.COLOR_BURN => SKBlendMode.ColorBurn,
+            BlendMode.HARD_LIGHT => SKBlendMode.HardLight,
+            BlendMode.SOFT_LIGHT => SKBlendMode.SoftLight,
+            BlendMode.DIFFERENCE => SKBlendMode.Difference,
+            BlendMode.EXCLUSION => SKBlendMode.Exclusion,
+            BlendMode.HUE => SKBlendMode.Hue,
+            BlendMode.SATURATION => SKBlendMode.Saturation,
+            BlendMode.COLOR => SKBlendMode.Color,
+            BlendMode.LUMINOSITY => SKBlendMode.Luminosity,
+            _ => SKBlendMode.SrcOver,
+        };
+    }
+
+    private sealed record SoftMaskData(
+        BufferedImage Image,
+        Rectangle2D Bounds,
+        PDColor? BackdropColor,
+        PDFunction? TransferFunction) : IDisposable
+    {
+        public void Dispose() => Image.Dispose();
+    }
+
+    private sealed class TransparencyGroup : IDisposable
+    {
+        private readonly BufferedImage? _image;
+        private readonly PDRectangle? _bbox;
         private readonly Rectangle2D _bounds = new();
 
-        public TransparencyGroup(PDTransparencyGroup form, bool isSoftMask, Matrix ctm, PDColor backdropColor)
+        public TransparencyGroup(
+            SkiaPageDrawerPeer drawer,
+            PDTransparencyGroup form,
+            bool isSoftMask,
+            Matrix ctm,
+            PDColor? backdropColor)
         {
+            if (drawer._graphics?.GetSkiaCanvas() is not SKCanvas parentCanvas ||
+                drawer._graphics.GetSkiaBitmapSize() is not { } targetSize ||
+                form.GetBBox() is not PDRectangle formBBox ||
+                formBBox.GetWidth() <= 0 || formBBox.GetHeight() <= 0)
+            {
+                return;
+            }
+
+            Matrix transform = Matrix.Concatenate(ctm, form.GetMatrix());
+            SKPoint[] localPoints =
+            [
+                ToPoint(drawer.PdfToCanvas(formBBox.GetLowerLeftX(), formBBox.GetLowerLeftY(), transform)),
+                ToPoint(drawer.PdfToCanvas(formBBox.GetUpperRightX(), formBBox.GetLowerLeftY(), transform)),
+                ToPoint(drawer.PdfToCanvas(formBBox.GetUpperRightX(), formBBox.GetUpperRightY(), transform)),
+                ToPoint(drawer.PdfToCanvas(formBBox.GetLowerLeftX(), formBBox.GetUpperRightY(), transform)),
+            ];
+            float localLeft = localPoints.Min(static point => point.X);
+            float localTop = localPoints.Min(static point => point.Y);
+            float localRight = localPoints.Max(static point => point.X);
+            float localBottom = localPoints.Max(static point => point.Y);
+            _bbox = new PDRectangle(localLeft, localTop, localRight - localLeft, localBottom - localTop);
+
+            SKMatrix deviceMatrix = parentCanvas.TotalMatrix;
+            SKPoint[] devicePoints = localPoints.Select(point => MapPoint(deviceMatrix, point)).ToArray();
+            int left = Math.Max(0, (int)MathF.Floor(devicePoints.Min(static point => point.X)));
+            int top = Math.Max(0, (int)MathF.Floor(devicePoints.Min(static point => point.Y)));
+            int right = Math.Min(targetSize.Width, (int)MathF.Ceiling(devicePoints.Max(static point => point.X)));
+            int bottom = Math.Min(targetSize.Height, (int)MathF.Ceiling(devicePoints.Max(static point => point.Y)));
+            if (right <= left || bottom <= top)
+            {
+                return;
+            }
+
+            _bounds = new Rectangle2D(left, top, right - left, bottom - top);
+            _image = new BufferedImage(targetSize.Width, targetSize.Height, BufferedImage.TYPE_INT_ARGB);
+            _image.Clear(Color.Transparent);
+            using Graphics2D groupGraphics = _image.CreateGraphics();
+            SKCanvas groupCanvas = groupGraphics.GetSkiaCanvas()!;
+
+            if (isSoftMask && backdropColor is not null)
+            {
+                int rgb = backdropColor.ToRGB();
+                using SKPathBuilder backdropBuilder = new();
+                backdropBuilder.MoveTo(devicePoints[0].X, devicePoints[0].Y);
+                backdropBuilder.LineTo(devicePoints[1].X, devicePoints[1].Y);
+                backdropBuilder.LineTo(devicePoints[2].X, devicePoints[2].Y);
+                backdropBuilder.LineTo(devicePoints[3].X, devicePoints[3].Y);
+                backdropBuilder.Close();
+                using SKPath backdropPath = backdropBuilder.Detach();
+                using SKPaint backdropPaint = new()
+                {
+                    Color = new SKColor(
+                        (byte)((rgb >> 16) & 0xFF),
+                        (byte)((rgb >> 8) & 0xFF),
+                        (byte)(rgb & 0xFF),
+                        255),
+                    BlendMode = SKBlendMode.Src,
+                    Style = SKPaintStyle.Fill,
+                };
+                groupCanvas.DrawPath(backdropPath, backdropPaint);
+            }
+
+            groupCanvas.SetMatrix(deviceMatrix);
+            drawer.RenderTransparencyGroupContent(form, groupGraphics, isSoftMask, ctm);
         }
 
         public Rectangle2D GetBounds() => _bounds;
 
-        public PDRectangle GetBBox() => _bbox;
+        public PDRectangle? GetBBox() => _bbox;
 
-        public BufferedImage GetImage() => _image;
+        public BufferedImage? GetImage() => _image;
+
+        public void Dispose() => _image?.Dispose();
+
+        private static SKPoint ToPoint((float x, float y) point) => new(point.x, point.y);
+
+        private static SKPoint MapPoint(SKMatrix matrix, SKPoint point)
+        {
+            float denominator = (matrix.Persp0 * point.X) + (matrix.Persp1 * point.Y) + matrix.Persp2;
+            if (denominator == 0)
+            {
+                denominator = 1;
+            }
+
+            return new SKPoint(
+                ((matrix.ScaleX * point.X) + (matrix.SkewX * point.Y) + matrix.TransX) / denominator,
+                ((matrix.SkewY * point.X) + (matrix.ScaleY * point.Y) + matrix.TransY) / denominator);
+        }
     }
 }

@@ -128,6 +128,8 @@ internal sealed class SkiaGraphics2DPeer : IGraphics2DPeer
 
     public int? BitmapHeight => _image?.Height;
 
+    internal (int Width, int Height)? BitmapSize => _image is null ? null : (_image.Width, _image.Height);
+
     internal SKCanvas? Canvas => _canvas;
 
     public IGraphics2DPeer Create()
@@ -221,4 +223,10 @@ internal static class SkiaPeerExtensions
     {
         return graphics.Peer is SkiaGraphics2DPeer peer ? peer.Canvas : null;
     }
+
+    internal static (int Width, int Height)? GetSkiaBitmapSize(this Graphics2D graphics)
+    {
+        return graphics.Peer is SkiaGraphics2DPeer peer ? peer.BitmapSize : null;
+    }
+
 }

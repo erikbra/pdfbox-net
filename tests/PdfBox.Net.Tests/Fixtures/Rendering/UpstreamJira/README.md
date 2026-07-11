@@ -17,6 +17,6 @@ kept separate from the default runtime corpus so these still-open upstream
 tickets do not slow down every CI parity run.
 
 `PDFBOX-6024-gs-bugzilla689931-reduced-Multiply.pdf` and
-`PDFBOX-6024-gs-bugzilla689931-reduced-Screen.pdf` currently render near-blank
-in PdfBox.Net. The checked-in test records that current shape without treating
-this fixture-intake PR as the renderer fix.
+`PDFBOX-6024-gs-bugzilla689931-reduced-Screen.pdf` exercise transparency-group
+soft masks combined with non-normal blend modes. The checked-in test requires
+their masked strokes to remain visible.
