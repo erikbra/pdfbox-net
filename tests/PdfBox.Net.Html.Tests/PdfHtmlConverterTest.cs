@@ -13,7 +13,10 @@ using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics;
+using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
+using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Resources;
@@ -23,6 +26,36 @@ namespace PdfBox.Net.Html.Tests;
 
 public class PdfHtmlConverterTest
 {
+    [Fact]
+    public void Convert_TransparencyGroup_EmitsInvokingBlendMode()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDTransparencyGroup group = new(new PDStream(document));
+        group.SetBBox(new PDRectangle(0, 0, 100, 100));
+        group.SetGroup(new PDTransparencyGroupAttributes());
+        using (Stream formContent = group.GetContentStream().CreateOutputStream())
+        {
+            formContent.Write(Encoding.ASCII.GetBytes("0 1 1 0 k\n0 0 100 100 re\nf\n"));
+        }
+
+        PDExtendedGraphicsState graphicsState = new();
+        graphicsState.SetBlendMode(BlendMode.MULTIPLY);
+        using (PDPageContentStream pageContent = new(document, page))
+        {
+            pageContent.SetGraphicsStateParameters(graphicsState);
+            pageContent.DrawForm(group);
+        }
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfLayoutVectorGroup extractedGroup = Assert.Single(Assert.Single(layout.Pages).VectorGroups);
+        Assert.Equal(BlendMode.MULTIPLY, extractedGroup.BlendMode);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout);
+        Assert.Contains("style=\"mix-blend-mode:multiply\"", html.Html, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Convert_SemanticContinuousFlow_UsesFixedLayoutFallbackForSpatialPages()
     {
