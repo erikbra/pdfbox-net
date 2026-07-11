@@ -57,7 +57,8 @@ public sealed class PdfLayoutPage
         IReadOnlyList<PdfLayoutShading> shadings,
         IReadOnlyList<PdfLayoutVectorGroup> vectorGroups,
         IReadOnlyList<PdfLayoutLink> links,
-        IReadOnlyList<PdfLayoutDiagnostic> diagnostics)
+        IReadOnlyList<PdfLayoutDiagnostic> diagnostics,
+        IReadOnlyList<PdfLayoutPaintOperation>? paintOperations = null)
     {
         PageNumber = pageNumber;
         MediaBox = mediaBox;
@@ -75,6 +76,7 @@ public sealed class PdfLayoutPage
         VectorGroups = vectorGroups.ToArray();
         Links = links.ToArray();
         Diagnostics = diagnostics.ToArray();
+        PaintOperations = paintOperations?.ToArray() ?? [];
     }
 
     /// <summary>
@@ -156,6 +158,11 @@ public sealed class PdfLayoutPage
     /// Gets diagnostics emitted for this page.
     /// </summary>
     public IReadOnlyList<PdfLayoutDiagnostic> Diagnostics { get; }
+
+    /// <summary>
+    /// Gets image and vector paint operations in PDF content-stream order.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutPaintOperation> PaintOperations { get; }
 
     /// <summary>
     /// Gets the page text in reading order.

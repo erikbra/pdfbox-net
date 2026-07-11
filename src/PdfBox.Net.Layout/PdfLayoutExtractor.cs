@@ -421,6 +421,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutVectorGroup> _vectorGroups = new();
         private readonly List<PdfLayoutLink> _links = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
+        private readonly List<PdfLayoutPaintOperation> _paintOperations = new();
 
         private const float AnnotationAppearanceScale = 2f;
         private const float TransparencyGroupRasterScale = 3f;
@@ -504,7 +505,8 @@ public static class PdfLayoutExtractor
                 _shadings,
                 _vectorGroups,
                 _links,
-                _diagnostics);
+                _diagnostics,
+                _paintOperations);
         }
 
         public IReadOnlyList<PdfLayoutImageAsset> ImageAssets => _imageAssets;
@@ -538,6 +540,7 @@ public static class PdfLayoutExtractor
             _paths.AddRange(collector.Paths);
             _shadings.AddRange(collector.Shadings);
             _vectorGroups.AddRange(collector.VectorGroups);
+            _paintOperations.AddRange(collector.PaintOperations);
             _diagnostics.AddRange(collector.Diagnostics);
 
             if (options.IncludeImageAssets && options.IncludeTransparencyGroupFallbacks)
@@ -603,6 +606,7 @@ public static class PdfLayoutExtractor
                         "DeviceRGB",
                         true,
                         "transparency-group"));
+                    _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
                     _imageAssets.Add(new PdfLayoutImageAsset(
                         assetId,
                         $"assets/images/{assetId}.png",
@@ -849,6 +853,7 @@ public static class PdfLayoutExtractor
                 "DeviceRGB",
                 true,
                 annotation.GetSubtype()));
+            _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
             _imageAssets.Add(new PdfLayoutImageAsset(
                 assetId,
                 $"assets/images/{assetId}.png",
@@ -1531,6 +1536,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutShading> _shadings = new();
         private readonly List<PdfLayoutVectorGroup> _vectorGroups = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
+        private readonly List<PdfLayoutPaintOperation> _paintOperations = new();
         private readonly Stack<List<PdfLayoutRectangle>> _vectorGroupPathBounds = new();
         private readonly Stack<VectorGroupBuilder> _activeVectorGroups = new();
         private readonly List<PdfLayoutRectangle> _transparencyGroupBounds = new();
@@ -1572,6 +1578,8 @@ public static class PdfLayoutExtractor
         public IReadOnlyList<PdfLayoutVectorGroup> VectorGroups => _vectorGroups;
 
         public IReadOnlyList<PdfLayoutDiagnostic> Diagnostics => _diagnostics;
+
+        public IReadOnlyList<PdfLayoutPaintOperation> PaintOperations => _paintOperations;
 
         public IReadOnlyList<PdfLayoutRectangle> TransparencyGroupBounds => _transparencyGroupBounds;
 
@@ -1792,6 +1800,7 @@ public static class PdfLayoutExtractor
                 includeStroke ? StrokeStyle(graphicsState, index) : null,
                 fillRule,
                 usesShapeAlpha));
+            _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Path, index));
             if (usesShapeAlpha && !_reportedShapeAlphaPath)
             {
                 _diagnostics.Add(new PdfLayoutDiagnostic(
@@ -2524,6 +2533,7 @@ public static class PdfLayoutExtractor
                 ColorSpaceName(image, index),
                 image.GetInterpolate(),
                 sourceName));
+            _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
 
             if (_includeImageAssets)
             {
@@ -2572,6 +2582,7 @@ public static class PdfLayoutExtractor
                 ColorSpaceName(image, index),
                 image.GetInterpolate(),
                 null));
+            _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
 
             if (_includeImageAssets)
             {
