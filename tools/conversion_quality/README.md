@@ -65,6 +65,11 @@ Release build, writing the combined overview to
 `artifacts/conversion-quality-smoke/html-examples` beneath the existing uploaded
 artifact root.
 
+The checked-in review examples also include two Ghent Output Suite test-page
+PDFs. CI downloads the official test-pages ZIP with
+`scripts/download-ghent-pdf.mjs --test-pages`, verifies both extracted PDFs by
+SHA-256, and keeps the ZIP and PDFs under ignored `artifacts` storage.
+
 The remote manifest's expectations deliberately cover stable structural
 invariants only: exact page count, normalized required title words, minimum
 text runs, and category-specific minimum image, vector-path, and link counts.
