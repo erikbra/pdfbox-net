@@ -25,7 +25,13 @@ DEFAULT_OUT_DIR = ROOT / "artifacts/html-examples"
 GENERATOR_PROJECT = ROOT / "tools/conversion_quality/PdfBox.Net.ConversionQuality/PdfBox.Net.ConversionQuality.csproj"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
-MINIMUM_EXPECTATIONS = ("minTextRuns", "minImagePlacements", "minVectorPaths", "minLinks")
+MINIMUM_EXPECTATIONS = (
+    "minTextRuns",
+    "minImagePlacements",
+    "minVectorPaths",
+    "minLinks",
+    "minFormControls",
+)
 
 
 @dataclass(frozen=True)

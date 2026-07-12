@@ -137,6 +137,12 @@ class RemoteCorpusTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "requiredText"):
                 remote_corpus.load_manifest(manifest)
 
+            entry["expectations"]["requiredText"] = ["sample"]
+            entry["expectations"]["minFormControls"] = -1
+            self._write_manifest(manifest, [entry])
+            with self.assertRaisesRegex(ValueError, "minFormControls"):
+                remote_corpus.load_manifest(manifest)
+
     def test_fetch_document_retries_verifies_hash_and_installs_atomically(self) -> None:
         content = b"pinned-pdf-content"
         expected_hash = hashlib.sha256(content).hexdigest()

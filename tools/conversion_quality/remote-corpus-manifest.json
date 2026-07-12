@@ -185,8 +185,9 @@
           "identification",
           "certification"
         ],
-        "minTextRuns": 750,
-        "minVectorPaths": 100
+      "minTextRuns": 750,
+      "minVectorPaths": 100,
+      "minFormControls": 20
       }
     },
     {
@@ -211,9 +212,10 @@
           "verification"
         ],
         "minTextRuns": 400,
-        "minImagePlacements": 5,
-        "minVectorPaths": 240,
-        "minLinks": 5
+      "minImagePlacements": 5,
+      "minVectorPaths": 240,
+      "minLinks": 5,
+      "minFormControls": 100
       }
     },
     {
