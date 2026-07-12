@@ -25,4 +25,9 @@ public sealed record PdfTextGlyph(
     /// Gets whether the glyph's exact PDF font has been exported as a browser-loadable asset.
     /// </summary>
     public bool UsesBrowserFontAsset { get; init; }
+
+    /// <summary>
+    /// Gets whether the PDF text rendering mode paints this glyph.
+    /// </summary>
+    public bool IsPainted { get; init; } = true;
 }

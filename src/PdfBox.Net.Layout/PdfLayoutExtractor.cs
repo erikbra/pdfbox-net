@@ -53,6 +53,7 @@ public static class PdfLayoutExtractor
         private readonly List<PageBuilder> _pages = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
         private readonly Dictionary<TextPosition, PdfLayoutColor> _textColors = new(ReferenceEqualityComparer.Instance);
+        private readonly Dictionary<TextPosition, bool> _textPaintStates = new(ReferenceEqualityComparer.Instance);
         private readonly ImageAssetCollector _imageAssets = new();
         private readonly EmbeddedFontAssetCollector _fontAssets;
         private PDColorManagementContext? _colorManagementContext;
@@ -72,6 +73,7 @@ public static class PdfLayoutExtractor
             _pages.Clear();
             _diagnostics.Clear();
             _textColors.Clear();
+            _textPaintStates.Clear();
             _imageAssets.Clear();
             _fontAssets.Clear();
             _colorManagementContext = PDColorManagementContext.Create(document);
@@ -128,11 +130,13 @@ public static class PdfLayoutExtractor
                 textPositions.Sort(new TextPositionComparator());
             }
 
-            _currentPage.SetTextPositions(textPositions, _options, _textColors, _fontAssets);
+            _currentPage.SetTextPositions(textPositions, _options, _textColors, _textPaintStates, _fontAssets);
         }
 
         protected override void ProcessTextPosition(TextPosition text)
         {
+            RenderingMode renderingMode = GetGraphicsState().GetTextState().GetRenderingModeInstance();
+            _textPaintStates[text] = renderingMode.IsFill() || renderingMode.IsStroke();
             _textColors[text] = ResolveGraphicsColor(
                 GetGraphicsState().GetNonStrokingColor(),
                 GetGraphicsState().GetNonStrokeAlphaConstant(),
@@ -526,6 +530,7 @@ public static class PdfLayoutExtractor
             IReadOnlyList<TextPosition> textPositions,
             PdfLayoutOptions options,
             IReadOnlyDictionary<TextPosition, PdfLayoutColor> textColors,
+            IReadOnlyDictionary<TextPosition, bool> textPaintStates,
             EmbeddedFontAssetCollector fontAssets)
         {
             _glyphs.Clear();
@@ -533,7 +538,7 @@ public static class PdfLayoutExtractor
             _lines.Clear();
             _blocks.Clear();
 
-            _glyphs.AddRange(textPositions.Select(position => CreateGlyph(position, textColors, fontAssets)));
+            _glyphs.AddRange(textPositions.Select(position => CreateGlyph(position, textColors, textPaintStates, fontAssets)));
             _lines.AddRange(CreateLines(_glyphs, options));
             _runs.AddRange(_lines.SelectMany(line => line.Runs));
             ApplyTextShadows(_runs, _softMaskedTransparencyGroups);
@@ -1335,6 +1340,7 @@ public static class PdfLayoutExtractor
         private PdfTextGlyph CreateGlyph(
             TextPosition position,
             IReadOnlyDictionary<TextPosition, PdfLayoutColor> textColors,
+            IReadOnlyDictionary<TextPosition, bool> textPaintStates,
             EmbeddedFontAssetCollector fontAssets)
         {
             PDFont font = position.GetFont();
@@ -1363,7 +1369,8 @@ public static class PdfLayoutExtractor
             {
                 PageBounds = pageBounds,
                 Outline = hasBrowserFontAsset ? null : TryCreateGlyphOutline(position, font),
-                UsesBrowserFontAsset = hasBrowserFontAsset
+                UsesBrowserFontAsset = hasBrowserFontAsset,
+                IsPainted = textPaintStates.GetValueOrDefault(position, true)
             };
         }
 
@@ -1716,6 +1723,11 @@ public static class PdfLayoutExtractor
             }
 
             if (MathF.Abs(previous.FontSize - glyph.FontSize) > 0.01f || MathF.Abs(previous.Direction - glyph.Direction) > 0.01f)
+            {
+                return true;
+            }
+
+            if (previous.IsPainted != glyph.IsPainted)
             {
                 return true;
             }

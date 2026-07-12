@@ -48,6 +48,10 @@ public static class PdfHtmlConverter
           z-index: 1;
         }
 
+        .pdf-ocr-scan-page .pdf-ocr-text-run {
+          opacity: 0;
+        }
+
         .pdf-text-run-copy {
           color: transparent;
           display: block;
@@ -1038,6 +1042,7 @@ public static class PdfHtmlConverter
         string? additionalClass = null,
         PdfSemanticExtractionOptions? inferredTextOptions = null)
     {
+        bool isOcrScanPage = IsRasterScanPageWithOcrText(page);
         html.Append("  <section class=\"pdf-page");
         if (textMode == PdfHtmlTextMode.Semantic)
         {
@@ -1047,6 +1052,11 @@ public static class PdfHtmlConverter
         if (!string.IsNullOrWhiteSpace(additionalClass))
         {
             html.Append(' ').Append(additionalClass);
+        }
+
+        if (isOcrScanPage)
+        {
+            html.Append(" pdf-ocr-scan-page");
         }
 
         html.Append("\" data-page-number=\"")
@@ -1128,7 +1138,8 @@ public static class PdfHtmlConverter
                     scale,
                     FixedTextFontSize(run, page.Runs),
                     page.Runs,
-                    inferredText?.GetValueOrDefault(run));
+                    inferredText?.GetValueOrDefault(run),
+                    visuallyHiddenOcr: isOcrScanPage && IsUnpaintedTextRun(run));
             }
         }
 
@@ -2167,13 +2178,16 @@ public static class PdfHtmlConverter
         float scale,
         float fontSize,
         IReadOnlyList<PdfTextRun> pageRuns,
-        string? text = null)
+        string? text = null,
+        bool visuallyHiddenOcr = false)
     {
         text ??= run.Text;
         html.Append("    <span class=\"pdf-text-run")
             .Append(run.Shadow is null ? "" : " pdf-text-shadow")
+            .Append(visuallyHiddenOcr ? " pdf-ocr-text-run" : "")
             .Append("\" data-font=\"")
             .Append(HtmlAttribute(run.FontName))
+            .Append(visuallyHiddenOcr ? "\" aria-label=\"" + HtmlAttribute(text) : "")
             .Append("\" style=\"position:absolute;left:")
             .Append(CssPoints(run.Bounds.X * scale))
             .Append(";top:")
@@ -2838,6 +2852,11 @@ public static class PdfHtmlConverter
             return true;
         }
 
+        if (IsRasterScanPageWithOcrText(page))
+        {
+            return true;
+        }
+
         if (lineGrid != null || columns != null)
         {
             return false;
@@ -2881,6 +2900,65 @@ public static class PdfHtmlConverter
 
         return semanticPage.Elements.Count <= 1 &&
             PageContentTop(page) > page.Height * 0.14f;
+    }
+
+    private static bool IsRasterScanPageWithOcrText(PdfLayoutPage page)
+    {
+        if (page.Width <= 0 || page.Height <= 0 || page.Glyphs.Count < 12)
+        {
+            return false;
+        }
+
+        PdfLayoutRectangle pageBounds = new(0, 0, page.Width, page.Height);
+        PdfLayoutImage? scanImage = page.Images
+            .Where(static image => image.Kind is PdfLayoutImageKind.XObject or PdfLayoutImageKind.InlineImage)
+            .Where(image => image.IntrinsicWidth >= page.Width * 0.5f && image.IntrinsicHeight >= page.Height * 0.5f)
+            .Where(image => VisibleImageBounds(image).Width >= page.Width * 0.88f)
+            .Where(image => VisibleImageBounds(image).Height >= page.Height * 0.88f)
+            .Where(image => RectangleIntersectionArea(VisibleImageBounds(image), pageBounds) >= page.Width * page.Height * 0.82f)
+            .OrderByDescending(image => RectangleIntersectionArea(VisibleImageBounds(image), pageBounds))
+            .FirstOrDefault();
+        if (scanImage == null)
+        {
+            return false;
+        }
+
+        PdfTextGlyph[] textGlyphs = page.Glyphs
+            .Where(static glyph => !string.IsNullOrWhiteSpace(glyph.Text))
+            .Where(static glyph => glyph.PageBounds.Width > 0 && glyph.PageBounds.Height > 0)
+            .ToArray();
+        if (textGlyphs.Length < 12 || textGlyphs.Count(static glyph => !glyph.IsPainted) < textGlyphs.Length * 0.85f)
+        {
+            return false;
+        }
+
+        PdfLayoutRectangle imageBounds = VisibleImageBounds(scanImage);
+        int coLocatedGlyphs = textGlyphs.Count(glyph => RectangleContainsCenter(imageBounds, glyph.PageBounds));
+        return coLocatedGlyphs >= textGlyphs.Length * 0.9f;
+    }
+
+    private static float RectangleIntersectionArea(PdfLayoutRectangle first, PdfLayoutRectangle second)
+    {
+        float width = MathF.Max(0, MathF.Min(first.Right, second.Right) - MathF.Max(first.X, second.X));
+        float height = MathF.Max(0, MathF.Min(first.Bottom, second.Bottom) - MathF.Max(first.Y, second.Y));
+        return width * height;
+    }
+
+    private static bool RectangleContainsCenter(PdfLayoutRectangle outer, PdfLayoutRectangle inner)
+    {
+        float centerX = inner.X + inner.Width / 2f;
+        float centerY = inner.Y + inner.Height / 2f;
+        return centerX >= outer.X && centerX <= outer.Right &&
+            centerY >= outer.Y && centerY <= outer.Bottom;
+    }
+
+    private static bool IsUnpaintedTextRun(PdfTextRun run)
+    {
+        PdfTextGlyph[] textGlyphs = run.Glyphs
+            .Where(static glyph => !string.IsNullOrWhiteSpace(glyph.Text))
+            .ToArray();
+        return textGlyphs.Length > 0 &&
+            textGlyphs.Count(static glyph => !glyph.IsPainted) >= textGlyphs.Length * 0.85f;
     }
 
     private static bool HasFullPageVectorBackdrop(PdfLayoutPage page)
@@ -7242,6 +7320,12 @@ public static class PdfHtmlConverter
             "pdf-semantic-element",
             SemanticClassName(element.Kind)
         ];
+        PdfTextRun[] sourceRuns = element.Lines.SelectMany(static line => line.Runs).ToArray();
+        if (sourceRuns.Length > 0 && sourceRuns.All(IsUnpaintedTextRun))
+        {
+            classes.Add("pdf-ocr-text-run");
+        }
+
         if (element.Kind != PdfSemanticElementKind.AuthorBlock)
         {
             classes.Add(FontClass(SemanticFontName(element)));
