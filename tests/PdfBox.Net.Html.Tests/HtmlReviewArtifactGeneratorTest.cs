@@ -145,6 +145,28 @@ public sealed class HtmlReviewArtifactGeneratorTest
     }
 
     [Fact]
+    public void ValidateExpectations_RejectsMissingImagesOnRequiredPage()
+    {
+        PdfLayoutDocument layout = CreateSyntheticLayout("Page one", "Page two");
+        HtmlReviewManifestExample example = new()
+        {
+            Id = "page-image-expectations",
+            Expectations = new HtmlReviewExpectations
+            {
+                PageCount = 2,
+                RequiredText = ["page"],
+                MinTextRuns = 1,
+                MinImagePlacementsByPage = new Dictionary<int, int> { [2] = 1 }
+            }
+        };
+
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(
+            () => HtmlReviewArtifactGenerator.ValidateExpectations(example, layout));
+
+        Assert.Contains("image placements on page 2 was 0, expected at least 1", exception.Message);
+    }
+
+    [Fact]
     public void Generate_FailsWhenStableLayoutExpectationsAreNotMet()
     {
         using TempDirectory tempDirectory = new();

@@ -195,6 +195,22 @@ def _validate_expectations(expectations: dict[str, Any], prefix: str) -> None:
         if value is not None and (not isinstance(value, int) or isinstance(value, bool) or value < 0):
             raise ValueError(f"{prefix} expectations.{name} must be a non-negative integer")
 
+    min_images_by_page = expectations.get("minImagePlacementsByPage")
+    if min_images_by_page is not None:
+        if not isinstance(min_images_by_page, dict) or not min_images_by_page:
+            raise ValueError(
+                f"{prefix} expectations.minImagePlacementsByPage must be a non-empty object"
+            )
+        for page_number, minimum in min_images_by_page.items():
+            if not isinstance(page_number, str) or not page_number.isdigit() or int(page_number) < 1:
+                raise ValueError(
+                    f"{prefix} expectations.minImagePlacementsByPage keys must be positive page numbers"
+                )
+            if not isinstance(minimum, int) or isinstance(minimum, bool) or minimum < 0:
+                raise ValueError(
+                    f"{prefix} expectations.minImagePlacementsByPage values must be non-negative integers"
+                )
+
 
 def _validate_https_url(value: str, label: str) -> None:
     parsed = urlparse(value)

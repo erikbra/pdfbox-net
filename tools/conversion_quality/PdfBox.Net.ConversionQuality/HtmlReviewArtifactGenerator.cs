@@ -203,6 +203,12 @@ public static class HtmlReviewArtifactGenerator
         AddMinimumFailure(failures, "vector paths", vectorPaths, expectations.MinVectorPaths);
         AddMinimumFailure(failures, "links", links, expectations.MinLinks);
         AddMinimumFailure(failures, "form controls", formControls, expectations.MinFormControls);
+        foreach ((int pageNumber, int minimum) in expectations.MinImagePlacementsByPage)
+        {
+            PdfLayoutPage? page = layout.Pages.FirstOrDefault(page => page.PageNumber == pageNumber);
+            int actual = page?.Images.Count ?? 0;
+            AddMinimumFailure(failures, $"image placements on page {pageNumber}", actual, minimum);
+        }
 
         string extractedText = NormalizeAlphaNumeric(string.Concat(
             layout.Pages.SelectMany(page => page.Runs).Select(run => run.Text)));
@@ -661,6 +667,8 @@ public sealed class HtmlReviewExpectations
     public int? MinTextRuns { get; set; }
 
     public int? MinImagePlacements { get; set; }
+
+    public Dictionary<int, int> MinImagePlacementsByPage { get; set; } = [];
 
     public int? MinVectorPaths { get; set; }
 
