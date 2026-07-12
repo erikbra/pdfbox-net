@@ -52,6 +52,9 @@ public static class PdfSemanticExtractor
         LineCandidate? documentTitle = titleCandidate != null && IsDocumentTitle(titleCandidate, page, bodyFontSize)
             ? titleCandidate
             : null;
+        LineCandidate[] documentTitleLines = documentTitle == null
+            ? []
+            : GroupDocumentTitleLines(documentTitle, headingLines, page, bodyFontSize, lineStep);
 
         LineCandidate[] headerLines;
         if (documentTitle != null)
@@ -80,7 +83,13 @@ public static class PdfSemanticExtractor
             }
         }
 
-        foreach (PdfSemanticElement author in ExtractAuthorBlocks(page, lines, documentTitle, headingLines, options, consumed))
+        foreach (PdfSemanticElement author in ExtractAuthorBlocks(
+            page,
+            lines,
+            documentTitleLines,
+            headingLines,
+            options,
+            consumed))
         {
             elements.Add(author);
         }
@@ -90,8 +99,30 @@ public static class PdfSemanticExtractor
             elements.Add(footnote);
         }
 
+        HashSet<int> documentTitleLineIndexes = documentTitleLines
+            .Select(static line => line.Index)
+            .ToHashSet();
         foreach (LineCandidate line in headingLines)
         {
+            if (documentTitleLineIndexes.Contains(line.Index))
+            {
+                if (line.Index == documentTitleLines[0].Index &&
+                    documentTitleLines.All(titleLine => !consumed.Contains(titleLine.Index)))
+                {
+                    foreach (LineCandidate titleLine in documentTitleLines)
+                    {
+                        consumed.Add(titleLine.Index);
+                    }
+
+                    elements.Add(CreateElement(
+                        PdfSemanticElementKind.Heading,
+                        documentTitleLines,
+                        headingLevel: HeadingLevel(documentTitleLines[0], bodyFontSize)));
+                }
+
+                continue;
+            }
+
             if (consumed.Add(line.Index))
             {
                 int level = HeadingLevel(line, bodyFontSize);
@@ -471,6 +502,76 @@ public static class PdfSemanticExtractor
         return muchLargerThanBody && centered && highOnPage;
     }
 
+    private static LineCandidate[] GroupDocumentTitleLines(
+        LineCandidate documentTitle,
+        IReadOnlyList<LineCandidate> headingLines,
+        PdfLayoutPage page,
+        float bodyFontSize,
+        float lineStep)
+    {
+        LineCandidate[] ordered = headingLines
+            .Where(line => line.Bounds.Y < page.Height * 0.55f)
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        int anchorIndex = Array.IndexOf(ordered, documentTitle);
+        if (anchorIndex < 0)
+        {
+            return [documentTitle];
+        }
+
+        int start = anchorIndex;
+        while (start > 0 && ShouldGroupDocumentTitleLines(
+            ordered[start - 1],
+            ordered[start],
+            bodyFontSize,
+            lineStep))
+        {
+            start--;
+        }
+
+        int end = anchorIndex;
+        while (end + 1 < ordered.Length && ShouldGroupDocumentTitleLines(
+            ordered[end],
+            ordered[end + 1],
+            bodyFontSize,
+            lineStep))
+        {
+            end++;
+        }
+
+        return ordered[start..(end + 1)];
+    }
+
+    private static bool ShouldGroupDocumentTitleLines(
+        LineCandidate previous,
+        LineCandidate current,
+        float bodyFontSize,
+        float lineStep)
+    {
+        if (HeadingLevel(previous, bodyFontSize) != HeadingLevel(current, bodyFontSize) ||
+            MathF.Abs(previous.Direction) > 0.01f ||
+            MathF.Abs(previous.Direction - current.Direction) > 0.01f ||
+            !SameColor(previous.Color, current.Color) ||
+            !string.Equals(previous.FontName, current.FontName, StringComparison.Ordinal) ||
+            MathF.Abs(previous.FontSize - current.FontSize) > 0.75f)
+        {
+            return false;
+        }
+
+        float verticalGap = current.Bounds.Y - previous.Bounds.Bottom;
+        float maximumGap = MathF.Max(lineStep * 1.8f, MathF.Max(previous.FontSize, current.FontSize) * 0.85f);
+        if (verticalGap < -2f || verticalGap > maximumGap)
+        {
+            return false;
+        }
+
+        float edgeTolerance = MathF.Max(4f, MathF.Max(previous.FontSize, current.FontSize) * 0.45f);
+        return MathF.Abs(previous.Bounds.X - current.Bounds.X) <= edgeTolerance ||
+            MathF.Abs(previous.Bounds.Right - current.Bounds.Right) <= edgeTolerance ||
+            MathF.Abs(previous.CenterX - current.CenterX) <= edgeTolerance;
+    }
+
     private static bool IsFooter(LineCandidate line, PdfLayoutPage page, float bodyFontSize)
     {
         if (IsSymbolFootnoteMarker(line.Text))
@@ -493,18 +594,20 @@ public static class PdfSemanticExtractor
     private static IEnumerable<PdfSemanticElement> ExtractAuthorBlocks(
         PdfLayoutPage page,
         IReadOnlyList<LineCandidate> lines,
-        LineCandidate? title,
+        IReadOnlyList<LineCandidate> titleLines,
         IReadOnlyList<LineCandidate> headingLines,
         PdfSemanticExtractionOptions options,
         HashSet<int> consumed)
     {
-        if (title == null)
+        if (titleLines.Count == 0)
         {
             yield break;
         }
 
+        HashSet<int> titleLineIndexes = titleLines.Select(static line => line.Index).ToHashSet();
+        PdfLayoutRectangle titleBounds = PdfLayoutRectangle.Union(titleLines.Select(static line => line.Bounds));
         LineCandidate? nextHeading = headingLines
-            .Where(line => line.Index != title.Index && line.Bounds.Y > title.Bounds.Bottom)
+            .Where(line => !titleLineIndexes.Contains(line.Index) && line.Bounds.Y > titleBounds.Bottom)
             .OrderBy(static line => line.Bounds.Y)
             .FirstOrDefault();
         if (nextHeading == null)
@@ -513,7 +616,7 @@ public static class PdfSemanticExtractor
         }
 
         LineCandidate[] band = lines
-            .Where(line => line.Bounds.Y > title.Bounds.Bottom + 8f && line.Bounds.Bottom < nextHeading.Bounds.Y - 8f)
+            .Where(line => line.Bounds.Y > titleBounds.Bottom + 8f && line.Bounds.Bottom < nextHeading.Bounds.Y - 8f)
             .ToArray();
         if (!band.Any(line => line.Source.Runs.Any(run => EmailPattern.IsMatch(run.Text))))
         {

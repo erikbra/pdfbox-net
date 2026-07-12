@@ -732,10 +732,10 @@ public class PdfHtmlConverterTest
         XElement title = Assert.Single(dom.Descendants("h1"), element =>
             element.Value.Contains("Attention Is All You Need", StringComparison.Ordinal));
         Assert.Null(title.Attribute("data-semantic-kind"));
-        Assert.Null(title.Attribute("style"));
         Assert.Contains("pdf-semantic-title", title.Attribute("class")?.Value);
-        Assert.Contains("border-top: 4pt solid currentColor", html.Css, StringComparison.Ordinal);
-        Assert.Contains("border-bottom: 1pt solid currentColor", html.Css, StringComparison.Ordinal);
+        Assert.DoesNotContain("pdf-semantic-title-rule-top", title.Attribute("class")?.Value ?? "", StringComparison.Ordinal);
+        Assert.DoesNotContain("pdf-semantic-title-rule-bottom", title.Attribute("class")?.Value ?? "", StringComparison.Ordinal);
+        Assert.Null(title.Attribute("style"));
 
         XElement[] authors = ElementsByClass(dom, "pdf-semantic-author-block").ToArray();
         Assert.Equal(8, authors.Length);
@@ -849,8 +849,14 @@ public class PdfHtmlConverterTest
         XElement firstPage = Assert.Single(dom.Descendants("section"), section =>
             section.Attribute("id")?.Value == "page-1");
         Assert.DoesNotContain(firstPage.Descendants(), element => HasClass(element, "pdf-vector-layer"));
-        Assert.Contains("border-top: 4pt solid currentColor", html.Css, StringComparison.Ordinal);
-        Assert.Contains("border-bottom: 1pt solid currentColor", html.Css, StringComparison.Ordinal);
+        XElement title = Assert.Single(firstPage.Descendants("h1"), heading => HasClass(heading, "pdf-semantic-title"));
+        Assert.True(HasClass(title, "pdf-semantic-title-rule-top"));
+        Assert.True(HasClass(title, "pdf-semantic-title-rule-bottom"));
+        Dictionary<string, string> titleStyle = ParseStyle(title.Attribute("style")?.Value ?? "");
+        Assert.InRange(ParsePoints(titleStyle["--pdf-title-rule-top-thickness"]), 3.9f, 4.1f);
+        Assert.InRange(ParsePoints(titleStyle["--pdf-title-rule-bottom-thickness"]), 0.9f, 1.1f);
+        Assert.Contains("border-top: var(--pdf-title-rule-top-thickness", html.Css, StringComparison.Ordinal);
+        Assert.Contains("border-bottom: var(--pdf-title-rule-bottom-thickness", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-footnotes::before", html.Css, StringComparison.Ordinal);
         XElement footnoteSection = Assert.Single(firstPage.Descendants(), element => HasClass(element, "pdf-semantic-footnotes"));
         Dictionary<string, string> footnoteRuleStyle = ParseStyle(footnoteSection.Attribute("style")?.Value ?? "");
@@ -892,6 +898,109 @@ public class PdfHtmlConverterTest
         int labelIndex = Array.IndexOf(flowChildren, attentionLabels);
         int figureSpaceIndex = Array.FindIndex(flowChildren, element => HasClass(element, "pdf-semantic-figure-space"));
         Assert.True(labelIndex >= 0 && figureSpaceIndex > labelIndex);
+    }
+
+    [Fact]
+    public async Task Convert_SemanticContinuousFlow_PreservesCoverTitleCompositionWithoutInventedRules()
+    {
+        using PDDocument document = CreateCoverTitleCompositionDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement titleRegion = Assert.Single(semanticPage.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading &&
+            element.HeadingLevel == 1 &&
+            element.Text.Contains("Designing Secure Systems", StringComparison.Ordinal));
+
+        Assert.Equal(3, titleRegion.Lines.Count);
+        Assert.Equal(
+            ["Designing Secure Systems", "Across Public Networks", "For Modern Operations"],
+            titleRegion.Lines.Select(static line => line.Text.Trim()).ToArray());
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement title = Assert.Single(dom.Descendants("h1"), heading => HasClass(heading, "pdf-semantic-title"));
+        Assert.True(HasClass(title, "pdf-semantic-align-right"));
+        Assert.False(HasClass(title, "pdf-semantic-title-rule-top"));
+        Assert.False(HasClass(title, "pdf-semantic-title-rule-bottom"));
+        Assert.Equal(3, title.Elements("span").Count(element => HasClass(element, "pdf-semantic-line")));
+        Assert.DoesNotContain("--pdf-title-rule-", title.Attribute("style")?.Value ?? "", StringComparison.Ordinal);
+
+        XElement coverRegion = Assert.Single(ElementsByClass(dom, "pdf-semantic-cover-region"));
+        XElement decorationLayer = Assert.Single(coverRegion.Elements(), element =>
+            HasClass(element, "pdf-semantic-cover-decoration-layer"));
+        Assert.Equal(2, decorationLayer.Descendants().Count(static element => element.Name.LocalName == "img"));
+        Assert.Single(decorationLayer.Descendants(), element =>
+            element.Name.LocalName == "path" && element.Attribute("data-path-index") != null);
+        Dictionary<string, string> coverStyle = ParseStyle(coverRegion.Attribute("style")?.Value ?? "");
+        Assert.Equal(612f, ParsePoints(coverStyle["--pdf-semantic-cover-width"]));
+        Assert.Equal(792f, ParsePoints(coverStyle["--pdf-semantic-cover-height"]));
+        Assert.Equal(2, html.Assets.Count(asset => asset.RelativePath.Contains("page-1-image", StringComparison.Ordinal)));
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage browserPage = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize
+            {
+                Width = 816,
+                Height = 1200
+            }
+        });
+        await browserPage.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+        double[] coverTextRightEdges = await browserPage.EvaluateAsync<double[]>(
+            """
+            () => {
+              const textRight = element => {
+                const range = document.createRange();
+                range.selectNodeContents(element);
+                const right = range.getBoundingClientRect().right;
+                range.detach();
+                return right;
+              };
+              const coverText = Array.from(document.querySelectorAll("#page-1 + .pdf-semantic-cover-region .pdf-semantic-cover-region-element"))
+                .filter(element => element.getBoundingClientRect().top < 800);
+              return coverText.flatMap(element => {
+                const lines = Array.from(element.querySelectorAll(":scope > .pdf-semantic-line"));
+                return (lines.length === 0 ? [element] : lines).map(textRight);
+              });
+            }
+            """);
+
+        Assert.Equal(10, coverTextRightEdges.Length);
+        Assert.All(coverTextRightEdges, right => Assert.InRange(right, 712d, 732d));
+
+        double[] coverTopEdges = await browserPage.EvaluateAsync<double[]>(
+            """
+            () => {
+              const cover = document.querySelector("#page-1 + .pdf-semantic-cover-region");
+              const coverTop = cover.getBoundingClientRect().top;
+              return [
+                cover.querySelector(".pdf-image").getBoundingClientRect().top - coverTop,
+                cover.querySelector("header").getBoundingClientRect().top - coverTop,
+                cover.querySelector("h1").getBoundingClientRect().top - coverTop
+              ];
+            }
+            """);
+        PdfLayoutPage layoutPage = Assert.Single(layout.Pages);
+        PdfSemanticElement header = Assert.Single(semanticPage.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Header);
+        Assert.InRange(coverTopEdges[0], layoutPage.Images.Min(static image => image.Bounds.Y) * 4d / 3d - 2d,
+            layoutPage.Images.Min(static image => image.Bounds.Y) * 4d / 3d + 2d);
+        Assert.InRange(coverTopEdges[1], header.Bounds.Y * 4d / 3d - 2d, header.Bounds.Y * 4d / 3d + 2d);
+        Assert.InRange(coverTopEdges[2], titleRegion.Bounds.Y * 4d / 3d - 2d, titleRegion.Bounds.Y * 4d / 3d + 2d);
     }
 
     [Fact]
@@ -3602,6 +3711,52 @@ public class PdfHtmlConverterTest
         }
 
         return document;
+    }
+
+    private static PDDocument CreateCoverTitleCompositionDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDType1Font titleFont = new(PDType1Font.FontName.HELVETICA_BOLD);
+        PDType1Font bodyFont = new(PDType1Font.FontName.HELVETICA);
+        PDImageXObject updateMark = LosslessFactory.CreateFromRawData(document, [96, 96, 96], 1, 1, 8, 3);
+        PDImageXObject logo = LosslessFactory.CreateFromRawData(document, [36, 112, 168], 1, 1, 8, 3);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.DrawImage(updateMark, 24, 714, 48, 48);
+            WriteCompositeFixtureLine(content, titleFont, "Technical Publication 42", 334, 690, 18);
+            WriteRightAlignedFixtureLine(content, titleFont, "Designing Secure Systems", 540, 650, 26);
+            WriteRightAlignedFixtureLine(content, titleFont, "Across Public Networks", 540, 616, 26);
+            WriteRightAlignedFixtureLine(content, titleFont, "For Modern Operations", 540, 582, 26);
+
+            content.SetStrokingColor(0.25f);
+            content.MoveTo(72, 562);
+            content.LineTo(220, 562);
+            content.Stroke();
+
+            WriteRightAlignedFixtureLine(content, bodyFont, "Morgan Lee", 540, 520, 13);
+            WriteRightAlignedFixtureLine(content, bodyFont, "Avery Chen", 540, 502, 13);
+            WriteRightAlignedFixtureLine(content, bodyFont, "Prepared for public release and broad technical review", 540, 460, 11);
+            WriteRightAlignedFixtureLine(content, bodyFont, "Reference edition for infrastructure planning teams", 540, 444, 11);
+            WriteRightAlignedFixtureLine(content, bodyFont, "Supporting notes describe the intended operating context", 540, 428, 11);
+            WriteRightAlignedFixtureLine(content, bodyFont, "Distribution remains available without access restrictions", 540, 412, 11);
+            content.DrawImage(logo, 360, 30, 180, 36);
+        }
+
+        return document;
+    }
+
+    private static void WriteRightAlignedFixtureLine(
+        PDPageContentStream content,
+        PDFont font,
+        string text,
+        float right,
+        float y,
+        float fontSize)
+    {
+        float width = font.GetStringWidth(text) / 1000f * fontSize;
+        WriteCompositeFixtureLine(content, font, text, right - width, y, fontSize);
     }
 
     private static PDDocument CreateSideBySideImageDocument(bool includeCaption, bool clipSecondImage)
