@@ -15,7 +15,10 @@ using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.Patterns;
 using PdfBox.Net.PDModel.Graphics.Shading;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.PdfParser;
+using PdfBox.Net.Text;
 using PdfBox.Net.Util;
 using Xunit;
 
@@ -101,6 +104,125 @@ public class PDContentStreamTest
         Assert.Contains("l", contentText);
         Assert.Contains("h", contentText);
         Assert.Contains("S", contentText);
+    }
+
+    [Fact]
+    public void PDType1Font_Standard14Helvetica_DeclaresAndUsesWinAnsiEncoding()
+    {
+        PDType1Font font = new(PDType1Font.FontName.HELVETICA);
+
+        Assert.Equal(
+            "WinAnsiEncoding",
+            font.GetCOSObject().GetNameAsString(COSName.GetPDFName("Encoding")));
+        Assert.Equal([0x20], font.Encode(" "));
+        Assert.Equal([0xE6, 0xF8, 0xE5], font.Encode("æøå"));
+        Assert.Equal(
+            font.GetWidth(0xE6) + font.GetWidth(0xF8) + font.GetWidth(0xE5),
+            font.GetStringWidth("æøå"));
+    }
+
+    [Fact]
+    public void PDPageContentStream_ShowText_UsesSymbolAndZapfDingbatsGlyphLists()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDType1Font symbol = new(PDType1Font.FontName.SYMBOL);
+        PDType1Font dingbats = new(PDType1Font.FontName.ZAPF_DINGBATS);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.BeginText();
+            content.SetFont(symbol, 12);
+            content.ShowText("\u03B1");
+            content.SetFont(dingbats, 12);
+            content.ShowText("\u2701");
+            content.EndText();
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        COSString[] shown = PDFStreamParser.Parse(stream).OfType<COSString>().ToArray();
+        Assert.Equal(2, shown.Length);
+        Assert.Equal([97], shown[0].GetBytes());
+        Assert.Equal([33], shown[1].GetBytes());
+        Assert.Equal("\u2701", dingbats.ToUnicode(33));
+    }
+
+    [Fact]
+    public void PDPageContentStream_ShowText_UsesSelectedFontEncodingAndAdvances()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDType1Font font = new(PDType1Font.FontName.HELVETICA);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.BeginText();
+            content.SetFont(font, 12);
+            content.NewLineAtOffset(50, 700);
+            content.ShowText("æøå");
+            content.EndText();
+        }
+
+        using (Stream stream = ((PDContentStream)page).GetContents()!)
+        {
+            COSString shown = Assert.Single(PDFStreamParser.Parse(stream).OfType<COSString>());
+            Assert.Equal([0xE6, 0xF8, 0xE5], shown.GetBytes());
+        }
+
+        using MemoryStream saved = new();
+        document.Save(saved);
+        saved.Position = 0;
+        using PDDocument loaded = PDDocument.Load(saved);
+
+        TrackingTextStripper stripper = new();
+        Assert.Equal($"æøå{Environment.NewLine}", stripper.GetText(loaded));
+        Assert.Equal(3, stripper.Positions.Count);
+        Assert.Equal([0xE6], stripper.Positions[0].GetCharacterCodes());
+        Assert.Equal([0xF8], stripper.Positions[1].GetCharacterCodes());
+        Assert.Equal([0xE5], stripper.Positions[2].GetCharacterCodes());
+        Assert.Equal(50f + font.GetWidth(0xE6) * 12f / 1000f, stripper.Positions[1].GetXDirAdj(), 2);
+        Assert.Equal(
+            stripper.Positions[1].GetXDirAdj() + font.GetWidth(0xF8) * 12f / 1000f,
+            stripper.Positions[2].GetXDirAdj(),
+            2);
+    }
+
+    [Fact]
+    public void PDPageContentStream_ShowText_RejectsCharacterMissingFromSelectedFontEncoding()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        using PDPageContentStream content = new(document, page);
+        content.BeginText();
+        content.SetFont(new PDType1Font(PDType1Font.FontName.HELVETICA), 12);
+
+        ArgumentException exception = Assert.Throws<ArgumentException>(() => content.ShowText("漢"));
+        Assert.Contains("U+6F22", exception.Message, StringComparison.Ordinal);
+        Assert.Contains("Helvetica", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PDAppearanceContentStream_ShowText_UsesKnownFontEncoding()
+    {
+        using PDDocument document = new();
+        PDAppearanceStream appearance = new(document);
+        PDType1Font font = new(PDType1Font.FontName.HELVETICA);
+
+        using (PDAppearanceContentStream content = new(appearance))
+        {
+            content.BeginText();
+            content.SetFont(COSName.GetPDFName("F1"), font, 12);
+            content.ShowText("æøå");
+            content.EndText();
+        }
+
+        using Stream stream = appearance.GetContents();
+        COSString shown = Assert.Single(PDFStreamParser.Parse(stream).OfType<COSString>());
+        Assert.Equal([0xE6, 0xF8, 0xE5], shown.GetBytes());
     }
 
     [Fact]
@@ -293,6 +415,30 @@ public class PDContentStreamTest
     }
 
     [Fact]
+    public void PDPageContentStream_ShowTextWithPositioning_UsesSelectedFontEncoding()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.BeginText();
+            content.SetFont(new PDType1Font(PDType1Font.FontName.HELVETICA), 12);
+            content.ShowTextWithPositioning(new object[] { "æ", -120.0f, "øå" });
+            content.EndText();
+        }
+
+        using Stream stream = ((PDContentStream)page).GetContents()!;
+        COSArray positionedText = Assert.Single(PDFStreamParser.Parse(stream).OfType<COSArray>());
+
+        Assert.Equal(3, positionedText.Size());
+        Assert.Equal([0xE6], Assert.IsType<COSString>(positionedText.GetObject(0)).GetBytes());
+        Assert.Equal(-120.0f, Assert.IsAssignableFrom<COSNumber>(positionedText.GetObject(1)).FloatValue());
+        Assert.Equal([0xF8, 0xE5], Assert.IsType<COSString>(positionedText.GetObject(2)).GetBytes());
+    }
+
+    [Fact]
     public void PDPageContentStream_GlyphLayoutHooks_EmitHexTextOperators()
     {
         using PDDocument document = new();
@@ -406,5 +552,16 @@ public class PDContentStreamTest
         cos.SetInt(COSName.BITS_PER_COMPONENT, 8);
         cos.SetName(COSName.COLORSPACE, "DeviceRGB");
         return new PDImageXObject(stream, null);
+    }
+
+    private sealed class TrackingTextStripper : PDFTextStripper
+    {
+        public List<TextPosition> Positions { get; } = [];
+
+        protected override void ProcessTextPosition(TextPosition text)
+        {
+            Positions.Add(text);
+            base.ProcessTextPosition(text);
+        }
     }
 }

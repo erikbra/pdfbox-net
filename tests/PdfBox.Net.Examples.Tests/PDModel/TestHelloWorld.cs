@@ -78,7 +78,8 @@ public class TestHelloWorld
 
         try
         {
-            string[] args = { outputFile, "Hello World Type1!", pfbFile };
+            // The synthetic PFB contains only .notdef and A; use the glyph it actually encodes.
+            string[] args = { outputFile, "A", pfbFile };
             HelloWorldType1.Main(args);
 
             Assert.True(File.Exists(outputFile), "HelloWorldType1 should have created the PDF");

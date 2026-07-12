@@ -139,6 +139,10 @@ public partial class PDType1Font : PDSimpleFont
         dictionary.SetItem(COSName.TYPE, COSName.GetPDFName("Font"));
         dictionary.SetName(COSName.SUBTYPE, "Type1");
         dictionary.SetName(BaseFontKey, baseFontName);
+        if (baseFontName is not "Symbol" and not "ZapfDingbats")
+        {
+            dictionary.SetItem(COSName.GetPDFName("Encoding"), COSName.GetPDFName("WinAnsiEncoding"));
+        }
         return dictionary;
     }
 

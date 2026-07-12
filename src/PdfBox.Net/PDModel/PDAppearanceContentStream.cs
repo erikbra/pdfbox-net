@@ -93,7 +93,11 @@ public sealed class PDAppearanceContentStream : ContentStreamForGlyphLayoutInter
             return;
         }
 
-        WriteOperator("Tj", new COSString(text ?? string.Empty));
+        string value = text ?? string.Empty;
+        COSString encoded = _currentFont is PDSimpleFont
+            ? new COSString(_currentFont.Encode(value))
+            : new COSString(value);
+        WriteOperator("Tj", encoded);
     }
 
     public void SetFont(COSName fontName, float fontSize)

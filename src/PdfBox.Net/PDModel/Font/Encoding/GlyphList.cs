@@ -39,8 +39,10 @@ namespace PdfBox.Net.PDModel.Font.Encoding;
 public class GlyphList
 {
     private static readonly Lazy<GlyphList> _adobeGlyphList = new(LoadAdobeGlyphList, isThreadSafe: true);
+    private static readonly Lazy<GlyphList> _zapfDingbats = new(LoadZapfDingbats, isThreadSafe: true);
 
     private readonly Dictionary<string, string> _nameToUnicode;
+    private readonly Dictionary<string, string> _unicodeToName;
 
     /// <summary>
     /// Creates an empty glyph list.
@@ -48,6 +50,7 @@ public class GlyphList
     public GlyphList()
     {
         _nameToUnicode = new Dictionary<string, string>(StringComparer.Ordinal);
+        _unicodeToName = new Dictionary<string, string>(StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -59,22 +62,29 @@ public class GlyphList
     public GlyphList(GlyphList baseGlyphList, Stream? input)
     {
         _nameToUnicode = new Dictionary<string, string>(baseGlyphList._nameToUnicode, StringComparer.Ordinal);
+        _unicodeToName = new Dictionary<string, string>(baseGlyphList._unicodeToName, StringComparer.Ordinal);
 
         if (input != null)
         {
-            LoadFromStream(input, _nameToUnicode);
+            LoadFromStream(input, _nameToUnicode, _unicodeToName);
         }
     }
 
-    private GlyphList(Dictionary<string, string> map)
+    private GlyphList(Dictionary<string, string> nameToUnicode, Dictionary<string, string> unicodeToName)
     {
-        _nameToUnicode = map;
+        _nameToUnicode = nameToUnicode;
+        _unicodeToName = unicodeToName;
     }
 
     /// <summary>
     /// Returns the pre-loaded Adobe Glyph List singleton.
     /// </summary>
     public static GlyphList GetAdobeGlyphList() => _adobeGlyphList.Value;
+
+    /// <summary>
+    /// Returns the pre-loaded Zapf Dingbats glyph list singleton.
+    /// </summary>
+    public static GlyphList GetZapfDingbats() => _zapfDingbats.Value;
 
     /// <summary>
     /// Returns the Unicode string (one or more code points) for the given glyph name,
@@ -102,23 +112,46 @@ public class GlyphList
         return TryDecodeUniName(glyphName, out string? decoded) ? decoded : null;
     }
 
+    /// <summary>
+    /// Returns the canonical PostScript glyph name for a Unicode code point, or
+    /// <c>.notdef</c> when the glyph list has no mapping.
+    /// </summary>
+    public string CodePointToName(int codePoint)
+    {
+        string unicode = char.ConvertFromUtf32(codePoint);
+        return _unicodeToName.TryGetValue(unicode, out string? name) ? name : ".notdef";
+    }
+
     // ── private helpers ────────────────────────────────────────────────────────
 
     private static GlyphList LoadAdobeGlyphList()
     {
-        const string resourceName = "PdfBox.Net.PDModel.Font.Encoding.glyphlist.txt";
+        return LoadGlyphList("PdfBox.Net.PDModel.Font.Encoding.glyphlist.txt", 4096);
+    }
+
+    private static GlyphList LoadZapfDingbats()
+    {
+        return LoadGlyphList("PdfBox.Net.PDModel.Font.Encoding.zapfdingbats.txt", 256);
+    }
+
+    private static GlyphList LoadGlyphList(string resourceName, int capacity)
+    {
         using Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
         if (stream == null)
         {
             return new GlyphList();
         }
 
-        Dictionary<string, string> map = new(4096, StringComparer.Ordinal);
-        LoadFromStream(stream, map);
-        return new GlyphList(map);
+        Dictionary<string, string> nameToUnicode = new(capacity, StringComparer.Ordinal);
+        Dictionary<string, string> unicodeToName = new(capacity, StringComparer.Ordinal);
+        LoadFromStream(stream, nameToUnicode, unicodeToName);
+        return new GlyphList(nameToUnicode, unicodeToName);
     }
 
-    private static void LoadFromStream(Stream stream, Dictionary<string, string> target)
+    private static void LoadFromStream(
+        Stream stream,
+        Dictionary<string, string> nameToUnicode,
+        Dictionary<string, string> unicodeToName)
     {
         using StreamReader reader = new(stream, System.Text.Encoding.ASCII, detectEncodingFromByteOrderMarks: false, bufferSize: 4096, leaveOpen: true);
         string? line;
@@ -153,7 +186,19 @@ public class GlyphList
             string? unicode = ParseUnicodeString(hexCodes);
             if (unicode != null)
             {
-                target[name] = unicode;
+                nameToUnicode[name] = unicode;
+
+                // Match PDFBox's preference for names used by the standard encodings.
+                bool forceOverride =
+                    WinAnsiEncoding.INSTANCE.GetCode(name).HasValue ||
+                    MacRomanEncoding.INSTANCE.GetCode(name).HasValue ||
+                    MacExpertEncoding.INSTANCE.GetCode(name).HasValue ||
+                    SymbolEncoding.INSTANCE.GetCode(name).HasValue ||
+                    ZapfDingbatsEncoding.INSTANCE.GetCode(name).HasValue;
+                if (forceOverride || !unicodeToName.ContainsKey(unicode))
+                {
+                    unicodeToName[unicode] = name;
+                }
             }
         }
     }

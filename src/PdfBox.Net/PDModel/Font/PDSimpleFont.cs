@@ -36,9 +36,11 @@ namespace PdfBox.Net.PDModel.Font;
 
 public abstract partial class PDSimpleFont : PDVectorFont
 {
+    private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
 
     private readonly Encoding.Encoding _encoding;
+    private readonly GlyphList _glyphList;
 
     protected Encoding.Encoding FontEncoding => _encoding;
 
@@ -51,6 +53,9 @@ public abstract partial class PDSimpleFont : PDVectorFont
         : base(fontDictionary)
     {
         _encoding = encoding ?? DictionaryEncoding.ResolveEncoding(fontDictionary);
+        _glyphList = Standard14Fonts.GetMappedFontName(fontDictionary.GetNameAsString(BaseFontKey)) == "ZapfDingbats"
+            ? GlyphList.GetZapfDingbats()
+            : GlyphList.GetAdobeGlyphList();
     }
 
     public override string GetName()
@@ -125,12 +130,28 @@ public abstract partial class PDSimpleFont : PDVectorFont
 
     public override float GetStringWidth(string text)
     {
-        if (text == " " && _encoding.GetCode("space") is { } spaceCode)
+        byte[] encoded = Encode(text);
+        float width = 0f;
+        foreach (byte code in encoded)
         {
-            return GetWidth(spaceCode);
+            width += GetWidth(code);
         }
 
-        return base.GetStringWidth(text);
+        return width;
+    }
+
+    protected override byte[] Encode(int unicode)
+    {
+        string glyphName = _glyphList.CodePointToName(unicode);
+        int? code = _encoding.GetCode(glyphName);
+        if (glyphName == ".notdef" || code is null || code < byte.MinValue || code > byte.MaxValue)
+        {
+            throw new ArgumentException(
+                $"U+{unicode:X4} ('{glyphName}') is not available in font {GetName()}, encoding: {_encoding.GetEncodingName()}.",
+                nameof(unicode));
+        }
+
+        return [(byte)code.Value];
     }
 
     public override float GetWidthFromFont(int code)
@@ -169,7 +190,10 @@ public abstract partial class PDSimpleFont : PDVectorFont
             return null;
         }
 
-        return glyphList.ToUnicode(glyphName);
+        GlyphList unicodeGlyphList = ReferenceEquals(_glyphList, GlyphList.GetAdobeGlyphList())
+            ? glyphList
+            : _glyphList;
+        return unicodeGlyphList.ToUnicode(glyphName);
     }
 
     public override bool HasGlyph(int code)

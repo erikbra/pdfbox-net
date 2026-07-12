@@ -132,6 +132,32 @@ public abstract class PDFont : PDFontLike
     }
 
     /// <summary>
+    /// Encodes Unicode text for use in a PDF content stream.
+    /// </summary>
+    /// <param name="text">The Unicode text to encode.</param>
+    /// <returns>The font-specific character code bytes.</returns>
+    public virtual byte[] Encode(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+
+        using MemoryStream output = new(Math.Max(32, text.Length));
+        foreach (System.Text.Rune rune in text.EnumerateRunes())
+        {
+            output.Write(Encode(rune.Value));
+        }
+
+        return output.ToArray();
+    }
+
+    /// <summary>
+    /// Encodes one Unicode code point for use in a PDF content stream.
+    /// </summary>
+    protected virtual byte[] Encode(int unicode)
+    {
+        throw new NotSupportedException($"Encoding text with font {GetName()} is not implemented.");
+    }
+
+    /// <summary>
     /// Returns the glyph displacement in text space units.
     /// </summary>
     /// <param name="code">The character code.</param>

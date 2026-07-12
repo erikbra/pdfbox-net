@@ -129,7 +129,8 @@ public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, 
             return;
         }
 
-        WriteOperator("Tj", new COSString(text ?? string.Empty));
+        string value = text ?? string.Empty;
+        WriteOperator("Tj", EncodeText(value));
     }
 
     public void NewLineAtOffset(float tx, float ty) => WriteOperator("Td", tx, ty);
@@ -277,7 +278,7 @@ public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, 
             switch (item)
             {
                 case string s:
-                    array.Add(new COSString(s));
+                    array.Add(EncodeText(s));
                     break;
                 case float f:
                     array.Add(new COSFloat(f));
@@ -295,6 +296,13 @@ public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, 
             }
         }
         WriteOperator("TJ", array);
+    }
+
+    private COSString EncodeText(string text)
+    {
+        return _currentFont is PDSimpleFont
+            ? new COSString(_currentFont.Encode(text))
+            : new COSString(text);
     }
 
     public void ShowGlyphsWithPositioning(GlyphsAndPositions glyphsAndPositions)

@@ -246,4 +246,14 @@ public class GlyphListTest
         GlyphList second = GlyphList.GetAdobeGlyphList();
         Assert.Same(first, second);
     }
+
+    [Fact]
+    public void GetZapfDingbats_MapsDingbatNamesAndCodePoints()
+    {
+        GlyphList dingbats = GlyphList.GetZapfDingbats();
+
+        Assert.Equal("\u2701", dingbats.ToUnicode("a1"));
+        Assert.Equal("a1", dingbats.CodePointToName(0x2701));
+        Assert.Same(dingbats, GlyphList.GetZapfDingbats());
+    }
 }
