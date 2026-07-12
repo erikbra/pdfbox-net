@@ -12,7 +12,7 @@ import time
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, BinaryIO, Callable
+from typing import Any, BinaryIO, Callable, Iterable
 from urllib.parse import urlparse
 
 
@@ -72,6 +72,58 @@ def load_manifest(path: Path) -> tuple[str, list[RemoteDocument]]:
         documents.append(document)
 
     return description, documents
+
+
+def select_documents(
+    documents: list[RemoteDocument],
+    *,
+    ids: Iterable[str] = (),
+    categories: Iterable[str] = (),
+) -> list[RemoteDocument]:
+    requested_ids = _selection_values(ids, "--id")
+    requested_categories = _selection_values(categories, "--category")
+    if not requested_ids and not requested_categories:
+        return list(documents)
+
+    available_ids = {document.id for document in documents}
+    available_categories = {category for document in documents for category in document.categories}
+    unknown_ids = sorted(requested_ids - available_ids)
+    if unknown_ids:
+        raise ValueError(
+            f"Unknown --id value(s): {', '.join(unknown_ids)}. "
+            f"Available values: {', '.join(sorted(available_ids))}"
+        )
+    unknown_categories = sorted(requested_categories - available_categories)
+    if unknown_categories:
+        raise ValueError(
+            f"Unknown --category value(s): {', '.join(unknown_categories)}. "
+            f"Available values: {', '.join(sorted(available_categories))}"
+        )
+
+    selected = [
+        document
+        for document in documents
+        if (not requested_ids or document.id in requested_ids)
+        and (
+            not requested_categories
+            or any(category in requested_categories for category in document.categories)
+        )
+    ]
+    if not selected:
+        raise ValueError(
+            "Remote corpus selection matched no documents; --id and --category filters must overlap"
+        )
+    return selected
+
+
+def _selection_values(values: Iterable[str], option: str) -> set[str]:
+    normalized: set[str] = set()
+    for value in values:
+        value = value.strip()
+        if not value:
+            raise ValueError(f"{option} selection values must not be empty")
+        normalized.add(value)
+    return normalized
 
 
 def _parse_document(entry: dict[str, Any], path: Path, index: int) -> RemoteDocument:
@@ -312,6 +364,22 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
     parser.add_argument("--review-manifest-out", type=Path, default=DEFAULT_REVIEW_MANIFEST)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
+    parser.add_argument(
+        "--id",
+        dest="ids",
+        action="append",
+        default=[],
+        metavar="DOCUMENT_ID",
+        help="Select a document by manifest id. Repeat to select any of multiple ids.",
+    )
+    parser.add_argument(
+        "--category",
+        dest="categories",
+        action="append",
+        default=[],
+        metavar="CATEGORY",
+        help="Select documents in a manifest category. Repeat to select any of multiple categories.",
+    )
     parser.add_argument("--retries", type=int, default=3)
     parser.add_argument("--timeout-seconds", type=float, default=30)
     parser.add_argument("--build", action="store_true", help="Allow dotnet run to build the generator project.")
@@ -322,7 +390,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
-        description, documents = load_manifest(args.manifest.resolve())
+        description, all_documents = load_manifest(args.manifest.resolve())
+        documents = select_documents(all_documents, ids=args.ids, categories=args.categories)
+        print(f"Selected {len(documents)} of {len(all_documents)} remote corpus documents.")
         pdf_paths: dict[str, Path] = {}
         for document in documents:
             print(f"Fetching {document.id}...", flush=True)
