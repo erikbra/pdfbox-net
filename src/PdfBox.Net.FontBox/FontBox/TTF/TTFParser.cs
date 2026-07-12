@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
+ * PORT_LAST_SYNC_COMMIT: fc00e427de8a1046efe6348d64d5529b479aea13
  */
 
 /*
@@ -47,6 +47,11 @@ public class TTFParser
         _allowOpenType = isEmbedded;
     }
 
+    /// <summary>
+    /// Parses a random-access source and returns a TrueType font.
+    /// </summary>
+    /// <param name="randomAccessRead">The source to read. It is closed before this method returns.</param>
+    /// <returns>The parsed TrueType font.</returns>
     public virtual TrueTypeFont Parse(RandomAccessRead randomAccessRead)
     {
         MemoryTTFDataStream dataStream = new(randomAccessRead);
@@ -67,6 +72,11 @@ public class TTFParser
         return Parse(new MemoryTTFDataStream(bytes));
     }
 
+    /// <summary>
+    /// Parses an input stream and returns a TrueType font that is to be embedded.
+    /// </summary>
+    /// <param name="inputStream">The source stream. It is closed before this method returns.</param>
+    /// <returns>The parsed TrueType font.</returns>
     public virtual TrueTypeFont ParseEmbedded(Stream inputStream)
     {
         MemoryTTFDataStream dataStream = new(inputStream);
@@ -82,6 +92,11 @@ public class TTFParser
         }
     }
 
+    /// <summary>
+    /// Parses a random-access source and returns its TrueType font headers.
+    /// </summary>
+    /// <param name="randomAccessRead">The source to read. It is closed before this method returns.</param>
+    /// <returns>The parsed TrueType font headers.</returns>
     public virtual FontHeaders ParseTableHeaders(RandomAccessRead randomAccessRead)
     {
         using MemoryTTFDataStream dataStream = new(randomAccessRead);
@@ -184,6 +199,12 @@ public class TTFParser
         }
     }
 
+    /// <summary>
+    /// Based on <see cref="ParseTables(TrueTypeFont)"/>, parses all table headers and checks that
+    /// all required tables are present.
+    /// </summary>
+    /// <param name="raf">The TrueType data stream.</param>
+    /// <returns>The parsed TrueType font headers.</returns>
     internal virtual FontHeaders ParseTableHeaders(TTFDataStream raf)
     {
         FontHeaders outHeaders = new();

@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type4ShadingContext.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: fc00e427de8a1046efe6348d64d5529b479aea13
  */
 
 /*
@@ -31,8 +31,13 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class Type4ShadingContext : TriangleBasedShadingContext
 {
+    /// <summary>
+    /// Creates a context used for free-form Gouraud-shaded triangle meshes.
+    /// </summary>
+    /// <param name="shading">The shading type to be used.</param>
+    /// <param name="matrix">The pattern matrix concatenated with that of the parent content stream.</param>
     public Type4ShadingContext(PDShadingType4 shading, Matrix matrix)
-        : base(shading, matrix)
+        : base(shading)
     {
     }
 }

@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/ShadingContext.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: fc00e427de8a1046efe6348d64d5529b479aea13
  */
 
 /*
@@ -26,21 +26,21 @@
  */
 
 using PdfBox.Net.Rendering;
-using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public class ShadingContext : PaintContext
 {
-    protected ShadingContext(PDShading shading, Matrix matrix)
+    /// <summary>
+    /// Initializes the common state for a shading context.
+    /// </summary>
+    /// <param name="shading">The shading type to be used.</param>
+    protected ShadingContext(PDShading shading)
     {
         Shading = shading;
-        Matrix = matrix ?? new Matrix();
     }
 
     protected PDShading Shading { get; }
-
-    protected Matrix Matrix { get; }
 
     public virtual ColorModel GetColorModel()
     {

@@ -34,6 +34,7 @@ public class TTFParserTest
 
         Assert.Equal("MiniTTF", font.GetName());
         Assert.NotNull(font.GetTable("name"));
+        Assert.True(input.IsClosed());
     }
 
     [Fact]

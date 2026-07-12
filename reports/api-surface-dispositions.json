@@ -5099,7 +5099,7 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingContext|constructor|AxialShadingContext|5|arity-drift",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.AxialShadingContext|constructor|AxialShadingContext|4|arity-drift",
       "disposition": "intentional-dotnet-adaptation",
       "note": "Axial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
       "issue": 509,
@@ -5203,7 +5203,7 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingContext|constructor|RadialShadingContext|5|arity-drift",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java|org.apache.pdfbox.pdmodel.graphics.shading.RadialShadingContext|constructor|RadialShadingContext|4|arity-drift",
       "disposition": "intentional-dotnet-adaptation",
       "note": "Radial shading context rows are Java2D PaintContext/Raster implementation details; .NET rendering uses its own Skia-based shading path and does not expose Java raster context APIs.",
       "issue": 509,
