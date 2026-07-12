@@ -271,6 +271,9 @@
         ],
         "minTextRuns": 200,
         "minImagePlacements": 18,
+        "minImagePlacementsByPage": {
+          "2": 1
+        },
         "minVectorPaths": 30
       }
     },

@@ -69,6 +69,8 @@ class RemoteCorpusTest(unittest.TestCase):
         self.assertTrue(all(item.source_page.startswith("https://") for item in documents))
         self.assertTrue(all(item.pdf_url.startswith("https://") for item in documents))
         self.assertTrue(all(len(item.sha256) == 64 for item in documents))
+        mount_rainier = next(item for item in documents if item.id == "nps-mount-rainier")
+        self.assertEqual({"2": 1}, mount_rainier.expectations["minImagePlacementsByPage"])
         self.assertEqual(
             {
                 "jmlr-lda": (
@@ -250,6 +252,12 @@ class RemoteCorpusTest(unittest.TestCase):
             entry["expectations"]["minFormControls"] = -1
             self._write_manifest(manifest, [entry])
             with self.assertRaisesRegex(ValueError, "minFormControls"):
+                remote_corpus.load_manifest(manifest)
+
+            entry["expectations"]["minFormControls"] = 0
+            entry["expectations"]["minImagePlacementsByPage"] = {"0": 1}
+            self._write_manifest(manifest, [entry])
+            with self.assertRaisesRegex(ValueError, "positive page numbers"):
                 remote_corpus.load_manifest(manifest)
 
     def test_fetch_document_retries_verifies_hash_and_installs_atomically(self) -> None:
