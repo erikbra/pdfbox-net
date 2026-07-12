@@ -443,6 +443,40 @@ public class PdfLayoutExtractorTest
         AssertClose(600, image.Transform.F);
     }
 
+    [Theory]
+    [InlineData(90, 50, 30, 30, 50)]
+    [InlineData(180, 120, 50, 50, 30)]
+    [InlineData(270, 220, 120, 30, 50)]
+    public void Extract_RotatedCroppedPage_NormalizesXObjectImageGeometry(
+        int rotation,
+        float expectedX,
+        float expectedY,
+        float expectedWidth,
+        float expectedHeight)
+    {
+        using PDDocument document = CreateRotatedCroppedImageDocument(rotation);
+
+        PdfLayoutPage page = Assert.Single(PdfLayoutExtractor.Extract(document).Pages);
+
+        PdfLayoutImage image = Assert.Single(page.Images);
+        Assert.DoesNotContain(page.Diagnostics, diagnostic => diagnostic.Code == "image-rotation-unsupported");
+        AssertClose(expectedX, image.Bounds.X);
+        AssertClose(expectedY, image.Bounds.Y);
+        AssertClose(expectedWidth, image.Bounds.Width);
+        AssertClose(expectedHeight, image.Bounds.Height);
+        Assert.InRange(image.Bounds.X, 0, page.Width - image.Bounds.Width);
+        Assert.InRange(image.Bounds.Y, 0, page.Height - image.Bounds.Height);
+
+        PdfLayoutTransform expectedTransform = rotation switch
+        {
+            90 => new PdfLayoutTransform(0, 50, 30, 0, 50, 30),
+            180 => new PdfLayoutTransform(-50, 0, 0, 30, 170, 50),
+            270 => new PdfLayoutTransform(0, -50, -30, 0, 250, 170),
+            _ => throw new ArgumentOutOfRangeException(nameof(rotation))
+        };
+        Assert.Equal(expectedTransform, image.Transform);
+    }
+
     [Fact]
     public void Extract_InlineImage_CapturesIntrinsicSizePlacementAndMetadata()
     {
@@ -472,6 +506,20 @@ public class PdfLayoutExtractorTest
         AssertClose(60, image.Transform.D);
         AssertClose(72, image.Transform.E);
         AssertClose(600, image.Transform.F);
+    }
+
+    [Fact]
+    public void Extract_RotatedCroppedPage_NormalizesInlineImageGeometry()
+    {
+        using PDDocument document = CreateRotatedCroppedInlineImageDocument(rotation: 270);
+
+        PdfLayoutPage page = Assert.Single(PdfLayoutExtractor.Extract(document).Pages);
+
+        PdfLayoutImage image = Assert.Single(page.Images);
+        Assert.Equal(PdfLayoutImageKind.InlineImage, image.Kind);
+        Assert.DoesNotContain(page.Diagnostics, diagnostic => diagnostic.Code == "image-rotation-unsupported");
+        Assert.Equal(new PdfLayoutRectangle(220, 120, 30, 50), image.Bounds);
+        Assert.Equal(new PdfLayoutTransform(0, -50, -30, 0, 250, 170), image.Transform);
     }
 
     [Fact]
@@ -719,6 +767,22 @@ public class PdfLayoutExtractorTest
         return document;
     }
 
+    private static PDDocument CreateRotatedCroppedImageDocument(int rotation)
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        page.SetCropBox(new PDRectangle(10, 20, 200, 300));
+        page.SetRotation(rotation);
+        document.AddPage(page);
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, [255, 255, 255], 1, 1, 8, 3);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.DrawImage(image, 40, 70, 50, 30);
+        }
+
+        return document;
+    }
+
     private static PDDocument CreateInlineImageDocument()
     {
         PDDocument document = new();
@@ -730,11 +794,29 @@ public class PdfLayoutExtractorTest
         return document;
     }
 
+    private static PDDocument CreateRotatedCroppedInlineImageDocument(int rotation)
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        page.SetCropBox(new PDRectangle(10, 20, 200, 300));
+        page.SetRotation(rotation);
+        document.AddPage(page);
+
+        COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
+        pageDictionary.SetItem(COSName.CONTENTS, CreateInlineImageContentStream("50 0 0 30 40 70"));
+        return document;
+    }
+
     private static COSStream CreateInlineImageContentStream()
+    {
+        return CreateInlineImageContentStream("120 0 0 60 72 600");
+    }
+
+    private static COSStream CreateInlineImageContentStream(string transform)
     {
         COSStream stream = new();
         using Stream output = stream.CreateOutputStream();
-        WriteLatin1(output, "q\n120 0 0 60 72 600 cm\nBI\n/W 2 /H 2 /BPC 8 /CS /RGB\nID\n");
+        WriteLatin1(output, $"q\n{transform} cm\nBI\n/W 2 /H 2 /BPC 8 /CS /RGB\nID\n");
         output.Write([
             255, 0, 0,
             0, 255, 0,

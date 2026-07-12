@@ -372,6 +372,28 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_RotatedImagePageIsNotBlank()
+    {
+        using PDDocument document = CreateRotatedCroppedImageDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument html = ParseHtml(converted.Html);
+
+        Assert.Single(Assert.Single(layout.Pages).Images);
+        Assert.DoesNotContain(layout.Diagnostics, diagnostic => diagnostic.Code == "image-rotation-unsupported");
+        Assert.Single(converted.Assets);
+        Assert.Single(ElementsByClass(html, "pdf-image"));
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFixedFallback_PreservesPositionedWordBoundaries()
     {
         using PDDocument document = CreateTextDocument("""
@@ -3359,6 +3381,22 @@ public class PdfHtmlConverterTest
         using (PDPageContentStream content = new(document, page))
         {
             content.DrawImage(image, 72, 600, 120, 60);
+        }
+
+        return document;
+    }
+
+    private static PDDocument CreateRotatedCroppedImageDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        page.SetCropBox(new PDRectangle(10, 20, 200, 300));
+        page.SetRotation(90);
+        document.AddPage(page);
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, [255, 255, 255], 1, 1, 8, 3);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.DrawImage(image, 40, 70, 50, 30);
         }
 
         return document;
