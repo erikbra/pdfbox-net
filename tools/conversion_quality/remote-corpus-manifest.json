@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "description": "Pinned, freely available public PDFs spanning academic papers, government forms and publications, and national park brochures and maps for remote HTML conversion quality checks. PDFs are downloaded into ignored artifacts/cache storage and are never committed.",
+  "description": "Pinned, freely available public PDFs spanning academic papers, government forms and publications, scans, presentations, technical documents, RTL content, bilingual brochures, and national park maps for remote HTML conversion quality checks. PDFs are downloaded into ignored artifacts/cache storage and are never committed.",
   "documents": [
     {
       "id": "jmlr-lda",
@@ -299,6 +299,305 @@
         "minTextRuns": 800,
         "minImagePlacements": 750,
         "minVectorPaths": 850
+      }
+    },
+    {
+      "id": "arxiv-attention",
+      "title": "arXiv: Attention Is All You Need v7",
+      "sourcePage": "https://arxiv.org/abs/1706.03762v7",
+      "pdfUrl": "https://arxiv.org/pdf/1706.03762v7",
+      "sha256": "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+      "categories": [
+        "complex-columns",
+        "formulas",
+        "tables",
+        "diagrams",
+        "vector-heavy",
+        "links"
+      ],
+      "qualityPages": 2,
+      "notes": "Formula-heavy machine-learning paper with tables, vector attention figures, dense paths, and citation links.",
+      "expectations": {
+        "pageCount": 15,
+        "requiredText": [
+          "attention",
+          "sequence",
+          "transformer"
+        ],
+        "minTextRuns": 2300,
+        "minImagePlacements": 2,
+        "minVectorPaths": 2400,
+        "minLinks": 100
+      }
+    },
+    {
+      "id": "arxiv-scaling-hamiltonian",
+      "title": "arXiv: The Scaling Hamiltonian v1",
+      "sourcePage": "https://arxiv.org/abs/1910.14368v1",
+      "pdfUrl": "https://arxiv.org/pdf/1910.14368v1",
+      "sha256": "c55618121c95dfa301aea350b74eca7e902690396629041f486414a513ca079e",
+      "categories": [
+        "math-focused",
+        "formulas",
+        "text-heavy",
+        "links"
+      ],
+      "qualityPages": 2,
+      "notes": "Long mathematics paper with dense notation, formulas, Type 1 fonts, and extensive citation links.",
+      "expectations": {
+        "pageCount": 22,
+        "requiredText": [
+          "scaling",
+          "hamiltonian",
+          "riemann"
+        ],
+        "minTextRuns": 5400,
+        "minImagePlacements": 2,
+        "minVectorPaths": 600,
+        "minLinks": 125
+      }
+    },
+    {
+      "id": "fbi-fd258",
+      "title": "FBI FD-258 Fingerprint Card",
+      "sourcePage": "https://www.fbi.gov/file-repository/cjis/fd-258.pdf/view",
+      "pdfUrl": "https://www.fbi.gov/file-repository/cjis/fd-258.pdf/@@download/file/FD-258fillable.pdf",
+      "sha256": "04f108e1adadefef05c0ab68682bd7f490534920086762508c5163f0b90784b5",
+      "categories": [
+        "government-form",
+        "forms",
+        "tagged-pdf",
+        "unusual-layout",
+        "vector-heavy"
+      ],
+      "qualityPages": 2,
+      "notes": "Tagged two-page AcroForm with a fingerprint-card grid, sample fingerprint images, and dense instructions.",
+      "expectations": {
+        "pageCount": 2,
+        "requiredText": [
+          "applicant",
+          "fingerprinted",
+          "federal bureau of investigation"
+        ],
+        "minTextRuns": 1400,
+        "minImagePlacements": 1,
+        "minVectorPaths": 50,
+        "minLinks": 1,
+        "minFormControls": 1
+      }
+    },
+    {
+      "id": "opm-of306",
+      "title": "OPM OF-306 Declaration for Federal Employment",
+      "sourcePage": "https://www.opm.gov/forms/Optional-forms/",
+      "pdfUrl": "https://www.opm.gov/media/dxrbwvmb/declaration-for-federal-employment-optional-form-august-2023.pdf",
+      "sha256": "b690ec40015e42b0ed0424e5c0193616dc6491b70525240463d24b951e6ce46c",
+      "categories": [
+        "government-form",
+        "forms",
+        "tagged-pdf",
+        "form-controls",
+        "vector-heavy"
+      ],
+      "qualityPages": 2,
+      "notes": "Tagged fillable employment declaration with many text fields, checkboxes, tables, and vector rules.",
+      "expectations": {
+        "pageCount": 3,
+        "requiredText": [
+          "declaration",
+          "federal employment",
+          "privacy act"
+        ],
+        "minTextRuns": 280,
+        "minImagePlacements": 50,
+        "minVectorPaths": 225,
+        "minFormControls": 50
+      }
+    },
+    {
+      "id": "nasa-artemis-i",
+      "title": "NASA Artemis I Press Kit",
+      "sourcePage": "https://www.nasa.gov/artemis-i-press-kit/",
+      "pdfUrl": "https://www.nasa.gov/wp-content/uploads/2026/01/artemis-i-press-kit.pdf",
+      "sha256": "551f510e493f3ef9bc834afe740d659b1f9772f3dc39845aba0bd7a8433b40c7",
+      "categories": [
+        "government-publication",
+        "graphic-heavy",
+        "image-heavy",
+        "complex-layout",
+        "links"
+      ],
+      "qualityPages": 2,
+      "notes": "Modern graphic press kit with full-page photography, branded layouts, timelines, and navigation links.",
+      "expectations": {
+        "pageCount": 41,
+        "requiredText": [
+          "artemis",
+          "mission overview",
+          "orion spacecraft"
+        ],
+        "minTextRuns": 1400,
+        "minImagePlacements": 40,
+        "minVectorPaths": 180,
+        "minLinks": 35
+      }
+    },
+    {
+      "id": "nasa-apollo11-scan",
+      "title": "NASA Apollo 11 Scanned Press Kit",
+      "sourcePage": "https://www.nasa.gov/specials/apollo50th/press.html",
+      "pdfUrl": "https://www.nasa.gov/wp-content/uploads/static/apollo50th/pdf/A11_PressKit.pdf",
+      "sha256": "fcb1ae7a88e5251559dde0b7d51ec71f06795cf78f64491aa9594fdf9ca89334",
+      "categories": [
+        "government-publication",
+        "historical-scan",
+        "image-over-text",
+        "long-document"
+      ],
+      "qualityPages": 2,
+      "notes": "Historical 254-page scanned press kit with one page image per page and an OCR text layer.",
+      "expectations": {
+        "pageCount": 254,
+        "requiredText": [
+          "apollo 11",
+          "lunar landing mission",
+          "national aeronautics and space administration"
+        ],
+        "minTextRuns": 29000,
+        "minImagePlacements": 250,
+        "minVectorPaths": 280
+      }
+    },
+    {
+      "id": "raspberry-pi4-datasheet",
+      "title": "Raspberry Pi 4 Model B Datasheet",
+      "sourcePage": "https://www.raspberrypi.com/documentation/computers/raspberry-pi.html",
+      "pdfUrl": "https://datasheets.raspberrypi.com/rpi4/raspberry-pi-4-datasheet.pdf",
+      "sha256": "8febd042d004c7a2897a60fe6e1b2c007a941c3c4119f4fb791dc0afb669a860",
+      "categories": [
+        "technical-datasheet",
+        "tables",
+        "technical-drawings",
+        "diagrams",
+        "links"
+      ],
+      "qualityPages": 2,
+      "notes": "Hardware datasheet with tables, pin diagrams, mechanical drawings, dense vectors, and links.",
+      "expectations": {
+        "pageCount": 13,
+        "requiredText": [
+          "raspberry pi 4 model b",
+          "datasheet",
+          "mechanical specification"
+        ],
+        "minTextRuns": 1500,
+        "minImagePlacements": 1,
+        "minVectorPaths": 1800,
+        "minLinks": 30
+      }
+    },
+    {
+      "id": "nist-floating-point-slides",
+      "title": "NIST: Validating Floating Point Implementations",
+      "sourcePage": "https://csrc.nist.gov/presentations/2026/mpts2026-2b2",
+      "pdfUrl": "https://csrc.nist.gov/csrc/media/presentations/2026/mpts2026-2b2/images-media/mpts2026-2b2-slides-float-point-ciadoux.pdf",
+      "sha256": "492b156147376bd72dafd2ebb06c952d43c6682ce2e6553a0d2c33ab6904d71f",
+      "categories": [
+        "government-presentation",
+        "slides",
+        "tagged-pdf",
+        "technical-content",
+        "image-heavy"
+      ],
+      "qualityPages": 2,
+      "notes": "Tagged technical presentation with sparse slide text, diagrams, screenshots, and mathematical notation.",
+      "expectations": {
+        "pageCount": 13,
+        "requiredText": [
+          "validating floating point implementations",
+          "nist",
+          "ieee754"
+        ],
+        "minTextRuns": 150,
+        "minImagePlacements": 30,
+        "minVectorPaths": 80
+      }
+    },
+    {
+      "id": "un-system-arabic",
+      "title": "UN System Chart 2025 Arabic",
+      "sourcePage": "https://www.un.org/en/delegate/page/un-system-chart",
+      "pdfUrl": "https://www.un.org/sites/un2.un.org/files/un_system_chart_arabic.pdf",
+      "sha256": "a9f4dd6641db49258c14adf720fcf0424f9b51e2c7bec554ebcd53a7cff1466b",
+      "categories": [
+        "rtl",
+        "arabic",
+        "organizational-chart",
+        "complex-layout",
+        "vector-heavy"
+      ],
+      "qualityPages": 1,
+      "notes": "Single-page Arabic RTL organizational chart with many compact labels, connectors, and columns.",
+      "expectations": {
+        "pageCount": 1,
+        "requiredText": [
+          "ecosoc"
+        ],
+        "minTextRuns": 325,
+        "minVectorPaths": 40
+      }
+    },
+    {
+      "id": "eeas-europe-japanese",
+      "title": "EEAS: Let's Explore Europe Japanese/English",
+      "sourcePage": "https://www.eeas.europa.eu/delegations/japan/lets-explore-europe-japanese-and-english-edition-0_en",
+      "pdfUrl": "https://www.eeas.europa.eu/sites/default/files/documents/2023/Lets%20explore%20Europe_JP_web.pdf",
+      "sha256": "f9aa34f34d4c3cfa37dc01772296114c655988bad56eb9b54d4bd5c1f6a1e369",
+      "categories": [
+        "bilingual",
+        "japanese",
+        "graphic-heavy",
+        "brochure",
+        "complex-layout"
+      ],
+      "qualityPages": 2,
+      "notes": "Bilingual Japanese/English educational brochure with illustrations, photographs, and dense vector graphics.",
+      "expectations": {
+        "pageCount": 28,
+        "requiredText": [
+          "let's explore europe",
+          "european union",
+          "learning the lessons of history"
+        ],
+        "minTextRuns": 1500,
+        "minImagePlacements": 22,
+        "minVectorPaths": 7000
+      }
+    },
+    {
+      "id": "eu-access-city-form",
+      "title": "EU Access City Award 2026 Application Form",
+      "sourcePage": "https://commission.europa.eu/strategy-and-policy/policies/justice-and-fundamental-rights/disability/access-city-award_en",
+      "pdfUrl": "https://access-city-award.ec.europa.eu/sites/default/files/downloads/Annex%20I%20Application%20Form%20-%20ACA%202026%20-%20EN.pdf",
+      "sha256": "59fc6f3f9ad902a3a98c4151f8719eedf0931f26111cf3c92d7683a5307fe4ca",
+      "categories": [
+        "government-form",
+        "structured-form",
+        "tagged-pdf",
+        "tables"
+      ],
+      "qualityPages": 2,
+      "notes": "Tagged structured application form with long prompts, response boxes, tables, and embedded graphics.",
+      "expectations": {
+        "pageCount": 7,
+        "requiredText": [
+          "access city award 2026",
+          "application form",
+          "application platform"
+        ],
+        "minTextRuns": 220,
+        "minImagePlacements": 12,
+        "minVectorPaths": 100
       }
     }
   ]

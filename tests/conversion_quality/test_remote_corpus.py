@@ -52,6 +52,17 @@ class RemoteCorpusTest(unittest.TestCase):
                 "nist-sp800-171r3",
                 "nps-mount-rainier",
                 "nps-point-reyes-map",
+                "arxiv-attention",
+                "arxiv-scaling-hamiltonian",
+                "fbi-fd258",
+                "opm-of306",
+                "nasa-artemis-i",
+                "nasa-apollo11-scan",
+                "raspberry-pi4-datasheet",
+                "nist-floating-point-slides",
+                "un-system-arabic",
+                "eeas-europe-japanese",
+                "eu-access-city-form",
             ],
             [item.id for item in documents],
         )
@@ -104,6 +115,53 @@ class RemoteCorpusTest(unittest.TestCase):
                     "https://www.nps.gov/pore/planyourvisit/upload/map_park.pdf",
                     "dcc4afa633ad924a69a35a9bdd19bd3b29782849b7993158acab720260168d2f",
                 ),
+                "arxiv-attention": (
+                    "https://arxiv.org/pdf/1706.03762v7",
+                    "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+                ),
+                "arxiv-scaling-hamiltonian": (
+                    "https://arxiv.org/pdf/1910.14368v1",
+                    "c55618121c95dfa301aea350b74eca7e902690396629041f486414a513ca079e",
+                ),
+                "fbi-fd258": (
+                    "https://www.fbi.gov/file-repository/cjis/fd-258.pdf/@@download/file/FD-258fillable.pdf",
+                    "04f108e1adadefef05c0ab68682bd7f490534920086762508c5163f0b90784b5",
+                ),
+                "opm-of306": (
+                    "https://www.opm.gov/media/dxrbwvmb/"
+                    "declaration-for-federal-employment-optional-form-august-2023.pdf",
+                    "b690ec40015e42b0ed0424e5c0193616dc6491b70525240463d24b951e6ce46c",
+                ),
+                "nasa-artemis-i": (
+                    "https://www.nasa.gov/wp-content/uploads/2026/01/artemis-i-press-kit.pdf",
+                    "551f510e493f3ef9bc834afe740d659b1f9772f3dc39845aba0bd7a8433b40c7",
+                ),
+                "nasa-apollo11-scan": (
+                    "https://www.nasa.gov/wp-content/uploads/static/apollo50th/pdf/A11_PressKit.pdf",
+                    "fcb1ae7a88e5251559dde0b7d51ec71f06795cf78f64491aa9594fdf9ca89334",
+                ),
+                "raspberry-pi4-datasheet": (
+                    "https://datasheets.raspberrypi.com/rpi4/raspberry-pi-4-datasheet.pdf",
+                    "8febd042d004c7a2897a60fe6e1b2c007a941c3c4119f4fb791dc0afb669a860",
+                ),
+                "nist-floating-point-slides": (
+                    "https://csrc.nist.gov/csrc/media/presentations/2026/mpts2026-2b2/"
+                    "images-media/mpts2026-2b2-slides-float-point-ciadoux.pdf",
+                    "492b156147376bd72dafd2ebb06c952d43c6682ce2e6553a0d2c33ab6904d71f",
+                ),
+                "un-system-arabic": (
+                    "https://www.un.org/sites/un2.un.org/files/un_system_chart_arabic.pdf",
+                    "a9f4dd6641db49258c14adf720fcf0424f9b51e2c7bec554ebcd53a7cff1466b",
+                ),
+                "eeas-europe-japanese": (
+                    "https://www.eeas.europa.eu/sites/default/files/documents/2023/Lets%20explore%20Europe_JP_web.pdf",
+                    "f9aa34f34d4c3cfa37dc01772296114c655988bad56eb9b54d4bd5c1f6a1e369",
+                ),
+                "eu-access-city-form": (
+                    "https://access-city-award.ec.europa.eu/sites/default/files/downloads/"
+                    "Annex%20I%20Application%20Form%20-%20ACA%202026%20-%20EN.pdf",
+                    "59fc6f3f9ad902a3a98c4151f8719eedf0931f26111cf3c92d7683a5307fe4ca",
+                ),
             },
             {item.id: (item.pdf_url, item.sha256) for item in documents},
         )
@@ -129,7 +187,10 @@ class RemoteCorpusTest(unittest.TestCase):
             categories=("forms", "government-form"),
         )
 
-        self.assertEqual(["irs-w9", "uscis-i9"], [document.id for document in forms])
+        self.assertEqual(
+            ["irs-w9", "uscis-i9", "fbi-fd258", "opm-of306"],
+            [document.id for document in forms],
+        )
         self.assertEqual(["uscis-i9"], [document.id for document in selected_form])
 
     def test_selection_rejects_unknown_empty_and_non_overlapping_filters(self) -> None:
