@@ -16,6 +16,12 @@ public sealed class PdfLayoutOptions
     public bool IncludeLinks { get; init; } = true;
 
     /// <summary>
+    /// Gets or sets whether supported AcroForm widgets should be collected as semantic form controls.
+    /// XFA packets are not interpreted and continue to use visual annotation fallbacks.
+    /// </summary>
+    public bool IncludeFormControls { get; init; } = true;
+
+    /// <summary>
     /// Gets or sets whether image placements should be collected.
     /// </summary>
     public bool IncludeImages { get; init; } = true;

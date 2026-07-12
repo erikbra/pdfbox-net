@@ -21,7 +21,10 @@
       "title": "PDFBOX-2333 AcroForm alignment fixture",
       "sourcePdf": "../../tests/PdfBox.Net.Tests/Fixtures/TextExtraction/Issue412/Acroform-PDFBOX-2333.pdf",
       "qualityPages": 1,
-      "notes": "Form-heavy fixture with many aligned labels, field boxes, clipped text, and footer placement."
+      "notes": "Public Apache PDFBox form fixture used to review semantic AcroForm controls, aligned labels, field geometry, and appearance suppression.",
+      "expectations": {
+        "minFormControls": 1
+      }
     },
     {
       "id": "ghent-pr-word-layout",

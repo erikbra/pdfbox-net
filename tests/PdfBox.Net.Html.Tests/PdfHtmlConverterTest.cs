@@ -344,8 +344,10 @@ public class PdfHtmlConverterTest
         });
         XDocument formDom = ParseHtml(formHtml.Html);
         XElement formFallback = Assert.Single(ElementsByClass(formDom, "pdf-semantic-layout-fallback-page"));
-        Assert.Equal(formLayout.Pages[0].Images.Count, formFallback.Descendants()
-            .Count(element => HasClass(element, "pdf-image")));
+        Assert.True(formFallback.Descendants().Count(element => HasClass(element, "pdf-image")) <
+            formLayout.Pages[0].Images.Count);
+        Assert.Equal(formLayout.Pages[0].FormControls.Count, formFallback.Descendants()
+            .Count(element => HasClass(element, "pdf-form-control")));
 
         using PDDocument sparseDocument = CreateTextDocument("""
             BT
@@ -2016,7 +2018,7 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
-    public void Convert_AcroFormFixtureEmitsWidgetAppearanceImageOverlays()
+    public void Convert_PublicAcroFormFixtureReplacesWidgetAppearancesWithControls()
     {
         using PDDocument document = Loader.LoadPDF(FixturePath("Acroform-PDFBOX-2333.pdf"));
         PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
@@ -2034,7 +2036,9 @@ public class PdfHtmlConverterTest
             .ToArray();
 
         Assert.True(appearanceImages.Length >= 10);
-        Assert.Equal(appearanceImages.Length, imageElements.Length);
+        Assert.NotEmpty(layout.Pages[0].FormControls);
+        Assert.True(imageElements.Length < appearanceImages.Length);
+        Assert.Equal(layout.Pages[0].FormControls.Count, ElementsByClass(dom, "pdf-form-control").Count());
         Assert.Equal(appearanceImages.Length, html.Assets.Count(asset => asset.ContentType == "image/png"));
         Assert.All(appearanceImages, image =>
         {
@@ -2043,6 +2047,88 @@ public class PdfHtmlConverterTest
             Assert.True(image.IntrinsicWidth > 0);
             Assert.True(image.IntrinsicHeight > 0);
         });
+    }
+
+    [Fact]
+    public void Convert_EmitsAccessibleSemanticControlsAndSuppressesMatchingAppearance()
+    {
+        PdfLayoutRectangle pageBounds = new(0, 0, 612, 792);
+        PdfLayoutRectangle textBounds = new(20, 40, 180, 24);
+        PdfLayoutFormControl[] controls =
+        [
+            new(0, "fullName", "Full legal name", PdfLayoutFormControlKind.Text, textBounds,
+                ["Erik & Ada"], ["Default"], isReadOnly: true, isRequired: true, maxLength: 40),
+            new(1, "accepted", "Accepted", PdfLayoutFormControlKind.CheckBox, new(20, 80, 16, 16),
+                ["Yes"], [], [new("Yes", "Yes")], isChecked: true),
+            new(2, "contact", "Contact by email", PdfLayoutFormControlKind.RadioButton, new(20, 110, 16, 16),
+                ["email"], ["email"], [new("email", "Email")], isChecked: true, isDefaultChecked: true),
+            new(3, "country", "Country", PdfLayoutFormControlKind.ComboBox, new(20, 140, 120, 22),
+                ["no"], ["us"], [new("us", "United States"), new("no", "Norway")]),
+            new(4, "colors", "Colors", PdfLayoutFormControlKind.ListBox, new(20, 180, 120, 60),
+                ["red", "blue"], [], [new("red", "Red"), new("blue", "Blue")], isMultiple: true),
+            new(5, "approval", "Approval signature", PdfLayoutFormControlKind.Signature, new(20, 260, 180, 50),
+                ["Ada Lovelace"])
+        ];
+        PdfLayoutImage appearance = new(
+            0,
+            "widget-appearance",
+            PdfLayoutImageKind.AnnotationAppearance,
+            textBounds,
+            new PdfLayoutTransform(1, 0, 0, 1, textBounds.X, textBounds.Y),
+            180,
+            24,
+            8,
+            "DeviceRGB",
+            true,
+            "Widget");
+        PdfLayoutPage page = new(
+            1, pageBounds, pageBounds, pageBounds.Width, pageBounds.Height, 0,
+            [], [], [], [], [appearance], [], [], [], [], [],
+            formControls: controls);
+        PdfLayoutDocument layout = new(
+            [page],
+            [new PdfLayoutImageAsset("widget-appearance", "assets/images/widget.png", "image/png", [1, 2, 3])],
+            []);
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement[] emitted = ElementsByClass(dom, "pdf-form-control").ToArray();
+        Assert.Equal(controls.Length, emitted.Length);
+        XElement text = Assert.Single(emitted, element => element.Attribute("name")?.Value == "fullName");
+        Assert.Equal("Full legal name", text.Attribute("aria-label")?.Value);
+        Assert.Equal("Erik & Ada", text.Attribute("value")?.Value);
+        Assert.Equal("Default", text.Attribute("data-default-value")?.Value);
+        Assert.NotNull(text.Attribute("readonly"));
+        Assert.NotNull(text.Attribute("required"));
+        Assert.Equal("40", text.Attribute("maxlength")?.Value);
+        Assert.Contains("left:20pt", text.Attribute("style")?.Value);
+
+        XElement checkBox = Assert.Single(emitted, element => element.Attribute("type")?.Value == "checkbox");
+        Assert.NotNull(checkBox.Attribute("checked"));
+        XElement radio = Assert.Single(emitted, element => element.Attribute("type")?.Value == "radio");
+        Assert.Equal("contact", radio.Attribute("name")?.Value);
+        Assert.Equal("true", radio.Attribute("data-default-checked")?.Value);
+
+        XElement[] selects = emitted.Where(element => element.Name.LocalName == "select").ToArray();
+        Assert.Equal(2, selects.Length);
+        Assert.Equal("Norway", Assert.Single(selects[0].Elements(), option => option.Attribute("selected") is not null).Value);
+        Assert.NotNull(selects[1].Attribute("multiple"));
+
+        XElement signature = Assert.Single(emitted, element => element.Attribute("data-field-kind")?.Value == "signature");
+        Assert.Equal("Ada Lovelace", signature.Attribute("value")?.Value);
+        Assert.NotNull(signature.Attribute("readonly"));
+        Assert.Empty(ElementsByClass(dom, "pdf-image"));
+
+        PdfHtmlDocument continuous = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument continuousDom = ParseHtml(continuous.Html);
+        Assert.Equal(controls.Length, ElementsByClass(continuousDom, "pdf-form-control").Count());
+        Assert.Single(ElementsByClass(continuousDom, "pdf-semantic-layout-fallback-page"));
+        Assert.Empty(ElementsByClass(continuousDom, "pdf-form-controls-flow"));
     }
 
     [Fact]

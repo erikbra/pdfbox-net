@@ -192,6 +192,7 @@ public static class HtmlReviewArtifactGenerator
         int imagePlacements = layout.Pages.Sum(page => page.Images.Count);
         int vectorPaths = layout.Pages.Sum(page => page.Paths.Count);
         int links = layout.Pages.Sum(page => page.Links.Count);
+        int formControls = layout.Pages.Sum(page => page.FormControls.Count);
         List<string> failures = [];
 
         AddExactFailure(failures, "pages", layout.Pages.Count, expectations.PageCount);
@@ -199,6 +200,7 @@ public static class HtmlReviewArtifactGenerator
         AddMinimumFailure(failures, "image placements", imagePlacements, expectations.MinImagePlacements);
         AddMinimumFailure(failures, "vector paths", vectorPaths, expectations.MinVectorPaths);
         AddMinimumFailure(failures, "links", links, expectations.MinLinks);
+        AddMinimumFailure(failures, "form controls", formControls, expectations.MinFormControls);
 
         string extractedText = NormalizeAlphaNumeric(string.Concat(
             layout.Pages.SelectMany(page => page.Runs).Select(run => run.Text)));
@@ -657,4 +659,6 @@ public sealed class HtmlReviewExpectations
     public int? MinVectorPaths { get; set; }
 
     public int? MinLinks { get; set; }
+
+    public int? MinFormControls { get; set; }
 }

@@ -76,6 +76,32 @@ public static class PdfHtmlConverter
             var(--pdf-text-shadow-color));
         }
 
+        .pdf-form-control {
+          box-sizing: border-box;
+          font: 10pt Arial, Helvetica, sans-serif;
+          margin: 0;
+          min-height: 1em;
+          z-index: 3;
+        }
+
+        .pdf-form-control[type="checkbox"],
+        .pdf-form-control[type="radio"] {
+          accent-color: #1d4ed8;
+        }
+
+        .pdf-form-controls-flow {
+          border: 1pt solid #9ca3af;
+          display: grid;
+          gap: 8pt;
+          margin: 12pt 0;
+          padding: 10pt;
+        }
+
+        .pdf-form-controls-flow .pdf-form-control {
+          min-height: 24pt;
+          width: 100%;
+        }
+
         .pdf-semantic-element {
           box-sizing: border-box;
           color: #111827;
@@ -961,7 +987,8 @@ public static class PdfHtmlConverter
 
             foreach (PdfLayoutImage image in page.Images)
             {
-                if (imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
+                if (ShouldWriteImage(page, image) &&
+                    imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
                 {
                     WriteImage(html, image, asset, scale);
                 }
@@ -1012,6 +1039,8 @@ public static class PdfHtmlConverter
         {
             WriteLink(html, link, scale);
         }
+
+        WriteFormControls(html, page, scale, positioned: true);
 
         html.AppendLine("  </section>");
     }
@@ -1101,6 +1130,7 @@ public static class PdfHtmlConverter
 
             FlushPaths();
             if (imagesByIndex.TryGetValue(operation.Index, out PdfLayoutImage? image) &&
+                ShouldWriteImage(page, image) &&
                 imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
             {
                 WriteImage(html, image, asset, scale);
@@ -1143,6 +1173,222 @@ public static class PdfHtmlConverter
             first.Y < second.Y + second.Height &&
             first.Y + first.Height > second.Y;
     }
+
+    private static bool ShouldWriteImage(PdfLayoutPage page, PdfLayoutImage image)
+    {
+        return image.Kind != PdfLayoutImageKind.AnnotationAppearance ||
+            !string.Equals(image.SourceName, "Widget", StringComparison.OrdinalIgnoreCase) ||
+            !page.FormControls.Any(control => SameBounds(control.Bounds, image.Bounds, 0.5f));
+    }
+
+    private static bool SameBounds(PdfLayoutRectangle first, PdfLayoutRectangle second, float tolerance)
+    {
+        return MathF.Abs(first.X - second.X) <= tolerance &&
+            MathF.Abs(first.Y - second.Y) <= tolerance &&
+            MathF.Abs(first.Width - second.Width) <= tolerance &&
+            MathF.Abs(first.Height - second.Height) <= tolerance;
+    }
+
+    private static void WriteFormControls(StringBuilder html, PdfLayoutPage page, float scale, bool positioned)
+    {
+        if (page.FormControls.Count == 0)
+        {
+            return;
+        }
+
+        if (!positioned)
+        {
+            html.Append("      <fieldset class=\"pdf-form-controls-flow\" aria-label=\"Form controls on original page ")
+                .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
+                .AppendLine("\">");
+        }
+
+        foreach (PdfLayoutFormControl control in page.FormControls)
+        {
+            WriteFormControl(html, page.PageNumber, control, scale, positioned);
+        }
+
+        if (!positioned)
+        {
+            html.AppendLine("      </fieldset>");
+        }
+    }
+
+    private static void WriteFormControl(
+        StringBuilder html,
+        int pageNumber,
+        PdfLayoutFormControl control,
+        float scale,
+        bool positioned)
+    {
+        string currentValue = control.Values.FirstOrDefault() ?? string.Empty;
+        string elementName = control.Kind switch
+        {
+            PdfLayoutFormControlKind.Text when control.IsMultiline => "textarea",
+            PdfLayoutFormControlKind.ComboBox or PdfLayoutFormControlKind.ListBox => "select",
+            _ => "input"
+        };
+        html.Append(positioned ? "    <" : "        <").Append(elementName);
+
+        if (elementName == "input")
+        {
+            string inputType = control.Kind switch
+            {
+                PdfLayoutFormControlKind.CheckBox => "checkbox",
+                PdfLayoutFormControlKind.RadioButton => "radio",
+                PdfLayoutFormControlKind.Signature => "text",
+                _ when control.IsPassword => "password",
+                _ => "text"
+            };
+            html.Append(" type=\"").Append(inputType).Append('"');
+            if (control.Kind is PdfLayoutFormControlKind.CheckBox or PdfLayoutFormControlKind.RadioButton)
+            {
+                html.Append(" value=\"")
+                    .Append(HtmlAttribute(control.Options.FirstOrDefault()?.Value ?? "Yes"))
+                    .Append('"');
+                if (control.IsChecked)
+                {
+                    html.Append(" checked=\"checked\"");
+                }
+            }
+            else
+            {
+                string value = control.Kind == PdfLayoutFormControlKind.Signature && currentValue.Length == 0
+                    ? "Unsigned"
+                    : currentValue;
+                html.Append(" value=\"").Append(HtmlAttribute(value)).Append('"');
+            }
+        }
+
+        AppendFormControlAttributes(html, pageNumber, control, scale, positioned);
+
+        if (elementName == "textarea")
+        {
+            html.Append('>').Append(Html(currentValue)).AppendLine("</textarea>");
+            return;
+        }
+
+        if (elementName == "select")
+        {
+            if (control.IsMultiple)
+            {
+                html.Append(" multiple=\"multiple\"");
+            }
+
+            html.AppendLine(">");
+            HashSet<string> optionValues = control.Options.Select(static option => option.Value).ToHashSet(StringComparer.Ordinal);
+            if (currentValue.Length > 0 && !optionValues.Contains(currentValue))
+            {
+                WriteFormOption(html, currentValue, currentValue, selected: true,
+                    control.DefaultValues.Contains(currentValue, StringComparer.Ordinal));
+            }
+
+            foreach (PdfLayoutFormOption option in control.Options)
+            {
+                WriteFormOption(
+                    html,
+                    option.Value,
+                    option.Label,
+                    control.Values.Contains(option.Value, StringComparer.Ordinal),
+                    control.DefaultValues.Contains(option.Value, StringComparer.Ordinal));
+            }
+
+            html.Append(positioned ? "    </select>\n" : "        </select>\n");
+            return;
+        }
+
+        html.AppendLine(" />");
+    }
+
+    private static void AppendFormControlAttributes(
+        StringBuilder html,
+        int pageNumber,
+        PdfLayoutFormControl control,
+        float scale,
+        bool positioned)
+    {
+        html.Append(" class=\"pdf-form-control\" id=\"pdf-field-")
+            .Append(pageNumber.ToString(CultureInfo.InvariantCulture))
+            .Append('-')
+            .Append(control.Index.ToString(CultureInfo.InvariantCulture))
+            .Append("\" name=\"")
+            .Append(HtmlAttribute(control.Name))
+            .Append("\" aria-label=\"")
+            .Append(HtmlAttribute(control.AccessibleName))
+            .Append("\" data-field-kind=\"")
+            .Append(FormControlKind(control.Kind))
+            .Append("\" data-default-value=\"")
+            .Append(HtmlAttribute(string.Join("\n", control.DefaultValues)))
+            .Append('"');
+
+        if (control.IsRequired)
+        {
+            html.Append(" required=\"required\" aria-required=\"true\"");
+        }
+
+        bool nativeReadOnly = control.Kind == PdfLayoutFormControlKind.Text ||
+            control.Kind == PdfLayoutFormControlKind.Signature;
+        if (control.IsReadOnly || control.Kind == PdfLayoutFormControlKind.Signature)
+        {
+            html.Append(nativeReadOnly
+                ? " readonly=\"readonly\" aria-readonly=\"true\""
+                : " disabled=\"disabled\" aria-disabled=\"true\"");
+        }
+
+        if (control.MaxLength is int maxLength && control.Kind == PdfLayoutFormControlKind.Text)
+        {
+            html.Append(" maxlength=\"").Append(maxLength.ToString(CultureInfo.InvariantCulture)).Append('"');
+        }
+
+        if (control.IsDefaultChecked)
+        {
+            html.Append(" data-default-checked=\"true\"");
+        }
+
+        if (positioned)
+        {
+            html.Append(" style=\"position:absolute;left:")
+                .Append(CssPoints(control.Bounds.X * scale))
+                .Append(";top:")
+                .Append(CssPoints(control.Bounds.Y * scale))
+                .Append(";width:")
+                .Append(CssPoints(control.Bounds.Width * scale))
+                .Append(";height:")
+                .Append(CssPoints(control.Bounds.Height * scale))
+                .Append('"');
+        }
+    }
+
+    private static void WriteFormOption(
+        StringBuilder html,
+        string value,
+        string label,
+        bool selected,
+        bool defaultSelected)
+    {
+        html.Append("          <option value=\"").Append(HtmlAttribute(value)).Append('"');
+        if (selected)
+        {
+            html.Append(" selected=\"selected\"");
+        }
+
+        if (defaultSelected)
+        {
+            html.Append(" data-default-selected=\"true\"");
+        }
+
+        html.Append('>').Append(Html(label)).AppendLine("</option>");
+    }
+
+    private static string FormControlKind(PdfLayoutFormControlKind kind) => kind switch
+    {
+        PdfLayoutFormControlKind.CheckBox => "checkbox",
+        PdfLayoutFormControlKind.RadioButton => "radio",
+        PdfLayoutFormControlKind.ComboBox => "combobox",
+        PdfLayoutFormControlKind.ListBox => "listbox",
+        PdfLayoutFormControlKind.Signature => "signature",
+        _ => "text"
+    };
 
     private static void WriteImage(StringBuilder html, PdfLayoutImage image, PdfLayoutImageAsset asset, float scale)
     {
@@ -2128,6 +2374,7 @@ public static class PdfHtmlConverter
                 }
 
                 WriteSemanticLineGrid(html, context.LineGrid, scale, semanticOptions);
+                WriteFormControls(html, context.Page, scale, positioned: false);
                 continue;
             }
 
@@ -2145,6 +2392,7 @@ public static class PdfHtmlConverter
                 }
 
                 WriteSemanticColumns(html, context.Columns, scale, semanticOptions);
+                WriteFormControls(html, context.Page, scale, positioned: false);
                 continue;
             }
 
@@ -2200,6 +2448,7 @@ public static class PdfHtmlConverter
                 skippedElements,
                 skippedFigureRegions,
                 paragraphMerges.GetValueOrDefault(index));
+            WriteFormControls(html, context.Page, scale, positioned: false);
         }
 
         if (flowOpen)
@@ -2243,6 +2492,14 @@ public static class PdfHtmlConverter
         PdfSemanticLineGrid? lineGrid,
         PdfSemanticColumns? columns)
     {
+        // Form widgets use page-space geometry to remain associated with their
+        // labels and boxes. Reflowing them into a separate control list loses
+        // that relationship and duplicates the visual form structure.
+        if (page.FormControls.Count > 0)
+        {
+            return true;
+        }
+
         if (lineGrid != null || columns != null)
         {
             return false;

@@ -58,7 +58,8 @@ public sealed class PdfLayoutPage
         IReadOnlyList<PdfLayoutVectorGroup> vectorGroups,
         IReadOnlyList<PdfLayoutLink> links,
         IReadOnlyList<PdfLayoutDiagnostic> diagnostics,
-        IReadOnlyList<PdfLayoutPaintOperation>? paintOperations = null)
+        IReadOnlyList<PdfLayoutPaintOperation>? paintOperations = null,
+        IReadOnlyList<PdfLayoutFormControl>? formControls = null)
     {
         PageNumber = pageNumber;
         MediaBox = mediaBox;
@@ -77,6 +78,7 @@ public sealed class PdfLayoutPage
         Links = links.ToArray();
         Diagnostics = diagnostics.ToArray();
         PaintOperations = paintOperations?.ToArray() ?? [];
+        FormControls = formControls?.ToArray() ?? [];
     }
 
     /// <summary>
@@ -163,6 +165,11 @@ public sealed class PdfLayoutPage
     /// Gets image and vector paint operations in PDF content-stream order.
     /// </summary>
     public IReadOnlyList<PdfLayoutPaintOperation> PaintOperations { get; }
+
+    /// <summary>
+    /// Gets supported AcroForm widgets represented as semantic controls.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutFormControl> FormControls { get; }
 
     /// <summary>
     /// Gets the page text in reading order.

@@ -12,11 +12,94 @@ using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Interactive.DigitalSignature;
+using PdfBox.Net.PDModel.Interactive.Form;
 
 namespace PdfBox.Net.Layout.Tests;
 
 public class PdfLayoutExtractorTest
 {
+    [Fact]
+    public void Extract_ModelsSupportedAcroFormFieldsAndWidgetGeometry()
+    {
+        using PDDocument document = CreateAcroFormDocument();
+
+        PdfLayoutPage page = Assert.Single(PdfLayoutExtractor.Extract(document).Pages);
+
+        Assert.Equal(7, page.FormControls.Count);
+        PdfLayoutFormControl text = Assert.Single(page.FormControls, control => control.Name == "fullName");
+        Assert.Equal(PdfLayoutFormControlKind.Text, text.Kind);
+        Assert.Equal("Full legal name", text.AccessibleName);
+        Assert.Equal(["Erik"], text.Values);
+        Assert.Equal(["Default name"], text.DefaultValues);
+        Assert.True(text.IsReadOnly);
+        Assert.True(text.IsRequired);
+        Assert.True(text.IsMultiline);
+        Assert.Equal(40, text.MaxLength);
+        Assert.Equal(new PdfLayoutRectangle(20, 68, 180, 24), text.Bounds);
+
+        PdfLayoutFormControl checkBox = Assert.Single(page.FormControls, control => control.Name == "accepted");
+        Assert.Equal(PdfLayoutFormControlKind.CheckBox, checkBox.Kind);
+        Assert.True(checkBox.IsChecked);
+        Assert.False(checkBox.IsDefaultChecked);
+        Assert.Equal(["Yes"], checkBox.Values);
+        Assert.Equal(["Off"], checkBox.DefaultValues);
+        Assert.Equal("Yes", Assert.Single(checkBox.Options).Value);
+
+        PdfLayoutFormControl[] radios = page.FormControls.Where(control => control.Name == "contactMethod").ToArray();
+        Assert.Equal(2, radios.Length);
+        Assert.Equal(["email", "phone"], radios.Select(control => Assert.Single(control.Options).Value));
+        Assert.False(radios[0].IsChecked);
+        Assert.True(radios[1].IsChecked);
+        Assert.True(radios[0].IsDefaultChecked);
+
+        PdfLayoutFormControl combo = Assert.Single(page.FormControls, control => control.Name == "country");
+        Assert.Equal(PdfLayoutFormControlKind.ComboBox, combo.Kind);
+        Assert.Equal(["no"], combo.Values);
+        Assert.Equal(["us"], combo.DefaultValues);
+        Assert.Equal(["United States", "Norway"], combo.Options.Select(option => option.Label));
+
+        PdfLayoutFormControl list = Assert.Single(page.FormControls, control => control.Name == "colors");
+        Assert.Equal(PdfLayoutFormControlKind.ListBox, list.Kind);
+        Assert.True(list.IsMultiple);
+        Assert.Equal(["red", "blue"], list.Values);
+
+        PdfLayoutFormControl signature = Assert.Single(page.FormControls, control => control.Name == "approval");
+        Assert.Equal(PdfLayoutFormControlKind.Signature, signature.Kind);
+        Assert.Equal(["Ada Lovelace"], signature.Values);
+    }
+
+    [Fact]
+    public void Extract_XfaReportsSemanticFallbackDiagnostic()
+    {
+        using PDDocument document = new();
+        document.AddPage(new PDPage());
+        PDAcroForm acroForm = new(document);
+        acroForm.SetXFA(new PDXFAResource(new COSStream()));
+        document.GetDocumentCatalog().SetAcroForm(acroForm);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutDiagnostic diagnostic = Assert.Single(
+            layout.Diagnostics,
+            item => item.Code == "xfa-semantic-forms-unsupported");
+        Assert.Equal(PdfLayoutDiagnosticSeverity.Warning, diagnostic.Severity);
+        Assert.Contains("visual", diagnostic.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Extract_RotatesAcroFormWidgetGeometryWithPage()
+    {
+        using PDDocument document = CreateAcroFormDocument();
+        document.GetPage(0).SetRotation(90);
+
+        PdfLayoutFormControl text = Assert.Single(
+            Assert.Single(PdfLayoutExtractor.Extract(document).Pages).FormControls,
+            control => control.Name == "fullName");
+
+        Assert.Equal(new PdfLayoutRectangle(700, 20, 24, 180), text.Bounds);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -735,6 +818,92 @@ public class PdfLayoutExtractorTest
         pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
         pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream(contentStream));
         return document;
+    }
+
+    private static PDDocument CreateAcroFormDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDAcroForm acroForm = new(document);
+        document.GetDocumentCatalog().SetAcroForm(acroForm);
+
+        PDTextField text = new(acroForm);
+        text.SetPartialName("fullName");
+        text.SetReadOnly(true);
+        text.SetRequired(true);
+        text.SetMultiline(true);
+        text.SetMaxLen(40);
+        COSDictionary textDictionary = (COSDictionary)text.GetCOSObject();
+        textDictionary.SetString(COSName.GetPDFName("TU"), "Full legal name");
+        textDictionary.SetString(COSName.V, "Erik");
+        textDictionary.SetString(COSName.GetPDFName("DV"), "Default name");
+
+        PDCheckBox checkBox = new(acroForm);
+        checkBox.SetPartialName("accepted");
+        ((COSDictionary)checkBox.GetCOSObject()).SetName(COSName.V, "Yes");
+        ((COSDictionary)checkBox.GetCOSObject()).SetName(COSName.GetPDFName("DV"), "Off");
+
+        PDRadioButton radio = new(acroForm);
+        radio.SetPartialName("contactMethod");
+        radio.SetExportValues(["email", "phone"]);
+        ((COSDictionary)radio.GetCOSObject()).SetName(COSName.V, "phone");
+        ((COSDictionary)radio.GetCOSObject()).SetName(COSName.GetPDFName("DV"), "email");
+
+        PDComboBox combo = new(acroForm);
+        combo.SetPartialName("country");
+        combo.SetOptions(["us", "no"], ["United States", "Norway"]);
+        ((COSDictionary)combo.GetCOSObject()).SetString(COSName.V, "no");
+        ((COSDictionary)combo.GetCOSObject()).SetString(COSName.GetPDFName("DV"), "us");
+
+        PDListBox list = new(acroForm);
+        list.SetPartialName("colors");
+        list.SetMultiSelect(true);
+        list.SetOptions(["red", "green", "blue"]);
+        ((COSDictionary)list.GetCOSObject()).SetItem(
+            COSName.V,
+            new COSArray { new COSString("red"), new COSString("blue") });
+
+        PDSignatureField signature = new(acroForm);
+        signature.SetPartialName("approval");
+        PDSignature value = new();
+        value.SetName("Ada Lovelace");
+        ((COSDictionary)signature.GetCOSObject()).SetItem(COSName.V, value);
+
+        List<PDAnnotationWidget> annotations = [];
+        SetWidgets(text, [CreateFormWidget(page, new PDRectangle(20, 700, 180, 24))], annotations);
+        SetWidgets(checkBox, [CreateFormWidget(page, new PDRectangle(20, 660, 16, 16))], annotations);
+        SetWidgets(
+            radio,
+            [
+                CreateFormWidget(page, new PDRectangle(20, 620, 16, 16)),
+                CreateFormWidget(page, new PDRectangle(50, 620, 16, 16))
+            ],
+            annotations);
+        SetWidgets(combo, [CreateFormWidget(page, new PDRectangle(20, 580, 120, 22))], annotations);
+        SetWidgets(list, [CreateFormWidget(page, new PDRectangle(20, 500, 120, 60))], annotations);
+        SetWidgets(signature, [CreateFormWidget(page, new PDRectangle(20, 430, 180, 50))], annotations);
+
+        acroForm.SetFields([text, checkBox, radio, combo, list, signature]);
+        page.SetAnnotations(annotations.Cast<PDAnnotation>().ToList());
+        return document;
+    }
+
+    private static void SetWidgets(
+        PDField field,
+        IList<PDAnnotationWidget> widgets,
+        List<PDAnnotationWidget> annotations)
+    {
+        field.SetWidgets(widgets);
+        annotations.AddRange(widgets);
+    }
+
+    private static PDAnnotationWidget CreateFormWidget(PDPage page, PDRectangle rectangle)
+    {
+        PDAnnotationWidget widget = new();
+        widget.SetRectangle(rectangle);
+        widget.SetPage(page);
+        return widget;
     }
 
     private static COSStream CreateContentStream(string contentStream)

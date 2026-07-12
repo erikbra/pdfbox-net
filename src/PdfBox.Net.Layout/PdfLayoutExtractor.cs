@@ -13,6 +13,8 @@ using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Interactive.DigitalSignature;
+using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Resources;
@@ -75,6 +77,15 @@ public static class PdfLayoutExtractor
             _colorManagementContext = PDColorManagementContext.Create(document);
             _currentPage = null;
 
+            PDAcroForm? acroForm = document.GetDocumentCatalog().GetAcroForm(null);
+            if (acroForm?.GetXFA() != null)
+            {
+                _diagnostics.Add(new PdfLayoutDiagnostic(
+                    PdfLayoutDiagnosticSeverity.Warning,
+                    "xfa-semantic-forms-unsupported",
+                    "XFA packets are not interpreted as semantic controls; visual page and annotation appearances are retained as fallback."));
+            }
+
             int pageNumber = 1;
             int pageIndex = 0;
             foreach (PDPage page in document.GetPages())
@@ -86,7 +97,8 @@ public static class PdfLayoutExtractor
                     document,
                     _options,
                     _imageAssets,
-                    _colorManagementContext));
+                    _colorManagementContext,
+                    acroForm));
                 pageNumber++;
                 pageIndex++;
             }
@@ -457,6 +469,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutShading> _shadings = new();
         private readonly List<PdfLayoutVectorGroup> _vectorGroups = new();
         private readonly List<PdfLayoutLink> _links = new();
+        private readonly List<PdfLayoutFormControl> _formControls = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
         private readonly List<PdfLayoutPaintOperation> _paintOperations = new();
         private readonly List<SoftMaskedTransparencyGroup> _softMaskedTransparencyGroups = new();
@@ -471,7 +484,8 @@ public static class PdfLayoutExtractor
             PDDocument document,
             PdfLayoutOptions options,
             ImageAssetCollector imageAssets,
-            PDColorManagementContext? colorManagementContext)
+            PDColorManagementContext? colorManagementContext,
+            PDAcroForm? acroForm)
         {
             _pageNumber = pageNumber;
             _pageIndex = pageIndex;
@@ -490,6 +504,11 @@ public static class PdfLayoutExtractor
             if (options.IncludeLinks)
             {
                 CollectLinks(page);
+            }
+
+            if (options.IncludeFormControls && acroForm != null)
+            {
+                CollectFormControls(page, acroForm);
             }
 
             if (options.IncludeImages || options.IncludePaths)
@@ -598,7 +617,239 @@ public static class PdfLayoutExtractor
                 _vectorGroups,
                 _links,
                 _diagnostics,
-                _paintOperations);
+                _paintOperations,
+                _formControls);
+        }
+
+        private void CollectFormControls(PDPage page, PDAcroForm acroForm)
+        {
+            HashSet<COSDictionary> pageAnnotations = new(ReferenceEqualityComparer.Instance);
+            foreach (PDAnnotation annotation in page.GetAnnotations())
+            {
+                pageAnnotations.Add(annotation.GetCOSDictionary());
+            }
+            COSBase pageObject = page.GetCOSObject();
+            int fieldIndex = 0;
+
+            foreach (PDField field in acroForm.GetFieldTree())
+            {
+                if (!TryGetFormControlKind(field, out PdfLayoutFormControlKind kind))
+                {
+                    fieldIndex++;
+                    continue;
+                }
+
+                string name = string.IsNullOrWhiteSpace(field.GetFullyQualifiedName())
+                    ? $"pdf-field-{(fieldIndex + 1).ToString(CultureInfo.InvariantCulture)}"
+                    : field.GetFullyQualifiedName()!;
+                string accessibleName = field.GetCOSObject() is COSDictionary fieldDictionary
+                    ? fieldDictionary.GetString(COSName.GetPDFName("TU"), name) ?? name
+                    : name;
+                IReadOnlyList<string> values = CurrentValues(field);
+                IReadOnlyList<string> defaultValues = DefaultValues(field);
+                IReadOnlyList<PdfLayoutFormOption> fieldOptions = FormOptions(field);
+                List<PDAnnotationWidget> widgets = field.GetWidgets();
+
+                for (int widgetIndex = 0; widgetIndex < widgets.Count; widgetIndex++)
+                {
+                    PDAnnotationWidget widget = widgets[widgetIndex];
+                    COSDictionary widgetDictionary = widget.GetCOSDictionary();
+                    bool belongsToPage = pageAnnotations.Contains(widgetDictionary) ||
+                        ReferenceEquals(widget.GetPage()?.GetCOSObject(), pageObject);
+                    PDRectangle? rectangle = widget.GetRectangle();
+                    if (!belongsToPage || rectangle == null || rectangle.GetWidth() <= 0 || rectangle.GetHeight() <= 0 ||
+                        widget.IsHidden() || widget.IsInvisible() || widget.IsNoView())
+                    {
+                        continue;
+                    }
+
+                    IReadOnlyList<PdfLayoutFormOption> options = fieldOptions;
+                    bool isChecked = false;
+                    bool isDefaultChecked = false;
+                    if (kind is PdfLayoutFormControlKind.CheckBox or PdfLayoutFormControlKind.RadioButton)
+                    {
+                        string exportValue = WidgetExportValue(field, widget, widgetIndex);
+                        options = [new PdfLayoutFormOption(exportValue, exportValue)];
+                        isChecked = values.Contains(exportValue, StringComparer.Ordinal);
+                        isDefaultChecked = defaultValues.Contains(exportValue, StringComparer.Ordinal);
+                    }
+
+                    string widgetAccessibleName = kind == PdfLayoutFormControlKind.RadioButton
+                        ? $"{accessibleName}: {options[0].Label}"
+                        : accessibleName;
+
+                    PDTextField? textField = field as PDTextField;
+                    PDChoice? choice = field as PDChoice;
+                    _formControls.Add(new PdfLayoutFormControl(
+                        _formControls.Count,
+                        name,
+                        widgetAccessibleName,
+                        kind,
+                        NormalizeWidgetRectangle(rectangle),
+                        values,
+                        defaultValues,
+                        options,
+                        HasFieldFlag(field, acroForm, 1),
+                        HasFieldFlag(field, acroForm, 1 << 1),
+                        isChecked,
+                        isDefaultChecked,
+                        textField?.IsMultiline() == true,
+                        textField?.IsPassword() == true,
+                        choice?.IsMultiSelect() == true,
+                        textField?.GetMaxLen()));
+                }
+
+                fieldIndex++;
+            }
+        }
+
+        private static bool TryGetFormControlKind(PDField field, out PdfLayoutFormControlKind kind)
+        {
+            kind = field switch
+            {
+                PDTextField => PdfLayoutFormControlKind.Text,
+                PDCheckBox => PdfLayoutFormControlKind.CheckBox,
+                PDRadioButton => PdfLayoutFormControlKind.RadioButton,
+                PDComboBox => PdfLayoutFormControlKind.ComboBox,
+                PDListBox => PdfLayoutFormControlKind.ListBox,
+                PDSignatureField => PdfLayoutFormControlKind.Signature,
+                _ => default
+            };
+            return field is PDTextField or PDCheckBox or PDRadioButton or PDComboBox or PDListBox or PDSignatureField;
+        }
+
+        private static bool HasFieldFlag(PDField field, PDAcroForm acroForm, int flag)
+        {
+            COSName fieldFlags = COSName.GetPDFName("FF");
+            COSDictionary? dictionary = field.GetCOSObject() as COSDictionary;
+            while (dictionary != null)
+            {
+                if (dictionary.ContainsKey(fieldFlags))
+                {
+                    return (dictionary.GetInt(fieldFlags, 0) & flag) != 0;
+                }
+
+                dictionary = dictionary.GetCOSDictionary(COSName.PARENT, COSName.P);
+            }
+
+            return acroForm.GetCOSObject() is COSDictionary acroFormDictionary &&
+                (acroFormDictionary.GetInt(fieldFlags, 0) & flag) != 0;
+        }
+
+        private static IReadOnlyList<string> CurrentValues(PDField field)
+        {
+            return field switch
+            {
+                PDChoice choice => choice.GetValue(),
+                PDSignatureField signature => SignatureValue(signature.GetSignature()),
+                PDButton button => ButtonValue(button.GetValue()),
+                _ => StringValue(field.GetValueAsString())
+            };
+        }
+
+        private static IReadOnlyList<string> DefaultValues(PDField field)
+        {
+            return field switch
+            {
+                PDTextField text => StringValue(text.GetDefaultValue()),
+                PDChoice choice => choice.GetDefaultValue(),
+                PDSignatureField signature => SignatureValue(signature.GetDefaultValue()),
+                PDButton button => ButtonValue(button.GetDefaultValue()),
+                _ => []
+            };
+        }
+
+        private static IReadOnlyList<string> StringValue(string? value) =>
+            string.IsNullOrEmpty(value) ? [] : [value];
+
+        private static IReadOnlyList<string> ButtonValue(string? value) => StringValue(value);
+
+        private static IReadOnlyList<string> SignatureValue(PDSignature? signature)
+        {
+            if (signature == null)
+            {
+                return [];
+            }
+
+            return [string.IsNullOrWhiteSpace(signature.GetName()) ? "Signed" : signature.GetName()!];
+        }
+
+        private static IReadOnlyList<PdfLayoutFormOption> FormOptions(PDField field)
+        {
+            if (field is not PDChoice choice)
+            {
+                return [];
+            }
+
+            List<string> exportValues = choice.GetOptionsExportValues();
+            List<string> displayValues = choice.GetOptionsDisplayValues();
+            return exportValues
+                .Select((value, index) => new PdfLayoutFormOption(
+                    value,
+                    index < displayValues.Count ? displayValues[index] : value))
+                .ToArray();
+        }
+
+        private static string WidgetExportValue(PDField field, PDAnnotationWidget widget, int widgetIndex)
+        {
+            PDAppearanceEntry? normalAppearance = widget.GetAppearance()?.GetNormalAppearance();
+            if (normalAppearance?.IsSubDictionary() == true)
+            {
+                string? state = normalAppearance.GetSubDictionary().Keys
+                    .Select(static key => key.GetName())
+                    .FirstOrDefault(static value => !string.Equals(value, "Off", StringComparison.Ordinal));
+                if (!string.IsNullOrEmpty(state))
+                {
+                    return state;
+                }
+            }
+
+            if (field is PDButton button)
+            {
+                List<string> exportValues = button.GetExportValues();
+                if (widgetIndex < exportValues.Count)
+                {
+                    return exportValues[widgetIndex];
+                }
+
+                string? onValue = button.GetOnValues()
+                    .FirstOrDefault(static value => !string.Equals(value, "Off", StringComparison.Ordinal));
+                if (!string.IsNullOrEmpty(onValue))
+                {
+                    return onValue;
+                }
+            }
+
+            return "Yes";
+        }
+
+        private PdfLayoutRectangle NormalizeWidgetRectangle(PDRectangle rectangle)
+        {
+            (float X, float Y)[] corners =
+            [
+                NormalizeWidgetPoint(rectangle.GetLowerLeftX(), rectangle.GetLowerLeftY()),
+                NormalizeWidgetPoint(rectangle.GetLowerLeftX(), rectangle.GetUpperRightY()),
+                NormalizeWidgetPoint(rectangle.GetUpperRightX(), rectangle.GetLowerLeftY()),
+                NormalizeWidgetPoint(rectangle.GetUpperRightX(), rectangle.GetUpperRightY())
+            ];
+            float left = corners.Min(static point => point.X);
+            float top = corners.Min(static point => point.Y);
+            float right = corners.Max(static point => point.X);
+            float bottom = corners.Max(static point => point.Y);
+            return new PdfLayoutRectangle(left, top, right - left, bottom - top);
+        }
+
+        private (float X, float Y) NormalizeWidgetPoint(float x, float y)
+        {
+            float cropRight = _cropBox.X + _cropBox.Width;
+            float cropTop = _cropBox.Y + _cropBox.Height;
+            return _rotation switch
+            {
+                90 => (y - _cropBox.Y, x - _cropBox.X),
+                180 => (cropRight - x, y - _cropBox.Y),
+                270 => (cropTop - y, cropRight - x),
+                _ => (x - _cropBox.X, cropTop - y)
+            };
         }
 
         private void CollectGraphics(PDPage page, PdfLayoutOptions options)

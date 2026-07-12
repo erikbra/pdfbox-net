@@ -72,7 +72,7 @@ SHA-256, and keeps the ZIP and PDFs under ignored `artifacts` storage.
 
 The remote manifest's expectations deliberately cover stable structural
 invariants only: exact page count, normalized required title words, minimum
-text runs, and category-specific minimum image, vector-path, and link counts.
+text runs, and category-specific minimum image, vector-path, link, and form-control counts.
 Known visual and text-reconstruction shortcomings remain review findings owned
 by issues #728 through #733 rather than brittle expected failures.
 
