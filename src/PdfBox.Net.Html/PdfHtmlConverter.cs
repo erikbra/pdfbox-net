@@ -11,6 +11,8 @@ namespace PdfBox.Net.Html;
 /// </summary>
 public static class PdfHtmlConverter
 {
+    private const float BrowserFontBaselineRatio = 0.8f;
+
     private const string Css = """
         .pdf-document {
           --pdf-page-background: #fff;
@@ -1686,7 +1688,7 @@ public static class PdfHtmlConverter
         }
         else if (ShouldUseFittedText(run, pageRuns))
         {
-            WriteFittedTextRun(html, run, fontSize, scale);
+            WriteFittedTextRun(html, run, fontSize, scale, pageRuns);
         }
         else
         {
@@ -1731,22 +1733,48 @@ public static class PdfHtmlConverter
         html.Append("</svg>");
     }
 
-    private static void WriteFittedTextRun(StringBuilder html, PdfTextRun run, float fontSize, float scale)
+    private static void WriteFittedTextRun(
+        StringBuilder html,
+        PdfTextRun run,
+        float fontSize,
+        float scale,
+        IReadOnlyList<PdfTextRun> pageRuns)
     {
         string color = ColorHex(run.Color);
+        float runHeight = run.Bounds.Height * scale;
+        float fittedHeight = run.UsesBrowserFontAsset
+            ? MathF.Max(runHeight, fontSize * scale)
+            : runHeight;
+        float baseline = run.UsesBrowserFontAsset
+            ? BrowserFontBaseline(run, fontSize, pageRuns) * scale
+            : runHeight * 0.92f;
+        float fittedTop = run.UsesBrowserFontAsset
+            ? runHeight - baseline
+            : 0f;
         html.Append("<span class=\"pdf-text-run-copy\" aria-hidden=\"true\">")
             .Append(Html(run.Text))
             .Append("</span><svg class=\"pdf-text-run-svg\" viewBox=\"0 0 ")
             .Append(SvgNumber(run.Bounds.Width * scale))
             .Append(' ')
-            .Append(SvgNumber(run.Bounds.Height * scale))
-            .Append("\" preserveAspectRatio=\"none\" aria-hidden=\"true\">")
+            .Append(SvgNumber(fittedHeight))
+            .Append("\" preserveAspectRatio=\"none\" aria-hidden=\"true\"");
+        if (run.UsesBrowserFontAsset)
+        {
+            html.Append(" style=\"height:")
+                .Append(CssPoints(fittedHeight))
+                .Append(";top:")
+                .Append(CssPoints(fittedTop))
+                .Append("\"");
+        }
+
+        html.Append('>')
             .Append("<text x=\"0\" y=\"")
-            .Append(SvgNumber(run.Bounds.Height * scale * 0.92f))
+            .Append(SvgNumber(baseline))
             .Append("\" textLength=\"")
             .Append(SvgNumber(run.Bounds.Width * scale))
             .Append("\" lengthAdjust=\"spacingAndGlyphs\" xml:space=\"preserve\" style=\"font-size:")
-            .Append(CssPoints(fontSize * scale))
+            .Append(SvgNumber(fontSize * scale))
+            .Append("px")
             .Append(";font-family:")
             .Append(CssFontFamily(run.FontName))
             .Append(FixedTextFontPresentation(run))
@@ -1762,6 +1790,38 @@ public static class PdfHtmlConverter
         html.Append("\">")
             .Append(Html(run.Text))
             .Append("</text></svg>");
+    }
+
+    private static float BrowserFontBaseline(
+        PdfTextRun run,
+        float fontSize,
+        IReadOnlyList<PdfTextRun> pageRuns)
+    {
+        if (!HasCompressedGlyphBounds(run))
+        {
+            return MathF.Min(run.Bounds.Height, fontSize);
+        }
+
+        PdfTextRun? referenceRun = pageRuns
+            .Where(candidate => !ReferenceEquals(candidate, run))
+            .Where(static candidate => candidate.UsesBrowserFontAsset)
+            .Where(candidate => !HasCompressedGlyphBounds(candidate))
+            .Where(candidate => string.Equals(
+                NormalizeFontName(candidate.FontName),
+                NormalizeFontName(run.FontName),
+                StringComparison.Ordinal))
+            .Where(candidate => MathF.Abs(candidate.FontSize - fontSize) <= MathF.Max(0.5f, fontSize * 0.1f))
+            .Where(candidate => MathF.Abs(RunBaseline(candidate) - RunBaseline(run)) <= 0.75f)
+            .Where(candidate => MathF.Min(
+                MathF.Abs(candidate.Bounds.X - run.Bounds.Right),
+                MathF.Abs(run.Bounds.X - candidate.Bounds.Right)) <= 1.5f)
+            .OrderBy(candidate => MathF.Min(
+                MathF.Abs(candidate.Bounds.X - run.Bounds.Right),
+                MathF.Abs(run.Bounds.X - candidate.Bounds.Right)))
+            .FirstOrDefault();
+        return referenceRun is null
+            ? fontSize * BrowserFontBaselineRatio
+            : MathF.Min(referenceRun.Bounds.Height, fontSize);
     }
 
     private static bool ShouldUseFittedText(PdfTextRun run, IReadOnlyList<PdfTextRun> pageRuns)
