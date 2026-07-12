@@ -2790,15 +2790,17 @@ public static class PdfSemanticExtractor
     {
         ArgumentNullException.ThrowIfNull(glyphSource);
         options ??= new PdfSemanticExtractionOptions();
-        PdfTextGlyph[] glyphs = glyphSource
+        PdfTextGlyph[] visualGlyphs = glyphSource
             .Where(static glyph => !string.IsNullOrEmpty(glyph.Text))
             .OrderBy(static glyph => glyph.Bounds.X)
             .ThenBy(static glyph => glyph.Bounds.Y)
             .ToArray();
-        if (glyphs.Length == 0)
+        if (visualGlyphs.Length == 0)
         {
             return "";
         }
+
+        IReadOnlyList<PdfTextGlyph> glyphs = OrderGlyphsForLogicalText(visualGlyphs);
 
         StringBuilder text = new();
         PdfTextGlyph? previous = null;
@@ -2825,6 +2827,87 @@ public static class PdfSemanticExtractor
     }
 
     /// <summary>
+    /// Converts horizontal glyphs collected in page-left-to-right visual order into Unicode logical order.
+    /// RTL directional runs are reversed while Latin and numeric runs retain their internal order.
+    /// </summary>
+    public static IReadOnlyList<PdfTextGlyph> OrderGlyphsForLogicalText(IEnumerable<PdfTextGlyph> glyphSource)
+    {
+        ArgumentNullException.ThrowIfNull(glyphSource);
+        PdfTextGlyph[] visualGlyphs = glyphSource
+            .Where(static glyph => !string.IsNullOrEmpty(glyph.Text))
+            .OrderBy(static glyph => glyph.Bounds.X)
+            .ThenBy(static glyph => glyph.Bounds.Y)
+            .ToArray();
+        if (visualGlyphs.Length < 2 ||
+            PdfTextDirectionDetector.Detect(string.Concat(visualGlyphs.Select(static glyph => glyph.Text))) != PdfTextDirection.RightToLeft)
+        {
+            return visualGlyphs;
+        }
+
+        PdfTextDirection[] directions = ResolveGlyphDirections(visualGlyphs);
+        List<IReadOnlyList<PdfTextGlyph>> directionalRuns = [];
+        int runStart = 0;
+        for (int index = 1; index <= visualGlyphs.Length; index++)
+        {
+            if (index < visualGlyphs.Length && directions[index] == directions[runStart])
+            {
+                continue;
+            }
+
+            PdfTextGlyph[] run = visualGlyphs[runStart..index];
+            directionalRuns.Add(directions[runStart] == PdfTextDirection.RightToLeft
+                ? run.Reverse().ToArray()
+                : run);
+            runStart = index;
+        }
+
+        directionalRuns.Reverse();
+        return directionalRuns.SelectMany(static run => run).ToArray();
+    }
+
+    private static PdfTextDirection[] ResolveGlyphDirections(IReadOnlyList<PdfTextGlyph> glyphs)
+    {
+        PdfTextDirection[] directions = glyphs
+            .Select(static glyph => PdfTextDirectionDetector.DirectionOf(glyph.Text))
+            .ToArray();
+        for (int index = 0; index < directions.Length; index++)
+        {
+            if (directions[index] != PdfTextDirection.Neutral)
+            {
+                continue;
+            }
+
+            PdfTextDirection before = NearestStrongDirection(directions, index, -1);
+            PdfTextDirection after = NearestStrongDirection(directions, index, 1);
+            directions[index] = before == after && before != PdfTextDirection.Neutral
+                ? before
+                : after != PdfTextDirection.Neutral
+                    ? after
+                    : before != PdfTextDirection.Neutral
+                        ? before
+                        : PdfTextDirection.RightToLeft;
+        }
+
+        return directions;
+    }
+
+    private static PdfTextDirection NearestStrongDirection(
+        IReadOnlyList<PdfTextDirection> directions,
+        int start,
+        int step)
+    {
+        for (int index = start + step; index >= 0 && index < directions.Count; index += step)
+        {
+            if (directions[index] != PdfTextDirection.Neutral)
+            {
+                return directions[index];
+            }
+        }
+
+        return PdfTextDirection.Neutral;
+    }
+
+    /// <summary>
     /// Determines whether adjacent positioned glyphs have a word boundary, including boundaries encoded as spacing.
     /// </summary>
     public static bool IsWordBoundaryBetween(
@@ -2841,7 +2924,9 @@ public static class PdfSemanticExtractor
             return true;
         }
 
-        if (glyph.Bounds.X <= previous.Bounds.X)
+        bool rightToLeftPair = PdfTextDirectionDetector.DirectionOf(previous.Text) == PdfTextDirection.RightToLeft &&
+            PdfTextDirectionDetector.DirectionOf(glyph.Text) == PdfTextDirection.RightToLeft;
+        if (glyph.Bounds.X <= previous.Bounds.X && !rightToLeftPair)
         {
             return false;
         }
@@ -2858,7 +2943,9 @@ public static class PdfSemanticExtractor
             return false;
         }
 
-        float gap = glyph.Bounds.X - previous.Bounds.Right;
+        float gap = rightToLeftPair
+            ? previous.Bounds.X - glyph.Bounds.Right
+            : glyph.Bounds.X - previous.Bounds.Right;
         float threshold = MathF.Max(
             options.MinimumWordGap,
             MathF.Min(previous.FontSize, glyph.FontSize) * options.WordGapFontSizeMultiplier);

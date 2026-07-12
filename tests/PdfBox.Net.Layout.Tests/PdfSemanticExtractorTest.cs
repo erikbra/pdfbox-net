@@ -1,3 +1,4 @@
+using System.Text;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 
@@ -17,6 +18,39 @@ public sealed class PdfSemanticExtractorTest
 
         Assert.Equal("Justified prose keeps boundaries.", text);
         Assert.Equal(3, text.Count(static character => character == ' '));
+    }
+
+    [Fact]
+    public void ReconstructText_ArabicVisualGlyphOrderBecomesLogicalOrder()
+    {
+        PdfTextGlyph[] glyphs = CreateVisualGlyphs("ةدحتملا ممألا ةموظنم");
+
+        string text = PdfSemanticExtractor.ReconstructText(glyphs);
+
+        Assert.Equal("منظومة الأمم المتحدة", text);
+        Assert.Equal(PdfTextDirection.RightToLeft, PdfTextDirectionDetector.Detect(text));
+    }
+
+    [Fact]
+    public void ReconstructText_MixedArabicLatinAndDigitsPreservesLtrRuns()
+    {
+        PdfTextGlyph[] glyphs = CreateVisualGlyphs("WHO 2024 ةمظنم");
+
+        string text = PdfSemanticExtractor.ReconstructText(glyphs);
+
+        Assert.Equal("منظمة WHO 2024", text);
+        Assert.Equal(PdfTextDirection.RightToLeft, PdfTextDirectionDetector.Detect(text));
+    }
+
+    [Fact]
+    public void ReconstructText_LeftToRightGlyphOrderIsUnchanged()
+    {
+        PdfTextGlyph[] glyphs = CreateVisualGlyphs("Section 12 (UN)");
+
+        string text = PdfSemanticExtractor.ReconstructText(glyphs);
+
+        Assert.Equal("Section 12 (UN)", text);
+        Assert.Equal(PdfTextDirection.LeftToRight, PdfTextDirectionDetector.Detect(text));
     }
 
     [Fact]
@@ -315,6 +349,22 @@ public sealed class PdfSemanticExtractorTest
             }
 
             x += wordIndex + 1 < words.Count ? wordGap - characterGap : 0f;
+        }
+
+        return glyphs.ToArray();
+    }
+
+    private static PdfTextGlyph[] CreateVisualGlyphs(string visualText)
+    {
+        PdfLayoutColor color = new(0, 0, 0, 1, "DeviceGray");
+        List<PdfTextGlyph> glyphs = [];
+        float x = 72f;
+        foreach (Rune rune in visualText.EnumerateRunes())
+        {
+            float width = Rune.IsWhiteSpace(rune) ? 3f : 6f;
+            PdfLayoutRectangle bounds = new(x, 100f, width, 8f);
+            glyphs.Add(new PdfTextGlyph(rune.ToString(), "NotoNaskhArabic", 10f, 0f, bounds, color));
+            x += width;
         }
 
         return glyphs.ToArray();

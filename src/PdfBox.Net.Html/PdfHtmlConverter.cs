@@ -72,6 +72,12 @@ public static class PdfHtmlConverter
           width: 100%;
         }
 
+        .pdf-text-rtl {
+          direction: rtl;
+          text-align: right;
+          unicode-bidi: plaintext;
+        }
+
         .pdf-text-shadow {
           filter: drop-shadow(
             var(--pdf-text-shadow-x)
@@ -2182,12 +2188,15 @@ public static class PdfHtmlConverter
         bool visuallyHiddenOcr = false)
     {
         text ??= run.Text;
+        bool rightToLeft = IsRightToLeftText(text);
         html.Append("    <span class=\"pdf-text-run")
             .Append(run.Shadow is null ? "" : " pdf-text-shadow")
             .Append(visuallyHiddenOcr ? " pdf-ocr-text-run" : "")
+            .Append(rightToLeft ? " pdf-text-rtl" : "")
             .Append("\" data-font=\"")
             .Append(HtmlAttribute(run.FontName))
             .Append(visuallyHiddenOcr ? "\" aria-label=\"" + HtmlAttribute(text) : "")
+            .Append(rightToLeft ? "\" dir=\"rtl" : "")
             .Append("\" style=\"position:absolute;left:")
             .Append(CssPoints(run.Bounds.X * scale))
             .Append(";top:")
@@ -2210,9 +2219,9 @@ public static class PdfHtmlConverter
         {
             WriteGlyphOutlineTextRun(html, run, text);
         }
-        else if (ShouldUseFittedText(run, pageRuns))
+        else if (rightToLeft || ShouldUseFittedText(run, pageRuns))
         {
-            WriteFittedTextRun(html, run, fontSize, scale, pageRuns, text);
+            WriteFittedTextRun(html, run, fontSize, scale, pageRuns, text, rightToLeft);
         }
         else
         {
@@ -2263,7 +2272,8 @@ public static class PdfHtmlConverter
         float fontSize,
         float scale,
         IReadOnlyList<PdfTextRun> pageRuns,
-        string text)
+        string text,
+        bool rightToLeft)
     {
         string color = ColorHex(run.Color);
         float runHeight = run.Bounds.Height * scale;
@@ -2293,7 +2303,9 @@ public static class PdfHtmlConverter
         }
 
         html.Append('>')
-            .Append("<text x=\"0\" y=\"")
+            .Append("<text x=\"")
+            .Append(rightToLeft ? SvgNumber(run.Bounds.Width * scale) : "0")
+            .Append("\" y=\"")
             .Append(SvgNumber(baseline))
             .Append("\" textLength=\"")
             .Append(SvgNumber(run.Bounds.Width * scale))
@@ -2312,7 +2324,8 @@ public static class PdfHtmlConverter
                 .Append(SvgNumber(run.Color.Alpha));
         }
 
-        html.Append("\">")
+        html.Append(rightToLeft ? "\" direction=\"rtl\" unicode-bidi=\"plaintext\" text-anchor=\"start" : "")
+            .Append("\">")
             .Append(Html(text))
             .Append("</text></svg>");
     }
@@ -3679,6 +3692,7 @@ public static class PdfHtmlConverter
         html.Append("<span class=\"")
             .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
             .Append(" pdf-semantic-inline-flow-element\"");
+        AppendTextDirectionAttribute(html, element.Text);
         string style = FlowSemanticStyle(element, page, allowMeasuredWidth: false);
         if (style.Length > 0)
         {
@@ -4777,7 +4791,9 @@ public static class PdfHtmlConverter
             .Append(HtmlAttribute(footnotes.IdFor(marker)))
             .Append("\" class=\"")
             .Append(SemanticClassNames(element))
-            .Append("\"><a class=\"pdf-semantic-footnote-backref\" href=\"")
+            .Append('"');
+        AppendTextDirectionAttribute(html, element.Text);
+        html.Append("><a class=\"pdf-semantic-footnote-backref\" href=\"")
             .Append(HtmlAttribute(footnotes.FirstReferenceHref(marker)))
             .Append("\">")
             .Append(Html(marker))
@@ -4831,6 +4847,7 @@ public static class PdfHtmlConverter
             .Append(" class=\"")
             .Append(SemanticClassNames(element, page, allowMeasuredWidth))
             .Append('"');
+        AppendTextDirectionAttribute(html, element.Text);
         string style = FlowSemanticStyle(element, page, allowMeasuredWidth);
         if (style.Length > 0)
         {
@@ -4881,8 +4898,9 @@ public static class PdfHtmlConverter
     {
         html.Append("      <ul class=\"")
             .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
-            .Append(" pdf-semantic-list\">")
-            .AppendLine();
+            .Append(" pdf-semantic-list\"");
+        AppendTextDirectionAttribute(html, element.Text);
+        html.Append('>').AppendLine();
         foreach (PdfSemanticLine line in element.Lines)
         {
             WriteSemanticListItem(html, line, element, footnotes, page);
@@ -4901,8 +4919,9 @@ public static class PdfHtmlConverter
         PdfSemanticElement first = elements[startIndex];
         html.Append("      <ul class=\"")
             .Append(SemanticClassNames(first, page, allowMeasuredWidth: false))
-            .Append(" pdf-semantic-list\">")
-            .AppendLine();
+            .Append(" pdf-semantic-list\"");
+        AppendTextDirectionAttribute(html, first.Text);
+        html.Append('>').AppendLine();
         int index = startIndex;
         while (index < elements.Count && IsBulletListItem(elements[index]))
         {
@@ -4956,6 +4975,7 @@ public static class PdfHtmlConverter
             .Append("\" aria-label=\"")
             .Append(HtmlAttribute(TableAriaLabel(element)))
             .Append('"');
+        AppendTextDirectionAttribute(html, element.Text);
         string style = FlowSemanticStyle(element, page, allowMeasuredWidth: true);
         if (style.Length > 0)
         {
@@ -5448,7 +5468,9 @@ public static class PdfHtmlConverter
             .Append(" class=\"")
             .Append(SemanticClassNames(element))
             .Append(" pdf-semantic-positioned pdf-semantic-vertical")
-            .Append("\" style=\"")
+            .Append('"');
+        AppendTextDirectionAttribute(html, element.Text);
+        html.Append(" style=\"")
             .Append(PositionStyle(page, element, scale))
             .Append("\">");
         WriteSemanticText(html, element, footnotes, page);
@@ -5672,9 +5694,20 @@ public static class PdfHtmlConverter
             glyphSource = glyphSource.Concat(AttachedInlineMathGlyphs(line, page, element));
         }
 
-        (PdfTextRun Run, PdfTextGlyph Glyph)[] glyphs = glyphSource
+        (PdfTextRun Run, PdfTextGlyph Glyph)[] visualGlyphs = glyphSource
             .OrderBy(static item => item.Glyph.Bounds.X)
             .ThenBy(static item => item.Glyph.Bounds.Y)
+            .ToArray();
+        Dictionary<PdfTextGlyph, (PdfTextRun Run, PdfTextGlyph Glyph)> sourceByGlyph =
+            new(ReferenceEqualityComparer.Instance);
+        foreach ((PdfTextRun Run, PdfTextGlyph Glyph) item in visualGlyphs)
+        {
+            sourceByGlyph.Add(item.Glyph, item);
+        }
+
+        (PdfTextRun Run, PdfTextGlyph Glyph)[] glyphs = PdfSemanticExtractor
+            .OrderGlyphsForLogicalText(visualGlyphs.Select(static item => item.Glyph))
+            .Select(glyph => sourceByGlyph[glyph])
             .ToArray();
         if (glyphs.Length == 0)
         {
@@ -7324,6 +7357,11 @@ public static class PdfHtmlConverter
         if (sourceRuns.Length > 0 && sourceRuns.All(IsUnpaintedTextRun))
         {
             classes.Add("pdf-ocr-text-run");
+        }
+
+        if (IsRightToLeftText(element.Text))
+        {
+            classes.Add("pdf-text-rtl");
         }
 
         if (element.Kind != PdfSemanticElementKind.AuthorBlock)
@@ -9117,6 +9155,19 @@ public static class PdfHtmlConverter
         }
 
         return "sans-serif";
+    }
+
+    private static bool IsRightToLeftText(string text)
+    {
+        return PdfTextDirectionDetector.Detect(text) == PdfTextDirection.RightToLeft;
+    }
+
+    private static void AppendTextDirectionAttribute(StringBuilder html, string text)
+    {
+        if (IsRightToLeftText(text))
+        {
+            html.Append(" dir=\"rtl\"");
+        }
     }
 
     private static string Html(string value)

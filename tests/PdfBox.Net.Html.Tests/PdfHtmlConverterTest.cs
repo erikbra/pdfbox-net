@@ -535,6 +535,34 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticArabic_EmitsLogicalTextAndRtlDirectionForFlowAndFixedFallback()
+    {
+        PdfHtmlOptions options = new()
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        };
+
+        XDocument flow = ParseHtml(PdfHtmlConverter.Convert(CreateArabicVisualOrderLayout(2f), options).Html);
+        XElement flowElement = Assert.Single(ElementsByClass(flow, "pdf-semantic-element"), element =>
+            element.Attribute("dir")?.Value == "rtl");
+        Assert.Contains("منظومة الأمم المتحدة", flowElement.Value, StringComparison.Ordinal);
+        Assert.True(HasClass(flowElement, "pdf-text-rtl"));
+
+        XDocument fixedFallback = ParseHtml(PdfHtmlConverter.Convert(CreateArabicVisualOrderLayout(80f), options).Html);
+        Assert.Single(ElementsByClass(fixedFallback, "pdf-semantic-layout-fallback-page"));
+        XElement fixedRun = Assert.Single(ElementsByClass(fixedFallback, "pdf-text-run"));
+        Assert.Equal("rtl", fixedRun.Attribute("dir")?.Value);
+        Assert.True(HasClass(fixedRun, "pdf-text-rtl"));
+        Assert.Contains("منظومة الأمم المتحدة", fixedRun.Value, StringComparison.Ordinal);
+        XElement svgText = Assert.Single(fixedRun.Descendants(), element => element.Name.LocalName == "text");
+        Assert.Equal("rtl", svgText.Attribute("direction")?.Value);
+        Assert.Equal("start", svgText.Attribute("text-anchor")?.Value);
+        Assert.Equal("134", svgText.Attribute("textLength")?.Value);
+        Assert.Equal("0 0 134 12", svgText.Parent?.Attribute("viewBox")?.Value);
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_UsesFixedLayoutForFullPageVectorBackdrops()
     {
         using PDDocument document = CreateTextDocument("""
@@ -4499,6 +4527,52 @@ public class PdfHtmlConverterTest
         byte[] bytes = Encoding.Latin1.GetBytes(contentStream);
         output.Write(bytes, 0, bytes.Length);
         return stream;
+    }
+
+    private static PdfLayoutDocument CreateArabicVisualOrderLayout(float y)
+    {
+        const string visualText = "ةدحتملا ممألا ةموظنم";
+        PdfLayoutRectangle pageBounds = new(0, 0, 300, 180);
+        PdfLayoutColor black = new(0, 0, 0, 1, "DeviceRGB");
+        List<PdfTextGlyph> glyphs = [];
+        float x = 40f;
+        foreach (Rune rune in visualText.EnumerateRunes())
+        {
+            float width = Rune.IsWhiteSpace(rune) ? 4f : 7f;
+            glyphs.Add(new PdfTextGlyph(
+                rune.ToString(),
+                "NotoNaskhArabic",
+                12f,
+                0f,
+                new PdfLayoutRectangle(x, y, width, 10f),
+                black)
+            {
+                UsesBrowserFontAsset = true
+            });
+            x += width;
+        }
+
+        PdfLayoutRectangle bounds = new(40f, y, x - 40f, 10f);
+        PdfTextRun run = new(visualText, "NotoNaskhArabic", 12f, 0f, bounds, black, glyphs);
+        PdfTextLine line = new(visualText, bounds, [run]);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            [run],
+            [line],
+            [new PdfTextBlock(visualText, bounds, [line])],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
     }
 
     private static COSStream CreateBinaryStream(PDDocument document, byte[] data)
