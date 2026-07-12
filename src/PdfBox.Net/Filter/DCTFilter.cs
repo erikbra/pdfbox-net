@@ -10,7 +10,6 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.Rendering;
-using DrawingRectangle = System.Drawing.Rectangle;
 
 namespace PdfBox.Net.Filter;
 
@@ -50,8 +49,8 @@ public sealed class DCTFilter : Filter
         using BufferedImage bitmap = RenderingBackend.Current.ImageCodec.Decode(jpegBytes)
             ?? throw new IOException("DCTDecode failed to decode JPEG data.");
 
-        DrawingRectangle region = options.GetSourceRegion() ?? new DrawingRectangle(0, 0, bitmap.Width, bitmap.Height);
-        region.Intersect(new DrawingRectangle(0, 0, bitmap.Width, bitmap.Height));
+        DecodeRegion region = (options.GetSourceRegion() ?? new DecodeRegion(0, 0, bitmap.Width, bitmap.Height))
+            .Intersect(new DecodeRegion(0, 0, bitmap.Width, bitmap.Height));
         int subsamplingX = Math.Max(1, options.GetSubsamplingX());
         int subsamplingY = Math.Max(1, options.GetSubsamplingY());
         int offsetX = Math.Clamp(options.GetSubsamplingOffsetX(), 0, subsamplingX - 1);
@@ -101,8 +100,8 @@ public sealed class DCTFilter : Filter
 
     private static void DecodeRaster(DecodedJpegRaster raster, Stream output, DecodeOptions options)
     {
-        DrawingRectangle region = options.GetSourceRegion() ?? new DrawingRectangle(0, 0, raster.Width, raster.Height);
-        region.Intersect(new DrawingRectangle(0, 0, raster.Width, raster.Height));
+        DecodeRegion region = (options.GetSourceRegion() ?? new DecodeRegion(0, 0, raster.Width, raster.Height))
+            .Intersect(new DecodeRegion(0, 0, raster.Width, raster.Height));
         int subsamplingX = Math.Max(1, options.GetSubsamplingX());
         int subsamplingY = Math.Max(1, options.GetSubsamplingY());
         int offsetX = Math.Clamp(options.GetSubsamplingOffsetX(), 0, subsamplingX - 1);

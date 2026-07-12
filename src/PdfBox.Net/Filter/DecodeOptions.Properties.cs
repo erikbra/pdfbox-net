@@ -6,13 +6,11 @@
  * PORT_ADAPTER_FOR: pdfbox/src/main/java/org/apache/pdfbox/filter/DecodeOptions.java
  */
 
-using System.Drawing;
-
 namespace PdfBox.Net.Filter;
 
 public partial class DecodeOptions
 {
-    public Rectangle? SourceRegion
+    public DecodeRegion? SourceRegion
     {
         get => GetSourceRegion();
         set => SetSourceRegion(value!);
