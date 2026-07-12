@@ -39,6 +39,14 @@ jobs:
           tests/PdfBox.Net.Html.Tests/bin/Release/net10.0/.playwright/package/cli.js
           install --with-deps chromium
 
+      - name: Download Ghent test pages
+        run: |
+          tests/PdfBox.Net.Html.Tests/bin/Release/net10.0/.playwright/node/linux-x64/node \
+            scripts/download-ghent-pdf.mjs \
+            artifacts/external-pdf-samples/ghent \
+            --test-pages \
+            --playwright-package=tests/PdfBox.Net.Html.Tests/bin/Release/net10.0/.playwright/package
+
       - name: Test
         run: dotnet test PdfBoxNet.slnx --configuration Release --no-build --nologo
 

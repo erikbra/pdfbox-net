@@ -8,23 +8,29 @@
  *   npx playwright install chromium
  *
  * Usage:
- *   node scripts/download-ghent-pdf.mjs [output-dir]
+ *   node scripts/download-ghent-pdf.mjs [output-dir] [--test-pages]
  *
  * The default output directory is "target/pdfs" relative to the repository root.
  * After extraction the following file must exist:
  *   <output-dir>/Ghent_PDF_Output_Suite_V50_Full/Categories/1-CMYK/Test pages/Ghent_PDF-Output-Test-V50_CMYK_X4.pdf
  */
 
-import { chromium } from 'playwright';
-import { createWriteStream, existsSync, mkdirSync } from 'node:fs';
+import { createWriteStream, existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { get as httpsGet } from 'node:https';
 import { get as httpGet } from 'node:http';
 
 const execFileAsync = promisify(execFile);
+const playwrightPackageArgument = process.argv.find(argument => argument.startsWith('--playwright-package='));
+const playwrightModule = playwrightPackageArgument
+  ? pathToFileURL(path.join(path.resolve(playwrightPackageArgument.split('=', 2)[1]), 'index.js')).href
+  : 'playwright';
+const importedPlaywright = await import(playwrightModule);
+const chromium = importedPlaywright.chromium ?? importedPlaywright.default?.chromium;
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -37,16 +43,36 @@ const MAX_REDIRECTS     = 10;       // maximum HTTP redirects when fetching a di
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot  = path.resolve(__dirname, '..');
 const outputDir = path.resolve(process.argv[2] ?? path.join(repoRoot, 'target', 'pdfs'));
+const testPages = process.argv.includes('--test-pages');
 
-const GWG_DOWNLOAD_URL = 'https://gwg.org/download/ghentpdfoutputsuitev50/';
-const EXPECTED_FILE = path.join(
-  outputDir,
-  'Ghent_PDF_Output_Suite_V50_Full',
-  'Categories',
-  '1-CMYK',
-  'Test pages',
-  'Ghent_PDF-Output-Test-V50_CMYK_X4.pdf'
-);
+const GWG_DOWNLOAD_URL = testPages
+  ? 'https://gwg.org/download/ghent-output-suite-v50-testpages/'
+  : 'https://gwg.org/download/ghentpdfoutputsuitev50/';
+const expectedFiles = testPages
+  ? [
+      {
+        path: path.join(outputDir, 'Ghent_PDF_Output_Suite_V50_Testpages', 'Ghent_PDF-Output-Test-V50_ALL_X4.pdf'),
+        sha256: '6d9686303ea9049350bc1b3253c22a3cc8578bd7dfcc6afeaef89cbbe37d4cbe'
+      },
+      {
+        path: path.join(outputDir, 'Ghent_PDF_Output_Suite_V50_Testpages', 'PR_Ghent-PDF-Output-Suite-5-Conformance-Certification.pdf'),
+        sha256: 'a781534480c39d40ef4c6bddce3afb8bbcc8e62bb6007f4db0ebe78e4ee54417'
+      }
+    ]
+  : [
+      {
+        path: path.join(
+          outputDir,
+          'Ghent_PDF_Output_Suite_V50_Full',
+          'Categories',
+          '1-CMYK',
+          'Test pages',
+          'Ghent_PDF-Output-Test-V50_CMYK_X4.pdf'
+        ),
+        sha256: null
+      }
+    ];
+const EXPECTED_FILE = expectedFiles[0].path;
 
 // ---------------------------------------------------------------------------
 // Early-exit if already downloaded
@@ -54,7 +80,7 @@ const EXPECTED_FILE = path.join(
 
 mkdirSync(outputDir, { recursive: true });
 
-if (existsSync(EXPECTED_FILE)) {
+if (expectedFiles.every(file => existsSync(file.path) && (!file.sha256 || sha256(file.path) === file.sha256))) {
   console.log('Ghent PDF already present, skipping download.');
   console.log(`  ${EXPECTED_FILE}`);
   process.exit(0);
@@ -69,9 +95,15 @@ console.log('Launching browser to download Ghent PDF Output Suite V50...');
 const browser = await chromium.launch({ headless: true });
 const context  = await browser.newContext({ acceptDownloads: true });
 const page     = await context.newPage();
+let zipPath = null;
 
 try {
-  await page.goto(GWG_DOWNLOAD_URL, { waitUntil: 'domcontentloaded', timeout: PAGE_LOAD_TIMEOUT });
+  if (testPages) {
+    zipPath = path.join(outputDir, 'GhentV50-TestPages.zip');
+    console.log('  Downloading checksum-pinned test-pages ZIP...');
+    await downloadFile('https://gwg.org/?wpdmdl=9080', zipPath);
+  } else {
+    await page.goto(GWG_DOWNLOAD_URL, { waitUntil: 'domcontentloaded', timeout: PAGE_LOAD_TIMEOUT });
 
   // -------------------------------------------------------------------------
   // Accept the license / terms-of-use form.
@@ -107,6 +139,8 @@ try {
   // -------------------------------------------------------------------------
 
   const downloadButtonSelectors = [
+    'a.wpdm-download-link',
+    'button.wpdm-download-link',
     'input[type="submit"]',
     'button[type="submit"]',
     'a[href*="ghent"]',
@@ -116,12 +150,9 @@ try {
     'a:has-text("Download")',
   ];
 
-  /** @type {string | null} */
-  let zipPath = null;
-
-  for (const sel of downloadButtonSelectors) {
+    for (const sel of downloadButtonSelectors) {
     const el = page.locator(sel).first();
-    if (await el.count() === 0) continue;
+    if (await el.count() === 0 || !(await el.isVisible())) continue;
 
     // getAttribute returns null when the attribute is absent; any other error
     // is unexpected and should propagate so the caller can diagnose it.
@@ -137,7 +168,7 @@ try {
       // Direct link — download without triggering browser download dialog
       const resolvedUrl = new URL(href, GWG_DOWNLOAD_URL).toString();
       console.log(`  Downloading ZIP from direct link: ${resolvedUrl}`);
-      zipPath = path.join(outputDir, 'GhentV50.zip');
+      zipPath = path.join(outputDir, testPages ? 'GhentV50-TestPages.zip' : 'GhentV50.zip');
       await downloadFile(resolvedUrl, zipPath);
       break;
     }
@@ -148,10 +179,11 @@ try {
       page.waitForEvent('download', { timeout: DOWNLOAD_TIMEOUT }),
       el.click(),
     ]);
-    zipPath = path.join(outputDir, 'GhentV50.zip');
+    zipPath = path.join(outputDir, testPages ? 'GhentV50-TestPages.zip' : 'GhentV50.zip');
     await download.saveAs(zipPath);
     console.log(`  Saved download to: ${zipPath}`);
     break;
+    }
   }
 
   if (!zipPath || !existsSync(zipPath)) {
@@ -178,9 +210,11 @@ try {
     await execFileAsync('unzip', ['-o', zipPath, '-d', outputDir]);
   }
 
-  if (!existsSync(EXPECTED_FILE)) {
+  const invalidFile = expectedFiles.find(file =>
+    !existsSync(file.path) || (file.sha256 && sha256(file.path) !== file.sha256));
+  if (invalidFile) {
     throw new Error(
-      `Extraction completed but expected file not found:\n  ${EXPECTED_FILE}\n` +
+      `Extraction completed but an expected file is missing or has the wrong SHA-256:\n  ${invalidFile.path}\n` +
       `Check the ZIP contents in ${outputDir} and adjust the path in Rendering.cs if needed.`
     );
   }
@@ -189,6 +223,10 @@ try {
   console.log(`  ${EXPECTED_FILE}`);
 } finally {
   await browser.close();
+}
+
+function sha256(file) {
+  return createHash('sha256').update(readFileSync(file)).digest('hex');
 }
 
 // ---------------------------------------------------------------------------
