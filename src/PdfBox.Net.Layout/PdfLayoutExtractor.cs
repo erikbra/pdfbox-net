@@ -1627,7 +1627,6 @@ public static class PdfLayoutExtractor
         private bool _reportedShapeAlphaPath;
         private int _nextVectorGroupIndex;
         private readonly HashSet<int> _reportedUnsupportedShadingTypes = [];
-        private bool _reportedRotatedImage;
         private bool _reportedRotatedPath;
         private bool _reportedClipping;
 
@@ -2605,30 +2604,8 @@ public static class PdfLayoutExtractor
 
         private void CollectXObjectImage(PDImageXObject image, string? sourceName)
         {
-            if (_rotation != 0)
-            {
-                if (!_reportedRotatedImage)
-                {
-                    _diagnostics.Add(new PdfLayoutDiagnostic(
-                        PdfLayoutDiagnosticSeverity.Warning,
-                        "image-rotation-unsupported",
-                        "Image placement geometry is not collected for rotated pages yet.",
-                        _pageNumber));
-                    _reportedRotatedImage = true;
-                }
-
-                return;
-            }
-
             Matrix ctm = GetGraphicsState().GetCurrentTransformationMatrix();
-            Vector lowerLeft = ctm.TransformPoint(0, 0);
-            Vector lowerRight = ctm.TransformPoint(1, 0);
-            Vector upperRight = ctm.TransformPoint(1, 1);
-            Vector upperLeft = ctm.TransformPoint(0, 1);
-            float minX = Min(lowerLeft.GetX(), lowerRight.GetX(), upperRight.GetX(), upperLeft.GetX());
-            float maxX = Max(lowerLeft.GetX(), lowerRight.GetX(), upperRight.GetX(), upperLeft.GetX());
-            float minY = Min(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
-            float maxY = Max(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
+            (PdfLayoutRectangle bounds, PdfLayoutTransform transform) = NormalizeImageGeometry(ctm);
             int index = _images.Count;
             string assetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-image-{index.ToString(CultureInfo.InvariantCulture)}";
             if (_includeImageAssets)
@@ -2640,8 +2617,8 @@ public static class PdfLayoutExtractor
                 index,
                 assetId,
                 PdfLayoutImageKind.XObject,
-                NormalizePdfBox(minX, minY, maxX, maxY),
-                PdfLayoutTransform.FromMatrix(ctm),
+                bounds,
+                transform,
                 image.GetWidth(),
                 image.GetHeight(),
                 image.GetBitsPerComponent(),
@@ -2655,30 +2632,8 @@ public static class PdfLayoutExtractor
 
         private void CollectInlineImage(PDImage image)
         {
-            if (_rotation != 0)
-            {
-                if (!_reportedRotatedImage)
-                {
-                    _diagnostics.Add(new PdfLayoutDiagnostic(
-                        PdfLayoutDiagnosticSeverity.Warning,
-                        "image-rotation-unsupported",
-                        "Image placement geometry is not collected for rotated pages yet.",
-                        _pageNumber));
-                    _reportedRotatedImage = true;
-                }
-
-                return;
-            }
-
             Matrix ctm = GetGraphicsState().GetCurrentTransformationMatrix();
-            Vector lowerLeft = ctm.TransformPoint(0, 0);
-            Vector lowerRight = ctm.TransformPoint(1, 0);
-            Vector upperRight = ctm.TransformPoint(1, 1);
-            Vector upperLeft = ctm.TransformPoint(0, 1);
-            float minX = Min(lowerLeft.GetX(), lowerRight.GetX(), upperRight.GetX(), upperLeft.GetX());
-            float maxX = Max(lowerLeft.GetX(), lowerRight.GetX(), upperRight.GetX(), upperLeft.GetX());
-            float minY = Min(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
-            float maxY = Max(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
+            (PdfLayoutRectangle bounds, PdfLayoutTransform transform) = NormalizeImageGeometry(ctm);
             int index = _images.Count;
             string assetId = $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-image-{index.ToString(CultureInfo.InvariantCulture)}";
             if (_includeImageAssets)
@@ -2690,8 +2645,8 @@ public static class PdfLayoutExtractor
                 index,
                 assetId,
                 PdfLayoutImageKind.InlineImage,
-                NormalizePdfBox(minX, minY, maxX, maxY),
-                PdfLayoutTransform.FromMatrix(ctm),
+                bounds,
+                transform,
                 image.GetWidth(),
                 image.GetHeight(),
                 image.GetBitsPerComponent(),
@@ -2701,6 +2656,70 @@ public static class PdfLayoutExtractor
                 GetGraphicsState().IsNonStrokingOverprint() || GetGraphicsState().IsOverprint(),
                 ExplicitColorants(image.GetColorSpace())));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
+        }
+
+        private (PdfLayoutRectangle Bounds, PdfLayoutTransform Transform) NormalizeImageGeometry(Matrix ctm)
+        {
+            Vector lowerLeft = ctm.TransformPoint(0, 0);
+            Vector lowerRight = ctm.TransformPoint(1, 0);
+            Vector upperRight = ctm.TransformPoint(1, 1);
+            Vector upperLeft = ctm.TransformPoint(0, 1);
+            if (_rotation == 0)
+            {
+                float minX = Min(lowerLeft.GetX(), lowerRight.GetX(), upperRight.GetX(), upperLeft.GetX());
+                float maxX = Max(lowerLeft.GetX(), lowerRight.GetX(), upperRight.GetX(), upperLeft.GetX());
+                float minY = Min(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
+                float maxY = Max(lowerLeft.GetY(), lowerRight.GetY(), upperRight.GetY(), upperLeft.GetY());
+                return (NormalizePdfBox(minX, minY, maxX, maxY), PdfLayoutTransform.FromMatrix(ctm));
+            }
+
+            (float X, float Y) normalizedLowerLeft = NormalizeRotatedImagePoint(lowerLeft);
+            (float X, float Y) normalizedLowerRight = NormalizeRotatedImagePoint(lowerRight);
+            (float X, float Y) normalizedUpperRight = NormalizeRotatedImagePoint(upperRight);
+            (float X, float Y) normalizedUpperLeft = NormalizeRotatedImagePoint(upperLeft);
+            float normalizedMinX = Min(normalizedLowerLeft.X, normalizedLowerRight.X, normalizedUpperRight.X, normalizedUpperLeft.X);
+            float normalizedMaxX = Max(normalizedLowerLeft.X, normalizedLowerRight.X, normalizedUpperRight.X, normalizedUpperLeft.X);
+            float normalizedMinY = Min(normalizedLowerLeft.Y, normalizedLowerRight.Y, normalizedUpperRight.Y, normalizedUpperLeft.Y);
+            float normalizedMaxY = Max(normalizedLowerLeft.Y, normalizedLowerRight.Y, normalizedUpperRight.Y, normalizedUpperLeft.Y);
+            return (
+                new PdfLayoutRectangle(
+                    normalizedMinX,
+                    normalizedMinY,
+                    MathF.Max(0, normalizedMaxX - normalizedMinX),
+                    MathF.Max(0, normalizedMaxY - normalizedMinY)),
+                NormalizeRotatedImageTransform(ctm));
+        }
+
+        private (float X, float Y) NormalizeRotatedImagePoint(Vector point)
+        {
+            float cropRight = _cropBox.X + _cropBox.Width;
+            float cropTop = _cropBox.Y + _cropBox.Height;
+            return _rotation switch
+            {
+                90 => (point.GetY() - _cropBox.Y, point.GetX() - _cropBox.X),
+                180 => (cropRight - point.GetX(), point.GetY() - _cropBox.Y),
+                270 => (cropTop - point.GetY(), cropRight - point.GetX()),
+                _ => (point.GetX() - _cropBox.X, cropTop - point.GetY())
+            };
+        }
+
+        private PdfLayoutTransform NormalizeRotatedImageTransform(Matrix ctm)
+        {
+            float a = ctm.GetScaleX();
+            float b = ctm.GetShearY();
+            float c = ctm.GetShearX();
+            float d = ctm.GetScaleY();
+            float e = ctm.GetTranslateX();
+            float f = ctm.GetTranslateY();
+            float cropRight = _cropBox.X + _cropBox.Width;
+            float cropTop = _cropBox.Y + _cropBox.Height;
+            return _rotation switch
+            {
+                90 => new PdfLayoutTransform(b, a, d, c, f - _cropBox.Y, e - _cropBox.X),
+                180 => new PdfLayoutTransform(-a, b, -c, d, cropRight - e, f - _cropBox.Y),
+                270 => new PdfLayoutTransform(-b, -a, -d, -c, cropTop - f, cropRight - e),
+                _ => PdfLayoutTransform.FromMatrix(ctm)
+            };
         }
 
         private string ExportXObjectImageAsset(PDImageXObject image, string assetId, int index)
