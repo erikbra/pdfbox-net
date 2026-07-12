@@ -23,7 +23,8 @@ public sealed class PdfLayoutVectorGroup
         float opacity,
         BlendMode blendMode,
         bool isIsolated,
-        bool isKnockout)
+        bool isKnockout,
+        IReadOnlyList<PdfLayoutClipPath>? clipPaths = null)
     {
         Index = index;
         ParentIndex = parentIndex;
@@ -35,6 +36,7 @@ public sealed class PdfLayoutVectorGroup
         BlendMode = blendMode;
         IsIsolated = isIsolated;
         IsKnockout = isKnockout;
+        ClipPaths = clipPaths?.ToArray() ?? [];
     }
 
     /// <summary>
@@ -66,6 +68,11 @@ public sealed class PdfLayoutVectorGroup
     /// Gets the conservative rectangular bounds of the clipping paths inherited by this form.
     /// </summary>
     public PdfLayoutRectangle? ClipBounds { get; }
+
+    /// <summary>
+    /// Gets exact clipping paths inherited when this form was invoked.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutClipPath> ClipPaths { get; }
 
     /// <summary>
     /// Gets the group compositing opacity from its invoking graphics state.
