@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/GouraudShadingContext.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: fc00e427de8a1046efe6348d64d5529b479aea13
  */
 
 /*
@@ -26,14 +26,17 @@
  */
 
 using PdfBox.Net.Rendering;
-using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public class GouraudShadingContext : ShadingContext
 {
-    protected GouraudShadingContext(PDShading shading, Matrix matrix)
-        : base(shading, matrix)
+    /// <summary>
+    /// Creates a context used for Gouraud-shaded triangle fill operations.
+    /// </summary>
+    /// <param name="shading">The shading type to be used.</param>
+    protected GouraudShadingContext(PDShading shading)
+        : base(shading)
     {
     }
 

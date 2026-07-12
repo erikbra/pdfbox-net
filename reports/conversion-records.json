@@ -3619,16 +3619,16 @@
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/AxialShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/AxialShadingPaint.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Reviewed through PDFBOX-5660 at fc00e427; the adapted .NET paint call already omitted the removed ColorModel argument, so only provenance changed and public behavior was preserved."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/CoonsPatch.java",
@@ -3659,8 +3659,8 @@
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/GouraudShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Line.java",
@@ -3763,24 +3763,24 @@
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PatchMeshesShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/RadialShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/RadialShadingPaint.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Reviewed through PDFBOX-5660 at fc00e427; the adapted .NET paint call already omitted the removed ColorModel argument, so only provenance changed and public behavior was preserved."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/ShadedTriangle.java",
@@ -3795,8 +3795,8 @@
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/ShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/ShadingPaint.java",
@@ -3819,88 +3819,88 @@
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/TriangleBasedShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type1ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type1ShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type1ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type1ShadingPaint.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Reviewed through PDFBOX-5660 at fc00e427; the adapted .NET paint call already omitted the removed ColorModel argument, so only provenance changed and public behavior was preserved."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type4ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type4ShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type4ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type4ShadingPaint.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Reviewed through PDFBOX-5660 at fc00e427; the adapted .NET paint call already omitted the removed ColorModel argument, so only provenance changed and public behavior was preserved."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type5ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type5ShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type5ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type5ShadingPaint.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Reviewed through PDFBOX-5660 at fc00e427; the adapted .NET paint call already omitted the removed ColorModel argument, so only provenance changed and public behavior was preserved."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type6ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type6ShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type6ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type6ShadingPaint.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Reviewed through PDFBOX-5660 at fc00e427; the adapted .NET paint call already omitted the removed ColorModel argument, so only provenance changed and public behavior was preserved."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type7ShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type7ShadingContext.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Synced PDFBOX-5660 constructor cleanup through fc00e427; removed unused shared-base transform state while preserving the adapted .NET rendering abstraction and concrete context signatures."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type7ShadingPaint.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type7ShadingPaint.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Completed shading stabilization port; paint/context scaffolding now present."
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Reviewed through PDFBOX-5660 at fc00e427; the adapted .NET paint call already omitted the removed ColorModel argument, so only provenance changed and public behavior was preserved."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Vertex.java",
@@ -6280,8 +6280,8 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
-    "conversion_notes": "Reviewed against upstream PDFBOX-6216 and ported the CFF2-outline rejection path while preserving supported CFF OpenType parsing.",
+    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
+    "conversion_notes": "Reviewed through PDFBox trunk fc00e427: preserved the adapted parser, synced the parse-table-header documentation, and verified that random-access input ownership closes before return.",
     "status": "in-sync",
     "last_checked_utc": "2026-05-31T07:49:01Z",
     "note": "TTF parser now reads table directories for core mandatory tables, validates mandatory-table presence, and supports table-header extraction used by downstream font flows and regression tests."

@@ -314,12 +314,13 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream parser guard synced",
-      "Unsupported CFF2 outlines surfaced as parse header error"
+      "Upstream JavaDoc mapped to XML documentation",
+      "Input ownership contract covered by .NET regression test",
+      "Existing adapted parser behavior preserved"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Synced PDFBOX-6216 by rejecting unsupported CFF2 OpenType outlines before CFF table parsing."
+    "note": "Synced the fc00e427 parse-table-header documentation and documented public input ownership; TTFParserTest verifies RandomAccessRead is closed before Parse returns."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
@@ -5102,5 +5103,239 @@
     "semantic_risk": "medium",
     "compiles_after_change": true,
     "note": "Ported the upstream glyph-layout hello-world example against the .NET content stream and AWT-style processor API."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/AxialShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingPaint.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/AxialShadingPaint.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/GouraudShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/GouraudShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PatchMeshesShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PatchMeshesShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/RadialShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingPaint.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/RadialShadingPaint.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/ShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/ShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/TriangleBasedShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/TriangleBasedShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type1ShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type1ShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type1ShadingPaint.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type1ShadingPaint.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type4ShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type4ShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type4ShadingPaint.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type4ShadingPaint.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type5ShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type5ShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type5ShadingPaint.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type5ShadingPaint.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type6ShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type6ShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type6ShadingPaint.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type6ShadingPaint.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type7ShadingContext.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type7ShadingContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type7ShadingPaint.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/Type7ShadingPaint.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Removed upstream-obsolete shared constructor parameters/state",
+      "JavaDoc mapped to XML documentation",
+      "Adapted concrete .NET context signatures preserved"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
   }
 ]
