@@ -209,6 +209,17 @@ public class FilterTest
     }
 
     [Fact]
+    public void DctFilterReportsMissingProviderForCmykJpeg()
+    {
+        byte[] encoded = File.ReadAllBytes(Path.Combine("Fixtures", "Images", "jpegcmyk.jpg"));
+
+        NotSupportedException ex = Assert.Throws<NotSupportedException>(() =>
+            Decode(new DCTFilter(MissingJpegRasterDecoder.Instance), encoded, new COSDictionary()));
+
+        Assert.Contains("PdfBox.Net.ImageMagick", ex.Message);
+    }
+
+    [Fact]
     public void DctFilterEncodeReportsUseJpegFactory()
     {
         NotSupportedException ex = Assert.Throws<NotSupportedException>(() => Encode(new DCTFilter(), [0, 1, 2]));
@@ -281,6 +292,15 @@ public class FilterTest
         IOException ex = Assert.Throws<IOException>(() => Decode(new JPXFilter(), [1, 2, 3], new COSDictionary()));
 
         Assert.Contains("JPEG 2000 (JPX)", ex.Message);
+    }
+
+    [Fact]
+    public void JpxFilterReportsMissingProviderClearly()
+    {
+        NotSupportedException ex = Assert.Throws<NotSupportedException>(() =>
+            Decode(new JPXFilter(MissingJpxRasterDecoder.Instance), [1, 2, 3], new COSDictionary()));
+
+        Assert.Contains("PdfBox.Net.ImageMagick", ex.Message);
     }
 
     [Fact]

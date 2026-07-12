@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PdfBox.Net\PdfBox.Net.csproj" />
+    <ProjectReference Include="..\PdfBox.Net.ImageMagick\PdfBox.Net.ImageMagick.csproj" />
     <ProjectReference Include="..\PdfBox.Net.SkiaSharp\PdfBox.Net.SkiaSharp.csproj" />
   </ItemGroup>
 

@@ -98,7 +98,7 @@ public static class RenderingBackend
     public static IRenderingBackend Current =>
         _current ?? throw new InvalidOperationException(
             "No PdfBox.Net rendering backend is registered. Reference an optional backend package, " +
-            "such as PdfBox.Net.SkiaSharp, PdfBox.Net.ImageSharp, PdfBox.Net.MauiGraphics, or PdfBox.Net.SystemDrawing, " +
+            "such as PdfBox.Net.Rendering for the supported full stack or PdfBox.Net.SkiaSharp for only the SkiaSharp renderer, " +
             "and call its registration method before rendering or image decoding.");
 
     public static void Register(IRenderingBackend backend)

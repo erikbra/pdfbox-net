@@ -19,14 +19,14 @@ namespace PdfBox.Net.Filter;
 /// </summary>
 public sealed class DCTFilter : Filter
 {
-    private readonly IJpegRasterDecoder _jpegRasterDecoder;
+    private readonly IJpegRasterDecoder? _jpegRasterDecoder;
 
     public DCTFilter()
-        : this(MagickJpegRasterDecoder.Instance)
+        : this(null)
     {
     }
 
-    internal DCTFilter(IJpegRasterDecoder jpegRasterDecoder)
+    internal DCTFilter(IJpegRasterDecoder? jpegRasterDecoder)
     {
         _jpegRasterDecoder = jpegRasterDecoder;
     }
@@ -37,7 +37,7 @@ public sealed class DCTFilter : Filter
         JpegInfo jpegInfo = ParseJpegInfo(jpegBytes);
         if (jpegInfo.Components == 4)
         {
-            DecodeRaster(_jpegRasterDecoder.Decode(jpegBytes), output, options);
+            DecodeRaster((_jpegRasterDecoder ?? PdfBoxNetImageServices.JpegRasterDecoder).Decode(jpegBytes), output, options);
             return new DecodeResult(parameters);
         }
 

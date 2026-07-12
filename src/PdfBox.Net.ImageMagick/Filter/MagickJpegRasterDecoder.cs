@@ -8,7 +8,7 @@ namespace PdfBox.Net.Filter;
 
 internal sealed class MagickJpegRasterDecoder : IJpegRasterDecoder
 {
-    public static readonly MagickJpegRasterDecoder Instance = new();
+    internal static readonly MagickJpegRasterDecoder Instance = new();
 
     private MagickJpegRasterDecoder()
     {

@@ -24,6 +24,11 @@ using PDDocument document = Loader.LoadPDF("input.pdf");
 string text = new PDFTextStripper().GetText(document);
 ```
 
-Rendering needs a concrete backend package. Reference `PdfBox.Net.SkiaSharp`
-for the complete cross-platform renderer and register it at process startup.
-Public-key encrypted PDFs need `PdfBox.Net.Cryptography`.
+Rendering needs a concrete backend package. Reference `PdfBox.Net.Rendering`
+for the supported full stack and register it at process startup. That package
+registers both the SkiaSharp renderer and the ImageMagick-backed image/color
+providers for JPX/JPEG2000, CMYK JPEG, TIFF import, and ICC conversion.
+
+Applications that only parse, inspect, edit, save, or extract text can use
+`PdfBox.Net.Core` without the rendering package. Public-key encrypted PDFs need
+`PdfBox.Net.Cryptography`.

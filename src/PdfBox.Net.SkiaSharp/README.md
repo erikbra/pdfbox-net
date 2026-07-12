@@ -14,7 +14,6 @@ APIs that need bitmap/image encoding:
 ```csharp
 using PdfBox.Net.Loader;
 using PdfBox.Net.Rendering;
-using PdfBox.Net.SkiaSharp.Rendering;
 
 SkiaRenderingBackend.Register();
 

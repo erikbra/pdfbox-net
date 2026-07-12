@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Title>PdfBox.Net.Rendering</Title>
+    <Description>Convenience package that registers the supported PdfBox.Net SkiaSharp renderer and ImageMagick image/color providers.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>pdf;pdfbox;apache;rendering;skiasharp;imagemagick;jpeg2000;cmyk;icc</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PdfBox.Net.SkiaSharp\PdfBox.Net.SkiaSharp.csproj" />
+    <ProjectReference Include="..\PdfBox.Net.ImageMagick\PdfBox.Net.ImageMagick.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+
+</Project>

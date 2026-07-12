@@ -12,7 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Magick.NET-Q8-AnyCPU" />
     <PackageReference Include="JBig2Decoder.NETStandard" />
     <ProjectReference Include="..\PdfBox.Net.IO\PdfBox.Net.IO.csproj" />
     <ProjectReference Include="..\PdfBox.Net.FontBox\PdfBox.Net.FontBox.csproj" />
