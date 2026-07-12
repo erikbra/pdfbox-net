@@ -38,8 +38,24 @@ class RemoteCorpusTest(unittest.TestCase):
     def test_checked_in_manifest_has_pinned_https_documents(self) -> None:
         description, documents = remote_corpus.load_manifest(remote_corpus.DEFAULT_MANIFEST)
 
-        self.assertIn("academic", description)
-        self.assertEqual(["jmlr-lda", "acl-bert", "arxiv-adam", "arxiv-unet"], [item.id for item in documents])
+        self.assertIn("public PDFs", description)
+        self.assertEqual(
+            [
+                "jmlr-lda",
+                "acl-bert",
+                "arxiv-adam",
+                "arxiv-unet",
+                "arxiv-svt",
+                "arxiv-ddpm",
+                "irs-w9",
+                "uscis-i9",
+                "nist-sp800-171r3",
+                "nps-mount-rainier",
+                "nps-point-reyes-map",
+            ],
+            [item.id for item in documents],
+        )
+        self.assertTrue(all(item.source_page.startswith("https://") for item in documents))
         self.assertTrue(all(item.pdf_url.startswith("https://") for item in documents))
         self.assertTrue(all(len(item.sha256) == 64 for item in documents))
         self.assertEqual(
@@ -59,6 +75,34 @@ class RemoteCorpusTest(unittest.TestCase):
                 "arxiv-unet": (
                     "https://arxiv.org/pdf/1505.04597",
                     "a3172b2124f38e260dc2c7ed968d87c31bc94dbc19a42a7ab3dcbd7534319c44",
+                ),
+                "arxiv-svt": (
+                    "https://arxiv.org/pdf/0810.3286",
+                    "5f7f969ec4caf973e49a76524ea9baca3b61ec9ee6334db478968e06c3ac8a76",
+                ),
+                "arxiv-ddpm": (
+                    "https://arxiv.org/pdf/2006.11239",
+                    "aee5e07a802e8dfd2a386374c94fd61d1d056cb7e1e0fec4f28e8120ff5d8505",
+                ),
+                "irs-w9": (
+                    "https://www.irs.gov/pub/irs-pdf/fw9.pdf",
+                    "2d420cbb4123dcf1fb82595b2359cfbb5d81f00b9df9d359fcc7af361d093f53",
+                ),
+                "uscis-i9": (
+                    "https://www.uscis.gov/sites/default/files/document/forms/i-9.pdf",
+                    "780f348c34df694bb0b4dbbfaf9f22b99b9757b80d16a37ba89aadf069597281",
+                ),
+                "nist-sp800-171r3": (
+                    "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-171r3.pdf",
+                    "3e4631df8b5d61f40a6e542b52779ef30ddbbfff31e09214fa94ad6e6f5e6d08",
+                ),
+                "nps-mount-rainier": (
+                    "https://www.nps.gov/mora/planyourvisit/upload/Mount-Rainier-Brochure-final_Combo_508_v2023.pdf",
+                    "c2e3006635137aef1fa67b0787280b1602c0f19535f6f2a21df6e9c286186e49",
+                ),
+                "nps-point-reyes-map": (
+                    "https://www.nps.gov/pore/planyourvisit/upload/map_park.pdf",
+                    "dcc4afa633ad924a69a35a9bdd19bd3b29782849b7993158acab720260168d2f",
                 ),
             },
             {item.id: (item.pdf_url, item.sha256) for item in documents},
