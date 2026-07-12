@@ -55,17 +55,11 @@ jobs:
             --ratchet-baseline tools/conversion_quality/smoke/ratchet-baseline.json \
             --fail-on-unexpected \
             --fail-on-regression
-          dotnet run \
-            --project tools/conversion_quality/PdfBox.Net.ConversionQuality/PdfBox.Net.ConversionQuality.csproj \
-            --configuration Release \
-            --no-build \
-            -- \
-            --manifest tools/conversion_quality/html-review-manifest.json \
-            --out-dir artifacts/conversion-quality-smoke/html-examples
           python3 tools/conversion_quality/run_remote_corpus.py \
+            --base-review-manifest tools/conversion_quality/html-review-manifest.json \
             --cache-dir artifacts/cache/conversion-quality/remote-pdfs \
             --review-manifest-out artifacts/cache/conversion-quality/remote-html-review-manifest.json \
-            --out-dir artifacts/conversion-quality-smoke/remote-html-examples
+            --out-dir artifacts/conversion-quality-smoke/html-examples
           cat artifacts/conversion-quality-smoke/summary.md
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
             cat artifacts/conversion-quality-smoke/summary.md >> "$GITHUB_STEP_SUMMARY"

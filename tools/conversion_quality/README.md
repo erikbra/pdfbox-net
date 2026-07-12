@@ -49,8 +49,8 @@ government forms, tables, figures, photographs, maps, dense vector geometry,
 and links. Canonical source pages, direct HTTPS PDF URLs, categories, and
 SHA-256 hashes are recorded in `remote-corpus-manifest.json`.
 
-Run the complete download, verification, conversion, expectation, and review
-artifact path locally with one command:
+Run the complete download, verification, conversion, expectation, and combined
+review artifact path locally with one command:
 
 ```bash
 python3 tools/conversion_quality/run_remote_corpus.py --build
@@ -59,10 +59,11 @@ python3 tools/conversion_quality/run_remote_corpus.py --build
 PDFs are downloaded atomically with retries and timeouts into the ignored
 `artifacts/cache/conversion-quality/remote-pdfs` directory. Every cached or
 downloaded file must match its pinned SHA-256 hash before it is used. The script
-then materializes a normal HTML review manifest and writes comparisons to
-`artifacts/conversion-quality-smoke/remote-html-examples`. CI runs the same
-networked path after the Release build and includes that directory beneath the
-existing uploaded `conversion-quality-smoke` artifact root.
+then combines the checked-in fixtures with the remote corpus and writes one
+overview to `artifacts/html-examples`. CI runs the same networked path after the
+Release build, writing the combined overview to
+`artifacts/conversion-quality-smoke/html-examples` beneath the existing uploaded
+artifact root.
 
 The remote manifest's expectations deliberately cover stable structural
 invariants only: exact page count, normalized required title words, minimum
