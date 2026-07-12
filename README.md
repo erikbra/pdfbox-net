@@ -32,6 +32,8 @@ The solution (`PdfBoxNet.slnx`) contains four library projects, two test project
 | `PdfBox.Net.XmpBox` | XMP metadata reading/writing (ported from `xmpbox` module) |
 | `PdfBox.Net` | Core PDF library, published as `PdfBox.Net.Core`; assembly and namespaces remain `PdfBox.Net` (ported from `pdfbox` module) |
 | `PdfBox.Net.Cryptography` | Optional BouncyCastle-backed public-key security provider |
+| `PdfBox.Net.ImageMagick` | Optional Magick.NET-backed JPX/JPEG2000, CMYK JPEG, TIFF, and ICC color provider |
+| `PdfBox.Net.Rendering` | Convenience package that registers the supported SkiaSharp renderer plus ImageMagick providers |
 | `PdfBox.Net.Tests` | xUnit v3 tests for all non-XmpBox modules |
 | `PdfBox.Net.XmpBox.Tests` | xUnit v3 tests for `PdfBox.Net.XmpBox` |
 | `PdfBox.Net.Benchmark` | BenchmarkDotNet benchmarks (ported from `benchmark` module, located under `src/PdfBox.Net.Benchmark/`) |
@@ -47,7 +49,13 @@ The solution (`PdfBoxNet.slnx`) contains four library projects, two test project
 Rendering, public-key cryptography, and printer submission are isolated behind
 small backend/provider contracts so the mechanical Java port stays portable.
 
-- `PdfBox.Net.SkiaSharp` is the complete rendering backend today.
+- `PdfBox.Net.Rendering` is the recommended full rendering/image package. It
+  registers the supported SkiaSharp renderer plus ImageMagick image/color
+  providers.
+- `PdfBox.Net.SkiaSharp` is the complete page rendering backend if you only
+  want the renderer without the heavier ImageMagick providers.
+- `PdfBox.Net.ImageMagick` provides JPX/JPEG2000, CMYK JPEG, TIFF import, and
+  ICC color conversion support.
 - `PdfBox.Net.Cryptography` provides BouncyCastle-backed public-key encryption
   support.
 - `PdfBox.Net.SystemDrawing` provides Windows `System.Drawing` image helpers and

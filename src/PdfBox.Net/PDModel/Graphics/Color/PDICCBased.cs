@@ -38,7 +38,7 @@ public sealed class PDICCBased : PDColorSpace
     private readonly PDColorSpace? _alternate;
     private readonly int _numberOfComponents;
     private readonly PDColor _initialColor;
-    private readonly IccColorTransform? _colorTransform;
+    private readonly IIccColorTransform? _colorTransform;
 
     private PDICCBased(
         COSArray array,
@@ -50,13 +50,13 @@ public sealed class PDICCBased : PDColorSpace
         int declaredComponents = profile?.GetInt(COSName.GetPDFName("N"), 0) ?? 0;
         _numberOfComponents = declaredComponents > 0
             ? declaredComponents
-            : IccColorTransform.TryGetProfileComponents(profileData, out int profileComponents)
+            : IccProfileInspector.TryGetProfileComponents(profileData, out int profileComponents)
                 ? profileComponents
                 : 3;
         COSBase? alternateBase = profile?.GetDictionaryObject(COSName.GetPDFName("Alternate"));
         _alternate = alternateBase is not null ? Create(alternateBase, resources) : GetDeviceFallback(_numberOfComponents);
         _initialColor = new PDColor(new float[_numberOfComponents], this);
-        IccColorTransform.TryCreate(profileData, _numberOfComponents, renderingIntent, out _colorTransform);
+        PdfBoxNetImageServices.IccColorTransformFactory.TryCreate(profileData, _numberOfComponents, renderingIntent, out _colorTransform);
     }
 
     public static PDICCBased Create(COSArray array, PDResources? resources)

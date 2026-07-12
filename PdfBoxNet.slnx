@@ -16,6 +16,8 @@
     <Project Path="src/PdfBox.Net.Layout/PdfBox.Net.Layout.csproj" />
     <Project Path="src/PdfBox.Net.MauiGraphics/PdfBox.Net.MauiGraphics.csproj" />
     <Project Path="src/PdfBox.Net/PdfBox.Net.csproj" />
+    <Project Path="src/PdfBox.Net.ImageMagick/PdfBox.Net.ImageMagick.csproj" />
+    <Project Path="src/PdfBox.Net.Rendering/PdfBox.Net.Rendering.csproj" />
     <Project Path="src/PdfBox.Net.SkiaSharp/PdfBox.Net.SkiaSharp.csproj" />
     <Project Path="src/PdfBox.Net.SystemDrawing/PdfBox.Net.SystemDrawing.csproj" />
     <Project Path="src/PdfBox.Net.XmpBox/PdfBox.Net.XmpBox.csproj" />

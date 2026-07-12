@@ -29,7 +29,6 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.COS;
 using PdfBox.Net.Filter;
 using PdfBox.Net.PDModel.Common;
-using ImageMagick;
 
 namespace PdfBox.Net.PDModel.Graphics.Image;
 
@@ -37,7 +36,7 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 /// Factory for creating a PDImageXObject containing a CCITT compressed TIFF image.
 /// </summary>
 /// <remarks>
-/// TIFF input is decoded with ImageMagick and re-encoded as CCITT Group 4 image data.
+/// TIFF input is decoded by an optional image provider and re-encoded as CCITT Group 4 image data.
 /// </remarks>
 public static class CCITTFactory
 {
@@ -61,9 +60,8 @@ public static class CCITTFactory
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(stream);
 
-        using MagickImage image = ReadTiff(stream);
-        byte[] oneBitRows = ExtractOneBitRows(image, out int width, out int height);
-        byte[] encoded = EncodeGroup4(oneBitRows, width, height);
+        DecodedTiffRaster raster = PdfBoxNetImageServices.TiffRasterDecoder.DecodeOneBitRows(stream);
+        byte[] encoded = EncodeGroup4(raster.OneBitRows, raster.Width, raster.Height);
 
         PDStream pdStream = new(document);
         COSStream cosStream = pdStream.GetCOSObject();
@@ -73,63 +71,19 @@ public static class CCITTFactory
             raw.Write(encoded, 0, encoded.Length);
         }
 
-        cosStream.SetInt(COSName.WIDTH, width);
-        cosStream.SetInt(COSName.HEIGHT, height);
+        cosStream.SetInt(COSName.WIDTH, raster.Width);
+        cosStream.SetInt(COSName.HEIGHT, raster.Height);
         cosStream.SetInt(COSName.BITS_PER_COMPONENT, 1);
         cosStream.SetItem(COSName.COLORSPACE, COSName.GetPDFName("DeviceGray"));
 
         COSDictionary decodeParms = new();
-        decodeParms.SetInt(COSName.COLUMNS, width);
-        decodeParms.SetInt(COSName.ROWS, height);
+        decodeParms.SetInt(COSName.COLUMNS, raster.Width);
+        decodeParms.SetInt(COSName.ROWS, raster.Height);
         decodeParms.SetInt(COSName.K, -1);
         decodeParms.SetBoolean(COSName.BLACK_IS_1, true);
         cosStream.SetItem(COSName.DECODE_PARMS, decodeParms);
 
         return new PDImageXObject(pdStream, null);
-    }
-
-    private static MagickImage ReadTiff(Stream stream)
-    {
-        try
-        {
-            return new MagickImage(stream, MagickFormat.Tiff);
-        }
-        catch (MagickException ex)
-        {
-            throw new IOException("Unable to read CCITT TIFF image data.", ex);
-        }
-    }
-
-    private static byte[] ExtractOneBitRows(MagickImage image, out int width, out int height)
-    {
-        width = checked((int)image.Width);
-        height = checked((int)image.Height);
-        if (width <= 0 || height <= 0)
-        {
-            throw new IOException("Invalid CCITT image dimensions.");
-        }
-
-        image.ColorSpace = ColorSpace.Gray;
-        using IPixelCollection<byte> pixels = image.GetPixels();
-        byte[] gray = pixels.ToByteArray("I")
-            ?? throw new IOException("Unable to extract grayscale TIFF pixels.");
-
-        int rowBytes = (width + 7) / 8;
-        byte[] packed = new byte[checked(rowBytes * height)];
-        int src = 0;
-        for (int y = 0; y < height; y++)
-        {
-            int rowOffset = y * rowBytes;
-            for (int x = 0; x < width; x++)
-            {
-                if (gray[src++] < 128)
-                {
-                    packed[rowOffset + (x / 8)] |= (byte)(0x80 >> (x % 8));
-                }
-            }
-        }
-
-        return packed;
     }
 
     private static byte[] EncodeGroup4(byte[] oneBitRows, int width, int height)

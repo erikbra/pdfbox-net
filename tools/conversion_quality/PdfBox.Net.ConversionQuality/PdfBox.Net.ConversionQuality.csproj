@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\..\src\PdfBox.Net.Html\PdfBox.Net.Html.csproj" />
     <ProjectReference Include="..\..\..\src\PdfBox.Net.Layout\PdfBox.Net.Layout.csproj" />
     <ProjectReference Include="..\..\..\src\PdfBox.Net\PdfBox.Net.csproj" />
+    <ProjectReference Include="..\..\..\src\PdfBox.Net.ImageMagick\PdfBox.Net.ImageMagick.csproj" />
     <ProjectReference Include="..\..\..\src\PdfBox.Net.SkiaSharp\PdfBox.Net.SkiaSharp.csproj" />
   </ItemGroup>
 

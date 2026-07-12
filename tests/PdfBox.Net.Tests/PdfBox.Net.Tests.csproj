@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PdfBox.Net\PdfBox.Net.csproj" />
     <ProjectReference Include="..\..\src\PdfBox.Net.Cryptography\PdfBox.Net.Cryptography.csproj" />
+    <ProjectReference Include="..\..\src\PdfBox.Net.ImageMagick\PdfBox.Net.ImageMagick.csproj" />
     <ProjectReference Include="..\..\src\PdfBox.Net.SkiaSharp\PdfBox.Net.SkiaSharp.csproj" />
   </ItemGroup>
 

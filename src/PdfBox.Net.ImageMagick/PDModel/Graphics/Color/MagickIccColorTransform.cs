@@ -5,49 +5,27 @@
  */
 
 using ImageMagick;
-using PdfRenderingIntent = PdfBox.Net.PDModel.Graphics.State.RenderingIntent;
 using MagickRenderingIntent = ImageMagick.RenderingIntent;
+using PdfRenderingIntent = PdfBox.Net.PDModel.Graphics.State.RenderingIntent;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
 
-internal sealed class IccColorTransform
+internal sealed class MagickIccColorTransformFactory : IIccColorTransformFactory
 {
-    private const int GrayLevels = 256;
-    private const int RgbLevels = 33;
-    private const int CmykLevels = 17;
+    internal static readonly MagickIccColorTransformFactory Instance = new();
 
-    private readonly ColorProfile _sourceProfile;
-    private readonly int _components;
-    private readonly string _pixelMapping;
-    private readonly PdfRenderingIntent _renderingIntent;
-    private readonly Lazy<byte[]?> _lookupTable;
-    private int _operationCount;
-
-    private IccColorTransform(ColorProfile sourceProfile, int components, PdfRenderingIntent renderingIntent)
+    private MagickIccColorTransformFactory()
     {
-        _sourceProfile = sourceProfile;
-        _components = components;
-        _pixelMapping = components switch
-        {
-            1 => "I",
-            3 => "RGB",
-            4 => "CMYK",
-            _ => throw new ArgumentOutOfRangeException(nameof(components)),
-        };
-        _renderingIntent = renderingIntent;
-        _lookupTable = new Lazy<byte[]?>(CreateLookupTable, LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
-    internal int OperationCount => Volatile.Read(ref _operationCount);
-
-    internal static bool TryCreate(
+    public bool TryCreate(
         byte[] profileData,
         int expectedComponents,
         PdfRenderingIntent renderingIntent,
-        out IccColorTransform? transform)
+        out IIccColorTransform? transform)
     {
         transform = null;
-        if (!TryGetProfileComponents(profileData, out int profileComponents) ||
+        if (!IccProfileInspector.TryGetProfileComponents(profileData, out int profileComponents) ||
             profileComponents != expectedComponents)
         {
             return false;
@@ -68,7 +46,7 @@ internal sealed class IccColorTransform
                 return false;
             }
 
-            transform = new IccColorTransform(profile, expectedComponents, renderingIntent);
+            transform = new MagickIccColorTransform(profile, expectedComponents, renderingIntent);
             return true;
         }
         catch (MagickException)
@@ -84,34 +62,39 @@ internal sealed class IccColorTransform
             return false;
         }
     }
+}
 
-    internal static bool TryGetProfileComponents(byte[] profileData, out int components)
+internal sealed class MagickIccColorTransform : IIccColorTransform
+{
+    private const int GrayLevels = 256;
+    private const int RgbLevels = 33;
+    private const int CmykLevels = 17;
+
+    private readonly ColorProfile _sourceProfile;
+    private readonly int _components;
+    private readonly string _pixelMapping;
+    private readonly PdfRenderingIntent _renderingIntent;
+    private readonly Lazy<byte[]?> _lookupTable;
+    private int _operationCount;
+
+    internal MagickIccColorTransform(ColorProfile sourceProfile, int components, PdfRenderingIntent renderingIntent)
     {
-        components = 0;
-        if (profileData.Length < 128 ||
-            profileData[36] != (byte)'a' || profileData[37] != (byte)'c' ||
-            profileData[38] != (byte)'s' || profileData[39] != (byte)'p')
+        _sourceProfile = sourceProfile;
+        _components = components;
+        _pixelMapping = components switch
         {
-            return false;
-        }
-
-        uint declaredLength = ((uint)profileData[0] << 24) |
-                              ((uint)profileData[1] << 16) |
-                              ((uint)profileData[2] << 8) |
-                              profileData[3];
-        if (declaredLength < 128 || declaredLength > profileData.Length)
-        {
-            return false;
-        }
-
-        ReadOnlySpan<byte> signature = profileData.AsSpan(16, 4);
-        if (signature.SequenceEqual("GRAY"u8)) components = 1;
-        else if (signature.SequenceEqual("RGB "u8)) components = 3;
-        else if (signature.SequenceEqual("CMYK"u8)) components = 4;
-        return components != 0;
+            1 => "I",
+            3 => "RGB",
+            4 => "CMYK",
+            _ => throw new ArgumentOutOfRangeException(nameof(components)),
+        };
+        _renderingIntent = renderingIntent;
+        _lookupTable = new Lazy<byte[]?>(CreateLookupTable, LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
-    internal float[] ToRgb(float[] values)
+    public int OperationCount => Volatile.Read(ref _operationCount);
+
+    public float[] ToRgb(float[] values)
     {
         byte[]? table = _lookupTable.Value;
         if (table is null)
@@ -153,7 +136,7 @@ internal sealed class IccColorTransform
         return [rgb[0], rgb[1], rgb[2]];
     }
 
-    internal bool TryConvert(byte[] samples, int width, int height, out byte[] rgb)
+    public bool TryConvert(byte[] samples, int width, int height, out byte[] rgb)
     {
         rgb = [];
         int expectedSamples;

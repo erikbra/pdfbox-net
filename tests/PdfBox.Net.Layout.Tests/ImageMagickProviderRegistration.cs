@@ -1,14 +1,12 @@
 using System.Runtime.CompilerServices;
 using PdfBox.Net.ImageMagick;
-using PdfBox.Net.Rendering;
 
 #pragma warning disable CA2255
-internal static class SkiaBackendRegistration
+internal static class ImageMagickProviderRegistration
 {
     [ModuleInitializer]
-    internal static void RegisterSkiaBackend()
+    internal static void RegisterImageMagickProvider()
     {
-        SkiaRenderingBackend.Register();
         PdfBoxNetImageMagick.Register();
     }
 }

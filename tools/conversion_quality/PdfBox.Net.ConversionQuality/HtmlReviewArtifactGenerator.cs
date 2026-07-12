@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using PdfBox.Net.Html;
+using PdfBox.Net.ImageMagick;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.Rendering;
@@ -41,6 +42,7 @@ public static class HtmlReviewArtifactGenerator
         }
 
         SkiaRenderingBackend.Register();
+        PdfBoxNetImageMagick.Register();
         RecreateDirectory(fullOutputDirectory);
 
         List<HtmlReviewExampleResult> results = [];
