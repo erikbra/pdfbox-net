@@ -502,6 +502,110 @@ public sealed class HtmlReviewArtifactGeneratorTest
     }
 
     [Fact]
+    public async Task AnalyzeAsync_BoundsContinuousPageAtFollowingFixedPage()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        using (PDDocument document = new())
+        {
+            document.AddPage(new PDPage());
+            document.AddPage(new PDPage());
+            document.Save(sourcePdf);
+        }
+
+        PdfLayoutDocument layout = CreateSyntheticLayout("Page one", "Page two");
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <body style="margin:0">
+              <main class="pdf-semantic-document-flow" style="width:816px">
+                <div class="pdf-semantic-page-break pdf-semantic-page-start" data-page-number="1"></div>
+                <p class="pdf-semantic-element" style="height:100px;margin:0">Page one</p>
+                <section class="pdf-page" data-page-number="2" style="position:relative;width:612pt;height:792pt;background:white">
+                  <span class="pdf-text-run" style="position:absolute;left:72pt;top:80pt">Page two</span>
+                  <div class="pdf-image" style="position:absolute;left:72pt;top:120pt;width:40pt;height:40pt;background:#000"></div>
+                  <svg style="position:absolute;left:72pt;top:180pt;width:40pt;height:40pt"><path data-path-index="1" d="M0 0h40v40z" /></svg>
+                </section>
+              </main>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 2),
+            TestContext.Current.CancellationToken);
+
+        Assert.Collection(
+            report.Pages,
+            pageOne =>
+            {
+                Assert.Equal(2, pageOne.HtmlWordCount);
+                Assert.Equal(1d, pageOne.TextTokenCoverage);
+                Assert.Equal(0, pageOne.HtmlImages);
+                Assert.Equal(0, pageOne.HtmlVectorPaths);
+                Assert.InRange(pageOne.Visual?.HtmlHeight ?? 0, 99, 101);
+            },
+            pageTwo =>
+            {
+                Assert.Equal(2, pageTwo.HtmlWordCount);
+                Assert.Equal(1, pageTwo.HtmlImages);
+                Assert.Equal(1, pageTwo.HtmlVectorPaths);
+            });
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_FlagsImplausiblyTallContinuousPageWithoutFollowingBoundary()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        PdfLayoutDocument layout;
+        using (PDDocument document = CreateTextDocument())
+        {
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <body style="margin:0">
+              <main class="pdf-semantic-document-flow" style="width:816px;height:5000px">
+                <div class="pdf-semantic-page-break pdf-semantic-page-start" data-page-number="1"></div>
+                <p class="pdf-semantic-element">Review artifact sample</p>
+              </main>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        PdfHtmlQualityCheck dimensions = Assert.Single(
+            report.Checks,
+            check => check.Id == "page-dimensions");
+        Assert.Equal("needs-review", dimensions.Status);
+        Assert.Contains("implausibly tall", dimensions.Message, StringComparison.Ordinal);
+        Assert.True(dimensions.Metrics["heightRatio"] > dimensions.Metrics["maximumSemanticHeightRatio"]);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_SkipsGeometryForEmptyContinuousPage()
     {
         using TempDirectory tempDirectory = new();
