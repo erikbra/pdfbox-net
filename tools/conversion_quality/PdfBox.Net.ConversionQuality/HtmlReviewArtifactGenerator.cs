@@ -107,6 +107,7 @@ public static class HtmlReviewArtifactGenerator
                     IncludeFontAssets = true,
                     IncludeTransparencyGroupFallbacks = true
                 });
+                ValidateExpectations(example, layout);
                 html = PdfHtmlConverter.Convert(layout);
                 semanticHtml = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
                 {
@@ -177,6 +178,97 @@ public static class HtmlReviewArtifactGenerator
         }
 
         return Path.GetFullPath(Path.Combine(baseDirectory, value));
+    }
+
+    internal static void ValidateExpectations(HtmlReviewManifestExample example, PdfLayoutDocument layout)
+    {
+        HtmlReviewExpectations? expectations = example.Expectations;
+        if (expectations is null)
+        {
+            return;
+        }
+
+        int textRuns = layout.Pages.Sum(page => page.Runs.Count);
+        int imagePlacements = layout.Pages.Sum(page => page.Images.Count);
+        int vectorPaths = layout.Pages.Sum(page => page.Paths.Count);
+        int links = layout.Pages.Sum(page => page.Links.Count);
+        List<string> failures = [];
+
+        AddExactFailure(failures, "pages", layout.Pages.Count, expectations.PageCount);
+        AddMinimumFailure(failures, "text runs", textRuns, expectations.MinTextRuns);
+        AddMinimumFailure(failures, "image placements", imagePlacements, expectations.MinImagePlacements);
+        AddMinimumFailure(failures, "vector paths", vectorPaths, expectations.MinVectorPaths);
+        AddMinimumFailure(failures, "links", links, expectations.MinLinks);
+
+        string extractedText = NormalizeAlphaNumeric(string.Concat(
+            layout.Pages.SelectMany(page => page.Runs).Select(run => run.Text)));
+        if (expectations.RequiredText is null)
+        {
+            throw new InvalidOperationException(
+                $"HTML review example '{example.Id}' requiredText expectation must be an array.");
+        }
+
+        foreach (string requiredText in expectations.RequiredText)
+        {
+            if (string.IsNullOrWhiteSpace(requiredText))
+            {
+                throw new InvalidOperationException(
+                    $"HTML review example '{example.Id}' has an empty requiredText expectation.");
+            }
+
+            string normalizedRequiredText = NormalizeAlphaNumeric(requiredText);
+            if (normalizedRequiredText.Length == 0 ||
+                !extractedText.Contains(normalizedRequiredText, StringComparison.Ordinal))
+            {
+                failures.Add($"required text '{requiredText}' was not extracted");
+            }
+        }
+
+        if (failures.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"HTML review expectations failed for '{example.Id}': {string.Join("; ", failures)}.");
+        }
+    }
+
+    private static void AddExactFailure(List<string> failures, string metric, int actual, int? expected)
+    {
+        if (expected is < 0)
+        {
+            throw new InvalidOperationException($"Expected {metric} cannot be negative.");
+        }
+
+        if (expected.HasValue && actual != expected.Value)
+        {
+            failures.Add($"{metric} was {actual}, expected {expected.Value}");
+        }
+    }
+
+    private static void AddMinimumFailure(List<string> failures, string metric, int actual, int? minimum)
+    {
+        if (minimum is < 0)
+        {
+            throw new InvalidOperationException($"Minimum {metric} cannot be negative.");
+        }
+
+        if (minimum.HasValue && actual < minimum.Value)
+        {
+            failures.Add($"{metric} was {actual}, expected at least {minimum.Value}");
+        }
+    }
+
+    private static string NormalizeAlphaNumeric(string value)
+    {
+        StringBuilder normalized = new(value.Length);
+        foreach (Rune rune in value.EnumerateRunes())
+        {
+            if (Rune.IsLetterOrDigit(rune))
+            {
+                normalized.Append(Rune.ToLowerInvariant(rune));
+            }
+        }
+
+        return normalized.ToString();
     }
 
     private static string SafeDirectoryName(string value)
@@ -548,4 +640,21 @@ public sealed class HtmlReviewManifestExample
     public string? Notes { get; set; }
 
     public int? QualityPages { get; set; }
+
+    public HtmlReviewExpectations? Expectations { get; set; }
+}
+
+public sealed class HtmlReviewExpectations
+{
+    public int? PageCount { get; set; }
+
+    public List<string> RequiredText { get; set; } = [];
+
+    public int? MinTextRuns { get; set; }
+
+    public int? MinImagePlacements { get; set; }
+
+    public int? MinVectorPaths { get; set; }
+
+    public int? MinLinks { get; set; }
 }

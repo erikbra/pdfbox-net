@@ -35,7 +35,15 @@ public sealed class HtmlReviewArtifactGeneratorTest
                             id = "review-artifact-sample",
                             title = "Review artifact sample",
                             sourcePdf,
-                            notes = "Synthetic test manifest."
+                            notes = "Synthetic test manifest.",
+                            expectations = new
+                            {
+                                pageCount = 1,
+                                minTextRuns = 0,
+                                minImagePlacements = 0,
+                                minVectorPaths = 0,
+                                minLinks = 0
+                            }
                         }
                     }
                 },
@@ -45,6 +53,7 @@ public sealed class HtmlReviewArtifactGeneratorTest
 
         HtmlReviewExampleResult example = Assert.Single(result.Examples);
         Assert.Equal("review-artifact-sample", example.Id);
+        Assert.Equal(1, example.PageCount);
         string exampleDirectory = Path.Combine(outputDirectory, "review-artifact-sample");
         string copiedSource = Path.Combine(exampleDirectory, "source.pdf");
         string convertedHtml = Path.Combine(exampleDirectory, "index.html");
@@ -112,6 +121,74 @@ public sealed class HtmlReviewArtifactGeneratorTest
             Assert.Contains("review-artifact-sample/quality/page-1-diff.png", artifactIndex);
             Assert.Contains("quality/page-1-diff.png", File.ReadAllText(Path.Combine(exampleDirectory, "summary.md")));
         }
+    }
+
+    [Fact]
+    public void ValidateExpectations_AcceptsNormalizedRequiredTextAndConservativeFloors()
+    {
+        PdfLayoutDocument layout = CreateSyntheticLayout("Review artifact sample");
+        HtmlReviewManifestExample example = new()
+        {
+            Id = "normalized-expectations",
+            Expectations = new HtmlReviewExpectations
+            {
+                PageCount = 1,
+                RequiredText = ["review-artifact", "sample"],
+                MinTextRuns = 1,
+                MinImagePlacements = 0,
+                MinVectorPaths = 0,
+                MinLinks = 0
+            }
+        };
+
+        HtmlReviewArtifactGenerator.ValidateExpectations(example, layout);
+    }
+
+    [Fact]
+    public void Generate_FailsWhenStableLayoutExpectationsAreNotMet()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source-input.pdf");
+        using (PDDocument document = CreateTextDocument())
+        {
+            document.Save(sourcePdf);
+        }
+
+        string manifestPath = Path.Combine(tempDirectory.Path, "manifest.json");
+        File.WriteAllText(
+            manifestPath,
+            JsonSerializer.Serialize(
+                new
+                {
+                    schema = 1,
+                    examples = new[]
+                    {
+                        new
+                        {
+                            id = "failing-expectations",
+                            sourcePdf,
+                            expectations = new
+                            {
+                                pageCount = 2,
+                                requiredText = new[] { "missing-token" },
+                                minTextRuns = 100,
+                                minImagePlacements = 1,
+                                minVectorPaths = 1,
+                                minLinks = 1
+                            }
+                        }
+                    }
+                }));
+
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() =>
+            HtmlReviewArtifactGenerator.Generate(manifestPath, Path.Combine(tempDirectory.Path, "html-review")));
+
+        Assert.Contains("pages was 1, expected 2", exception.Message);
+        Assert.Contains("text runs was", exception.Message);
+        Assert.Contains("required text 'missing-token'", exception.Message);
+        Assert.Contains("image placements was 0", exception.Message);
+        Assert.Contains("vector paths was 0", exception.Message);
+        Assert.Contains("links was 0", exception.Message);
     }
 
     [Fact]
