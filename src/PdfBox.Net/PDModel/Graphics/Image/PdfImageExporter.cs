@@ -1,3 +1,5 @@
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.Rendering;
 
@@ -8,6 +10,33 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 /// </summary>
 public static class PdfImageExporter
 {
+    private static readonly COSName MaskKey = COSName.GetPDFName("Mask");
+
+    /// <summary>
+    /// Exports an image XObject in a browser-safe format, preserving a safe JPEG stream when possible.
+    /// </summary>
+    public static PdfImageExportResult ExportForBrowser(PDImageXObject image)
+    {
+        return ExportForBrowser(image, null);
+    }
+
+    /// <summary>
+    /// Exports an image XObject in a browser-safe format using document-scoped color management.
+    /// Safe DeviceRGB and sRGB ICCBased JPEG streams are preserved; other images are exported as PNG.
+    /// </summary>
+    public static PdfImageExportResult ExportForBrowser(
+        PDImageXObject image,
+        PDColorManagementContext? colorManagementContext)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        if (TryExportJpeg(image, colorManagementContext, out PdfImageExportResult? jpeg))
+        {
+            return jpeg!;
+        }
+
+        return ExportPng(image, colorManagementContext);
+    }
+
     /// <summary>
     /// Exports an image XObject as PNG bytes.
     /// </summary>
@@ -55,6 +84,109 @@ public static class PdfImageExporter
             SampledImageReader.GetRGBImage(image, colorManagementContext),
             image.GetWidth(),
             image.GetHeight());
+    }
+
+    private static bool TryExportJpeg(
+        PDImageXObject image,
+        PDColorManagementContext? colorManagementContext,
+        out PdfImageExportResult? result)
+    {
+        result = null;
+        PDStream? stream = image.GetStream();
+        COSStream? dictionary = stream?.GetCOSObject();
+        if (stream is null ||
+            dictionary is null ||
+            stream.GetFilters() is not [COSName filter] ||
+            !filter.Equals(COSName.DCT_DECODE) ||
+            dictionary.ContainsKey(COSName.SMASK) ||
+            dictionary.ContainsKey(MaskKey) ||
+            dictionary.ContainsKey(COSName.DECODE) ||
+            dictionary.ContainsKey(COSName.DECODE_PARMS) ||
+            dictionary.ContainsKey(COSName.DP))
+        {
+            return false;
+        }
+
+        PDColorSpace sourceColorSpace = image.GetColorSpace();
+        PDColorSpace effectiveColorSpace = colorManagementContext?.ResolveDeviceColorSpace(sourceColorSpace) ?? sourceColorSpace;
+        bool browserSafeColorSpace = sourceColorSpace.GetNumberOfComponents() == 3 &&
+                                     (effectiveColorSpace is PDDeviceRGB ||
+                                      effectiveColorSpace is PDICCBased iccBased && iccBased.IsSrgb());
+        if (!browserSafeColorSpace)
+        {
+            return false;
+        }
+
+        using Stream rawInput = dictionary.CreateRawInputStream();
+        using MemoryStream jpeg = new();
+        rawInput.CopyTo(jpeg);
+        byte[] data = jpeg.ToArray();
+        if (!HasThreeJpegComponents(data))
+        {
+            return false;
+        }
+
+        result = new PdfImageExportResult("image/jpeg", "jpg", data);
+        return true;
+    }
+
+    private static bool HasThreeJpegComponents(byte[] data)
+    {
+        if (data.Length < 4 || data[0] != 0xFF || data[1] != 0xD8)
+        {
+            return false;
+        }
+
+        int offset = 2;
+        while (offset < data.Length - 1)
+        {
+            if (data[offset++] != 0xFF)
+            {
+                return false;
+            }
+
+            while (offset < data.Length && data[offset] == 0xFF)
+            {
+                offset++;
+            }
+
+            if (offset >= data.Length)
+            {
+                return false;
+            }
+
+            byte marker = data[offset++];
+            if (marker == 0xD9 || marker == 0xDA)
+            {
+                return false;
+            }
+
+            if (marker == 0x01 || marker is >= 0xD0 and <= 0xD8)
+            {
+                continue;
+            }
+
+            if (offset > data.Length - 2)
+            {
+                return false;
+            }
+
+            int segmentLength = (data[offset] << 8) | data[offset + 1];
+            if (segmentLength < 2 || offset > data.Length - segmentLength)
+            {
+                return false;
+            }
+
+            bool isStartOfFrame = marker is >= 0xC0 and <= 0xCF && marker is not (0xC4 or 0xC8 or 0xCC);
+            if (isStartOfFrame)
+            {
+                return segmentLength >= 8 && data[offset + 7] == 3;
+            }
+
+            offset += segmentLength;
+        }
+
+        return false;
     }
 
     private static PdfImageExportResult ExportRgbAsPng(byte[] rgb, int width, int height, byte[]? alpha = null)

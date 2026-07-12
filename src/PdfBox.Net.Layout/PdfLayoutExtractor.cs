@@ -3075,7 +3075,7 @@ public static class PdfLayoutExtractor
         {
             try
             {
-                PdfImageExportResult result = PdfImageExporter.ExportPng(image, _colorManagementContext);
+                PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image, _colorManagementContext);
                 return _imageAssets.Add(
                     assetId,
                     result.FileExtension,

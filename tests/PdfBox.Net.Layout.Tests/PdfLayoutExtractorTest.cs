@@ -662,6 +662,23 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_DeviceRgbJpegAsset_PreservesOriginalBrowserSafeStream()
+    {
+        byte[] original = File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "Fixtures", "test-2x1-rgb.jpg"));
+        using PDDocument document = CreateJpegImageDocument(original);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfLayoutImageAsset asset = Assert.Single(layout.ImageAssets);
+        Assert.Equal("image/jpeg", asset.ContentType);
+        Assert.EndsWith(".jpg", asset.RelativePath, StringComparison.Ordinal);
+        Assert.Equal(original, asset.Data);
+    }
+
+    [Fact]
     public void Extract_TransparencyGroups_RetainsCompositingHierarchy()
     {
         using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
@@ -1023,6 +1040,21 @@ public class PdfLayoutExtractorTest
             255, 255, 255
         ];
         PDImageXObject image = LosslessFactory.CreateFromRawData(document, rgb, 2, 2, 8, 3);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.DrawImage(image, 72, 600, 120, 60);
+        }
+
+        return document;
+    }
+
+    private static PDDocument CreateJpegImageDocument(byte[] jpeg)
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        using MemoryStream input = new(jpeg);
+        PDImageXObject image = JPEGFactory.CreateFromStream(document, input);
         using (PDPageContentStream content = new(document, page))
         {
             content.DrawImage(image, 72, 600, 120, 60);
