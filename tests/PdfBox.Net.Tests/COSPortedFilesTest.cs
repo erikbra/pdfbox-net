@@ -2,7 +2,6 @@ using PdfBox.Net.COS;
 using PdfBox.Net.Filter;
 using PdfBox.Net.IO;
 using RandomAccessBuffer = PdfBox.Net.IO.RandomAccess;
-using System.Drawing;
 
 namespace PdfBox.Net.Tests;
 
@@ -53,7 +52,7 @@ public class COSPortedFilesTest
         DecodeOptions options = DecodeOptions.DEFAULT;
         Assert.True(options.IsFilterSubsampled());
         Assert.Throws<InvalidOperationException>(() => options.SetSubsamplingX(2));
-        Assert.Throws<InvalidOperationException>(() => options.SetSourceRegion(new Rectangle(0, 0, 1, 1)));
+        Assert.Throws<InvalidOperationException>(() => options.SetSourceRegion(new DecodeRegion(0, 0, 1, 1)));
     }
 
     [Fact]

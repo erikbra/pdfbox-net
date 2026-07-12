@@ -24,7 +24,6 @@
  * limitations under the License.
  */
 
-using System.Drawing;
 using ImageMagick;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics.Color;
@@ -65,8 +64,8 @@ public sealed class JPXFilter : Filter
         int height = checked((int)image.Height);
         string map = GetPixelMap(image, parameters);
 
-        Rectangle region = options.GetSourceRegion() ?? new Rectangle(0, 0, width, height);
-        region.Intersect(new Rectangle(0, 0, width, height));
+        DecodeRegion region = (options.GetSourceRegion() ?? new DecodeRegion(0, 0, width, height))
+            .Intersect(new DecodeRegion(0, 0, width, height));
         int subsamplingX = Math.Max(1, options.GetSubsamplingX());
         int subsamplingY = Math.Max(1, options.GetSubsamplingY());
         int offsetX = Math.Clamp(options.GetSubsamplingOffsetX(), 0, subsamplingX - 1);

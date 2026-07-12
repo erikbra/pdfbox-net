@@ -316,7 +316,7 @@ public class FilterTest
         parameters.SetItem(COSName.FILTER, COSName.JBIG2_DECODE);
         parameters.SetItem(COSName.DECODE_PARMS, decodeParms);
         parameters.SetInt(COSName.BITS_PER_COMPONENT, 2);
-        DecodeOptions options = new(new System.Drawing.Rectangle(1, 2, 3, 4));
+        DecodeOptions options = new(new DecodeRegion(1, 2, 3, 4));
         options.SetSubsamplingX(2);
         options.SetSubsamplingY(3);
         options.SetSubsamplingOffsetX(1);

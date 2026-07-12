@@ -25,8 +25,6 @@
  * limitations under the License.
  */
 
-using System.Drawing;
-
 namespace PdfBox.Net.Filter;
 
 /// <summary>
@@ -42,7 +40,7 @@ public partial class DecodeOptions
     /// </summary>
     public static DecodeOptions DEFAULT { get; } = new FinalDecodeOptions(true);
 
-    private Rectangle? _sourceRegion;
+    private DecodeRegion? _sourceRegion;
     // A value of 1 means no subsampling.
     private int _subsamplingX = 1;
     // A value of 1 means no subsampling.
@@ -62,7 +60,7 @@ public partial class DecodeOptions
     /// Constructs an instance specifying the region of the image that should be decoded.
     /// </summary>
     /// <param name="sourceRegion">Region of the source image that should be decoded.</param>
-    public DecodeOptions(Rectangle sourceRegion)
+    public DecodeOptions(DecodeRegion sourceRegion)
     {
         _sourceRegion = sourceRegion;
     }
@@ -74,7 +72,7 @@ public partial class DecodeOptions
     /// <param name="y">Y-coordinate of the top-left corner of the region to be decoded.</param>
     /// <param name="width">Width of the region to be decoded.</param>
     /// <param name="height">Height of the region to be decoded.</param>
-    public DecodeOptions(int x, int y, int width, int height) : this(new Rectangle(x, y, width, height))
+    public DecodeOptions(int x, int y, int width, int height) : this(new DecodeRegion(x, y, width, height))
     {
     }
 
@@ -88,12 +86,12 @@ public partial class DecodeOptions
         _subsamplingY = subsampling;
     }
 
-    public Rectangle? GetSourceRegion()
+    public DecodeRegion? GetSourceRegion()
     {
         return _sourceRegion;
     }
 
-    public virtual void SetSourceRegion(Rectangle? sourceRegion)
+    public virtual void SetSourceRegion(DecodeRegion? sourceRegion)
     {
         _sourceRegion = sourceRegion;
     }
@@ -162,7 +160,7 @@ public partial class DecodeOptions
             base.SetFilterSubsampled(filterSubsampled);
         }
 
-        public override void SetSourceRegion(Rectangle? sourceRegion)
+        public override void SetSourceRegion(DecodeRegion? sourceRegion)
         {
             throw new InvalidOperationException("This instance may not be modified.");
         }

@@ -24,7 +24,6 @@
  * limitations under the License.
  */
 
-using System.Drawing;
 using JBig2Decoder.NETStandard;
 using PdfBox.Net.COS;
 using PdfBox.Net.IO;
@@ -140,8 +139,8 @@ internal sealed class Jbig2NetRasterDecoder : IJbig2RasterDecoder
             throw new IOException("JBIG2 decoder returned fewer RGB samples than expected.");
         }
 
-        Rectangle source = options.SourceRegion ?? new Rectangle(0, 0, width, height);
-        source.Intersect(new Rectangle(0, 0, width, height));
+        DecodeRegion source = (options.SourceRegion ?? new DecodeRegion(0, 0, width, height))
+            .Intersect(new DecodeRegion(0, 0, width, height));
         if (source.Width <= 0 || source.Height <= 0)
         {
             return [];
@@ -187,7 +186,7 @@ internal sealed class Jbig2NetRasterDecoder : IJbig2RasterDecoder
 }
 
 internal sealed record Jbig2DecodeOptions(
-    Rectangle? SourceRegion,
+    DecodeRegion? SourceRegion,
     int SubsamplingX,
     int SubsamplingY,
     int SubsamplingOffsetX,
