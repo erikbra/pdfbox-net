@@ -18,9 +18,10 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MANIFEST = ROOT / "tools/conversion_quality/remote-corpus-manifest.json"
+DEFAULT_BASE_REVIEW_MANIFEST = ROOT / "tools/conversion_quality/html-review-manifest.json"
 DEFAULT_CACHE_DIR = ROOT / "artifacts/cache/conversion-quality/remote-pdfs"
 DEFAULT_REVIEW_MANIFEST = ROOT / "artifacts/cache/conversion-quality/remote-html-review-manifest.json"
-DEFAULT_OUT_DIR = ROOT / "artifacts/conversion-quality-smoke/remote-html-examples"
+DEFAULT_OUT_DIR = ROOT / "artifacts/html-examples"
 GENERATOR_PROJECT = ROOT / "tools/conversion_quality/PdfBox.Net.ConversionQuality/PdfBox.Net.ConversionQuality.csproj"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
@@ -210,11 +211,40 @@ def materialize_review_manifest(
     documents: list[RemoteDocument],
     pdf_paths: dict[str, Path],
     output_path: Path,
+    base_manifest_path: Path | None = None,
 ) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_parent = output_path.parent.resolve()
     examples: list[dict[str, Any]] = []
+    descriptions = [description]
+    if base_manifest_path is not None:
+        with base_manifest_path.open("r", encoding="utf-8") as handle:
+            base_manifest = json.load(handle)
+        if not isinstance(base_manifest, dict) or base_manifest.get("schema") != 1:
+            raise ValueError(f"{base_manifest_path} must be a schema 1 JSON object")
+        base_examples = base_manifest.get("examples")
+        if not isinstance(base_examples, list):
+            raise ValueError(f"{base_manifest_path} must contain an examples array")
+        base_description = base_manifest.get("description")
+        if isinstance(base_description, str) and base_description.strip():
+            descriptions.insert(0, base_description.strip())
+        for entry in base_examples:
+            if not isinstance(entry, dict):
+                raise ValueError(f"{base_manifest_path} examples must be objects")
+            example = dict(entry)
+            source_pdf = example.get("sourcePdf")
+            if not isinstance(source_pdf, str) or not source_pdf.strip():
+                raise ValueError(f"{base_manifest_path} example is missing sourcePdf")
+            resolved_pdf = (base_manifest_path.parent / source_pdf).resolve()
+            example["sourcePdf"] = Path(os.path.relpath(resolved_pdf, output_parent)).as_posix()
+            examples.append(example)
+
+    ids = {example.get("id") for example in examples}
     for document in documents:
-        source_pdf = os.path.relpath(pdf_paths[document.id], output_path.parent)
+        if document.id in ids:
+            raise ValueError(f"Duplicate HTML review example id {document.id!r}")
+        ids.add(document.id)
+        source_pdf = os.path.relpath(pdf_paths[document.id].resolve(), output_parent)
         examples.append(
             {
                 "id": document.id,
@@ -235,7 +265,10 @@ def materialize_review_manifest(
             json.dump(
                 {
                     "schema": 1,
-                    "description": f"{description} Generated from pinned remote-corpus-manifest.json entries.",
+                    "description": (
+                        " ".join(descriptions) +
+                        " Generated from checked-in and pinned remote review manifests."
+                    ),
                     "examples": examples,
                 },
                 handle,
@@ -269,6 +302,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="Download the pinned remote PDF corpus and generate HTML review artifacts."
     )
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    parser.add_argument("--base-review-manifest", type=Path, default=DEFAULT_BASE_REVIEW_MANIFEST)
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
     parser.add_argument("--review-manifest-out", type=Path, default=DEFAULT_REVIEW_MANIFEST)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
@@ -292,7 +326,13 @@ def main(argv: list[str] | None = None) -> int:
                 retries=args.retries,
                 timeout_seconds=args.timeout_seconds,
             )
-        materialize_review_manifest(description, documents, pdf_paths, args.review_manifest_out.resolve())
+        materialize_review_manifest(
+            description,
+            documents,
+            pdf_paths,
+            args.review_manifest_out.resolve(),
+            args.base_review_manifest.resolve() if args.base_review_manifest else None,
+        )
         if not args.skip_generator:
             run_generator(args.review_manifest_out.resolve(), args.out_dir.resolve(), no_build=not args.build)
         print(f"Remote corpus review manifest: {args.review_manifest_out.resolve()}")

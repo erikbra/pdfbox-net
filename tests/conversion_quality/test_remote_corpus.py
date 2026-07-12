@@ -219,6 +219,51 @@ class RemoteCorpusTest(unittest.TestCase):
             self.assertEqual(1, example["expectations"]["pageCount"])
             self.assertIn(document.source_page, example["notes"])
 
+    def test_materialize_review_manifest_combines_local_and_remote_examples(self) -> None:
+        document = self._document("0" * 64)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            local_pdf = root / "local/local.pdf"
+            local_pdf.parent.mkdir()
+            local_pdf.write_bytes(b"local")
+            base_manifest = root / "manifests/base.json"
+            base_manifest.parent.mkdir()
+            base_manifest.write_text(
+                json.dumps(
+                    {
+                        "schema": 1,
+                        "description": "Local examples.",
+                        "examples": [
+                            {
+                                "id": "local-sample",
+                                "title": "Local sample",
+                                "sourcePdf": "../local/local.pdf",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            remote_pdf = root / "cache/sample.pdf"
+            remote_pdf.parent.mkdir()
+            remote_pdf.write_bytes(b"remote")
+            output = root / "generated/review-manifest.json"
+
+            remote_corpus.materialize_review_manifest(
+                "Remote corpus.",
+                [document],
+                {document.id: remote_pdf},
+                output,
+                base_manifest,
+            )
+
+            data = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(["local-sample", "sample"], [item["id"] for item in data["examples"]])
+            self.assertEqual("../local/local.pdf", data["examples"][0]["sourcePdf"])
+            self.assertEqual("../cache/sample.pdf", data["examples"][1]["sourcePdf"])
+            self.assertIn("Local examples.", data["description"])
+            self.assertIn("Remote corpus.", data["description"])
+
     @staticmethod
     def _entry(document_id: str) -> dict:
         return {
