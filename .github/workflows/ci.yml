@@ -33,6 +33,13 @@ jobs:
       - name: Build
         run: dotnet build PdfBoxNet.slnx --configuration Release --no-restore
 
+      - name: Publish browser-lite PDF-to-HTML sample
+        run: >
+          dotnet publish
+          samples/PdfBox.Net.Html.Wasm/PdfBox.Net.Html.Wasm.csproj
+          --configuration Release
+          --no-build
+
       - name: Install Playwright browsers
         run: >
           tests/PdfBox.Net.Html.Tests/bin/Release/net10.0/.playwright/node/linux-x64/node
