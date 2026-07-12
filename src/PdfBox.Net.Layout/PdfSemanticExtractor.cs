@@ -116,7 +116,7 @@ public static class PdfSemanticExtractor
 
                     elements.Add(CreateElement(
                         PdfSemanticElementKind.Heading,
-                        documentTitleLines,
+                        MergeSameBaselineTitleLines(documentTitleLines, options),
                         headingLevel: HeadingLevel(documentTitleLines[0], bodyFontSize)));
                 }
 
@@ -549,11 +549,20 @@ public static class PdfSemanticExtractor
         float bodyFontSize,
         float lineStep)
     {
-        if (HeadingLevel(previous, bodyFontSize) != HeadingLevel(current, bodyFontSize) ||
-            MathF.Abs(previous.Direction) > 0.01f ||
+        if (MathF.Abs(previous.Direction) > 0.01f ||
             MathF.Abs(previous.Direction - current.Direction) > 0.01f ||
             !SameColor(previous.Color, current.Color) ||
-            !string.Equals(previous.FontName, current.FontName, StringComparison.Ordinal) ||
+            !string.Equals(previous.FontName, current.FontName, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (SharesTitleBaseline(previous, current))
+        {
+            return true;
+        }
+
+        if (HeadingLevel(previous, bodyFontSize) != HeadingLevel(current, bodyFontSize) ||
             MathF.Abs(previous.FontSize - current.FontSize) > 0.75f)
         {
             return false;
@@ -570,6 +579,78 @@ public static class PdfSemanticExtractor
         return MathF.Abs(previous.Bounds.X - current.Bounds.X) <= edgeTolerance ||
             MathF.Abs(previous.Bounds.Right - current.Bounds.Right) <= edgeTolerance ||
             MathF.Abs(previous.CenterX - current.CenterX) <= edgeTolerance;
+    }
+
+    private static bool SharesTitleBaseline(LineCandidate first, LineCandidate second)
+    {
+        float maximumFontSize = MathF.Max(first.FontSize, second.FontSize);
+        float baselineTolerance = MathF.Max(1f, maximumFontSize * 0.08f);
+        if (MathF.Abs(first.Bounds.Bottom - second.Bounds.Bottom) > baselineTolerance)
+        {
+            return false;
+        }
+
+        float horizontalGap = HorizontalGap(first.Bounds, second.Bounds);
+        return horizontalGap <= maximumFontSize * 3f;
+    }
+
+    private static LineCandidate[] MergeSameBaselineTitleLines(
+        IReadOnlyList<LineCandidate> lines,
+        PdfSemanticExtractionOptions options)
+    {
+        List<List<LineCandidate>> rows = [];
+        foreach (LineCandidate line in lines.OrderBy(static line => line.Bounds.Y).ThenBy(static line => line.Bounds.X))
+        {
+            List<LineCandidate>? row = rows.FirstOrDefault(existing => SharesTitleBaseline(existing[0], line));
+            if (row == null)
+            {
+                rows.Add([line]);
+            }
+            else
+            {
+                row.Add(line);
+            }
+        }
+
+        return rows
+            .OrderBy(static row => row.Min(static line => line.Bounds.Y))
+            .ThenBy(static row => row.Min(static line => line.Bounds.X))
+            .Select(row => row.Count == 1 ? row[0] : MergeTitleLine(row, options))
+            .ToArray();
+    }
+
+    private static LineCandidate MergeTitleLine(
+        IReadOnlyList<LineCandidate> lines,
+        PdfSemanticExtractionOptions options)
+    {
+        PdfTextRun[] runs = lines
+            .SelectMany(static line => line.Source.Runs)
+            .OrderBy(static run => run.Bounds.X)
+            .ThenBy(static run => run.Bounds.Y)
+            .ToArray();
+        string text = ReconstructText(runs.SelectMany(static run => run.Glyphs), options);
+        LineCandidate titleStyle = lines
+            .OrderByDescending(static line => line.FontSize)
+            .ThenBy(static line => line.Bounds.Y)
+            .First();
+        PdfLayoutRectangle bounds = PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds));
+        PdfSemanticLine semanticLine = new(
+            text,
+            bounds,
+            titleStyle.FontName,
+            titleStyle.FontSize,
+            titleStyle.Direction,
+            titleStyle.Color,
+            runs);
+        PdfTextLine sourceLine = new(text, bounds, runs);
+        return new LineCandidate(
+            lines.Min(static line => line.Index),
+            sourceLine,
+            semanticLine,
+            titleStyle.FontName,
+            titleStyle.FontSize,
+            titleStyle.Direction,
+            titleStyle.Color);
     }
 
     private static bool IsFooter(LineCandidate line, PdfLayoutPage page, float bodyFontSize)

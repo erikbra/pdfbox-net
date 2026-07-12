@@ -1004,6 +1004,63 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticTextMode_GroupsMixedSizeSameBaselineTitleRuns()
+    {
+        using PDDocument document = CreateMixedSizeSameBaselineTitleDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = false
+        });
+        PdfLayoutPage layoutPage = Assert.Single(layout.Pages);
+        PdfTextLine largeCapLine = Assert.Single(layoutPage.Lines, line =>
+            line.Runs.Any(static run => run.FontSize == 22f));
+        PdfTextLine[] sourceTitleLines = layoutPage.Lines
+            .Where(line => MathF.Abs(line.Bounds.Bottom - largeCapLine.Bounds.Bottom) <= 1f)
+            .ToArray();
+        Assert.Equal(2, sourceTitleLines.Length);
+        Assert.Equal([16f, 22f], sourceTitleLines
+            .SelectMany(static line => line.Runs)
+            .Select(static run => run.FontSize)
+            .Distinct()
+            .Order()
+            .ToArray());
+
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement title = Assert.Single(semanticPage.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading &&
+            element.Text == "ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION");
+
+        Assert.Equal(1, title.HeadingLevel);
+        Assert.Single(title.Lines);
+        Assert.Equal([16f, 22f], title.Lines[0].Runs.Select(static run => run.FontSize).Distinct().Order().ToArray());
+        Assert.Contains(semanticPage.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading && element.Text == "STACKED HEADING ONE");
+        Assert.Contains(semanticPage.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading && element.Text == "STACKED HEADING TWO");
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+        XElement titleHeading = Assert.Single(dom.Descendants("h1"), heading =>
+            HasClass(heading, "pdf-semantic-title") &&
+            heading.Value == "ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION");
+
+        Assert.Equal("ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION", titleHeading.Value);
+        Assert.True(HasClass(titleHeading, "pdf-font-size-22"));
+        Assert.Contains(titleHeading.Descendants(), element => HasClass(element, "pdf-font-size-16"));
+        Assert.DoesNotContain("A DAM", titleHeading.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("S TOCHASTIC", titleHeading.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("O PTIMIZATION", titleHeading.Value, StringComparison.Ordinal);
+        Assert.Single(dom.Descendants("h1"), heading => heading.Value == "STACKED HEADING ONE");
+        Assert.Single(dom.Descendants("h1"), heading => heading.Value == "STACKED HEADING TWO");
+    }
+
+    [Fact]
     public void Convert_TransparencyGroups_EmitNestedSvgOpacity()
     {
         using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
@@ -3745,6 +3802,65 @@ public class PdfHtmlConverterTest
         }
 
         return document;
+    }
+
+    private static PDDocument CreateMixedSizeSameBaselineTitleDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDType1Font font = new(PDType1Font.FontName.HELVETICA);
+        using (PDPageContentStream content = new(document, page))
+        {
+            float titleX = 70f;
+            const float titleBaseline = 690f;
+            titleX = WriteMixedSizeTitleWord(content, font, "ADAM:", titleX, titleBaseline);
+            titleX += 7f;
+            titleX = WriteMixedSizeTitleWord(content, font, "A", titleX, titleBaseline);
+            titleX += 7f;
+            titleX = WriteMixedSizeTitleWord(content, font, "METHOD", titleX, titleBaseline);
+            titleX += 7f;
+            titleX = WriteMixedSizeTitleWord(content, font, "FOR", titleX, titleBaseline);
+            titleX += 7f;
+            titleX = WriteMixedSizeTitleWord(content, font, "STOCHASTIC", titleX, titleBaseline);
+            titleX += 7f;
+            WriteMixedSizeTitleWord(content, font, "OPTIMIZATION", titleX, titleBaseline);
+
+            WriteCompositeFixtureLine(content, font, "STACKED HEADING ONE", 190, 620, 16);
+            WriteCompositeFixtureLine(content, font, "STACKED HEADING TWO", 190, 585, 16);
+            for (int index = 0; index < 8; index++)
+            {
+                WriteCompositeFixtureLine(
+                    content,
+                    font,
+                    $"Body line {index + 1} provides enough ordinary prose to establish the document body size.",
+                    72,
+                    520 - index * 14,
+                    10);
+            }
+        }
+
+        return document;
+    }
+
+    private static float WriteMixedSizeTitleWord(
+        PDPageContentStream content,
+        PDFont font,
+        string word,
+        float x,
+        float y)
+    {
+        const float initialSize = 22f;
+        const float smallCapsSize = 16f;
+        WriteCompositeFixtureLine(content, font, word[..1], x, y, initialSize);
+        x += font.GetStringWidth(word[..1]) / 1000f * initialSize;
+        if (word.Length > 1)
+        {
+            WriteCompositeFixtureLine(content, font, word[1..], x, y, smallCapsSize);
+            x += font.GetStringWidth(word[1..]) / 1000f * smallCapsSize;
+        }
+
+        return x;
     }
 
     private static void WriteRightAlignedFixtureLine(
