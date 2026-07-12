@@ -25,6 +25,9 @@
   <Folder Name="/apps/">
     <Project Path="apps/PdfBox.Net.Debugger.App/PdfBox.Net.Debugger.App.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/PdfBox.Net.Html.Wasm/PdfBox.Net.Html.Wasm.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj" />
