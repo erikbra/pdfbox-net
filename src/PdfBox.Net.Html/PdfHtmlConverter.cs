@@ -66,6 +66,14 @@ public static class PdfHtmlConverter
           width: 100%;
         }
 
+        .pdf-text-shadow {
+          filter: drop-shadow(
+            var(--pdf-text-shadow-x)
+            var(--pdf-text-shadow-y)
+            var(--pdf-text-shadow-blur)
+            var(--pdf-text-shadow-color));
+        }
+
         .pdf-semantic-element {
           box-sizing: border-box;
           color: #111827;
@@ -1119,6 +1127,7 @@ public static class PdfHtmlConverter
         return page.Paths
             .Where(path => semanticPage == null || !IsSemanticFlowRulePath(page, semanticPage, path))
             .Where(static path => !path.UsesShapeAlpha)
+            .Where(static path => !path.UsesSoftMask)
             .Where(path => !IsCoveredByTransparencyFallback(page, path.Bounds))
             .ToArray();
     }
@@ -1649,7 +1658,9 @@ public static class PdfHtmlConverter
         float fontSize,
         IReadOnlyList<PdfTextRun> pageRuns)
     {
-        html.Append("    <span class=\"pdf-text-run\" data-font=\"")
+        html.Append("    <span class=\"pdf-text-run")
+            .Append(run.Shadow is null ? "" : " pdf-text-shadow")
+            .Append("\" data-font=\"")
             .Append(HtmlAttribute(run.FontName))
             .Append("\" style=\"position:absolute;left:")
             .Append(CssPoints(run.Bounds.X * scale))
@@ -1665,8 +1676,9 @@ public static class PdfHtmlConverter
             .Append(CssFontFamily(run.FontName))
             .Append(FixedTextFontPresentation(run))
             .Append(";color:")
-            .Append(ColorHex(run.Color))
-            .Append("\">");
+            .Append(ColorHex(run.Color));
+        AppendTextShadowStyle(html, run.Shadow, scale);
+        html.Append("\">");
 
         if (HasGlyphOutlineFallback(run))
         {
@@ -6002,7 +6014,15 @@ public static class PdfHtmlConverter
         }
 
         string className = InlineRunClassNames(line, segment.Run);
-        WriteStyledInlineTextSegment(html, segment.Text, className, segment.Role, footnotes, lineText, offset);
+        WriteStyledInlineTextSegment(
+            html,
+            segment.Text,
+            className,
+            segment.Role,
+            footnotes,
+            lineText,
+            offset,
+            TextShadowStyle(segment.Run.Shadow));
     }
 
     private static void WriteInlineTextSegmentAsRole(
@@ -6012,7 +6032,12 @@ public static class PdfHtmlConverter
         InlineBaselineRole role)
     {
         string className = segment.Run == null ? "" : InlineRunClassNames(line, segment.Run);
-        WriteStyledInlineTextSegment(html, segment.Text, className, role);
+        WriteStyledInlineTextSegment(
+            html,
+            segment.Text,
+            className,
+            role,
+            style: TextShadowStyle(segment.Run?.Shadow));
     }
 
     private static void WriteStyledInlineTextSegment(
@@ -6022,7 +6047,8 @@ public static class PdfHtmlConverter
         InlineBaselineRole role,
         FootnoteContext? footnotes = null,
         string? lineText = null,
-        int offset = 0)
+        int offset = 0,
+        string? style = null)
     {
         string tagName = role switch
         {
@@ -6040,6 +6066,13 @@ public static class PdfHtmlConverter
             {
                 html.Append(" class=\"")
                     .Append(className)
+                    .Append('"');
+            }
+
+            if (!string.IsNullOrEmpty(style))
+            {
+                html.Append(" style=\"")
+                    .Append(style)
                     .Append('"');
             }
 
@@ -6122,7 +6155,35 @@ public static class PdfHtmlConverter
             classes.Add("pdf-semantic-bold");
         }
 
+        if (run.Shadow is not null)
+        {
+            classes.Add("pdf-text-shadow");
+        }
+
         return string.Join(" ", classes.Distinct(StringComparer.Ordinal));
+    }
+
+    private static void AppendTextShadowStyle(StringBuilder html, PdfTextShadow? shadow, float scale)
+    {
+        if (shadow is null)
+        {
+            return;
+        }
+
+        html.Append(';').Append(TextShadowStyle(shadow, scale));
+    }
+
+    private static string? TextShadowStyle(PdfTextShadow? shadow, float scale = 1f)
+    {
+        if (shadow is null)
+        {
+            return null;
+        }
+
+        return "--pdf-text-shadow-x:" + CssPoints(shadow.OffsetX * scale) +
+            ";--pdf-text-shadow-y:" + CssPoints(shadow.OffsetY * scale) +
+            ";--pdf-text-shadow-blur:" + CssPoints(shadow.BlurRadius * scale) +
+            ";--pdf-text-shadow-color:" + CssRgba(shadow.Color);
     }
 
     private static void WriteFootnote(
@@ -7708,6 +7769,15 @@ public static class PdfHtmlConverter
             + ByteHex(color.Red)
             + ByteHex(color.Green)
             + ByteHex(color.Blue);
+    }
+
+    private static string CssRgba(PdfLayoutColor color)
+    {
+        return "rgba(" +
+            MathF.Round(Math.Clamp(color.Red, 0f, 1f) * 255f).ToString(CultureInfo.InvariantCulture) + "," +
+            MathF.Round(Math.Clamp(color.Green, 0f, 1f) * 255f).ToString(CultureInfo.InvariantCulture) + "," +
+            MathF.Round(Math.Clamp(color.Blue, 0f, 1f) * 255f).ToString(CultureInfo.InvariantCulture) + "," +
+            SvgNumber(color.Alpha) + ")";
     }
 
     private static string ByteHex(float value)
