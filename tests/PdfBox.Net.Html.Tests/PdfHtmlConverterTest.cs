@@ -789,6 +789,46 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_ScientificFrontMatter_PreservesSourceWidthRowsAndSpacingWithoutWideningQuotation()
+    {
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(
+            CreateScientificFrontMatterLayoutFixture(),
+            new PdfHtmlOptions { TextMode = PdfHtmlTextMode.Semantic });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement frontMatter = Assert.Single(ElementsByClass(dom, "pdf-semantic-front-matter"));
+        Assert.Contains("pdf-semantic-align-center", frontMatter.Attribute("class")?.Value);
+        Assert.Contains("† Department of Applied Mathematics", frontMatter.Value, StringComparison.Ordinal);
+        Assert.Contains("‡ Center for Computational Science", frontMatter.Value, StringComparison.Ordinal);
+        Assert.Contains("§ Institute for Scientific Computing", frontMatter.Value, StringComparison.Ordinal);
+        Assert.EndsWith("WWW home page: https://example.edu/research", frontMatter.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("Abstract", frontMatter.Value, StringComparison.Ordinal);
+
+        Dictionary<string, string> frontMatterStyle = ParseStyle(frontMatter.Attribute("style")?.Value ?? "");
+        Assert.Equal(440f, ParsePoints(frontMatterStyle["--pdf-semantic-front-matter-width"]));
+        Assert.Equal(28f, ParsePoints(frontMatterStyle["--pdf-semantic-front-matter-gap-after"]));
+        XElement[] sourceRows = frontMatter.Elements()
+            .Where(element => HasClass(element, "pdf-semantic-line"))
+            .ToArray();
+        Assert.Equal(6, sourceRows.Length);
+        Assert.Null(sourceRows[0].Attribute("style"));
+        Assert.True(ParsePoints(ParseStyle(sourceRows[1].Attribute("style")?.Value ?? "")["margin-top"]) > 12f);
+        Assert.True(ParsePoints(ParseStyle(sourceRows[^1].Attribute("style")?.Value ?? "")["margin-top"]) > 10f);
+
+        XElement abstractParagraph = Assert.Single(ElementsByClass(dom, "pdf-semantic-paragraph"), element =>
+            element.Value.StartsWith("Abstract. This study", StringComparison.Ordinal));
+        Assert.Contains(frontMatter, abstractParagraph.NodesBeforeSelf());
+
+        XElement quotation = Assert.Single(ElementsByClass(dom, "pdf-semantic-paragraph"), element =>
+            element.Value.StartsWith("A narrow quotation remains", StringComparison.Ordinal));
+        Assert.Contains("pdf-semantic-align-center", quotation.Attribute("class")?.Value);
+        Assert.DoesNotContain("pdf-semantic-front-matter", quotation.Attribute("class")?.Value ?? "", StringComparison.Ordinal);
+        Assert.DoesNotContain("pdf-semantic-measured-width", quotation.Attribute("class")?.Value ?? "", StringComparison.Ordinal);
+        Assert.DoesNotContain("--pdf-semantic-width", quotation.Attribute("style")?.Value ?? "", StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-front-matter", html.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Convert_SemanticTextMode_EmitsArxivVariationTableSpans()
     {
         using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
@@ -3582,6 +3622,65 @@ public class PdfHtmlConverterTest
     {
         PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
         return new PdfTextRun(text, fontName, fontSize, 0f, bounds, color, [glyph]);
+    }
+
+    private static PdfLayoutDocument CreateScientificFrontMatterLayoutFixture()
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateScientificFixtureLine("Reusable Scientific Front Matter", 106f, 70f, 400f, 18f, "Times-Bold"),
+            CreateScientificFixtureLine("Ada Lovelace and Emmy Noether", 181f, 112f, 250f),
+            CreateScientificFixtureLine("†", 80f, 138f, 8f, 8f, "Symbol"),
+            CreateScientificFixtureLine("Department of Applied Mathematics, Example University", 92f, 138f, 428f),
+            CreateScientificFixtureLine("‡", 110f, 152f, 8f, 8f, "Symbol"),
+            CreateScientificFixtureLine("Center for Computational Science, Example City", 122f, 152f, 368f),
+            CreateScientificFixtureLine("§", 142f, 166f, 8f, 8f, "Symbol"),
+            CreateScientificFixtureLine("Institute for Scientific Computing", 154f, 166f, 316f),
+            CreateScientificFixtureLine("September 2008", 256f, 196f, 100f),
+            CreateScientificFixtureLine("WWW home page: https://example.edu/research", 126f, 220f, 360f, 9f),
+            CreateScientificFixtureLine("Abstract. This study introduces a reusable semantic grouping strategy for papers.", 108f, 260f, 396f),
+            CreateScientificFixtureLine("It preserves source rows while keeping the abstract body in normal document flow.", 108f, 273f, 396f),
+            CreateScientificFixtureLine("The strategy uses layout evidence instead of document-specific titles or names.", 108f, 286f, 396f),
+            CreateScientificFixtureLine("A narrow quotation remains", 206f, 330f, 200f),
+            CreateScientificFixtureLine("intentionally narrow.", 218f, 343f, 176f),
+            CreateScientificFixtureLine("1 Introduction", 72f, 380f, 110f, 13f, "Times-Bold")
+        ];
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfTextLine CreateScientificFixtureLine(
+        string text,
+        float x,
+        float y,
+        float width,
+        float fontSize = 10f,
+        string fontName = "Times-Roman")
+    {
+        PdfLayoutRectangle bounds = new(x, y, width, fontSize * 0.75f);
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
+        PdfTextRun run = new(text, fontName, fontSize, 0f, bounds, color, [glyph]);
+        return new PdfTextLine(text, bounds, [run]);
     }
 
     private static PDDocument CreateTextDocument(string contentStream)
