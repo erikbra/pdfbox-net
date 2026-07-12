@@ -33,6 +33,11 @@ jobs:
       - name: Build
         run: dotnet build PdfBoxNet.slnx --configuration Release --no-restore
 
+      - name: Verify trimmed single-file unpdf
+        run: |
+          eng/verify-unpdf-single-file.sh linux-x64
+          cat artifacts/unpdf-publish/linux-x64/size-report.md >> "$GITHUB_STEP_SUMMARY"
+
       - name: Publish browser-lite PDF-to-HTML sample
         run: >
           dotnet publish

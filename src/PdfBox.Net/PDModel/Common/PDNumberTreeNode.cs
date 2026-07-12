@@ -25,6 +25,7 @@
  * limitations under the License.
  */
 
+using System.Diagnostics.CodeAnalysis;
 using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Common;
@@ -32,14 +33,18 @@ namespace PdfBox.Net.PDModel.Common;
 public partial class PDNumberTreeNode : COSObjectable
 {
     private readonly COSDictionary _node;
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     private readonly Type _valueType;
 
-    public PDNumberTreeNode(Type valueClass)
+    public PDNumberTreeNode(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type valueClass)
         : this(new COSDictionary(), valueClass)
     {
     }
 
-    public PDNumberTreeNode(COSDictionary dict, Type valueClass)
+    public PDNumberTreeNode(
+        COSDictionary dict,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type valueClass)
     {
         _node = dict ?? throw new ArgumentNullException(nameof(dict));
         _valueType = valueClass ?? throw new ArgumentNullException(nameof(valueClass));
