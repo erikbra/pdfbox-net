@@ -7,6 +7,8 @@
     <AssemblyName>unpdf</AssemblyName>
     <RootNamespace>PdfBox.Net.Unpdf</RootNamespace>
     <IsPackable>false</IsPackable>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/PdfBox.Net.Html/PdfBox.Net.Html.csproj" />

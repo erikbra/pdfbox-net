@@ -34,5 +34,20 @@ dotnet publish apps/PdfBox.Net.Unpdf/PdfBox.Net.Unpdf.csproj \
   --self-contained true
 ```
 
-Trimming, compressed single-file output, NativeAOT, and the cross-platform RID
-matrix are tracked as separate quality-gated milestones.
+For a trimmed, compressed single executable, specify the `SingleFile` profile
+and the target runtime identifier:
+
+```console
+dotnet publish apps/PdfBox.Net.Unpdf/PdfBox.Net.Unpdf.csproj \
+  --configuration Release \
+  --runtime osx-arm64 \
+  -p:PublishProfile=SingleFile
+```
+
+Run `eng/verify-unpdf-single-file.sh <rid>` to compare the single executable
+with an untrimmed self-contained baseline. The gate converts the same PDF with
+both executables, requires byte-identical HTML/CSS output, and writes size and
+timing measurements under `artifacts/unpdf-publish/<rid>`.
+
+NativeAOT and the cross-platform release RID matrix remain separate,
+quality-gated milestones.

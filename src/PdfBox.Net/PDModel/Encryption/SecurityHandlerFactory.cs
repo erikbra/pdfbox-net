@@ -25,14 +25,16 @@
  * limitations under the License.
  */
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace PdfBox.Net.PDModel.Encryption;
 
 public sealed class SecurityHandlerFactory
 {
     public static readonly SecurityHandlerFactory INSTANCE = new();
 
-    private readonly Dictionary<string, Type> _nameToHandler = new(StringComparer.Ordinal);
-    private readonly Dictionary<Type, Type> _policyToHandler = [];
+    private readonly Dictionary<string, HandlerRegistration> _nameToHandler = new(StringComparer.Ordinal);
+    private readonly Dictionary<Type, HandlerRegistration> _policyToHandler = [];
 
     private SecurityHandlerFactory()
     {
@@ -40,7 +42,10 @@ public sealed class SecurityHandlerFactory
         RegisterHandler(PublicKeySecurityHandler.FILTER, typeof(PublicKeySecurityHandler), typeof(PublicKeyProtectionPolicy));
     }
 
-    public void RegisterHandler(string name, Type securityHandler, Type protectionPolicy)
+    public void RegisterHandler(
+        string name,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type securityHandler,
+        Type protectionPolicy)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         ArgumentNullException.ThrowIfNull(securityHandler);
@@ -56,33 +61,37 @@ public sealed class SecurityHandlerFactory
             throw new InvalidOperationException("The security handler name is already registered.");
         }
 
-        _nameToHandler[name] = securityHandler;
-        _policyToHandler[protectionPolicy] = securityHandler;
+        HandlerRegistration registration = new(securityHandler);
+        _nameToHandler[name] = registration;
+        _policyToHandler[protectionPolicy] = registration;
     }
 
     public SecurityHandler<ProtectionPolicy>? NewSecurityHandlerForPolicy(ProtectionPolicy policy)
     {
         ArgumentNullException.ThrowIfNull(policy);
-        if (!_policyToHandler.TryGetValue(policy.GetType(), out Type? handlerClass))
+        if (!_policyToHandler.TryGetValue(policy.GetType(), out HandlerRegistration? registration))
         {
             return null;
         }
 
-        return NewSecurityHandler(handlerClass, [policy.GetType()], [policy]);
+        return NewSecurityHandler(registration.HandlerType, [policy.GetType()], [policy]);
     }
 
     public SecurityHandler<ProtectionPolicy>? NewSecurityHandlerForFilter(string name)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
-        if (!_nameToHandler.TryGetValue(name, out Type? handlerClass))
+        if (!_nameToHandler.TryGetValue(name, out HandlerRegistration? registration))
         {
             return null;
         }
 
-        return NewSecurityHandler(handlerClass, Type.EmptyTypes, []);
+        return NewSecurityHandler(registration.HandlerType, Type.EmptyTypes, []);
     }
 
-    private static SecurityHandler<ProtectionPolicy> NewSecurityHandler(Type handlerClass, Type[] argsClasses, object[] args)
+    private static SecurityHandler<ProtectionPolicy> NewSecurityHandler(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type handlerClass,
+        Type[] argsClasses,
+        object[] args)
     {
         try
         {
@@ -98,5 +107,17 @@ public sealed class SecurityHandlerFactory
         {
             throw new InvalidOperationException("Failed to create security handler instance.", ex);
         }
+    }
+
+    private sealed class HandlerRegistration
+    {
+        public HandlerRegistration(
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type handlerType)
+        {
+            HandlerType = handlerType;
+        }
+
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+        public Type HandlerType { get; }
     }
 }
