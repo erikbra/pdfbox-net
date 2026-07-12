@@ -39,14 +39,15 @@ a likely visual or structural conversion issue for humans to inspect, not that
 the CI step failed. Download the `conversion-quality-smoke-*` workflow artifact
 and open `html-examples/index.html` to browse the examples.
 
-## Remote Academic Corpus
+## Remote Public Corpus
 
-The pinned remote corpus covers four freely available academic papers: JMLR's
-*Latent Dirichlet Allocation*, ACL Anthology's *BERT*, arXiv's *Adam*, and
-arXiv's *U-Net*. Together they exercise long-form text, formulas, dense
-two-column layout, tables, figures, diagrams, images, and links. Canonical
-source pages, direct HTTPS PDF URLs, categories, and SHA-256 hashes are recorded
-in `remote-corpus-manifest.json`.
+The pinned remote corpus covers eleven freely available public PDFs. It combines
+academic papers from JMLR, ACL Anthology, and arXiv with IRS and USCIS forms, a
+long NIST publication, and National Park Service brochure and map layouts.
+Together they exercise long-form text, formulas, dense two-column layout,
+government forms, tables, figures, photographs, maps, dense vector geometry,
+and links. Canonical source pages, direct HTTPS PDF URLs, categories, and
+SHA-256 hashes are recorded in `remote-corpus-manifest.json`.
 
 Run the complete download, verification, conversion, expectation, and review
 artifact path locally with one command:

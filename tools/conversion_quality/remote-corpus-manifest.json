@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "description": "Pinned, freely available academic PDFs used for remote HTML conversion quality checks. PDFs are downloaded into ignored artifacts/cache storage and are never committed.",
+  "description": "Pinned, freely available public PDFs spanning academic papers, government forms and publications, and national park brochures and maps for remote HTML conversion quality checks. PDFs are downloaded into ignored artifacts/cache storage and are never committed.",
   "documents": [
     {
       "id": "jmlr-lda",
@@ -105,6 +105,198 @@
         "minImagePlacements": 8,
         "minVectorPaths": 100,
         "minLinks": 20
+      }
+    },
+    {
+      "id": "arxiv-svt",
+      "title": "arXiv: A Singular Value Thresholding Algorithm for Matrix Completion",
+      "sourcePage": "https://arxiv.org/abs/0810.3286",
+      "pdfUrl": "https://arxiv.org/pdf/0810.3286",
+      "sha256": "5f7f969ec4caf973e49a76524ea9baca3b61ec9ee6334db478968e06c3ac8a76",
+      "categories": [
+        "math-focused",
+        "formulas",
+        "figures",
+        "links"
+      ],
+      "qualityPages": 2,
+      "notes": "Long formula-heavy paper with figures, dense vector content, and many citation links.",
+      "expectations": {
+        "pageCount": 28,
+        "requiredText": [
+          "singular",
+          "value",
+          "thresholding",
+          "matrix",
+          "completion"
+        ],
+        "minTextRuns": 12000,
+        "minImagePlacements": 75,
+        "minVectorPaths": 2400,
+        "minLinks": 100
+      }
+    },
+    {
+      "id": "arxiv-ddpm",
+      "title": "arXiv: Denoising Diffusion Probabilistic Models",
+      "sourcePage": "https://arxiv.org/abs/2006.11239",
+      "pdfUrl": "https://arxiv.org/pdf/2006.11239",
+      "sha256": "aee5e07a802e8dfd2a386374c94fd61d1d056cb7e1e0fec4f28e8120ff5d8505",
+      "categories": [
+        "complex-columns",
+        "formulas",
+        "figures",
+        "links"
+      ],
+      "qualityPages": 2,
+      "notes": "Two-column machine-learning paper with equations, generated-image figures, and citation links.",
+      "expectations": {
+        "pageCount": 25,
+        "requiredText": [
+          "denoising",
+          "diffusion",
+          "probabilistic",
+          "models"
+        ],
+        "minTextRuns": 4000,
+        "minImagePlacements": 15,
+        "minVectorPaths": 2400,
+        "minLinks": 140
+      }
+    },
+    {
+      "id": "irs-w9",
+      "title": "IRS Form W-9",
+      "sourcePage": "https://www.irs.gov/forms-pubs/about-form-w-9",
+      "pdfUrl": "https://www.irs.gov/pub/irs-pdf/fw9.pdf",
+      "sha256": "2d420cbb4123dcf1fb82595b2359cfbb5d81f00b9df9d359fcc7af361d093f53",
+      "categories": [
+        "government-form",
+        "forms",
+        "vector-heavy"
+      ],
+      "qualityPages": 2,
+      "notes": "Multi-page federal tax form with boxed fields, instructions, and dense vector line work.",
+      "expectations": {
+        "pageCount": 6,
+        "requiredText": [
+          "request",
+          "taxpayer",
+          "identification",
+          "certification"
+        ],
+        "minTextRuns": 750,
+        "minVectorPaths": 100
+      }
+    },
+    {
+      "id": "uscis-i9",
+      "title": "USCIS Form I-9",
+      "sourcePage": "https://www.uscis.gov/i-9",
+      "pdfUrl": "https://www.uscis.gov/sites/default/files/document/forms/i-9.pdf",
+      "sha256": "780f348c34df694bb0b4dbbfaf9f22b99b9757b80d16a37ba89aadf069597281",
+      "categories": [
+        "government-form",
+        "forms",
+        "vector-heavy",
+        "links"
+      ],
+      "qualityPages": 2,
+      "notes": "Employment eligibility form with structured fields, embedded images, vector line work, and links.",
+      "expectations": {
+        "pageCount": 4,
+        "requiredText": [
+          "employment",
+          "eligibility",
+          "verification"
+        ],
+        "minTextRuns": 400,
+        "minImagePlacements": 5,
+        "minVectorPaths": 240,
+        "minLinks": 5
+      }
+    },
+    {
+      "id": "nist-sp800-171r3",
+      "title": "NIST SP 800-171 Revision 3",
+      "sourcePage": "https://csrc.nist.gov/pubs/sp/800/171/r3/final",
+      "pdfUrl": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-171r3.pdf",
+      "sha256": "3e4631df8b5d61f40a6e542b52779ef30ddbbfff31e09214fa94ad6e6f5e6d08",
+      "categories": [
+        "government-publication",
+        "text-heavy",
+        "tables",
+        "figures",
+        "links"
+      ],
+      "qualityPages": 2,
+      "notes": "Long government publication with structured requirements, tables, figures, dense vectors, and extensive links.",
+      "expectations": {
+        "pageCount": 120,
+        "requiredText": [
+          "protecting",
+          "controlled",
+          "unclassified",
+          "information"
+        ],
+        "minTextRuns": 6500,
+        "minImagePlacements": 30,
+        "minVectorPaths": 6500,
+        "minLinks": 1000
+      }
+    },
+    {
+      "id": "nps-mount-rainier",
+      "title": "National Park Service: Mount Rainier Park Brochure",
+      "sourcePage": "https://www.nps.gov/mora/planyourvisit/park-brochure.htm",
+      "pdfUrl": "https://www.nps.gov/mora/planyourvisit/upload/Mount-Rainier-Brochure-final_Combo_508_v2023.pdf",
+      "sha256": "c2e3006635137aef1fa67b0787280b1602c0f19535f6f2a21df6e9c286186e49",
+      "categories": [
+        "park-brochure",
+        "complex-layout",
+        "image-heavy",
+        "maps"
+      ],
+      "qualityPages": 2,
+      "notes": "Two-page park brochure with photographs, maps, compact text regions, and irregular layout.",
+      "expectations": {
+        "pageCount": 2,
+        "requiredText": [
+          "mount",
+          "rainier",
+          "national",
+          "park"
+        ],
+        "minTextRuns": 200,
+        "minImagePlacements": 18,
+        "minVectorPaths": 30
+      }
+    },
+    {
+      "id": "nps-point-reyes-map",
+      "title": "National Park Service: Point Reyes Park Map",
+      "sourcePage": "https://www.nps.gov/pore/planyourvisit/parkbrochure.htm",
+      "pdfUrl": "https://www.nps.gov/pore/planyourvisit/upload/map_park.pdf",
+      "sha256": "dcc4afa633ad924a69a35a9bdd19bd3b29782849b7993158acab720260168d2f",
+      "categories": [
+        "park-map",
+        "complex-layout",
+        "image-heavy",
+        "vector-heavy"
+      ],
+      "qualityPages": 1,
+      "notes": "Single-page park map with exceptionally dense image placements, labels, and vector geometry.",
+      "expectations": {
+        "pageCount": 1,
+        "requiredText": [
+          "point",
+          "reyes",
+          "national",
+          "seashore"
+        ],
+        "minTextRuns": 800,
+        "minImagePlacements": 750,
+        "minVectorPaths": 850
       }
     }
   ]
