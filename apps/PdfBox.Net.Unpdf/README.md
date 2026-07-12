@@ -51,3 +51,21 @@ timing measurements under `artifacts/unpdf-publish/<rid>`.
 
 NativeAOT and the cross-platform release RID matrix remain separate,
 quality-gated milestones.
+
+## NativeAOT publish
+
+The lite dependency graph can also be compiled directly to native code:
+
+```console
+dotnet publish apps/PdfBox.Net.Unpdf/PdfBox.Net.Unpdf.csproj \
+  --configuration Release \
+  --runtime osx-arm64 \
+  -p:PublishProfile=NativeAot
+```
+
+Run `eng/verify-unpdf-nativeaot.sh <rid>` on the target operating system to
+compare NativeAOT with the managed compressed single-file build. NativeAOT does
+not support general cross-OS compilation, so the release matrix must use native
+Linux, Windows, and macOS runners. `osx-arm64` and `osx-x64` have been verified
+locally; `linux-x64` is enforced in CI. Linux ARM64 and Windows x64 are release
+matrix targets pending their native hosted-runner gates.
