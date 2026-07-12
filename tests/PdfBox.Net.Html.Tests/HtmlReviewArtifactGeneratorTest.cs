@@ -281,6 +281,86 @@ public sealed class HtmlReviewArtifactGeneratorTest
     }
 
     [Fact]
+    public async Task AnalyzeAsync_FlagsChangedFillColorsWithoutRegressingForegroundDiagnostics()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        PdfLayoutDocument layout;
+        using (PDDocument document = CreateBlueRectangleDocument(pageCount: 3, tinyLastPage: true))
+        {
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            """
+            <!doctype html>
+            <html lang="en">
+            <head><meta charset="utf-8" /></head>
+            <body style="margin:0;background:#f3f4f6">
+              <section class="pdf-page" data-page-number="1" style="position:relative;width:612pt;height:792pt;background:white;overflow:hidden">
+                <div style="position:absolute;left:72.2pt;top:72.2pt;width:144pt;height:72pt;background:#ff0000"></div>
+              </section>
+              <section class="pdf-page" data-page-number="2" style="position:relative;width:612pt;height:792pt;background:white;overflow:hidden">
+                <div style="position:absolute;left:72.2pt;top:72.2pt;width:144pt;height:72pt;background:#0000ff"></div>
+              </section>
+              <section class="pdf-page" data-page-number="3" style="position:relative;width:612pt;height:792pt;background:white;overflow:hidden">
+                <div style="position:absolute;left:72.2pt;top:72.2pt;width:5pt;height:5pt;background:#ff0000"></div>
+              </section>
+            </body>
+            </html>
+            """);
+
+        string outputDirectory = Path.Combine(tempDirectory.Path, "quality");
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            outputDirectory,
+            MaxPages: 3),
+            TestContext.Current.CancellationToken);
+
+        PdfHtmlQualityCheck changedFillForeground = Assert.Single(
+            report.Pages[0].Checks,
+            check => check.Id == "visual-foreground-mask");
+        PdfHtmlQualityCheck changedFillColor = Assert.Single(
+            report.Pages[0].Checks,
+            check => check.Id == "visual-color-difference");
+        PdfHtmlQualityCheck matchingFillColor = Assert.Single(
+            report.Pages[1].Checks,
+            check => check.Id == "visual-color-difference");
+        PdfHtmlQualityCheck tinyFillColor = Assert.Single(
+            report.Pages[2].Checks,
+            check => check.Id == "visual-color-difference");
+
+        Assert.True(
+            changedFillForeground.Status == "passed",
+            $"{changedFillForeground.Message} {JsonSerializer.Serialize(changedFillForeground.Metrics)}");
+        Assert.InRange(changedFillForeground.Metrics["foregroundDeltaRatio"], 0, 0.02);
+        Assert.Equal("needs-review", changedFillColor.Status);
+        Assert.True(changedFillColor.Metrics["meanColorDelta"] > 20);
+        Assert.True(changedFillColor.Metrics["severeColorDeltaRatio"] > 0.95);
+        Assert.Equal("passed", matchingFillColor.Status);
+        Assert.True(matchingFillColor.Metrics["severeColorDeltaRatio"] < 0.01);
+        Assert.Equal("skipped", tinyFillColor.Status);
+        Assert.True(tinyFillColor.Metrics["colorComparedPixelRatio"] < 0.005);
+        Assert.Contains(report.IssueCategories, category =>
+            category.Id == "visual-foreground" && category.Status == "passed");
+        Assert.Contains(report.IssueCategories, category =>
+            category.Id == "visual-color" && category.Status == "needs-review");
+        Assert.Contains("page-1-diff.png", report.Artifacts);
+        Assert.Contains("page-1-color-heatmap.png", report.Artifacts);
+        Assert.True(File.Exists(Path.Combine(outputDirectory, "page-1-color-heatmap.png")));
+        Assert.Contains(
+            "yellow through dark red",
+            File.ReadAllText(Path.Combine(outputDirectory, "page-1-visual-report.html")),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_DoesNotDoubleCountMeasuredSvgText()
     {
         using TempDirectory tempDirectory = new();
@@ -539,6 +619,23 @@ public sealed class HtmlReviewArtifactGeneratorTest
             ({text}) Tj
             ET
             """));
+        return document;
+    }
+
+    private static PDDocument CreateBlueRectangleDocument(int pageCount, bool tinyLastPage = false)
+    {
+        PDDocument document = new();
+        for (int pageIndex = 0; pageIndex < pageCount; pageIndex++)
+        {
+            PDPage page = new();
+            document.AddPage(page);
+            using PDPageContentStream content = new(document, page);
+            content.SetNonStrokingColor(0f, 0f, 1f);
+            bool tiny = tinyLastPage && pageIndex == pageCount - 1;
+            content.AddRect(72.2f, tiny ? 714.8f : 647.8f, tiny ? 5 : 144, tiny ? 5 : 72);
+            content.Fill();
+        }
+
         return document;
     }
 

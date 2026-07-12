@@ -576,7 +576,11 @@ public static class HtmlReviewArtifactGenerator
         List<(string Label, string Artifact)> links = [];
         foreach (string artifact in qualityArtifacts)
         {
-            if (artifact.EndsWith("-diff.png", StringComparison.Ordinal))
+            if (artifact.EndsWith("-color-heatmap.png", StringComparison.Ordinal))
+            {
+                links.Add((PageArtifactLabel("color heatmap", artifact), artifact));
+            }
+            else if (artifact.EndsWith("-diff.png", StringComparison.Ordinal))
             {
                 links.Add((PageArtifactLabel("diff", artifact), artifact));
             }
