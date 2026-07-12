@@ -1624,6 +1624,110 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_FittedEmbeddedFontRunsUseFontSizedViewportWithPdfBaseline()
+    {
+        PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutRectangle normalBounds = new(72f, 80f, 150f, 7.56f);
+        PdfLayoutRectangle fragmentBounds = new(222f, 81.56f, 180f, 6f);
+        PdfTextGlyph normalGlyph = new(
+            "The embedded browser font ",
+            "AAAAAA+SourceSansPro-Regular",
+            12f,
+            0f,
+            normalBounds,
+            black)
+        {
+            UsesBrowserFontAsset = true
+        };
+        PdfTextGlyph fragmentGlyph = new(
+            "Workgroup’s objective",
+            "BBBBBB+SourceSansPro-Regular",
+            12f,
+            0f,
+            fragmentBounds,
+            black)
+        {
+            UsesBrowserFontAsset = true
+        };
+        PdfTextRun normalRun = new(
+            normalGlyph.Text,
+            normalGlyph.FontName,
+            normalGlyph.FontSize,
+            0f,
+            normalBounds,
+            black,
+            [normalGlyph]);
+        PdfTextRun fragmentRun = new(
+            fragmentGlyph.Text,
+            fragmentGlyph.FontName,
+            fragmentGlyph.FontSize,
+            0f,
+            fragmentBounds,
+            black,
+            [fragmentGlyph]);
+        PdfLayoutRectangle lineBounds = new(72f, 80f, 330f, 7.56f);
+        PdfTextLine line = new(normalRun.Text + fragmentRun.Text, lineBounds, [normalRun, fragmentRun]);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [normalGlyph, fragmentGlyph],
+            [normalRun, fragmentRun],
+            [line],
+            [new PdfTextBlock(line.Text, lineBounds, [line])],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(new PdfLayoutDocument([page], [])).Html);
+
+        XElement[] fittedRuns = ElementsByClass(dom, "pdf-text-run").ToArray();
+        Assert.Equal(2, fittedRuns.Length);
+        foreach (XElement fittedRun in fittedRuns)
+        {
+            Dictionary<string, string> runStyle = ParseStyle(fittedRun.Attribute("style")?.Value ?? "");
+            XElement svg = Assert.Single(fittedRun.Descendants(), element => HasClass(element, "pdf-text-run-svg"));
+            Dictionary<string, string> svgStyle = ParseStyle(svg.Attribute("style")?.Value ?? "");
+            XElement text = Assert.Single(svg.Descendants(), element => element.Name.LocalName == "text");
+            string[] viewBox = svg.Attribute("viewBox")!.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            Assert.Equal(12f, ParsePoints(runStyle["font-size"]));
+            Assert.Equal(12f, float.Parse(viewBox[3], CultureInfo.InvariantCulture));
+            Assert.Equal(12f, ParsePoints(svgStyle["height"]));
+            Assert.Equal(ParsePoints(runStyle["width"]), float.Parse(text.Attribute("textLength")!.Value, CultureInfo.InvariantCulture));
+            Assert.Contains("font-size:12px", text.Attribute("style")?.Value, StringComparison.Ordinal);
+
+            float runTop = ParsePoints(runStyle["top"]);
+            float runHeight = ParsePoints(runStyle["height"]);
+            float svgTop = ParsePoints(svgStyle["top"]);
+            float textBaseline = float.Parse(text.Attribute("y")!.Value, CultureInfo.InvariantCulture);
+            Assert.Equal(runTop + runHeight, runTop + svgTop + textBaseline, 3);
+        }
+
+        XElement normalFittedRun = fittedRuns.Single(run => run.Value.Contains("The embedded browser font", StringComparison.Ordinal));
+        XElement fragmentFittedRun = fittedRuns.Single(run => run.Value.Contains("Workgroup’s objective", StringComparison.Ordinal));
+        Dictionary<string, string> fragmentStyle = ParseStyle(fragmentFittedRun.Attribute("style")?.Value ?? "");
+        Assert.Equal(6f, ParsePoints(fragmentStyle["height"]));
+        XElement normalSvg = Assert.Single(normalFittedRun.Descendants(), element => HasClass(element, "pdf-text-run-svg"));
+        XElement fragmentSvg = Assert.Single(fragmentFittedRun.Descendants(), element => HasClass(element, "pdf-text-run-svg"));
+        Assert.Equal(7.56f, float.Parse(
+            Assert.Single(normalSvg.Descendants(), element => element.Name.LocalName == "text").Attribute("y")!.Value,
+            CultureInfo.InvariantCulture));
+        Assert.Equal(7.56f, float.Parse(
+            Assert.Single(fragmentSvg.Descendants(), element => element.Name.LocalName == "text").Attribute("y")!.Value,
+            CultureInfo.InvariantCulture));
+        Assert.Equal(0f, ParsePoints(ParseStyle(normalSvg.Attribute("style")!.Value)["top"]));
+        Assert.Equal(-1.56f, ParsePoints(ParseStyle(fragmentSvg.Attribute("style")!.Value)["top"]));
+    }
+
+    [Fact]
     public void Convert_UsesPdfRunWidthBesideCompressedPunctuation()
     {
         PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");
