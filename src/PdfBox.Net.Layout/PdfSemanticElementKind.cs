@@ -12,5 +12,6 @@ public enum PdfSemanticElementKind
     Table,
     AuthorBlock,
     Footnote,
-    Footer
+    Footer,
+    FrontMatter
 }

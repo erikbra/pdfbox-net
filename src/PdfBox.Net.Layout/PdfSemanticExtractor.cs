@@ -83,6 +83,17 @@ public static class PdfSemanticExtractor
             }
         }
 
+        PdfSemanticElement? frontMatter = ExtractScientificFrontMatter(
+            page,
+            lines,
+            documentTitleLines,
+            consumed,
+            options);
+        if (frontMatter != null)
+        {
+            elements.Add(frontMatter);
+        }
+
         foreach (PdfSemanticElement author in ExtractAuthorBlocks(
             page,
             lines,
@@ -116,7 +127,7 @@ public static class PdfSemanticExtractor
 
                     elements.Add(CreateElement(
                         PdfSemanticElementKind.Heading,
-                        MergeSameBaselineTitleLines(documentTitleLines, options),
+                        MergeSameBaselineLines(documentTitleLines, options),
                         headingLevel: HeadingLevel(documentTitleLines[0], bodyFontSize)));
                 }
 
@@ -467,6 +478,11 @@ public static class PdfSemanticExtractor
             return false;
         }
 
+        if (IsStandaloneAbstractHeading(line.Text))
+        {
+            return true;
+        }
+
         if (NumberedHeadingPattern.IsMatch(line.Text))
         {
             return line.FontSize >= bodyFontSize + options.HeadingFontSizeDelta || line.IsBold;
@@ -594,7 +610,7 @@ public static class PdfSemanticExtractor
         return horizontalGap <= maximumFontSize * 3f;
     }
 
-    private static LineCandidate[] MergeSameBaselineTitleLines(
+    private static LineCandidate[] MergeSameBaselineLines(
         IReadOnlyList<LineCandidate> lines,
         PdfSemanticExtractionOptions options)
     {
@@ -615,11 +631,11 @@ public static class PdfSemanticExtractor
         return rows
             .OrderBy(static row => row.Min(static line => line.Bounds.Y))
             .ThenBy(static row => row.Min(static line => line.Bounds.X))
-            .Select(row => row.Count == 1 ? row[0] : MergeTitleLine(row, options))
+            .Select(row => row.Count == 1 ? row[0] : MergeSameBaselineLine(row, options))
             .ToArray();
     }
 
-    private static LineCandidate MergeTitleLine(
+    private static LineCandidate MergeSameBaselineLine(
         IReadOnlyList<LineCandidate> lines,
         PdfSemanticExtractionOptions options)
     {
@@ -651,6 +667,146 @@ public static class PdfSemanticExtractor
             titleStyle.FontSize,
             titleStyle.Direction,
             titleStyle.Color);
+    }
+
+    private static PdfSemanticElement? ExtractScientificFrontMatter(
+        PdfLayoutPage page,
+        IReadOnlyList<LineCandidate> lines,
+        IReadOnlyList<LineCandidate> titleLines,
+        HashSet<int> consumed,
+        PdfSemanticExtractionOptions options)
+    {
+        if (titleLines.Count == 0)
+        {
+            return null;
+        }
+
+        PdfLayoutRectangle titleBounds = PdfLayoutRectangle.Union(titleLines.Select(static line => line.Bounds));
+        LineCandidate? abstractBoundary = lines
+            .Where(line => line.Bounds.Y > titleBounds.Bottom)
+            .Where(line => line.Bounds.Y < page.Height * 0.65f)
+            .Where(line => IsStandaloneAbstractHeading(line.Text) || StartsWithAbstractLeadIn(line.Text))
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .FirstOrDefault();
+        if (abstractBoundary == null)
+        {
+            return null;
+        }
+
+        LineCandidate[] band = lines
+            .Where(line => !consumed.Contains(line.Index))
+            .Where(line => MathF.Abs(line.Direction) < 0.01f)
+            .Where(line => line.Bounds.Y > titleBounds.Bottom + 2f)
+            .Where(line => line.Bounds.Bottom < abstractBoundary.Bounds.Y - 1f)
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        if (band.Length < 2 || band.Count(ContainsEmailAddress) > 1)
+        {
+            return null;
+        }
+
+        LineCandidate[] sourceRows = MergeFrontMatterSourceRows(band, options);
+        if (sourceRows.Length < 2)
+        {
+            return null;
+        }
+
+        int centeredRows = sourceRows.Count(line =>
+            MathF.Abs(line.CenterX - page.Width / 2f) <= page.Width * 0.12f &&
+            line.Bounds.Width <= page.Width * 0.92f);
+        bool hasContactSignal = sourceRows.Any(static line =>
+            line.Text.Contains('@', StringComparison.Ordinal) ||
+            line.Text.Contains("http://", StringComparison.OrdinalIgnoreCase) ||
+            line.Text.Contains("https://", StringComparison.OrdinalIgnoreCase) ||
+            line.Text.Contains("www.", StringComparison.OrdinalIgnoreCase));
+        if (centeredRows < Math.Max(2, (int)MathF.Ceiling(sourceRows.Length * 0.75f)) ||
+            (!hasContactSignal && sourceRows.Length < 4))
+        {
+            return null;
+        }
+
+        foreach (LineCandidate line in band)
+        {
+            consumed.Add(line.Index);
+        }
+
+        PdfSemanticLine[] semanticLines = sourceRows.Select(static line => line.SemanticLine).ToArray();
+        return new PdfSemanticElement(
+            PdfSemanticElementKind.FrontMatter,
+            string.Join(Environment.NewLine, semanticLines.Select(static line => line.Text)),
+            PdfLayoutRectangle.Union(semanticLines.Select(static line => line.Bounds)),
+            semanticLines);
+    }
+
+    private static LineCandidate[] MergeFrontMatterSourceRows(
+        IReadOnlyList<LineCandidate> lines,
+        PdfSemanticExtractionOptions options)
+    {
+        List<List<LineCandidate>> rows = [];
+        foreach (LineCandidate line in lines.OrderBy(static line => line.Bounds.Y).ThenBy(static line => line.Bounds.X))
+        {
+            List<LineCandidate>? row = rows.FirstOrDefault(existing =>
+                BelongsToFrontMatterRow(existing, line));
+            if (row == null)
+            {
+                rows.Add([line]);
+            }
+            else
+            {
+                row.Add(line);
+            }
+        }
+
+        return rows
+            .OrderBy(static row => row.Min(static line => line.Bounds.Y))
+            .ThenBy(static row => row.Min(static line => line.Bounds.X))
+            .Select(row => row.Count == 1 ? row[0] : MergeSameBaselineLine(row, options))
+            .ToArray();
+    }
+
+    private static bool BelongsToFrontMatterRow(
+        IReadOnlyList<LineCandidate> row,
+        LineCandidate candidate)
+    {
+        PdfLayoutRectangle rowBounds = PdfLayoutRectangle.Union(row.Select(static line => line.Bounds));
+        float overlap = MathF.Min(rowBounds.Bottom, candidate.Bounds.Bottom) -
+            MathF.Max(rowBounds.Y, candidate.Bounds.Y);
+        float centerDistance = MathF.Abs(
+            rowBounds.Y + rowBounds.Height / 2f -
+            (candidate.Bounds.Y + candidate.Bounds.Height / 2f));
+        bool sameSourceRow = overlap >= MathF.Min(rowBounds.Height, candidate.Bounds.Height) * 0.3f ||
+            centerDistance <= MathF.Max(rowBounds.Height, candidate.Bounds.Height) * 0.65f;
+        if (!sameSourceRow)
+        {
+            return false;
+        }
+
+        float maximumFontSize = MathF.Max(row.Max(static line => line.FontSize), candidate.FontSize);
+        return HorizontalGap(rowBounds, candidate.Bounds) <= maximumFontSize * 3f;
+    }
+
+    private static bool ContainsEmailAddress(LineCandidate line)
+    {
+        return line.Source.Runs.Any(run => EmailPattern.IsMatch(run.Text));
+    }
+
+    private static bool IsStandaloneAbstractHeading(string text)
+    {
+        return string.Equals(text.Trim().TrimEnd('.', ':'), "Abstract", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool StartsWithAbstractLeadIn(string text)
+    {
+        string trimmed = text.TrimStart();
+        if (!trimmed.StartsWith("Abstract", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.Length == "Abstract".Length)
+        {
+            return false;
+        }
+
+        return trimmed["Abstract".Length] is '.' or ':' or '-' or '\u2014';
     }
 
     private static bool IsFooter(LineCandidate line, PdfLayoutPage page, float bodyFontSize)
@@ -697,6 +853,7 @@ public static class PdfSemanticExtractor
         }
 
         LineCandidate[] band = lines
+            .Where(line => !consumed.Contains(line.Index))
             .Where(line => line.Bounds.Y > titleBounds.Bottom + 8f && line.Bounds.Bottom < nextHeading.Bounds.Y - 8f)
             .ToArray();
         if (!band.Any(line => line.Source.Runs.Any(run => EmailPattern.IsMatch(run.Text))))

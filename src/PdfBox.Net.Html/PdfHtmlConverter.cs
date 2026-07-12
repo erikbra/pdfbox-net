@@ -694,6 +694,21 @@ public static class PdfHtmlConverter
           text-align: center;
         }
 
+        .pdf-semantic-front-matter {
+          align-self: center;
+          line-height: 1.15;
+          margin: 0 0 var(--pdf-semantic-front-matter-gap-after, 12pt);
+          max-width: calc(100% + 72pt);
+          text-align: center;
+          text-align-last: center;
+          width: min(var(--pdf-semantic-front-matter-width, 100%), calc(100% + 72pt));
+        }
+
+        .pdf-semantic-front-matter > .pdf-semantic-line {
+          min-width: 0;
+          white-space: nowrap;
+        }
+
         .pdf-semantic-line {
           display: block;
         }
@@ -5400,6 +5415,12 @@ public static class PdfHtmlConverter
             return;
         }
 
+        if (element.Kind == PdfSemanticElementKind.FrontMatter)
+        {
+            WriteSemanticSourceLines(html, element, footnotes, page);
+            return;
+        }
+
         if (IsSameRowLineGroup(element))
         {
             foreach (PdfSemanticLine line in SameRowLines(element))
@@ -5452,11 +5473,24 @@ public static class PdfHtmlConverter
         FootnoteContext footnotes,
         PdfLayoutPage? page)
     {
+        PdfSemanticLine? previous = null;
         foreach (PdfSemanticLine line in element.Lines)
         {
             html.Append("<span class=\"")
                 .Append(SemanticLineClassNames(line))
-                .Append("\"><span class=\"pdf-semantic-source-line-content\">");
+                .Append('"');
+            if (element.Kind == PdfSemanticElementKind.FrontMatter && previous != null)
+            {
+                float sourceGap = MathF.Max(0f, line.Bounds.Y - previous.Bounds.Bottom);
+                if (sourceGap > 0.01f)
+                {
+                    html.Append(" style=\"margin-top:")
+                        .Append(CssPoints(sourceGap))
+                        .Append('"');
+                }
+            }
+
+            html.Append("><span class=\"pdf-semantic-source-line-content\">");
             PdfSemanticElement lineElement = new(
                 element.Kind,
                 line.Text,
@@ -5473,12 +5507,13 @@ public static class PdfHtmlConverter
             }
 
             html.Append("</span></span>");
+            previous = line;
         }
     }
 
     private static bool CanWriteRichSemanticText(PdfSemanticElement element)
     {
-        return element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading or PdfSemanticElementKind.Footnote or PdfSemanticElementKind.Header &&
+        return element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading or PdfSemanticElementKind.FrontMatter or PdfSemanticElementKind.Footnote or PdfSemanticElementKind.Header &&
             !IsFormulaBlock(element) &&
             element.Lines.Count > 0 &&
             element.Lines.All(static line => line.Runs.Count > 0) &&
@@ -7249,6 +7284,11 @@ public static class PdfHtmlConverter
                 }
             }
 
+            if (element.Kind == PdfSemanticElementKind.FrontMatter)
+            {
+                classes.Add("pdf-semantic-align-center");
+            }
+
             if (IsFigureCaption(element))
             {
                 classes.Add("pdf-semantic-caption");
@@ -7331,6 +7371,28 @@ public static class PdfHtmlConverter
             if (alignSelf != null)
             {
                 styles.Add("--pdf-semantic-align-self:" + alignSelf);
+            }
+        }
+
+        if (page != null && element.Kind == PdfSemanticElementKind.FrontMatter)
+        {
+            float sourceWidth = element.Lines
+                .Where(static line => MathF.Abs(line.Direction) < 0.01f)
+                .Select(static line => line.Bounds.Width)
+                .DefaultIfEmpty(element.Bounds.Width)
+                .Max();
+            styles.Add("--pdf-semantic-front-matter-width:" + CssPoints(sourceWidth));
+
+            PdfTextLine? nextSourceLine = page.Lines
+                .Where(static line => line.Runs.Any(static run => MathF.Abs(run.Direction) < 0.01f))
+                .Where(line => line.Bounds.Y > element.Bounds.Bottom + 0.5f)
+                .OrderBy(static line => line.Bounds.Y)
+                .ThenBy(static line => line.Bounds.X)
+                .FirstOrDefault();
+            if (nextSourceLine != null)
+            {
+                float sourceGap = Math.Clamp(nextSourceLine.Bounds.Y - element.Bounds.Bottom, 4f, 28f);
+                styles.Add("--pdf-semantic-front-matter-gap-after:" + CssPoints(sourceGap));
             }
         }
 
@@ -8070,6 +8132,7 @@ public static class PdfHtmlConverter
             PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
             PdfSemanticElementKind.Table => "pdf-semantic-table",
             PdfSemanticElementKind.AuthorBlock => "pdf-semantic-author-block",
+            PdfSemanticElementKind.FrontMatter => "pdf-semantic-front-matter",
             PdfSemanticElementKind.Footnote => "pdf-semantic-footnote",
             PdfSemanticElementKind.Footer => "pdf-semantic-footer",
             PdfSemanticElementKind.Header => "pdf-semantic-header",

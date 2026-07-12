@@ -20,6 +20,48 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_ScientificFrontMatter_GroupsAffiliationsAndSeparatesDateFromAbstractHeading()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateScientificFrontMatterFixture(inlineAbstract: false, includeNarrowQuotation: false)).Pages);
+
+        PdfSemanticElement frontMatter = Assert.Single(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.FrontMatter);
+        Assert.Equal(5, frontMatter.Lines.Count);
+        Assert.Equal("Ada Lovelace and Emmy Noether", frontMatter.Lines[0].Text);
+        Assert.StartsWith("† Department of Applied Mathematics", frontMatter.Lines[1].Text);
+        Assert.StartsWith("‡ Center for Computational Science", frontMatter.Lines[2].Text);
+        Assert.StartsWith("§ Institute for Scientific Computing", frontMatter.Lines[3].Text);
+        Assert.Equal("September 2008", frontMatter.Lines[4].Text);
+
+        PdfSemanticElement abstractHeading = Assert.Single(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading && element.Text == "Abstract");
+        Assert.True(abstractHeading.Bounds.Y > frontMatter.Bounds.Bottom);
+        Assert.DoesNotContain("Abstract", frontMatter.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Extract_ScientificFrontMatter_SeparatesHomePageFromInlineAbstractAndKeepsNarrowQuotationOrdinary()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateScientificFrontMatterFixture(inlineAbstract: true, includeNarrowQuotation: true)).Pages);
+
+        PdfSemanticElement frontMatter = Assert.Single(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.FrontMatter);
+        Assert.EndsWith("WWW home page: https://example.edu/research", frontMatter.Text, StringComparison.Ordinal);
+        PdfSemanticElement abstractParagraph = Assert.Single(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("Abstract. This study", StringComparison.Ordinal));
+        Assert.True(abstractParagraph.Bounds.Y > frontMatter.Bounds.Bottom);
+
+        PdfSemanticElement quotation = Assert.Single(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("A narrow quotation remains", StringComparison.Ordinal));
+        Assert.Equal(2, quotation.Lines.Count);
+        Assert.True(quotation.Bounds.Width < 220f);
+    }
+
+    [Fact]
     public void Extract_ArxivFrontPage_GroupsTitleAuthorsAbstractFootnotesAndFooter()
     {
         PdfSemanticDocument semantic = ExtractArxivSemanticDocument();
@@ -276,6 +318,81 @@ public sealed class PdfSemanticExtractorTest
         }
 
         return glyphs.ToArray();
+    }
+
+    private static PdfLayoutDocument CreateScientificFrontMatterFixture(
+        bool inlineAbstract,
+        bool includeNarrowQuotation)
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateFixtureLine("Reusable Scientific Front Matter", 106f, 70f, 400f, 18f, "Times-Bold"),
+            CreateFixtureLine("Ada Lovelace and Emmy Noether", 181f, 112f, 250f),
+            CreateFixtureLine("†", 80f, 138f, 8f, 8f, "Symbol"),
+            CreateFixtureLine("Department of Applied Mathematics, Example University", 92f, 138f, 428f),
+            CreateFixtureLine("‡", 110f, 152f, 8f, 8f, "Symbol"),
+            CreateFixtureLine("Center for Computational Science, Example City", 122f, 152f, 368f),
+            CreateFixtureLine("§", 142f, 166f, 8f, 8f, "Symbol"),
+            CreateFixtureLine("Institute for Scientific Computing", 154f, 166f, 316f),
+            CreateFixtureLine("September 2008", 256f, 196f, 100f)
+        ];
+
+        if (inlineAbstract)
+        {
+            lines.Add(CreateFixtureLine("WWW home page: https://example.edu/research", 126f, 220f, 360f, 9f));
+            lines.Add(CreateFixtureLine("Abstract. This study introduces a reusable semantic grouping strategy for papers.", 108f, 260f, 396f));
+        }
+        else
+        {
+            lines.Add(CreateFixtureLine("Abstract", 270f, 235f, 72f, 10f, "Times-Bold"));
+            lines.Add(CreateFixtureLine("This study introduces a reusable semantic grouping strategy for papers.", 108f, 260f, 396f));
+        }
+
+        lines.Add(CreateFixtureLine("It preserves source rows while keeping the abstract body in normal document flow.", 108f, 273f, 396f));
+        lines.Add(CreateFixtureLine("The strategy uses layout evidence instead of document-specific titles or names.", 108f, 286f, 396f));
+        if (includeNarrowQuotation)
+        {
+            lines.Add(CreateFixtureLine("A narrow quotation remains", 206f, 330f, 200f));
+            lines.Add(CreateFixtureLine("intentionally narrow.", 218f, 343f, 176f));
+            lines.Add(CreateFixtureLine("1 Introduction", 72f, 380f, 110f, 13f, "Times-Bold"));
+        }
+
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfTextLine CreateFixtureLine(
+        string text,
+        float x,
+        float y,
+        float width,
+        float fontSize = 10f,
+        string fontName = "Times-Roman")
+    {
+        PdfLayoutRectangle bounds = new(x, y, width, fontSize * 0.75f);
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
+        PdfTextRun run = new(text, fontName, fontSize, 0f, bounds, color, [glyph]);
+        return new PdfTextLine(text, bounds, [run]);
     }
 
     private static PdfSemanticElement[] ParagraphsBetween(
