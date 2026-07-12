@@ -27,6 +27,7 @@ public sealed class PdfHtmlQualityProbe
     private const double SevereColorDeltaThreshold = 20;
     private const double SevereColorDeltaRatioReviewThreshold = 0.05;
     private const double MinimumColorComparedPixelRatio = 0.005;
+    private const double MaximumSemanticPageHeightRatio = 4;
 
     private static readonly string[] FixtureExpectationSignals =
     [
@@ -373,10 +374,16 @@ public sealed class PdfHtmlQualityProbe
 
               const flowBox = flow.getBoundingClientRect();
               const markerBox = marker.getBoundingClientRect();
-              const nextMarker = document.querySelector(`.pdf-semantic-page-break[data-page-number="${pageNumber + 1}"]`);
-              const nextBox = nextMarker ? nextMarker.getBoundingClientRect() : null;
+              const nodeFollows = (node, reference) =>
+                Boolean(reference.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING);
+              const nodePrecedes = (node, reference) =>
+                Boolean(reference.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_PRECEDING);
+              const nextBoundary = Array.from(document.querySelectorAll(
+                ".pdf-semantic-page-break[data-page-number],.pdf-page[data-page-number]"))
+                .find(element => element !== marker && nodeFollows(element, marker));
+              const nextBox = nextBoundary ? nextBoundary.getBoundingClientRect() : null;
               const top = marker.classList.contains("pdf-semantic-page-start") ? flowBox.top : markerBox.bottom;
-              const bottom = nextBox ? nextBox.top : flowBox.bottom;
+              const bottom = nextBox ? Math.min(nextBox.top, flowBox.bottom) : flowBox.bottom;
               const region = {
                 x: flowBox.left,
                 y: top,
@@ -419,14 +426,10 @@ public sealed class PdfHtmlQualityProbe
                 copy.querySelectorAll(".pdf-text-run-svg").forEach(node => node.remove());
                 return copy.textContent || "";
               };
-              const nodeFollows = (node, reference) =>
-                Boolean(reference.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING);
-              const nodePrecedes = (node, reference) =>
-                Boolean(reference.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_PRECEDING);
               const readableRegionText = element => {
                 const containsCurrentMarker = element.contains(marker);
-                const containsNextMarker = nextMarker && element.contains(nextMarker);
-                if (!containsCurrentMarker && !containsNextMarker) {
+                const containsNextBoundary = nextBoundary && element.contains(nextBoundary);
+                if (!containsCurrentMarker && !containsNextBoundary) {
                   return readableText(element);
                 }
 
@@ -443,7 +446,7 @@ public sealed class PdfHtmlQualityProbe
                     continue;
                   }
 
-                  if (containsNextMarker && !nodePrecedes(node, nextMarker)) {
+                  if (containsNextBoundary && !nodePrecedes(node, nextBoundary)) {
                     continue;
                   }
 
@@ -525,13 +528,17 @@ public sealed class PdfHtmlQualityProbe
         double heightDelta = Math.Abs(expectedHeight - snapshot.Height);
         bool isReflowedSemanticPage = snapshot.IsSemanticFlow && !snapshot.UsesSpatialTextGrid;
         bool withinTolerance = widthDelta <= 1.0 && heightDelta <= 1.0;
+        double heightRatio = expectedHeight > 0 ? snapshot.Height / expectedHeight : 0;
+        bool plausibleSemanticHeight = heightRatio <= MaximumSemanticPageHeightRatio;
         string status = isReflowedSemanticPage
-            ? (widthDelta <= 1.0 ? Passed : NeedsReview)
+            ? (widthDelta <= 1.0 && plausibleSemanticHeight ? Passed : NeedsReview)
             : (withinTolerance ? Passed : NeedsReview);
         string message = isReflowedSemanticPage
-            ? widthDelta <= 1.0
-                ? "Continuous semantic HTML preserves page width; page height is intentionally reflowed between soft source-page markers."
-                : "Continuous semantic HTML width differs from the PDF page width."
+            ? widthDelta > 1.0
+                ? "Continuous semantic HTML width differs from the PDF page width."
+                : !plausibleSemanticHeight
+                    ? "Continuous semantic HTML region is implausibly tall; a following source-page boundary may be missing."
+                    : "Continuous semantic HTML preserves page width; page height is intentionally reflowed between source-page boundaries."
             : withinTolerance
                 ? "Browser page dimensions match the PDF page dimensions."
                 : "Browser page dimensions differ from the PDF page dimensions.";
@@ -548,7 +555,9 @@ public sealed class PdfHtmlQualityProbe
                 ["expectedHeightPx"] = expectedHeight,
                 ["actualHeightPx"] = snapshot.Height,
                 ["widthDeltaPx"] = widthDelta,
-                ["heightDeltaPx"] = heightDelta
+                ["heightDeltaPx"] = heightDelta,
+                ["heightRatio"] = heightRatio,
+                ["maximumSemanticHeightRatio"] = MaximumSemanticPageHeightRatio
             }));
     }
 
