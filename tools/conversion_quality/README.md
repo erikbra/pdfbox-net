@@ -39,6 +39,36 @@ a likely visual or structural conversion issue for humans to inspect, not that
 the CI step failed. Download the `conversion-quality-smoke-*` workflow artifact
 and open `html-examples/index.html` to browse the examples.
 
+## Remote Academic Corpus
+
+The pinned remote corpus covers four freely available academic papers: JMLR's
+*Latent Dirichlet Allocation*, ACL Anthology's *BERT*, arXiv's *Adam*, and
+arXiv's *U-Net*. Together they exercise long-form text, formulas, dense
+two-column layout, tables, figures, diagrams, images, and links. Canonical
+source pages, direct HTTPS PDF URLs, categories, and SHA-256 hashes are recorded
+in `remote-corpus-manifest.json`.
+
+Run the complete download, verification, conversion, expectation, and review
+artifact path locally with one command:
+
+```bash
+python3 tools/conversion_quality/run_remote_corpus.py --build
+```
+
+PDFs are downloaded atomically with retries and timeouts into the ignored
+`artifacts/cache/conversion-quality/remote-pdfs` directory. Every cached or
+downloaded file must match its pinned SHA-256 hash before it is used. The script
+then materializes a normal HTML review manifest and writes comparisons to
+`artifacts/conversion-quality-smoke/remote-html-examples`. CI runs the same
+networked path after the Release build and includes that directory beneath the
+existing uploaded `conversion-quality-smoke` artifact root.
+
+The remote manifest's expectations deliberately cover stable structural
+invariants only: exact page count, normalized required title words, minimum
+text runs, and category-specific minimum image, vector-path, and link counts.
+Known visual and text-reconstruction shortcomings remain review findings owned
+by issues #728 through #733 rather than brittle expected failures.
+
 The HTML quality probe currently checks:
 
 - browser page dimensions and text-run counts against extracted layout data

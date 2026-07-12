@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "description": "Pinned, freely available academic PDFs used for remote HTML conversion quality checks. PDFs are downloaded into ignored artifacts/cache storage and are never committed.",
+  "documents": [
+    {
+      "id": "jmlr-lda",
+      "title": "JMLR: Latent Dirichlet Allocation",
+      "sourcePage": "https://www.jmlr.org/papers/v3/blei03a.html",
+      "pdfUrl": "https://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf",
+      "sha256": "4667de63545b57d55d6c43e5af6f3429edfaac9472ed9eff68fdf43572735dd9",
+      "categories": [
+        "text-heavy",
+        "tables",
+        "figures",
+        "formulas"
+      ],
+      "qualityPages": 2,
+      "notes": "Long-form academic article with equations, tables, and figures.",
+      "expectations": {
+        "pageCount": 30,
+        "requiredText": [
+          "latent",
+          "dirichlet",
+          "allocation"
+        ],
+        "minTextRuns": 5000,
+        "minImagePlacements": 1,
+        "minVectorPaths": 1000
+      }
+    },
+    {
+      "id": "acl-bert",
+      "title": "ACL Anthology: BERT",
+      "sourcePage": "https://aclanthology.org/N19-1423/",
+      "pdfUrl": "https://aclanthology.org/N19-1423.pdf",
+      "sha256": "987545ffb087f1ece898142c403a516baeabeb70ce19089397fac6f7db12c3d4",
+      "categories": [
+        "complex-columns",
+        "text-heavy",
+        "tables",
+        "figures"
+      ],
+      "qualityPages": 2,
+      "notes": "Dense two-column academic paper with many tables, figures, and links.",
+      "expectations": {
+        "pageCount": 16,
+        "requiredText": [
+          "bert",
+          "pretraining",
+          "bidirectional",
+          "transformers"
+        ],
+        "minTextRuns": 4000,
+        "minImagePlacements": 5,
+        "minVectorPaths": 100,
+        "minLinks": 50
+      }
+    },
+    {
+      "id": "arxiv-adam",
+      "title": "arXiv: Adam",
+      "sourcePage": "https://arxiv.org/abs/1412.6980",
+      "pdfUrl": "https://arxiv.org/pdf/1412.6980",
+      "sha256": "eab9c73ae2ceda884b94830bda99312254bac4806f6c9f045cbab90721ecda31",
+      "categories": [
+        "math-focused",
+        "formulas",
+        "algorithms"
+      ],
+      "qualityPages": 2,
+      "notes": "Formula-heavy paper with mathematical notation and algorithms.",
+      "expectations": {
+        "pageCount": 15,
+        "requiredText": [
+          "adam",
+          "stochastic",
+          "optimization"
+        ],
+        "minTextRuns": 4000,
+        "minVectorPaths": 500
+      }
+    },
+    {
+      "id": "arxiv-unet",
+      "title": "arXiv: U-Net",
+      "sourcePage": "https://arxiv.org/abs/1505.04597",
+      "pdfUrl": "https://arxiv.org/pdf/1505.04597",
+      "sha256": "a3172b2124f38e260dc2c7ed968d87c31bc94dbc19a42a7ab3dcbd7534319c44",
+      "categories": [
+        "image-heavy",
+        "diagrams",
+        "complex-columns"
+      ],
+      "qualityPages": 2,
+      "notes": "Image- and diagram-heavy paper with a two-column academic layout.",
+      "expectations": {
+        "pageCount": 8,
+        "requiredText": [
+          "u-net",
+          "convolutional",
+          "biomedical",
+          "segmentation"
+        ],
+        "minTextRuns": 2000,
+        "minImagePlacements": 8,
+        "minVectorPaths": 100,
+        "minLinks": 20
+      }
+    }
+  ]
+}

@@ -45,6 +45,7 @@ jobs:
       - name: Conversion quality harness smoke
         run: |
           python3 -m py_compile tools/conversion_quality/run_conversion_quality.py
+          python3 -m py_compile tools/conversion_quality/run_remote_corpus.py
           python3 -m unittest discover -s tests/conversion_quality -p 'test_*.py'
           python3 tools/conversion_quality/run_conversion_quality.py \
             --manifest tools/conversion_quality/smoke/manifest.json \
@@ -61,6 +62,10 @@ jobs:
             -- \
             --manifest tools/conversion_quality/html-review-manifest.json \
             --out-dir artifacts/conversion-quality-smoke/html-examples
+          python3 tools/conversion_quality/run_remote_corpus.py \
+            --cache-dir artifacts/cache/conversion-quality/remote-pdfs \
+            --review-manifest-out artifacts/cache/conversion-quality/remote-html-review-manifest.json \
+            --out-dir artifacts/conversion-quality-smoke/remote-html-examples
           cat artifacts/conversion-quality-smoke/summary.md
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
             cat artifacts/conversion-quality-smoke/summary.md >> "$GITHUB_STEP_SUMMARY"
