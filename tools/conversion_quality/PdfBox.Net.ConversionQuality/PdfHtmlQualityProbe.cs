@@ -23,6 +23,10 @@ public sealed class PdfHtmlQualityProbe
     private const double ForegroundDeltaReviewThreshold = 0.15;
     private const double PdfMissReviewThreshold = 0.10;
     private const double BrowserMissReviewThreshold = 0.10;
+    private const int ColorInteriorErosionRadius = 2;
+    private const double SevereColorDeltaThreshold = 20;
+    private const double SevereColorDeltaRatioReviewThreshold = 0.05;
+    private const double MinimumColorComparedPixelRatio = 0.005;
 
     private static readonly string[] FixtureExpectationSignals =
     [
@@ -624,6 +628,7 @@ public sealed class PdfHtmlQualityProbe
         string sourcePng = $"page-{pageNumber.ToString(CultureInfo.InvariantCulture)}-source.png";
         string htmlPng = $"page-{pageNumber.ToString(CultureInfo.InvariantCulture)}-html.png";
         string diffPng = $"page-{pageNumber.ToString(CultureInfo.InvariantCulture)}-diff.png";
+        string colorHeatmapPng = $"page-{pageNumber.ToString(CultureInfo.InvariantCulture)}-color-heatmap.png";
         string visualReportHtml = $"page-{pageNumber.ToString(CultureInfo.InvariantCulture)}-visual-report.html";
 
         try
@@ -666,6 +671,13 @@ public sealed class PdfHtmlQualityProbe
                         ["widthDelta"] = widthDelta,
                         ["heightDelta"] = heightDelta
                     }));
+                checks.Add(new PdfHtmlQualityCheck(
+                    "visual-color-difference",
+                    "visual",
+                    Skipped,
+                    pageNumber,
+                    "Color comparison did not run because the images have no overlapping pixel region.",
+                    new Dictionary<string, double>()));
                 WriteText(Path.Combine(outputDirectory, visualReportHtml), RenderVisualReport(pageNumber, [sourcePng, htmlPng], []));
                 artifacts.Add(visualReportHtml);
                 return new PdfHtmlVisualMetrics(
@@ -677,17 +689,21 @@ public sealed class PdfHtmlQualityProbe
                     PageSizeMatches: pageSizeMatches,
                     ForegroundDeltaRatio: null,
                     PdfMissRatio: null,
-                    HtmlMissRatio: null);
+                    HtmlMissRatio: null,
+                    MeanColorDelta: null,
+                    SevereColorDeltaRatio: null,
+                    ColorComparedPixelRatio: null);
             }
 
-            ForegroundShapeStats? stats = ForegroundShapeStats.Create(
+            ForegroundShapeStats? foregroundStats = ForegroundShapeStats.Create(
                 pdfRender.Image,
                 browserImage,
                 comparisonWidth,
                 comparisonHeight,
                 ForegroundLuminanceThreshold,
                 ForegroundDilationRadius);
-            if (stats == null)
+            List<string> visualArtifacts = [sourcePng, htmlPng];
+            if (foregroundStats == null)
             {
                 checks.Add(new PdfHtmlQualityCheck(
                     "visual-foreground-mask",
@@ -710,28 +726,29 @@ public sealed class PdfHtmlQualityProbe
                     RenderingBackend.Current.ImageCodec.Encode(diff, EncodedImageFormat.Png, 100),
                     cancellationToken);
                 artifacts.Add(diffPng);
+                visualArtifacts.Add(diffPng);
 
-                bool needsReview = !comparableSize ||
-                    stats.ForegroundDeltaRatio > ForegroundDeltaReviewThreshold ||
-                    stats.PdfMissRatio > PdfMissReviewThreshold ||
-                    stats.BrowserMissRatio > BrowserMissReviewThreshold;
+                bool foregroundNeedsReview = !comparableSize ||
+                    foregroundStats.ForegroundDeltaRatio > ForegroundDeltaReviewThreshold ||
+                    foregroundStats.PdfMissRatio > PdfMissReviewThreshold ||
+                    foregroundStats.BrowserMissRatio > BrowserMissReviewThreshold;
                 checks.Add(new PdfHtmlQualityCheck(
                     "visual-foreground-mask",
                     "visual",
-                    needsReview ? NeedsReview : Passed,
+                    foregroundNeedsReview ? NeedsReview : Passed,
                     pageNumber,
                     !comparableSize
                         ? "PDF render and browser page screenshot have different pixel dimensions; foreground masks were compared across the overlapping region only."
-                        : needsReview
+                        : foregroundNeedsReview
                         ? "PDF and browser foreground masks differ beyond the current review thresholds."
                         : sameSize
                             ? "PDF and browser foreground masks match within the current review thresholds."
                             : "PDF and browser foreground masks match within the current review thresholds after allowing a small renderer/browser rounding delta.",
                     new Dictionary<string, double>
                     {
-                        ["foregroundDeltaRatio"] = stats.ForegroundDeltaRatio,
-                        ["pdfMissRatio"] = stats.PdfMissRatio,
-                        ["htmlMissRatio"] = stats.BrowserMissRatio,
+                        ["foregroundDeltaRatio"] = foregroundStats.ForegroundDeltaRatio,
+                        ["pdfMissRatio"] = foregroundStats.PdfMissRatio,
+                        ["htmlMissRatio"] = foregroundStats.BrowserMissRatio,
                         ["pdfWidth"] = pdfRender.Image.Width,
                         ["pdfHeight"] = pdfRender.Image.Height,
                         ["htmlWidth"] = browserImage.Width,
@@ -741,25 +758,73 @@ public sealed class PdfHtmlQualityProbe
                         ["widthDelta"] = widthDelta,
                         ["heightDelta"] = heightDelta
                     }));
-
-                string[] visualArtifacts = [sourcePng, htmlPng, diffPng];
-                WriteText(
-                    Path.Combine(outputDirectory, visualReportHtml),
-                    RenderVisualReport(pageNumber, visualArtifacts, checks.Where(check => check.PageNumber == pageNumber)));
-                artifacts.Add(visualReportHtml);
-                return new PdfHtmlVisualMetrics(
-                    pdfRender.Image.Width,
-                    pdfRender.Image.Height,
-                    browserImage.Width,
-                    browserImage.Height,
-                    PdfRenderSource: pdfRender.Source,
-                    PageSizeMatches: pageSizeMatches,
-                    ForegroundDeltaRatio: stats.ForegroundDeltaRatio,
-                    PdfMissRatio: stats.PdfMissRatio,
-                    HtmlMissRatio: stats.BrowserMissRatio);
             }
 
-            WriteText(Path.Combine(outputDirectory, visualReportHtml), RenderVisualReport(pageNumber, [sourcePng, htmlPng], []));
+            ColorDifferenceStats? colorStats = ColorDifferenceStats.Create(
+                pdfRender.Image,
+                browserImage,
+                comparisonWidth,
+                comparisonHeight,
+                ForegroundLuminanceThreshold,
+                ColorInteriorErosionRadius,
+                SevereColorDeltaThreshold);
+            if (colorStats == null)
+            {
+                checks.Add(new PdfHtmlQualityCheck(
+                    "visual-color-difference",
+                    "visual",
+                    Skipped,
+                    pageNumber,
+                    "Color comparison found no stable shared-foreground interior pixels after excluding antialiased edges.",
+                    new Dictionary<string, double>()));
+            }
+            else
+            {
+                using BufferedImage heatmap = colorStats.CreateHeatmap();
+                await File.WriteAllBytesAsync(
+                    Path.Combine(outputDirectory, colorHeatmapPng),
+                    RenderingBackend.Current.ImageCodec.Encode(heatmap, EncodedImageFormat.Png, 100),
+                    cancellationToken);
+                artifacts.Add(colorHeatmapPng);
+                visualArtifacts.Add(colorHeatmapPng);
+
+                bool hasMaterialColorSample = colorStats.ComparedPixelRatio >= MinimumColorComparedPixelRatio;
+                bool colorNeedsReview = !comparableSize ||
+                    hasMaterialColorSample &&
+                    colorStats.SevereColorDeltaRatio > SevereColorDeltaRatioReviewThreshold;
+                string colorStatus = colorNeedsReview
+                    ? NeedsReview
+                    : hasMaterialColorSample
+                        ? Passed
+                        : Skipped;
+                checks.Add(new PdfHtmlQualityCheck(
+                    "visual-color-difference",
+                    "visual",
+                    colorStatus,
+                    pageNumber,
+                    !comparableSize
+                        ? "PDF render and browser page screenshot have different pixel dimensions; color was compared across stable foreground interiors in the overlapping region only."
+                        : !hasMaterialColorSample
+                            ? "Color comparison found too few stable shared-foreground interior pixels for a material page-level assessment."
+                        : colorNeedsReview
+                            ? "PDF and browser colors differ severely across a material share of stable foreground interiors."
+                            : "PDF and browser colors match within the current perceptual review thresholds after excluding antialiased edges.",
+                    new Dictionary<string, double>
+                    {
+                        ["meanColorDelta"] = colorStats.MeanColorDelta,
+                        ["severeColorDeltaRatio"] = colorStats.SevereColorDeltaRatio,
+                        ["colorComparedPixelRatio"] = colorStats.ComparedPixelRatio,
+                        ["colorComparedPixels"] = colorStats.ComparedPixels,
+                        ["severeColorDeltaThreshold"] = SevereColorDeltaThreshold,
+                        ["severeColorDeltaRatioReviewThreshold"] = SevereColorDeltaRatioReviewThreshold,
+                        ["minimumColorComparedPixelRatio"] = MinimumColorComparedPixelRatio,
+                        ["colorInteriorErosionRadius"] = ColorInteriorErosionRadius
+                    }));
+            }
+
+            WriteText(
+                Path.Combine(outputDirectory, visualReportHtml),
+                RenderVisualReport(pageNumber, visualArtifacts, checks.Where(check => check.PageNumber == pageNumber)));
             artifacts.Add(visualReportHtml);
             return new PdfHtmlVisualMetrics(
                 pdfRender.Image.Width,
@@ -768,19 +833,37 @@ public sealed class PdfHtmlQualityProbe
                 browserImage.Height,
                 PdfRenderSource: pdfRender.Source,
                 PageSizeMatches: pageSizeMatches,
-                ForegroundDeltaRatio: null,
-                PdfMissRatio: null,
-                HtmlMissRatio: null);
+                ForegroundDeltaRatio: foregroundStats?.ForegroundDeltaRatio,
+                PdfMissRatio: foregroundStats?.PdfMissRatio,
+                HtmlMissRatio: foregroundStats?.BrowserMissRatio,
+                MeanColorDelta: colorStats?.MeanColorDelta,
+                SevereColorDeltaRatio: colorStats?.SevereColorDeltaRatio,
+                ColorComparedPixelRatio: colorStats?.ComparedPixelRatio);
         }
         catch (Exception ex)
         {
-            checks.Add(new PdfHtmlQualityCheck(
-                "visual-foreground-mask",
-                "visual",
-                Skipped,
-                pageNumber,
-                $"Visual foreground comparison could not run: {ex.Message}",
-                new Dictionary<string, double>()));
+            if (!checks.Any(check => check.Id == "visual-foreground-mask" && check.PageNumber == pageNumber))
+            {
+                checks.Add(new PdfHtmlQualityCheck(
+                    "visual-foreground-mask",
+                    "visual",
+                    Skipped,
+                    pageNumber,
+                    $"Visual foreground comparison could not run: {ex.Message}",
+                    new Dictionary<string, double>()));
+            }
+
+            if (!checks.Any(check => check.Id == "visual-color-difference" && check.PageNumber == pageNumber))
+            {
+                checks.Add(new PdfHtmlQualityCheck(
+                    "visual-color-difference",
+                    "visual",
+                    Skipped,
+                    pageNumber,
+                    $"Visual color comparison could not run: {ex.Message}",
+                    new Dictionary<string, double>()));
+            }
+
             return null;
         }
     }
@@ -923,6 +1006,11 @@ public sealed class PdfHtmlQualityProbe
                 CombinedStatus(checks.Where(static check => check.Id == "visual-foreground-mask")),
                 VisualForegroundEvidence(pages)),
             new PdfHtmlQualityIssueCategory(
+                "visual-color",
+                "Visual color parity",
+                CombinedStatus(checks.Where(static check => check.Id == "visual-color-difference")),
+                VisualColorEvidence(pages)),
+            new PdfHtmlQualityIssueCategory(
                 "fixture-expectations",
                 "Source fixture expectations (manual review)",
                 FixtureExpectationStatus(checks),
@@ -995,6 +1083,24 @@ public sealed class PdfHtmlQualityProbe
         double maxPdfMiss = visuals.Max(static visual => visual.PdfMissRatio ?? 0);
         double maxHtmlMiss = visuals.Max(static visual => visual.HtmlMissRatio ?? 0);
         return $"Max foreground delta is {FormatRatio(maxDelta)}; max source-only foreground ratio is {FormatRatio(maxPdfMiss)}; max HTML-only foreground ratio is {FormatRatio(maxHtmlMiss)}.";
+    }
+
+    private static string VisualColorEvidence(IReadOnlyList<PdfHtmlQualityPageReport> pages)
+    {
+        PdfHtmlVisualMetrics[] visuals = pages
+            .Select(static page => page.Visual)
+            .Where(static visual => visual?.SevereColorDeltaRatio is not null)
+            .Cast<PdfHtmlVisualMetrics>()
+            .ToArray();
+        if (visuals.Length == 0)
+        {
+            return "No stable shared-foreground interior pixels were available for perceptual color comparison.";
+        }
+
+        double maxMeanDelta = visuals.Max(static visual => visual.MeanColorDelta ?? 0);
+        double maxSevereRatio = visuals.Max(static visual => visual.SevereColorDeltaRatio ?? 0);
+        double minComparedRatio = visuals.Min(static visual => visual.ColorComparedPixelRatio ?? 0);
+        return $"Max mean CIE Lab color delta is {FormatRatio(maxMeanDelta)}; max severe color-delta ratio is {FormatRatio(maxSevereRatio)}; minimum compared page-pixel ratio is {FormatRatio(minComparedRatio)}.";
     }
 
     private static string FixtureExpectationStatus(IReadOnlyList<PdfHtmlQualityCheck> checks)
@@ -1089,6 +1195,13 @@ public sealed class PdfHtmlQualityProbe
             }
         }
 
+        if (needsReview.Any(static check => check.Id == "visual-color-difference"))
+        {
+            AddUnique(
+                limitations,
+                "Perceptual color differences exceed the severe-corruption threshold on at least one page; inspect the color heatmap for incorrect fills, opacity, blending, or color-space conversion.");
+        }
+
         if (pages.Any(static page => page.Visual?.HtmlMissRatio >= BrowserMissReviewThreshold))
         {
             AddUnique(
@@ -1174,12 +1287,15 @@ public sealed class PdfHtmlQualityProbe
 
         markdown.AppendLine("## Page Summary");
         markdown.AppendLine();
-        markdown.AppendLine("| Page | Status | Source words | HTML words | Token coverage | Long HTML tokens | Visual delta | Text/object overlaps |");
-        markdown.AppendLine("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |");
+        markdown.AppendLine("| Page | Status | Source words | HTML words | Token coverage | Long HTML tokens | Foreground delta | Severe color delta | Text/object overlaps |");
+        markdown.AppendLine("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |");
         foreach (PdfHtmlQualityPageReport page in report.Pages)
         {
             string visualDelta = page.Visual?.ForegroundDeltaRatio is double ratio
                 ? ratio.ToString("0.###", CultureInfo.InvariantCulture)
+                : "";
+            string colorDelta = page.Visual?.SevereColorDeltaRatio is double severeColorRatio
+                ? severeColorRatio.ToString("0.###", CultureInfo.InvariantCulture)
                 : "";
             markdown.Append("| ");
             markdown.Append(page.PageNumber.ToString(CultureInfo.InvariantCulture));
@@ -1195,6 +1311,8 @@ public sealed class PdfHtmlQualityProbe
             markdown.Append(page.LongHtmlTokens.ToString(CultureInfo.InvariantCulture));
             markdown.Append(" | ");
             markdown.Append(visualDelta);
+            markdown.Append(" | ");
+            markdown.Append(colorDelta);
             markdown.Append(" | ");
             markdown.Append((page.TextImageOverlaps + page.TextVectorOverlaps).ToString(CultureInfo.InvariantCulture));
             markdown.AppendLine(" |");
@@ -1318,7 +1436,8 @@ public sealed class PdfHtmlQualityProbe
         html.Append("  <h1>Page ");
         html.Append(pageNumber.ToString(CultureInfo.InvariantCulture));
         html.AppendLine(" Visual Quality Probe</h1>");
-        html.AppendLine("  <p>Diff colors: dark pixels are shared foreground, red is source-PDF-only foreground, and blue is HTML-only foreground.</p>");
+        html.AppendLine("  <p>Foreground diff: dark pixels are shared foreground, red is source-PDF-only foreground, and blue is HTML-only foreground.</p>");
+        html.AppendLine("  <p>Color heatmap: white pixels are background or excluded antialiased edges, gray is a close color match, and yellow through dark red indicates increasing perceptual color difference.</p>");
         html.AppendLine("  <div class=\"images\">");
         foreach (string artifact in visualArtifacts)
         {
@@ -1770,6 +1889,42 @@ public sealed class PdfHtmlQualityProbe
         public double Area => Math.Max(0, Width) * Math.Max(0, Height);
     }
 
+    private static bool[] CreateForegroundMask(
+        BufferedImage image,
+        int width,
+        int height,
+        int luminanceThreshold)
+    {
+        bool[] mask = new bool[width * height];
+        int index = 0;
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                int argb = image.GetRgb(x, y);
+                int alpha = (argb >> 24) & 0xFF;
+                if (alpha == 0)
+                {
+                    index++;
+                    continue;
+                }
+
+                int red = CompositeChannelOnWhite((argb >> 16) & 0xFF, alpha);
+                int green = CompositeChannelOnWhite((argb >> 8) & 0xFF, alpha);
+                int blue = CompositeChannelOnWhite(argb & 0xFF, alpha);
+                int luminance = ((red * 299) + (green * 587) + (blue * 114)) / 1000;
+                mask[index++] = luminance < luminanceThreshold;
+            }
+        }
+
+        return mask;
+    }
+
+    private static int CompositeChannelOnWhite(int channel, int alpha)
+    {
+        return alpha >= 255 ? channel : ((channel * alpha) + (255 * (255 - alpha))) / 255;
+    }
+
     private sealed class RenderedPdfPage : IDisposable
     {
         public RenderedPdfPage(BufferedImage image, byte[] png, string source)
@@ -1814,8 +1969,8 @@ public sealed class PdfHtmlQualityProbe
             int luminanceThreshold,
             int dilationRadius)
         {
-            bool[] pdfMask = ForegroundMask(pdfPage, width, height, luminanceThreshold);
-            bool[] browserMask = ForegroundMask(browserPage, width, height, luminanceThreshold);
+            bool[] pdfMask = CreateForegroundMask(pdfPage, width, height, luminanceThreshold);
+            bool[] browserMask = CreateForegroundMask(browserPage, width, height, luminanceThreshold);
             int pdfForeground = pdfMask.Count(static foreground => foreground);
             int browserForeground = browserMask.Count(static foreground => foreground);
             int maxForeground = Math.Max(pdfForeground, browserForeground);
@@ -1841,8 +1996,8 @@ public sealed class PdfHtmlQualityProbe
             int height,
             int luminanceThreshold)
         {
-            bool[] pdfMask = ForegroundMask(pdfPage, width, height, luminanceThreshold);
-            bool[] browserMask = ForegroundMask(browserPage, width, height, luminanceThreshold);
+            bool[] pdfMask = CreateForegroundMask(pdfPage, width, height, luminanceThreshold);
+            bool[] browserMask = CreateForegroundMask(browserPage, width, height, luminanceThreshold);
             BufferedImage diff = new(width, height, BufferedImage.TYPE_INT_ARGB);
             int index = 0;
             for (int y = 0; y < height; y++)
@@ -1863,42 +2018,6 @@ public sealed class PdfHtmlQualityProbe
             }
 
             return diff;
-        }
-
-        private static bool[] ForegroundMask(
-            BufferedImage image,
-            int width,
-            int height,
-            int luminanceThreshold)
-        {
-            bool[] mask = new bool[width * height];
-            int index = 0;
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    int argb = image.GetRgb(x, y);
-                    int alpha = (argb >> 24) & 0xFF;
-                    if (alpha == 0)
-                    {
-                        index++;
-                        continue;
-                    }
-
-                    int red = CompositeOnWhite((argb >> 16) & 0xFF, alpha);
-                    int green = CompositeOnWhite((argb >> 8) & 0xFF, alpha);
-                    int blue = CompositeOnWhite(argb & 0xFF, alpha);
-                    int luminance = ((red * 299) + (green * 587) + (blue * 114)) / 1000;
-                    mask[index++] = luminance < luminanceThreshold;
-                }
-            }
-
-            return mask;
-        }
-
-        private static int CompositeOnWhite(int channel, int alpha)
-        {
-            return alpha >= 255 ? channel : ((channel * alpha) + (255 * (255 - alpha))) / 255;
         }
 
         private static bool[] DilateMask(bool[] mask, int width, int height, int radius)
@@ -1949,6 +2068,227 @@ public sealed class PdfHtmlQualityProbe
             }
 
             return misses;
+        }
+    }
+
+    private sealed class ColorDifferenceStats
+    {
+        private static readonly double[] LinearRgb = Enumerable.Range(0, 256)
+            .Select(static channel =>
+            {
+                double value = channel / 255d;
+                return value <= 0.04045
+                    ? value / 12.92
+                    : Math.Pow((value + 0.055) / 1.055, 2.4);
+            })
+            .ToArray();
+
+        private readonly float[] deltas;
+        private readonly int width;
+        private readonly int height;
+
+        private ColorDifferenceStats(
+            int width,
+            int height,
+            float[] deltas,
+            int comparedPixels,
+            double meanColorDelta,
+            double severeColorDeltaRatio)
+        {
+            this.width = width;
+            this.height = height;
+            this.deltas = deltas;
+            ComparedPixels = comparedPixels;
+            ComparedPixelRatio = comparedPixels / (double)(width * height);
+            MeanColorDelta = meanColorDelta;
+            SevereColorDeltaRatio = severeColorDeltaRatio;
+        }
+
+        public int ComparedPixels { get; }
+
+        public double ComparedPixelRatio { get; }
+
+        public double MeanColorDelta { get; }
+
+        public double SevereColorDeltaRatio { get; }
+
+        public static ColorDifferenceStats? Create(
+            BufferedImage pdfPage,
+            BufferedImage browserPage,
+            int width,
+            int height,
+            int luminanceThreshold,
+            int erosionRadius,
+            double severeDeltaThreshold)
+        {
+            bool[] pdfMask = CreateForegroundMask(pdfPage, width, height, luminanceThreshold);
+            bool[] browserMask = CreateForegroundMask(browserPage, width, height, luminanceThreshold);
+            bool[] pdfInterior = ErodeMask(pdfMask, width, height, erosionRadius);
+            bool[] browserInterior = ErodeMask(browserMask, width, height, erosionRadius);
+            float[] deltas = new float[width * height];
+            Array.Fill(deltas, float.NaN);
+
+            int comparedPixels = 0;
+            int severePixels = 0;
+            double totalDelta = 0;
+            int index = 0;
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++, index++)
+                {
+                    if (!pdfInterior[index] || !browserInterior[index])
+                    {
+                        continue;
+                    }
+
+                    LabColor pdfColor = ToLab(pdfPage.GetRgb(x, y));
+                    LabColor browserColor = ToLab(browserPage.GetRgb(x, y));
+                    double delta = pdfColor.DistanceTo(browserColor);
+                    deltas[index] = (float)delta;
+                    totalDelta += delta;
+                    comparedPixels++;
+                    if (delta >= severeDeltaThreshold)
+                    {
+                        severePixels++;
+                    }
+                }
+            }
+
+            if (comparedPixels == 0)
+            {
+                return null;
+            }
+
+            return new ColorDifferenceStats(
+                width,
+                height,
+                deltas,
+                comparedPixels,
+                totalDelta / comparedPixels,
+                severePixels / (double)comparedPixels);
+        }
+
+        public BufferedImage CreateHeatmap()
+        {
+            BufferedImage heatmap = new(width, height, BufferedImage.TYPE_INT_ARGB);
+            int index = 0;
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++, index++)
+                {
+                    float delta = deltas[index];
+                    heatmap.SetRgb(
+                        x,
+                        y,
+                        float.IsNaN(delta) ? unchecked((int)0xFFFFFFFF) : HeatmapColor(delta));
+                }
+            }
+
+            return heatmap;
+        }
+
+        private static bool[] ErodeMask(bool[] mask, int width, int height, int radius)
+        {
+            if (radius <= 0)
+            {
+                return (bool[])mask.Clone();
+            }
+
+            bool[] eroded = new bool[mask.Length];
+            for (int y = radius; y < height - radius; y++)
+            {
+                for (int x = radius; x < width - radius; x++)
+                {
+                    int index = (y * width) + x;
+                    if (!mask[index])
+                    {
+                        continue;
+                    }
+
+                    bool interior = true;
+                    for (int yy = y - radius; yy <= y + radius && interior; yy++)
+                    {
+                        int rowOffset = yy * width;
+                        for (int xx = x - radius; xx <= x + radius; xx++)
+                        {
+                            if (!mask[rowOffset + xx])
+                            {
+                                interior = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    eroded[index] = interior;
+                }
+            }
+
+            return eroded;
+        }
+
+        private static LabColor ToLab(int argb)
+        {
+            int alpha = (argb >> 24) & 0xFF;
+            double red = LinearRgb[CompositeChannelOnWhite((argb >> 16) & 0xFF, alpha)];
+            double green = LinearRgb[CompositeChannelOnWhite((argb >> 8) & 0xFF, alpha)];
+            double blue = LinearRgb[CompositeChannelOnWhite(argb & 0xFF, alpha)];
+
+            double x = ((red * 0.4124564) + (green * 0.3575761) + (blue * 0.1804375)) / 0.95047;
+            double y = (red * 0.2126729) + (green * 0.7151522) + (blue * 0.0721750);
+            double z = ((red * 0.0193339) + (green * 0.1191920) + (blue * 0.9503041)) / 1.08883;
+            double fx = LabPivot(x);
+            double fy = LabPivot(y);
+            double fz = LabPivot(z);
+            return new LabColor(
+                (116 * fy) - 16,
+                500 * (fx - fy),
+                200 * (fy - fz));
+        }
+
+        private static double LabPivot(double value)
+        {
+            const double epsilon = 216d / 24389d;
+            const double kappa = 24389d / 27d;
+            return value > epsilon ? Math.Cbrt(value) : ((kappa * value) + 16) / 116;
+        }
+
+        private static int HeatmapColor(double delta)
+        {
+            if (delta < 5)
+            {
+                return unchecked((int)0xFFD1D5DB);
+            }
+
+            if (delta < 20)
+            {
+                return InterpolateColor(0xFEF08A, 0xF59E0B, (delta - 5) / 15);
+            }
+
+            return InterpolateColor(0xF97316, 0x991B1B, Math.Min(1, (delta - 20) / 40));
+        }
+
+        private static int InterpolateColor(int startRgb, int endRgb, double amount)
+        {
+            int red = InterpolateChannel((startRgb >> 16) & 0xFF, (endRgb >> 16) & 0xFF, amount);
+            int green = InterpolateChannel((startRgb >> 8) & 0xFF, (endRgb >> 8) & 0xFF, amount);
+            int blue = InterpolateChannel(startRgb & 0xFF, endRgb & 0xFF, amount);
+            return unchecked((int)(0xFF000000 | (uint)(red << 16) | (uint)(green << 8) | (uint)blue));
+        }
+
+        private static int InterpolateChannel(int start, int end, double amount)
+        {
+            return (int)Math.Round(start + ((end - start) * amount), MidpointRounding.AwayFromZero);
+        }
+
+        private readonly record struct LabColor(double L, double A, double B)
+        {
+            public double DistanceTo(LabColor other)
+            {
+                double deltaL = L - other.L;
+                double deltaA = A - other.A;
+                double deltaB = B - other.B;
+                return Math.Sqrt((deltaL * deltaL) + (deltaA * deltaA) + (deltaB * deltaB));
+            }
         }
     }
 }
@@ -2018,4 +2358,7 @@ public sealed record PdfHtmlVisualMetrics(
     bool PageSizeMatches,
     double? ForegroundDeltaRatio,
     double? PdfMissRatio,
-    double? HtmlMissRatio);
+    double? HtmlMissRatio,
+    double? MeanColorDelta,
+    double? SevereColorDeltaRatio,
+    double? ColorComparedPixelRatio);

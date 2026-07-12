@@ -33,7 +33,8 @@ contains the original `source.pdf`, generated `index.html`, CSS/assets,
 `summary.md`, diagnostics, and a `compare.html` page that shows the PDF and
 continuous semantic HTML side by side. Each example also contains `quality/quality-report.md`
 and `quality/quality-report.json`, plus page-level PNG artifacts from the
-source PDF render, browser-rendered continuous semantic HTML, and a foreground-mask diff. These
+source PDF render, browser-rendered continuous semantic HTML, a foreground-mask diff, and a
+perceptual color heatmap. These
 quality probe findings are non-gating: `needs-review` means the artifact found
 a likely visual or structural conversion issue for humans to inspect, not that
 the CI step failed. Download the `conversion-quality-smoke-*` workflow artifact
@@ -84,6 +85,10 @@ The HTML quality probe currently checks:
 - text overlaps with rendered image boxes and large vector boxes
 - foreground-mask deltas between a source PDF page render and the browser page
   screenshot, with visual report pages to make mismatches easy to inspect
+- CIE Lab color deltas over shared foreground interiors, excluding a two-pixel
+  boundary to tolerate antialiasing differences; pixels with a delta of at least
+  20 are severe, and pages need review when they exceed 5% of compared interiors
+  after at least 0.5% of the page has a stable comparison sample
 
 HTML review examples can set `qualityPages` to cap how many pages the browser
 probe renders. Keeping this small makes CI artifacts quick while still giving
