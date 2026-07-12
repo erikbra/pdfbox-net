@@ -6,6 +6,20 @@ namespace PdfBox.Net.Layout.Tests;
 public sealed class PdfSemanticExtractorTest
 {
     [Fact]
+    public void ReconstructText_PositionedWordGapsPreserveBoundariesWithoutSplittingLetters()
+    {
+        PdfTextGlyph[] glyphs = CreatePositionedGlyphs(
+            ["Justified", "prose", "keeps", "boundaries."],
+            characterGap: 0.25f,
+            wordGap: 2.5f);
+
+        string text = PdfSemanticExtractor.ReconstructText(glyphs);
+
+        Assert.Equal("Justified prose keeps boundaries.", text);
+        Assert.Equal(3, text.Count(static character => character == ' '));
+    }
+
+    [Fact]
     public void Extract_ArxivFrontPage_GroupsTitleAuthorsAbstractFootnotesAndFooter()
     {
         PdfSemanticDocument semantic = ExtractArxivSemanticDocument();
@@ -237,6 +251,31 @@ public sealed class PdfSemanticExtractorTest
         return Assert.Single(page.Elements, element =>
             element.Kind == PdfSemanticElementKind.Heading &&
             string.Equals(element.Text, text, StringComparison.Ordinal));
+    }
+
+    private static PdfTextGlyph[] CreatePositionedGlyphs(
+        IReadOnlyList<string> words,
+        float characterGap,
+        float wordGap)
+    {
+        const float glyphWidth = 4f;
+        const float fontSize = 10f;
+        PdfLayoutColor color = new(0, 0, 0, 1, "DeviceGray");
+        List<PdfTextGlyph> glyphs = [];
+        float x = 72f;
+        for (int wordIndex = 0; wordIndex < words.Count; wordIndex++)
+        {
+            foreach (char character in words[wordIndex])
+            {
+                PdfLayoutRectangle bounds = new(x, 100f, glyphWidth, 7f);
+                glyphs.Add(new PdfTextGlyph(character.ToString(), "Times-Roman", fontSize, 0f, bounds, color));
+                x += glyphWidth + characterGap;
+            }
+
+            x += wordIndex + 1 < words.Count ? wordGap - characterGap : 0f;
+        }
+
+        return glyphs.ToArray();
     }
 
     private static PdfSemanticElement[] ParagraphsBetween(

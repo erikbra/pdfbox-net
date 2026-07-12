@@ -2437,10 +2437,18 @@ public static class PdfSemanticExtractor
         return NormalizeText(text.ToString());
     }
 
-    private static string ReconstructText(
+    /// <summary>
+    /// Reconstructs readable text from positioned glyphs, including word boundaries represented only by PDF spacing.
+    /// </summary>
+    /// <param name="glyphSource">The glyphs to reconstruct in visual reading order.</param>
+    /// <param name="options">Optional thresholds used to infer omitted word boundaries.</param>
+    /// <returns>Normalized text with inferred word boundaries.</returns>
+    public static string ReconstructText(
         IEnumerable<PdfTextGlyph> glyphSource,
-        PdfSemanticExtractionOptions options)
+        PdfSemanticExtractionOptions? options = null)
     {
+        ArgumentNullException.ThrowIfNull(glyphSource);
+        options ??= new PdfSemanticExtractionOptions();
         PdfTextGlyph[] glyphs = glyphSource
             .Where(static glyph => !string.IsNullOrEmpty(glyph.Text))
             .OrderBy(static glyph => glyph.Bounds.X)
@@ -2455,7 +2463,7 @@ public static class PdfSemanticExtractor
         PdfTextGlyph? previous = null;
         foreach (PdfTextGlyph glyph in glyphs)
         {
-            if (previous != null && ShouldInsertWordBoundary(previous, glyph, options))
+            if (previous != null && IsWordBoundaryBetween(previous, glyph, options))
             {
                 AppendSpaceIfNeeded(text);
             }
@@ -2475,11 +2483,23 @@ public static class PdfSemanticExtractor
         return NormalizeText(text.ToString());
     }
 
-    private static bool ShouldInsertWordBoundary(
+    /// <summary>
+    /// Determines whether adjacent positioned glyphs have a word boundary, including boundaries encoded as spacing.
+    /// </summary>
+    public static bool IsWordBoundaryBetween(
         PdfTextGlyph previous,
         PdfTextGlyph glyph,
-        PdfSemanticExtractionOptions options)
+        PdfSemanticExtractionOptions? options = null)
     {
+        ArgumentNullException.ThrowIfNull(previous);
+        ArgumentNullException.ThrowIfNull(glyph);
+        options ??= new PdfSemanticExtractionOptions();
+
+        if (string.IsNullOrWhiteSpace(previous.Text) || string.IsNullOrWhiteSpace(glyph.Text))
+        {
+            return true;
+        }
+
         if (glyph.Bounds.X <= previous.Bounds.X)
         {
             return false;
