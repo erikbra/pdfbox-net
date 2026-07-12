@@ -227,6 +227,43 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_LuminositySoftMaskedUnderlay_DerivesTextDropShadowGeometry()
+    {
+        using PDDocument document = CreateLuminositySoftMaskedTextShadowDocument();
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true,
+            IncludeTransparencyGroupFallbacks = true
+        });
+
+        PdfLayoutPage page = Assert.Single(layout.Pages);
+        PdfTextRun title = Assert.Single(page.Runs, run => run.Text == "Shadowed title");
+        Assert.True(title.Shadow is not null,
+            $"title={title.PageBounds}; paths={string.Join(';', page.Paths.Select(path => path.Bounds.ToString()))}; groups={string.Join(';', page.VectorGroups.Select(group => group.Bounds.ToString()))}");
+        PdfTextShadow shadow = Assert.IsType<PdfTextShadow>(title.Shadow);
+        Assert.InRange(shadow.OffsetX, 1f, 8f);
+        Assert.InRange(shadow.OffsetY, 0.5f, 8f);
+        Assert.InRange(shadow.BlurRadius, 1f, 6f);
+        Assert.Equal(new PdfLayoutColor(0f, 0f, 0f, 0.6f, "DeviceRGB"), shadow.Color);
+        Assert.DoesNotContain(page.Images, image => image.Kind == PdfLayoutImageKind.TransparencyGroupFallback);
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout);
+        XDocument dom = ParseHtml(converted.Html);
+        XElement titleElement = Assert.Single(dom.Descendants(), element =>
+            element.Name.LocalName == "span" && element.Value.Contains("Shadowed title", StringComparison.Ordinal));
+        Assert.True(HasClass(titleElement, "pdf-text-shadow"));
+        string style = Assert.IsType<XAttribute>(titleElement.Attribute("style")).Value;
+        Assert.Contains("--pdf-text-shadow-x:", style, StringComparison.Ordinal);
+        Assert.Contains("--pdf-text-shadow-y:", style, StringComparison.Ordinal);
+        Assert.Contains("--pdf-text-shadow-blur:", style, StringComparison.Ordinal);
+        Assert.Contains("--pdf-text-shadow-color:rgba(0,0,0,0.6)", style, StringComparison.Ordinal);
+        Assert.Contains("filter: drop-shadow(", converted.Css, StringComparison.Ordinal);
+        Assert.DoesNotContain("data-source-name=\"transparency-group\"", converted.Html, StringComparison.Ordinal);
+        Assert.DoesNotContain("data-path-index=", converted.Html, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_UsesFixedLayoutFallbackForSpatialPages()
     {
         using PDDocument columnsDocument = Loader.LoadPDF(FixturePath("4PP-Highlighting.pdf"));
@@ -3384,6 +3421,56 @@ public class PdfHtmlConverterTest
         pageContent.Transform(new Matrix(1, 0, 0, 1, 100, 300));
         pageContent.DrawForm(group);
         pageContent.RestoreGraphicsState();
+        return document;
+    }
+
+    private static PDDocument CreateLuminositySoftMaskedTextShadowDocument()
+    {
+        const string title = "Shadowed title";
+        const float fontSize = 20f;
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDType1Font font = new(PDType1Font.FontName.HELVETICA_BOLD);
+        float titleWidth = font.GetStringWidth(title) / 1000f * fontSize;
+
+        PDTransparencyGroup maskGroup = new(new PDStream(document));
+        maskGroup.SetBBox(new PDRectangle(0, 0, titleWidth + 12f, 26f));
+        maskGroup.SetGroup(new PDTransparencyGroupAttributes());
+        using (Stream maskContent = maskGroup.GetContentStream().CreateOutputStream())
+        {
+            maskContent.Write(Encoding.ASCII.GetBytes(FormattableString.Invariant(
+                $"1 g\n0 0 {titleWidth + 12f:0.###} 26 re\nf\n")));
+        }
+
+        COSDictionary softMaskDictionary = new();
+        softMaskDictionary.SetItem(COSName.GetPDFName("S"), COSName.GetPDFName("Luminosity"));
+        softMaskDictionary.SetItem(COSName.GetPDFName("G"), maskGroup);
+        PDSoftMask softMask = new(softMaskDictionary);
+
+        PDTransparencyGroup shadowGroup = new(new PDStream(document));
+        shadowGroup.SetBBox(new PDRectangle(0, 0, titleWidth + 12f, 26f));
+        shadowGroup.SetGroup(new PDTransparencyGroupAttributes());
+        using (Stream shadowContent = shadowGroup.GetContentStream().CreateOutputStream())
+        {
+            shadowContent.Write(Encoding.ASCII.GetBytes(FormattableString.Invariant(
+                $"0 0 0 rg\n0 0 {titleWidth + 12f:0.###} 26 re\nf\n")));
+        }
+
+        PDExtendedGraphicsState shadowState = new();
+        shadowState.SetSoftMask(softMask);
+        shadowState.SetNonStrokingAlphaConstant(0.6f);
+        using PDPageContentStream content = new(document, page);
+        content.SaveGraphicsState();
+        content.SetGraphicsStateParameters(shadowState);
+        content.Transform(new Matrix(1, 0, 0, 1, 96, 692));
+        content.DrawForm(shadowGroup);
+        content.RestoreGraphicsState();
+        content.BeginText();
+        content.SetFont(font, fontSize);
+        content.NewLineAtOffset(100, 700);
+        content.ShowText(title);
+        content.EndText();
         return document;
     }
 

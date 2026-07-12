@@ -13,7 +13,8 @@ public sealed class PdfTextRun
         PdfLayoutRectangle bounds,
         PdfLayoutColor color,
         IReadOnlyList<PdfTextGlyph> glyphs,
-        PdfLayoutRectangle? pageBounds = null)
+        PdfLayoutRectangle? pageBounds = null,
+        PdfTextShadow? shadow = null)
     {
         Text = text;
         FontName = fontName;
@@ -23,6 +24,7 @@ public sealed class PdfTextRun
         Color = color;
         Glyphs = glyphs.ToArray();
         PageBounds = pageBounds ?? bounds;
+        Shadow = shadow;
     }
 
     /// <summary>
@@ -64,6 +66,11 @@ public sealed class PdfTextRun
     /// Gets the glyphs that make up the run.
     /// </summary>
     public IReadOnlyList<PdfTextGlyph> Glyphs { get; }
+
+    /// <summary>
+    /// Gets a drop shadow derived from a soft-masked transparency group painted behind this run, when available.
+    /// </summary>
+    public PdfTextShadow? Shadow { get; internal set; }
 
     /// <summary>
     /// Gets whether every glyph in the run uses an exported browser font asset.

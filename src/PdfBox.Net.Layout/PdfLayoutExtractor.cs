@@ -434,6 +434,8 @@ public static class PdfLayoutExtractor
         }
     }
 
+    private sealed record SoftMaskedTransparencyGroup(PdfLayoutRectangle Bounds, PdfLayoutColor Color);
+
     private sealed class PageBuilder
     {
         private readonly int _pageNumber;
@@ -457,6 +459,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutLink> _links = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
         private readonly List<PdfLayoutPaintOperation> _paintOperations = new();
+        private readonly List<SoftMaskedTransparencyGroup> _softMaskedTransparencyGroups = new();
 
         private const float AnnotationAppearanceScale = 2f;
         private const float TransparencyGroupRasterScale = 3f;
@@ -514,6 +517,7 @@ public static class PdfLayoutExtractor
             _glyphs.AddRange(textPositions.Select(position => CreateGlyph(position, textColors, fontAssets)));
             _lines.AddRange(CreateLines(_glyphs, options));
             _runs.AddRange(_lines.SelectMany(line => line.Runs));
+            ApplyTextShadows(_runs, _softMaskedTransparencyGroups);
 
             if (_lines.Count > 0)
             {
@@ -522,6 +526,57 @@ public static class PdfLayoutExtractor
                     PdfLayoutRectangle.Union(_lines.Select(line => line.Bounds)),
                     _lines));
             }
+        }
+
+        private static void ApplyTextShadows(
+            IReadOnlyList<PdfTextRun> runs,
+            IReadOnlyList<SoftMaskedTransparencyGroup> groups)
+        {
+            foreach (SoftMaskedTransparencyGroup group in groups)
+            {
+                PdfTextRun? run = runs
+                    .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+                    .Where(run => CanRepresentAsTextShadow(group.Bounds, run.PageBounds))
+                    .OrderByDescending(run => IntersectionArea(group.Bounds, run.PageBounds))
+                    .ThenByDescending(static run => run.PageBounds.Width)
+                    .FirstOrDefault();
+                if (run is null || run.Shadow is not null)
+                {
+                    continue;
+                }
+
+                float leftExpansion = MathF.Max(0, run.PageBounds.X - group.Bounds.X);
+                float rightExpansion = MathF.Max(0, group.Bounds.Right - run.PageBounds.Right);
+                float topExpansion = MathF.Max(0, run.PageBounds.Y - group.Bounds.Y);
+                float bottomExpansion = MathF.Max(0, group.Bounds.Bottom - run.PageBounds.Bottom);
+                float offsetX = (rightExpansion - leftExpansion) / 2f;
+                float offsetY = (bottomExpansion - topExpansion) / 2f;
+                float blurRadius = MathF.Max(
+                    0.5f,
+                    MathF.Min(leftExpansion + rightExpansion, topExpansion + bottomExpansion) / 4f);
+                run.Shadow = new PdfTextShadow(offsetX, offsetY, blurRadius, group.Color);
+            }
+        }
+
+        private static bool CanRepresentAsTextShadow(
+            PdfLayoutRectangle group,
+            PdfLayoutRectangle text)
+        {
+            if (text.Width < 24f || text.Height < 3f || group.Width < text.Width * 0.85f ||
+                group.Width > text.Width * 1.35f || group.Height < text.Height || group.Height > text.Height * 3.5f)
+            {
+                return false;
+            }
+
+            float intersection = IntersectionArea(group, text);
+            return intersection >= text.Width * text.Height * 0.8f;
+        }
+
+        private static float IntersectionArea(PdfLayoutRectangle first, PdfLayoutRectangle second)
+        {
+            float width = MathF.Max(0, MathF.Min(first.Right, second.Right) - MathF.Max(first.X, second.X));
+            float height = MathF.Max(0, MathF.Min(first.Bottom, second.Bottom) - MathF.Max(first.Y, second.Y));
+            return width * height;
         }
 
         public PdfLayoutPage Build()
@@ -577,6 +632,7 @@ public static class PdfLayoutExtractor
             _vectorGroups.AddRange(collector.VectorGroups);
             _paintOperations.AddRange(collector.PaintOperations);
             _diagnostics.AddRange(collector.Diagnostics);
+            _softMaskedTransparencyGroups.AddRange(collector.SoftMaskedTransparencyGroups);
 
             if (options.IncludeImageAssets && options.IncludeTransparencyGroupFallbacks)
             {
@@ -1567,6 +1623,7 @@ public static class PdfLayoutExtractor
         private readonly Stack<List<PdfLayoutRectangle>> _vectorGroupPathBounds = new();
         private readonly Stack<VectorGroupBuilder> _activeVectorGroups = new();
         private readonly List<PdfLayoutRectangle> _transparencyGroupBounds = new();
+        private readonly List<SoftMaskedTransparencyGroup> _softMaskedTransparencyGroups = new();
         private bool _reportedShapeAlphaPath;
         private int _nextVectorGroupIndex;
         private readonly HashSet<int> _reportedUnsupportedShadingTypes = [];
@@ -1610,6 +1667,8 @@ public static class PdfLayoutExtractor
 
         public IReadOnlyList<PdfLayoutRectangle> KnockoutTransparencyGroupBounds => _transparencyGroupBounds;
 
+        public IReadOnlyList<SoftMaskedTransparencyGroup> SoftMaskedTransparencyGroups => _softMaskedTransparencyGroups;
+
         public override void XObject(PDXObject xobject)
         {
             if (xobject is PDImageXObject image)
@@ -1626,6 +1685,11 @@ public static class PdfLayoutExtractor
             {
                 PDGraphicsState graphicsState = GetGraphicsState();
                 bool isTransparencyGroup = xobject is PDTransparencyGroup;
+                bool hasLuminositySoftMask = isTransparencyGroup &&
+                    string.Equals(
+                        graphicsState.GetSoftMask()?.GetSubType()?.GetName(),
+                        "Luminosity",
+                        StringComparison.Ordinal);
                 float fillOpacity = isTransparencyGroup
                     ? Math.Clamp(graphicsState.GetNonStrokeAlphaConstant(), 0f, 1f)
                     : 1f;
@@ -1669,6 +1733,12 @@ public static class PdfLayoutExtractor
                         {
                             _transparencyGroupBounds.Add(bounds);
                         }
+
+                        if (hasLuminositySoftMask &&
+                            DominantGroupFillColor(completedGroup.FirstPathIndex, _paths.Count - 1) is PdfLayoutColor shadowColor)
+                        {
+                            _softMaskedTransparencyGroups.Add(new SoftMaskedTransparencyGroup(bounds, shadowColor));
+                        }
                     }
                 }
 
@@ -1676,6 +1746,15 @@ public static class PdfLayoutExtractor
             }
 
             base.XObject(xobject);
+        }
+
+        private PdfLayoutColor? DominantGroupFillColor(int firstPathIndex, int lastPathIndex)
+        {
+            return _paths
+                .Where(path => path.Index >= firstPathIndex && path.Index <= lastPathIndex && path.FillColor.HasValue)
+                .OrderByDescending(static path => path.Bounds.Width * path.Bounds.Height)
+                .Select(static path => path.FillColor)
+                .FirstOrDefault();
         }
 
         public override void DrawImage(PDImage pdImage)
@@ -1823,7 +1902,8 @@ public static class PdfLayoutExtractor
                 ExplicitColorants(
                     includeFill ? graphicsState.GetNonStrokingColor() : null,
                     includeStroke ? graphicsState.GetStrokingColor() : null),
-                clipBounds));
+                clipBounds,
+                usesSoftMask: graphicsState.GetSoftMask() is not null));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Path, index));
             if (usesShapeAlpha && !_reportedShapeAlphaPath)
             {

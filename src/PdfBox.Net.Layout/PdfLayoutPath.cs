@@ -14,7 +14,8 @@ public sealed class PdfLayoutPath
         int? fillRule,
         bool usesShapeAlpha = false,
         IReadOnlyList<string>? colorantNames = null,
-        PdfLayoutRectangle? clipBounds = null)
+        PdfLayoutRectangle? clipBounds = null,
+        bool usesSoftMask = false)
     {
         Index = index;
         Commands = commands.ToArray();
@@ -25,6 +26,7 @@ public sealed class PdfLayoutPath
         UsesShapeAlpha = usesShapeAlpha;
         ColorantNames = colorantNames?.ToArray() ?? [];
         ClipBounds = clipBounds;
+        UsesSoftMask = usesSoftMask;
     }
 
     /// <summary>
@@ -66,6 +68,11 @@ public sealed class PdfLayoutPath
     /// this flag to select a suitable fallback.
     /// </remarks>
     public bool UsesShapeAlpha { get; }
+
+    /// <summary>
+    /// Gets whether this path is painted through a PDF soft mask that cannot be flattened into an independent SVG path.
+    /// </summary>
+    public bool UsesSoftMask { get; }
 
     /// <summary>
     /// Gets explicit Separation or DeviceN colorants painted by this path.
