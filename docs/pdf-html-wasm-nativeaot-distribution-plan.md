@@ -112,7 +112,7 @@ Emscripten version. See the [.NET native dependency guidance](https://learn.micr
 
 Tracked by [#776](https://github.com/erikbra/pdfbox-net/issues/776).
 
-Create `pdfbox-html` as a small executable project referencing the lite graph.
+Create `unpdf` as a small executable project referencing the lite graph.
 The initial default is continuous semantic HTML. It needs stable exit codes,
 help/version output, overwrite behavior, diagnostics, and end-to-end tests.
 
