@@ -18,7 +18,8 @@ public sealed class PdfLayoutImage
         bool interpolate,
         string? sourceName,
         bool overprint = false,
-        IReadOnlyList<string>? colorantNames = null)
+        IReadOnlyList<string>? colorantNames = null,
+        IReadOnlyList<PdfLayoutClipPath>? clipPaths = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(assetId);
 
@@ -35,6 +36,7 @@ public sealed class PdfLayoutImage
         SourceName = sourceName;
         Overprint = overprint;
         ColorantNames = colorantNames?.ToArray() ?? [];
+        ClipPaths = clipPaths?.ToArray() ?? [];
     }
 
     /// <summary>
@@ -101,4 +103,9 @@ public sealed class PdfLayoutImage
     /// Gets explicit Separation or DeviceN colorants painted by the image.
     /// </summary>
     public IReadOnlyList<string> ColorantNames { get; }
+
+    /// <summary>
+    /// Gets the exact clipping paths applied to this image placement.
+    /// </summary>
+    public IReadOnlyList<PdfLayoutClipPath> ClipPaths { get; }
 }

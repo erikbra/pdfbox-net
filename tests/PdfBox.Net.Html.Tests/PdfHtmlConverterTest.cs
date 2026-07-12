@@ -166,8 +166,49 @@ public class PdfHtmlConverterTest
             .ToArray();
         Assert.Equal(2, paths.Length);
         Assert.All(paths, path => Assert.StartsWith("url(#pdf-vector-page-1-", path.Attribute("clip-path")?.Value));
-        Assert.Equal(2, dom.Descendants().Count(element =>
+        Assert.Equal(3, dom.Descendants().Count(element =>
             element.Name.LocalName == "clipPath" && element.Attribute("id")?.Value.Contains("path-clip", StringComparison.Ordinal) == true));
+        Assert.All(dom.Descendants().Where(element =>
+            element.Name.LocalName == "clipPath" &&
+            element.Attribute("id")?.Value.Contains("path-clip", StringComparison.Ordinal) == true), clipPath =>
+            Assert.Contains(clipPath.Descendants(), element => element.Name.LocalName == "path"));
+    }
+
+    [Fact]
+    public void Convert_NestedFormLateClipEmitsExactVectorAndImageClips()
+    {
+        using PDDocument document = CreateNestedLateClipDocument();
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+        PdfLayoutPage page = Assert.Single(layout.Pages);
+        Assert.Equal(2, page.Paths.Count);
+        Assert.Equal(2, page.Paths[1].ClipPaths.Count);
+        Assert.Equal(3, Assert.Single(page.Images).ClipPaths.Count);
+        Assert.DoesNotContain(layout.Diagnostics, diagnostic => diagnostic.Code == "path-clipping-unsupported");
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout).Html);
+        XElement clippedTile = Assert.Single(dom.Descendants(), element =>
+            element.Name.LocalName == "path" && element.Attribute("data-path-index")?.Value == "1");
+        Assert.Contains("path-clip-1", clippedTile.Attribute("clip-path")?.Value, StringComparison.Ordinal);
+        XElement vectorClip = Assert.Single(dom.Descendants(), element =>
+            element.Name.LocalName == "clipPath" &&
+            element.Attribute("id")?.Value.EndsWith("path-clip-1", StringComparison.Ordinal) == true);
+        XElement vectorClipPath = Assert.Single(vectorClip.Descendants(), element => element.Name.LocalName == "path");
+        Assert.Equal("nonzero", vectorClipPath.Attribute("clip-rule")?.Value);
+        Assert.Contains("L", vectorClipPath.Attribute("d")?.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain(vectorClip.Descendants(), element => element.Name.LocalName == "rect");
+
+        XElement image = Assert.Single(ElementsByClass(dom, "pdf-image"));
+        Assert.Contains("clip-path:url(#pdf-image-page-1-clip-0)", image.Attribute("style")?.Value, StringComparison.Ordinal);
+        XElement imageClip = Assert.Single(dom.Descendants(), element =>
+            element.Name.LocalName == "clipPath" &&
+            element.Attribute("id")?.Value == "pdf-image-page-1-clip-0");
+        Assert.Equal("objectBoundingBox", imageClip.Attribute("clipPathUnits")?.Value);
+        Assert.Contains(imageClip.Descendants(), element =>
+            element.Name.LocalName == "path" && element.Attribute("d")?.Value.Contains("L", StringComparison.Ordinal) == true);
     }
 
     [Fact]
@@ -899,10 +940,10 @@ public class PdfHtmlConverterTest
             element.Attribute("clip-path")?.Value.StartsWith("url(#pdf-vector-figure-13-", StringComparison.Ordinal) == true);
         Assert.Contains(attentionVisualization.Descendants(), element =>
             element.Name.LocalName == "clipPath" &&
-            element.Descendants().Any(rectangle =>
-                rectangle.Name.LocalName == "rect" &&
-                rectangle.Attribute("x")?.Value == "108" &&
-                rectangle.Attribute("y")?.Value.StartsWith("100.787", StringComparison.Ordinal) == true));
+            element.Descendants().Any(path =>
+                path.Name.LocalName == "path" &&
+                path.Attribute("d")?.Value.Contains("M 108 302.06", StringComparison.Ordinal) == true &&
+                path.Attribute("d")?.Value.Contains("100.787", StringComparison.Ordinal) == true));
     }
 
     [Fact]
@@ -3633,6 +3674,58 @@ public class PdfHtmlConverterTest
 
         using PDPageContentStream pageContent = new(document, page);
         pageContent.DrawForm(form);
+        return document;
+    }
+
+    private static PDDocument CreateNestedLateClipDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDImageXObject tile = LosslessFactory.CreateFromRawData(
+            document,
+            [0, 255, 255],
+            1,
+            1,
+            8,
+            3);
+
+        PDFormXObject inner = new(new PDStream(document));
+        inner.SetBBox(new PDRectangle(0, 0, 100, 100));
+        PDResources innerResources = new();
+        COSName tileName = innerResources.Add(tile, "Im");
+        inner.SetResources(innerResources);
+        using (Stream content = inner.GetContentStream().CreateOutputStream())
+        {
+            content.Write(Encoding.ASCII.GetBytes(FormattableString.Invariant($"""
+                0 0 1 rg
+                10 45 80 10 re
+                f
+                10 10 m
+                90 10 l
+                10 90 l
+                h
+                W
+                n
+                0 1 1 rg
+                10 10 80 80 re
+                f
+                q
+                80 0 0 80 10 10 cm
+                /{tileName.GetName()} Do
+                Q
+                """)));
+        }
+
+        PDFormXObject outer = new(new PDStream(document));
+        outer.SetBBox(new PDRectangle(0, 0, 100, 100));
+        using (PDFormContentStream content = new(outer))
+        {
+            content.DrawForm(inner);
+        }
+
+        using PDPageContentStream pageContent = new(document, page);
+        pageContent.DrawForm(outer);
         return document;
     }
 

@@ -703,6 +703,12 @@ public static class PdfHtmlConverter
           z-index: 0;
         }
 
+        .pdf-image-clip-definitions {
+          height: 0;
+          position: absolute;
+          width: 0;
+        }
+
         .pdf-vector-layer {
           display: block;
           left: 0;
@@ -990,7 +996,7 @@ public static class PdfHtmlConverter
                 if (ShouldWriteImage(page, image) &&
                     imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
                 {
-                    WriteImage(html, image, asset, scale);
+                    WriteImage(html, page, image, asset, scale);
                 }
             }
 
@@ -1133,7 +1139,7 @@ public static class PdfHtmlConverter
                 ShouldWriteImage(page, image) &&
                 imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
             {
-                WriteImage(html, image, asset, scale);
+                WriteImage(html, page, image, asset, scale);
                 PdfLayoutPath[] preservedSpotUnderpaint = precedingUnderpaint
                     .Where(path => IsPreservedSpotUnderpaint(path, image))
                     .ToArray();
@@ -1390,8 +1396,18 @@ public static class PdfHtmlConverter
         _ => "text"
     };
 
-    private static void WriteImage(StringBuilder html, PdfLayoutImage image, PdfLayoutImageAsset asset, float scale)
+    private static void WriteImage(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfLayoutImage image,
+        PdfLayoutImageAsset asset,
+        float scale)
     {
+        if (image.ClipPaths.Count > 0)
+        {
+            WriteImageClipDefinitions(html, page, image);
+        }
+
         html.Append("    <img class=\"pdf-image\" src=\"")
             .Append(HtmlAttribute(asset.RelativePath))
             .Append("\" alt=\"\" data-asset-id=\"")
@@ -1410,8 +1426,40 @@ public static class PdfHtmlConverter
             .Append(";width:")
             .Append(CssPoints(image.Bounds.Width * scale))
             .Append(";height:")
-            .Append(CssPoints(image.Bounds.Height * scale))
+            .Append(CssPoints(image.Bounds.Height * scale));
+        if (image.ClipPaths.Count > 0)
+        {
+            html.Append(";clip-path:url(#")
+                .Append(ImageClipPathId(page, image))
+                .Append(')');
+        }
+
+        html
             .AppendLine("\" />");
+    }
+
+    private static void WriteImageClipDefinitions(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfLayoutImage image)
+    {
+        html.AppendLine("    <svg class=\"pdf-image-clip-definitions\" width=\"0\" height=\"0\" aria-hidden=\"true\" focusable=\"false\">");
+        html.AppendLine("      <defs>");
+        WriteExactClipPathDefinitions(
+            html,
+            ImageClipPathId(page, image),
+            image.ClipPaths,
+            "        ",
+            " clipPathUnits=\"objectBoundingBox\"",
+            clipPath => SvgObjectBoundingBoxPathData(clipPath.Commands, image.Bounds));
+        html.AppendLine("      </defs>");
+        html.AppendLine("    </svg>");
+    }
+
+    private static string ImageClipPathId(PdfLayoutPage page, PdfLayoutImage image)
+    {
+        return "pdf-image-page-" + page.PageNumber.ToString(CultureInfo.InvariantCulture) +
+            "-clip-" + image.Index.ToString(CultureInfo.InvariantCulture);
     }
 
     private static PdfLayoutPath[] RenderableVectorPaths(
@@ -1738,7 +1786,7 @@ public static class PdfHtmlConverter
                     html.Append('"');
                 }
 
-                if (group.ClipBounds.HasValue)
+                if (HasVectorClip(group))
                 {
                     html.Append(" clip-path=\"url(#")
                         .Append(VectorClipPathId(clipIdPrefix, group))
@@ -1781,10 +1829,10 @@ public static class PdfHtmlConverter
         string clipIdPrefix)
     {
         PdfLayoutVectorGroup[] clippedGroups = groups
-            .Where(static group => group.ClipBounds.HasValue)
+            .Where(HasVectorClip)
             .ToArray();
         PdfLayoutPath[] clippedPaths = paths
-            .Where(static path => path.ClipBounds.HasValue)
+            .Where(HasVectorClip)
             .ToArray();
         if (clippedGroups.Length == 0 && clippedPaths.Length == 0)
         {
@@ -1794,6 +1842,18 @@ public static class PdfHtmlConverter
         html.AppendLine("      <defs>");
         foreach (PdfLayoutVectorGroup group in clippedGroups)
         {
+            if (group.ClipPaths.Count > 0)
+            {
+                WriteExactClipPathDefinitions(
+                    html,
+                    VectorClipPathId(clipIdPrefix, group),
+                    group.ClipPaths,
+                    "        ",
+                    string.Empty,
+                    static clipPath => SvgPathData(clipPath.Commands));
+                continue;
+            }
+
             PdfLayoutRectangle bounds = group.ClipBounds!.Value;
             html.Append("        <clipPath id=\"")
                 .Append(VectorClipPathId(clipIdPrefix, group))
@@ -1810,6 +1870,18 @@ public static class PdfHtmlConverter
 
         foreach (PdfLayoutPath path in clippedPaths)
         {
+            if (path.ClipPaths.Count > 0)
+            {
+                WriteExactClipPathDefinitions(
+                    html,
+                    VectorClipPathId(clipIdPrefix, path),
+                    path.ClipPaths,
+                    "        ",
+                    string.Empty,
+                    static clipPath => SvgPathData(clipPath.Commands));
+                continue;
+            }
+
             PdfLayoutRectangle bounds = path.ClipBounds!.Value;
             html.Append("        <clipPath id=\"")
                 .Append(VectorClipPathId(clipIdPrefix, path))
@@ -1825,6 +1897,59 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("      </defs>");
+    }
+
+    private static bool HasVectorClip(PdfLayoutVectorGroup group)
+    {
+        return group.ClipPaths.Count > 0 || group.ClipBounds.HasValue;
+    }
+
+    private static bool HasVectorClip(PdfLayoutPath path)
+    {
+        return path.ClipPaths.Count > 0 || path.ClipBounds.HasValue;
+    }
+
+    private static void WriteExactClipPathDefinitions(
+        StringBuilder html,
+        string clipPathId,
+        IReadOnlyList<PdfLayoutClipPath> clipPaths,
+        string indentation,
+        string unitsAttribute,
+        Func<PdfLayoutClipPath, string> pathData)
+    {
+        string? previousId = null;
+        for (int index = 0; index < clipPaths.Count; index++)
+        {
+            PdfLayoutClipPath clipPath = clipPaths[index];
+            string currentId = index == clipPaths.Count - 1
+                ? clipPathId
+                : clipPathId + "-step-" + index.ToString(CultureInfo.InvariantCulture);
+            html.Append(indentation)
+                .Append("<clipPath id=\"")
+                .Append(currentId)
+                .Append('"')
+                .Append(unitsAttribute)
+                .Append('>');
+            if (previousId is not null)
+            {
+                html.Append("<g clip-path=\"url(#")
+                    .Append(previousId)
+                    .Append(")\">");
+            }
+
+            html.Append("<path d=\"")
+                .Append(HtmlAttribute(pathData(clipPath)))
+                .Append("\" clip-rule=\"")
+                .Append(FillRule(clipPath.WindingRule))
+                .Append("\" />");
+            if (previousId is not null)
+            {
+                html.Append("</g>");
+            }
+
+            html.AppendLine("</clipPath>");
+            previousId = currentId;
+        }
     }
 
     private static string VectorClipPathId(string clipIdPrefix, PdfLayoutVectorGroup group)
@@ -1890,7 +2015,7 @@ public static class PdfHtmlConverter
             .Append(HtmlAttribute(SvgPathData(path.Commands)))
             .Append("\"");
 
-        if (path.ClipBounds.HasValue && clipIdPrefix is not null)
+        if (HasVectorClip(path) && clipIdPrefix is not null)
         {
             html.Append(" clip-path=\"url(#")
                 .Append(VectorClipPathId(clipIdPrefix, path))
@@ -5709,7 +5834,7 @@ public static class PdfHtmlConverter
         PdfTextRun? run = segments
             .Select(static segment => segment.Run)
             .FirstOrDefault(static run => run != null && HasMathFont(run.FontName));
-            segments.Insert(0, new InlineTextSegment("∑", run, InlineBaselineRole.Normal));
+        segments.Insert(0, new InlineTextSegment("∑", run, InlineBaselineRole.Normal));
     }
 
     private static void RemoveDuplicateAdjacentSubscripts(List<InlineTextSegment> segments)
@@ -8088,6 +8213,33 @@ public static class PdfHtmlConverter
 
     private static string SvgPathData(IReadOnlyList<PdfLayoutPathCommand> commands)
         => SvgPathData(commands, 0, 0);
+
+    private static string SvgObjectBoundingBoxPathData(
+        IReadOnlyList<PdfLayoutPathCommand> commands,
+        PdfLayoutRectangle bounds)
+    {
+        float width = MathF.Max(bounds.Width, 0.0001f);
+        float height = MathF.Max(bounds.Height, 0.0001f);
+        PdfLayoutPathCommand[] normalized = commands.Select(command => command.Kind switch
+        {
+            PdfLayoutPathCommandKind.MoveTo or PdfLayoutPathCommandKind.LineTo => command with
+            {
+                X1 = (command.X1 - bounds.X) / width,
+                Y1 = (command.Y1 - bounds.Y) / height
+            },
+            PdfLayoutPathCommandKind.CurveTo => command with
+            {
+                X1 = (command.X1 - bounds.X) / width,
+                Y1 = (command.Y1 - bounds.Y) / height,
+                X2 = (command.X2 - bounds.X) / width,
+                Y2 = (command.Y2 - bounds.Y) / height,
+                X3 = (command.X3 - bounds.X) / width,
+                Y3 = (command.Y3 - bounds.Y) / height
+            },
+            _ => command
+        }).ToArray();
+        return SvgPathData(normalized);
+    }
 
     private static string SvgPathData(
         IReadOnlyList<PdfLayoutPathCommand> commands,

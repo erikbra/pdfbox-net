@@ -41,7 +41,7 @@ namespace PdfBox.Net.PDModel.Graphics.State;
 /// </summary>
 public partial class PDGraphicsState
 {
-    public sealed class ClippingPath
+    public sealed partial class ClippingPath
     {
         internal ClippingPath(IReadOnlyList<PDFStreamEngine.PathSegment> segments, Matrix ctm, int windingRule)
         {

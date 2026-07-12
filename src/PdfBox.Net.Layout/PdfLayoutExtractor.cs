@@ -1400,36 +1400,36 @@ public static class PdfLayoutExtractor
                             commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, current.X, current.Y, 0, 0, 0, 0));
                             break;
                         case GeneralPath.SegmentType.QuadTo:
-                        {
-                            (float X, float Y) control = NormalizeGlyphOutlinePoint(segment.X1, segment.Y1, glyphMatrix);
-                            (float X, float Y) end = NormalizeGlyphOutlinePoint(segment.X2, segment.Y2, glyphMatrix);
-                            commands.Add(new PdfLayoutPathCommand(
-                                PdfLayoutPathCommandKind.CurveTo,
-                                current.X + ((control.X - current.X) * (2f / 3f)),
-                                current.Y + ((control.Y - current.Y) * (2f / 3f)),
-                                end.X + ((control.X - end.X) * (2f / 3f)),
-                                end.Y + ((control.Y - end.Y) * (2f / 3f)),
-                                end.X,
-                                end.Y));
-                            current = end;
-                            break;
-                        }
+                            {
+                                (float X, float Y) control = NormalizeGlyphOutlinePoint(segment.X1, segment.Y1, glyphMatrix);
+                                (float X, float Y) end = NormalizeGlyphOutlinePoint(segment.X2, segment.Y2, glyphMatrix);
+                                commands.Add(new PdfLayoutPathCommand(
+                                    PdfLayoutPathCommandKind.CurveTo,
+                                    current.X + ((control.X - current.X) * (2f / 3f)),
+                                    current.Y + ((control.Y - current.Y) * (2f / 3f)),
+                                    end.X + ((control.X - end.X) * (2f / 3f)),
+                                    end.Y + ((control.Y - end.Y) * (2f / 3f)),
+                                    end.X,
+                                    end.Y));
+                                current = end;
+                                break;
+                            }
                         case GeneralPath.SegmentType.CurveTo:
-                        {
-                            (float X, float Y) control1 = NormalizeGlyphOutlinePoint(segment.X1, segment.Y1, glyphMatrix);
-                            (float X, float Y) control2 = NormalizeGlyphOutlinePoint(segment.X2, segment.Y2, glyphMatrix);
-                            (float X, float Y) end = NormalizeGlyphOutlinePoint(segment.X3, segment.Y3, glyphMatrix);
-                            commands.Add(new PdfLayoutPathCommand(
-                                PdfLayoutPathCommandKind.CurveTo,
-                                control1.X,
-                                control1.Y,
-                                control2.X,
-                                control2.Y,
-                                end.X,
-                                end.Y));
-                            current = end;
-                            break;
-                        }
+                            {
+                                (float X, float Y) control1 = NormalizeGlyphOutlinePoint(segment.X1, segment.Y1, glyphMatrix);
+                                (float X, float Y) control2 = NormalizeGlyphOutlinePoint(segment.X2, segment.Y2, glyphMatrix);
+                                (float X, float Y) end = NormalizeGlyphOutlinePoint(segment.X3, segment.Y3, glyphMatrix);
+                                commands.Add(new PdfLayoutPathCommand(
+                                    PdfLayoutPathCommandKind.CurveTo,
+                                    control1.X,
+                                    control1.Y,
+                                    control2.X,
+                                    control2.Y,
+                                    end.X,
+                                    end.Y));
+                                current = end;
+                                break;
+                            }
                         case GeneralPath.SegmentType.Close:
                             commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0, 0, 0, 0, 0, 0));
                             break;
@@ -1879,7 +1879,7 @@ public static class PdfLayoutExtractor
         private int _nextVectorGroupIndex;
         private readonly HashSet<int> _reportedUnsupportedShadingTypes = [];
         private bool _reportedRotatedPath;
-        private bool _reportedClipping;
+        private bool _reportedUnsupportedTextClipping;
 
         public LayoutGraphicsCollector(
             PDPage page,
@@ -1964,7 +1964,9 @@ public static class PdfLayoutExtractor
                     fillOpacity,
                     graphicsState.GetBlendMode(),
                     attributes?.IsIsolated() ?? false,
-                    attributes?.IsKnockout() ?? false);
+                    attributes?.IsKnockout() ?? false,
+                    CurrentClipPaths(graphicsState, skipCount: 1),
+                    graphicsState.GetCurrentClippingPaths().Count);
                 _activeVectorGroups.Push(group);
                 _vectorGroupPathBounds.Push([]);
                 try
@@ -2058,23 +2060,20 @@ public static class PdfLayoutExtractor
             }
         }
 
-        public override void Clip(int windingRule)
+        protected override void ShowGlyph(Matrix textRenderingMatrix, PDFont font, int code, Vector displacement)
         {
-            bool clipPrecedesVectorPainting =
-                _activeVectorGroups.TryPeek(out VectorGroupBuilder? group) &&
-                group.FirstPathIndex == _paths.Count;
-            if (_includePaths && !clipPrecedesVectorPainting &&
-                !_reportedClipping && GetCurrentPathSegments().Count > 0)
+            if (!_reportedUnsupportedTextClipping &&
+                GetGraphicsState().GetTextState().GetRenderingModeInstance().IsClip())
             {
                 _diagnostics.Add(new PdfLayoutDiagnostic(
                     PdfLayoutDiagnosticSeverity.Warning,
                     "path-clipping-unsupported",
-                    "A clip path was introduced after vector painting began in the same form; SVG retains its conservative rectangular bounds per subsequent path.",
+                    "Text rendering introduced a glyph clipping path that cannot yet be represented in layout HTML/SVG.",
                     _pageNumber));
-                _reportedClipping = true;
+                _reportedUnsupportedTextClipping = true;
             }
 
-            base.Clip(windingRule);
+            base.ShowGlyph(textRenderingMatrix, font, code, displacement);
         }
 
         protected override void OnStrokePath(IReadOnlyList<PathSegment> path, PDGraphicsState graphicsState)
@@ -2153,7 +2152,8 @@ public static class PdfLayoutExtractor
                     includeFill ? graphicsState.GetNonStrokingColor() : null,
                     includeStroke ? graphicsState.GetStrokingColor() : null),
                 clipBounds,
-                usesSoftMask: graphicsState.GetSoftMask() is not null));
+                usesSoftMask: graphicsState.GetSoftMask() is not null,
+                clipPaths: AdditionalPathClipPaths(graphicsState)));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Path, index));
             if (usesShapeAlpha && !_reportedShapeAlphaPath)
             {
@@ -2704,6 +2704,38 @@ public static class PdfLayoutExtractor
                 : null;
         }
 
+        private IReadOnlyList<PdfLayoutClipPath> AdditionalPathClipPaths(PDGraphicsState graphicsState)
+        {
+            int skipCount = _activeVectorGroups.TryPeek(out VectorGroupBuilder? group)
+                ? group.InvokingClipPathCount
+                : 1;
+            return CurrentClipPaths(graphicsState, skipCount);
+        }
+
+        private IReadOnlyList<PdfLayoutClipPath> CurrentClipPaths(PDGraphicsState graphicsState, int skipCount)
+        {
+            IReadOnlyList<PDGraphicsState.ClippingPath> clippingPaths = graphicsState.GetCurrentClippingPaths();
+            if (clippingPaths.Count <= skipCount)
+            {
+                return [];
+            }
+
+            List<PdfLayoutClipPath> result = new(clippingPaths.Count - skipCount);
+            for (int index = skipCount; index < clippingPaths.Count; index++)
+            {
+                PDGraphicsState.ClippingPath clippingPath = clippingPaths[index];
+                PdfLayoutPathCommand[] commands = NormalizeClipPath(
+                    clippingPath.GetCommands(),
+                    clippingPath.CurrentTransformationMatrix);
+                if (commands.Length > 0)
+                {
+                    result.Add(new PdfLayoutClipPath(commands, Bounds(commands), clippingPath.WindingRule));
+                }
+            }
+
+            return result;
+        }
+
         private static bool RectanglesApproximatelyEqual(
             PdfLayoutRectangle first,
             PdfLayoutRectangle second,
@@ -2725,7 +2757,9 @@ public static class PdfLayoutExtractor
                 float opacity,
                 BlendMode blendMode,
                 bool isIsolated,
-                bool isKnockout)
+                bool isKnockout,
+                IReadOnlyList<PdfLayoutClipPath> clipPaths,
+                int invokingClipPathCount)
             {
                 Index = index;
                 ParentIndex = parentIndex;
@@ -2735,6 +2769,8 @@ public static class PdfLayoutExtractor
                 BlendMode = blendMode;
                 IsIsolated = isIsolated;
                 IsKnockout = isKnockout;
+                ClipPaths = clipPaths;
+                InvokingClipPathCount = invokingClipPathCount;
             }
 
             public int Index { get; }
@@ -2753,6 +2789,10 @@ public static class PdfLayoutExtractor
 
             public bool IsKnockout { get; }
 
+            public IReadOnlyList<PdfLayoutClipPath> ClipPaths { get; }
+
+            public int InvokingClipPathCount { get; }
+
             public PdfLayoutVectorGroup Build(int lastPathIndex, PdfLayoutRectangle bounds)
             {
                 return new PdfLayoutVectorGroup(
@@ -2765,7 +2805,8 @@ public static class PdfLayoutExtractor
                     Opacity,
                     BlendMode,
                     IsIsolated,
-                    IsKnockout);
+                    IsKnockout,
+                    ClipPaths);
             }
         }
 
@@ -2788,26 +2829,64 @@ public static class PdfLayoutExtractor
                 switch (segment.Type)
                 {
                     case PathSegmentType.MoveTo:
-                    {
-                        (float x, float y) = NormalizePoint(segment.X1, segment.Y1, ctm);
-                        commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, x, y, 0, 0, 0, 0));
-                        break;
-                    }
+                        {
+                            (float x, float y) = NormalizePoint(segment.X1, segment.Y1, ctm);
+                            commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, x, y, 0, 0, 0, 0));
+                            break;
+                        }
                     case PathSegmentType.LineTo:
-                    {
-                        (float x, float y) = NormalizePoint(segment.X1, segment.Y1, ctm);
-                        commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, x, y, 0, 0, 0, 0));
-                        break;
-                    }
+                        {
+                            (float x, float y) = NormalizePoint(segment.X1, segment.Y1, ctm);
+                            commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, x, y, 0, 0, 0, 0));
+                            break;
+                        }
                     case PathSegmentType.CurveTo:
-                    {
-                        (float x1, float y1) = NormalizePoint(segment.X1, segment.Y1, ctm);
-                        (float x2, float y2) = NormalizePoint(segment.X2, segment.Y2, ctm);
-                        (float x3, float y3) = NormalizePoint(segment.X3, segment.Y3, ctm);
-                        commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.CurveTo, x1, y1, x2, y2, x3, y3));
-                        break;
-                    }
+                        {
+                            (float x1, float y1) = NormalizePoint(segment.X1, segment.Y1, ctm);
+                            (float x2, float y2) = NormalizePoint(segment.X2, segment.Y2, ctm);
+                            (float x3, float y3) = NormalizePoint(segment.X3, segment.Y3, ctm);
+                            commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.CurveTo, x1, y1, x2, y2, x3, y3));
+                            break;
+                        }
                     case PathSegmentType.Close:
+                        commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0, 0, 0, 0, 0, 0));
+                        break;
+                }
+            }
+
+            return commands.ToArray();
+        }
+
+        private PdfLayoutPathCommand[] NormalizeClipPath(
+            IReadOnlyList<PDGraphicsState.ClippingPathCommand> path,
+            Matrix ctm)
+        {
+            List<PdfLayoutPathCommand> commands = new(path.Count);
+            foreach (PDGraphicsState.ClippingPathCommand command in path)
+            {
+                switch (command.Type)
+                {
+                    case PDGraphicsState.ClippingPathCommandType.MoveTo:
+                        {
+                            (float x, float y) = NormalizePoint(command.X1, command.Y1, ctm);
+                            commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, x, y, 0, 0, 0, 0));
+                            break;
+                        }
+                    case PDGraphicsState.ClippingPathCommandType.LineTo:
+                        {
+                            (float x, float y) = NormalizePoint(command.X1, command.Y1, ctm);
+                            commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, x, y, 0, 0, 0, 0));
+                            break;
+                        }
+                    case PDGraphicsState.ClippingPathCommandType.CurveTo:
+                        {
+                            (float x1, float y1) = NormalizePoint(command.X1, command.Y1, ctm);
+                            (float x2, float y2) = NormalizePoint(command.X2, command.Y2, ctm);
+                            (float x3, float y3) = NormalizePoint(command.X3, command.Y3, ctm);
+                            commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.CurveTo, x1, y1, x2, y2, x3, y3));
+                            break;
+                        }
+                    case PDGraphicsState.ClippingPathCommandType.Close:
                         commands.Add(new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0, 0, 0, 0, 0, 0));
                         break;
                 }
@@ -2819,6 +2898,11 @@ public static class PdfLayoutExtractor
         private (float X, float Y) NormalizePoint(float x, float y, Matrix ctm)
         {
             Vector point = ctm.Transform(x, y);
+            if (_rotation != 0)
+            {
+                return NormalizeRotatedImagePoint(point);
+            }
+
             float cropTop = _cropBox.Y + _cropBox.Height;
             return (point.GetX() - _cropBox.X, cropTop - point.GetY());
         }
@@ -2877,7 +2961,8 @@ public static class PdfLayoutExtractor
                 image.GetInterpolate(),
                 sourceName,
                 GetGraphicsState().IsNonStrokingOverprint() || GetGraphicsState().IsOverprint(),
-                ExplicitColorants(image.GetColorSpace())));
+                ExplicitColorants(image.GetColorSpace()),
+                CurrentClipPaths(GetGraphicsState(), skipCount: 1)));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
         }
 
@@ -2905,7 +2990,8 @@ public static class PdfLayoutExtractor
                 image.GetInterpolate(),
                 null,
                 GetGraphicsState().IsNonStrokingOverprint() || GetGraphicsState().IsOverprint(),
-                ExplicitColorants(image.GetColorSpace())));
+                ExplicitColorants(image.GetColorSpace()),
+                CurrentClipPaths(GetGraphicsState(), skipCount: 1)));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Image, index));
         }
 

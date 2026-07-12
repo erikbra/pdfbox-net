@@ -15,7 +15,8 @@ public sealed class PdfLayoutPath
         bool usesShapeAlpha = false,
         IReadOnlyList<string>? colorantNames = null,
         PdfLayoutRectangle? clipBounds = null,
-        bool usesSoftMask = false)
+        bool usesSoftMask = false,
+        IReadOnlyList<PdfLayoutClipPath>? clipPaths = null)
     {
         Index = index;
         Commands = commands.ToArray();
@@ -27,6 +28,7 @@ public sealed class PdfLayoutPath
         ColorantNames = colorantNames?.ToArray() ?? [];
         ClipBounds = clipBounds;
         UsesSoftMask = usesSoftMask;
+        ClipPaths = clipPaths?.ToArray() ?? [];
     }
 
     /// <summary>
@@ -83,6 +85,15 @@ public sealed class PdfLayoutPath
     /// Gets the effective rectangular clip for this path when it differs from its containing group.
     /// </summary>
     public PdfLayoutRectangle? ClipBounds { get; }
+
+    /// <summary>
+    /// Gets the exact clipping paths introduced within this path's containing form.
+    /// </summary>
+    /// <remarks>
+    /// Each entry intersects the preceding entry. Keeping the operations separate preserves
+    /// PDF clipping semantics when the path is emitted as SVG.
+    /// </remarks>
+    public IReadOnlyList<PdfLayoutClipPath> ClipPaths { get; }
 
     /// <summary>
     /// Gets whether the path has a fill paint operation.

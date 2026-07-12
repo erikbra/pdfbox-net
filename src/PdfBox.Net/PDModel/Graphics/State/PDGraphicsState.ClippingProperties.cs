@@ -15,12 +15,59 @@ namespace PdfBox.Net.PDModel.Graphics.State;
 public partial class PDGraphicsState
 {
     /// <summary>
+    /// Identifies a retained clipping path construction command.
+    /// </summary>
+    public enum ClippingPathCommandType
+    {
+        MoveTo,
+        LineTo,
+        CurveTo,
+        Close
+    }
+
+    /// <summary>
+    /// One retained clipping path construction command in source coordinates.
+    /// </summary>
+    public readonly record struct ClippingPathCommand(
+        ClippingPathCommandType Type,
+        float X1,
+        float Y1,
+        float X2,
+        float Y2,
+        float X3,
+        float Y3);
+
+    public sealed partial class ClippingPath
+    {
+        /// <summary>
+        /// Gets the retained path construction commands for layout and export consumers.
+        /// </summary>
+        public IReadOnlyList<ClippingPathCommand> GetCommands()
+        {
+            return Segments.Select(static segment => new ClippingPathCommand(
+                segment.Type switch
+                {
+                    PDFStreamEngine.PathSegmentType.MoveTo => ClippingPathCommandType.MoveTo,
+                    PDFStreamEngine.PathSegmentType.LineTo => ClippingPathCommandType.LineTo,
+                    PDFStreamEngine.PathSegmentType.CurveTo => ClippingPathCommandType.CurveTo,
+                    _ => ClippingPathCommandType.Close
+                },
+                segment.X1,
+                segment.Y1,
+                segment.X2,
+                segment.Y2,
+                segment.X3,
+                segment.Y3)).ToArray();
+        }
+    }
+
+    /// <summary>
     /// Gets transformed axis-aligned bounds for each active clipping path.
     /// </summary>
     /// <remarks>
     /// The bounds are intentionally conservative for non-rectangular paths. Consumers that
-    /// need the exact path can continue to use the rendering pipeline; layout consumers use
-    /// these bounds to retain form-level clipping without exposing content-stream internals.
+    /// need exact geometry can use <see cref="ClippingPath.GetCommands"/> together with the
+    /// clipping path's transformation matrix and winding rule.
     /// </remarks>
     public IReadOnlyList<PDRectangle> GetCurrentClippingBounds()
     {

@@ -7,6 +7,7 @@ using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Graphics;
 using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Graphics.Shading;
@@ -14,6 +15,7 @@ using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.DigitalSignature;
 using PdfBox.Net.PDModel.Interactive.Form;
+using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.Layout.Tests;
 
@@ -476,7 +478,7 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
-    public void Extract_PathClippingEmitsDeterministicDiagnostic()
+    public void Extract_PathClippingRetainsExactGeometryWithoutDiagnostic()
     {
         using PDDocument document = CreateTextDocument("""
             72 600 120 60 re
@@ -488,11 +490,52 @@ public class PdfLayoutExtractorTest
 
         PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
 
-        PdfLayoutDiagnostic diagnostic = Assert.Single(layout.Diagnostics);
+        PdfLayoutPath path = Assert.Single(Assert.Single(layout.Pages).Paths);
+        PdfLayoutClipPath clipPath = Assert.Single(path.ClipPaths);
+        Assert.Equal(5, clipPath.Commands.Count);
+        Assert.Equal(1, clipPath.WindingRule);
+        Assert.DoesNotContain(layout.Diagnostics, diagnostic => diagnostic.Code == "path-clipping-unsupported");
+    }
+
+    [Fact]
+    public void Extract_TextClippingKeepsUnsupportedDiagnostic()
+    {
+        using PDDocument document = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            7 Tr
+            72 700 Td
+            (Clip) Tj
+            ET
+            """);
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutDiagnostic diagnostic = Assert.Single(
+            layout.Diagnostics,
+            diagnostic => diagnostic.Code == "path-clipping-unsupported");
         Assert.Equal(PdfLayoutDiagnosticSeverity.Warning, diagnostic.Severity);
-        Assert.Equal("path-clipping-unsupported", diagnostic.Code);
+        Assert.Contains("glyph clipping path", diagnostic.Message, StringComparison.Ordinal);
         Assert.Equal(1, diagnostic.PageNumber);
-        Assert.Single(Assert.Single(layout.Pages).Paths);
+    }
+
+    [Fact]
+    public void Extract_NestedFormLateClipRetainsVectorAndImageGeometry()
+    {
+        using PDDocument document = CreateNestedLateClipDocument();
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfLayoutPage page = Assert.Single(layout.Pages);
+
+        Assert.Equal(2, page.VectorGroups.Count);
+        Assert.Equal(2, page.Paths.Count);
+        Assert.Single(page.Paths[0].ClipPaths);
+        Assert.Equal(2, page.Paths[1].ClipPaths.Count);
+        PdfLayoutClipPath lateClip = page.Paths[1].ClipPaths[1];
+        Assert.Equal(4, lateClip.Commands.Count);
+        Assert.Equal(PdfLayoutPathCommandKind.ClosePath, lateClip.Commands[^1].Kind);
+        Assert.Equal(3, Assert.Single(page.Images).ClipPaths.Count);
+        Assert.DoesNotContain(layout.Diagnostics, diagnostic => diagnostic.Code == "path-clipping-unsupported");
     }
 
     [Fact]
@@ -817,6 +860,58 @@ public class PdfLayoutExtractorTest
         COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
         pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
         pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream(contentStream));
+        return document;
+    }
+
+    private static PDDocument CreateNestedLateClipDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDImageXObject tile = LosslessFactory.CreateFromRawData(
+            document,
+            [0, 255, 255],
+            1,
+            1,
+            8,
+            3);
+
+        PDFormXObject inner = new(new PDStream(document));
+        inner.SetBBox(new PDRectangle(0, 0, 100, 100));
+        PDResources innerResources = new();
+        COSName tileName = innerResources.Add(tile, "Im");
+        inner.SetResources(innerResources);
+        using (Stream content = inner.GetContentStream().CreateOutputStream())
+        {
+            content.Write(Encoding.ASCII.GetBytes(FormattableString.Invariant($"""
+                0 0 1 rg
+                10 45 80 10 re
+                f
+                10 10 m
+                90 10 l
+                10 90 l
+                h
+                W
+                n
+                0 1 1 rg
+                10 10 80 80 re
+                f
+                q
+                80 0 0 80 10 10 cm
+                /{tileName.GetName()} Do
+                Q
+                """)));
+        }
+
+        PDFormXObject outer = new(new PDStream(document));
+        outer.SetBBox(new PDRectangle(0, 0, 100, 100));
+        using (PDFormContentStream content = new(outer))
+        {
+            content.DrawForm(inner);
+        }
+
+        using PDPageContentStream pageContent = new(document, page);
+        pageContent.DrawForm(outer);
         return document;
     }
 
