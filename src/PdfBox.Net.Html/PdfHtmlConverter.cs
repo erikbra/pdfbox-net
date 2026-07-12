@@ -3618,7 +3618,7 @@ public static class PdfHtmlConverter
         bool inline)
     {
         PdfLayoutImage[] images = page.Images
-            .Where(image => RectanglesIntersect(image.Bounds, region, 2f))
+            .Where(image => RectanglesIntersect(VisibleImageBounds(image), region, 2f))
             .ToArray();
         PdfLayoutPath[] paths = FigureRegionPaths(page, semanticPage, region).ToArray();
         PdfTextRun[] textRuns = FigureRegionTextRuns(page, region).ToArray();
@@ -3643,11 +3643,7 @@ public static class PdfHtmlConverter
             .Append("\" style=\"--pdf-semantic-figure-width:")
             .Append(CssPoints(region.Width * scale))
             .Append("\">");
-        html.Append("<svg class=\"pdf-semantic-figure-svg\" viewBox=\"")
-            .Append(SvgNumber(region.X))
-            .Append(' ')
-            .Append(SvgNumber(region.Y))
-            .Append(' ')
+        html.Append("<svg class=\"pdf-semantic-figure-svg\" viewBox=\"0 0 ")
             .Append(SvgNumber(region.Width))
             .Append(' ')
             .Append(SvgNumber(region.Height))
@@ -3657,11 +3653,18 @@ public static class PdfHtmlConverter
             .Append(SvgNumber(region.Height * scale))
             .Append("\" aria-hidden=\"true\">");
 
+        WriteSemanticImageClipDefinitions(html, page, images);
+        html.Append("<g transform=\"translate(")
+            .Append(SvgNumber(-region.X))
+            .Append(' ')
+            .Append(SvgNumber(-region.Y))
+            .Append(")\">");
+
         foreach (PdfLayoutImage image in images)
         {
             if (imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
             {
-                WriteSvgImage(html, image, asset);
+                WriteSvgImage(html, page, image, asset);
             }
         }
 
@@ -3676,7 +3679,7 @@ public static class PdfHtmlConverter
             WriteFigureTextRun(html, run);
         }
 
-        html.Append("</svg></")
+        html.Append("</g></svg></")
             .Append(tagName)
             .AppendLine(">");
         return true;
@@ -3807,7 +3810,45 @@ public static class PdfHtmlConverter
         return normalized;
     }
 
-    private static void WriteSvgImage(StringBuilder html, PdfLayoutImage image, PdfLayoutImageAsset asset)
+    private static void WriteSemanticImageClipDefinitions(
+        StringBuilder html,
+        PdfLayoutPage page,
+        IReadOnlyList<PdfLayoutImage> images)
+    {
+        PdfLayoutImage[] clippedImages = images
+            .Where(static image => image.ClipPaths.Count > 0)
+            .ToArray();
+        if (clippedImages.Length == 0)
+        {
+            return;
+        }
+
+        html.Append("<defs>");
+        foreach (PdfLayoutImage image in clippedImages)
+        {
+            WriteExactClipPathDefinitions(
+                html,
+                SemanticImageClipPathId(page, image),
+                image.ClipPaths,
+                string.Empty,
+                string.Empty,
+                static clipPath => SvgPathData(clipPath.Commands));
+        }
+
+        html.Append("</defs>");
+    }
+
+    private static string SemanticImageClipPathId(PdfLayoutPage page, PdfLayoutImage image)
+    {
+        return "pdf-semantic-image-page-" + page.PageNumber.ToString(CultureInfo.InvariantCulture) +
+            "-clip-" + image.Index.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static void WriteSvgImage(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfLayoutImage image,
+        PdfLayoutImageAsset asset)
     {
         html.Append("<image href=\"")
             .Append(HtmlAttribute(asset.RelativePath))
@@ -3819,7 +3860,15 @@ public static class PdfHtmlConverter
             .Append(SvgNumber(image.Bounds.Width))
             .Append("\" height=\"")
             .Append(SvgNumber(image.Bounds.Height))
-            .Append("\" preserveAspectRatio=\"none\" />");
+            .Append("\" preserveAspectRatio=\"none\"");
+        if (image.ClipPaths.Count > 0)
+        {
+            html.Append(" clip-path=\"url(#")
+                .Append(SemanticImageClipPathId(page, image))
+                .Append(")\"");
+        }
+
+        html.Append(" />");
     }
 
     private static bool RectanglesIntersect(PdfLayoutRectangle first, PdfLayoutRectangle second, float tolerance)
@@ -3837,15 +3886,37 @@ public static class PdfHtmlConverter
             .Any(image => RectanglesIntersect(bounds, image.Bounds, 0));
     }
 
+    private static PdfLayoutRectangle VisibleImageBounds(PdfLayoutImage image)
+    {
+        PdfLayoutRectangle visible = image.Bounds;
+        foreach (PdfLayoutClipPath clipPath in image.ClipPaths)
+        {
+            float left = MathF.Max(visible.X, clipPath.Bounds.X);
+            float top = MathF.Max(visible.Y, clipPath.Bounds.Y);
+            float right = MathF.Min(visible.Right, clipPath.Bounds.Right);
+            float bottom = MathF.Min(visible.Bottom, clipPath.Bounds.Bottom);
+            if (right <= left || bottom <= top)
+            {
+                return new PdfLayoutRectangle(left, top, 0, 0);
+            }
+
+            visible = new PdfLayoutRectangle(left, top, right - left, bottom - top);
+        }
+
+        return visible;
+    }
+
     private static IEnumerable<PdfLayoutRectangle> SemanticFigureRegions(
         PdfLayoutPage page,
         PdfSemanticPage semanticPage)
     {
         List<PdfLayoutRectangle> regions = [];
         PdfLayoutRectangle[] imageBounds = page.Images
-            .Select(static image => image.Bounds)
+            .Select(VisibleImageBounds)
+            .Where(static bounds => bounds.Width > 0.1f && bounds.Height > 0.1f)
             .ToArray();
         regions.AddRange(imageBounds.Where(bounds => IsSubstantialGraphic(page, bounds)));
+        regions.AddRange(CompositeImageRegions(page, semanticPage, imageBounds));
 
         PdfLayoutPath[] candidatePaths = page.Paths
             .Where(path => !IsSemanticFlowRulePath(page, semanticPage, path))
@@ -3856,7 +3927,7 @@ public static class PdfHtmlConverter
             .Where(bounds => IsSubstantialGraphic(page, bounds))
             .ToArray();
         regions.AddRange(largePathBounds);
-        regions.AddRange(GraphicRowRegions(page, imageBounds.Concat(largePathBounds).ToArray()));
+        regions.AddRange(GraphicRowRegions(page, largePathBounds));
 
         if (candidatePaths.Length >= 8)
         {
@@ -3878,6 +3949,86 @@ public static class PdfHtmlConverter
     {
         return bounds.Width >= page.Width * 0.18f &&
             bounds.Height >= MathF.Max(18f, page.Height * 0.035f);
+    }
+
+    private static IEnumerable<PdfLayoutRectangle> CompositeImageRegions(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        IReadOnlyList<PdfLayoutRectangle> imageBounds)
+    {
+        PdfSemanticElement[] captions = semanticPage.Elements
+            .Where(IsFigureCaption)
+            .ToArray();
+        if (imageBounds.Count < 2 || captions.Length == 0)
+        {
+            yield break;
+        }
+
+        bool[] visited = new bool[imageBounds.Count];
+        for (int start = 0; start < imageBounds.Count; start++)
+        {
+            if (visited[start])
+            {
+                continue;
+            }
+
+            List<PdfLayoutRectangle> cluster = [];
+            Queue<int> pending = new();
+            pending.Enqueue(start);
+            visited[start] = true;
+            while (pending.Count > 0)
+            {
+                int current = pending.Dequeue();
+                cluster.Add(imageBounds[current]);
+                for (int candidate = 0; candidate < imageBounds.Count; candidate++)
+                {
+                    if (!visited[candidate] &&
+                        AreSpatiallyAdjacentImages(page, imageBounds[current], imageBounds[candidate]))
+                    {
+                        visited[candidate] = true;
+                        pending.Enqueue(candidate);
+                    }
+                }
+            }
+
+            if (cluster.Count < 2)
+            {
+                continue;
+            }
+
+            PdfLayoutRectangle union = UnionRectangles(cluster);
+            if (IsSubstantialGraphic(page, union) &&
+                captions.Any(caption => IsCaptionAssociatedWithFigure(page, caption.Bounds, union)))
+            {
+                yield return union;
+            }
+        }
+    }
+
+    private static bool AreSpatiallyAdjacentImages(
+        PdfLayoutPage page,
+        PdfLayoutRectangle first,
+        PdfLayoutRectangle second)
+    {
+        float horizontalOverlap = MathF.Min(first.Right, second.Right) - MathF.Max(first.X, second.X);
+        float verticalOverlap = MathF.Min(first.Bottom, second.Bottom) - MathF.Max(first.Y, second.Y);
+        bool sameRow = verticalOverlap >= MathF.Min(first.Height, second.Height) * 0.20f &&
+            HorizontalGap(first, second) <= page.Width * 0.30f;
+        bool sameColumn = horizontalOverlap >= MathF.Min(first.Width, second.Width) * 0.20f &&
+            VerticalGap(first, second) <= MathF.Max(18f, page.Height * 0.03f);
+        return sameRow || sameColumn;
+    }
+
+    private static bool IsCaptionAssociatedWithFigure(
+        PdfLayoutPage page,
+        PdfLayoutRectangle caption,
+        PdfLayoutRectangle figure)
+    {
+        float horizontalOverlap = MathF.Min(caption.Right, figure.Right) - MathF.Max(caption.X, figure.X);
+        float centerDistance = MathF.Abs(
+            caption.X + caption.Width / 2f - (figure.X + figure.Width / 2f));
+        return VerticalGap(caption, figure) <= 72f &&
+            (horizontalOverlap > 0 || centerDistance <= page.Width * 0.08f);
     }
 
     private static PdfLayoutRectangle ExpandFigureRegionWithLabels(PdfLayoutPage page, PdfLayoutRectangle region)
@@ -4025,8 +4176,8 @@ public static class PdfHtmlConverter
             }
 
             PdfLayoutRectangle last = merged[^1];
-            bool closeVertically = region.Y <= last.Bottom + 18f;
-            bool overlapsHorizontally = region.X <= last.Right + 18f && region.Right + 18f >= last.X;
+            bool closeVertically = region.Y <= last.Bottom + 2f;
+            bool overlapsHorizontally = region.X <= last.Right + 2f && region.Right + 2f >= last.X;
             if (closeVertically && overlapsHorizontally)
             {
                 merged[^1] = UnionRectangles([last, region]);
@@ -4120,6 +4271,21 @@ public static class PdfHtmlConverter
         if (second.Right < first.X)
         {
             return first.X - second.Right;
+        }
+
+        return 0f;
+    }
+
+    private static float VerticalGap(PdfLayoutRectangle first, PdfLayoutRectangle second)
+    {
+        if (first.Bottom < second.Y)
+        {
+            return second.Y - first.Bottom;
+        }
+
+        if (second.Bottom < first.Y)
+        {
+            return first.Y - second.Bottom;
         }
 
         return 0f;

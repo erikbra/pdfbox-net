@@ -1019,6 +1019,97 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_PreservesClippedSideBySideCompositeGeometry()
+    {
+        using PDDocument document = CreateSideBySideImageDocument(includeCaption: true, clipSecondImage: true);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement figure = Assert.Single(ElementsByClass(dom, "pdf-semantic-figure"));
+        Assert.Equal("222pt", ParseStyle(figure.Attribute("style")?.Value ?? "")["--pdf-semantic-figure-width"]);
+        XElement svg = Assert.Single(figure.Descendants(), element => HasClass(element, "pdf-semantic-figure-svg"));
+        Assert.Equal("0 0 222 90", svg.Attribute("viewBox")?.Value);
+        XElement content = Assert.Single(svg.Elements(), element => element.Name.LocalName == "g");
+        Assert.Equal("translate(-72 -282)", content.Attribute("transform")?.Value);
+        XElement[] images = content.Elements().Where(static element => element.Name.LocalName == "image").ToArray();
+        Assert.Equal(2, images.Length);
+        Assert.Equal("72", images[0].Attribute("x")?.Value);
+        Assert.Equal("204", images[1].Attribute("x")?.Value);
+        Assert.Equal("180", images[1].Attribute("width")?.Value);
+        Assert.Equal("120", images[1].Attribute("height")?.Value);
+        Assert.Equal("url(#pdf-semantic-image-page-1-clip-1)", images[1].Attribute("clip-path")?.Value);
+        XElement clipPath = Assert.Single(svg.Descendants(), element =>
+            element.Name.LocalName == "clipPath" &&
+            element.Attribute("id")?.Value == "pdf-semantic-image-page-1-clip-1");
+        Assert.Contains(clipPath.Descendants(), element =>
+            element.Name.LocalName == "path" &&
+            element.Attribute("d")?.Value.Contains("204", StringComparison.Ordinal) == true);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_PreservesCaptionedImageGridGeometry()
+    {
+        using PDDocument document = CreateGridImageDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement figure = Assert.Single(ElementsByClass(dom, "pdf-semantic-figure"));
+        XElement svg = Assert.Single(figure.Descendants(), element => HasClass(element, "pdf-semantic-figure-svg"));
+        Assert.Equal("0 0 168 128", svg.Attribute("viewBox")?.Value);
+        XElement content = Assert.Single(svg.Elements(), element => element.Name.LocalName == "g");
+        Assert.Equal("translate(-150 -252)", content.Attribute("transform")?.Value);
+        XElement[] images = content.Elements().Where(static element => element.Name.LocalName == "image").ToArray();
+        Assert.Equal(4, images.Length);
+        Assert.Equal(["150", "238", "150", "238"], images.Select(image => image.Attribute("x")?.Value));
+        Assert.Equal(["252", "252", "320", "320"], images.Select(image => image.Attribute("y")?.Value));
+        Assert.All(images, image =>
+        {
+            Assert.Equal("80", image.Attribute("width")?.Value);
+            Assert.Equal("60", image.Attribute("height")?.Value);
+        });
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_DoesNotGroupNearbyUncaptionedBodyImages()
+    {
+        using PDDocument document = CreateSideBySideImageDocument(includeCaption: false, clipSecondImage: false);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement[] figures = ElementsByClass(dom, "pdf-semantic-figure").ToArray();
+        Assert.Equal(2, figures.Length);
+        Assert.All(figures, figure =>
+            Assert.Single(figure.Descendants(), static element => element.Name.LocalName == "image"));
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_PreservesFiguresAndCrossPageParagraphContinuations()
     {
         using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
@@ -3511,6 +3602,93 @@ public class PdfHtmlConverterTest
         }
 
         return document;
+    }
+
+    private static PDDocument CreateSideBySideImageDocument(bool includeCaption, bool clipSecondImage)
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDImageXObject firstImage = LosslessFactory.CreateFromRawData(document, [192, 48, 48], 1, 1, 8, 3);
+        PDImageXObject secondImage = LosslessFactory.CreateFromRawData(document, [48, 96, 192], 1, 1, 8, 3);
+        PDType1Font font = new(PDType1Font.FontName.HELVETICA);
+        using (PDPageContentStream content = new(document, page))
+        {
+            WriteCompositeFixtureBody(content, font);
+            content.DrawImage(firstImage, 72, 420, 120, 90);
+            if (clipSecondImage)
+            {
+                content.SaveGraphicsState();
+                content.AddRect(204, 420, 90, 90);
+                content.Clip();
+                content.DrawImage(secondImage, 204, 390, 180, 120);
+                content.RestoreGraphicsState();
+            }
+            else
+            {
+                content.DrawImage(secondImage, 204, 420, 120, 90);
+            }
+
+            if (includeCaption)
+            {
+                WriteCompositeFixtureLine(content, font, "Figure 1: Side-by-side composite.", 72, 398, 9);
+            }
+            else
+            {
+                WriteCompositeFixtureLine(content, font, "These nearby images belong to separate body examples.", 72, 398, 9);
+            }
+        }
+
+        return document;
+    }
+
+    private static PDDocument CreateGridImageDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, [64, 160, 96], 1, 1, 8, 3);
+        PDType1Font font = new(PDType1Font.FontName.HELVETICA);
+        using (PDPageContentStream content = new(document, page))
+        {
+            WriteCompositeFixtureBody(content, font);
+            content.DrawImage(image, 150, 480, 80, 60);
+            content.DrawImage(image, 238, 480, 80, 60);
+            content.DrawImage(image, 150, 412, 80, 60);
+            content.DrawImage(image, 238, 412, 80, 60);
+            WriteCompositeFixtureLine(content, font, "Figure 1: Four-panel grid.", 150, 390, 9);
+        }
+
+        return document;
+    }
+
+    private static void WriteCompositeFixtureBody(PDPageContentStream content, PDFont font)
+    {
+        for (int index = 0; index < 10; index++)
+        {
+            WriteCompositeFixtureLine(
+                content,
+                font,
+                $"Body line {index + 1} keeps semantic flow active for this focused fixture.",
+                72,
+                750 - index * 14,
+                10);
+        }
+    }
+
+    private static void WriteCompositeFixtureLine(
+        PDPageContentStream content,
+        PDFont font,
+        string text,
+        float x,
+        float y,
+        float fontSize)
+    {
+        content.BeginText();
+        content.SetFont(font, fontSize);
+        content.NewLineAtOffset(x, y);
+        content.ShowText(text);
+        content.EndText();
     }
 
     private static PDDocument CreateRotatedCroppedImageDocument()
