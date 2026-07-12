@@ -411,6 +411,43 @@ public static class PdfHtmlConverter
           width: min(100%, var(--pdf-semantic-figure-width, 100%));
         }
 
+        .pdf-semantic-cover-region {
+          align-self: center;
+          flex: 0 0 auto;
+          height: var(--pdf-semantic-cover-height);
+          margin: 0;
+          max-width: none;
+          position: relative;
+          width: var(--pdf-semantic-cover-width);
+        }
+
+        .pdf-semantic-page-start + .pdf-semantic-cover-region {
+          margin-top: -68pt;
+        }
+
+        .pdf-semantic-cover-decoration-layer {
+          inset: 0;
+          position: absolute;
+        }
+
+        .pdf-semantic-cover-region-element {
+          margin: 0 !important;
+          max-width: none;
+          position: absolute;
+        }
+
+        .pdf-semantic-cover-region-element > .pdf-semantic-line {
+          min-height: 1em;
+          position: relative;
+        }
+
+        .pdf-semantic-cover-region-element > .pdf-semantic-line > .pdf-semantic-source-line-content {
+          position: absolute;
+          right: 0;
+          top: 0;
+          white-space: nowrap;
+        }
+
         .pdf-semantic-inline-figure {
           margin-bottom: 8pt;
           margin-top: 8pt;
@@ -447,9 +484,48 @@ public static class PdfHtmlConverter
         }
 
         .pdf-semantic-title {
-          border-bottom: 1pt solid currentColor;
-          border-top: 4pt solid currentColor;
-          padding: 9pt 0 10pt;
+          padding-left: 0;
+          padding-right: 0;
+        }
+
+        .pdf-semantic-title-rule-top {
+          border-top: var(--pdf-title-rule-top-thickness, 0.5pt) solid var(--pdf-title-rule-top-color, currentColor);
+          padding-top: var(--pdf-title-rule-top-gap, 0);
+        }
+
+        .pdf-semantic-title-rule-bottom {
+          border-bottom: var(--pdf-title-rule-bottom-thickness, 0.5pt) solid var(--pdf-title-rule-bottom-color, currentColor);
+          padding-bottom: var(--pdf-title-rule-bottom-gap, 0);
+        }
+
+        .pdf-semantic-title .pdf-semantic-line + .pdf-semantic-line {
+          margin-top: 3pt;
+        }
+
+        .pdf-semantic-cover-title {
+          align-self: flex-end;
+          max-width: calc(100% + 72pt);
+          width: min(var(--pdf-semantic-cover-title-width, 100%), calc(100% + 72pt));
+        }
+
+        .pdf-semantic-cover-title .pdf-semantic-line {
+          white-space: nowrap;
+        }
+
+        .pdf-semantic-cover-text {
+          transform: translateX(var(--pdf-semantic-cover-text-offset-x, 0));
+        }
+
+        .pdf-semantic-cover-text > .pdf-semantic-line {
+          min-height: 1em;
+          position: relative;
+        }
+
+        .pdf-semantic-cover-text > .pdf-semantic-line > .pdf-semantic-source-line-content {
+          position: absolute;
+          right: 0;
+          top: 0;
+          white-space: nowrap;
         }
 
         .pdf-semantic-heading {
@@ -2552,6 +2628,18 @@ public static class PdfHtmlConverter
                 WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
             }
 
+            if (IsCoverPage(context.Page, context.SemanticPage))
+            {
+                WriteSemanticCoverRegion(
+                    html,
+                    context.Page,
+                    context.SemanticPage,
+                    context.Footnotes,
+                    imageAssets,
+                    scale);
+                continue;
+            }
+
             WriteContinuousPageArtifacts(
                 html,
                 context.Page,
@@ -2582,6 +2670,116 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("  </main>");
+    }
+
+    private static void WriteSemanticCoverRegion(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        FootnoteContext footnotes,
+        IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
+        float scale)
+    {
+        html.Append("      <section class=\"pdf-semantic-cover-region\" aria-label=\"Cover page\" style=\"--pdf-semantic-cover-width:")
+            .Append(CssPoints(page.Width * scale))
+            .Append(";--pdf-semantic-cover-height:")
+            .Append(CssPoints(page.Height * scale))
+            .AppendLine("\">");
+        html.AppendLine("        <div class=\"pdf-semantic-cover-decoration-layer\" aria-label=\"Cover decoration\">");
+
+        PdfLayoutPath[] vectorPaths = RenderableVectorPaths(page, semanticPage);
+        if (page.PaintOperations.Count > 0)
+        {
+            WriteOrderedGraphics(html, page, imageAssets, vectorPaths, scale);
+        }
+        else
+        {
+            foreach (PdfLayoutImage image in page.Images)
+            {
+                if (ShouldWriteImage(page, image) &&
+                    imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
+                {
+                    WriteImage(html, page, image, asset, scale);
+                }
+            }
+
+            WriteVectorLayer(
+                html,
+                page,
+                scale,
+                vectorPaths,
+                "pdf-vector-layer pdf-semantic-cover-vector-layer",
+                "cover");
+        }
+
+        if (page.Shadings.Count > 0)
+        {
+            WriteShadingLayer(html, page, scale);
+        }
+
+        html.AppendLine("        </div>");
+        foreach (PdfSemanticElement element in semanticPage.Elements)
+        {
+            WriteCoverSemanticElement(html, page, element, footnotes, scale);
+        }
+
+        html.AppendLine("      </section>");
+    }
+
+    private static void WriteCoverSemanticElement(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        float scale)
+    {
+        string tagName = SemanticTagName(element);
+        html.Append("        <")
+            .Append(tagName)
+            .Append(" class=\"")
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth: false, allowCoverPositioning: false))
+            .Append(" pdf-semantic-cover-region-element\" style=\"top:")
+            .Append(CssPoints(element.Bounds.Y * scale))
+            .Append(';')
+            .Append(CoverElementHorizontalStyle(page, element, scale));
+        List<string> titleRuleStyles = [];
+        if (IsTitleElement(element))
+        {
+            AppendTitleRuleStyle(titleRuleStyles, page, element, TitleRulePosition.Above, "top");
+            AppendTitleRuleStyle(titleRuleStyles, page, element, TitleRulePosition.Below, "bottom");
+        }
+
+        if (titleRuleStyles.Count > 0)
+        {
+            html.Append(';').Append(string.Join(";", titleRuleStyles));
+        }
+
+        html.Append("\">");
+        WriteSemanticText(html, element, footnotes, page);
+        html.Append("</")
+            .Append(tagName)
+            .AppendLine(">");
+    }
+
+    private static string CoverElementHorizontalStyle(
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        float scale)
+    {
+        string? alignmentClass = SourceAlignmentClass(page, element);
+        if (alignmentClass == "pdf-semantic-align-right")
+        {
+            return "left:0;right:" + CssPoints((page.Width - element.Bounds.Right) * scale);
+        }
+
+        if (alignmentClass == "pdf-semantic-align-center")
+        {
+            return "left:" + CssPoints(element.Bounds.X * scale) +
+                ";width:" + CssPoints(element.Bounds.Width * scale);
+        }
+
+        return "left:" + CssPoints(element.Bounds.X * scale) +
+            ";right:0";
     }
 
     private static ContinuousPageContext CreateContinuousPageContext(PdfLayoutPage page, PdfSemanticPage semanticPage)
@@ -3597,6 +3795,27 @@ public static class PdfHtmlConverter
                 page,
                 allowMeasuredWidth: IsMeasuredWidthCandidate(flowElements, index));
         }
+
+        while (nextFigureRegion < figureRegions.Length)
+        {
+            if (figureRendering == SemanticFigureRendering.Space)
+            {
+                WriteFigureSpace(html, figureRegions[nextFigureRegion], scale);
+            }
+            else if (imageAssets != null)
+            {
+                WriteSemanticFigure(
+                    html,
+                    page,
+                    semanticPage,
+                    figureRegions[nextFigureRegion],
+                    imageAssets,
+                    scale,
+                    inline: false);
+            }
+
+            nextFigureRegion++;
+        }
     }
 
     private static void WriteFigureSpace(StringBuilder html, PdfLayoutRectangle region, float scale)
@@ -3635,7 +3854,6 @@ public static class PdfHtmlConverter
         {
             html.Append(" pdf-semantic-inline-figure");
         }
-
         html.Append("\" data-source-page=\"")
             .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
             .Append("\" data-source-top=\"")
@@ -3915,7 +4133,9 @@ public static class PdfHtmlConverter
             .Select(VisibleImageBounds)
             .Where(static bounds => bounds.Width > 0.1f && bounds.Height > 0.1f)
             .ToArray();
-        regions.AddRange(imageBounds.Where(bounds => IsSubstantialGraphic(page, bounds)));
+        regions.AddRange(IsCoverPage(page, semanticPage)
+            ? imageBounds
+            : imageBounds.Where(bounds => IsSubstantialGraphic(page, bounds)));
         regions.AddRange(CompositeImageRegions(page, semanticPage, imageBounds));
 
         PdfLayoutPath[] candidatePaths = page.Paths
@@ -3943,6 +4163,23 @@ public static class PdfHtmlConverter
         {
             yield return region;
         }
+    }
+
+    private static bool IsCoverPage(PdfLayoutPage page, PdfSemanticPage semanticPage)
+    {
+        PdfSemanticElement? title = semanticPage.Elements.FirstOrDefault(IsTitleElement);
+        if (title == null ||
+            title.Bounds.Y >= page.Height * 0.45f ||
+            page.Lines.Count > 18 ||
+            semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Table))
+        {
+            return false;
+        }
+
+        int textLength = semanticPage.Elements.Sum(static element => element.Text.Length);
+        int bodyElementCount = semanticPage.Elements.Count(static element =>
+            element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.AuthorBlock);
+        return textLength <= 1200 && bodyElementCount <= 8;
     }
 
     private static bool IsSubstantialGraphic(PdfLayoutPage page, PdfLayoutRectangle bounds)
@@ -5133,6 +5370,22 @@ public static class PdfHtmlConverter
         FootnoteContext footnotes,
         PdfLayoutPage? page = null)
     {
+        if (IsTitleElement(element) && element.Lines.Count > 1)
+        {
+            WriteSemanticSourceLines(html, element, footnotes, page);
+            return;
+        }
+
+        if (page != null &&
+            IsSparseGraphicCoverPage(page) &&
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Lines.Count > 1 &&
+            SourceAlignmentClass(page, element) != null)
+        {
+            WriteSemanticSourceLines(html, element, footnotes, page);
+            return;
+        }
+
         if (element.Kind == PdfSemanticElementKind.AuthorBlock)
         {
             foreach (PdfSemanticLine line in element.Lines)
@@ -5191,6 +5444,36 @@ public static class PdfHtmlConverter
         }
 
         WriteTextWithFootnoteReferences(html, element.Text, footnotes);
+    }
+
+    private static void WriteSemanticSourceLines(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        foreach (PdfSemanticLine line in element.Lines)
+        {
+            html.Append("<span class=\"")
+                .Append(SemanticLineClassNames(line))
+                .Append("\"><span class=\"pdf-semantic-source-line-content\">");
+            PdfSemanticElement lineElement = new(
+                element.Kind,
+                line.Text,
+                line.Bounds,
+                [line],
+                element.HeadingLevel);
+            if (CanWriteRichSemanticText(lineElement))
+            {
+                WriteRichSemanticText(html, lineElement, footnotes, page);
+            }
+            else
+            {
+                WriteTextWithFootnoteReferences(html, line.Text, footnotes);
+            }
+
+            html.Append("</span></span>");
+        }
     }
 
     private static bool CanWriteRichSemanticText(PdfSemanticElement element)
@@ -6916,7 +7199,8 @@ public static class PdfHtmlConverter
     private static string SemanticClassNames(
         PdfSemanticElement element,
         PdfLayoutPage? page = null,
-        bool allowMeasuredWidth = true)
+        bool allowMeasuredWidth = true,
+        bool allowCoverPositioning = true)
     {
         List<string> classes =
         [
@@ -6933,6 +7217,18 @@ public static class PdfHtmlConverter
         if (IsTitleElement(element))
         {
             classes.Add("pdf-semantic-title");
+            if (page != null)
+            {
+                if (DecorativeTitleRulePath(page, element, TitleRulePosition.Above) != null)
+                {
+                    classes.Add("pdf-semantic-title-rule-top");
+                }
+
+                if (DecorativeTitleRulePath(page, element, TitleRulePosition.Below) != null)
+                {
+                    classes.Add("pdf-semantic-title-rule-bottom");
+                }
+            }
         }
 
         if (page != null)
@@ -6941,6 +7237,16 @@ public static class PdfHtmlConverter
             if (alignmentClass != null)
             {
                 classes.Add(alignmentClass);
+                if (allowCoverPositioning &&
+                    IsSparseGraphicCoverPage(page) &&
+                    IsCoverTextKind(element.Kind))
+                {
+                    classes.Add("pdf-semantic-cover-text");
+                    if (IsTitleElement(element) && element.Lines.Count > 1)
+                    {
+                        classes.Add("pdf-semantic-cover-title");
+                    }
+                }
             }
 
             if (IsFigureCaption(element))
@@ -7028,7 +7334,80 @@ public static class PdfHtmlConverter
             }
         }
 
+        if (page != null && IsTitleElement(element))
+        {
+            AppendTitleRuleStyle(styles, page, element, TitleRulePosition.Above, "top");
+            AppendTitleRuleStyle(styles, page, element, TitleRulePosition.Below, "bottom");
+        }
+
+        if (page != null &&
+            IsSparseGraphicCoverPage(page) &&
+            IsCoverTextKind(element.Kind) &&
+            SourceAlignmentClass(page, element) is string coverAlignment)
+        {
+            styles.Add("--pdf-semantic-cover-text-offset-x:" +
+                CssPoints(CoverTextHorizontalOffset(page, element, coverAlignment)));
+            if (IsTitleElement(element) && element.Lines.Count > 1)
+            {
+                styles.Add("--pdf-semantic-cover-title-width:" + CssPoints(element.Bounds.Width));
+            }
+        }
+
         return string.Join(";", styles);
+    }
+
+    private static bool IsCoverTextKind(PdfSemanticElementKind kind)
+    {
+        return kind is PdfSemanticElementKind.Header or
+            PdfSemanticElementKind.Heading or
+            PdfSemanticElementKind.Paragraph or
+            PdfSemanticElementKind.AuthorBlock;
+    }
+
+    private static bool IsSparseGraphicCoverPage(PdfLayoutPage page)
+    {
+        return page.Images.Count is > 0 and <= 6 &&
+            page.Lines.Count is > 0 and <= 18 &&
+            page.Runs.Any(static run => run.FontSize >= 16f);
+    }
+
+    private static float CoverTextHorizontalOffset(
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        string alignmentClass)
+    {
+        float flowWidth = SemanticFlowWidth(page);
+        float flowLeft = (page.Width - flowWidth) / 2f;
+        float flowRight = flowLeft + flowWidth;
+        return alignmentClass switch
+        {
+            "pdf-semantic-align-right" => element.Bounds.Right - flowRight,
+            "pdf-semantic-align-center" => element.Bounds.X + element.Bounds.Width / 2f - page.Width / 2f,
+            _ => element.Bounds.X - flowLeft
+        };
+    }
+
+    private static void AppendTitleRuleStyle(
+        ICollection<string> styles,
+        PdfLayoutPage page,
+        PdfSemanticElement title,
+        TitleRulePosition position,
+        string side)
+    {
+        PdfLayoutPath? path = DecorativeTitleRulePath(page, title, position);
+        if (path == null)
+        {
+            return;
+        }
+
+        PdfLayoutColor color = path.Stroke?.Color ?? path.FillColor ?? SemanticColor(title);
+        float thickness = path.Stroke?.Width ?? MathF.Max(0.5f, path.Bounds.Height);
+        float gap = position == TitleRulePosition.Above
+            ? MathF.Max(0f, title.Bounds.Y - path.Bounds.Bottom)
+            : MathF.Max(0f, path.Bounds.Y - title.Bounds.Bottom);
+        styles.Add("--pdf-title-rule-" + side + "-thickness:" + CssPoints(thickness));
+        styles.Add("--pdf-title-rule-" + side + "-color:" + ColorHex(color));
+        styles.Add("--pdf-title-rule-" + side + "-gap:" + CssPoints(gap));
     }
 
     private static bool TryGetParagraphWidthPercent(
@@ -7172,7 +7551,7 @@ public static class PdfHtmlConverter
 
     private static string? SourceAlignmentClass(PdfLayoutPage page, PdfSemanticElement element)
     {
-        if (!ShouldDetectSourceAlignment(element))
+        if (!ShouldDetectSourceAlignment(page, element))
         {
             return null;
         }
@@ -7186,13 +7565,22 @@ public static class PdfHtmlConverter
         float weight = lines.Sum(static line => MathF.Max(1f, line.Bounds.Width));
         float center = lines.Sum(static line => (line.Bounds.X + line.Bounds.Width / 2f) * MathF.Max(1f, line.Bounds.Width)) / weight;
         float tolerance = MathF.Max(page.Width * 0.035f, SemanticFontSize(element) * 1.75f);
+        float averageRight = lines.Average(static line => line.Bounds.Right);
+        bool sharedRightEdge = lines.Length >= 2 &&
+            StandardDeviation(lines.Select(static line => line.Bounds.Right)) <= MathF.Max(3f, SemanticFontSize(element) * 0.3f) &&
+            averageRight >= page.Width * 0.62f &&
+            center >= page.Width / 2f + tolerance * 0.2f;
+        if (sharedRightEdge)
+        {
+            return "pdf-semantic-align-right";
+        }
+
         if (MathF.Abs(center - page.Width / 2f) <= tolerance)
         {
             return "pdf-semantic-align-center";
         }
 
-        float right = lines.Average(static line => line.Bounds.Right);
-        if (page.Width - right <= page.Width * 0.08f)
+        if (page.Width - averageRight <= page.Width * 0.13f)
         {
             return "pdf-semantic-align-right";
         }
@@ -7200,10 +7588,14 @@ public static class PdfHtmlConverter
         return null;
     }
 
-    private static bool ShouldDetectSourceAlignment(PdfSemanticElement element)
+    private static bool ShouldDetectSourceAlignment(PdfLayoutPage page, PdfSemanticElement element)
     {
         return element.Kind is PdfSemanticElementKind.Heading or PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer ||
             ShouldDetectFigureCaptionAlignment(element) ||
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Lines.Count <= 2 &&
+            element.Text.Length <= 180 &&
+            element.Bounds.Width <= page.Width * 0.55f ||
             IsSameRowLineGroup(element);
     }
 
@@ -7712,26 +8104,48 @@ public static class PdfHtmlConverter
         PdfSemanticPage semanticPage,
         PdfLayoutPath path)
     {
-        PdfSemanticElement? title = semanticPage.Elements.FirstOrDefault(IsTitleElement);
-        if (title == null)
-        {
-            return false;
-        }
+        return semanticPage.Elements
+            .Where(IsTitleElement)
+            .Any(title => TitleRulePositionForPath(page, title, path) != TitleRulePosition.None);
+    }
 
+    private static PdfLayoutPath? DecorativeTitleRulePath(
+        PdfLayoutPage page,
+        PdfSemanticElement title,
+        TitleRulePosition position)
+    {
+        return page.Paths
+            .Where(path => TitleRulePositionForPath(page, title, path) == position)
+            .OrderBy(path => position == TitleRulePosition.Above
+                ? title.Bounds.Y - path.Bounds.Bottom
+                : path.Bounds.Y - title.Bounds.Bottom)
+            .FirstOrDefault();
+    }
+
+    private static TitleRulePosition TitleRulePositionForPath(
+        PdfLayoutPage page,
+        PdfSemanticElement title,
+        PdfLayoutPath path)
+    {
         bool horizontalRuleShape = path.Bounds.Width >= MathF.Max(title.Bounds.Width * 0.95f, page.Width * 0.45f) &&
             path.Bounds.Height <= 6f &&
             path.Bounds.X <= title.Bounds.X + 6f &&
             path.Bounds.Right >= title.Bounds.Right - 6f;
         if (!horizontalRuleShape)
         {
-            return false;
+            return TitleRulePosition.None;
         }
 
         bool closeAboveTitle = path.Bounds.Bottom <= title.Bounds.Y + 3f &&
             title.Bounds.Y - path.Bounds.Bottom <= 32f;
+        if (closeAboveTitle)
+        {
+            return TitleRulePosition.Above;
+        }
+
         bool closeBelowTitle = path.Bounds.Y >= title.Bounds.Bottom - 3f &&
             path.Bounds.Y - title.Bounds.Bottom <= 32f;
-        return closeAboveTitle || closeBelowTitle;
+        return closeBelowTitle ? TitleRulePosition.Below : TitleRulePosition.None;
     }
 
     private static bool IsDecorativeFootnoteRulePath(
@@ -8017,6 +8431,13 @@ public static class PdfHtmlConverter
         None,
         Space,
         Content
+    }
+
+    private enum TitleRulePosition
+    {
+        None,
+        Above,
+        Below
     }
 
     private enum InlineBaselineRole
