@@ -437,6 +437,79 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_HidesCoLocatedOcrTextOverFullPageScan()
+    {
+        using PDDocument document = CreateScanImageWithTextDocument(paintText: false, imageWidth: 612, imageHeight: 792);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+
+        PdfLayoutPage page = Assert.Single(layout.Pages);
+        Assert.Single(page.Images);
+        Assert.NotEmpty(page.Glyphs);
+        Assert.All(page.Glyphs.Where(glyph => !string.IsNullOrWhiteSpace(glyph.Text)), glyph => Assert.False(glyph.IsPainted));
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement scanPage = Assert.Single(ElementsByClass(dom, "pdf-ocr-scan-page"));
+        Assert.Single(scanPage.Descendants(), element => HasClass(element, "pdf-image"));
+        XElement[] ocrRuns = scanPage.Descendants()
+            .Where(element => HasClass(element, "pdf-ocr-text-run"))
+            .ToArray();
+        Assert.NotEmpty(ocrRuns);
+        Assert.All(ocrRuns, run => Assert.False(string.IsNullOrWhiteSpace(run.Attribute("aria-label")?.Value)));
+        Assert.Contains("Searchable OCR text", scanPage.Value, StringComparison.Ordinal);
+        Assert.Contains(".pdf-ocr-text-run", converted.Css, StringComparison.Ordinal);
+        Assert.Contains("opacity: 0", converted.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_DoesNotHideOcrTextWhenImageIsNotPageDominant()
+    {
+        using PDDocument document = CreateScanImageWithTextDocument(paintText: false, imageWidth: 500, imageHeight: 650);
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        }), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-ocr-scan-page"));
+        Assert.Empty(ElementsByClass(dom, "pdf-ocr-text-run"));
+        Assert.Contains("Searchable OCR text", converted.Html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_DoesNotHideBornDigitalTextAroundImages()
+    {
+        using PDDocument document = CreateSideBySideImageDocument(includeCaption: true, clipSecondImage: false);
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        }), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-ocr-scan-page"));
+        Assert.Empty(ElementsByClass(dom, "pdf-ocr-text-run"));
+        Assert.Contains("Body line 1 keeps semantic flow active", converted.Html, StringComparison.Ordinal);
+        XElement figure = Assert.Single(ElementsByClass(dom, "pdf-semantic-figure"));
+        Assert.Equal(2, figure.Descendants().Count(element => element.Name.LocalName == "image"));
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFixedFallback_PreservesPositionedWordBoundaries()
     {
         using PDDocument document = CreateTextDocument("""
@@ -3864,6 +3937,31 @@ public class PdfHtmlConverterTest
         using (PDPageContentStream content = new(document, page))
         {
             content.DrawImage(image, 72, 600, 120, 60);
+        }
+
+        return document;
+    }
+
+    private static PDDocument CreateScanImageWithTextDocument(bool paintText, float imageWidth, float imageHeight)
+    {
+        string renderingMode = paintText ? "0" : "3";
+        PDDocument document = CreateTextDocument($"""
+            BT
+            /F1 12 Tf
+            {renderingMode} Tr
+            72 700 Td
+            (Searchable OCR text remains available without painting over the scanned page.) Tj
+            ET
+            """);
+        PDPage page = document.GetPage(0);
+        const int pixelWidth = 306;
+        const int pixelHeight = 396;
+        byte[] rgb = new byte[pixelWidth * pixelHeight * 3];
+        Array.Fill(rgb, (byte)232);
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, rgb, pixelWidth, pixelHeight, 8, 3);
+        using (PDPageContentStream content = new(document, page, PDPageContentStream.AppendMode.PREPEND, true))
+        {
+            content.DrawImage(image, 0, 0, imageWidth, imageHeight);
         }
 
         return document;
