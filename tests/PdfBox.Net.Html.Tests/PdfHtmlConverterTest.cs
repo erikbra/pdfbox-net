@@ -372,6 +372,31 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFixedFallback_PreservesPositionedWordBoundaries()
+    {
+        using PDDocument document = CreateTextDocument("""
+            BT
+            /F1 10 Tf
+            72 650 Td
+            [(Justified) -250 (prose) -250 (keeps) -250 (boundaries.)] TJ
+            ET
+            """);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        Assert.Equal("Justifiedprosekeepsboundaries.", Assert.Single(layout.Pages[0].Runs).Text);
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+
+        XDocument html = ParseHtml(converted.Html);
+        Assert.Single(ElementsByClass(html, "pdf-semantic-layout-fallback-page"));
+        Assert.Contains("Justified prose keeps boundaries.", converted.Html, StringComparison.Ordinal);
+        Assert.DoesNotContain("Justifiedprose", converted.Html, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_UsesFixedLayoutForFullPageVectorBackdrops()
     {
         using PDDocument document = CreateTextDocument("""

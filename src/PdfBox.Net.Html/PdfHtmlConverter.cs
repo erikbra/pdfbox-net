@@ -727,7 +727,13 @@ public static class PdfHtmlConverter
 
         if (continuousSemanticFlow && semantic != null)
         {
-            WriteSemanticContinuousDocument(html, layout, semantic, imageAssets, options.Scale);
+            WriteSemanticContinuousDocument(
+                html,
+                layout,
+                semantic,
+                imageAssets,
+                options.Scale,
+                options.SemanticExtractionOptions);
         }
         else
         {
@@ -906,7 +912,8 @@ public static class PdfHtmlConverter
         float scale,
         PdfSemanticPage? semanticPage,
         PdfHtmlTextMode textMode,
-        string? additionalClass = null)
+        string? additionalClass = null,
+        PdfSemanticExtractionOptions? inferredTextOptions = null)
     {
         html.Append("  <section class=\"pdf-page");
         if (textMode == PdfHtmlTextMode.Semantic)
@@ -986,9 +993,18 @@ public static class PdfHtmlConverter
         }
         else
         {
+            IReadOnlyDictionary<PdfTextRun, string>? inferredText = inferredTextOptions == null
+                ? null
+                : ReconstructFixedRunText(page, inferredTextOptions);
             foreach (PdfTextRun run in page.Runs.Where(run => !IsCoveredByTransparencyFallback(page, run.PageBounds)))
             {
-                WriteTextRun(html, run, scale, FixedTextFontSize(run, page.Runs), page.Runs);
+                WriteTextRun(
+                    html,
+                    run,
+                    scale,
+                    FixedTextFontSize(run, page.Runs),
+                    page.Runs,
+                    inferredText?.GetValueOrDefault(run));
             }
         }
 
@@ -998,6 +1014,36 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("  </section>");
+    }
+
+    private static IReadOnlyDictionary<PdfTextRun, string> ReconstructFixedRunText(
+        PdfLayoutPage page,
+        PdfSemanticExtractionOptions options)
+    {
+        Dictionary<PdfTextRun, string> textByRun = page.Runs.ToDictionary(
+            static run => run,
+            run => PdfSemanticExtractor.ReconstructText(run.Glyphs, options));
+
+        foreach (PdfTextLine line in page.Lines)
+        {
+            for (int index = 0; index + 1 < line.Runs.Count; index++)
+            {
+                PdfTextRun current = line.Runs[index];
+                PdfTextRun next = line.Runs[index + 1];
+                PdfTextGlyph? lastGlyph = current.Glyphs.LastOrDefault();
+                PdfTextGlyph? firstGlyph = next.Glyphs.FirstOrDefault();
+                if (lastGlyph != null &&
+                    firstGlyph != null &&
+                    PdfSemanticExtractor.IsWordBoundaryBetween(lastGlyph, firstGlyph, options) &&
+                    textByRun[current].Length > 0 &&
+                    !char.IsWhiteSpace(textByRun[current][^1]))
+                {
+                    textByRun[current] += " ";
+                }
+            }
+        }
+
+        return textByRun;
     }
 
     private static void WriteOrderedGraphics(
@@ -1658,8 +1704,10 @@ public static class PdfHtmlConverter
         PdfTextRun run,
         float scale,
         float fontSize,
-        IReadOnlyList<PdfTextRun> pageRuns)
+        IReadOnlyList<PdfTextRun> pageRuns,
+        string? text = null)
     {
+        text ??= run.Text;
         html.Append("    <span class=\"pdf-text-run")
             .Append(run.Shadow is null ? "" : " pdf-text-shadow")
             .Append("\" data-font=\"")
@@ -1684,24 +1732,24 @@ public static class PdfHtmlConverter
 
         if (HasGlyphOutlineFallback(run))
         {
-            WriteGlyphOutlineTextRun(html, run);
+            WriteGlyphOutlineTextRun(html, run, text);
         }
         else if (ShouldUseFittedText(run, pageRuns))
         {
-            WriteFittedTextRun(html, run, fontSize, scale, pageRuns);
+            WriteFittedTextRun(html, run, fontSize, scale, pageRuns, text);
         }
         else
         {
-            html.Append(Html(run.Text));
+            html.Append(Html(text));
         }
 
         html.AppendLine("</span>");
     }
 
-    private static void WriteGlyphOutlineTextRun(StringBuilder html, PdfTextRun run)
+    private static void WriteGlyphOutlineTextRun(StringBuilder html, PdfTextRun run, string text)
     {
         html.Append("<span class=\"pdf-text-run-copy\" aria-hidden=\"true\">")
-            .Append(Html(run.Text))
+            .Append(Html(text))
             .Append("</span><svg class=\"pdf-text-run-svg pdf-text-run-outline\" viewBox=\"0 0 ")
             .Append(SvgNumber(run.Bounds.Width))
             .Append(' ')
@@ -1738,7 +1786,8 @@ public static class PdfHtmlConverter
         PdfTextRun run,
         float fontSize,
         float scale,
-        IReadOnlyList<PdfTextRun> pageRuns)
+        IReadOnlyList<PdfTextRun> pageRuns,
+        string text)
     {
         string color = ColorHex(run.Color);
         float runHeight = run.Bounds.Height * scale;
@@ -1752,7 +1801,7 @@ public static class PdfHtmlConverter
             ? runHeight - baseline
             : 0f;
         html.Append("<span class=\"pdf-text-run-copy\" aria-hidden=\"true\">")
-            .Append(Html(run.Text))
+            .Append(Html(text))
             .Append("</span><svg class=\"pdf-text-run-svg\" viewBox=\"0 0 ")
             .Append(SvgNumber(run.Bounds.Width * scale))
             .Append(' ')
@@ -1788,7 +1837,7 @@ public static class PdfHtmlConverter
         }
 
         html.Append("\">")
-            .Append(Html(run.Text))
+            .Append(Html(text))
             .Append("</text></svg>");
     }
 
@@ -1999,7 +2048,8 @@ public static class PdfHtmlConverter
         PdfLayoutDocument layout,
         PdfSemanticDocument semantic,
         IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
-        float scale)
+        float scale,
+        PdfSemanticExtractionOptions semanticOptions)
     {
         ContinuousPageContext[] pages = layout.Pages
             .Select((page, index) => CreateContinuousPageContext(page, semantic.Pages[index]))
@@ -2077,7 +2127,7 @@ public static class PdfHtmlConverter
                     WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
                 }
 
-                WriteSemanticLineGrid(html, context.LineGrid, scale);
+                WriteSemanticLineGrid(html, context.LineGrid, scale, semanticOptions);
                 continue;
             }
 
@@ -2094,7 +2144,7 @@ public static class PdfHtmlConverter
                     WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
                 }
 
-                WriteSemanticColumns(html, context.Columns, scale);
+                WriteSemanticColumns(html, context.Columns, scale, semanticOptions);
                 continue;
             }
 
@@ -2113,7 +2163,8 @@ public static class PdfHtmlConverter
                     scale,
                     semanticPage: null,
                     PdfHtmlTextMode.FixedLayout,
-                    additionalClass: "pdf-semantic-layout-fallback-page");
+                    additionalClass: "pdf-semantic-layout-fallback-page",
+                    inferredTextOptions: semanticOptions);
                 continue;
             }
 
@@ -2431,7 +2482,11 @@ public static class PdfHtmlConverter
         return index;
     }
 
-    private static void WriteSemanticLineGrid(StringBuilder html, PdfSemanticLineGrid grid, float scale)
+    private static void WriteSemanticLineGrid(
+        StringBuilder html,
+        PdfSemanticLineGrid grid,
+        float scale,
+        PdfSemanticExtractionOptions semanticOptions)
     {
         html.Append("      <section class=\"pdf-semantic-line-grid\" style=\"--pdf-semantic-grid-columns:")
             .Append(grid.ColumnCount.ToString(CultureInfo.InvariantCulture))
@@ -2483,7 +2538,7 @@ public static class PdfHtmlConverter
                 }
 
                 html.Append("\">")
-                    .Append(Html(run.Text))
+                    .Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)))
                     .AppendLine("</span>");
             }
 
@@ -2494,7 +2549,11 @@ public static class PdfHtmlConverter
         html.AppendLine("      </section>");
     }
 
-    private static void WriteSemanticColumns(StringBuilder html, PdfSemanticColumns columns, float scale)
+    private static void WriteSemanticColumns(
+        StringBuilder html,
+        PdfSemanticColumns columns,
+        float scale,
+        PdfSemanticExtractionOptions semanticOptions)
     {
         float top = columns.Columns
             .SelectMany(static column => column.Lines)
@@ -2548,7 +2607,7 @@ public static class PdfHtmlConverter
                 }
 
                 html.Append("\">")
-                    .Append(Html(run.Text))
+                    .Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)))
                     .AppendLine("</span>");
                 previous = run;
             }
