@@ -64,6 +64,10 @@ jobs:
             --fail-on-unexpected \
             --fail-on-regression
           python3 tools/conversion_quality/run_remote_corpus.py \
+            --id jmlr-lda \
+            --id arxiv-adam \
+            --id uscis-i9 \
+            --id nps-mount-rainier \
             --base-review-manifest tools/conversion_quality/html-review-manifest.json \
             --cache-dir artifacts/cache/conversion-quality/remote-pdfs \
             --review-manifest-out artifacts/cache/conversion-quality/remote-html-review-manifest.json \

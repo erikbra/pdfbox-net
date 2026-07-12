@@ -108,6 +108,54 @@ class RemoteCorpusTest(unittest.TestCase):
             {item.id: (item.pdf_url, item.sha256) for item in documents},
         )
 
+    def test_selection_defaults_to_all_documents_and_preserves_manifest_order(self) -> None:
+        _, documents = remote_corpus.load_manifest(remote_corpus.DEFAULT_MANIFEST)
+
+        self.assertEqual(documents, remote_corpus.select_documents(documents))
+        selected = remote_corpus.select_documents(
+            documents,
+            ids=("uscis-i9", "arxiv-adam", "uscis-i9"),
+        )
+
+        self.assertEqual(["arxiv-adam", "uscis-i9"], [document.id for document in selected])
+
+    def test_selection_supports_category_and_combines_id_and_category_filters(self) -> None:
+        _, documents = remote_corpus.load_manifest(remote_corpus.DEFAULT_MANIFEST)
+
+        forms = remote_corpus.select_documents(documents, categories=("forms",))
+        selected_form = remote_corpus.select_documents(
+            documents,
+            ids=("arxiv-adam", "uscis-i9"),
+            categories=("forms", "government-form"),
+        )
+
+        self.assertEqual(["irs-w9", "uscis-i9"], [document.id for document in forms])
+        self.assertEqual(["uscis-i9"], [document.id for document in selected_form])
+
+    def test_selection_rejects_unknown_empty_and_non_overlapping_filters(self) -> None:
+        _, documents = remote_corpus.load_manifest(remote_corpus.DEFAULT_MANIFEST)
+
+        with self.assertRaisesRegex(ValueError, r"Unknown --id value\(s\): missing"):
+            remote_corpus.select_documents(documents, ids=("missing",))
+        with self.assertRaisesRegex(ValueError, r"Unknown --category value\(s\): missing"):
+            remote_corpus.select_documents(documents, categories=("missing",))
+        with self.assertRaisesRegex(ValueError, "--id selection values must not be empty"):
+            remote_corpus.select_documents(documents, ids=("",))
+        with self.assertRaisesRegex(ValueError, "selection matched no documents"):
+            remote_corpus.select_documents(
+                documents,
+                ids=("arxiv-adam",),
+                categories=("forms",),
+            )
+
+    def test_parse_args_collects_repeatable_selectors(self) -> None:
+        args = remote_corpus.parse_args(
+            ["--id", "arxiv-adam", "--id", "uscis-i9", "--category", "forms"]
+        )
+
+        self.assertEqual(["arxiv-adam", "uscis-i9"], args.ids)
+        self.assertEqual(["forms"], args.categories)
+
     def test_manifest_rejects_non_https_and_duplicate_ids(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             manifest = Path(temp_dir) / "manifest.json"

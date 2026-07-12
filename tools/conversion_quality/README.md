@@ -51,18 +51,39 @@ and links. Canonical source pages, direct HTTPS PDF URLs, categories, and
 SHA-256 hashes are recorded in `remote-corpus-manifest.json`.
 
 Run the complete download, verification, conversion, expectation, and combined
-review artifact path locally with one command:
+review artifact path for all eleven documents locally with one command. Omitting
+selection options always selects the full manifest:
 
 ```bash
 python3 tools/conversion_quality/run_remote_corpus.py --build
 ```
 
+Normal PR CI runs a smaller category-balanced selection through the same
+manifest and artifact path:
+
+```bash
+python3 tools/conversion_quality/run_remote_corpus.py \
+  --id jmlr-lda \
+  --id arxiv-adam \
+  --id uscis-i9 \
+  --id nps-mount-rainier \
+  --build
+```
+
+The four CI documents cover long-form text, formula-heavy notation, a semantic
+government form, and a graphic-heavy brochure. Use repeatable `--id` options for
+specific documents or repeatable `--category` options for any document in one
+of several categories, for example `--category forms --build`. Multiple IDs or
+categories are OR selections within that option; when both options are present,
+a document must match both filters. Unknown values, empty values, and selections
+that match no documents fail before any download starts.
+
 PDFs are downloaded atomically with retries and timeouts into the ignored
 `artifacts/cache/conversion-quality/remote-pdfs` directory. Every cached or
 downloaded file must match its pinned SHA-256 hash before it is used. The script
 then combines the checked-in fixtures with the remote corpus and writes one
-overview to `artifacts/html-examples`. CI runs the same networked path after the
-Release build, writing the combined overview to
+overview to `artifacts/html-examples`. CI runs its four-document selection over
+the same networked path after the Release build, writing the combined overview to
 `artifacts/conversion-quality-smoke/html-examples` beneath the existing uploaded
 artifact root.
 
