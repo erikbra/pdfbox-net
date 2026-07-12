@@ -189,7 +189,7 @@ public sealed class DictionaryEncoding : Encoding
             }
             else if (item is COSName name && currentCode >= 0)
             {
-                AddCharacterEncoding(currentCode, name.GetName());
+                OverwriteCharacterEncoding(currentCode, name.GetName());
                 _differences[currentCode] = name.GetName();
                 currentCode++;
             }

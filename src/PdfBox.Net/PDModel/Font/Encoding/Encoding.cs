@@ -44,6 +44,19 @@ public class Encoding
     protected void AddCharacterEncoding(int code, string name)
     {
         _codeToName[code] = name;
+        _nameToCode.TryAdd(name, code);
+    }
+
+    protected void OverwriteCharacterEncoding(int code, string name)
+    {
+        if (_codeToName.TryGetValue(code, out string? oldName) &&
+            _nameToCode.TryGetValue(oldName, out int oldCode) &&
+            oldCode == code)
+        {
+            _nameToCode.Remove(oldName);
+        }
+
+        _codeToName[code] = name;
         _nameToCode[name] = code;
     }
 
