@@ -7,7 +7,6 @@ import argparse
 import gzip
 import hashlib
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -93,7 +92,21 @@ def build_deb(root: Path, artifact: dict, version: str, architecture: str, outpu
         return destination
 
 
-def build_repository(root: Path, manifest: dict, output: Path, suite: str, gpg_key: str) -> None:
+def gpg_command(passphrase_file: Path | None = None) -> list[str]:
+    command = ["gpg", "--batch", "--yes"]
+    if passphrase_file is not None:
+        command.extend(["--pinentry-mode", "loopback", "--passphrase-file", str(passphrase_file)])
+    return command
+
+
+def build_repository(
+    root: Path,
+    manifest: dict,
+    output: Path,
+    suite: str,
+    gpg_key: str,
+    gpg_passphrase_file: Path | None = None,
+) -> None:
     shutil.rmtree(output, ignore_errors=True)
     output.mkdir(parents=True)
     version = debian_version(manifest["version"])
@@ -128,16 +141,18 @@ def build_repository(root: Path, manifest: dict, output: Path, suite: str, gpg_k
         "release", f"dists/{suite}",
     ], cwd=output, check=True, capture_output=True).stdout
     (release_dir / "Release").write_bytes(release)
-    subprocess.run([
-        "gpg", "--batch", "--yes", "--local-user", gpg_key, "--digest-algo", "SHA256",
+    subprocess.run(gpg_command(gpg_passphrase_file) + [
+        "--local-user", gpg_key, "--digest-algo", "SHA256",
         "--clearsign", "--output", str(release_dir / "InRelease"), str(release_dir / "Release"),
     ], check=True)
-    subprocess.run([
-        "gpg", "--batch", "--yes", "--local-user", gpg_key, "--digest-algo", "SHA256",
+    subprocess.run(gpg_command(gpg_passphrase_file) + [
+        "--local-user", gpg_key, "--digest-algo", "SHA256",
         "--armor", "--detach-sign", "--output", str(release_dir / "Release.gpg"), str(release_dir / "Release"),
     ], check=True)
     with (output / "unpdf-archive-keyring.gpg").open("wb") as keyring:
         subprocess.run(["gpg", "--batch", "--export", gpg_key], check=True, stdout=keyring)
+    with (output / "unpdf-archive-key.asc").open("wb") as armored_key:
+        subprocess.run(["gpg", "--batch", "--armor", "--export", gpg_key], check=True, stdout=armored_key)
 
 
 def main() -> int:
@@ -146,9 +161,18 @@ def main() -> int:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--suite", default="preview")
     parser.add_argument("--gpg-key", required=True)
+    parser.add_argument("--gpg-passphrase-file", type=Path)
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    build_repository(root, load_manifest(args.manifest), args.output.resolve(), args.suite, args.gpg_key)
+    passphrase_file = args.gpg_passphrase_file.resolve() if args.gpg_passphrase_file else None
+    build_repository(
+        root,
+        load_manifest(args.manifest),
+        args.output.resolve(),
+        args.suite,
+        args.gpg_key,
+        passphrase_file,
+    )
     return 0
 
 

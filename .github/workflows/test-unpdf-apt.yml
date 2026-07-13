@@ -4,9 +4,12 @@ on:
   pull_request:
     paths:
       - ".github/workflows/test-unpdf-apt.yml"
+      - ".github/workflows/publish-unpdf-apt.yml"
       - "eng/build_unpdf_apt_repository.py"
+      - "eng/publish_unpdf_apt_site.py"
       - "packaging/debian/**"
       - "tests/release/test_build_unpdf_apt_repository.py"
+      - "tests/release/test_publish_unpdf_apt_site.py"
   workflow_dispatch:
 
 permissions:
@@ -25,18 +28,19 @@ jobs:
         id: signing
         run: |
           cat > artifacts-gpg-key <<'EOF'
-          %no-protection
           Key-Type: eddsa
           Key-Curve: Ed25519
           Key-Usage: sign
           Name-Real: unpdf CI repository
           Name-Email: unpdf-ci@example.invalid
           Expire-Date: 1d
+          Passphrase: unpdf-ci-test-passphrase
           %commit
           EOF
-          gpg --batch --generate-key artifacts-gpg-key
+          gpg --batch --pinentry-mode loopback --generate-key artifacts-gpg-key
           fingerprint="$(gpg --batch --list-secret-keys --with-colons | awk -F: '$1 == "fpr" { print $10; exit }')"
           test -n "$fingerprint"
+          printf '%s' 'unpdf-ci-test-passphrase' > artifacts-gpg-passphrase
           echo "fingerprint=$fingerprint" >> "$GITHUB_OUTPUT"
 
       - name: Build signed test repository
@@ -46,13 +50,27 @@ jobs:
           --output artifacts/apt-repository
           --suite preview
           --gpg-key "${{ steps.signing.outputs.fingerprint }}"
+          --gpg-passphrase-file artifacts-gpg-passphrase
 
       - name: Verify repository signature and packages
         run: |
           gpgv --keyring artifacts/apt-repository/unpdf-archive-keyring.gpg \
             artifacts/apt-repository/dists/preview/InRelease
+          gpg --batch --import-options show-only --import artifacts/apt-repository/unpdf-archive-key.asc
           dpkg-deb --info artifacts/apt-repository/pool/main/u/unpdf/*_amd64.deb
           dpkg-deb --info artifacts/apt-repository/pool/main/u/unpdf/*_arm64.deb
+
+      - name: Build Pages publication tree
+        run: |
+          python3 eng/publish_unpdf_apt_site.py \
+            --repository artifacts/apt-repository \
+            --site artifacts/pages \
+            --suite preview \
+            --base-url https://example.invalid/apt \
+            --fingerprint "${{ steps.signing.outputs.fingerprint }}"
+          test -f artifacts/pages/apt/dists/preview/InRelease
+          grep -q 'Preview channel' artifacts/pages/apt/index.html
+          grep -q 'Signed-By: /etc/apt/keyrings/unpdf.gpg' artifacts/pages/apt/unpdf-preview.sources
 
       - uses: actions/upload-artifact@v7.0.1
         with:
