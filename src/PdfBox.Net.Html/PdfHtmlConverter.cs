@@ -631,6 +631,24 @@ public static class PdfHtmlConverter
           padding-right: 0;
         }
 
+        .pdf-semantic-flow .pdf-semantic-title:not(.pdf-semantic-cover-region-element) {
+          align-self: flex-start;
+          max-width: calc(100% + 72pt);
+          width: min(var(--pdf-semantic-title-width, 100%), calc(100% + 72pt));
+        }
+
+        .pdf-semantic-flow .pdf-semantic-title.pdf-semantic-align-center:not(.pdf-semantic-cover-region-element) {
+          align-self: center;
+        }
+
+        .pdf-semantic-flow .pdf-semantic-title.pdf-semantic-align-right:not(.pdf-semantic-cover-region-element) {
+          align-self: flex-end;
+        }
+
+        .pdf-semantic-element.pdf-semantic-title-regular {
+          font-weight: 400;
+        }
+
         .pdf-semantic-title-rule-top {
           border-top: var(--pdf-title-rule-top-thickness, 0.5pt) solid var(--pdf-title-rule-top-color, currentColor);
           padding-top: var(--pdf-title-rule-top-gap, 0);
@@ -10076,6 +10094,11 @@ public static class PdfHtmlConverter
         if (IsTitleElement(element))
         {
             classes.Add("pdf-semantic-title");
+            if (!IsBoldFont(SemanticFontName(element)))
+            {
+                classes.Add("pdf-semantic-title-regular");
+            }
+
             if (page != null)
             {
                 if (DecorativeTitleRulePath(page, element, TitleRulePosition.Above) != null)
@@ -10254,6 +10277,16 @@ public static class PdfHtmlConverter
 
         if (page != null && IsTitleElement(element))
         {
+            float sourceWidth = element.Lines
+                .Where(static line => MathF.Abs(line.Direction) < 0.01f)
+                .Select(static line => line.Bounds.Width)
+                .DefaultIfEmpty(element.Bounds.Width)
+                .Max();
+            if (sourceWidth > SemanticFlowWidth(page) + 0.5f)
+            {
+                styles.Add("--pdf-semantic-title-width:" + CssPoints(sourceWidth));
+            }
+
             AppendTitleRuleStyle(styles, page, element, TitleRulePosition.Above, "top");
             AppendTitleRuleStyle(styles, page, element, TitleRulePosition.Below, "bottom");
         }
