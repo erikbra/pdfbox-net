@@ -58,7 +58,8 @@ public sealed class PdfSemanticElement
         PdfSemanticAside? aside = null,
         PdfSemanticNote? note = null,
         PdfSemanticThematicBreak? thematicBreak = null,
-        PdfSemanticAlgorithm? algorithm = null)
+        PdfSemanticAlgorithm? algorithm = null,
+        PdfSemanticTableCaption? tableCaption = null)
     {
         Kind = kind;
         Text = text;
@@ -75,6 +76,7 @@ public sealed class PdfSemanticElement
         Note = note;
         ThematicBreak = thematicBreak;
         Algorithm = algorithm;
+        TableCaption = tableCaption;
         IsDocumentTitle = isDocumentTitle;
     }
 
@@ -122,6 +124,11 @@ public sealed class PdfSemanticElement
     /// Gets the structured pseudocode represented by this element.
     /// </summary>
     public PdfSemanticAlgorithm? Algorithm { get; }
+
+    /// <summary>
+    /// Gets the visible numbered title associated with this table.
+    /// </summary>
+    public PdfSemanticTableCaption? TableCaption { get; }
 
     /// <summary>
     /// Gets whether this heading is the inferred document title rather than a section heading.
@@ -390,6 +397,45 @@ public sealed class PdfSemanticTableRow
     public IReadOnlyList<PdfSemanticTableCell> Cells { get; }
 
     public bool IsHeader { get; }
+}
+
+/// <summary>
+/// A visible numbered caption associated with an inferred semantic table.
+/// </summary>
+public sealed class PdfSemanticTableCaption
+{
+    public PdfSemanticTableCaption(
+        string number,
+        string text,
+        PdfLayoutRectangle bounds,
+        IReadOnlyList<PdfSemanticLine> lines,
+        PdfSemanticTableCaptionPosition position)
+    {
+        Number = number;
+        Text = text;
+        Bounds = bounds;
+        Lines = lines.ToArray();
+        Position = position;
+    }
+
+    public string Number { get; }
+
+    public string Text { get; }
+
+    public PdfLayoutRectangle Bounds { get; }
+
+    public IReadOnlyList<PdfSemanticLine> Lines { get; }
+
+    public PdfSemanticTableCaptionPosition Position { get; }
+}
+
+/// <summary>
+/// The source position of a table caption relative to its table.
+/// </summary>
+public enum PdfSemanticTableCaptionPosition
+{
+    Above,
+    Below
 }
 
 /// <summary>

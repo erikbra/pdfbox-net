@@ -2353,6 +2353,35 @@ public class PdfHtmlConverterTest
         });
         XDocument dom = ParseHtml(html.Html);
 
+        XElement[] tableCaptions = dom.Descendants("caption")
+            .Where(static caption => caption.Value.StartsWith("Table ", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(4, tableCaptions.Length);
+        Assert.Equal(
+            ["Table 1:", "Table 2:", "Table 3:", "Table 4:"],
+            tableCaptions.Select(static caption => caption.Value[..8]).ToArray());
+        Assert.All(tableCaptions, caption =>
+        {
+            Assert.Equal("table", caption.Parent?.Name.LocalName);
+            Assert.Same(caption, caption.Parent!.Elements().First());
+            Assert.True(HasClass(caption, "pdf-semantic-table-caption-above"));
+            Assert.True(HasClass(caption, "pdf-semantic-table-caption-align-left"));
+            Assert.Null(caption.Parent.Attribute("aria-label"));
+            Dictionary<string, string> style = ParseStyle(caption.Attribute("style")?.Value ?? "");
+            Assert.Contains("--pdf-semantic-table-caption-width", style);
+            Assert.Contains("--pdf-semantic-table-caption-offset", style);
+            Assert.Contains("--pdf-semantic-table-caption-gap", style);
+        });
+        Assert.DoesNotContain(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.StartsWith("Table 1:", StringComparison.Ordinal) ||
+            paragraph.Value.StartsWith("Table 2:", StringComparison.Ordinal) ||
+            paragraph.Value.StartsWith("Table 3:", StringComparison.Ordinal) ||
+            paragraph.Value.StartsWith("Table 4:", StringComparison.Ordinal));
+        foreach (string label in new[] { "Table 1:", "Table 2:", "Table 3:", "Table 4:" })
+        {
+            Assert.Single(Regex.Matches(html.Html, Regex.Escape(label)).Cast<Match>());
+        }
+
         XElement variationTable = Assert.Single(dom.Descendants("table"), table =>
             table.Value.Contains("Pdrop", StringComparison.Ordinal) &&
             table.Value.Contains("positional embedding instead of sinusoids", StringComparison.Ordinal));
@@ -2376,6 +2405,104 @@ public class PdfHtmlConverterTest
             row.Value.Trim() is "(A)" or "(B)" or "(D)");
         Assert.Contains(".pdf-semantic-table td[colspan]", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-table-row-group-header", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-table-caption-below", html.Css, StringComparison.Ordinal);
+        Assert.Contains("caption-side: bottom", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-table-caption-align-left", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-table-caption-align-center", html.Css, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-table-caption-align-right", html.Css, StringComparison.Ordinal);
+        Assert.Contains("text-align: start", html.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Convert_SemanticTableCaption_AppliesConfidentSourceAlignmentInBrowser()
+    {
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(
+            CreateSemanticTableCaptionAlignmentLayoutFixture(),
+            new PdfHtmlOptions { TextMode = PdfHtmlTextMode.Semantic });
+        XDocument dom = ParseHtml(html.Html);
+        XElement[] captions = dom.Descendants("caption")
+            .Where(static caption => caption.Value.StartsWith("Table ", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(3, captions.Length);
+        Assert.True(HasClass(captions[0], "pdf-semantic-table-caption-align-left"));
+        Assert.True(HasClass(captions[1], "pdf-semantic-table-caption-align-center"));
+        Assert.True(HasClass(captions[2], "pdf-semantic-table-caption-align-right"));
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage browserPage = await browser.NewPageAsync();
+        await browserPage.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        string[] computedAlignments = await browserPage.EvaluateAsync<string[]>(
+            """
+            () => Array.from(document.querySelectorAll("caption.pdf-semantic-table-caption"))
+              .map(caption => {
+                const label = caption.textContent.trim().match(/^Table \d+:/)[0];
+                const content = caption.querySelector(".pdf-semantic-table-caption-content");
+                const captionStyle = getComputedStyle(caption);
+                const contentStyle = getComputedStyle(content);
+                return `${label}|${captionStyle.textAlign}|${captionStyle.textAlignLast}|${contentStyle.textAlign}|${contentStyle.textAlignLast}`;
+              })
+            """);
+
+        Assert.Equal(
+            [
+                "Table 7:|left|left|left|left",
+                "Table 8:|center|center|center|center",
+                "Table 9:|right|right|right|right"
+            ],
+            computedAlignments);
+    }
+
+    [Fact]
+    public void Convert_SemanticTableCaption_PreservesRichLinkGeometryAndStableHeadingId()
+    {
+        PdfLayoutDocument layout = CreateSemanticTableCaptionLayoutFixture();
+        PdfHtmlDocument firstHtml = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        PdfHtmlDocument secondHtml = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        XDocument first = ParseHtml(firstHtml.Html);
+        XDocument second = ParseHtml(secondHtml.Html);
+
+        XElement table = Assert.Single(first.Descendants("table"), static table =>
+            table.Value.Contains("Alpha", StringComparison.Ordinal) &&
+            table.Value.Contains("Outcome", StringComparison.Ordinal));
+        XElement caption = Assert.Single(table.Elements("caption"));
+        Assert.Same(caption, table.Elements().First());
+        Assert.Equal("Table 7: Linked benchmark details.", caption.Value);
+        Assert.True(HasClass(caption, "pdf-semantic-table-caption-above"));
+        Assert.Null(table.Attribute("aria-label"));
+
+        XElement link = Assert.Single(caption.Descendants("a"));
+        Assert.Equal("https://example.test/benchmark", link.Attribute("href")?.Value);
+        Assert.True(HasClass(link, "pdf-semantic-link"));
+        Assert.Contains(link.Descendants("strong"), static strong =>
+            strong.Value == "Linked benchmark");
+        Dictionary<string, string> captionStyle = ParseStyle(caption.Attribute("style")?.Value ?? "");
+        Assert.Contains("--pdf-semantic-table-caption-width", captionStyle);
+        Assert.Contains("--pdf-semantic-table-caption-offset", captionStyle);
+        Assert.Contains("--pdf-semantic-table-caption-gap", captionStyle);
+        Assert.DoesNotContain(first.Descendants("p"), static paragraph =>
+            paragraph.Value.Contains("Table 7:", StringComparison.Ordinal));
+
+        XElement firstHeading = Assert.Single(first.Descendants(), static element =>
+            element.Name.LocalName.StartsWith("h", StringComparison.Ordinal) &&
+            element.Value == "2 Results");
+        XElement secondHeading = Assert.Single(second.Descendants(), static element =>
+            element.Name.LocalName.StartsWith("h", StringComparison.Ordinal) &&
+            element.Value == "2 Results");
+        Assert.False(string.IsNullOrWhiteSpace(firstHeading.Attribute("id")?.Value));
+        Assert.Equal(firstHeading.Attribute("id")?.Value, secondHeading.Attribute("id")?.Value);
     }
 
     [Fact]
@@ -3432,6 +3559,26 @@ public class PdfHtmlConverterTest
             }
         });
         await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        string[] captionAlignments = await page.EvaluateAsync<string[]>(
+            """
+            () => Array.from(document.querySelectorAll("caption.pdf-semantic-table-caption"))
+              .filter(caption => /^Table [1-4]:/.test(caption.textContent.trim()))
+              .map(caption => {
+                const label = caption.textContent.trim().match(/^Table \d+:/)[0];
+                const sourcePage = caption.closest(".pdf-semantic-page").dataset.pageNumber;
+                const content = caption.querySelector(".pdf-semantic-table-caption-content");
+                return `${label}|page-${sourcePage}|${getComputedStyle(caption).textAlign}|${getComputedStyle(content).textAlign}`;
+              })
+            """);
+        Assert.Equal(
+            [
+                "Table 1:|page-6|left|left",
+                "Table 2:|page-8|left|left",
+                "Table 3:|page-9|left|left",
+                "Table 4:|page-10|left|left"
+            ],
+            captionAlignments);
 
         double[] overflows = await page.EvaluateAsync<double[]>(
             """
@@ -5796,6 +5943,116 @@ public class PdfHtmlConverterTest
                     (" (2022). Symmetry in modern physics.", "Times-Roman"))
             ]);
         return new PdfLayoutDocument([firstPage, secondPage, thirdPage], []);
+    }
+
+    private static PdfLayoutDocument CreateSemanticTableCaptionLayoutFixture()
+    {
+        PdfTextLine caption = CreateBibliographyStyledLine(
+            126f,
+            124f,
+            ("Table 7: ", "Times-Roman"),
+            ("Linked benchmark", "Times-Bold"),
+            (" details.", "Times-Roman"));
+        PdfTextLine[] lines =
+        [
+            CreateScientificFixtureLine("2 Results", 72f, 52f, 100f, 14f, "Times-Bold"),
+            CreateScientificFixtureLine("Opening prose establishes the ordinary body font.", 72f, 80f, 320f),
+            CreateScientificFixtureLine("A second line establishes normal source rhythm.", 72f, 94f, 310f),
+            caption,
+            CreateSemanticTableRowLine(152f,
+                ("Cohort", 96f, 100f),
+                ("Baseline", 260f, 74f),
+                ("Outcome", 382f, 78f)),
+            CreateSemanticTableRowLine(166f,
+                ("Alpha", 96f, 100f),
+                ("10", 260f, 74f),
+                ("12", 382f, 78f)),
+            CreateSemanticTableRowLine(180f,
+                ("Beta", 96f, 100f),
+                ("14", 260f, 74f),
+                ("18", 382f, 78f)),
+            CreateSemanticTableRowLine(194f,
+                ("Gamma", 96f, 100f),
+                ("21", 260f, 74f),
+                ("25", 382f, 78f)),
+            CreateScientificFixtureLine("Closing prose remains outside the detected table.", 72f, 240f, 300f)
+        ];
+        PdfLayoutPage page = CreateBibliographyLayoutPage(
+            1,
+            lines,
+            [
+                new PdfLayoutLink(
+                    0,
+                    caption.Runs[1].Bounds,
+                    PdfLayoutLinkKind.Uri,
+                    "https://example.test/benchmark",
+                    null,
+                    null,
+                    [])
+            ]);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutDocument CreateSemanticTableCaptionAlignmentLayoutFixture()
+    {
+        return new PdfLayoutDocument(
+            [
+                CreateSemanticTableCaptionAlignmentPage(1, 7, 96f, 96f),
+                CreateSemanticTableCaptionAlignmentPage(2, 8, 128f, 188f),
+                CreateSemanticTableCaptionAlignmentPage(3, 9, 160f, 280f)
+            ],
+            []);
+    }
+
+    private static PdfLayoutPage CreateSemanticTableCaptionAlignmentPage(
+        int pageNumber,
+        int tableNumber,
+        float firstLineX,
+        float secondLineX)
+    {
+        PdfTextLine[] lines =
+        [
+            CreateScientificFixtureLine($"{pageNumber} Results", 72f, 52f, 100f, 14f, "Times-Bold"),
+            CreateScientificFixtureLine("Opening prose establishes the ordinary body font.", 72f, 80f, 320f),
+            CreateScientificFixtureLine("A second line establishes normal source rhythm.", 72f, 94f, 310f),
+            CreateScientificFixtureLine($"Table {tableNumber}: Wrapped caption alignment", firstLineX, 112f, 300f),
+            CreateScientificFixtureLine("continues on a second source line.", secondLineX, 124f, 180f),
+            CreateSemanticTableRowLine(152f,
+                ("Cohort", 96f, 100f),
+                ("Baseline", 260f, 74f),
+                ("Outcome", 382f, 78f)),
+            CreateSemanticTableRowLine(166f,
+                ("Alpha", 96f, 100f),
+                ("10", 260f, 74f),
+                ("12", 382f, 78f)),
+            CreateSemanticTableRowLine(180f,
+                ("Beta", 96f, 100f),
+                ("14", 260f, 74f),
+                ("18", 382f, 78f)),
+            CreateSemanticTableRowLine(194f,
+                ("Gamma", 96f, 100f),
+                ("21", 260f, 74f),
+                ("25", 382f, 78f)),
+            CreateScientificFixtureLine("Closing prose remains outside the detected table.", 72f, 240f, 300f)
+        ];
+        return CreateBibliographyLayoutPage(pageNumber, lines);
+    }
+
+    private static PdfTextLine CreateSemanticTableRowLine(
+        float y,
+        params (string Text, float X, float Width)[] cells)
+    {
+        PdfTextRun[] runs = cells
+            .Select(cell => CreateScientificFixtureLine(cell.Text, cell.X, y, cell.Width).Runs.Single())
+            .ToArray();
+        float left = runs.Min(static run => run.Bounds.X);
+        float top = runs.Min(static run => run.Bounds.Y);
+        float right = runs.Max(static run => run.Bounds.Right);
+        float bottom = runs.Max(static run => run.Bounds.Bottom);
+        return new PdfTextLine(
+            string.Join(' ', cells.Select(static cell => cell.Text)),
+            new PdfLayoutRectangle(left, top, right - left, bottom - top),
+            runs);
     }
 
     private static PdfLayoutDocument CreateInlineSemanticLayoutFixture()

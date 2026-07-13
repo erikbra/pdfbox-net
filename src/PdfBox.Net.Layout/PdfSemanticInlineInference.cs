@@ -58,6 +58,22 @@ internal static class PdfSemanticInlineInference
         HashSet<PdfSemanticLine> visited = new(ReferenceEqualityComparer.Instance);
         foreach (PdfSemanticElement element in semanticPage.Elements)
         {
+            if (element.TableCaption is { } tableCaption)
+            {
+                PdfSemanticElement captionElement = new(
+                    PdfSemanticElementKind.Paragraph,
+                    tableCaption.Text,
+                    tableCaption.Bounds,
+                    tableCaption.Lines);
+                foreach (PdfSemanticLine line in tableCaption.Lines)
+                {
+                    if (visited.Add(line))
+                    {
+                        line.SetInlineSemantics(InferLine(page, captionElement, line, bodyFontSize));
+                    }
+                }
+            }
+
             bool excludedContainer = element.Kind is PdfSemanticElementKind.Table or
                 PdfSemanticElementKind.Footnote or
                 PdfSemanticElementKind.CodeBlock or

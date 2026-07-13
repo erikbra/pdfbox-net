@@ -1090,6 +1090,50 @@ public static class PdfHtmlConverter
           width: min(100%, var(--pdf-semantic-width, 100%));
         }
 
+        .pdf-semantic-table-caption {
+          box-sizing: border-box;
+          caption-side: top;
+          font-weight: normal;
+          line-height: 1.18;
+          margin: 0;
+          padding: 0 4pt var(--pdf-semantic-table-caption-gap, 5pt);
+          text-align: start;
+          text-align-last: start;
+        }
+
+        .pdf-semantic-table-caption-below {
+          caption-side: bottom;
+          padding: var(--pdf-semantic-table-caption-gap, 5pt) 4pt 0;
+        }
+
+        .pdf-semantic-table-caption-content {
+          box-sizing: border-box;
+          display: block;
+          margin-inline-start: clamp(
+            0%,
+            var(--pdf-semantic-table-caption-offset, 0%),
+            calc(100% - var(--pdf-semantic-table-caption-width, 100%)));
+          width: var(--pdf-semantic-table-caption-width, 100%);
+        }
+
+        .pdf-semantic-table-caption.pdf-semantic-table-caption-align-left,
+        .pdf-semantic-table-caption.pdf-semantic-table-caption-align-left .pdf-semantic-table-caption-content {
+          text-align: left;
+          text-align-last: left;
+        }
+
+        .pdf-semantic-table-caption.pdf-semantic-table-caption-align-center,
+        .pdf-semantic-table-caption.pdf-semantic-table-caption-align-center .pdf-semantic-table-caption-content {
+          text-align: center;
+          text-align-last: center;
+        }
+
+        .pdf-semantic-table-caption.pdf-semantic-table-caption-align-right,
+        .pdf-semantic-table-caption.pdf-semantic-table-caption-align-right .pdf-semantic-table-caption-content {
+          text-align: right;
+          text-align-last: right;
+        }
+
         .pdf-semantic-table th,
         .pdf-semantic-table td {
           border: 0;
@@ -4873,12 +4917,20 @@ public static class PdfHtmlConverter
             string.Join('\t', row.Cells
                 .Where(static cell => !cell.IsPlaceholder)
                 .Select(static cell => cell.Text))));
+        PdfSemanticTableCaption? caption = table.TableCaption;
+        if (caption != null &&
+            (caption.Bounds.X + caption.Bounds.Width / 2f < boundary) != keepLeft)
+        {
+            caption = null;
+        }
+
         return new PdfSemanticElement(
             PdfSemanticElementKind.Table,
             text,
             UnionRectangles(selectedCells.Select(static cell => cell.Bounds)),
             lines,
-            tableRows: rows);
+            tableRows: rows,
+            tableCaption: caption);
     }
 
     private static bool HasSupportingTableRules(PdfLayoutPage page, PdfSemanticElement table)
@@ -4910,7 +4962,9 @@ public static class PdfHtmlConverter
     private static IEnumerable<PdfTextGlyph> SemanticElementGlyphs(PdfSemanticElement element)
     {
         return element.Kind == PdfSemanticElementKind.Table
-            ? TableGlyphs(element)
+            ? TableGlyphs(element).Concat(element.TableCaption?.Lines
+                .SelectMany(static line => line.Runs)
+                .SelectMany(static run => run.Glyphs) ?? [])
             : element.Lines
                 .SelectMany(static line => line.Runs)
                 .SelectMany(static run => run.Glyphs);
@@ -7330,9 +7384,14 @@ public static class PdfHtmlConverter
     {
         html.Append("      <table class=\"")
             .Append(SemanticClassNames(element, page, allowMeasuredWidth))
-            .Append("\" aria-label=\"")
-            .Append(HtmlAttribute(TableAriaLabel(element, claimedFormulaGlyphs)))
             .Append('"');
+        if (element.TableCaption == null)
+        {
+            html.Append(" aria-label=\"")
+                .Append(HtmlAttribute(TableAriaLabel(element, claimedFormulaGlyphs)))
+                .Append('"');
+        }
+
         AppendTextDirectionAttribute(html, element.Text);
         string style = FlowSemanticStyle(element, page, allowMeasuredWidth);
         if (style.Length > 0)
@@ -7343,6 +7402,11 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine(">");
+
+        if (element.TableCaption != null)
+        {
+            WriteSemanticTableCaption(html, element, element.TableCaption, footnotes, page);
+        }
 
         PdfSemanticTableRow[] headerRows = element.TableRows
             .TakeWhile(static row => row.IsHeader)
@@ -7384,6 +7448,74 @@ public static class PdfHtmlConverter
 
         html.AppendLine("        </tbody>");
         html.AppendLine("      </table>");
+    }
+
+    private static void WriteSemanticTableCaption(
+        StringBuilder html,
+        PdfSemanticElement table,
+        PdfSemanticTableCaption caption,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        PdfSemanticElement captionElement = new(
+            PdfSemanticElementKind.Paragraph,
+            caption.Text,
+            caption.Bounds,
+            caption.Lines);
+        string? alignmentClass = TableCaptionAlignmentClass(table, caption);
+        html.Append("        <caption class=\"")
+            .Append(SemanticClassNames(captionElement, page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-table-caption pdf-semantic-table-caption-")
+            .Append(caption.Position == PdfSemanticTableCaptionPosition.Below ? "below" : "above");
+        if (alignmentClass != null)
+        {
+            html.Append(' ').Append(alignmentClass);
+        }
+
+        html.Append('"');
+        AppendTextDirectionAttribute(html, caption.Text);
+        string style = SemanticTableCaptionStyle(table, caption);
+        if (style.Length > 0)
+        {
+            html.Append(" style=\"")
+                .Append(HtmlAttribute(style))
+                .Append('"');
+        }
+
+        html.Append("><span class=\"pdf-semantic-table-caption-content\">");
+        if (CanWriteRichSemanticText(captionElement))
+        {
+            WriteRichSemanticText(html, captionElement, footnotes, page);
+        }
+        else
+        {
+            WriteTextWithFootnoteReferences(html, caption.Text, footnotes);
+        }
+
+        html.AppendLine("</span></caption>");
+    }
+
+    private static string SemanticTableCaptionStyle(
+        PdfSemanticElement table,
+        PdfSemanticTableCaption caption)
+    {
+        if (table.Bounds.Width <= 0.01f)
+        {
+            return "";
+        }
+
+        float widthPercent = Math.Clamp(caption.Bounds.Width / table.Bounds.Width * 100f, 20f, 100f);
+        float maximumOffset = MathF.Max(0f, 100f - widthPercent);
+        float offsetPercent = Math.Clamp(
+            (caption.Bounds.X - table.Bounds.X) / table.Bounds.Width * 100f,
+            0f,
+            maximumOffset);
+        float sourceGap = caption.Position == PdfSemanticTableCaptionPosition.Above
+            ? table.Bounds.Y - caption.Bounds.Bottom
+            : caption.Bounds.Y - table.Bounds.Bottom;
+        return "--pdf-semantic-table-caption-width:" + CssPercent(widthPercent) +
+            ";--pdf-semantic-table-caption-offset:" + CssPercent(offsetPercent) +
+            ";--pdf-semantic-table-caption-gap:" + CssPoints(Math.Clamp(sourceGap, 2f, 18f));
     }
 
     private static bool TrySplitClaimedFormulaTable(
@@ -7431,7 +7563,7 @@ public static class PdfHtmlConverter
         PdfSemanticTableRow[] residualRows = table.TableRows.Take(formulaRowIndex).ToArray();
         if (residualRows.Length > 0)
         {
-            residualTable = SemanticTableFromRows(residualRows);
+            residualTable = SemanticTableFromRows(residualRows, table.TableCaption);
         }
 
         PdfSemanticTableCell[] formulaCells = formulaRows
@@ -7469,7 +7601,9 @@ public static class PdfHtmlConverter
         return false;
     }
 
-    private static PdfSemanticElement SemanticTableFromRows(IReadOnlyList<PdfSemanticTableRow> rows)
+    private static PdfSemanticElement SemanticTableFromRows(
+        IReadOnlyList<PdfSemanticTableRow> rows,
+        PdfSemanticTableCaption? caption = null)
     {
         PdfSemanticTableCell[] cells = rows
             .SelectMany(static row => row.Cells)
@@ -7488,7 +7622,8 @@ public static class PdfHtmlConverter
                     .Select(static cell => cell.Text)))),
             UnionRectangles(cells.Select(static cell => cell.Bounds)),
             lines,
-            tableRows: rows);
+            tableRows: rows,
+            tableCaption: caption);
     }
 
     private static void WriteSemanticTableRow(
@@ -11440,6 +11575,69 @@ public static class PdfHtmlConverter
         float mean = sample.Average();
         float variance = sample.Sum(value => MathF.Pow(value - mean, 2f)) / sample.Length;
         return MathF.Sqrt(variance);
+    }
+
+    private static string? TableCaptionAlignmentClass(
+        PdfSemanticElement table,
+        PdfSemanticTableCaption caption)
+    {
+        PdfSemanticLine[] lines = caption.Lines
+            .Where(static line => MathF.Abs(line.Direction) < 0.01f)
+            .Where(static line => !string.IsNullOrWhiteSpace(line.Text))
+            .ToArray();
+        if (lines.Length == 0)
+        {
+            return null;
+        }
+
+        float[] fontSizes = lines
+            .Select(static line => line.DominantFontSize)
+            .Where(static size => size > 0f)
+            .Order()
+            .ToArray();
+        float fontSize = fontSizes.Length == 0 ? 10f : fontSizes[fontSizes.Length / 2];
+        if (lines.Length >= 2)
+        {
+            (string ClassName, float Spread)[] candidates =
+            [
+                ("pdf-semantic-table-caption-align-left", StandardDeviation(lines.Select(static line => line.Bounds.X))),
+                ("pdf-semantic-table-caption-align-center", StandardDeviation(lines.Select(static line => line.Bounds.X + line.Bounds.Width / 2f))),
+                ("pdf-semantic-table-caption-align-right", StandardDeviation(lines.Select(static line => line.Bounds.Right)))
+            ];
+            (string ClassName, float Spread)[] ordered = candidates
+                .OrderBy(static candidate => candidate.Spread)
+                .ToArray();
+            float spreadTolerance = MathF.Max(2f, fontSize * 0.35f);
+            if (ordered[0].Spread <= spreadTolerance &&
+                ordered[1].Spread - ordered[0].Spread >= spreadTolerance * 0.55f)
+            {
+                return ordered[0].ClassName;
+            }
+        }
+
+        return TableCaptionAnchorAlignmentClass(table.Bounds, caption.Bounds, fontSize);
+    }
+
+    private static string? TableCaptionAnchorAlignmentClass(
+        PdfLayoutRectangle table,
+        PdfLayoutRectangle caption,
+        float fontSize)
+    {
+        (string ClassName, float Distance)[] candidates =
+        [
+            ("pdf-semantic-table-caption-align-left", MathF.Abs(caption.X - table.X)),
+            ("pdf-semantic-table-caption-align-center", MathF.Abs(
+                caption.X + caption.Width / 2f - (table.X + table.Width / 2f))),
+            ("pdf-semantic-table-caption-align-right", MathF.Abs(caption.Right - table.Right))
+        ];
+        (string ClassName, float Distance)[] ordered = candidates
+            .OrderBy(static candidate => candidate.Distance)
+            .ToArray();
+        float anchorTolerance = MathF.Max(3f, fontSize * 0.75f);
+        return ordered[0].Distance <= anchorTolerance &&
+            ordered[1].Distance - ordered[0].Distance >= anchorTolerance * 0.75f
+                ? ordered[0].ClassName
+                : null;
     }
 
     private static string? ParagraphAlignSelf(PdfLayoutPage page, PdfSemanticElement element)

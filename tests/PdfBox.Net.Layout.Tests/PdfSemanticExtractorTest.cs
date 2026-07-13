@@ -1338,6 +1338,93 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_NumberedTableCaptionAboveTable_AttachesWithoutDuplicatingText()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateTableCaptionFixture(TableCaptionFixturePlacement.Above)).Pages);
+
+        PdfSemanticElement table = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Table);
+        Assert.True(table.TableCaption != null, TableCaptionDiagnostic(page));
+        PdfSemanticTableCaption caption = table.TableCaption!;
+        Assert.Equal("12", caption.Number);
+        Assert.Equal("Table 12: Comparative outcomes across cohorts.", caption.Text);
+        Assert.Equal(PdfSemanticTableCaptionPosition.Above, caption.Position);
+        Assert.DoesNotContain("Table 12", table.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind != PdfSemanticElementKind.Table &&
+            element.Text.StartsWith("Table 12", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_NumberedTableCaptionBelowTable_AttachesWithSourcePosition()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateTableCaptionFixture(TableCaptionFixturePlacement.Below)).Pages);
+
+        PdfSemanticElement table = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Table);
+        PdfSemanticTableCaption caption = Assert.IsType<PdfSemanticTableCaption>(table.TableCaption);
+        Assert.Equal("12", caption.Number);
+        Assert.Equal(PdfSemanticTableCaptionPosition.Below, caption.Position);
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("Table 12", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_WrappedTableCaption_PreservesAllSourceLines()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateTableCaptionFixture(TableCaptionFixturePlacement.Above, wrapped: true)).Pages);
+
+        PdfSemanticElement table = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Table);
+        Assert.True(table.TableCaption != null, TableCaptionDiagnostic(page));
+        PdfSemanticTableCaption caption = table.TableCaption!;
+        Assert.Equal(2, caption.Lines.Count);
+        Assert.Equal(
+            "Table 12: Comparative outcomes across all cohorts and evaluation periods with linked baseline details.",
+            caption.Text);
+    }
+
+    [Fact]
+    public void Extract_NearbyTableReferenceAndInterruptedTitle_RemainOrdinaryProse()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateTableCaptionFixture(TableCaptionFixturePlacement.Above, includeNegativeProse: true)).Pages);
+
+        PdfSemanticElement table = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Table);
+        Assert.Null(table.TableCaption);
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.Contains("Table 12 shows the measurements", StringComparison.Ordinal));
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.Contains("Intervening discussion remains visible", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_NumberedTableTitleWithInterveningProse_IsNotAttached()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateTableCaptionFixture(
+                TableCaptionFixturePlacement.Above,
+                includeInterruptedTitle: true)).Pages);
+
+        PdfSemanticElement table = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Table);
+        Assert.Null(table.TableCaption);
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("Table 12: Candidate title", StringComparison.Ordinal));
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("Intervening prose blocks", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Extract_ArxivFrontPage_GroupsTitleAuthorsAbstractFootnotesAndFooter()
     {
         PdfSemanticDocument semantic = ExtractArxivSemanticDocument();
@@ -1564,6 +1651,20 @@ public sealed class PdfSemanticExtractorTest
             row.Cells[0].Text.StartsWith("Vinyals & Kaiser", StringComparison.Ordinal) &&
             row.Cells[2].Text == "88.3");
         Assert.Contains(parserTable.TableRows.SelectMany(static row => row.Cells), cell => cell.BorderRight);
+
+        PdfSemanticElement[] captionedTables = semantic.Elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Table && element.TableCaption != null)
+            .Where(static element => element.TableCaption!.Number is "1" or "2" or "3" or "4")
+            .ToArray();
+        Assert.Equal(4, captionedTables.Length);
+        Assert.All(captionedTables, static table =>
+            Assert.DoesNotContain(table.TableCaption!.Text, table.Text, StringComparison.Ordinal));
+        Assert.DoesNotContain(semantic.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            captionedTables.Any(table => string.Equals(
+                element.Text,
+                table.TableCaption!.Text,
+                StringComparison.Ordinal)));
     }
 
     private static PdfSemanticElement Heading(PdfSemanticPage page, string text)
@@ -2167,6 +2268,142 @@ public sealed class PdfSemanticExtractorTest
             [],
             []);
         return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutDocument CreateTableCaptionFixture(
+        TableCaptionFixturePlacement placement,
+        bool wrapped = false,
+        bool includeNegativeProse = false,
+        bool includeInterruptedTitle = false)
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateFixtureLine("Opening prose establishes the ordinary body font.", 72f, 40f, 310f),
+            CreateFixtureLine("A second line establishes the normal source rhythm.", 72f, 54f, 320f)
+        ];
+
+        if (placement == TableCaptionFixturePlacement.Above)
+        {
+            if (includeInterruptedTitle)
+            {
+                lines.Add(CreateFixtureLine(
+                    "Table 12: Candidate title should remain visible.",
+                    120f,
+                    82f,
+                    320f));
+                lines.Add(CreateFixtureLine(
+                    "Intervening prose blocks association with the data grid.",
+                    72f,
+                    108f,
+                    360f));
+            }
+            else if (includeNegativeProse)
+            {
+                lines.Add(CreateFixtureLine(
+                    "Table 12 shows the measurements used in the discussion.",
+                    104f,
+                    82f,
+                    330f));
+                lines.Add(CreateFixtureLine(
+                    "Intervening discussion remains visible before the data grid.",
+                    72f,
+                    104f,
+                    360f));
+            }
+            else if (wrapped)
+            {
+                lines.Add(CreateFixtureLine(
+                    "Table 12: Comparative outcomes across all cohorts and",
+                    112f,
+                    82f,
+                    340f));
+                lines.Add(CreateFixtureLine(
+                    "evaluation periods with linked baseline details.",
+                    132f,
+                    94f,
+                    300f));
+            }
+            else
+            {
+                lines.Add(CreateFixtureLine(
+                    "Table 12: Comparative outcomes across cohorts.",
+                    132f,
+                    92f,
+                    300f));
+            }
+        }
+
+        float tableTop = includeNegativeProse || includeInterruptedTitle ? 140f : 124f;
+        lines.Add(CreateCompositeFixtureLine(
+            tableTop,
+            ("Cohort", 96f, 100f, "Times-Roman"),
+            ("Baseline", 260f, 74f, "Times-Roman"),
+            ("Outcome", 382f, 78f, "Times-Roman")));
+        lines.Add(CreateCompositeFixtureLine(
+            tableTop + 14f,
+            ("Alpha", 96f, 100f, "Times-Roman"),
+            ("10", 260f, 74f, "Times-Roman"),
+            ("12", 382f, 78f, "Times-Roman")));
+        lines.Add(CreateCompositeFixtureLine(
+            tableTop + 28f,
+            ("Beta", 96f, 100f, "Times-Roman"),
+            ("14", 260f, 74f, "Times-Roman"),
+            ("18", 382f, 78f, "Times-Roman")));
+        lines.Add(CreateCompositeFixtureLine(
+            tableTop + 42f,
+            ("Gamma", 96f, 100f, "Times-Roman"),
+            ("21", 260f, 74f, "Times-Roman"),
+            ("25", 382f, 78f, "Times-Roman")));
+
+        if (placement == TableCaptionFixturePlacement.Below)
+        {
+            lines.Add(CreateFixtureLine(
+                "Table 12: Comparative outcomes across cohorts.",
+                132f,
+                tableTop + 68f,
+                300f));
+        }
+
+        lines.Add(CreateFixtureLine(
+            "Closing prose remains outside the detected table.",
+            72f,
+            tableTop + 96f,
+            300f));
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static string TableCaptionDiagnostic(PdfSemanticPage page)
+    {
+        return string.Join(" | ", page.Elements.Select(static element =>
+            $"{element.Kind}:{element.Bounds.X:0.#},{element.Bounds.Y:0.#}," +
+            $"{element.Bounds.Width:0.#},{element.Bounds.Height:0.#}:" +
+            element.Text[..Math.Min(80, element.Text.Length)]));
+    }
+
+    private enum TableCaptionFixturePlacement
+    {
+        Above,
+        Below
     }
 
     private static PdfLayoutDocument CreateDocumentIndexFixture(
