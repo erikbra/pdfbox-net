@@ -175,7 +175,7 @@
         "forms",
         "vector-heavy"
       ],
-      "qualityPages": 2,
+      "qualityPages": 6,
       "notes": "Multi-page federal tax form with boxed fields, instructions, and dense vector line work.",
       "expectations": {
         "pageCount": 6,

@@ -218,10 +218,13 @@ public static class PdfHtmlConverter
 
         .pdf-semantic-columns {
           align-self: stretch;
+          align-items: start;
           box-sizing: border-box;
-          column-gap: 0;
+          column-gap: var(--pdf-semantic-column-gap, 0);
           display: grid;
-          grid-template-columns: repeat(var(--pdf-semantic-column-count, 2), minmax(0, 1fr));
+          grid-template-columns:
+            minmax(0, var(--pdf-semantic-column-left-width, 1fr))
+            minmax(0, var(--pdf-semantic-column-right-width, 1fr));
           margin: 0 0 0 -108pt;
           max-width: none;
           padding: var(--pdf-semantic-columns-top, 0) var(--pdf-semantic-columns-right, 0) 0 var(--pdf-semantic-columns-left, 0);
@@ -234,6 +237,18 @@ public static class PdfHtmlConverter
 
         .pdf-semantic-column {
           min-width: 0;
+        }
+
+        .pdf-semantic-column-spanning {
+          grid-column: 1 / -1;
+          position: relative;
+        }
+
+        .pdf-semantic-column-spanning-run {
+          display: block;
+          line-height: 1;
+          position: absolute;
+          white-space: pre;
         }
 
         .pdf-semantic-column-run {
@@ -3201,13 +3216,397 @@ public static class PdfHtmlConverter
         PdfLayoutPage page,
         PdfSemanticPage semanticPage)
     {
-        if (!TryGetTwoColumnRuns(page, semanticPage, out _, out LineGridColumn[] columns, out float pitch))
+        if (!TryGetFlowColumnRuns(
+                page,
+                semanticPage,
+                out PdfTextRun[] leadingRuns,
+                out LineGridColumn[] columns,
+                out float gutterLeft,
+                out float gutterRight,
+                out float leftInset,
+                out float rightInset))
+        {
+            if (!TryGetTwoColumnRuns(page, semanticPage, out _, out LineGridColumn[] legacyColumns, out float pitch))
+            {
+                return null;
+            }
+
+            float legacyRightInset = MathF.Max(0, page.Width - legacyColumns[0].Left - pitch * legacyColumns.Length);
+            return new PdfSemanticColumns(
+                page,
+                [],
+                legacyColumns,
+                legacyColumns[0].Left,
+                legacyRightInset,
+                pitch,
+                pitch,
+                0);
+        }
+
+        return new PdfSemanticColumns(
+            page,
+            leadingRuns,
+            columns,
+            leftInset,
+            rightInset,
+            MathF.Max(0, gutterLeft - leftInset),
+            MathF.Max(0, page.Width - rightInset - gutterRight),
+            MathF.Max(0, gutterRight - gutterLeft));
+    }
+
+    private static bool TryGetFlowColumnRuns(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        out PdfTextRun[] leadingRuns,
+        out LineGridColumn[] columns,
+        out float gutterLeft,
+        out float gutterRight,
+        out float leftInset,
+        out float rightInset)
+    {
+        leadingRuns = [];
+        columns = [];
+        gutterLeft = 0;
+        gutterRight = 0;
+        leftInset = 0;
+        rightInset = 0;
+        if (page.FormControls.Count > 0)
+        {
+            return false;
+        }
+
+        PdfTextRun[] horizontalRuns = page.Runs
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .ToArray();
+        if (horizontalRuns.Length < 24)
+        {
+            return false;
+        }
+
+        ColumnDetectionRow[] rows = CreateColumnDetectionRows(horizontalRuns);
+        if (rows.Length < 12)
+        {
+            return false;
+        }
+
+        float centralLeft = page.Width * 0.35f;
+        float centralRight = page.Width * 0.65f;
+        float minimumGap = page.Width * 0.018f;
+        ColumnGapObservation[] observations = rows
+            .SelectMany((row, rowIndex) => row.Gaps(rowIndex, centralLeft, centralRight, minimumGap))
+            .ToArray();
+        if (observations.Length == 0)
+        {
+            return false;
+        }
+
+        float[] boundaries = observations
+            .Select(static observation => (observation.Left + observation.Right) / 2f)
+            .Append(page.Width / 2f)
+            .ToArray();
+        float boundary = boundaries
+            .OrderByDescending(candidate => observations
+                .Where(observation => observation.Left <= candidate && observation.Right >= candidate)
+                .Select(static observation => observation.RowIndex)
+                .Distinct()
+                .Count())
+            .ThenBy(candidate => MathF.Abs(candidate - page.Width / 2f))
+            .First();
+        ColumnGapObservation[] supportingGaps = observations
+            .Where(observation => observation.Left <= boundary && observation.Right >= boundary)
+            .GroupBy(static observation => observation.RowIndex)
+            .Select(group => group.OrderBy(static observation => observation.Right - observation.Left).First())
+            .ToArray();
+        if (supportingGaps.Length < 12 || supportingGaps.Length < rows.Length * 0.18f)
+        {
+            return false;
+        }
+
+        gutterLeft = Percentile(supportingGaps.Select(static gap => gap.Left), 0.85f);
+        gutterRight = Percentile(supportingGaps.Select(static gap => gap.Right), 0.15f);
+        if (gutterRight - gutterLeft < minimumGap)
+        {
+            gutterLeft = boundary - minimumGap / 2f;
+            gutterRight = boundary + minimumGap / 2f;
+        }
+
+        if (!SpanningTablesAreColumnCompatible(page, semanticPage, boundary))
+        {
+            return false;
+        }
+
+        float columnTop = FlowColumnTop(page.Height, rows, supportingGaps);
+        leadingRuns = rows
+            .Where(row => row.Top < columnTop)
+            .SelectMany(static row => row.Runs)
+            .OrderBy(static run => run.Bounds.Y)
+            .ThenBy(static run => run.Bounds.X)
+            .ToArray();
+        ColumnDetectionRow[] contentRows = rows
+            .Where(row => row.Top >= columnTop)
+            .ToArray();
+        PdfTextRun[] leftRuns = contentRows
+            .Select(row => CombineColumnLine(row.Runs
+                .Where(run => run.Bounds.X + run.Bounds.Width / 2f < boundary)))
+            .Where(static run => run != null)
+            .Cast<PdfTextRun>()
+            .ToArray();
+        PdfTextRun[] rightRuns = contentRows
+            .Select(row => CombineColumnLine(row.Runs
+                .Where(run => run.Bounds.X + run.Bounds.Width / 2f >= boundary)))
+            .Where(static run => run != null)
+            .Cast<PdfTextRun>()
+            .ToArray();
+        if (leftRuns.Length < 12 || rightRuns.Length < 12)
+        {
+            return false;
+        }
+
+        float leftTop = leftRuns.Min(static run => run.Bounds.Y);
+        float leftBottom = leftRuns.Max(static run => run.Bounds.Bottom);
+        float rightTop = rightRuns.Min(static run => run.Bounds.Y);
+        float rightBottom = rightRuns.Max(static run => run.Bounds.Bottom);
+        float verticalOverlap = MathF.Max(0, MathF.Min(leftBottom, rightBottom) - MathF.Max(leftTop, rightTop));
+        if (verticalOverlap < MathF.Min(leftBottom - leftTop, rightBottom - rightTop) * 0.4f)
+        {
+            return false;
+        }
+
+        float leftAnchor = Percentile(leftRuns.Select(static run => run.Bounds.X), 0.1f);
+        float rightAnchor = Percentile(rightRuns.Select(static run => run.Bounds.X), 0.1f);
+        float pitch = rightAnchor - leftAnchor;
+        if (pitch < page.Width * 0.25f || pitch > page.Width * 0.7f)
+        {
+            return false;
+        }
+
+        LineGridColumn leftColumn = new(leftAnchor);
+        LineGridColumn rightColumn = new(rightAnchor);
+        foreach (PdfTextRun run in leftRuns)
+        {
+            leftColumn.Add(run);
+        }
+
+        foreach (PdfTextRun run in rightRuns)
+        {
+            rightColumn.Add(run);
+        }
+
+        columns = [leftColumn, rightColumn];
+        leftInset = MathF.Max(0, leftAnchor);
+        float contentRight = Percentile(rightRuns.Select(static run => run.Bounds.Right), 0.9f);
+        rightInset = MathF.Max(0, page.Width - contentRight);
+        return true;
+    }
+
+    private static bool SpanningTablesAreColumnCompatible(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        float columnBoundary)
+    {
+        PdfSemanticElement[] spanningTables = semanticPage.Elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Table)
+            .Where(table => table.Bounds.X < columnBoundary && table.Bounds.Right > columnBoundary)
+            .ToArray();
+        if (spanningTables.Length == 0)
+        {
+            return true;
+        }
+
+        SourceRuleFamily[] ruleFamilies = CreateSourceRuleFamilies(page);
+        SourceRuleFamily[] leftFamilies = ruleFamilies
+            .Where(family => family.Right <= columnBoundary + 1f)
+            .ToArray();
+        SourceRuleFamily[] rightFamilies = ruleFamilies
+            .Where(family => family.Left >= columnBoundary - 1f)
+            .ToArray();
+        if (leftFamilies.Length == 0 || rightFamilies.Length == 0)
+        {
+            return false;
+        }
+
+        foreach (PdfSemanticElement table in spanningTables)
+        {
+            float verticalTolerance = MathF.Max(2f, table.Bounds.Height * 0.1f);
+            if (ruleFamilies.Any(family =>
+                    family.Left < columnBoundary &&
+                    family.Right > columnBoundary &&
+                    family.Bottom >= table.Bounds.Y - verticalTolerance &&
+                    family.Top <= table.Bounds.Bottom + verticalTolerance))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static SourceRuleFamily[] CreateSourceRuleFamilies(PdfLayoutPage page)
+    {
+        float minimumWidth = page.Width * 0.08f;
+        float rowTolerance = MathF.Max(1f, page.Height * 0.0015f);
+        float endpointTolerance = MathF.Max(2f, page.Width * 0.005f);
+        List<HorizontalRuleRow> rows = [];
+        foreach (PdfLayoutPath path in page.Paths
+            .Where(static path => path.IsStroked)
+            .Where(path => path.Bounds.Width >= MathF.Max(8f, path.Bounds.Height * 4f))
+            .OrderBy(static path => path.Bounds.Y)
+            .ThenBy(static path => path.Bounds.X))
+        {
+            HorizontalRuleRow? row = rows
+                .Where(row => MathF.Abs(row.Top - path.Bounds.Y) <= rowTolerance)
+                .OrderBy(row => MathF.Abs(row.Top - path.Bounds.Y))
+                .FirstOrDefault();
+            if (row == null)
+            {
+                row = new HorizontalRuleRow(path.Bounds.Y);
+                rows.Add(row);
+            }
+
+            row.Add(path.Bounds.Y, path.Bounds.X, path.Bounds.Right);
+        }
+
+        List<SourceRuleFamily> families = [];
+        foreach (HorizontalRuleSpan span in rows
+            .SelectMany(row => row.MergedSpans(endpointTolerance))
+            .Where(span => span.Right - span.Left >= minimumWidth))
+        {
+            SourceRuleFamily? family = families
+                .Where(family =>
+                    MathF.Abs(family.Left - span.Left) <= endpointTolerance &&
+                    MathF.Abs(family.Right - span.Right) <= endpointTolerance)
+                .OrderBy(family =>
+                    MathF.Abs(family.Left - span.Left) + MathF.Abs(family.Right - span.Right))
+                .FirstOrDefault();
+            if (family == null)
+            {
+                family = new SourceRuleFamily(span.Left, span.Right);
+                families.Add(family);
+            }
+
+            family.Add(span.Top, span.Left, span.Right);
+        }
+
+        return families
+            .Where(static family => family.RuleCount >= 2)
+            .Where(family => page.Runs.Any(run =>
+                MathF.Abs(run.Direction) < 0.01f &&
+                run.Bounds.X + run.Bounds.Width / 2f >= family.Left - endpointTolerance &&
+                run.Bounds.X + run.Bounds.Width / 2f <= family.Right + endpointTolerance &&
+                run.Bounds.Y + run.Bounds.Height / 2f >= family.Top - rowTolerance &&
+                run.Bounds.Y + run.Bounds.Height / 2f <= family.Bottom + rowTolerance))
+            .ToArray();
+    }
+
+    private static PdfTextRun? CombineColumnLine(IEnumerable<PdfTextRun> sourceRuns)
+    {
+        PdfTextRun[] runs = sourceRuns.OrderBy(static run => run.Bounds.X).ToArray();
+        if (runs.Length == 0)
         {
             return null;
         }
 
-        float rightInset = MathF.Max(0, page.Width - columns[0].Left - pitch * columns.Length);
-        return new PdfSemanticColumns(page, columns, columns[0].Left, rightInset);
+        if (runs.Length == 1)
+        {
+            return runs[0];
+        }
+
+        PdfTextRun first = runs[0];
+        PdfLayoutRectangle bounds = UnionRectangles(runs.Select(static run => run.Bounds));
+        PdfTextGlyph[] glyphs = runs
+            .SelectMany(static run => run.Glyphs)
+            .OrderBy(static glyph => glyph.Bounds.X)
+            .ToArray();
+        return new PdfTextRun(
+            string.Concat(runs.Select(static run => run.Text)),
+            first.FontName,
+            first.FontSize,
+            first.Direction,
+            bounds,
+            first.Color,
+            glyphs);
+    }
+
+    private static ColumnDetectionRow[] CreateColumnDetectionRows(IEnumerable<PdfTextRun> runs)
+    {
+        List<ColumnDetectionRow> rows = [];
+        foreach (PdfTextRun run in runs.OrderBy(static run => run.Bounds.Y).ThenBy(static run => run.Bounds.X))
+        {
+            float center = run.Bounds.Y + run.Bounds.Height / 2f;
+            float tolerance = MathF.Max(2.5f, run.Bounds.Height * 0.35f);
+            ColumnDetectionRow? row = rows
+                .Where(row => MathF.Abs(row.Center - center) <= tolerance)
+                .OrderBy(row => MathF.Abs(row.Center - center))
+                .FirstOrDefault();
+            if (row == null)
+            {
+                row = new ColumnDetectionRow(center);
+                rows.Add(row);
+            }
+
+            row.Add(run);
+        }
+
+        return rows.OrderBy(static row => row.Center).ToArray();
+    }
+
+    private static float FlowColumnTop(
+        float pageHeight,
+        IReadOnlyList<ColumnDetectionRow> rows,
+        IReadOnlyList<ColumnGapObservation> supportingGaps)
+    {
+        float[] supportedCenters = supportingGaps
+            .Select(gap => rows[gap.RowIndex].Center)
+            .OrderBy(static center => center)
+            .ToArray();
+        if (supportedCenters.Length < 12)
+        {
+            return rows[0].Top;
+        }
+
+        float largestGap = 0;
+        float columnTop = rows
+            .Where(row => row.Center >= supportedCenters[0])
+            .Select(static row => row.Top)
+            .DefaultIfEmpty(rows[0].Top)
+            .Min();
+        if (supportedCenters[0] <= pageHeight * 0.12f)
+        {
+            return columnTop;
+        }
+
+        for (int index = 1; index < supportedCenters.Length; index++)
+        {
+            float gap = supportedCenters[index] - supportedCenters[index - 1];
+            int remaining = supportedCenters.Length - index;
+            if (remaining >= 12 &&
+                supportedCenters[index] <= pageHeight * 0.4f &&
+                gap > largestGap &&
+                gap >= 24f)
+            {
+                largestGap = gap;
+                columnTop = rows
+                    .Where(row => row.Center >= supportedCenters[index])
+                    .Select(static row => row.Top)
+                    .DefaultIfEmpty(rows[0].Top)
+                    .Min();
+            }
+        }
+
+        return columnTop;
+    }
+
+    private static float Percentile(IEnumerable<float> values, float percentile)
+    {
+        float[] ordered = values.OrderBy(static value => value).ToArray();
+        if (ordered.Length == 0)
+        {
+            return 0;
+        }
+
+        int index = (int)MathF.Round((ordered.Length - 1) * percentile);
+        return ordered[Math.Clamp(index, 0, ordered.Length - 1)];
     }
 
     private static bool TryGetTwoColumnRuns(
@@ -3362,18 +3761,54 @@ public static class PdfHtmlConverter
         float scale,
         PdfSemanticExtractionOptions semanticOptions)
     {
-        float top = columns.Columns
+        float columnTop = columns.Columns
             .SelectMany(static column => column.Lines)
             .Min(static run => run.Bounds.Y);
+        float top = columns.LeadingRuns
+            .Select(static run => run.Bounds.Y)
+            .Append(columnTop)
+            .Min();
         html.Append("      <section class=\"pdf-semantic-columns\" style=\"--pdf-semantic-column-count:")
             .Append(columns.Columns.Count.ToString(CultureInfo.InvariantCulture))
             .Append(";--pdf-semantic-columns-left:")
             .Append(CssPoints(columns.LeftInset * scale))
             .Append(";--pdf-semantic-columns-right:")
             .Append(CssPoints(columns.RightInset * scale))
+            .Append(";--pdf-semantic-column-left-width:")
+            .Append(CssPoints(columns.LeftWidth * scale))
+            .Append(";--pdf-semantic-column-right-width:")
+            .Append(CssPoints(columns.RightWidth * scale))
+            .Append(";--pdf-semantic-column-gap:")
+            .Append(CssPoints(columns.GutterWidth * scale))
             .Append(";--pdf-semantic-columns-top:")
             .Append(CssPoints(top * scale))
             .AppendLine("\">");
+
+        if (columns.LeadingRuns.Count > 0)
+        {
+            html.Append("        <div class=\"pdf-semantic-column-spanning\" style=\"height:")
+                .Append(CssPoints(MathF.Max(0, columnTop - top) * scale))
+                .AppendLine("\">");
+            foreach (PdfTextRun run in columns.LeadingRuns)
+            {
+                html.Append("          <span class=\"pdf-semantic-column-run pdf-semantic-column-spanning-run\" style=\"left:")
+                    .Append(CssPoints((run.Bounds.X - columns.LeftInset) * scale))
+                    .Append(";top:")
+                    .Append(CssPoints((run.Bounds.Y - top) * scale))
+                    .Append(";font-family:")
+                    .Append(CssFontFamily(run.FontName))
+                    .Append(";font-size:")
+                    .Append(CssPoints(FixedTextFontSize(run) * scale))
+                    .Append(FixedTextFontPresentation(run))
+                    .Append(";color:")
+                    .Append(ColorHex(run.Color))
+                    .Append("\">")
+                    .Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)))
+                    .AppendLine("</span>");
+            }
+
+            html.AppendLine("        </div>");
+        }
 
         foreach (LineGridColumn column in columns.Columns)
         {
@@ -3382,7 +3817,7 @@ public static class PdfHtmlConverter
             foreach (PdfTextRun run in column.Lines.OrderBy(static run => run.Bounds.Y))
             {
                 float marginTop = previous == null
-                    ? MathF.Max(0, run.Bounds.Y - top) * scale
+                    ? MathF.Max(0, run.Bounds.Y - columnTop) * scale
                     : MathF.Max(0, run.Bounds.Y - previous.Bounds.Bottom) * scale;
                 PdfLayoutColor? highlight = GridHighlightColor(columns.Page, run);
                 html.Append("          <span class=\"pdf-semantic-column-run");
@@ -3403,6 +3838,7 @@ public static class PdfHtmlConverter
                     .Append(CssFontFamily(run.FontName))
                     .Append(";font-size:")
                     .Append(CssPoints(FixedTextFontSize(run) * scale))
+                    .Append(FixedTextFontPresentation(run))
                     .Append(";color:")
                     .Append(ColorHex(run.Color));
                 if (highlight is PdfLayoutColor highlightColor)
@@ -8879,23 +9315,175 @@ public static class PdfHtmlConverter
     {
         public PdfSemanticColumns(
             PdfLayoutPage page,
+            IReadOnlyList<PdfTextRun> leadingRuns,
             IReadOnlyList<LineGridColumn> columns,
             float leftInset,
-            float rightInset)
+            float rightInset,
+            float leftWidth,
+            float rightWidth,
+            float gutterWidth)
         {
             Page = page;
+            LeadingRuns = leadingRuns;
             Columns = columns;
             LeftInset = leftInset;
             RightInset = rightInset;
+            LeftWidth = leftWidth;
+            RightWidth = rightWidth;
+            GutterWidth = gutterWidth;
         }
 
         public PdfLayoutPage Page { get; }
+
+        public IReadOnlyList<PdfTextRun> LeadingRuns { get; }
 
         public IReadOnlyList<LineGridColumn> Columns { get; }
 
         public float LeftInset { get; }
 
         public float RightInset { get; }
+
+        public float LeftWidth { get; }
+
+        public float RightWidth { get; }
+
+        public float GutterWidth { get; }
+    }
+
+    private sealed class ColumnDetectionRow
+    {
+        private float _centerTotal;
+
+        public ColumnDetectionRow(float center)
+        {
+            Center = center;
+        }
+
+        public float Center { get; private set; }
+
+        public float Top => Runs.Min(static run => run.Bounds.Y);
+
+        public List<PdfTextRun> Runs { get; } = [];
+
+        public void Add(PdfTextRun run)
+        {
+            Runs.Add(run);
+            _centerTotal += run.Bounds.Y + run.Bounds.Height / 2f;
+            Center = _centerTotal / Runs.Count;
+        }
+
+        public IEnumerable<ColumnGapObservation> Gaps(
+            int rowIndex,
+            float centralLeft,
+            float centralRight,
+            float minimumGap)
+        {
+            PdfTextRun[] ordered = Runs.OrderBy(static run => run.Bounds.X).ToArray();
+            if (ordered.Length < 2)
+            {
+                yield break;
+            }
+
+            float occupiedRight = ordered[0].Bounds.Right;
+            for (int index = 1; index < ordered.Length; index++)
+            {
+                float nextLeft = ordered[index].Bounds.X;
+                if (nextLeft - occupiedRight >= minimumGap &&
+                    occupiedRight <= centralRight &&
+                    nextLeft >= centralLeft)
+                {
+                    yield return new ColumnGapObservation(rowIndex, occupiedRight, nextLeft);
+                }
+
+                occupiedRight = MathF.Max(occupiedRight, ordered[index].Bounds.Right);
+            }
+        }
+    }
+
+    private readonly record struct ColumnGapObservation(int RowIndex, float Left, float Right);
+
+    private sealed class HorizontalRuleRow
+    {
+        private float _topTotal;
+
+        public HorizontalRuleRow(float top)
+        {
+            Top = top;
+        }
+
+        public float Top { get; private set; }
+
+        public List<HorizontalRuleSpan> Spans { get; } = [];
+
+        public void Add(float top, float left, float right)
+        {
+            Spans.Add(new HorizontalRuleSpan(top, left, right));
+            _topTotal += top;
+            Top = _topTotal / Spans.Count;
+        }
+
+        public IEnumerable<HorizontalRuleSpan> MergedSpans(float tolerance)
+        {
+            HorizontalRuleSpan[] ordered = Spans.OrderBy(static span => span.Left).ToArray();
+            if (ordered.Length == 0)
+            {
+                yield break;
+            }
+
+            float left = ordered[0].Left;
+            float right = ordered[0].Right;
+            for (int index = 1; index < ordered.Length; index++)
+            {
+                if (ordered[index].Left <= right + tolerance)
+                {
+                    right = MathF.Max(right, ordered[index].Right);
+                    continue;
+                }
+
+                yield return new HorizontalRuleSpan(Top, left, right);
+                left = ordered[index].Left;
+                right = ordered[index].Right;
+            }
+
+            yield return new HorizontalRuleSpan(Top, left, right);
+        }
+    }
+
+    private readonly record struct HorizontalRuleSpan(float Top, float Left, float Right);
+
+    private sealed class SourceRuleFamily
+    {
+        private float _leftTotal;
+        private float _rightTotal;
+
+        public SourceRuleFamily(float left, float right)
+        {
+            Left = left;
+            Right = right;
+            Top = float.MaxValue;
+            Bottom = float.MinValue;
+        }
+
+        public float Left { get; private set; }
+
+        public float Right { get; private set; }
+
+        public float Top { get; private set; }
+
+        public float Bottom { get; private set; }
+
+        public int RuleCount { get; private set; }
+
+        public void Add(float top, float left, float right)
+        {
+            RuleCount++;
+            _leftTotal += left;
+            _rightTotal += right;
+            Left = _leftTotal / RuleCount;
+            Right = _rightTotal / RuleCount;
+            Top = MathF.Min(Top, top);
+            Bottom = MathF.Max(Bottom, top);
+        }
     }
 
     private sealed class LineGridColumn
