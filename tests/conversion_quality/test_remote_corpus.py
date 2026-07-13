@@ -77,6 +77,8 @@ class RemoteCorpusTest(unittest.TestCase):
         self.assertEqual(4, uscis.quality_pages)
         bert = next(item for item in documents if item.id == "acl-bert")
         self.assertEqual(2, bert.quality_pages)
+        unet = next(item for item in documents if item.id == "arxiv-unet")
+        self.assertEqual(8, unet.quality_pages)
         w9 = next(item for item in documents if item.id == "irs-w9")
         self.assertEqual(6, w9.quality_pages)
         self.assertEqual(

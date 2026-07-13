@@ -98,6 +98,67 @@ public class PdfMathMlFormulaTest
     }
 
     [Fact]
+    public void TryCreate_EmitsRaisedFractionBeyondBaselineSpan()
+    {
+        PdfTextGlyph[] glyphs =
+        [
+            Glyph("w", 92f, 100f),
+            Glyph("=", 104f, 100f, fontName: "CMR10"),
+            Glyph("e", 120f, 100f, fontName: "CMR10"),
+            Glyph("x", 128f, 100f, fontName: "CMR10"),
+            Glyph("p", 136f, 100f, fontName: "CMR10"),
+            Glyph("−", 146f, 100f, fontName: "CMSY10"),
+            Glyph("(", 158f, 93f, fontName: "CMR10"),
+            Glyph("d", 166f, 93f),
+            Glyph("1", 174f, 98f, 5f, 5f, 6f, "CMR7"),
+            Glyph(")", 180f, 93f, fontName: "CMR10"),
+            Glyph("2", 188f, 88f, 5f, 5f, 6f, "CMR7"),
+            Glyph("2", 174f, 110f, fontName: "CMR10"),
+            Glyph("σ", 184f, 110f),
+            Glyph("2", 192f, 108f, 5f, 5f, 6f, "CMR7")
+        ];
+
+        string markup = Render(glyphs, [Rule(156f, 104f, 48f)], out PdfMathMlFormula formula);
+        XDocument dom = Parse(markup);
+        XElement fraction = Assert.Single(dom.Descendants("mfrac"));
+
+        Assert.Equal("(d1)2", fraction.Elements().First().Value);
+        Assert.Equal("2σ2", fraction.Elements().Last().Value);
+        Assert.Contains("exp−((d_(1))^(2))/(2σ^(2))", formula.AccessibleText, StringComparison.Ordinal);
+        Assert.All(glyphs, glyph =>
+            Assert.Contains(formula.ClaimedGlyphs, claimed => ReferenceEquals(claimed, glyph)));
+    }
+
+    [Fact]
+    public void TryCreate_UnrelatedRulesAndRadicalDoNotChangeOperatorSelection()
+    {
+        PdfTextGlyph unrelatedRadical = Glyph("√", 300f, 250f, 10f, 12f, 10f, "CMEX10");
+        PdfTextGlyph[] glyphs =
+        [
+            Glyph("y", 92f, 100f),
+            Glyph("=", 104f, 100f, fontName: "CMR10"),
+            Glyph("∑", 124f, 88f, 12f, 14f, 10f, "CMEX10"),
+            Glyph("n", 128f, 60f, 5f, 5f, 6f),
+            Glyph("i", 124f, 112f, 4f, 5f, 6f),
+            Glyph("=", 128f, 112f, 4f, 5f, 6f, "CMR7"),
+            Glyph("1", 132f, 112f, 4f, 5f, 6f, "CMR7"),
+            Glyph("x", 145f, 100f),
+            unrelatedRadical
+        ];
+
+        string markup = Render(
+            glyphs,
+            [Rule(308f, 250f, 20f), Rule(400f, 400f, 30f)],
+            out PdfMathMlFormula formula);
+        XDocument dom = Parse(markup);
+
+        Assert.Single(dom.Descendants("munderover"));
+        Assert.Empty(dom.Descendants("mfrac"));
+        Assert.Empty(dom.Descendants("msqrt"));
+        Assert.DoesNotContain(formula.ClaimedGlyphs, glyph => ReferenceEquals(glyph, unrelatedRadical));
+    }
+
+    [Fact]
     public void TryCreate_RejectsCompetingFormulaBaselines()
     {
         PdfTextGlyph[] glyphs =

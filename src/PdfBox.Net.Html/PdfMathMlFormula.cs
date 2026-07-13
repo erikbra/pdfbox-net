@@ -44,6 +44,15 @@ internal sealed class PdfMathMlFormula
         IReadOnlyList<PdfLayoutPath> paths,
         out PdfMathMlFormula? formula)
     {
+        return TryCreate(glyphSource, paths, null, out formula);
+    }
+
+    public static bool TryCreate(
+        IReadOnlyList<PdfTextGlyph> glyphSource,
+        IReadOnlyList<PdfLayoutPath> paths,
+        float? baselineBottomHint,
+        out PdfMathMlFormula? formula)
+    {
         formula = null;
         PdfTextGlyph[] glyphs = glyphSource
             .Where(IsEligibleGlyph)
@@ -65,12 +74,21 @@ internal sealed class PdfMathMlFormula
             return false;
         }
 
-        if (!TrySelectBaseline(glyphs, fontSize, out BaselineSelection? baseline))
+        if (HasMultiLineOptimizationProgram(glyphs, fontSize))
         {
             return false;
         }
 
-        HashSet<PdfTextGlyph> relevant = SelectRelevantGlyphs(glyphs, baseline!, fontSize);
+        float? effectiveBaselineHint = baselineBottomHint.HasValue &&
+            HasStackedStructure(glyphs)
+            ? baselineBottomHint
+            : null;
+        if (!TrySelectBaseline(glyphs, fontSize, effectiveBaselineHint, out BaselineSelection? baseline))
+        {
+            return false;
+        }
+
+        HashSet<PdfTextGlyph> relevant = SelectRelevantGlyphs(glyphs, paths, baseline!, fontSize);
         if (!TryTakeEquationNumber(
                 baseline!.Glyphs,
                 relevant,
@@ -132,6 +150,7 @@ internal sealed class PdfMathMlFormula
     private static bool TrySelectBaseline(
         IReadOnlyList<PdfTextGlyph> glyphs,
         float fontSize,
+        float? baselineBottomHint,
         out BaselineSelection? selection)
     {
         float baselineTolerance = MathF.Max(1.2f, fontSize * 0.18f);
@@ -163,6 +182,13 @@ internal sealed class PdfMathMlFormula
             .OrderByDescending(static group => group.Score)
             .ThenByDescending(static group => group.Glyphs.Count)
             .ToArray();
+        if (baselineBottomHint.HasValue)
+        {
+            ranked = ranked
+                .Where(group => MathF.Abs(group.Bottom - baselineBottomHint.Value) <= baselineTolerance)
+                .ToArray();
+        }
+
         if (ranked.Length == 0 || ranked.Length > 1 && ranked[1].Score >= ranked[0].Score - 1)
         {
             selection = null;
@@ -203,6 +229,7 @@ internal sealed class PdfMathMlFormula
 
     private static HashSet<PdfTextGlyph> SelectRelevantGlyphs(
         IReadOnlyList<PdfTextGlyph> glyphs,
+        IReadOnlyList<PdfLayoutPath> paths,
         BaselineSelection baseline,
         float fontSize)
     {
@@ -230,7 +257,116 @@ internal sealed class PdfMathMlFormula
             }
         }
 
+        AddLargeOperatorLimits(glyphs, relevant, baseline.Bottom, fontSize);
+        AddConnectedFractions(glyphs, paths, relevant, baseline.Bottom, fontSize);
         return relevant;
+    }
+
+    private static bool HasStackedStructure(IReadOnlyList<PdfTextGlyph> glyphs)
+    {
+        return glyphs.Any(static glyph => IsLargeOperatorText(glyph.Text));
+    }
+
+    private static void AddLargeOperatorLimits(
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        ISet<PdfTextGlyph> relevant,
+        float baselineBottom,
+        float fontSize)
+    {
+        PdfTextGlyph[] operators = relevant
+            .Where(static glyph => IsLargeOperatorText(glyph.Text))
+            .ToArray();
+        foreach (PdfTextGlyph mathOperator in operators)
+        {
+            float left = mathOperator.Bounds.X - fontSize * 0.75f;
+            float right = mathOperator.Bounds.Right + fontSize * 0.75f;
+            float top = baselineBottom - fontSize * 6f;
+            float bottom = baselineBottom + fontSize * 2f;
+            foreach (PdfTextGlyph glyph in glyphs)
+            {
+                float center = glyph.Bounds.X + glyph.Bounds.Width / 2f;
+                if (glyph.FontSize < fontSize * 0.82f &&
+                    center >= left &&
+                    center <= right &&
+                    glyph.Bounds.Bottom >= top &&
+                    glyph.Bounds.Y <= bottom)
+                {
+                    relevant.Add(glyph);
+                }
+            }
+        }
+    }
+
+    private static void AddConnectedFractions(
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        IReadOnlyList<PdfLayoutPath> paths,
+        ISet<PdfTextGlyph> relevant,
+        float baselineBottom,
+        float fontSize)
+    {
+        float ruleTolerance = MathF.Max(0.8f, fontSize * 0.1f);
+        bool added;
+        do
+        {
+            added = false;
+            float relevantLeft = relevant.Min(static glyph => glyph.Bounds.X);
+            float relevantRight = relevant.Max(static glyph => glyph.Bounds.Right);
+            foreach (PdfLayoutPath path in paths
+                .Where(path => path.Bounds.Width >= MathF.Max(3f, fontSize * 0.35f))
+                .Where(path => path.Bounds.Height <= MathF.Max(1.5f, fontSize * 0.18f))
+                .Where(path => !IsRootRule(glyphs, path, fontSize))
+                .OrderBy(static path => path.Bounds.Width))
+            {
+                if (path.Bounds.Right < relevantLeft - fontSize ||
+                    path.Bounds.X > relevantRight + fontSize ||
+                    MathF.Abs(path.Bounds.Y - baselineBottom) > fontSize * 1.8f)
+                {
+                    continue;
+                }
+
+                PdfTextGlyph[] numerator = glyphs
+                    .Where(glyph => IsHorizontallyInside(glyph.Bounds, path.Bounds, ruleTolerance))
+                    .Where(glyph => glyph.Bounds.Bottom <= path.Bounds.Y + ruleTolerance &&
+                        path.Bounds.Y - glyph.Bounds.Bottom <= fontSize * 1.8f)
+                    .ToArray();
+                PdfTextGlyph[] denominator = glyphs
+                    .Where(glyph => IsHorizontallyInside(glyph.Bounds, path.Bounds, ruleTolerance))
+                    .Where(glyph => glyph.Bounds.Y >= path.Bounds.Bottom - ruleTolerance &&
+                        glyph.Bounds.Y - path.Bounds.Bottom <= fontSize * 1.8f)
+                    .ToArray();
+                if (numerator.Length == 0 || denominator.Length == 0)
+                {
+                    continue;
+                }
+
+                foreach (PdfTextGlyph glyph in numerator.Concat(denominator))
+                {
+                    added |= relevant.Add(glyph);
+                }
+            }
+        }
+        while (added);
+    }
+
+    private static bool IsRootRule(
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        PdfLayoutPath path,
+        float fontSize)
+    {
+        return glyphs.Any(glyph => glyph.Text == "√" &&
+            path.Bounds.X >= glyph.Bounds.X + glyph.Bounds.Width * 0.45f &&
+            path.Bounds.X - glyph.Bounds.Right <= MathF.Max(2f, fontSize * 0.25f) &&
+            path.Bounds.Y >= glyph.Bounds.Y - fontSize * 0.4f &&
+            path.Bounds.Y <= glyph.Bounds.Bottom);
+    }
+
+    private static bool IsHorizontallyInside(
+        PdfLayoutRectangle glyph,
+        PdfLayoutRectangle container,
+        float tolerance)
+    {
+        float center = glyph.X + glyph.Width / 2f;
+        return center >= container.X - tolerance && center <= container.Right + tolerance;
     }
 
     private static bool TryTakeEquationNumber(
@@ -351,6 +487,46 @@ internal sealed class PdfMathMlFormula
         return false;
     }
 
+    private static bool HasMultiLineOptimizationProgram(
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        float fontSize)
+    {
+        float baselineTolerance = MathF.Max(1.2f, fontSize * 0.18f);
+        List<List<PdfTextGlyph>> groups = [];
+        foreach (PdfTextGlyph glyph in glyphs
+            .Where(glyph => glyph.FontSize >= fontSize * 0.82f)
+            .OrderBy(static glyph => glyph.Bounds.Bottom)
+            .ThenBy(static glyph => glyph.Bounds.X))
+        {
+            List<PdfTextGlyph>? group = groups.LastOrDefault();
+            if (group == null ||
+                MathF.Abs(group.Average(static item => item.Bounds.Bottom) - glyph.Bounds.Bottom) > baselineTolerance)
+            {
+                groups.Add([glyph]);
+            }
+            else
+            {
+                group.Add(glyph);
+            }
+        }
+
+        string[] lines = groups
+            .Select(group => string.Concat(group
+                .OrderBy(static glyph => glyph.Bounds.X)
+                .Select(static glyph => glyph.Text)))
+            .Select(static text => string.Concat(text.Where(char.IsLetter)).ToLowerInvariant())
+            .Where(static text => text.Length > 0)
+            .ToArray();
+        bool hasObjective = lines.Any(static line =>
+            line.StartsWith("minimize", StringComparison.Ordinal) ||
+            line.StartsWith("maximize", StringComparison.Ordinal) ||
+            line.Contains("rank", StringComparison.Ordinal));
+        bool hasConstraint = lines.Any(static line =>
+            line.StartsWith("subjectto", StringComparison.Ordinal) ||
+            line.StartsWith("suchthat", StringComparison.Ordinal));
+        return hasObjective && hasConstraint;
+    }
+
     private static bool IsEquationNumber(string text)
     {
         return text.Length >= 3 && text[0] == '(' && text[^1] == ')' && text[1..^1].All(char.IsDigit);
@@ -395,11 +571,23 @@ internal sealed class PdfMathMlFormula
         return text.All(static character => IsOperatorCharacter(character));
     }
 
+    private static bool IsLargeOperatorText(string text)
+    {
+        return text is "∑" or "∏" or "∫";
+    }
+
     private static bool IsOperatorCharacter(char character)
     {
         return character is '=' or '+' or '-' or '−' or '±' or '×' or '·' or '/' or '|' or '∣' or
             '<' or '>' or '≤' or '≥' or '≈' or '≡' or '≔' or ':' or ';' or ',' or '.' or
             '(' or ')' or '[' or ']' or '{' or '}' or '∑' or '∏' or '∫' or '√';
+    }
+
+    private static bool IsMathOperatorText(string text)
+    {
+        return text.All(static character =>
+            IsOperatorCharacter(character) ||
+            character is '∈' or '∉' or '∋' or '⊂' or '⊆' or '⊃' or '⊇');
     }
 
     private static bool HasBalancedDelimiters(string text)
@@ -749,7 +937,9 @@ internal sealed class PdfMathMlFormula
 
         private static bool TryCreateToken(PdfTextGlyph glyph, out MathNode? node)
         {
-            string text = glyph.Text;
+            string text = glyph.Text == "`" && IsComputerModernMathItalic(glyph.FontName)
+                ? "ℓ"
+                : glyph.Text;
             if (text.All(char.IsDigit))
             {
                 node = new TokenNode("mn", text, false, null);
@@ -774,7 +964,7 @@ internal sealed class PdfMathMlFormula
                 return true;
             }
 
-            if (IsOperatorText(text))
+            if (IsMathOperatorText(text))
             {
                 node = new TokenNode("mo", text, text is "∑" or "∏" or "∫", null);
                 return true;
@@ -782,6 +972,13 @@ internal sealed class PdfMathMlFormula
 
             node = null;
             return false;
+        }
+
+        private static bool IsComputerModernMathItalic(string fontName)
+        {
+            int separator = fontName.IndexOf('+');
+            string normalized = separator >= 0 ? fontName[(separator + 1)..] : fontName;
+            return normalized.StartsWith("CMMI", StringComparison.OrdinalIgnoreCase);
         }
 
         private IEnumerable<PdfLayoutPath> HorizontalRules()

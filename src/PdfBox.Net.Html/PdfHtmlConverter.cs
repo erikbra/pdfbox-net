@@ -7842,7 +7842,11 @@ public static class PdfHtmlConverter
                 out string detachedEquationNumber,
                 out PdfTextGlyph[] expressionGlyphs,
                 out detachedEquationNumberGlyphs) &&
-            PdfMathMlFormula.TryCreate(expressionGlyphs, nativePaths, out mathMl))
+            PdfMathMlFormula.TryCreate(
+                expressionGlyphs,
+                nativePaths,
+                detachedEquationNumberGlyphs.Average(static glyph => glyph.Bounds.Bottom),
+                out mathMl))
         {
             hasNativeMath = true;
             equationNumber = detachedEquationNumber;
@@ -8282,43 +8286,71 @@ public static class PdfHtmlConverter
         equationNumber = "";
         expressionGlyphs = glyphs.ToArray();
         equationNumberGlyphs = [];
-        PdfTextGlyph[] ordered = glyphs
-            .OrderBy(static glyph => glyph.Bounds.X)
-            .ThenBy(static glyph => glyph.Bounds.Y)
+        PdfTextGlyph[] baselineCandidates = glyphs
+            .OrderBy(static glyph => glyph.Bounds.Bottom)
+            .ThenBy(static glyph => glyph.Bounds.X)
             .ToArray();
-        for (int start = ordered.Length - 1; start > 0; start--)
+        List<List<PdfTextGlyph>> baselineGroups = [];
+        foreach (PdfTextGlyph glyph in baselineCandidates)
         {
-            PdfTextGlyph[] candidateGlyphs = ordered[start..];
-            string candidate = string.Concat(candidateGlyphs.Select(static glyph => glyph.Text)).Trim();
-            if (!IsEquationNumber(candidate))
+            List<PdfTextGlyph>? group = baselineGroups.LastOrDefault();
+            float baselineTolerance = MathF.Max(1.2f, glyph.FontSize * 0.18f);
+            if (group == null ||
+                MathF.Abs(group.Average(static item => item.Bounds.Bottom) - glyph.Bounds.Bottom) > baselineTolerance)
             {
-                continue;
+                baselineGroups.Add([glyph]);
             }
-
-            float fontSize = candidateGlyphs.Max(static glyph => glyph.FontSize);
-            float baselineTolerance = MathF.Max(1.2f, fontSize * 0.18f);
-            float firstBottom = candidateGlyphs[0].Bounds.Bottom;
-            if (candidateGlyphs.Any(glyph =>
-                    MathF.Abs(glyph.Bounds.Bottom - firstBottom) > baselineTolerance))
+            else
             {
-                return false;
+                group.Add(glyph);
             }
-
-            float expressionRight = ordered[..start].Max(static glyph => glyph.Bounds.Right);
-            if (candidateGlyphs[0].Bounds.X - expressionRight < fontSize * 1.4f)
-            {
-                return false;
-            }
-
-            HashSet<PdfTextGlyph> numberGlyphs = candidateGlyphs
-                .ToHashSet((IEqualityComparer<PdfTextGlyph>)ReferenceEqualityComparer.Instance);
-            equationNumber = candidate;
-            expressionGlyphs = glyphs.Where(glyph => !numberGlyphs.Contains(glyph)).ToArray();
-            equationNumberGlyphs = candidateGlyphs;
-            return true;
         }
 
-        return false;
+        PdfTextGlyph[]? selectedNumberGlyphs = null;
+        float selectedNumberX = float.NegativeInfinity;
+        foreach (List<PdfTextGlyph> group in baselineGroups)
+        {
+            PdfTextGlyph[] ordered = group.OrderBy(static glyph => glyph.Bounds.X).ToArray();
+            for (int start = ordered.Length - 1; start > 0; start--)
+            {
+                PdfTextGlyph[] candidateGlyphs = ordered[start..];
+                string candidate = string.Concat(candidateGlyphs.Select(static glyph => glyph.Text)).Trim();
+                if (!IsEquationNumber(candidate))
+                {
+                    continue;
+                }
+
+                PdfTextGlyph[] rowExpression = ordered[..start];
+                float fontSize = candidateGlyphs.Max(static glyph => glyph.FontSize);
+                float expressionRight = rowExpression.Max(static glyph => glyph.Bounds.Right);
+                string expressionText = string.Concat(rowExpression.Select(static glyph => glyph.Text));
+                if (candidateGlyphs[0].Bounds.X - expressionRight < fontSize * 1.4f ||
+                    !HasFormulaSignal(expressionText))
+                {
+                    continue;
+                }
+
+                if (candidateGlyphs[0].Bounds.X > selectedNumberX)
+                {
+                    equationNumber = candidate;
+                    selectedNumberGlyphs = candidateGlyphs;
+                    selectedNumberX = candidateGlyphs[0].Bounds.X;
+                }
+
+                break;
+            }
+        }
+
+        if (selectedNumberGlyphs == null)
+        {
+            return false;
+        }
+
+        HashSet<PdfTextGlyph> numberGlyphs = selectedNumberGlyphs
+            .ToHashSet((IEqualityComparer<PdfTextGlyph>)ReferenceEqualityComparer.Instance);
+        expressionGlyphs = glyphs.Where(glyph => !numberGlyphs.Contains(glyph)).ToArray();
+        equationNumberGlyphs = selectedNumberGlyphs;
+        return true;
     }
 
     private static PdfLayoutRectangle ExpandRectangle(PdfLayoutRectangle bounds, float horizontal, float vertical)
