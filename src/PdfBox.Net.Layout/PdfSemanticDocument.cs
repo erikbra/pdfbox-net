@@ -52,7 +52,8 @@ public sealed class PdfSemanticElement
         PdfSemanticList? semanticList = null,
         PdfSemanticDocumentIndex? documentIndex = null,
         bool isDocumentTitle = false,
-        PdfSemanticBibliographyFragment? bibliographyFragment = null)
+        PdfSemanticBibliographyFragment? bibliographyFragment = null,
+        PdfSemanticDefinitionList? definitionList = null)
     {
         Kind = kind;
         Text = text;
@@ -63,6 +64,7 @@ public sealed class PdfSemanticElement
         SemanticList = semanticList;
         DocumentIndex = documentIndex;
         BibliographyFragment = bibliographyFragment;
+        DefinitionList = definitionList;
         IsDocumentTitle = isDocumentTitle;
     }
 
@@ -84,10 +86,124 @@ public sealed class PdfSemanticElement
 
     public PdfSemanticBibliographyFragment? BibliographyFragment { get; }
 
+    public PdfSemanticDefinitionList? DefinitionList { get; }
+
     /// <summary>
     /// Gets whether this heading is the inferred document title rather than a section heading.
     /// </summary>
     public bool IsDocumentTitle { get; }
+}
+
+/// <summary>
+/// A structured list of terms and their definitions.
+/// </summary>
+public sealed class PdfSemanticDefinitionList
+{
+    public PdfSemanticDefinitionList(
+        IReadOnlyList<PdfSemanticDefinitionListEntry> entries,
+        float? termColumnWidth = null,
+        float columnGap = 0f,
+        bool continuesPreviousList = false,
+        bool continuesOnNextPage = false)
+    {
+        Entries = entries.ToArray();
+        TermColumnWidth = termColumnWidth > 0f ? termColumnWidth : null;
+        ColumnGap = MathF.Max(0f, columnGap);
+        ContinuesPreviousList = continuesPreviousList;
+        ContinuesOnNextPage = continuesOnNextPage;
+    }
+
+    public IReadOnlyList<PdfSemanticDefinitionListEntry> Entries { get; }
+
+    /// <summary>
+    /// Gets the source term-column width when repeated horizontal geometry supports a two-column layout.
+    /// </summary>
+    public float? TermColumnWidth { get; }
+
+    /// <summary>
+    /// Gets the source gap between term and definition columns.
+    /// </summary>
+    public float ColumnGap { get; }
+
+    /// <summary>
+    /// Gets whether this page fragment continues the same definition list from the previous page.
+    /// </summary>
+    public bool ContinuesPreviousList { get; }
+
+    /// <summary>
+    /// Gets whether this definition list continues on the next page.
+    /// </summary>
+    public bool ContinuesOnNextPage { get; }
+}
+
+/// <summary>
+/// One definition-list entry. Multiple terms are retained only when the source associates them with one definition.
+/// </summary>
+public sealed class PdfSemanticDefinitionListEntry
+{
+    public PdfSemanticDefinitionListEntry(
+        IReadOnlyList<PdfSemanticDefinitionTerm> terms,
+        PdfSemanticDefinitionContent definition,
+        bool continuesPreviousDefinition = false,
+        bool continuesOnNextPage = false)
+    {
+        Terms = terms.ToArray();
+        Definition = definition;
+        ContinuesPreviousDefinition = continuesPreviousDefinition;
+        ContinuesOnNextPage = continuesOnNextPage;
+    }
+
+    public IReadOnlyList<PdfSemanticDefinitionTerm> Terms { get; }
+
+    public PdfSemanticDefinitionContent Definition { get; }
+
+    public bool ContinuesPreviousDefinition { get; }
+
+    public bool ContinuesOnNextPage { get; }
+}
+
+/// <summary>
+/// A term associated with a definition.
+/// </summary>
+public sealed class PdfSemanticDefinitionTerm
+{
+    public PdfSemanticDefinitionTerm(
+        string text,
+        PdfLayoutRectangle bounds,
+        IReadOnlyList<PdfSemanticLine> lines)
+    {
+        Text = text;
+        Bounds = bounds;
+        Lines = lines.ToArray();
+    }
+
+    public string Text { get; }
+
+    public PdfLayoutRectangle Bounds { get; }
+
+    public IReadOnlyList<PdfSemanticLine> Lines { get; }
+}
+
+/// <summary>
+/// The definition text associated with one or more terms.
+/// </summary>
+public sealed class PdfSemanticDefinitionContent
+{
+    public PdfSemanticDefinitionContent(
+        string text,
+        PdfLayoutRectangle bounds,
+        IReadOnlyList<PdfSemanticLine> lines)
+    {
+        Text = text;
+        Bounds = bounds;
+        Lines = lines.ToArray();
+    }
+
+    public string Text { get; }
+
+    public PdfLayoutRectangle Bounds { get; }
+
+    public IReadOnlyList<PdfSemanticLine> Lines { get; }
 }
 
 /// <summary>

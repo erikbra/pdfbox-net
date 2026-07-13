@@ -220,6 +220,143 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_RepeatedInlineTerms_CreateStructuredDefinitionListWithWrappedDefinitions()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateInlineDefinitionListFixture()).Pages);
+
+        PdfSemanticElement element = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.DefinitionList);
+        PdfSemanticDefinitionList list = Assert.IsType<PdfSemanticDefinitionList>(element.DefinitionList);
+        Assert.Equal(new[] { "API", "CUI", "MFA", "SIEM" }, list.Entries
+            .SelectMany(static entry => entry.Terms)
+            .Select(static term => term.Text)
+            .ToArray());
+        Assert.Contains("continues on its wrapped source line", list.Entries[0].Definition.Text, StringComparison.Ordinal);
+        Assert.Equal(2, list.Entries[0].Definition.Lines.Count);
+        Assert.NotNull(list.TermColumnWidth);
+        Assert.All(list.Entries, static entry => Assert.Single(entry.Terms));
+    }
+
+    [Fact]
+    public void Extract_RepeatedTwoColumnPairs_PreserveTermColumnGeometry()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateTwoColumnDefinitionListFixture()).Pages);
+
+        PdfSemanticDefinitionList list = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.DefinitionList).DefinitionList!;
+        Assert.Equal(4, list.Entries.Count);
+        Assert.Equal("Controlled Unclassified Information", list.Entries[1].Definition.Text);
+        Assert.NotNull(list.TermColumnWidth);
+        Assert.InRange(list.TermColumnWidth!.Value, 55f, 65f);
+        Assert.InRange(list.ColumnGap, 70f, 90f);
+    }
+
+    [Fact]
+    public void Extract_TwoColumnAliasWithContinuingDefinition_AllowsMultipleTermsForOneDefinition()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateTwoColumnAliasDefinitionListFixture()).Pages);
+
+        PdfSemanticDefinitionList list = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.DefinitionList).DefinitionList!;
+        Assert.Equal(4, list.Entries.Count);
+        Assert.Equal(new[] { "API", "application interface" }, list.Entries[0].Terms
+            .Select(static term => term.Text)
+            .ToArray());
+        Assert.Equal(
+            "Application programming interfaces provide access to reusable software operations.",
+            list.Entries[0].Definition.Text);
+        Assert.All(list.Entries.Skip(1), static entry => Assert.Single(entry.Terms));
+    }
+
+    [Fact]
+    public void Extract_NistStyleStackedGlossary_ExcludesIntroAndStopsAtNextAppendix()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateStackedGlossaryFixture()).Pages);
+
+        PdfSemanticDefinitionList list = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.DefinitionList).DefinitionList!;
+        Assert.Equal(new[] { "agency", "assessment", "audit log", "common secure configuration", "sanitization" }, list.Entries
+            .Select(static entry => Assert.Single(entry.Terms).Text)
+            .ToArray());
+        Assert.EndsWith("[55]", list.Entries[3].Definition.Text, StringComparison.Ordinal);
+        Assert.Null(list.TermColumnWidth);
+        Assert.DoesNotContain(list.Entries.SelectMany(static entry => entry.Terms), static term =>
+            term.Text.Contains("unless otherwise noted", StringComparison.Ordinal));
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.Contains("unless otherwise noted.", StringComparison.Ordinal));
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Heading &&
+            element.Text == "Appendix C. Tailoring Criteria");
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.Contains("continues onto the next page.", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_CrossPageGlossary_MarksDefinitionContinuationAndKeepsPageArtifactSeparate()
+    {
+        PdfSemanticDocument semantic = PdfSemanticExtractor.Extract(CreateCrossPageDefinitionListFixture());
+        PdfSemanticDefinitionList firstPageList = Assert.Single(semantic.Pages[0].Elements, static element =>
+            element.Kind == PdfSemanticElementKind.DefinitionList).DefinitionList!;
+        PdfSemanticDefinitionList secondPageList = Assert.Single(semantic.Pages[1].Elements, static element =>
+            element.Kind == PdfSemanticElementKind.DefinitionList).DefinitionList!;
+
+        Assert.True(firstPageList.ContinuesOnNextPage);
+        Assert.True(secondPageList.ContinuesPreviousList);
+        Assert.True(firstPageList.Entries[^1].ContinuesOnNextPage);
+        PdfSemanticDefinitionListEntry continuation = secondPageList.Entries[0];
+        Assert.True(continuation.ContinuesPreviousDefinition);
+        Assert.Empty(continuation.Terms);
+        Assert.Equal("operational requirements and implementation guidance.", continuation.Definition.Text);
+        Assert.Contains(semantic.Pages[1].Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Header && element.Text == "May 2024");
+    }
+
+    [Fact]
+    public void Extract_CrossPageGlossary_KeepsCompletedEntriesInOneLogicalList()
+    {
+        PdfSemanticDocument semantic = PdfSemanticExtractor.Extract(
+            CreateCrossPageDefinitionListFixture(definitionContinues: false));
+        PdfSemanticDefinitionList firstPageList = Assert.Single(semantic.Pages[0].Elements, static element =>
+            element.Kind == PdfSemanticElementKind.DefinitionList).DefinitionList!;
+        PdfSemanticDefinitionList secondPageList = Assert.Single(semantic.Pages[1].Elements, static element =>
+            element.Kind == PdfSemanticElementKind.DefinitionList).DefinitionList!;
+
+        Assert.True(firstPageList.ContinuesOnNextPage);
+        Assert.True(secondPageList.ContinuesPreviousList);
+        Assert.False(firstPageList.Entries[^1].ContinuesOnNextPage);
+        Assert.All(secondPageList.Entries, static entry => Assert.False(entry.ContinuesPreviousDefinition));
+    }
+
+    [Fact]
+    public void Extract_NumericRowsAndOrdinaryBoldLeadIns_DoNotBecomeDefinitionLists()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateDefinitionListNegativeFixture()).Pages);
+
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.DefinitionList);
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("Important:", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_DefinitionLikeLabelsOnFormPage_DoNotBecomeDefinitionList()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            AddFormControl(CreateInlineDefinitionListFixture())).Pages);
+
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.DefinitionList);
+    }
+
+    [Fact]
     public void Extract_TableOfContents_CreatesNestedNavigationAndResolvedDestinations()
     {
         PdfLayoutDocument layout = CreateDocumentIndexFixture(
@@ -770,6 +907,209 @@ public sealed class PdfSemanticExtractorTest
         }
 
         return glyphs.ToArray();
+    }
+
+    private static PdfLayoutDocument CreateInlineDefinitionListFixture()
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateFixtureLine("Opening context establishes ordinary body text for semantic inference.", 72f, 72f, 410f),
+            CreateFixtureLine("A second context line completes the introductory paragraph.", 72f, 84f, 360f),
+            CreateStyledFixtureLine(72f, 120f, ("API", "Times-Bold"), (" Application programming interface", "Times-Roman")),
+            CreateFixtureLine("continues on its wrapped source line.", 100f, 132f, 220f),
+            CreateStyledFixtureLine(72f, 150f, ("CUI", "Times-Bold"), (" Controlled unclassified information", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 168f, ("MFA", "Times-Bold"), (" Multi-factor authentication", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 186f, ("SIEM", "Times-Bold"), (" Security information and event management", "Times-Roman")),
+            CreateFixtureLine("Ordinary prose resumes after the repeated pairs.", 72f, 220f, 320f)
+        ];
+        return CreateDefinitionFixtureDocument([lines]);
+    }
+
+    private static PdfLayoutDocument CreateTwoColumnDefinitionListFixture()
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateFixtureLine("Acronym reference", 72f, 60f, 150f, 14f, "Times-Bold"),
+            CreateFixtureLine("The following abbreviations are used throughout this document.", 72f, 84f, 390f),
+            CreateColumnDefinitionLine("API", "Application Programming Interface", 120f),
+            CreateColumnDefinitionLine("CUI", "Controlled Unclassified Information", 140f),
+            CreateColumnDefinitionLine("MFA", "Multi-Factor Authentication", 160f),
+            CreateColumnDefinitionLine("SIEM", "Security Information and Event Management", 180f)
+        ];
+        return CreateDefinitionFixtureDocument([lines]);
+    }
+
+    private static PdfLayoutDocument CreateTwoColumnAliasDefinitionListFixture()
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateFixtureLine("Acronym reference", 72f, 60f, 150f, 14f, "Times-Bold"),
+            CreateFixtureLine("The following terms are used throughout this document.", 72f, 84f, 360f),
+            CreateColumnDefinitionLine("API", "Application programming interfaces provide", 120f),
+            CreateColumnDefinitionLine("application interface", "access to reusable software operations.", 140f),
+            CreateColumnDefinitionLine("CUI", "Controlled Unclassified Information", 164f),
+            CreateColumnDefinitionLine("MFA", "Multi-Factor Authentication", 184f),
+            CreateColumnDefinitionLine("SIEM", "Security Information and Event Management", 204f)
+        ];
+        return CreateDefinitionFixtureDocument([lines]);
+    }
+
+    private static PdfLayoutDocument CreateStackedGlossaryFixture()
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateFixtureLine("Appendix B. Glossary", 72f, 60f, 170f, 14f, "Times-Bold"),
+            CreateFixtureLine("Appendix B provides definitions for the terminology used in this publication. The definitions are", 72f, 90f, 460f, 12f),
+            CreateFixtureLine("consistent with the definitions in the referenced standards", 72f, 102f, 390f, 12f),
+            CreateFixtureLine("unless otherwise noted.", 72f, 114f, 150f, 12f),
+            CreateFixtureLine("agency", 72f, 150f, 48f, 9f, "Times-Bold"),
+            CreateFixtureLine("An executive department or other government organization.", 72f, 162f, 360f, 9f),
+            CreateFixtureLine("assessment", 72f, 186f, 70f, 9f, "Times-Bold"),
+            CreateFixtureLine("See security control assessment.", 72f, 198f, 220f, 9f),
+            CreateFixtureLine("audit log", 72f, 222f, 60f, 9f, "Times-Bold"),
+            CreateFixtureLine("A chronological record of system activities and accessed resources.", 72f, 234f, 410f, 9f),
+            CreateFixtureLine("common secure configuration", 72f, 258f, 180f, 9f, "Times-Bold"),
+            CreateFixtureLine("Recognized benchmarks that stipulate secure configuration settings", 72f, 270f, 390f, 9f),
+            CreateFixtureLine("for specific information technology platforms and products.", 72f, 282f, 340f, 9f),
+            CreateFixtureLine("[55]", 72f, 294f, 30f, 9f),
+            CreateFixtureLine("sanitization", 72f, 318f, 70f, 9f, "Times-Bold"),
+            CreateFixtureLine("Actions taken to render data on media unrecoverable.", 72f, 330f, 330f, 9f),
+            CreateFixtureLine("Appendix C. Tailoring Criteria", 72f, 378f, 230f, 14f, "Times-Bold"),
+            CreateFixtureLine("This appendix describes ordinary tailoring guidance that continues onto the next", 72f, 398f, 430f, 12f),
+            CreateFixtureLine("page.", 72f, 410f, 40f, 12f)
+        ];
+        return CreateDefinitionFixtureDocument([lines]);
+    }
+
+    private static PdfLayoutDocument CreateCrossPageDefinitionListFixture(bool definitionContinues = true)
+    {
+        List<PdfTextLine> firstPage =
+        [
+            CreateFixtureLine("agency", 72f, 520f, 48f, 10f, "Times-Bold"),
+            CreateFixtureLine("An executive department or government organization.", 72f, 532f, 330f),
+            CreateFixtureLine("assessment", 72f, 556f, 70f, 10f, "Times-Bold"),
+            CreateFixtureLine("See security control assessment.", 72f, 568f, 220f),
+            CreateFixtureLine("audit log", 72f, 592f, 60f, 10f, "Times-Bold"),
+            CreateFixtureLine("A chronological record of system activity.", 72f, 604f, 280f),
+            CreateFixtureLine("common secure configuration", 72f, 628f, 180f, 10f, "Times-Bold"),
+            CreateFixtureLine(
+                definitionContinues ? "Recognized benchmarks for systems that meet" : "Recognized benchmarks for systems. [79]",
+                72f,
+                640f,
+                300f)
+        ];
+        List<PdfTextLine> secondPage =
+        [
+            CreateFixtureLine("May 2024", 72f, 51f, 70f),
+            .. (definitionContinues
+                ? new[] { CreateFixtureLine("operational requirements and implementation guidance.", 72f, 75f, 340f) }
+                : Array.Empty<PdfTextLine>()),
+            CreateFixtureLine("confidentiality", 72f, 110f, 90f, 10f, "Times-Bold"),
+            CreateFixtureLine("Preserving authorized restrictions on information access.", 72f, 122f, 360f),
+            CreateFixtureLine("configuration management", 72f, 146f, 160f, 10f, "Times-Bold"),
+            CreateFixtureLine("Activities that maintain the integrity of system configurations.", 72f, 158f, 390f),
+            CreateFixtureLine("controlled area", 72f, 182f, 100f, 10f, "Times-Bold"),
+            CreateFixtureLine("An area with sufficient physical and procedural protections.", 72f, 194f, 380f),
+            CreateFixtureLine("external network", 72f, 218f, 100f, 10f, "Times-Bold"),
+            CreateFixtureLine("A network not controlled by the organization.", 72f, 230f, 300f)
+        ];
+        return CreateDefinitionFixtureDocument([firstPage, secondPage]);
+    }
+
+    private static PdfLayoutDocument CreateDefinitionListNegativeFixture()
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateFixtureLine("Opening body text establishes ordinary semantic flow.", 72f, 60f, 330f),
+            CreateStyledFixtureLine(72f, 100f, ("Important: ", "Times-Bold"), ("this is ordinary lead-in prose.", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 118f, ("Note: ", "Times-Bold"), ("this remains another ordinary paragraph.", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 136f, ("Warning: ", "Times-Bold"), ("this is not a glossary entry.", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 154f, ("Remember: ", "Times-Bold"), ("bold lead-ins do not define terms.", "Times-Roman")),
+            CreateColumnDefinitionLine("100", "records processed", 210f),
+            CreateColumnDefinitionLine("200", "records processed", 228f),
+            CreateColumnDefinitionLine("300", "records processed", 246f),
+            CreateColumnDefinitionLine("400", "records processed", 264f),
+            CreateFixtureLine("Table 2. Security Control Tailoring Criteria", 72f, 320f, 260f, 10f, "Times-Bold"),
+            CreateColumnDefinitionLine("NCO", "The control is not directly related to the requirement.", 350f),
+            CreateColumnDefinitionLine("FED", "The control is primarily a government responsibility.", 368f),
+            CreateColumnDefinitionLine("ORC", "The outcome is addressed by another requirement.", 386f),
+            CreateColumnDefinitionLine("N/A", "The control is not applicable.", 404f),
+            CreateColumnDefinitionLine("CUI", "The control directly protects the information.", 422f)
+        ];
+        return CreateDefinitionFixtureDocument([lines]);
+    }
+
+    private static PdfTextLine CreateColumnDefinitionLine(string term, string definition, float y)
+    {
+        PdfTextLine termLine = CreateFixtureLine(term, 72f, y, 60f, 10f, "Times-Bold");
+        PdfTextLine definitionLine = CreateFixtureLine(definition, 210f, y, 300f);
+        PdfTextRun[] runs = termLine.Runs.Concat(definitionLine.Runs).ToArray();
+        return new PdfTextLine(
+            term + " " + definition,
+            new PdfLayoutRectangle(72f, y, 438f, 7.5f),
+            runs);
+    }
+
+    private static PdfLayoutDocument CreateDefinitionFixtureDocument(
+        IReadOnlyList<IReadOnlyList<PdfTextLine>> pageLines)
+    {
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage[] pages = pageLines
+            .Select((lines, index) =>
+            {
+                PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+                PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+                return new PdfLayoutPage(
+                    index + 1,
+                    pageBounds,
+                    pageBounds,
+                    pageBounds.Width,
+                    pageBounds.Height,
+                    0,
+                    glyphs,
+                    runs,
+                    lines,
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    []);
+            })
+            .ToArray();
+        return new PdfLayoutDocument(pages, []);
+    }
+
+    private static PdfLayoutDocument AddFormControl(PdfLayoutDocument layout)
+    {
+        PdfLayoutPage source = Assert.Single(layout.Pages);
+        PdfLayoutFormControl control = new(
+            0,
+            "definition-like-field",
+            "Definition-like field",
+            PdfLayoutFormControlKind.Text,
+            new PdfLayoutRectangle(70f, 110f, 180f, 18f));
+        PdfLayoutPage page = new(
+            source.PageNumber,
+            source.MediaBox,
+            source.CropBox,
+            source.Width,
+            source.Height,
+            source.Rotation,
+            source.Glyphs,
+            source.Runs,
+            source.Lines,
+            source.Blocks,
+            source.Images,
+            source.Paths,
+            source.Shadings,
+            source.VectorGroups,
+            source.Links,
+            source.Diagnostics,
+            source.PaintOperations,
+            [control]);
+        return new PdfLayoutDocument([page], layout.Diagnostics);
     }
 
     private static PdfLayoutDocument CreateScientificFrontMatterFixture(
