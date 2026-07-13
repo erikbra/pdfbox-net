@@ -9,6 +9,7 @@ public enum PdfSemanticElementKind
     Header,
     Heading,
     Paragraph,
+    List,
     Table,
     AuthorBlock,
     Footnote,

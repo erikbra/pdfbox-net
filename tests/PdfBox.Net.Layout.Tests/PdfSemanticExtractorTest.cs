@@ -119,27 +119,142 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
-    public void Extract_BulletMarkerLines_StartAdjacentParagraphsAndKeepWrappedInlineFormatting()
+    public void Extract_BulletList_PreservesWrappedLinesAndInlineFormatting()
     {
         PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
             CreateSemanticBoundaryFixture(includeBullets: true)).Pages);
 
-        PdfSemanticElement[] items = page.Elements
-            .Where(element => element.Kind == PdfSemanticElementKind.Paragraph &&
-                element.Text.StartsWith("•", StringComparison.Ordinal))
-            .OrderBy(static element => element.Bounds.Y)
-            .ToArray();
-
-        Assert.Equal(2, items.Length);
-        Assert.Equal(2, items[0].Lines.Count);
-        Assert.Equal(2, items[1].Lines.Count);
-        Assert.Contains("first wrapped item continues", items[0].Text, StringComparison.Ordinal);
-        Assert.Contains(items[0].Lines.SelectMany(static line => line.Runs), run =>
+        PdfSemanticElement element = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.List);
+        PdfSemanticList list = Assert.IsType<PdfSemanticList>(element.SemanticList);
+        Assert.Equal(PdfSemanticListKind.Unordered, list.Kind);
+        Assert.Equal(PdfSemanticListMarkerKind.Bullet, list.MarkerKind);
+        Assert.Equal(2, list.Items.Count);
+        Assert.Equal(2, list.Items[0].Lines.Count);
+        Assert.Equal(2, list.Items[1].Lines.Count);
+        Assert.Contains("first wrapped item continues", list.Items[0].Text, StringComparison.Ordinal);
+        Assert.Contains(list.Items[0].Lines.SelectMany(static line => line.Runs), run =>
             run.FontName.Contains("Italic", StringComparison.OrdinalIgnoreCase) &&
             run.Text.Contains("Federal perspective", StringComparison.Ordinal));
         Assert.Contains(page.Elements, element =>
             element.Kind == PdfSemanticElementKind.Paragraph &&
             element.Text == "Ordinary prose resumes after the list.");
+    }
+
+    [Fact]
+    public void Extract_BulletList_KeepsItemsWhenInferredSpaceAndBodyWidthShiftTheAnchor()
+    {
+        const float continuationX = 80.8f;
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
+            CreateSplitBulletFixtureLine("In the first item the initial glyph is narrow.", 72f, 120f, 2.4f),
+            CreateFixtureLine("Its continuation uses the shared hanging indent.", continuationX, 132f, 260f),
+            CreateSplitBulletFixtureLine("The second item starts with a wider glyph and runs to the margin.", 72f, 148f, 5.4f),
+            CreateFixtureLine("Its first continuation remains aligned with the source body.", continuationX, 160f, 360f),
+            CreateFixtureLine("short final continuation.", continuationX, 172f, 112f),
+            CreateSplitBulletFixtureLine("Similarly, the third marker follows a slightly larger item gap.", 72f, 188f, 4.8f),
+            CreateFixtureLine("The third item reaches an inline expression.", continuationX, 200f, 240f),
+            CreateStyledFixtureLine(
+                continuationX,
+                212f,
+                ("Masking to ", "Times-Roman"),
+                ("−∞", "CMSY10"),
+                (" keeps the continuation in the item.", "Times-Roman")))).Pages);
+
+        PdfSemanticList list = Assert.IsType<PdfSemanticList>(
+            Assert.Single(page.Elements, static element => element.Kind == PdfSemanticElementKind.List).SemanticList);
+        Assert.Equal(3, list.Items.Count);
+        Assert.Equal([2, 3, 3], list.Items.Select(static item => item.Lines.Count));
+        Assert.Contains("short final continuation", list.Items[1].Text, StringComparison.Ordinal);
+        Assert.Contains("−∞ keeps the continuation", list.Items[2].Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Extract_DecimalOrderedList_RecordsSourceStartAndNumberingGap()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
+            CreateStyledFixtureLine(72f, 120f, ("3. ", "Times-Roman"), ("Third step", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 136f, ("4. ", "Times-Roman"), ("Fourth step", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 152f, ("6. ", "Times-Roman"), ("Sixth step", "Times-Roman")))).Pages);
+
+        PdfSemanticList list = Assert.IsType<PdfSemanticList>(
+            Assert.Single(page.Elements, static element => element.Kind == PdfSemanticElementKind.List).SemanticList);
+        Assert.Equal(PdfSemanticListKind.Ordered, list.Kind);
+        Assert.Equal(PdfSemanticListMarkerKind.Decimal, list.MarkerKind);
+        Assert.Equal(3, list.Start);
+        Assert.Null(list.Items[0].Value);
+        Assert.Null(list.Items[1].Value);
+        Assert.Equal(6, list.Items[2].Value);
+        Assert.Equal(["Third step", "Fourth step", "Sixth step"], list.Items.Select(static item => item.Text));
+    }
+
+    [Fact]
+    public void Extract_HyphenList_RequiresRepeatedAlignedHangingMarkers()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
+            CreateStyledFixtureLine(72f, 120f, ("- ", "Times-Roman"), ("First item", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 136f, ("- ", "Times-Roman"), ("Second item", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 152f, ("- ", "Times-Roman"), ("Third item", "Times-Roman")))).Pages);
+
+        PdfSemanticList list = Assert.IsType<PdfSemanticList>(
+            Assert.Single(page.Elements, static element => element.Kind == PdfSemanticElementKind.List).SemanticList);
+        Assert.Equal(PdfSemanticListKind.Unordered, list.Kind);
+        Assert.Equal(PdfSemanticListMarkerKind.Hyphen, list.MarkerKind);
+    }
+
+    [Fact]
+    public void Extract_NestedList_UsesStableIndentationLevels()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
+            CreateStyledFixtureLine(72f, 120f, ("1. ", "Times-Roman"), ("First parent", "Times-Roman")),
+            CreateStyledFixtureLine(96f, 136f, ("a. ", "Times-Roman"), ("First child", "Times-Roman")),
+            CreateStyledFixtureLine(96f, 152f, ("b. ", "Times-Roman"), ("Second child", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 168f, ("2. ", "Times-Roman"), ("Second parent", "Times-Roman")))).Pages);
+
+        PdfSemanticList root = Assert.IsType<PdfSemanticList>(
+            Assert.Single(page.Elements, static element => element.Kind == PdfSemanticElementKind.List).SemanticList);
+        Assert.Equal(2, root.Items.Count);
+        PdfSemanticList nested = Assert.Single(root.Items[0].NestedLists);
+        Assert.Equal(PdfSemanticListMarkerKind.LowerAlpha, nested.MarkerKind);
+        Assert.Equal(["First child", "Second child"], nested.Items.Select(static item => item.Text));
+        Assert.Empty(root.Items[1].NestedLists);
+    }
+
+    [Fact]
+    public void Extract_AlphabeticAndRomanLists_UsesMarkerSequenceEvidence()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
+            CreateStyledFixtureLine(72f, 120f, ("(a) ", "Times-Roman"), ("Alpha one", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 136f, ("(b) ", "Times-Roman"), ("Alpha two", "Times-Roman")),
+            CreateFixtureLine("Separating ordinary prose.", 72f, 168f, 180f),
+            CreateStyledFixtureLine(72f, 200f, ("i. ", "Times-Roman"), ("Roman one", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 216f, ("ii. ", "Times-Roman"), ("Roman two", "Times-Roman")),
+            CreateStyledFixtureLine(72f, 232f, ("iii. ", "Times-Roman"), ("Roman three", "Times-Roman")))).Pages);
+
+        PdfSemanticList[] lists = page.Elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.List)
+            .Select(static element => element.SemanticList!)
+            .ToArray();
+        Assert.Equal(2, lists.Length);
+        Assert.Equal(PdfSemanticListMarkerKind.LowerAlpha, lists[0].MarkerKind);
+        Assert.Equal(PdfSemanticListMarkerKind.LowerRoman, lists[1].MarkerKind);
+    }
+
+    [Fact]
+    public void Extract_NumberedHeadingsEquationsDatesAndIsolatedNumbers_AreNotLists()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
+            CreateFixtureLine("1. Introduction", 72f, 120f, 120f, 13f, "Times-Bold"),
+            CreateFixtureLine("2. Methods", 72f, 152f, 100f, 13f, "Times-Bold"),
+            CreateStyledFixtureLine(170f, 200f, ("(1) ", "CMR10"), ("E = mc2", "CMR10")),
+            CreateStyledFixtureLine(170f, 216f, ("(2) ", "CMR10"), ("F = ma", "CMR10")),
+            CreateFixtureLine("13. July 2026", 72f, 264f, 120f),
+            CreateFixtureLine("14. August 2026", 72f, 280f, 130f),
+            CreateFixtureLine("[1] A bracketed scientific citation remains prose.", 72f, 304f, 260f),
+            CreateFixtureLine("1. This isolated numbered paragraph is not a list.", 72f, 328f, 280f))).Pages);
+
+        Assert.DoesNotContain(page.Elements, static element => element.Kind == PdfSemanticElementKind.List);
+        Assert.Contains(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading && element.Text.Contains("Introduction", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -536,6 +651,37 @@ public sealed class PdfSemanticExtractorTest
         return new PdfLayoutDocument([page], []);
     }
 
+    private static PdfLayoutDocument CreateListFixture(params PdfTextLine[] listLines)
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateFixtureLine("Opening prose establishes ordinary body text.", 72f, 72f, 260f),
+            CreateFixtureLine("A second line establishes the normal vertical rhythm.", 72f, 84f, 280f),
+            .. listLines
+        ];
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
+    }
+
     private static PdfTextLine CreateStyledFixtureLine(
         float x,
         float y,
@@ -558,6 +704,28 @@ public sealed class PdfSemanticExtractorTest
             string.Concat(segments.Select(static segment => segment.Text)),
             new PdfLayoutRectangle(x, y, segmentX - x, fontSize * 0.75f),
             runs);
+    }
+
+    private static PdfTextLine CreateSplitBulletFixtureLine(
+        string body,
+        float x,
+        float y,
+        float bodyGlyphWidth)
+    {
+        const float fontSize = 10f;
+        const float markerWidth = 3.5f;
+        const float bodyOffset = 8.5f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfLayoutRectangle markerBounds = new(x, y, markerWidth, 6f);
+        PdfTextGlyph markerGlyph = new("•", "Times-Roman", 9f, 0f, markerBounds, color);
+        PdfTextRun markerRun = new("•", "Times-Roman", 9f, 0f, markerBounds, color, [markerGlyph]);
+        PdfLayoutRectangle bodyBounds = new(x + bodyOffset, y, body.Length * bodyGlyphWidth, 6f);
+        PdfTextGlyph bodyGlyph = new(body, "Times-Roman", fontSize, 0f, bodyBounds, color);
+        PdfTextRun bodyRun = new(body, "Times-Roman", fontSize, 0f, bodyBounds, color, [bodyGlyph]);
+        return new PdfTextLine(
+            "•" + body,
+            new PdfLayoutRectangle(x, y, bodyBounds.Right - x, 6f),
+            [markerRun, bodyRun]);
     }
 
     private static PdfTextLine CreateFixtureLine(

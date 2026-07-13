@@ -239,6 +239,14 @@ public static class PdfHtmlConverter
           min-width: 0;
         }
 
+        .pdf-semantic-column-block {
+          min-width: 0;
+        }
+
+        .pdf-semantic-column-block > .pdf-semantic-list {
+          margin-bottom: 0;
+        }
+
         .pdf-semantic-column-spanning {
           grid-column: 1 / -1;
           position: relative;
@@ -617,6 +625,10 @@ public static class PdfHtmlConverter
         .pdf-semantic-list > li {
           margin: 0 0 2pt;
           padding-left: 0.2em;
+        }
+
+        .pdf-semantic-list .pdf-semantic-list {
+          margin: 2pt 0 0;
         }
 
         .pdf-semantic-link,
@@ -2771,7 +2783,7 @@ public static class PdfHtmlConverter
                     WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
                 }
 
-                WriteSemanticColumns(html, context.Columns, scale, semanticOptions);
+                WriteSemanticColumns(html, context.Columns, context.Footnotes, scale, semanticOptions);
                 WriteFormControls(html, context.Page, scale, positioned: false);
                 continue;
             }
@@ -3236,6 +3248,7 @@ public static class PdfHtmlConverter
                 page,
                 [],
                 legacyColumns,
+                SemanticColumnListElements(semanticPage),
                 legacyColumns[0].Left,
                 legacyRightInset,
                 pitch,
@@ -3247,11 +3260,22 @@ public static class PdfHtmlConverter
             page,
             leadingRuns,
             columns,
+            SemanticColumnListElements(semanticPage),
             leftInset,
             rightInset,
             MathF.Max(0, gutterLeft - leftInset),
             MathF.Max(0, page.Width - rightInset - gutterRight),
             MathF.Max(0, gutterRight - gutterLeft));
+    }
+
+    private static PdfSemanticElement[] SemanticColumnListElements(PdfSemanticPage semanticPage)
+    {
+        return semanticPage.Elements
+            .Where(static element =>
+                element.Kind == PdfSemanticElementKind.List &&
+                element.SemanticList != null &&
+                element.Lines.Count > 0)
+            .ToArray();
     }
 
     private static bool TryGetFlowColumnRuns(
@@ -3758,6 +3782,7 @@ public static class PdfHtmlConverter
     private static void WriteSemanticColumns(
         StringBuilder html,
         PdfSemanticColumns columns,
+        FootnoteContext footnotes,
         float scale,
         PdfSemanticExtractionOptions semanticOptions)
     {
@@ -3813,52 +3838,128 @@ public static class PdfHtmlConverter
         foreach (LineGridColumn column in columns.Columns)
         {
             html.AppendLine("        <div class=\"pdf-semantic-column\">");
-            PdfTextRun? previous = null;
+            PdfSemanticElement[] listElements = columns.ListElements
+                .Where(element => IsSemanticListInColumn(columns, column, element))
+                .OrderBy(static element => element.Bounds.Y)
+                .ToArray();
+            HashSet<PdfSemanticElement> writtenLists = [];
+            float previousSourceBottom = columnTop;
             foreach (PdfTextRun run in column.Lines.OrderBy(static run => run.Bounds.Y))
             {
-                float marginTop = previous == null
-                    ? MathF.Max(0, run.Bounds.Y - columnTop) * scale
-                    : MathF.Max(0, run.Bounds.Y - previous.Bounds.Bottom) * scale;
-                PdfLayoutColor? highlight = GridHighlightColor(columns.Page, run);
-                html.Append("          <span class=\"pdf-semantic-column-run");
-                if (highlight.HasValue)
+                PdfSemanticElement? listElement = listElements.FirstOrDefault(element =>
+                    SemanticListContainsColumnRun(element, run));
+                if (listElement != null)
                 {
-                    html.Append(" pdf-semantic-line-grid-highlight");
+                    if (writtenLists.Add(listElement))
+                    {
+                        float listMarginTop = MathF.Max(0, listElement.Bounds.Y - previousSourceBottom) * scale;
+                        html.Append("          <div class=\"pdf-semantic-column-block\"");
+                        if (listMarginTop > 0.01f)
+                        {
+                            html.Append(" style=\"margin-top:")
+                                .Append(CssPoints(listMarginTop))
+                                .Append('"');
+                        }
+
+                        html.AppendLine(">");
+                        WriteSemanticList(
+                            html,
+                            listElement.SemanticList!,
+                            listElement,
+                            footnotes,
+                            columns.Page,
+                            indentation: 10,
+                            isRoot: true);
+                        html.AppendLine("          </div>");
+                        previousSourceBottom = listElement.Bounds.Bottom;
+                    }
+
+                    continue;
                 }
 
-                html.Append("\" style=\"--pdf-semantic-column-row-height:")
-                    .Append(CssPoints(run.Bounds.Height * scale));
-                if (marginTop > 0.01f)
-                {
-                    html.Append(";margin-top:")
-                        .Append(CssPoints(marginTop));
-                }
-
-                html.Append(";font-family:")
-                    .Append(CssFontFamily(run.FontName))
-                    .Append(";font-size:")
-                    .Append(CssPoints(FixedTextFontSize(run) * scale))
-                    .Append(FixedTextFontPresentation(run))
-                    .Append(";color:")
-                    .Append(ColorHex(run.Color));
-                if (highlight is PdfLayoutColor highlightColor)
-                {
-                    html.Append(";--pdf-semantic-grid-highlight:")
-                        .Append(ColorHex(highlightColor))
-                        .Append(";--pdf-semantic-grid-highlight-width:")
-                        .Append(CssPoints(run.Bounds.Width * scale));
-                }
-
-                html.Append("\">")
-                    .Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)))
-                    .AppendLine("</span>");
-                previous = run;
+                float marginTop = MathF.Max(0, run.Bounds.Y - previousSourceBottom) * scale;
+                WriteSemanticColumnRun(html, columns.Page, run, marginTop, scale, semanticOptions);
+                previousSourceBottom = run.Bounds.Bottom;
             }
 
             html.AppendLine("        </div>");
         }
 
         html.AppendLine("      </section>");
+    }
+
+    private static bool IsSemanticListInColumn(
+        PdfSemanticColumns columns,
+        LineGridColumn column,
+        PdfSemanticElement listElement)
+    {
+        LineGridColumn[] sourceColumns = listElement.Lines
+            .Select(line => columns.Columns
+                .Where(candidate => candidate.Lines.Any(run => ContainsSemanticLineGlyphs(line, run)))
+                .ToArray())
+            .Where(static matches => matches.Length == 1)
+            .Select(static matches => matches[0])
+            .ToArray();
+        return sourceColumns.Length == listElement.Lines.Count &&
+            sourceColumns.All(candidate => ReferenceEquals(candidate, column));
+    }
+
+    private static bool SemanticListContainsColumnRun(PdfSemanticElement listElement, PdfTextRun run)
+    {
+        return listElement.Lines.Any(line => ContainsSemanticLineGlyphs(line, run));
+    }
+
+    private static bool ContainsSemanticLineGlyphs(PdfSemanticLine line, PdfTextRun run)
+    {
+        PdfTextGlyph[] sourceGlyphs = line.Runs
+            .SelectMany(static sourceRun => sourceRun.Glyphs)
+            .Where(static glyph => !string.IsNullOrWhiteSpace(glyph.Text))
+            .ToArray();
+        return sourceGlyphs.Length > 0 && sourceGlyphs.All(sourceGlyph =>
+            run.Glyphs.Any(candidate => ReferenceEquals(candidate, sourceGlyph)));
+    }
+
+    private static void WriteSemanticColumnRun(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfTextRun run,
+        float marginTop,
+        float scale,
+        PdfSemanticExtractionOptions semanticOptions)
+    {
+        PdfLayoutColor? highlight = GridHighlightColor(page, run);
+        html.Append("          <span class=\"pdf-semantic-column-run");
+        if (highlight.HasValue)
+        {
+            html.Append(" pdf-semantic-line-grid-highlight");
+        }
+
+        html.Append("\" style=\"--pdf-semantic-column-row-height:")
+            .Append(CssPoints(run.Bounds.Height * scale));
+        if (marginTop > 0.01f)
+        {
+            html.Append(";margin-top:")
+                .Append(CssPoints(marginTop));
+        }
+
+        html.Append(";font-family:")
+            .Append(CssFontFamily(run.FontName))
+            .Append(";font-size:")
+            .Append(CssPoints(FixedTextFontSize(run) * scale))
+            .Append(FixedTextFontPresentation(run))
+            .Append(";color:")
+            .Append(ColorHex(run.Color));
+        if (highlight is PdfLayoutColor highlightColor)
+        {
+            html.Append(";--pdf-semantic-grid-highlight:")
+                .Append(ColorHex(highlightColor))
+                .Append(";--pdf-semantic-grid-highlight-width:")
+                .Append(CssPoints(run.Bounds.Width * scale));
+        }
+
+        html.Append("\">")
+            .Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)))
+            .AppendLine("</span>");
     }
 
     private static PdfLayoutColor? GridHighlightColor(PdfLayoutPage page, PdfTextRun run)
@@ -4443,12 +4544,6 @@ public static class PdfHtmlConverter
                     footnotes,
                     page,
                     DecorativeFootnoteRulePath(page, semanticPage));
-                continue;
-            }
-
-            if (IsBulletListItem(element))
-            {
-                index = WriteAdjacentSemanticList(html, flowElements, index, footnotes, page);
                 continue;
             }
 
@@ -5392,7 +5487,7 @@ public static class PdfHtmlConverter
             return;
         }
 
-        if (IsBulletList(element))
+        if (element.Kind == PdfSemanticElementKind.List && element.SemanticList != null)
         {
             WriteSemanticList(html, element, footnotes, page);
             return;
@@ -5420,108 +5515,100 @@ public static class PdfHtmlConverter
             .AppendLine(">");
     }
 
-    private static bool IsBulletList(PdfSemanticElement element)
-    {
-        return element.Kind == PdfSemanticElementKind.Paragraph &&
-            element.Lines.Count >= 2 &&
-            element.Lines.All(static line => ListMarkerLength(line.Text) > 0);
-    }
-
-    private static bool IsBulletListItem(PdfSemanticElement element)
-    {
-        return element.Kind == PdfSemanticElementKind.Paragraph &&
-            element.Lines.Count > 0 &&
-            ListMarkerLength(element.Lines[0].Text) > 0 &&
-            element.Lines.Skip(1).All(static line => ListMarkerLength(line.Text) == 0);
-    }
-
-    private static int ListMarkerLength(string text)
-    {
-        int index = 0;
-        while (index < text.Length && char.IsWhiteSpace(text[index]))
-        {
-            index++;
-        }
-
-        return index < text.Length && text[index] is '\u0095' or '\u2022' or '\u25e6' or '\u25aa' or '\u2219'
-            ? index + 1
-            : 0;
-    }
-
     private static void WriteSemanticList(
         StringBuilder html,
         PdfSemanticElement element,
         FootnoteContext footnotes,
         PdfLayoutPage? page)
     {
-        html.Append("      <ul class=\"")
-            .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
-            .Append(" pdf-semantic-list\"");
+        WriteSemanticList(html, element.SemanticList!, element, footnotes, page, 6, isRoot: true);
+    }
+
+    private static void WriteSemanticList(
+        StringBuilder html,
+        PdfSemanticList list,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page,
+        int indentation,
+        bool isRoot)
+    {
+        string tagName = list.Kind == PdfSemanticListKind.Ordered ? "ol" : "ul";
+        html.Append(' ', indentation)
+            .Append('<')
+            .Append(tagName)
+            .Append(" class=\"");
+        if (isRoot)
+        {
+            html.Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
+                .Append(' ');
+        }
+
+        html.Append("pdf-semantic-list\"");
         AppendTextDirectionAttribute(html, element.Text);
-        html.Append('>').AppendLine();
-        foreach (PdfSemanticLine line in element.Lines)
+        if (list.Kind == PdfSemanticListKind.Ordered)
         {
-            WriteSemanticListItem(html, line, element, footnotes, page);
+            string? type = OrderedListType(list.MarkerKind);
+            if (type != null)
+            {
+                html.Append(" type=\"").Append(type).Append('"');
+            }
+
+            if (list.IsReversed)
+            {
+                html.Append(" reversed");
+            }
+
+            if (list.Start.HasValue)
+            {
+                html.Append(" start=\"")
+                    .Append(list.Start.Value.ToString(CultureInfo.InvariantCulture))
+                    .Append('"');
+            }
         }
 
-        html.AppendLine("      </ul>");
-    }
-
-    private static int WriteAdjacentSemanticList(
-        StringBuilder html,
-        IReadOnlyList<PdfSemanticElement> elements,
-        int startIndex,
-        FootnoteContext footnotes,
-        PdfLayoutPage page)
-    {
-        PdfSemanticElement first = elements[startIndex];
-        html.Append("      <ul class=\"")
-            .Append(SemanticClassNames(first, page, allowMeasuredWidth: false))
-            .Append(" pdf-semantic-list\"");
-        AppendTextDirectionAttribute(html, first.Text);
         html.Append('>').AppendLine();
-        int index = startIndex;
-        while (index < elements.Count && IsBulletListItem(elements[index]))
+        foreach (PdfSemanticListItem item in list.Items)
         {
-            PdfSemanticElement element = elements[index];
-            WriteSemanticListItem(html, element, footnotes, page);
-            index++;
+            WriteSemanticListItem(html, item, element, footnotes, page, indentation + 2);
         }
 
-        html.AppendLine("      </ul>");
-        return index - 1;
+        html.Append(' ', indentation)
+            .Append("</")
+            .Append(tagName)
+            .AppendLine(">");
     }
 
     private static void WriteSemanticListItem(
         StringBuilder html,
-        PdfSemanticLine line,
-        PdfSemanticElement element,
+        PdfSemanticListItem item,
+        PdfSemanticElement listElement,
         FootnoteContext footnotes,
-        PdfLayoutPage? page)
+        PdfLayoutPage? page,
+        int indentation)
     {
-        List<InlineTextSegment> segments = InlineTextSegments(line, page, element).ToList();
-        TrimListMarker(segments);
-        string lineText = string.Concat(segments.Select(static segment => segment.Text));
-        html.Append("        <li>");
-        WriteInlineTextSegments(html, line, segments, lineText, footnotes);
-        html.AppendLine("</li>");
-    }
+        html.Append(' ', indentation).Append("<li");
+        if (item.Value.HasValue)
+        {
+            html.Append(" value=\"")
+                .Append(item.Value.Value.ToString(CultureInfo.InvariantCulture))
+                .Append('"');
+        }
 
-    private static void WriteSemanticListItem(
-        StringBuilder html,
-        PdfSemanticElement element,
-        FootnoteContext footnotes,
-        PdfLayoutPage? page)
-    {
-        html.Append("        <li>");
+        html.Append('>');
+        PdfSemanticElement itemElement = new(
+            PdfSemanticElementKind.Paragraph,
+            item.Text,
+            item.Bounds,
+            item.Lines);
         string previousLineText = "";
         bool wroteLine = false;
-        foreach (PdfSemanticLine line in element.Lines)
+        foreach (PdfSemanticLine line in item.Lines)
         {
-            List<InlineTextSegment> segments = InlineTextSegments(line, page, element).ToList();
+            List<InlineTextSegment> segments = InlineTextSegments(line, page, itemElement).ToList();
             if (!wroteLine)
             {
-                TrimListMarker(segments);
+                TrimLeadingCharacters(segments, item.MarkerLength);
             }
 
             string lineText = string.Concat(segments.Select(static segment => segment.Text));
@@ -5540,13 +5627,30 @@ public static class PdfHtmlConverter
             wroteLine = true;
         }
 
+        if (item.NestedLists.Count > 0)
+        {
+            html.AppendLine();
+            foreach (PdfSemanticList nestedList in item.NestedLists)
+            {
+                WriteSemanticList(
+                    html,
+                    nestedList,
+                    listElement,
+                    footnotes,
+                    page,
+                    indentation + 2,
+                    isRoot: false);
+            }
+
+            html.Append(' ', indentation);
+        }
+
         html.AppendLine("</li>");
     }
 
-    private static void TrimListMarker(List<InlineTextSegment> segments)
+    private static void TrimLeadingCharacters(List<InlineTextSegment> segments, int characterCount)
     {
-        int marker = ListMarkerLength(string.Concat(segments.Select(static segment => segment.Text)));
-        int remaining = marker;
+        int remaining = characterCount;
         for (int index = 0; index < segments.Count && remaining > 0; index++)
         {
             InlineTextSegment segment = segments[index];
@@ -5556,6 +5660,18 @@ public static class PdfHtmlConverter
         }
 
         TrimLeadingWhitespace(segments);
+    }
+
+    private static string? OrderedListType(PdfSemanticListMarkerKind markerKind)
+    {
+        return markerKind switch
+        {
+            PdfSemanticListMarkerKind.LowerAlpha => "a",
+            PdfSemanticListMarkerKind.UpperAlpha => "A",
+            PdfSemanticListMarkerKind.LowerRoman => "i",
+            PdfSemanticListMarkerKind.UpperRoman => "I",
+            _ => null
+        };
     }
 
     private static void WriteSemanticTable(
@@ -8847,6 +8963,7 @@ public static class PdfHtmlConverter
         {
             PdfSemanticElementKind.Heading => "pdf-semantic-heading",
             PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
+            PdfSemanticElementKind.List => "pdf-semantic-list-element",
             PdfSemanticElementKind.Table => "pdf-semantic-table",
             PdfSemanticElementKind.AuthorBlock => "pdf-semantic-author-block",
             PdfSemanticElementKind.FrontMatter => "pdf-semantic-front-matter",
@@ -9317,6 +9434,7 @@ public static class PdfHtmlConverter
             PdfLayoutPage page,
             IReadOnlyList<PdfTextRun> leadingRuns,
             IReadOnlyList<LineGridColumn> columns,
+            IReadOnlyList<PdfSemanticElement> listElements,
             float leftInset,
             float rightInset,
             float leftWidth,
@@ -9326,6 +9444,7 @@ public static class PdfHtmlConverter
             Page = page;
             LeadingRuns = leadingRuns;
             Columns = columns;
+            ListElements = listElements;
             LeftInset = leftInset;
             RightInset = rightInset;
             LeftWidth = leftWidth;
@@ -9338,6 +9457,8 @@ public static class PdfHtmlConverter
         public IReadOnlyList<PdfTextRun> LeadingRuns { get; }
 
         public IReadOnlyList<LineGridColumn> Columns { get; }
+
+        public IReadOnlyList<PdfSemanticElement> ListElements { get; }
 
         public float LeftInset { get; }
 
