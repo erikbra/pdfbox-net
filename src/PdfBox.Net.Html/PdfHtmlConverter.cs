@@ -486,6 +486,29 @@ public static class PdfHtmlConverter
           width: var(--pdf-semantic-formula-width, 100%);
         }
 
+        .pdf-semantic-formula-native {
+          align-items: center;
+          display: flex;
+          height: auto;
+          justify-content: center;
+          min-height: 1.5em;
+        }
+
+        .pdf-semantic-mathml {
+          display: block;
+          font-size: var(--pdf-semantic-math-font-size, 1em);
+          max-width: calc(100% - 3em);
+          overflow-x: auto;
+          overflow-y: hidden;
+        }
+
+        .pdf-semantic-equation-number {
+          font-size: 0.9em;
+          position: absolute;
+          right: 0;
+          white-space: nowrap;
+        }
+
         .pdf-semantic-figure {
           box-sizing: border-box;
           display: block;
@@ -4376,6 +4399,24 @@ public static class PdfHtmlConverter
                 .SelectMany(static run => run.Glyphs);
     }
 
+    internal static bool IsFullyClaimedFormulaElement(
+        PdfSemanticElement element,
+        ISet<PdfTextGlyph> claimedGlyphs)
+    {
+        if (element.Kind != PdfSemanticElementKind.Paragraph)
+        {
+            return false;
+        }
+
+        PdfTextGlyph[] visibleGlyphs = element.Lines
+            .SelectMany(static line => line.Runs)
+            .SelectMany(static run => run.Glyphs)
+            .Where(PdfMathMlFormula.IsEligibleGlyph)
+            .Distinct((IEqualityComparer<PdfTextGlyph>)ReferenceEqualityComparer.Instance)
+            .ToArray();
+        return visibleGlyphs.Length > 0 && visibleGlyphs.All(claimedGlyphs.Contains);
+    }
+
     private static PdfTextRun? ResidualColumnRun(
         PdfTextRun run,
         ISet<PdfTextGlyph> coveredGlyphs,
@@ -4950,6 +4991,7 @@ public static class PdfHtmlConverter
             : SemanticFigureRegions(page, semanticPage)
                 .Where(region => skippedFigureRegions == null || !skippedFigureRegions.Contains(region))
                 .ToArray();
+        HashSet<PdfTextGlyph> claimedFormulaGlyphs = new(ReferenceEqualityComparer.Instance);
         int nextFigureRegion = 0;
         for (int index = 0; index < flowElements.Count; index++)
         {
@@ -5051,6 +5093,7 @@ public static class PdfHtmlConverter
                 footnotes,
                 page,
                 allowMeasuredWidth: IsMeasuredWidthCandidate(flowElements, index),
+                claimedFormulaGlyphs: claimedFormulaGlyphs,
                 elementId: elementId,
                 headingLevel: headingLevel);
         }
@@ -5974,9 +6017,16 @@ public static class PdfHtmlConverter
         FootnoteContext footnotes,
         PdfLayoutPage? page = null,
         bool allowMeasuredWidth = true,
+        ISet<PdfTextGlyph>? claimedFormulaGlyphs = null,
         string? elementId = null,
         int? headingLevel = null)
     {
+        if (claimedFormulaGlyphs is { Count: > 0 } &&
+            IsFullyClaimedFormulaElement(element, claimedFormulaGlyphs))
+        {
+            return;
+        }
+
         if (element.Kind == PdfSemanticElementKind.Table && element.TableRows.Count > 0)
         {
             WriteSemanticTable(html, element, footnotes, page);
@@ -5990,7 +6040,15 @@ public static class PdfHtmlConverter
 
         if (page != null && IsFormulaBlock(element))
         {
-            WriteFormulaBlock(html, page, element);
+            WriteFormulaFlowElement(
+                html,
+                page,
+                element,
+                footnotes,
+                allowMeasuredWidth,
+                claimedFormulaGlyphs,
+                elementId,
+                headingLevel);
             return;
         }
 
@@ -6012,6 +6070,25 @@ public static class PdfHtmlConverter
             return;
         }
 
+        WriteFlowTextElement(
+            html,
+            element,
+            footnotes,
+            page,
+            allowMeasuredWidth,
+            elementId,
+            headingLevel);
+    }
+
+    private static void WriteFlowTextElement(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page,
+        bool allowMeasuredWidth,
+        string? elementId = null,
+        int? headingLevel = null)
+    {
         string tagName = SemanticTagName(element, headingLevel);
         html.Append("      <")
             .Append(tagName)
@@ -6652,25 +6729,119 @@ public static class PdfHtmlConverter
         return label.Length <= 120 ? label : label[..120];
     }
 
+    private static void WriteFormulaFlowElement(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        bool allowMeasuredWidth,
+        ISet<PdfTextGlyph>? claimedFormulaGlyphs,
+        string? elementId,
+        int? headingLevel)
+    {
+        if (element.Lines.Count == 0)
+        {
+            WriteFormulaBlock(html, page, element, claimedFormulaGlyphs, elementId);
+            return;
+        }
+
+        int start = 0;
+        while (start < element.Lines.Count)
+        {
+            bool isFormula = !IsProseLikeFormulaSourceLine(element.Lines[start]);
+            int end = start + 1;
+            while (end < element.Lines.Count &&
+                IsProseLikeFormulaSourceLine(element.Lines[end]) != isFormula)
+            {
+                end++;
+            }
+
+            PdfSemanticLine[] lines = element.Lines.Skip(start).Take(end - start).ToArray();
+            PdfSemanticElement segment = new(
+                PdfSemanticElementKind.Paragraph,
+                string.Join(Environment.NewLine, lines.Select(static line => line.Text)),
+                UnionRectangles(lines.Select(static line => line.Bounds)),
+                lines);
+            if (isFormula)
+            {
+                WriteFormulaBlock(
+                    html,
+                    page,
+                    segment,
+                    claimedFormulaGlyphs,
+                    start == 0 ? elementId : null);
+            }
+            else
+            {
+                WriteFlowTextElement(
+                    html,
+                    segment,
+                    footnotes,
+                    page,
+                    allowMeasuredWidth,
+                    start == 0 ? elementId : null,
+                    headingLevel);
+            }
+
+            start = end;
+        }
+    }
+
     private static void WriteFormulaBlock(
         StringBuilder html,
         PdfLayoutPage page,
-        PdfSemanticElement element)
+        PdfSemanticElement element,
+        ISet<PdfTextGlyph>? claimedFormulaGlyphs,
+        string? elementId = null)
     {
-        PdfLayoutRectangle bounds = FormulaRenderBounds(page, element);
-        PdfTextRun[] runs = FormulaRuns(page, bounds, element.Bounds).ToArray();
-        PdfLayoutPath[] paths = FormulaPaths(page, bounds).ToArray();
+        PdfLayoutRectangle nativeBounds = FormulaRenderBounds(page, element);
+        PdfTextRun[] nativeRuns = FormulaRuns(page, nativeBounds, element).ToArray();
+        PdfLayoutPath[] nativePaths = FormulaPaths(page, nativeBounds).ToArray();
+        PdfTextGlyph[] nativeGlyphs = FormulaGlyphs(nativeRuns).ToArray();
+        bool hasNativeMath = PdfMathMlFormula.TryCreate(nativeGlyphs, nativePaths, out PdfMathMlFormula? mathMl);
+        PdfTextRun[] runs = hasNativeMath
+            ? nativeRuns
+            : FormulaRuns(page, ExpandRectangle(element.Bounds, 5f, 5f), element).ToArray();
+        PdfTextGlyph[] glyphs = hasNativeMath ? nativeGlyphs : FormulaGlyphs(runs).ToArray();
+        PdfLayoutRectangle bounds = hasNativeMath
+            ? nativeBounds
+            : FormulaFallbackBounds(page, element, runs);
+        PdfLayoutPath[] paths = hasNativeMath
+            ? nativePaths
+            : FormulaPaths(page, bounds).ToArray();
         html.Append("      <div class=\"")
             .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
-            .Append("\" role=\"math\" aria-label=\"")
-            .Append(HtmlAttribute(element.Text))
+            .Append(hasNativeMath ? " pdf-semantic-formula-native\"" : "\" role=\"math\"")
+            .Append(string.IsNullOrEmpty(elementId)
+                ? ""
+                : " id=\"" + HtmlAttribute(elementId) + "\"")
+            .Append(" aria-label=\"")
+            .Append(HtmlAttribute(hasNativeMath ? mathMl!.AccessibleText : element.Text))
             .Append("\" style=\"--pdf-semantic-formula-width:")
             .Append(CssPoints(bounds.Width))
             .Append(";--pdf-semantic-formula-height:")
-            .Append(CssPoints(bounds.Height))
+            .Append(CssPoints(bounds.Height));
+        if (hasNativeMath)
+        {
+            html.Append(";--pdf-semantic-math-font-size:")
+                .Append(CssPoints(mathMl!.FontSize));
+        }
+
+        html
             .Append("\">");
 
-        if (runs.Length == 0)
+        if (hasNativeMath)
+        {
+            mathMl!.WriteTo(html);
+            if (claimedFormulaGlyphs != null)
+            {
+                foreach (PdfTextGlyph glyph in mathMl.ClaimedGlyphs)
+                {
+                    claimedFormulaGlyphs.Add(glyph);
+                }
+            }
+        }
+        else if (runs.Length == 0)
         {
             html.Append(Html(element.Text));
         }
@@ -6681,7 +6852,6 @@ public static class PdfHtmlConverter
                 WriteFormulaVectorLayer(html, bounds, paths);
             }
 
-            PdfTextGlyph[] glyphs = FormulaGlyphs(runs).ToArray();
             for (int glyphIndex = 0; glyphIndex < glyphs.Length; glyphIndex++)
             {
                 PdfTextGlyph glyph = glyphs[glyphIndex];
@@ -6715,31 +6885,80 @@ public static class PdfHtmlConverter
         html.AppendLine("</div>");
     }
 
-    private static PdfLayoutRectangle FormulaRenderBounds(PdfLayoutPage page, PdfSemanticElement element)
+    private static PdfLayoutRectangle FormulaRenderBounds(
+        PdfLayoutPage page,
+        PdfSemanticElement element)
     {
-        PdfLayoutRectangle expanded = ExpandRectangle(element.Bounds, 5f, 5f);
-        PdfTextRun[] runs = FormulaRuns(page, expanded, element.Bounds).ToArray();
-        PdfLayoutPath[] paths = FormulaPaths(page, expanded).ToArray();
-        if (runs.Length == 0 && paths.Length == 0)
+        PdfLayoutRectangle bounds = ExpandRectangle(element.Bounds, 5f, 5f);
+        for (int iteration = 0; iteration < 4; iteration++)
         {
-            return expanded;
+            PdfTextRun[] runs = FormulaRuns(page, bounds, element).ToArray();
+            PdfLayoutPath[] paths = FormulaPaths(page, bounds).ToArray();
+            if (runs.Length == 0 && paths.Length == 0)
+            {
+                return bounds;
+            }
+
+            PdfLayoutRectangle expanded = ExpandRectangle(UnionRectangles(
+                runs.Select(static run => run.Bounds)
+                    .Concat(paths.Select(static path => path.Bounds))), 2f, 2f);
+            if (MathF.Abs(expanded.X - bounds.X) < 0.01f &&
+                MathF.Abs(expanded.Y - bounds.Y) < 0.01f &&
+                MathF.Abs(expanded.Width - bounds.Width) < 0.01f &&
+                MathF.Abs(expanded.Height - bounds.Height) < 0.01f)
+            {
+                return expanded;
+            }
+
+            bounds = expanded;
         }
 
-        return ExpandRectangle(UnionRectangles(
-            runs.Select(static run => run.Bounds)
-                .Concat(paths.Select(static path => path.Bounds))), 2f, 2f);
+        return bounds;
     }
 
     private static IEnumerable<PdfTextRun> FormulaRuns(
         PdfLayoutPage page,
         PdfLayoutRectangle bounds,
-        PdfLayoutRectangle coreBounds)
+        PdfSemanticElement element)
     {
+        HashSet<PdfTextRun> sourceRuns = FormulaSourceRuns(element)
+            .ToHashSet((IEqualityComparer<PdfTextRun>)ReferenceEqualityComparer.Instance);
         return page.Runs
             .Where(static run => MathF.Abs(run.Direction) < 0.01f)
-            .Where(run => RectanglesIntersect(run.Bounds, coreBounds, 0.75f) ||
-                RectanglesIntersect(run.Bounds, bounds, 0.75f) && IsFormulaRunCandidate(run) ||
-                IsFormulaAdjacentRun(page, bounds, run));
+            .Where(static run => run.Glyphs.Any(PdfMathMlFormula.IsEligibleGlyph))
+            .Where(run => sourceRuns.Contains(run) ||
+                !IsRunOnProseLine(page, run) &&
+                (RectanglesIntersect(run.Bounds, bounds, 0.75f) && IsFormulaRunCandidate(run) ||
+                    IsFormulaAdjacentRun(page, bounds, run) ||
+                    IsFormulaOperatorLimitRun(page, bounds, run)));
+    }
+
+    internal static IReadOnlyList<PdfTextRun> FormulaSourceRuns(PdfSemanticElement element)
+    {
+        return element.Lines
+            .Where(static line => !IsProseLikeFormulaSourceLine(line))
+            .SelectMany(static line => line.Runs)
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .Where(static run => run.Glyphs.Any(PdfMathMlFormula.IsEligibleGlyph))
+            .Distinct((IEqualityComparer<PdfTextRun>)ReferenceEqualityComparer.Instance)
+            .ToArray();
+    }
+
+    private static PdfLayoutRectangle FormulaFallbackBounds(
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        IReadOnlyList<PdfTextRun> runs)
+    {
+        PdfLayoutRectangle sourceBounds = runs.Count == 0
+            ? element.Bounds
+            : UnionRectangles(runs.Select(static run => run.Bounds));
+        PdfLayoutRectangle expanded = ExpandRectangle(sourceBounds, 2f, 2f);
+        PdfLayoutPath[] paths = FormulaPaths(page, expanded).ToArray();
+        return paths.Length == 0
+            ? expanded
+            : ExpandRectangle(UnionRectangles(
+                runs.Select(static run => run.Bounds)
+                    .Concat(paths.Select(static path => path.Bounds))), 2f, 2f);
     }
 
     private static IEnumerable<PdfLayoutPath> FormulaPaths(PdfLayoutPage page, PdfLayoutRectangle bounds)
@@ -6760,11 +6979,47 @@ public static class PdfHtmlConverter
                 text.All(static character => character is '(' or ')' or ',' or '.' or '=' or '+' or '-' or '/' or ':' or ';'));
     }
 
+    private static bool IsRunOnProseLine(PdfLayoutPage page, PdfTextRun run)
+    {
+        HashSet<PdfTextGlyph> runGlyphs = run.Glyphs
+            .ToHashSet((IEqualityComparer<PdfTextGlyph>)ReferenceEqualityComparer.Instance);
+        return page.Lines.Any(line => IsProseLikeFormulaSourceLine(line) &&
+            line.Runs
+                .SelectMany(static lineRun => lineRun.Glyphs)
+                .Any(runGlyphs.Contains));
+    }
+
+    private static bool IsProseLikeFormulaSourceLine(PdfTextLine line)
+    {
+        return IsProseLikeFormulaSourceLine(line.Text, line.Runs);
+    }
+
+    private static bool IsProseLikeFormulaSourceLine(PdfSemanticLine line)
+    {
+        return IsProseLikeFormulaSourceLine(line.Text, line.Runs);
+    }
+
+    private static bool IsProseLikeFormulaSourceLine(
+        string text,
+        IReadOnlyList<PdfTextRun> runs)
+    {
+        if (CountWords(text) < 5)
+        {
+            return false;
+        }
+
+        int totalLetters = runs.Sum(static run => run.Text.Count(char.IsLetter));
+        int proseLetters = runs
+            .Where(static run => !HasMathFont(run.FontName))
+            .Sum(static run => run.Text.Count(char.IsLetter));
+        return proseLetters >= 12 && proseLetters * 3 >= totalLetters * 2;
+    }
+
     private static IEnumerable<PdfTextGlyph> FormulaGlyphs(IEnumerable<PdfTextRun> runs)
     {
         return runs
             .SelectMany(static run => run.Glyphs)
-            .Where(static glyph => !string.IsNullOrEmpty(glyph.Text));
+            .Where(PdfMathMlFormula.IsEligibleGlyph);
     }
 
     private static bool IsFormulaRadicalGlyph(PdfTextGlyph glyph)
@@ -6823,9 +7078,9 @@ public static class PdfHtmlConverter
             return false;
         }
 
-        bool rightOfFormula = run.Bounds.X >= bounds.X - 4f &&
+        bool nearFormula = run.Bounds.Right >= MathF.Max(24f, bounds.X - 220f) &&
             run.Bounds.X <= MathF.Min(page.Width - 24f, bounds.Right + 220f);
-        if (!rightOfFormula)
+        if (!nearFormula)
         {
             return false;
         }
@@ -6833,6 +7088,45 @@ public static class PdfHtmlConverter
         return HasMathFont(run.FontName) ||
             text.All(static character => character is '(' or ')' or ',' or '.' or '=' or '+' or '-' or '/' or ':' or ';') ||
             IsEquationNumber(text);
+    }
+
+    private static bool IsFormulaOperatorLimitRun(
+        PdfLayoutPage page,
+        PdfLayoutRectangle bounds,
+        PdfTextRun run)
+    {
+        foreach (PdfTextGlyph limit in run.Glyphs.Where(PdfMathMlFormula.IsEligibleGlyph))
+        {
+            foreach (PdfTextGlyph largeOperator in page.Glyphs.Where(static glyph =>
+                PdfMathMlFormula.IsEligibleGlyph(glyph) && glyph.Text is "∑" or "∏" or "∫"))
+            {
+                if (!RectanglesIntersect(largeOperator.Bounds, bounds, 1.5f) ||
+                    limit.FontSize >= largeOperator.FontSize * 0.85f)
+                {
+                    continue;
+                }
+
+                float limitCenter = limit.Bounds.X + limit.Bounds.Width / 2f;
+                float horizontalTolerance = largeOperator.FontSize * 0.75f;
+                if (limitCenter < largeOperator.Bounds.X - horizontalTolerance ||
+                    limitCenter > largeOperator.Bounds.Right + horizontalTolerance)
+                {
+                    continue;
+                }
+
+                float verticalGap = MathF.Max(
+                    0f,
+                    MathF.Max(
+                        largeOperator.Bounds.Y - limit.Bounds.Bottom,
+                        limit.Bounds.Y - largeOperator.Bounds.Bottom));
+                if (verticalGap <= largeOperator.FontSize * 2.5f)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static bool IsEquationNumber(string text)
@@ -9274,7 +9568,9 @@ public static class PdfHtmlConverter
 
     private static bool IsDisplayFormulaLine(PdfSemanticLine line)
     {
-        if (!HasMathFont(line.DominantFontName) || !HasFormulaSignal(line.Text))
+        if (!HasMathFont(line.DominantFontName) ||
+            !HasFormulaSignal(line.Text) ||
+            !line.Runs.SelectMany(static run => run.Glyphs).Any(PdfMathMlFormula.IsEligibleGlyph))
         {
             return false;
         }

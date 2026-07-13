@@ -13,4 +13,10 @@
     <ProjectReference Include="..\PdfBox.Net.Layout\PdfBox.Net.Layout.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>PdfBox.Net.Html.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>
