@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Globalization;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
@@ -385,8 +386,8 @@ public class PdfHtmlConverterTest
         });
         XDocument formDom = ParseHtml(formHtml.Html);
         XElement formFallback = Assert.Single(ElementsByClass(formDom, "pdf-semantic-layout-fallback-page"));
-        Assert.True(formFallback.Descendants().Count(element => HasClass(element, "pdf-image")) <
-            formLayout.Pages[0].Images.Count);
+        Assert.Equal(formLayout.Pages[0].Images.Count,
+            formFallback.Descendants().Count(element => HasClass(element, "pdf-image")));
         Assert.Equal(formLayout.Pages[0].FormControls.Count, formFallback.Descendants()
             .Count(element => HasClass(element, "pdf-form-control")));
 
@@ -2513,7 +2514,7 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
-    public void Convert_PublicAcroFormFixtureReplacesWidgetAppearancesWithControls()
+    public void Convert_PublicAcroFormFixturePreservesWidgetAppearancesBehindControls()
     {
         using PDDocument document = Loader.LoadPDF(FixturePath("Acroform-PDFBOX-2333.pdf"));
         PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
@@ -2532,7 +2533,7 @@ public class PdfHtmlConverterTest
 
         Assert.True(appearanceImages.Length >= 10);
         Assert.NotEmpty(layout.Pages[0].FormControls);
-        Assert.True(imageElements.Length < appearanceImages.Length);
+        Assert.Equal(appearanceImages.Length, imageElements.Length);
         Assert.Equal(layout.Pages[0].FormControls.Count, ElementsByClass(dom, "pdf-form-control").Count());
         Assert.Equal(appearanceImages.Length, html.Assets.Count(asset => asset.ContentType == "image/png"));
         Assert.All(appearanceImages, image =>
@@ -2545,7 +2546,7 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
-    public void Convert_EmitsAccessibleSemanticControlsAndSuppressesMatchingAppearance()
+    public async Task Convert_EmitsAccessibleSemanticControlsAndPreservesAuthoredAppearances()
     {
         PdfLayoutRectangle pageBounds = new(0, 0, 612, 792);
         PdfLayoutRectangle textBounds = new(20, 40, 180, 24);
@@ -2562,11 +2563,15 @@ public class PdfHtmlConverterTest
             new(4, "colors", "Colors", PdfLayoutFormControlKind.ListBox, new(20, 180, 120, 60),
                 ["red", "blue"], [], [new("red", "Red"), new("blue", "Blue")], isMultiple: true),
             new(5, "approval", "Approval signature", PdfLayoutFormControlKind.Signature, new(20, 260, 180, 50),
-                ["Ada Lovelace"])
+                ["Ada Lovelace"]),
+            new(6, "secret", "Secret", PdfLayoutFormControlKind.Text, new(20, 330, 180, 24),
+                ["initial"], isPassword: true),
+            new(7, "notes", "Notes", PdfLayoutFormControlKind.Text, new(20, 370, 180, 24),
+                ["Visible value"])
         ];
-        PdfLayoutImage appearance = new(
+        PdfLayoutImage textAppearance = new(
             0,
-            "widget-appearance",
+            "text-appearance",
             PdfLayoutImageKind.AnnotationAppearance,
             textBounds,
             new PdfLayoutTransform(1, 0, 0, 1, textBounds.X, textBounds.Y),
@@ -2576,13 +2581,53 @@ public class PdfHtmlConverterTest
             "DeviceRGB",
             true,
             "Widget");
+        PdfLayoutImage checkAppearance = new(
+            1,
+            "check-appearance",
+            PdfLayoutImageKind.AnnotationAppearance,
+            controls[1].Bounds,
+            new PdfLayoutTransform(1, 0, 0, 1, controls[1].Bounds.X, controls[1].Bounds.Y),
+            16,
+            16,
+            8,
+            "DeviceRGB",
+            true,
+            "Widget");
+        PdfLayoutImage selectAppearance = new(
+            2,
+            "select-appearance",
+            PdfLayoutImageKind.AnnotationAppearance,
+            controls[3].Bounds,
+            new PdfLayoutTransform(1, 0, 0, 1, controls[3].Bounds.X, controls[3].Bounds.Y),
+            120,
+            22,
+            8,
+            "DeviceRGB",
+            true,
+            "Widget");
+        PdfLayoutImage passwordAppearance = new(
+            3,
+            "text-appearance",
+            PdfLayoutImageKind.AnnotationAppearance,
+            controls[6].Bounds,
+            new PdfLayoutTransform(1, 0, 0, 1, controls[6].Bounds.X, controls[6].Bounds.Y),
+            180,
+            24,
+            8,
+            "DeviceRGB",
+            true,
+            "Widget");
         PdfLayoutPage page = new(
             1, pageBounds, pageBounds, pageBounds.Width, pageBounds.Height, 0,
-            [], [], [], [], [appearance], [], [], [], [], [],
+            [], [], [], [], [textAppearance, checkAppearance, selectAppearance, passwordAppearance], [], [], [], [], [],
             formControls: controls);
         PdfLayoutDocument layout = new(
             [page],
-            [new PdfLayoutImageAsset("widget-appearance", "assets/images/widget.png", "image/png", [1, 2, 3])],
+            [
+                new PdfLayoutImageAsset("text-appearance", "assets/images/text.png", "image/png", [1, 2, 3]),
+                new PdfLayoutImageAsset("check-appearance", "assets/images/check.png", "image/png", [1, 2, 3]),
+                new PdfLayoutImageAsset("select-appearance", "assets/images/select.png", "image/png", [1, 2, 3])
+            ],
             []);
 
         PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout);
@@ -2598,22 +2643,65 @@ public class PdfHtmlConverterTest
         Assert.NotNull(text.Attribute("required"));
         Assert.Equal("40", text.Attribute("maxlength")?.Value);
         Assert.Contains("left:20pt", text.Attribute("style")?.Value);
+        Assert.True(HasClass(text, "pdf-form-control-positioned"));
+        Assert.True(HasClass(text, "pdf-form-control-authored-appearance"));
+        Assert.Equal("pdf-image-page-1-placement-0", text.Attribute("data-widget-appearance-id")?.Value);
 
         XElement checkBox = Assert.Single(emitted, element => element.Attribute("type")?.Value == "checkbox");
         Assert.NotNull(checkBox.Attribute("checked"));
+        Assert.True(HasClass(checkBox, "pdf-form-control-authored-appearance"));
+        Assert.False(HasClass(checkBox, "pdf-form-control-positioned"));
+        Assert.Equal("pdf-image-page-1-placement-1", checkBox.Attribute("data-widget-appearance-id")?.Value);
         XElement radio = Assert.Single(emitted, element => element.Attribute("type")?.Value == "radio");
         Assert.Equal("contact", radio.Attribute("name")?.Value);
         Assert.Equal("true", radio.Attribute("data-default-checked")?.Value);
+        Assert.False(HasClass(radio, "pdf-form-control-authored-appearance"));
+        Assert.False(HasClass(radio, "pdf-form-control-positioned"));
 
         XElement[] selects = emitted.Where(element => element.Name.LocalName == "select").ToArray();
         Assert.Equal(2, selects.Length);
         Assert.Equal("Norway", Assert.Single(selects[0].Elements(), option => option.Attribute("selected") is not null).Value);
+        Assert.True(HasClass(selects[0], "pdf-form-control-positioned"));
+        Assert.True(HasClass(selects[0], "pdf-form-control-authored-appearance"));
+        Assert.True(HasClass(selects[1], "pdf-form-control-positioned"));
+        Assert.False(HasClass(selects[1], "pdf-form-control-authored-appearance"));
         Assert.NotNull(selects[1].Attribute("multiple"));
+
+        XElement password = Assert.Single(emitted, element => element.Attribute("type")?.Value == "password");
+        Assert.True(HasClass(password, "pdf-form-control-positioned"));
+        Assert.True(HasClass(password, "pdf-form-control-authored-appearance"));
+
+        XElement notes = Assert.Single(emitted, element => element.Attribute("name")?.Value == "notes");
+        Assert.Equal("Visible value", notes.Attribute("value")?.Value);
+        Assert.True(HasClass(notes, "pdf-form-control-positioned"));
+        Assert.False(HasClass(notes, "pdf-form-control-authored-appearance"));
+        Assert.Null(notes.Attribute("data-widget-appearance-id"));
 
         XElement signature = Assert.Single(emitted, element => element.Attribute("data-field-kind")?.Value == "signature");
         Assert.Equal("Ada Lovelace", signature.Attribute("value")?.Value);
         Assert.NotNull(signature.Attribute("readonly"));
-        Assert.Empty(ElementsByClass(dom, "pdf-image"));
+        Assert.True(HasClass(signature, "pdf-form-control-positioned"));
+        Assert.Equal(4, ElementsByClass(dom, "pdf-image").Count());
+        Assert.Contains(".pdf-form-control-positioned {", converted.Css,
+            StringComparison.Ordinal);
+        Assert.Contains(".pdf-form-control-authored-appearance[type=\"checkbox\"]", converted.Css,
+            StringComparison.Ordinal);
+        Assert.Contains("document.addEventListener('input', markEdited)", converted.Html, StringComparison.Ordinal);
+        Assert.Contains("document.addEventListener('change', markEdited)", converted.Html, StringComparison.Ordinal);
+
+        MethodInfo writeFormControls = Assert.IsAssignableFrom<MethodInfo>(typeof(PdfHtmlConverter).GetMethod(
+            "WriteFormControls",
+            BindingFlags.NonPublic | BindingFlags.Static));
+        StringBuilder flowMarkup = new();
+        writeFormControls.Invoke(null, [flowMarkup, page, 1f, false]);
+        XDocument flowDom = ParseHtml("<html><body>" + flowMarkup + "</body></html>");
+        Assert.Single(ElementsByClass(flowDom, "pdf-form-controls-flow"));
+        Assert.All(ElementsByClass(flowDom, "pdf-form-control"), control =>
+        {
+            Assert.False(HasClass(control, "pdf-form-control-positioned"));
+            Assert.False(HasClass(control, "pdf-form-control-authored-appearance"));
+            Assert.Null(control.Attribute("data-widget-appearance-id"));
+        });
 
         PdfHtmlDocument continuous = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
         {
@@ -2624,6 +2712,70 @@ public class PdfHtmlConverterTest
         Assert.Equal(controls.Length, ElementsByClass(continuousDom, "pdf-form-control").Count());
         Assert.Single(ElementsByClass(continuousDom, "pdf-semantic-layout-fallback-page"));
         Assert.Empty(ElementsByClass(continuousDom, "pdf-form-controls-flow"));
+
+        using TempDirectory tempDirectory = new();
+        converted.WriteToDirectory(tempDirectory.Path);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage browserPage = await browser.NewPageAsync();
+        await browserPage.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        ILocator passwordControl = browserPage.Locator("[name='secret']");
+        ILocator textImage = browserPage.Locator("#pdf-image-page-1-placement-0");
+        ILocator passwordImage = browserPage.Locator("#pdf-image-page-1-placement-3");
+        Assert.Equal("text-appearance", await textImage.GetAttributeAsync("data-asset-id"));
+        Assert.Equal("text-appearance", await passwordImage.GetAttributeAsync("data-asset-id"));
+        Assert.False(await passwordControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-edited')"));
+        Assert.False(await passwordImage.EvaluateAsync<bool>("element => element.classList.contains('pdf-widget-appearance-hidden')"));
+        await passwordControl.FocusAsync();
+        Assert.True(await passwordControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-active')"));
+        Assert.Equal("2px", await passwordControl.EvaluateAsync<string>("element => getComputedStyle(element).outlineWidth"));
+        Assert.True(await passwordImage.EvaluateAsync<bool>("element => element.classList.contains('pdf-widget-appearance-hidden')"));
+        Assert.False(await textImage.EvaluateAsync<bool>("element => element.classList.contains('pdf-widget-appearance-hidden')"));
+        await passwordControl.FillAsync("changed");
+        await passwordControl.EvaluateAsync("element => element.blur()");
+        Assert.True(await passwordControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-edited')"));
+        Assert.False(await passwordControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-active')"));
+        Assert.Equal("none", await passwordControl.EvaluateAsync<string>("element => getComputedStyle(element).outlineStyle"));
+        Assert.True(await passwordImage.EvaluateAsync<bool>("element => element.classList.contains('pdf-widget-appearance-hidden')"));
+        Assert.Equal("changed", await passwordControl.InputValueAsync());
+
+        ILocator checkControl = browserPage.Locator("[name='accepted']");
+        ILocator checkImage = browserPage.Locator("#pdf-image-page-1-placement-1");
+        Assert.Equal("0", await checkControl.EvaluateAsync<string>("element => getComputedStyle(element).opacity"));
+        await checkControl.ClickAsync();
+        Assert.True(await checkControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-edited')"));
+        Assert.True(await checkImage.EvaluateAsync<bool>("element => element.classList.contains('pdf-widget-appearance-hidden')"));
+        Assert.Equal("1", await checkControl.EvaluateAsync<string>("element => getComputedStyle(element).opacity"));
+
+        ILocator notesControl = browserPage.Locator("[name='notes']");
+        Assert.Equal("Visible value", await notesControl.InputValueAsync());
+        Assert.Equal("none", await notesControl.EvaluateAsync<string>("element => getComputedStyle(element).borderStyle"));
+        Assert.NotEqual("rgba(0, 0, 0, 0)", await notesControl.EvaluateAsync<string>("element => getComputedStyle(element).color"));
+        await notesControl.FocusAsync();
+        Assert.True(await notesControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-active')"));
+        await notesControl.FillAsync("Edited value");
+        await notesControl.EvaluateAsync("element => element.blur()");
+        Assert.True(await notesControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-edited')"));
+        Assert.Equal("Edited value", await notesControl.InputValueAsync());
+        Assert.NotEqual("none", await notesControl.EvaluateAsync<string>("element => getComputedStyle(element).borderStyle"));
+
+        ILocator listControl = browserPage.Locator("[name='colors']");
+        Assert.Equal("none", await listControl.EvaluateAsync<string>("element => getComputedStyle(element).borderStyle"));
+        Assert.Equal("rgba(0, 0, 0, 0)", await listControl.EvaluateAsync<string>("element => getComputedStyle(element).backgroundColor"));
+        Assert.False(await listControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-authored-appearance')"));
+        Assert.Null(await listControl.GetAttributeAsync("data-widget-appearance-id"));
+        await listControl.FocusAsync();
+        Assert.True(await listControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-active')"));
+        Assert.NotEqual("none", await listControl.EvaluateAsync<string>("element => getComputedStyle(element).borderStyle"));
+        await listControl.EvaluateAsync("element => element.dispatchEvent(new Event('change', { bubbles: true }))");
+        await listControl.EvaluateAsync("element => element.blur()");
+        Assert.True(await listControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-edited')"));
+        Assert.False(await listControl.EvaluateAsync<bool>("element => element.classList.contains('pdf-form-control-active')"));
+        Assert.NotEqual("none", await listControl.EvaluateAsync<string>("element => getComputedStyle(element).borderStyle"));
     }
 
     [Fact]

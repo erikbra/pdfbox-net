@@ -99,6 +99,51 @@ public static class PdfHtmlConverter
           accent-color: #1d4ed8;
         }
 
+        .pdf-form-control-positioned {
+          appearance: none;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          padding: 0;
+          resize: none;
+        }
+
+        .pdf-form-control-positioned.pdf-form-control-authored-appearance {
+          color: transparent;
+        }
+
+        .pdf-form-control-positioned.pdf-form-control-active,
+        .pdf-form-control-positioned.pdf-form-control-edited {
+          appearance: auto;
+          background: var(--pdf-page-background);
+          border: 1px solid #767676;
+          border-radius: 2px;
+          color: #111827;
+          padding: 1px 2px;
+        }
+
+        .pdf-form-control-authored-appearance.pdf-form-control-active {
+          outline: 2px solid #2563eb;
+          outline-offset: 1px;
+        }
+
+        .pdf-form-control-authored-appearance[type="checkbox"],
+        .pdf-form-control-authored-appearance[type="radio"] {
+          opacity: 0;
+        }
+
+        .pdf-form-control-authored-appearance.pdf-form-control-active[type="checkbox"],
+        .pdf-form-control-authored-appearance.pdf-form-control-active[type="radio"],
+        .pdf-form-control-authored-appearance.pdf-form-control-edited[type="checkbox"],
+        .pdf-form-control-authored-appearance.pdf-form-control-edited[type="radio"] {
+          opacity: 1;
+        }
+
+        .pdf-widget-appearance-hidden {
+          visibility: hidden;
+        }
+
         .pdf-form-controls-flow {
           border: 1pt solid #9ca3af;
           display: grid;
@@ -882,6 +927,11 @@ public static class PdfHtmlConverter
             }
         }
 
+        if (layout.Pages.Any(static page => page.FormControls.Count > 0))
+        {
+            WriteFormControlInteractionScript(html);
+        }
+
         html.AppendLine("</body>");
         html.AppendLine("</html>");
         string htmlText = html.ToString();
@@ -1100,8 +1150,7 @@ public static class PdfHtmlConverter
 
             foreach (PdfLayoutImage image in page.Images)
             {
-                if (ShouldWriteImage(page, image) &&
-                    imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
+                if (imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
                 {
                     WriteImage(html, page, image, asset, scale);
                 }
@@ -1244,7 +1293,6 @@ public static class PdfHtmlConverter
 
             FlushPaths();
             if (imagesByIndex.TryGetValue(operation.Index, out PdfLayoutImage? image) &&
-                ShouldWriteImage(page, image) &&
                 imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
             {
                 WriteImage(html, page, image, asset, scale);
@@ -1288,19 +1336,20 @@ public static class PdfHtmlConverter
             first.Y + first.Height > second.Y;
     }
 
-    private static bool ShouldWriteImage(PdfLayoutPage page, PdfLayoutImage image)
-    {
-        return image.Kind != PdfLayoutImageKind.AnnotationAppearance ||
-            !string.Equals(image.SourceName, "Widget", StringComparison.OrdinalIgnoreCase) ||
-            !page.FormControls.Any(control => SameBounds(control.Bounds, image.Bounds, 0.5f));
-    }
-
     private static bool SameBounds(PdfLayoutRectangle first, PdfLayoutRectangle second, float tolerance)
     {
         return MathF.Abs(first.X - second.X) <= tolerance &&
             MathF.Abs(first.Y - second.Y) <= tolerance &&
             MathF.Abs(first.Width - second.Width) <= tolerance &&
             MathF.Abs(first.Height - second.Height) <= tolerance;
+    }
+
+    private static PdfLayoutImage? MatchingWidgetAppearance(PdfLayoutPage page, PdfLayoutFormControl control)
+    {
+        return page.Images.FirstOrDefault(image =>
+            image.Kind == PdfLayoutImageKind.AnnotationAppearance &&
+            string.Equals(image.SourceName, "Widget", StringComparison.OrdinalIgnoreCase) &&
+            SameBounds(control.Bounds, image.Bounds, 0.5f));
     }
 
     private static void WriteFormControls(StringBuilder html, PdfLayoutPage page, float scale, bool positioned)
@@ -1319,7 +1368,11 @@ public static class PdfHtmlConverter
 
         foreach (PdfLayoutFormControl control in page.FormControls)
         {
-            WriteFormControl(html, page.PageNumber, control, scale, positioned);
+            PdfLayoutImage? authoredAppearance = positioned ? MatchingWidgetAppearance(page, control) : null;
+            string? authoredAppearancePlacementId = authoredAppearance == null
+                ? null
+                : ImagePlacementId(page.PageNumber, authoredAppearance.Index);
+            WriteFormControl(html, page.PageNumber, control, scale, positioned, authoredAppearancePlacementId);
         }
 
         if (!positioned)
@@ -1333,7 +1386,8 @@ public static class PdfHtmlConverter
         int pageNumber,
         PdfLayoutFormControl control,
         float scale,
-        bool positioned)
+        bool positioned,
+        string? authoredAppearancePlacementId)
     {
         string currentValue = control.Values.FirstOrDefault() ?? string.Empty;
         string elementName = control.Kind switch
@@ -1374,7 +1428,7 @@ public static class PdfHtmlConverter
             }
         }
 
-        AppendFormControlAttributes(html, pageNumber, control, scale, positioned);
+        AppendFormControlAttributes(html, pageNumber, control, scale, positioned, authoredAppearancePlacementId);
 
         if (elementName == "textarea")
         {
@@ -1419,9 +1473,23 @@ public static class PdfHtmlConverter
         int pageNumber,
         PdfLayoutFormControl control,
         float scale,
-        bool positioned)
+        bool positioned,
+        string? authoredAppearancePlacementId)
     {
-        html.Append(" class=\"pdf-form-control\" id=\"pdf-field-")
+        bool usesNativeToggleAppearance = control.Kind is
+            PdfLayoutFormControlKind.CheckBox or PdfLayoutFormControlKind.RadioButton;
+        html.Append(" class=\"pdf-form-control");
+        if (positioned && !usesNativeToggleAppearance)
+        {
+            html.Append(" pdf-form-control-positioned");
+        }
+
+        if (positioned && authoredAppearancePlacementId != null)
+        {
+            html.Append(" pdf-form-control-authored-appearance");
+        }
+
+        html.Append("\" id=\"pdf-field-")
             .Append(pageNumber.ToString(CultureInfo.InvariantCulture))
             .Append('-')
             .Append(control.Index.ToString(CultureInfo.InvariantCulture))
@@ -1434,6 +1502,13 @@ public static class PdfHtmlConverter
             .Append("\" data-default-value=\"")
             .Append(HtmlAttribute(string.Join("\n", control.DefaultValues)))
             .Append('"');
+
+        if (authoredAppearancePlacementId != null)
+        {
+            html.Append(" data-widget-appearance-id=\"")
+                .Append(HtmlAttribute(authoredAppearancePlacementId))
+                .Append('"');
+        }
 
         if (control.IsRequired)
         {
@@ -1471,6 +1546,45 @@ public static class PdfHtmlConverter
                 .Append(CssPoints(control.Bounds.Height * scale))
                 .Append('"');
         }
+    }
+
+    private static void WriteFormControlInteractionScript(StringBuilder html)
+    {
+        html.AppendLine("  <script>");
+        html.AppendLine("    (function () {");
+        html.AppendLine("      const selector = '.pdf-form-control-positioned, .pdf-form-control-authored-appearance';");
+        html.AppendLine("      function appearance(control) {");
+        html.AppendLine("        const id = control.dataset.widgetAppearanceId;");
+        html.AppendLine("        return id === undefined ? null : document.getElementById(id);");
+        html.AppendLine("      }");
+        html.AppendLine("      function hideAppearance(control) {");
+        html.AppendLine("        const image = appearance(control);");
+        html.AppendLine("        if (image !== null) image.classList.add('pdf-widget-appearance-hidden');");
+        html.AppendLine("      }");
+        html.AppendLine("      function markEdited(event) {");
+        html.AppendLine("        const control = event.target.closest(selector);");
+        html.AppendLine("        if (control === null) return;");
+        html.AppendLine("        control.classList.add('pdf-form-control-edited');");
+        html.AppendLine("        hideAppearance(control);");
+        html.AppendLine("      }");
+        html.AppendLine("      document.addEventListener('focusin', function (event) {");
+        html.AppendLine("        const control = event.target.closest(selector);");
+        html.AppendLine("        if (control === null) return;");
+        html.AppendLine("        control.classList.add('pdf-form-control-active');");
+        html.AppendLine("        hideAppearance(control);");
+        html.AppendLine("      });");
+        html.AppendLine("      document.addEventListener('focusout', function (event) {");
+        html.AppendLine("        const control = event.target.closest(selector);");
+        html.AppendLine("        if (control === null) return;");
+        html.AppendLine("        control.classList.remove('pdf-form-control-active');");
+        html.AppendLine("        if (control.classList.contains('pdf-form-control-edited')) return;");
+        html.AppendLine("        const image = appearance(control);");
+        html.AppendLine("        if (image !== null) image.classList.remove('pdf-widget-appearance-hidden');");
+        html.AppendLine("      });");
+        html.AppendLine("      document.addEventListener('input', markEdited);");
+        html.AppendLine("      document.addEventListener('change', markEdited);");
+        html.AppendLine("    }());");
+        html.AppendLine("  </script>");
     }
 
     private static void WriteFormOption(
@@ -1516,7 +1630,9 @@ public static class PdfHtmlConverter
             WriteImageClipDefinitions(html, page, image);
         }
 
-        html.Append("    <img class=\"pdf-image\" src=\"")
+        html.Append("    <img class=\"pdf-image\" id=\"")
+            .Append(ImagePlacementId(page.PageNumber, image.Index))
+            .Append("\" src=\"")
             .Append(HtmlAttribute(asset.RelativePath))
             .Append("\" alt=\"\" data-asset-id=\"")
             .Append(HtmlAttribute(image.AssetId));
@@ -1568,6 +1684,12 @@ public static class PdfHtmlConverter
     {
         return "pdf-image-page-" + page.PageNumber.ToString(CultureInfo.InvariantCulture) +
             "-clip-" + image.Index.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static string ImagePlacementId(int pageNumber, int imageIndex)
+    {
+        return "pdf-image-page-" + pageNumber.ToString(CultureInfo.InvariantCulture) +
+            "-placement-" + imageIndex.ToString(CultureInfo.InvariantCulture);
     }
 
     private static PdfLayoutPath[] RenderableVectorPaths(
@@ -2738,8 +2860,7 @@ public static class PdfHtmlConverter
         {
             foreach (PdfLayoutImage image in page.Images)
             {
-                if (ShouldWriteImage(page, image) &&
-                    imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
+                if (imageAssets.TryGetValue(image.AssetId, out PdfLayoutImageAsset? asset))
                 {
                     WriteImage(html, page, image, asset, scale);
                 }
