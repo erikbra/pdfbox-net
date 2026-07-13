@@ -53,7 +53,9 @@ public sealed class PdfSemanticElement
         PdfSemanticDocumentIndex? documentIndex = null,
         bool isDocumentTitle = false,
         PdfSemanticBibliographyFragment? bibliographyFragment = null,
-        PdfSemanticDefinitionList? definitionList = null)
+        PdfSemanticDefinitionList? definitionList = null,
+        PdfSemanticQuotation? quotation = null,
+        PdfSemanticAside? aside = null)
     {
         Kind = kind;
         Text = text;
@@ -65,6 +67,8 @@ public sealed class PdfSemanticElement
         DocumentIndex = documentIndex;
         BibliographyFragment = bibliographyFragment;
         DefinitionList = definitionList;
+        Quotation = quotation;
+        Aside = aside;
         IsDocumentTitle = isDocumentTitle;
     }
 
@@ -89,9 +93,57 @@ public sealed class PdfSemanticElement
     public PdfSemanticDefinitionList? DefinitionList { get; }
 
     /// <summary>
+    /// Gets the quoted passage and optional attribution represented by this element.
+    /// </summary>
+    public PdfSemanticQuotation? Quotation { get; }
+
+    /// <summary>
+    /// Gets the label and flow content represented by this tangential callout.
+    /// </summary>
+    public PdfSemanticAside? Aside { get; }
+
+    /// <summary>
     /// Gets whether this heading is the inferred document title rather than a section heading.
     /// </summary>
     public bool IsDocumentTitle { get; }
+}
+
+/// <summary>
+/// A quoted passage with an attribution only when one is present in the source.
+/// </summary>
+public sealed class PdfSemanticQuotation
+{
+    public PdfSemanticQuotation(string text, string? attribution = null)
+    {
+        Text = text;
+        Attribution = string.IsNullOrWhiteSpace(attribution) ? null : attribution;
+    }
+
+    public string Text { get; }
+
+    public string? Attribution { get; }
+}
+
+/// <summary>
+/// A labelled tangential callout whose body remains in document flow.
+/// </summary>
+public sealed class PdfSemanticAside
+{
+    public PdfSemanticAside(
+        string label,
+        IReadOnlyList<PdfSemanticLine> labelLines,
+        IReadOnlyList<PdfSemanticElement> content)
+    {
+        Label = label;
+        LabelLines = labelLines.ToArray();
+        Content = content.ToArray();
+    }
+
+    public string Label { get; }
+
+    public IReadOnlyList<PdfSemanticLine> LabelLines { get; }
+
+    public IReadOnlyList<PdfSemanticElement> Content { get; }
 }
 
 /// <summary>

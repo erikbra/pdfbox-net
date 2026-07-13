@@ -29,6 +29,9 @@ public static class PdfSemanticExtractor
     private static readonly Regex DefinitionReferencePattern = new(
         @"^(?:\[\s*\d{1,3}(?:\s*(?:,|[-–])\s*(?:\d{1,3}|adapted))*\s*\]\s*)+$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex QuoteAttributionPattern = new(
+        @"^(?:[-–—]\s*)?(?:according\s+to|added|explained|noted|recalled|reported|said|stated|wrote)\b",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex WhitespacePattern = new(@"\s+", RegexOptions.Compiled);
     private const int MaximumDetectedTableColumnCount = 16;
 
@@ -416,9 +419,312 @@ public static class PdfSemanticExtractor
             .OrderBy(static element => element.Bounds.Y)
             .ThenBy(static element => element.Bounds.X)
             .ToArray();
+        PdfSemanticElement[] mergedElements = MergeAdjacentParagraphFragments(
+            sortedElements,
+            bodyFontSize,
+            lineStep);
         return new PdfSemanticPage(
             page.PageNumber,
-            MergeAdjacentParagraphFragments(sortedElements, bodyFontSize, lineStep));
+            DetectQuotationsAndAsides(page, mergedElements));
+    }
+
+    private static IReadOnlyList<PdfSemanticElement> DetectQuotationsAndAsides(
+        PdfLayoutPage page,
+        IReadOnlyList<PdfSemanticElement> elements)
+    {
+        PdfSemanticElement[] quotations = elements
+            .Select((element, index) => DetectQuotation(elements, index) ?? element)
+            .ToArray();
+        List<PdfSemanticElement> detected = [];
+        int elementIndex = 0;
+        while (elementIndex < quotations.Length)
+        {
+            PdfSemanticElement label = quotations[elementIndex];
+            if (!TryCreateAside(page, quotations, elementIndex, out PdfSemanticElement? aside, out int consumedCount))
+            {
+                detected.Add(label);
+                elementIndex++;
+                continue;
+            }
+
+            detected.Add(aside!);
+            elementIndex += consumedCount;
+        }
+
+        return detected;
+    }
+
+    private static PdfSemanticElement? DetectQuotation(
+        IReadOnlyList<PdfSemanticElement> elements,
+        int index)
+    {
+        PdfSemanticElement element = elements[index];
+        if (element.Kind != PdfSemanticElementKind.Paragraph ||
+            element.Lines.Count < 2 ||
+            element.Text.Length < 80)
+        {
+            return null;
+        }
+
+        if (!TrySplitQuotedPassage(element, out string quoteText, out string? attribution) &&
+            !IsStronglyInsetPassage(elements, index))
+        {
+            return null;
+        }
+
+        return new PdfSemanticElement(
+            PdfSemanticElementKind.BlockQuote,
+            element.Text,
+            element.Bounds,
+            element.Lines,
+            quotation: new PdfSemanticQuotation(quoteText, attribution));
+    }
+
+    private static bool TrySplitQuotedPassage(
+        PdfSemanticElement element,
+        out string quoteText,
+        out string? attribution)
+    {
+        quoteText = element.Text;
+        attribution = null;
+        string text = element.Text.Trim();
+        if (text.Length < 80 || text[0] is not ('“' or '"'))
+        {
+            return false;
+        }
+
+        char closingQuote = text[0] == '“' ? '”' : '"';
+        int closingIndex = text.LastIndexOf(closingQuote);
+        int firstLineLength = element.Lines[0].Text.Trim().Length;
+        if (closingIndex < Math.Max(64, firstLineLength))
+        {
+            return false;
+        }
+
+        string suffix = text[(closingIndex + 1)..].TrimStart();
+        int delimiterLength = 0;
+        while (delimiterLength < suffix.Length && suffix[delimiterLength] is ',' or ';' or ':')
+        {
+            delimiterLength++;
+        }
+
+        string delimiter = suffix[..delimiterLength];
+        suffix = suffix[delimiterLength..].TrimStart();
+        if (suffix.Length > 0 && !QuoteAttributionPattern.IsMatch(suffix))
+        {
+            return false;
+        }
+
+        quoteText = text[..(closingIndex + 1)] + delimiter;
+        attribution = suffix.Length == 0 ? null : suffix;
+        return true;
+    }
+
+    private static bool IsStronglyInsetPassage(
+        IReadOnlyList<PdfSemanticElement> elements,
+        int index)
+    {
+        PdfSemanticElement element = elements[index];
+        if (element.Lines.Count < 3 ||
+            element.Text.Length < 120 ||
+            element.Text.Contains("http://", StringComparison.OrdinalIgnoreCase) ||
+            element.Text.Contains("https://", StringComparison.OrdinalIgnoreCase) ||
+            element.Text.Contains("www.", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        PdfSemanticElement? previous = elements.Take(index)
+            .LastOrDefault(static candidate => candidate.Kind == PdfSemanticElementKind.Paragraph);
+        PdfSemanticElement? next = elements.Skip(index + 1)
+            .FirstOrDefault(static candidate => candidate.Kind == PdfSemanticElementKind.Paragraph);
+        PdfSemanticElement[] neighbors = new PdfSemanticElement?[] { previous, next }
+            .Where(static candidate => candidate != null)
+            .Cast<PdfSemanticElement>()
+            .ToArray();
+        if (neighbors.Length == 0)
+        {
+            return false;
+        }
+
+        float ordinaryLeft = neighbors.Min(static candidate => candidate.Bounds.X);
+        float ordinaryRight = neighbors.Max(static candidate => candidate.Bounds.Right);
+        bool inset = element.Bounds.X >= ordinaryLeft + 18f &&
+            element.Bounds.Right <= ordinaryRight - 18f;
+        float anchorSpread = element.Lines.Max(static line => line.Bounds.X) -
+            element.Lines.Min(static line => line.Bounds.X);
+        return inset && anchorSpread <= 12f;
+    }
+
+    private static bool TryCreateAside(
+        PdfLayoutPage page,
+        IReadOnlyList<PdfSemanticElement> elements,
+        int labelIndex,
+        out PdfSemanticElement? aside,
+        out int consumedCount)
+    {
+        aside = null;
+        consumedCount = 0;
+        PdfSemanticElement label = elements[labelIndex];
+        if (label.Kind != PdfSemanticElementKind.Heading || label.IsDocumentTitle)
+        {
+            return false;
+        }
+
+        PdfLayoutRectangle? enclosingRegion = EnclosingCalloutRegion(page, label.Bounds);
+        List<PdfSemanticElement> content = [];
+        PdfSemanticElement previous = label;
+        for (int index = labelIndex + 1;
+            index < elements.Count && elements[index].Kind == PdfSemanticElementKind.Paragraph;
+            index++)
+        {
+            PdfSemanticElement candidate = elements[index];
+            if (!IsCalloutContentContinuation(previous, candidate, content.FirstOrDefault(), enclosingRegion))
+            {
+                break;
+            }
+
+            content.Add(candidate);
+            previous = candidate;
+        }
+
+        if (content.Count == 0 || content.Any(static element => element.Kind == PdfSemanticElementKind.Footnote))
+        {
+            return false;
+        }
+
+        PdfLayoutRectangle contentBounds = PdfLayoutRectangle.Union(content.Select(static element => element.Bounds));
+        PdfLayoutRectangle calloutBounds = PdfLayoutRectangle.Union([label.Bounds, contentBounds]);
+        bool knownInsetLabel = IsKnownInsetCalloutLabel(label.Text) &&
+            contentBounds.X >= page.Width * 0.15f &&
+            contentBounds.Width <= page.Width * 0.78f;
+        bool hasEnclosingRegion = HasEnclosingCalloutRegion(page, calloutBounds);
+        bool isMediaSideBlock = IsMediaSideCallout(page, label, content, contentBounds, calloutBounds);
+        if (!knownInsetLabel && !hasEnclosingRegion && !isMediaSideBlock)
+        {
+            return false;
+        }
+
+        PdfSemanticLine[] lines = label.Lines
+            .Concat(content.SelectMany(static element => element.Lines))
+            .ToArray();
+        PdfSemanticAside semanticAside = new(label.Text.Trim(), label.Lines, content);
+        aside = new PdfSemanticElement(
+            PdfSemanticElementKind.Aside,
+            string.Join(Environment.NewLine, label.Text.Trim(), string.Join(Environment.NewLine, content.Select(static item => item.Text))),
+            PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
+            lines,
+            aside: semanticAside);
+        consumedCount = content.Count + 1;
+        return true;
+    }
+
+    private static bool IsKnownInsetCalloutLabel(string text)
+    {
+        return text.Trim().ToUpperInvariant() is "DISCUSSION" or "NOTE" or "SIDE INFORMATION";
+    }
+
+    private static bool IsCalloutContentContinuation(
+        PdfSemanticElement previous,
+        PdfSemanticElement candidate,
+        PdfSemanticElement? firstContent,
+        PdfLayoutRectangle? enclosingRegion)
+    {
+        float previousFontSize = previous.Lines
+            .Select(static line => line.DominantFontSize)
+            .DefaultIfEmpty(10f)
+            .Max();
+        float candidateFontSize = candidate.Lines
+            .Select(static line => line.DominantFontSize)
+            .DefaultIfEmpty(previousFontSize)
+            .Max();
+        float verticalGap = candidate.Bounds.Y - previous.Bounds.Bottom;
+        if (verticalGap < -2f || verticalGap > MathF.Max(30f, MathF.Max(previousFontSize, candidateFontSize) * 3f))
+        {
+            return false;
+        }
+
+        if (enclosingRegion is PdfLayoutRectangle region)
+        {
+            return ContainsRectangle(region, candidate.Bounds, 4f);
+        }
+
+        if (firstContent != null && MathF.Abs(candidate.Bounds.X - firstContent.Bounds.X) > 24f)
+        {
+            return false;
+        }
+
+        float overlap = MathF.Min(previous.Bounds.Right, candidate.Bounds.Right) -
+            MathF.Max(previous.Bounds.X, candidate.Bounds.X);
+        float minimumWidth = MathF.Min(previous.Bounds.Width, candidate.Bounds.Width);
+        return MathF.Abs(previous.Bounds.X - candidate.Bounds.X) <= 24f ||
+            overlap >= minimumWidth * 0.50f;
+    }
+
+    private static bool HasEnclosingCalloutRegion(PdfLayoutPage page, PdfLayoutRectangle content)
+    {
+        return EnclosingCalloutRegion(page, content).HasValue;
+    }
+
+    private static PdfLayoutRectangle? EnclosingCalloutRegion(
+        PdfLayoutPage page,
+        PdfLayoutRectangle content)
+    {
+        return page.Paths
+            .Where(static path => path.IsFilled || path.IsStroked)
+            .Select(static path => path.Bounds)
+            .Concat(page.Shadings.Select(static shading => shading.Bounds))
+            .Where(bounds => ContainsRectangle(bounds, content, 4f))
+            .Where(bounds => bounds.Width < page.Width * 0.92f && bounds.Height < page.Height * 0.75f)
+            .OrderBy(static bounds => bounds.Width * bounds.Height)
+            .Cast<PdfLayoutRectangle?>()
+            .FirstOrDefault();
+    }
+
+    private static bool IsMediaSideCallout(
+        PdfLayoutPage page,
+        PdfSemanticElement label,
+        IReadOnlyList<PdfSemanticElement> contentElements,
+        PdfLayoutRectangle content,
+        PdfLayoutRectangle callout)
+    {
+        float labelFontSize = label.Lines
+            .Select(static line => line.DominantFontSize)
+            .DefaultIfEmpty(0f)
+            .Max();
+        float contentFontSize = contentElements
+            .SelectMany(static element => element.Lines)
+            .Select(static line => line.DominantFontSize)
+            .DefaultIfEmpty(labelFontSize)
+            .Max();
+        if (label.Text.Length > 64 ||
+            labelFontSize > contentFontSize + 4f ||
+            content.Width > page.Width * 0.62f ||
+            content.X < page.Width * 0.24f && content.Right > page.Width * 0.76f)
+        {
+            return false;
+        }
+
+        return page.Images.Any(image =>
+        {
+            PdfLayoutRectangle bounds = image.Bounds;
+            float overlap = MathF.Min(bounds.Bottom, callout.Bottom) - MathF.Max(bounds.Y, callout.Y);
+            return bounds.Width >= page.Width * 0.15f &&
+                bounds.Height >= 36f &&
+                overlap >= MathF.Min(bounds.Height, callout.Height) * 0.30f &&
+                HorizontalGap(bounds, callout) <= 24f;
+        });
+    }
+
+    private static bool ContainsRectangle(
+        PdfLayoutRectangle outer,
+        PdfLayoutRectangle inner,
+        float tolerance)
+    {
+        return inner.X >= outer.X - tolerance &&
+            inner.Y >= outer.Y - tolerance &&
+            inner.Right <= outer.Right + tolerance &&
+            inner.Bottom <= outer.Bottom + tolerance;
     }
 
     private static IEnumerable<PdfSemanticElement> GroupHeaders(
