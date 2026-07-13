@@ -328,6 +328,15 @@ public static class PdfHtmlConverter
           white-space: pre;
         }
 
+        .pdf-semantic-column-spanning-figure {
+          grid-column: 1 / -1;
+          margin: 0;
+        }
+
+        .pdf-semantic-column-spanning-figure > figcaption {
+          margin-top: 8pt;
+        }
+
         .pdf-semantic-column-run {
           display: block;
           line-height: var(--pdf-semantic-column-row-height, 1);
@@ -3437,7 +3446,7 @@ public static class PdfHtmlConverter
                     WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
                 }
 
-                WriteSemanticColumns(html, context.Columns, context.Footnotes, scale, semanticOptions);
+                WriteSemanticColumns(html, context.Columns, context.Footnotes, imageAssets, scale, semanticOptions);
                 WriteFormControls(html, context.Page, scale, positioned: false);
                 continue;
             }
@@ -4078,7 +4087,7 @@ public static class PdfHtmlConverter
             }
 
             float legacyRightInset = MathF.Max(0, page.Width - legacyColumns[0].Left - pitch * legacyColumns.Length);
-            return new PdfSemanticColumns(
+            return AddColumnSpanningFigures(new PdfSemanticColumns(
                 page,
                 semanticPage,
                 [],
@@ -4089,10 +4098,10 @@ public static class PdfHtmlConverter
                 legacyRightInset,
                 pitch,
                 pitch,
-                0);
+                0));
         }
 
-        return new PdfSemanticColumns(
+        return AddColumnSpanningFigures(new PdfSemanticColumns(
             page,
             semanticPage,
             leadingRuns,
@@ -4103,7 +4112,32 @@ public static class PdfHtmlConverter
             rightInset,
             MathF.Max(0, gutterLeft - leftInset),
             MathF.Max(0, page.Width - rightInset - gutterRight),
-            MathF.Max(0, gutterRight - gutterLeft));
+            MathF.Max(0, gutterRight - gutterLeft)));
+    }
+
+    private static PdfSemanticColumns AddColumnSpanningFigures(PdfSemanticColumns columns)
+    {
+        PdfLayoutPage page = columns.Page;
+        float horizontalTolerance = MathF.Max(16f, page.Width * 0.04f);
+        float contentLeft = columns.LeftInset;
+        float contentRight = page.Width - columns.RightInset;
+        float minimumWidth = MathF.Max(0, contentRight - contentLeft - horizontalTolerance * 2f);
+        columns.SpanningFigures = SemanticFigureRegions(page, columns.SemanticPage)
+            .Where(region => region.Y <= page.Height * 0.25f)
+            .Where(region => region.X <= contentLeft + horizontalTolerance)
+            .Where(region => region.Right >= contentRight - horizontalTolerance)
+            .Where(region => region.Width >= minimumWidth)
+            .Select(region => new PdfSemanticColumnFigure(
+                region,
+                columns.SemanticPage.Elements
+                    .Where(IsFigureCaption)
+                    .Where(caption => caption.Bounds.Y >= region.Y - 2f)
+                    .Where(caption => IsCaptionAssociatedWithFigure(page, caption.Bounds, region))
+                    .OrderBy(static caption => caption.Bounds.Y)
+                    .FirstOrDefault()))
+            .Where(static figure => figure.Caption != null)
+            .ToArray();
+        return columns;
     }
 
     private static PdfSemanticElement[] SemanticColumnListElements(PdfSemanticPage semanticPage)
@@ -4607,6 +4641,7 @@ public static class PdfHtmlConverter
         StringBuilder html,
         PdfSemanticColumns columns,
         FootnoteContext footnotes,
+        IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
         float scale,
         PdfSemanticExtractionOptions semanticOptions)
     {
@@ -4632,6 +4667,22 @@ public static class PdfHtmlConverter
             .Append(";--pdf-semantic-columns-top:")
             .Append(CssPoints(top * scale))
             .AppendLine("\">");
+
+        foreach (PdfSemanticColumnFigure figure in columns.SpanningFigures)
+        {
+            WriteSemanticFigure(
+                html,
+                columns.Page,
+                columns.SemanticPage,
+                figure.Region,
+                imageAssets,
+                scale,
+                inline: false,
+                caption: figure.Caption,
+                footnotes: footnotes,
+                includeAllText: true,
+                columnSpanning: true);
+        }
 
         if (columns.LeadingRuns.Count > 0)
         {
@@ -4680,6 +4731,12 @@ public static class PdfHtmlConverter
                 .ToArray();
             HashSet<PdfTextGlyph> coveredGlyphs = semanticElements
                 .SelectMany(SemanticElementGlyphs)
+                .Concat(columns.SpanningFigures
+                    .SelectMany(figure => FigureRegionTextRuns(columns.Page, figure.Region, includeAllText: true))
+                    .SelectMany(static run => run.Glyphs))
+                .Concat(columns.SpanningFigures
+                    .Where(static figure => figure.Caption != null)
+                    .SelectMany(static figure => SemanticElementGlyphs(figure.Caption!)))
                 .ToHashSet();
             PdfLayoutRectangle[] tableCells = tables
                 .SelectMany(static table => table.TableRows)
@@ -4697,7 +4754,12 @@ public static class PdfHtmlConverter
                 .ThenBy(static item => item.Bounds.X)
                 .ToArray();
 
-            float previousSourceBottom = columnTop;
+            float previousSourceBottom = MathF.Max(
+                columnTop,
+                columns.SpanningFigures
+                    .Select(static figure => figure.Caption?.Bounds.Bottom ?? figure.Region.Bottom)
+                    .DefaultIfEmpty(columnTop)
+                    .Max());
             foreach (SemanticColumnItem item in items)
             {
                 float marginTop = MathF.Max(0, item.Bounds.Y - previousSourceBottom) * scale;
@@ -5820,13 +5882,17 @@ public static class PdfHtmlConverter
         PdfLayoutRectangle region,
         IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
         float scale,
-        bool inline)
+        bool inline,
+        PdfSemanticElement? caption = null,
+        FootnoteContext? footnotes = null,
+        bool includeAllText = false,
+        bool columnSpanning = false)
     {
         PdfLayoutImage[] images = page.Images
             .Where(image => RectanglesIntersect(VisibleImageBounds(image), region, 2f))
             .ToArray();
         PdfLayoutPath[] paths = FigureRegionPaths(page, semanticPage, region).ToArray();
-        PdfTextRun[] textRuns = FigureRegionTextRuns(page, region).ToArray();
+        PdfTextRun[] textRuns = FigureRegionTextRuns(page, region, includeAllText).ToArray();
         if (images.Length == 0 && paths.Length == 0 && textRuns.Length == 0)
         {
             return false;
@@ -5839,6 +5905,10 @@ public static class PdfHtmlConverter
         if (inline)
         {
             html.Append(" pdf-semantic-inline-figure");
+        }
+        else if (columnSpanning)
+        {
+            html.Append(" pdf-semantic-column-spanning-figure");
         }
         html.Append("\" data-source-page=\"")
             .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
@@ -5880,10 +5950,20 @@ public static class PdfHtmlConverter
 
         foreach (PdfTextRun run in textRuns)
         {
-            WriteFigureTextRun(html, run);
+            WriteFigureTextRun(html, page, run);
         }
 
-        html.Append("</g></svg></")
+        html.Append("</g></svg>");
+        if (!inline && caption != null)
+        {
+            html.Append("<figcaption class=\"")
+                .Append(SemanticClassNames(caption, page, allowMeasuredWidth: false))
+                .Append("\">");
+            WriteSemanticText(html, caption, footnotes ?? FootnoteContext.Create(page.PageNumber, []), page);
+            html.Append("</figcaption>");
+        }
+
+        html.Append("</")
             .Append(tagName)
             .AppendLine(">");
         return true;
@@ -5901,21 +5981,24 @@ public static class PdfHtmlConverter
             .Where(path => RectanglesIntersect(path.Bounds, region, 2f));
     }
 
-    private static IEnumerable<PdfTextRun> FigureRegionTextRuns(PdfLayoutPage page, PdfLayoutRectangle region)
+    private static IEnumerable<PdfTextRun> FigureRegionTextRuns(
+        PdfLayoutPage page,
+        PdfLayoutRectangle region,
+        bool includeAllText = false)
     {
         return page.Runs
-            .Where(IsFigureLabelRun)
+            .Where(run => includeAllText || IsFigureLabelRun(run))
             .Where(run => !IsCoveredByTransparencyFallback(page, run.PageBounds))
             .Where(run => RectanglesIntersect(run.PageBounds, region, 2f))
             .OrderBy(static run => run.PageBounds.Y)
             .ThenBy(static run => run.PageBounds.X);
     }
 
-    private static void WriteFigureTextRun(StringBuilder html, PdfTextRun run)
+    private static void WriteFigureTextRun(StringBuilder html, PdfLayoutPage page, PdfTextRun run)
     {
         PdfLayoutRectangle bounds = run.PageBounds;
         float direction = NormalizeDirection(run.Direction);
-        float fontSize = MathF.Max(0.5f, run.FontSize);
+        float fontSize = FixedTextFontSize(run, page.Runs);
         string text = ReconstructText(run.Glyphs);
         if (string.IsNullOrEmpty(text))
         {
@@ -13037,6 +13120,8 @@ public static class PdfHtmlConverter
 
         public IReadOnlyList<PdfSemanticElement> ListElements { get; }
 
+        public IReadOnlyList<PdfSemanticColumnFigure> SpanningFigures { get; set; } = [];
+
         public float Boundary { get; }
 
         public float LeftInset { get; }
@@ -13054,6 +13139,10 @@ public static class PdfHtmlConverter
         PdfLayoutRectangle Bounds,
         PdfTextRun? Run,
         PdfSemanticElement? Element);
+
+    private readonly record struct PdfSemanticColumnFigure(
+        PdfLayoutRectangle Region,
+        PdfSemanticElement? Caption);
 
     private sealed class ColumnDetectionRow
     {
