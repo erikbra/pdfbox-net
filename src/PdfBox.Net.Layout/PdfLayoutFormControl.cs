@@ -21,7 +21,12 @@ public sealed class PdfLayoutFormControl
         bool isMultiline = false,
         bool isPassword = false,
         bool isMultiple = false,
-        int? maxLength = null)
+        int? maxLength = null,
+        string? sourceLabelText = null,
+        string? authoredHierarchyKey = null,
+        string? groupKey = null,
+        PdfLayoutFormGroupKind? groupKind = null,
+        string? groupLabelText = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(accessibleName);
@@ -42,6 +47,11 @@ public sealed class PdfLayoutFormControl
         IsPassword = isPassword;
         IsMultiple = isMultiple;
         MaxLength = maxLength is > 0 ? maxLength : null;
+        SourceLabelText = NullIfWhiteSpace(sourceLabelText);
+        AuthoredHierarchyKey = NullIfWhiteSpace(authoredHierarchyKey);
+        GroupKey = NullIfWhiteSpace(groupKey);
+        GroupKind = groupKind;
+        GroupLabelText = NullIfWhiteSpace(groupLabelText);
     }
 
     /// <summary>Gets the zero-based control index on the page.</summary>
@@ -91,4 +101,48 @@ public sealed class PdfLayoutFormControl
 
     /// <summary>Gets the maximum text length when specified.</summary>
     public int? MaxLength { get; }
+
+    /// <summary>Gets visible page text inferred as the control's authored label.</summary>
+    public string? SourceLabelText { get; }
+
+    /// <summary>Gets the stable AcroForm parent hierarchy key, when authored.</summary>
+    public string? AuthoredHierarchyKey { get; }
+
+    /// <summary>Gets the stable authored logical group key, when this control belongs to a group.</summary>
+    public string? GroupKey { get; }
+
+    /// <summary>Gets the native form grouping semantics, when this control belongs to a group.</summary>
+    public PdfLayoutFormGroupKind? GroupKind { get; }
+
+    /// <summary>Gets visible page text inferred as the logical group's legend.</summary>
+    public string? GroupLabelText { get; }
+
+    internal PdfLayoutFormControl WithInferredLabels(string? sourceLabelText, string? groupLabelText)
+    {
+        return new PdfLayoutFormControl(
+            Index,
+            Name,
+            AccessibleName,
+            Kind,
+            Bounds,
+            Values,
+            DefaultValues,
+            Options,
+            IsReadOnly,
+            IsRequired,
+            IsChecked,
+            IsDefaultChecked,
+            IsMultiline,
+            IsPassword,
+            IsMultiple,
+            MaxLength,
+            sourceLabelText,
+            AuthoredHierarchyKey,
+            GroupKey,
+            GroupKind,
+            groupLabelText);
+    }
+
+    private static string? NullIfWhiteSpace(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

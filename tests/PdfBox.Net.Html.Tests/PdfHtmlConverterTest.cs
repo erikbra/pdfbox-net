@@ -3380,6 +3380,84 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_EmitsNativeFormGroupsAndStableLabelAssociations()
+    {
+        PdfLayoutRectangle pageBounds = new(0, 0, 612, 792);
+        PdfLayoutFormControl[] controls =
+        [
+            new(0, "fullName", "Full name", PdfLayoutFormControlKind.Text, new(20, 40, 180, 24),
+                sourceLabelText: "Full legal name"),
+            new(1, "tax.c1_1[0]", "Individual", PdfLayoutFormControlKind.CheckBox, new(20, 80, 16, 16),
+                options: [new("individual", "Individual")], sourceLabelText: "Individual",
+                authoredHierarchyKey: "tax", groupKey: "tax.c1_1", groupKind: PdfLayoutFormGroupKind.CheckBox,
+                groupLabelText: "Tax classification"),
+            new(2, "tax.c1_2[0]", "Consent", PdfLayoutFormControlKind.CheckBox, new(20, 225, 16, 16),
+                options: [new("yes", "Yes")], sourceLabelText: "Unrelated consent", authoredHierarchyKey: "tax"),
+            new(3, "tax.c1_1[1]", "Corporation", PdfLayoutFormControlKind.CheckBox, new(20, 105, 16, 16),
+                options: [new("corporation", "Corporation")], sourceLabelText: "Corporation",
+                authoredHierarchyKey: "tax", groupKey: "tax.c1_1", groupKind: PdfLayoutFormGroupKind.CheckBox,
+                groupLabelText: "Tax classification"),
+            new(4, "contact", "Contact: email", PdfLayoutFormControlKind.RadioButton, new(20, 145, 16, 16),
+                options: [new("email", "Email")], sourceLabelText: "Email", groupKey: "contact",
+                groupKind: PdfLayoutFormGroupKind.RadioButton, groupLabelText: "Preferred contact"),
+            new(5, "contact", "Contact: phone", PdfLayoutFormControlKind.RadioButton, new(80, 145, 16, 16),
+                options: [new("phone", "Phone")], sourceLabelText: "Phone", groupKey: "contact",
+                groupKind: PdfLayoutFormGroupKind.RadioButton, groupLabelText: "Preferred contact"),
+            new(6, "country", "Country", PdfLayoutFormControlKind.ComboBox, new(20, 185, 120, 22),
+                options: [new("no", "Norway"), new("us", "United States")], sourceLabelText: "Country")
+        ];
+        PdfLayoutPage page = new(
+            1, pageBounds, pageBounds, pageBounds.Width, pageBounds.Height, 0,
+            [], [], [], [], [], [], [], [], [], [], formControls: controls);
+        PdfLayoutDocument layout = new([page], [], []);
+
+        XDocument first = ParseHtml(PdfHtmlConverter.Convert(layout).Html);
+        XDocument second = ParseHtml(PdfHtmlConverter.Convert(layout).Html);
+
+        XElement form = Assert.Single(first.Descendants("form"));
+        Assert.True(HasClass(form, "pdf-form-page"));
+        XElement[] fieldsets = form.Descendants("fieldset").ToArray();
+        Assert.Equal(2, fieldsets.Length);
+        Assert.Equal(
+            ["Tax classification", "Preferred contact"],
+            fieldsets.Select(fieldset => Assert.Single(fieldset.Elements("legend")).Value));
+
+        XElement[] emitted = ElementsByClass(first, "pdf-form-control").ToArray();
+        XElement[] labels = form.Descendants("label").ToArray();
+        Assert.Equal(controls.Length, labels.Length);
+        Assert.Equal(controls.Length, labels.Select(label => label.Attribute("for")?.Value).Distinct().Count());
+        Assert.All(labels, label =>
+        {
+            string targetId = Assert.IsType<XAttribute>(label.Attribute("for")).Value;
+            Assert.Single(emitted, control => control.Attribute("id")?.Value == targetId);
+        });
+        Assert.Equal(
+            emitted.Select(control => control.Attribute("id")?.Value),
+            ElementsByClass(second, "pdf-form-control").Select(control => control.Attribute("id")?.Value));
+        Assert.Equal("Full legal name", Assert.Single(labels, label => label.Attribute("for")?.Value == "pdf-field-1-0").Value);
+        Assert.Equal("Country", Assert.Single(labels, label => label.Attribute("for")?.Value == "pdf-field-1-6").Value);
+
+        XElement text = Assert.Single(emitted, control => control.Attribute("id")?.Value == "pdf-field-1-0");
+        Assert.Equal("text", text.Attribute("type")?.Value);
+        Assert.Null(text.Attribute("aria-label"));
+        XElement taxFieldset = Assert.Single(fieldsets, fieldset => fieldset.Attribute("data-group-key")?.Value == "tax.c1_1");
+        Assert.Equal(2, taxFieldset.Descendants("input").Count(input => input.Attribute("type")?.Value == "checkbox"));
+        Assert.Equal(
+            ["tax.c1_1[0]", "tax.c1_1[1]"],
+            taxFieldset.Descendants("input").Select(input => input.Attribute("name")?.Value));
+        XElement radioFieldset = Assert.Single(fieldsets, fieldset => fieldset.Attribute("data-group-key")?.Value == "contact");
+        Assert.Equal(2, radioFieldset.Descendants("input").Count(input => input.Attribute("type")?.Value == "radio"));
+        Assert.Equal("select", Assert.Single(emitted, control => control.Attribute("name")?.Value == "country").Name.LocalName);
+
+        XElement contradiction = Assert.Single(emitted, control => control.Attribute("name")?.Value == "tax.c1_2[0]");
+        Assert.Empty(contradiction.Ancestors("fieldset"));
+        Assert.Equal("position:absolute;left:20pt;top:225pt;width:16pt;height:16pt", contradiction.Attribute("style")?.Value);
+        Assert.True(
+            taxFieldset.Descendants("input").First().IsBefore(contradiction),
+            "The non-contiguous fieldset should be emitted at its first authored control.");
+    }
+
+    [Fact]
     public async Task Convert_EmitsAccessibleSemanticControlsAndPreservesAuthoredAppearances()
     {
         PdfLayoutRectangle pageBounds = new(0, 0, 612, 792);
@@ -3470,7 +3548,10 @@ public class PdfHtmlConverterTest
         XElement[] emitted = ElementsByClass(dom, "pdf-form-control").ToArray();
         Assert.Equal(controls.Length, emitted.Length);
         XElement text = Assert.Single(emitted, element => element.Attribute("name")?.Value == "fullName");
-        Assert.Equal("Full legal name", text.Attribute("aria-label")?.Value);
+        Assert.Null(text.Attribute("aria-label"));
+        Assert.Equal(
+            "Full legal name",
+            Assert.Single(dom.Descendants("label"), label => label.Attribute("for")?.Value == text.Attribute("id")?.Value).Value);
         Assert.Equal("Erik & Ada", text.Attribute("value")?.Value);
         Assert.Equal("Default", text.Attribute("data-default-value")?.Value);
         Assert.NotNull(text.Attribute("readonly"));
