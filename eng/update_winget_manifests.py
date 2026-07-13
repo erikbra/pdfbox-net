@@ -23,18 +23,13 @@ def generate(manifest: dict) -> dict[str, str]:
     if windows is None:
         raise ValueError("release manifest is missing win-x64")
     release_url = f"https://github.com/erikbra/pdfbox-net/releases/tag/unpdf-v{version}"
-    schema_root = "https://aka.ms/winget-manifest"
     common = f"PackageIdentifier: {PACKAGE_ID}\nPackageVersion: {version}\n"
 
-    version_manifest = f"""# yaml-language-server: $schema={schema_root}.version.{MANIFEST_VERSION}.schema.json
-
-{common}DefaultLocale: en-US
+    version_manifest = f"""{common}DefaultLocale: en-US
 ManifestType: version
 ManifestVersion: {MANIFEST_VERSION}
 """
-    installer_manifest = f"""# yaml-language-server: $schema={schema_root}.installer.{MANIFEST_VERSION}.schema.json
-
-{common}InstallerType: zip
+    installer_manifest = f"""{common}InstallerType: zip
 NestedInstallerType: portable
 NestedInstallerFiles:
   - RelativeFilePath: unpdf.exe
@@ -46,9 +41,7 @@ Installers:
 ManifestType: installer
 ManifestVersion: {MANIFEST_VERSION}
 """
-    locale_manifest = f"""# yaml-language-server: $schema={schema_root}.defaultLocale.{MANIFEST_VERSION}.schema.json
-
-{common}PackageLocale: en-US
+    locale_manifest = f"""{common}PackageLocale: en-US
 Publisher: PdfBox.Net contributors
 PublisherUrl: https://github.com/erikbra/pdfbox-net
 PublisherSupportUrl: https://github.com/erikbra/pdfbox-net/issues

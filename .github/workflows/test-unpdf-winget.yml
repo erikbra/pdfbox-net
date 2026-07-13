@@ -39,6 +39,7 @@ jobs:
           winget settings --enable LocalManifestFiles
           winget install --manifest artifacts/winget-manifests `
             --accept-package-agreements --accept-source-agreements --disable-interactivity
+          New-Item -ItemType File artifacts/winget-installed | Out-Null
 
       - name: Smoke-test installed command
         shell: pwsh
@@ -56,7 +57,11 @@ jobs:
         if: ${{ always() }}
         shell: pwsh
         run: |
+          if (-not (Test-Path artifacts/winget-installed)) {
+            Write-Host "Install did not complete; no WinGet package to remove."
+            exit 0
+          }
           winget uninstall --id ErikBra.Unpdf --version 4.0.0-preview.1 `
-            --disable-interactivity
+            --accept-source-agreements --disable-interactivity
           $command = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links\unpdf.exe"
           if (Test-Path $command) { throw "WinGet left the unpdf command link after uninstall" }
