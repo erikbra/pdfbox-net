@@ -3246,9 +3246,11 @@ public static class PdfHtmlConverter
             float legacyRightInset = MathF.Max(0, page.Width - legacyColumns[0].Left - pitch * legacyColumns.Length);
             return new PdfSemanticColumns(
                 page,
+                semanticPage,
                 [],
                 legacyColumns,
                 SemanticColumnListElements(semanticPage),
+                (legacyColumns[0].Left + legacyColumns[1].Left) / 2f,
                 legacyColumns[0].Left,
                 legacyRightInset,
                 pitch,
@@ -3258,9 +3260,11 @@ public static class PdfHtmlConverter
 
         return new PdfSemanticColumns(
             page,
+            semanticPage,
             leadingRuns,
             columns,
             SemanticColumnListElements(semanticPage),
+            (gutterLeft + gutterRight) / 2f,
             leftInset,
             rightInset,
             MathF.Max(0, gutterLeft - leftInset),
@@ -3835,49 +3839,80 @@ public static class PdfHtmlConverter
             html.AppendLine("        </div>");
         }
 
-        foreach (LineGridColumn column in columns.Columns)
+        IReadOnlyList<PdfSemanticElement>[] semanticTables = ColumnSemanticTables(columns);
+        for (int columnIndex = 0; columnIndex < columns.Columns.Count; columnIndex++)
         {
+            LineGridColumn column = columns.Columns[columnIndex];
             html.AppendLine("        <div class=\"pdf-semantic-column\">");
             PdfSemanticElement[] listElements = columns.ListElements
                 .Where(element => IsSemanticListInColumn(columns, column, element))
-                .OrderBy(static element => element.Bounds.Y)
                 .ToArray();
-            HashSet<PdfSemanticElement> writtenLists = [];
-            float previousSourceBottom = columnTop;
-            foreach (PdfTextRun run in column.Lines.OrderBy(static run => run.Bounds.Y))
-            {
-                PdfSemanticElement? listElement = listElements.FirstOrDefault(element =>
-                    SemanticListContainsColumnRun(element, run));
-                if (listElement != null)
-                {
-                    if (writtenLists.Add(listElement))
-                    {
-                        float listMarginTop = MathF.Max(0, listElement.Bounds.Y - previousSourceBottom) * scale;
-                        html.Append("          <div class=\"pdf-semantic-column-block\"");
-                        if (listMarginTop > 0.01f)
-                        {
-                            html.Append(" style=\"margin-top:")
-                                .Append(CssPoints(listMarginTop))
-                                .Append('"');
-                        }
+            IReadOnlyList<PdfSemanticElement> tables = semanticTables[columnIndex];
+            PdfSemanticElement[] semanticElements = listElements
+                .Concat(tables)
+                .OrderBy(static element => element.Bounds.Y)
+                .ThenBy(static element => element.Bounds.X)
+                .ToArray();
+            HashSet<PdfTextGlyph> coveredGlyphs = semanticElements
+                .SelectMany(SemanticElementGlyphs)
+                .ToHashSet();
+            PdfLayoutRectangle[] tableCells = tables
+                .SelectMany(static table => table.TableRows)
+                .SelectMany(static row => row.Cells)
+                .Where(static cell => !cell.IsPlaceholder && cell.Bounds.Width > 0 && cell.Bounds.Height > 0)
+                .Select(static cell => cell.Bounds)
+                .ToArray();
+            SemanticColumnItem[] items = column.Lines
+                .Select(run => ResidualColumnRun(run, coveredGlyphs, tableCells, semanticOptions))
+                .Where(static run => run != null)
+                .Select(static run => new SemanticColumnItem(run!.Bounds, run, null))
+                .Concat(semanticElements.Select(static element =>
+                    new SemanticColumnItem(element.Bounds, null, element)))
+                .OrderBy(static item => item.Bounds.Y)
+                .ThenBy(static item => item.Bounds.X)
+                .ToArray();
 
-                        html.AppendLine(">");
-                        WriteSemanticList(
-                            html,
-                            listElement.SemanticList!,
-                            listElement,
-                            footnotes,
-                            columns.Page,
-                            indentation: 10,
-                            isRoot: true);
-                        html.AppendLine("          </div>");
-                        previousSourceBottom = listElement.Bounds.Bottom;
+            float previousSourceBottom = columnTop;
+            foreach (SemanticColumnItem item in items)
+            {
+                float marginTop = MathF.Max(0, item.Bounds.Y - previousSourceBottom) * scale;
+                if (item.Element?.Kind == PdfSemanticElementKind.List)
+                {
+                    html.Append("          <div class=\"pdf-semantic-column-block\"");
+                    if (marginTop > 0.01f)
+                    {
+                        html.Append(" style=\"margin-top:")
+                            .Append(CssPoints(marginTop))
+                            .Append('"');
                     }
 
+                    html.AppendLine(">");
+                    WriteSemanticList(
+                        html,
+                        item.Element.SemanticList!,
+                        item.Element,
+                        footnotes,
+                        columns.Page,
+                        indentation: 10,
+                        isRoot: true);
+                    html.AppendLine("          </div>");
+                    previousSourceBottom = item.Bounds.Bottom;
                     continue;
                 }
 
-                float marginTop = MathF.Max(0, run.Bounds.Y - previousSourceBottom) * scale;
+                if (item.Element?.Kind == PdfSemanticElementKind.Table)
+                {
+                    WriteSemanticTable(
+                        html,
+                        item.Element,
+                        footnotes,
+                        columns.Page,
+                        allowMeasuredWidth: false);
+                    previousSourceBottom = item.Bounds.Bottom;
+                    continue;
+                }
+
+                PdfTextRun run = item.Run!;
                 WriteSemanticColumnRun(html, columns.Page, run, marginTop, scale, semanticOptions);
                 previousSourceBottom = run.Bounds.Bottom;
             }
@@ -3902,11 +3937,6 @@ public static class PdfHtmlConverter
             .ToArray();
         return sourceColumns.Length == listElement.Lines.Count &&
             sourceColumns.All(candidate => ReferenceEquals(candidate, column));
-    }
-
-    private static bool SemanticListContainsColumnRun(PdfSemanticElement listElement, PdfTextRun run)
-    {
-        return listElement.Lines.Any(line => ContainsSemanticLineGlyphs(line, run));
     }
 
     private static bool ContainsSemanticLineGlyphs(PdfSemanticLine line, PdfTextRun run)
@@ -3960,6 +3990,173 @@ public static class PdfHtmlConverter
         html.Append("\">")
             .Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)))
             .AppendLine("</span>");
+    }
+
+    private static IReadOnlyList<PdfSemanticElement>[] ColumnSemanticTables(PdfSemanticColumns columns)
+    {
+        List<PdfSemanticElement>[] result = columns.Columns
+            .Select(static _ => new List<PdfSemanticElement>())
+            .ToArray();
+        if (result.Length != 2)
+        {
+            return result;
+        }
+
+        float columnTop = columns.Columns
+            .SelectMany(static column => column.Lines)
+            .Min(static run => run.Bounds.Y);
+        float tolerance = MathF.Max(1f, columns.Page.Width * 0.002f);
+        foreach (PdfSemanticElement table in columns.SemanticPage.Elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Table && element.TableRows.Count > 0)
+            .Where(table => table.Bounds.Bottom >= columnTop - tolerance))
+        {
+            if (table.Bounds.Right <= columns.Boundary + tolerance)
+            {
+                result[0].Add(table);
+                continue;
+            }
+
+            if (table.Bounds.X >= columns.Boundary - tolerance)
+            {
+                result[1].Add(table);
+                continue;
+            }
+
+            PdfSemanticElement? left = SplitSemanticTable(table, columns.Boundary, keepLeft: true, tolerance);
+            PdfSemanticElement? right = SplitSemanticTable(table, columns.Boundary, keepLeft: false, tolerance);
+            if (left != null && HasSupportingTableRules(columns.Page, left))
+            {
+                result[0].Add(left);
+            }
+
+            if (right != null && HasSupportingTableRules(columns.Page, right))
+            {
+                result[1].Add(right);
+            }
+        }
+
+        return result;
+    }
+
+    private static PdfSemanticElement? SplitSemanticTable(
+        PdfSemanticElement table,
+        float boundary,
+        bool keepLeft,
+        float tolerance)
+    {
+        PdfSemanticTableCell[] sourceCells = table.TableRows
+            .SelectMany(static row => row.Cells)
+            .Where(static cell => !cell.IsPlaceholder && cell.Bounds.Width > 0)
+            .ToArray();
+        if (sourceCells.Any(cell => cell.Bounds.X < boundary - tolerance && cell.Bounds.Right > boundary + tolerance))
+        {
+            return null;
+        }
+
+        List<PdfSemanticTableRow> rows = [];
+        foreach (PdfSemanticTableRow row in table.TableRows)
+        {
+            PdfSemanticTableCell[] cells = row.Cells
+                .Where(cell => keepLeft
+                    ? cell.Bounds.X + cell.Bounds.Width / 2f < boundary
+                    : cell.Bounds.X + cell.Bounds.Width / 2f >= boundary)
+                .ToArray();
+            if (cells.Any(static cell => !cell.IsPlaceholder && !string.IsNullOrWhiteSpace(cell.Text)))
+            {
+                rows.Add(new PdfSemanticTableRow(cells, row.IsHeader));
+            }
+        }
+
+        PdfSemanticTableCell[] selectedCells = rows
+            .SelectMany(static row => row.Cells)
+            .Where(static cell => !cell.IsPlaceholder && cell.Bounds.Width > 0 && cell.Bounds.Height > 0)
+            .ToArray();
+        if (selectedCells.Length == 0)
+        {
+            return null;
+        }
+
+        PdfSemanticLine[] lines = selectedCells
+            .SelectMany(static cell => cell.Lines)
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        string text = string.Join(Environment.NewLine, rows.Select(row =>
+            string.Join('\t', row.Cells
+                .Where(static cell => !cell.IsPlaceholder)
+                .Select(static cell => cell.Text))));
+        return new PdfSemanticElement(
+            PdfSemanticElementKind.Table,
+            text,
+            UnionRectangles(selectedCells.Select(static cell => cell.Bounds)),
+            lines,
+            tableRows: rows);
+    }
+
+    private static bool HasSupportingTableRules(PdfLayoutPage page, PdfSemanticElement table)
+    {
+        float horizontalTolerance = MathF.Max(2f, page.Width * 0.005f);
+        float verticalTolerance = MathF.Max(2f, table.Bounds.Height * 0.1f);
+        return CreateSourceRuleFamilies(page).Any(family =>
+        {
+            float horizontalOverlap = MathF.Max(
+                0,
+                MathF.Min(family.Right, table.Bounds.Right) - MathF.Max(family.Left, table.Bounds.X));
+            return horizontalOverlap >= MathF.Min(family.Right - family.Left, table.Bounds.Width) * 0.5f &&
+                family.Bottom >= table.Bounds.Y - verticalTolerance &&
+                family.Top <= table.Bounds.Bottom + verticalTolerance &&
+                family.Left <= table.Bounds.Right + horizontalTolerance &&
+                family.Right >= table.Bounds.X - horizontalTolerance;
+        });
+    }
+
+    private static IEnumerable<PdfTextGlyph> TableGlyphs(PdfSemanticElement table)
+    {
+        return table.TableRows
+            .SelectMany(static row => row.Cells)
+            .SelectMany(static cell => cell.Lines)
+            .SelectMany(static line => line.Runs)
+            .SelectMany(static run => run.Glyphs);
+    }
+
+    private static IEnumerable<PdfTextGlyph> SemanticElementGlyphs(PdfSemanticElement element)
+    {
+        return element.Kind == PdfSemanticElementKind.Table
+            ? TableGlyphs(element)
+            : element.Lines
+                .SelectMany(static line => line.Runs)
+                .SelectMany(static run => run.Glyphs);
+    }
+
+    private static PdfTextRun? ResidualColumnRun(
+        PdfTextRun run,
+        ISet<PdfTextGlyph> coveredGlyphs,
+        IReadOnlyList<PdfLayoutRectangle> coveredCells,
+        PdfSemanticExtractionOptions semanticOptions)
+    {
+        PdfTextGlyph[] glyphs = run.Glyphs
+            .Where(glyph => !coveredGlyphs.Contains(glyph) &&
+                !coveredCells.Any(cell => RectangleContainsCenter(cell, glyph.Bounds)))
+            .ToArray();
+        if (glyphs.Length == 0)
+        {
+            return null;
+        }
+
+        if (glyphs.Length == run.Glyphs.Count)
+        {
+            return run;
+        }
+
+        PdfTextGlyph first = glyphs[0];
+        return new PdfTextRun(
+            PdfSemanticExtractor.ReconstructText(glyphs, semanticOptions),
+            first.FontName,
+            first.FontSize,
+            first.Direction,
+            UnionRectangles(glyphs.Select(static glyph => glyph.Bounds)),
+            first.Color,
+            glyphs);
     }
 
     private static PdfLayoutColor? GridHighlightColor(PdfLayoutPage page, PdfTextRun run)
@@ -5678,15 +5875,16 @@ public static class PdfHtmlConverter
         StringBuilder html,
         PdfSemanticElement element,
         FootnoteContext footnotes,
-        PdfLayoutPage? page)
+        PdfLayoutPage? page,
+        bool allowMeasuredWidth = true)
     {
         html.Append("      <table class=\"")
-            .Append(SemanticClassNames(element, page, allowMeasuredWidth: true))
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth))
             .Append("\" aria-label=\"")
             .Append(HtmlAttribute(TableAriaLabel(element)))
             .Append('"');
         AppendTextDirectionAttribute(html, element.Text);
-        string style = FlowSemanticStyle(element, page, allowMeasuredWidth: true);
+        string style = FlowSemanticStyle(element, page, allowMeasuredWidth);
         if (style.Length > 0)
         {
             html.Append(" style=\"")
@@ -9432,9 +9630,11 @@ public static class PdfHtmlConverter
     {
         public PdfSemanticColumns(
             PdfLayoutPage page,
+            PdfSemanticPage semanticPage,
             IReadOnlyList<PdfTextRun> leadingRuns,
             IReadOnlyList<LineGridColumn> columns,
             IReadOnlyList<PdfSemanticElement> listElements,
+            float boundary,
             float leftInset,
             float rightInset,
             float leftWidth,
@@ -9442,9 +9642,11 @@ public static class PdfHtmlConverter
             float gutterWidth)
         {
             Page = page;
+            SemanticPage = semanticPage;
             LeadingRuns = leadingRuns;
             Columns = columns;
             ListElements = listElements;
+            Boundary = boundary;
             LeftInset = leftInset;
             RightInset = rightInset;
             LeftWidth = leftWidth;
@@ -9454,11 +9656,15 @@ public static class PdfHtmlConverter
 
         public PdfLayoutPage Page { get; }
 
+        public PdfSemanticPage SemanticPage { get; }
+
         public IReadOnlyList<PdfTextRun> LeadingRuns { get; }
 
         public IReadOnlyList<LineGridColumn> Columns { get; }
 
         public IReadOnlyList<PdfSemanticElement> ListElements { get; }
+
+        public float Boundary { get; }
 
         public float LeftInset { get; }
 
@@ -9470,6 +9676,11 @@ public static class PdfHtmlConverter
 
         public float GutterWidth { get; }
     }
+
+    private readonly record struct SemanticColumnItem(
+        PdfLayoutRectangle Bounds,
+        PdfTextRun? Run,
+        PdfSemanticElement? Element);
 
     private sealed class ColumnDetectionRow
     {
