@@ -131,7 +131,7 @@ public class PdfMathMlFormulaTest
     }
 
     [Fact]
-    public void IsFullyClaimedFormulaElement_SuppressesOnlyFullyClaimedParagraphs()
+    public void IsFullyClaimedFormulaElement_MatchesClonesButNotNearbyEquation()
     {
         PdfTextGlyph[] equationGlyphs =
         [
@@ -148,15 +148,28 @@ public class PdfMathMlFormulaTest
             126f,
             width: 100f,
             fontName: "Times-Roman");
-        PdfSemanticLine formulaLine = SemanticLine(equationGlyphs);
+        PdfTextGlyph[] clonedEquationGlyphs = equationGlyphs
+            .Select(static glyph => glyph with { })
+            .ToArray();
+        PdfTextGlyph[] nearbyEquationGlyphs = equationGlyphs
+            .Select(static glyph => OffsetGlyph(glyph, 0.25f, 0f))
+            .ToArray();
+        PdfSemanticLine formulaLine = SemanticLine(clonedEquationGlyphs);
         PdfSemanticLine proseLine = SemanticLine([prose]);
         PdfSemanticElement duplicate = Element(PdfSemanticElementKind.Paragraph, formulaLine);
+        PdfSemanticElement nearby = Element(
+            PdfSemanticElementKind.Paragraph,
+            SemanticLine(nearbyEquationGlyphs));
         PdfSemanticElement mixed = Element(PdfSemanticElementKind.Paragraph, formulaLine, proseLine);
         PdfSemanticElement table = Element(PdfSemanticElementKind.Table, formulaLine);
-        HashSet<PdfTextGlyph> claimed = new(ReferenceEqualityComparer.Instance);
-        claimed.UnionWith(equationGlyphs);
+        HashSet<PdfHtmlConverter.FormulaGlyphKey> claimed = equationGlyphs
+            .Select(PdfHtmlConverter.FormulaGlyphIdentity)
+            .ToHashSet();
 
+        Assert.All(clonedEquationGlyphs, (glyph, index) =>
+            Assert.False(ReferenceEquals(glyph, equationGlyphs[index])));
         Assert.True(PdfHtmlConverter.IsFullyClaimedFormulaElement(duplicate, claimed));
+        Assert.False(PdfHtmlConverter.IsFullyClaimedFormulaElement(nearby, claimed));
         Assert.False(PdfHtmlConverter.IsFullyClaimedFormulaElement(mixed, claimed));
         Assert.Contains("Training is performed.", mixed.Text, StringComparison.Ordinal);
         Assert.False(PdfHtmlConverter.IsFullyClaimedFormulaElement(table, claimed));
@@ -233,6 +246,21 @@ public class PdfMathMlFormulaTest
         string fontName = "CMMI10")
     {
         return new PdfTextGlyph(text, fontName, fontSize, 0f, new PdfLayoutRectangle(x, y, width, height), Black);
+    }
+
+    private static PdfTextGlyph OffsetGlyph(PdfTextGlyph glyph, float x, float y)
+    {
+        PdfLayoutRectangle bounds = glyph.Bounds;
+        PdfLayoutRectangle pageBounds = glyph.PageBounds;
+        return glyph with
+        {
+            Bounds = new PdfLayoutRectangle(bounds.X + x, bounds.Y + y, bounds.Width, bounds.Height),
+            PageBounds = new PdfLayoutRectangle(
+                pageBounds.X + x,
+                pageBounds.Y + y,
+                pageBounds.Width,
+                pageBounds.Height)
+        };
     }
 
     private static PdfLayoutPath Rule(float x, float y, float width)

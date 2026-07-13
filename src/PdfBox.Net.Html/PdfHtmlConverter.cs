@@ -13,6 +13,17 @@ public static class PdfHtmlConverter
 {
     private const float BrowserFontBaselineRatio = 0.8f;
 
+    internal readonly record struct FormulaGlyphKey(
+        string Text,
+        string FontName,
+        int FontSize,
+        int Direction,
+        int X,
+        int Y,
+        int Width,
+        int Height,
+        bool IsPainted);
+
     private const string Css = """
         .pdf-document {
           --pdf-page-background: #fff;
@@ -4401,20 +4412,41 @@ public static class PdfHtmlConverter
 
     internal static bool IsFullyClaimedFormulaElement(
         PdfSemanticElement element,
-        ISet<PdfTextGlyph> claimedGlyphs)
+        ISet<FormulaGlyphKey> claimedGlyphs)
     {
         if (element.Kind != PdfSemanticElementKind.Paragraph)
         {
             return false;
         }
 
-        PdfTextGlyph[] visibleGlyphs = element.Lines
+        FormulaGlyphKey[] visibleGlyphs = element.Lines
             .SelectMany(static line => line.Runs)
             .SelectMany(static run => run.Glyphs)
             .Where(PdfMathMlFormula.IsEligibleGlyph)
-            .Distinct((IEqualityComparer<PdfTextGlyph>)ReferenceEqualityComparer.Instance)
+            .Select(FormulaGlyphIdentity)
+            .Distinct()
             .ToArray();
         return visibleGlyphs.Length > 0 && visibleGlyphs.All(claimedGlyphs.Contains);
+    }
+
+    internal static FormulaGlyphKey FormulaGlyphIdentity(PdfTextGlyph glyph)
+    {
+        PdfLayoutRectangle bounds = glyph.PageBounds;
+        return new FormulaGlyphKey(
+            glyph.Text,
+            NormalizeFontName(glyph.FontName),
+            QuantizeFormulaGlyphMetric(glyph.FontSize),
+            QuantizeFormulaGlyphMetric(NormalizeDirection(glyph.Direction)),
+            QuantizeFormulaGlyphMetric(bounds.X),
+            QuantizeFormulaGlyphMetric(bounds.Y),
+            QuantizeFormulaGlyphMetric(bounds.Width),
+            QuantizeFormulaGlyphMetric(bounds.Height),
+            glyph.IsPainted);
+    }
+
+    private static int QuantizeFormulaGlyphMetric(float value)
+    {
+        return (int)MathF.Round(value * 100f, MidpointRounding.AwayFromZero);
     }
 
     private static PdfTextRun? ResidualColumnRun(
@@ -4991,7 +5023,7 @@ public static class PdfHtmlConverter
             : SemanticFigureRegions(page, semanticPage)
                 .Where(region => skippedFigureRegions == null || !skippedFigureRegions.Contains(region))
                 .ToArray();
-        HashSet<PdfTextGlyph> claimedFormulaGlyphs = new(ReferenceEqualityComparer.Instance);
+        HashSet<FormulaGlyphKey> claimedFormulaGlyphs = [];
         int nextFigureRegion = 0;
         for (int index = 0; index < flowElements.Count; index++)
         {
@@ -6017,7 +6049,7 @@ public static class PdfHtmlConverter
         FootnoteContext footnotes,
         PdfLayoutPage? page = null,
         bool allowMeasuredWidth = true,
-        ISet<PdfTextGlyph>? claimedFormulaGlyphs = null,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs = null,
         string? elementId = null,
         int? headingLevel = null)
     {
@@ -6735,7 +6767,7 @@ public static class PdfHtmlConverter
         PdfSemanticElement element,
         FootnoteContext footnotes,
         bool allowMeasuredWidth,
-        ISet<PdfTextGlyph>? claimedFormulaGlyphs,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs,
         string? elementId,
         int? headingLevel)
     {
@@ -6791,7 +6823,7 @@ public static class PdfHtmlConverter
         StringBuilder html,
         PdfLayoutPage page,
         PdfSemanticElement element,
-        ISet<PdfTextGlyph>? claimedFormulaGlyphs,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs,
         string? elementId = null)
     {
         PdfLayoutRectangle nativeBounds = FormulaRenderBounds(page, element);
@@ -6837,7 +6869,7 @@ public static class PdfHtmlConverter
             {
                 foreach (PdfTextGlyph glyph in mathMl.ClaimedGlyphs)
                 {
-                    claimedFormulaGlyphs.Add(glyph);
+                    claimedFormulaGlyphs.Add(FormulaGlyphIdentity(glyph));
                 }
             }
         }
