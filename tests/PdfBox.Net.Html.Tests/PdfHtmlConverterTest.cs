@@ -3090,6 +3090,65 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_GroupsFullWidthBertArchitectureFigure()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("acl-bert-page-3.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImageAssets = true
+        });
+        PdfLayoutPage sourcePage = Assert.Single(layout.Pages);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement figure = Assert.Single(ElementsByClass(dom, "pdf-semantic-figure"), element =>
+            element.Attribute("data-source-page")?.Value == "1");
+        Assert.True(HasClass(figure, "pdf-semantic-column-spanning-figure"));
+        Assert.Equal("444.283pt", ParseStyle(figure.Attribute("style")?.Value ?? "")["--pdf-semantic-figure-width"]);
+
+        XElement svg = Assert.Single(figure.Elements(), element => HasClass(element, "pdf-semantic-figure-svg"));
+        Assert.Equal("0 0 444.283 178.185", svg.Attribute("viewBox")?.Value);
+        XElement content = Assert.Single(svg.Elements(), element => element.Name.LocalName == "g");
+        Assert.Equal("translate(-76.859 -64.196)", content.Attribute("transform")?.Value);
+        Assert.Equal(sourcePage.Images.Count, svg.Descendants("image").Count());
+        Assert.Contains(svg.Descendants("path"), element => element.Attribute("data-path-index") != null);
+
+        XElement preTraining = Assert.Single(svg.Descendants("text"), element => element.Value == "Pre-training");
+        XElement fineTuning = Assert.Single(svg.Descendants("text"), element => element.Value == "Fine-Tuning");
+        XElement startEndSpan = Assert.Single(svg.Descendants("text"), element => element.Value == "Start/End Span");
+        Assert.Equal("139.209", preTraining.Attribute("x")?.Value);
+        Assert.Equal("389.17", fineTuning.Attribute("x")?.Value);
+        Assert.Equal("240.696", preTraining.Attribute("y")?.Value);
+        Assert.Equal(preTraining.Attribute("y")?.Value, fineTuning.Attribute("y")?.Value);
+        Assert.Equal("83.761", startEndSpan.Attribute("y")?.Value);
+        Assert.Equal("9.226pt", ParseStyle(preTraining.Attribute("style")?.Value ?? "")["font-size"]);
+        Assert.Equal("9.226pt", ParseStyle(fineTuning.Attribute("style")?.Value ?? "")["font-size"]);
+        Assert.Equal("5.382pt", ParseStyle(startEndSpan.Attribute("style")?.Value ?? "")["font-size"]);
+
+        XElement caption = Assert.Single(figure.Elements("figcaption"));
+        Assert.Contains("Figure 1: Overall pre-training and", caption.Value, StringComparison.Ordinal);
+        Assert.Contains("all parameters are ﬁne-tuned.", caption.Value, StringComparison.Ordinal);
+        Assert.Contains("questions/answers).", caption.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain(ElementsByClass(dom, "pdf-semantic-column-run"), run =>
+            run.Value.Contains("Figure 1:", StringComparison.Ordinal) ||
+            run.Value == "Pre-training" ||
+            run.Value == "Fine-Tuning");
+
+        XElement[] proseColumns = figure.Parent!
+            .Elements()
+            .Where(element => HasClass(element, "pdf-semantic-column"))
+            .ToArray();
+        Assert.Equal(2, proseColumns.Length);
+        Assert.Contains("2.3 Transfer Learning from Supervised Data", proseColumns[0].Value, StringComparison.Ordinal);
+        Assert.Contains("Model Architecture", proseColumns[1].Value, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_PreservesFiguresAndCrossPageParagraphContinuations()
     {
         using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
