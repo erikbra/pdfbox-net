@@ -2025,6 +2025,12 @@ public class PdfHtmlConverterTest
         Assert.DoesNotContain("Input-Input Layer5", dom.Root?.Value ?? "", StringComparison.Ordinal);
         Assert.Empty(ElementsByClass(dom, "pdf-semantic-figure-space"));
         Assert.Contains(".pdf-semantic-formula", html.Css, StringComparison.Ordinal);
+        Assert.Contains(
+            ".pdf-semantic-formula.pdf-semantic-formula-native",
+            html.Css,
+            StringComparison.Ordinal);
+        Assert.Contains("max-width: calc(100% - 3em);", html.Css, StringComparison.Ordinal);
+        Assert.Contains("overflow-x: auto;", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-run", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-vector-layer", html.Css, StringComparison.Ordinal);
         Assert.DoesNotContain(".pdf-semantic-inline-run", html.Css, StringComparison.Ordinal);
@@ -2096,23 +2102,25 @@ public class PdfHtmlConverterTest
         Assert.DoesNotContain("pdf-semantic-measured-width", multiHeadIntro.Attribute("class")?.Value ?? "");
 
         XElement formula = Assert.Single(ElementsByClass(dom, "pdf-semantic-formula"), element =>
-            element.Attribute("aria-label")?.Value.Contains("MultiHead", StringComparison.Ordinal) == true &&
-            element.Attribute("aria-label")?.Value.Contains("Where the projections", StringComparison.Ordinal) == true);
+            element.Attribute("aria-label")?.Value.Contains("MultiHead", StringComparison.Ordinal) == true);
         Assert.Equal("div", formula.Name.LocalName);
         Assert.Equal("math", formula.Attribute("role")?.Value);
         Dictionary<string, string> formulaStyle = ParseStyle(formula.Attribute("style")?.Value ?? "");
-        Assert.True(ParsePoints(formulaStyle["--pdf-semantic-formula-width"]) > 300f);
-        Assert.True(ParsePoints(formulaStyle["--pdf-semantic-formula-height"]) > 60f);
+        Assert.True(ParsePoints(formulaStyle["--pdf-semantic-formula-width"]) > 150f);
+        Assert.True(ParsePoints(formulaStyle["--pdf-semantic-formula-height"]) > 30f);
         XElement[] formulaRuns = formula.Elements().Where(static element =>
             HasClass(element, "pdf-semantic-formula-run")).ToArray();
-        Assert.True(formulaRuns.Length > 100);
+        Assert.NotEmpty(formulaRuns);
+        Assert.Empty(formula.Elements("math"));
         Assert.Contains("MultiHead", string.Concat(formulaRuns.Select(static run => run.Value)), StringComparison.Ordinal);
-        Assert.Contains("Where", string.Concat(formulaRuns.Select(static run => run.Value)), StringComparison.Ordinal);
+        Assert.DoesNotContain("Where", string.Concat(formulaRuns.Select(static run => run.Value)), StringComparison.Ordinal);
         Assert.Contains(formulaRuns, run =>
             run.Value == "1" && HasClass(run, "pdf-semantic-formula-attached-suffix"));
         Assert.Contains(formulaRuns, run =>
             run.Value == "i" && HasClass(run, "pdf-semantic-formula-attached-suffix"));
         Assert.DoesNotContain("In this work", formula.Value, StringComparison.Ordinal);
+        Assert.Contains(ElementsByClass(dom, "pdf-semantic-paragraph"), paragraph =>
+            paragraph.Value.StartsWith("Where the projections", StringComparison.Ordinal));
 
         XElement attentionFormula = Assert.Single(ElementsByClass(dom, "pdf-semantic-formula"), element =>
             element.Attribute("aria-label")?.Value.Contains("Attention(Q, K, V)", StringComparison.Ordinal) == true);
