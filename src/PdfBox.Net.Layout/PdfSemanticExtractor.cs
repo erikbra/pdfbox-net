@@ -19,6 +19,12 @@ public static class PdfSemanticExtractor
     private static readonly Regex RuledTableRowMarkerPattern = new(
         @"^(?:[\u0095\u2022\u25e6\u25aa\u2219]\s*|\d{1,3}[.)]\s+|[A-Za-z][.)]\s+)",
         RegexOptions.Compiled);
+    private static readonly Regex DocumentIndexLeaderPattern = new(
+        @"(?:\.{3,}|…+|·{3,})",
+        RegexOptions.Compiled);
+    private static readonly Regex DocumentIndexPageLabelPattern = new(
+        @"^(?:(?:[A-Z]{1,3}-?)?\d+(?:[-–]\d+)?|[IVXLCDM]+)$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex WhitespacePattern = new(@"\s+", RegexOptions.Compiled);
     private const int MaximumDetectedTableColumnCount = 16;
 
@@ -124,6 +130,16 @@ public static class PdfSemanticExtractor
         foreach (PdfSemanticElement footnote in ExtractFootnotes(page, lines, consumed))
         {
             elements.Add(footnote);
+        }
+
+        foreach (PdfSemanticElement documentIndex in ExtractDocumentIndexes(
+            page,
+            lines,
+            bodyFontSize,
+            lineStep,
+            consumed))
+        {
+            elements.Add(documentIndex);
         }
 
         HashSet<int> documentTitleLineIndexes = documentTitleLines
@@ -1156,6 +1172,361 @@ public static class PdfSemanticExtractor
             text,
             PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
             readingLines.Select(static line => line.SemanticLine).ToArray());
+    }
+
+    private static IEnumerable<PdfSemanticElement> ExtractDocumentIndexes(
+        PdfLayoutPage page,
+        IReadOnlyList<LineCandidate> lines,
+        float bodyFontSize,
+        float lineStep,
+        HashSet<int> consumed)
+    {
+        foreach (LineCandidate heading in lines
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X))
+        {
+            if (consumed.Contains(heading.Index) ||
+                !TryGetDocumentIndexKind(heading.Text, out PdfSemanticDocumentIndexKind kind))
+            {
+                continue;
+            }
+
+            List<RawDocumentIndexItem> rawItems = [];
+            foreach (LineCandidate line in lines
+                .Where(line => line.Bounds.Y >= heading.Bounds.Bottom)
+                .OrderBy(static line => line.Bounds.Y)
+                .ThenBy(static line => line.Bounds.X))
+            {
+                if (line.Index == heading.Index || consumed.Contains(line.Index))
+                {
+                    continue;
+                }
+
+                if (TryGetDocumentIndexKind(line.Text, out _))
+                {
+                    break;
+                }
+
+                if (TryParseDocumentIndexItem(page, line, out RawDocumentIndexItem item))
+                {
+                    rawItems.Add(item);
+                    continue;
+                }
+
+                if (rawItems.Count > 0 || line.Bounds.Y - heading.Bounds.Bottom > lineStep * 3f)
+                {
+                    break;
+                }
+            }
+
+            if (!TryCreateDocumentIndexElement(
+                    page,
+                    heading,
+                    kind,
+                    rawItems,
+                    bodyFontSize,
+                    out PdfSemanticElement element))
+            {
+                continue;
+            }
+
+            consumed.Add(heading.Index);
+            foreach (RawDocumentIndexItem item in rawItems)
+            {
+                consumed.Add(item.Line.Index);
+            }
+
+            yield return element;
+        }
+    }
+
+    private static bool TryGetDocumentIndexKind(
+        string text,
+        out PdfSemanticDocumentIndexKind kind)
+    {
+        string normalized = WhitespacePattern.Replace(text.Trim().TrimEnd(':'), " ");
+        if (normalized.Equals("Contents", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Equals("Table of Contents", StringComparison.OrdinalIgnoreCase))
+        {
+            kind = PdfSemanticDocumentIndexKind.TableOfContents;
+            return true;
+        }
+
+        if (normalized.Equals("List of Figures", StringComparison.OrdinalIgnoreCase))
+        {
+            kind = PdfSemanticDocumentIndexKind.ListOfFigures;
+            return true;
+        }
+
+        if (normalized.Equals("List of Tables", StringComparison.OrdinalIgnoreCase))
+        {
+            kind = PdfSemanticDocumentIndexKind.ListOfTables;
+            return true;
+        }
+
+        kind = default;
+        return false;
+    }
+
+    private static bool TryParseDocumentIndexItem(
+        PdfLayoutPage page,
+        LineCandidate line,
+        out RawDocumentIndexItem item)
+    {
+        item = null!;
+        if (MathF.Abs(line.Direction) > 0.01f || !line.Text.Any(char.IsLetter))
+        {
+            return false;
+        }
+
+        string label;
+        string pageLabel;
+        float pageRight;
+        MatchCollection leaders = DocumentIndexLeaderPattern.Matches(line.Text);
+        if (leaders.Count > 0)
+        {
+            Match leader = leaders[^1];
+            label = NormalizeDocumentIndexLabel(line.Text[..leader.Index]);
+            if (!TryNormalizeDocumentIndexPageLabel(
+                    line.Text[(leader.Index + leader.Length)..],
+                    out pageLabel))
+            {
+                return false;
+            }
+
+            pageRight = line.Bounds.Right;
+        }
+        else if (!TryParseFlexibleDocumentIndexItem(page, line, out label, out pageLabel, out pageRight))
+        {
+            return false;
+        }
+
+        if (label.Length < 2 || !label.Any(char.IsLetter))
+        {
+            return false;
+        }
+
+        item = new RawDocumentIndexItem(
+            line,
+            label,
+            pageLabel,
+            line.Bounds.X,
+            pageRight,
+            DocumentIndexLinkForLine(page, line));
+        return true;
+    }
+
+    private static bool TryParseFlexibleDocumentIndexItem(
+        PdfLayoutPage page,
+        LineCandidate line,
+        out string label,
+        out string pageLabel,
+        out float pageRight)
+    {
+        label = "";
+        pageLabel = "";
+        pageRight = 0f;
+        PdfTextRun[] runs = line.Source.Runs
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .OrderBy(static run => run.Bounds.X)
+            .ToArray();
+        if (runs.Length < 2 ||
+            !TryNormalizeDocumentIndexPageLabel(runs[^1].Text, out pageLabel))
+        {
+            return false;
+        }
+
+        float precedingRight = runs.Take(runs.Length - 1).Max(static run => run.Bounds.Right);
+        float gap = runs[^1].Bounds.X - precedingRight;
+        if (gap < MathF.Max(12f, line.FontSize * 1.25f) ||
+            runs[^1].Bounds.Right < page.Width * 0.60f)
+        {
+            return false;
+        }
+
+        label = NormalizeDocumentIndexLabel(string.Join(
+            " ",
+            runs.Take(runs.Length - 1).Select(static run => run.Text.Trim())));
+        MatchCollection trailingLeaders = DocumentIndexLeaderPattern.Matches(label);
+        if (trailingLeaders.Count > 0)
+        {
+            Match trailingLeader = trailingLeaders[^1];
+            if (trailingLeader.Index + trailingLeader.Length == label.Length)
+            {
+                label = NormalizeDocumentIndexLabel(label[..trailingLeader.Index]);
+            }
+        }
+
+        pageRight = runs[^1].Bounds.Right;
+        return true;
+    }
+
+    private static string NormalizeDocumentIndexLabel(string text)
+    {
+        return WhitespacePattern.Replace(text.Trim(), " ");
+    }
+
+    private static bool TryNormalizeDocumentIndexPageLabel(string text, out string pageLabel)
+    {
+        pageLabel = WhitespacePattern.Replace(text.Trim(), "");
+        if (!DocumentIndexPageLabelPattern.IsMatch(pageLabel))
+        {
+            pageLabel = "";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static PdfLayoutLink? DocumentIndexLinkForLine(PdfLayoutPage page, LineCandidate line)
+    {
+        PdfLayoutRectangle expandedLine = ExpandRectangle(
+            line.Bounds,
+            2f,
+            MathF.Max(2f, line.FontSize * 0.55f));
+        return page.Links
+            .Where(static link => !string.IsNullOrWhiteSpace(link.Uri) || link.DestinationPageNumber.HasValue)
+            .Where(link => (link.QuadBounds.Count == 0 ? [link.Bounds] : link.QuadBounds)
+                .Any(bounds => Intersects(bounds, expandedLine)))
+            .OrderBy(link => (link.QuadBounds.Count == 0 ? [link.Bounds] : link.QuadBounds)
+                .Min(bounds => MathF.Abs(
+                    bounds.Y + bounds.Height / 2f - (line.Bounds.Y + line.Bounds.Height / 2f))))
+            .ThenBy(link => (link.QuadBounds.Count == 0 ? [link.Bounds] : link.QuadBounds)
+                .Min(static bounds => bounds.Width * bounds.Height))
+            .FirstOrDefault();
+    }
+
+    private static bool TryCreateDocumentIndexElement(
+        PdfLayoutPage page,
+        LineCandidate heading,
+        PdfSemanticDocumentIndexKind kind,
+        IReadOnlyList<RawDocumentIndexItem> rawItems,
+        float bodyFontSize,
+        out PdfSemanticElement element)
+    {
+        element = null!;
+        if (rawItems.Count < 2 || !AssignDocumentIndexIndentationLevels(rawItems))
+        {
+            return false;
+        }
+
+        float medianPageRight = rawItems
+            .Select(static item => item.PageRight)
+            .Order()
+            .ElementAt(rawItems.Count / 2);
+        float rightTolerance = MathF.Max(12f, bodyFontSize * 1.5f);
+        int alignedPageNumbers = rawItems.Count(item =>
+            MathF.Abs(item.PageRight - medianPageRight) <= rightTolerance);
+        if (medianPageRight < page.Width * 0.60f ||
+            alignedPageNumbers < (int)MathF.Ceiling(rawItems.Count * 0.75f) ||
+            !TryBuildDocumentIndexItems(rawItems, out PdfSemanticDocumentIndexItem[] items))
+        {
+            return false;
+        }
+
+        PdfSemanticLine[] sourceLines =
+        [
+            heading.SemanticLine,
+            .. rawItems.Select(static item => item.Line.SemanticLine)
+        ];
+        PdfSemanticDocumentIndex documentIndex = new(
+            kind,
+            NormalizeDocumentIndexLabel(heading.Text).TrimEnd(':'),
+            [heading.SemanticLine],
+            items);
+        element = new PdfSemanticElement(
+            PdfSemanticElementKind.Navigation,
+            string.Join(
+                Environment.NewLine,
+                new[] { documentIndex.Heading }
+                    .Concat(rawItems.Select(static item => $"{item.Label} {item.PageLabel}"))),
+            PdfLayoutRectangle.Union(sourceLines.Select(static line => line.Bounds)),
+            sourceLines,
+            headingLevel: HeadingLevel(heading, bodyFontSize),
+            documentIndex: documentIndex);
+        return true;
+    }
+
+    private static bool AssignDocumentIndexIndentationLevels(IReadOnlyList<RawDocumentIndexItem> items)
+    {
+        List<float> anchors = [];
+        foreach (RawDocumentIndexItem item in items)
+        {
+            float tolerance = MathF.Max(5f, item.Line.FontSize * 0.55f);
+            int anchorIndex = anchors.FindIndex(anchor => MathF.Abs(anchor - item.AnchorX) <= tolerance);
+            if (anchorIndex < 0)
+            {
+                anchors.Add(item.AnchorX);
+            }
+            else
+            {
+                anchors[anchorIndex] = (anchors[anchorIndex] + item.AnchorX) / 2f;
+            }
+        }
+
+        anchors.Sort();
+        if (anchors.Count > 6)
+        {
+            return false;
+        }
+
+        foreach (RawDocumentIndexItem item in items)
+        {
+            item.Level = anchors
+                .Select((anchor, index) => new { Index = index, Distance = MathF.Abs(anchor - item.AnchorX) })
+                .OrderBy(static match => match.Distance)
+                .First()
+                .Index;
+        }
+
+        return items[0].Level == 0 &&
+            items.Skip(1).Select((item, index) => item.Level <= items[index].Level + 1).All(static valid => valid);
+    }
+
+    private static bool TryBuildDocumentIndexItems(
+        IReadOnlyList<RawDocumentIndexItem> rawItems,
+        out PdfSemanticDocumentIndexItem[] items)
+    {
+        List<RawDocumentIndexItem> roots = [];
+        List<RawDocumentIndexItem> stack = [];
+        foreach (RawDocumentIndexItem item in rawItems)
+        {
+            if (item.Level > stack.Count)
+            {
+                items = [];
+                return false;
+            }
+
+            if (stack.Count > item.Level)
+            {
+                stack.RemoveRange(item.Level, stack.Count - item.Level);
+            }
+
+            if (item.Level == 0)
+            {
+                roots.Add(item);
+            }
+            else
+            {
+                stack[^1].Children.Add(item);
+            }
+
+            stack.Add(item);
+        }
+
+        items = roots.Select(CreateDocumentIndexItem).ToArray();
+        return items.Length > 0;
+    }
+
+    private static PdfSemanticDocumentIndexItem CreateDocumentIndexItem(RawDocumentIndexItem item)
+    {
+        return new PdfSemanticDocumentIndexItem(
+            item.Label,
+            item.PageLabel,
+            item.Line.Bounds,
+            [item.Line.SemanticLine],
+            item.Link,
+            item.Children.Select(CreateDocumentIndexItem).ToArray());
     }
 
     private static IEnumerable<PdfSemanticElement> ExtractParagraphs(
@@ -4435,6 +4806,41 @@ public static class PdfSemanticExtractor
 
         public bool IsBold =>
             IsBoldFontName(FontName);
+    }
+
+    private sealed class RawDocumentIndexItem
+    {
+        public RawDocumentIndexItem(
+            LineCandidate line,
+            string label,
+            string pageLabel,
+            float anchorX,
+            float pageRight,
+            PdfLayoutLink? link)
+        {
+            Line = line;
+            Label = label;
+            PageLabel = pageLabel;
+            AnchorX = anchorX;
+            PageRight = pageRight;
+            Link = link;
+        }
+
+        public LineCandidate Line { get; }
+
+        public string Label { get; }
+
+        public string PageLabel { get; }
+
+        public float AnchorX { get; }
+
+        public float PageRight { get; }
+
+        public PdfLayoutLink? Link { get; }
+
+        public int Level { get; set; }
+
+        public List<RawDocumentIndexItem> Children { get; } = [];
     }
 
     private sealed class RawListItem

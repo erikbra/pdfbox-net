@@ -220,6 +220,105 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_TableOfContents_CreatesNestedNavigationAndResolvedDestinations()
+    {
+        PdfLayoutDocument layout = CreateDocumentIndexFixture(
+            "Table of Contents",
+            [
+                CreateFixtureLine("1. Introduction ........................ 1", 72f, 104f, 468f, 11f),
+                CreateFixtureLine("1.1. Scope .............................. 2", 96f, 120f, 444f, 11f),
+                CreateFixtureLine("Appendix A. Controls .................. A-1", 72f, 136f, 468f, 11f),
+                CreateFixtureLine("A.1. Exceptions ....................... A-2", 96f, 152f, 444f, 11f)
+            ],
+            [
+                CreateDocumentIndexLink(0, 100f, 2),
+                CreateDocumentIndexLink(1, 116f, 3),
+                CreateDocumentIndexLink(2, 132f, 8),
+                CreateDocumentIndexLink(3, 148f, 9)
+            ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement element = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Navigation);
+        PdfSemanticDocumentIndex documentIndex = Assert.IsType<PdfSemanticDocumentIndex>(element.DocumentIndex);
+        Assert.Equal(PdfSemanticDocumentIndexKind.TableOfContents, documentIndex.Kind);
+        Assert.Equal("Table of Contents", documentIndex.Heading);
+        Assert.Equal(2, documentIndex.Items.Count);
+        Assert.Equal("1. Introduction", documentIndex.Items[0].Label);
+        Assert.Equal("1", documentIndex.Items[0].PageLabel);
+        Assert.Equal(2, documentIndex.Items[0].Link?.DestinationPageNumber);
+        PdfSemanticDocumentIndexItem scope = Assert.Single(documentIndex.Items[0].Children);
+        Assert.Equal("1.1. Scope", scope.Label);
+        Assert.Equal("2", scope.PageLabel);
+        Assert.Equal(3, scope.Link?.DestinationPageNumber);
+        Assert.Equal("Appendix A. Controls", documentIndex.Items[1].Label);
+        PdfSemanticDocumentIndexItem appendixEntry = Assert.Single(documentIndex.Items[1].Children);
+        Assert.Equal("A.1. Exceptions", appendixEntry.Label);
+        Assert.Equal("A-2", appendixEntry.PageLabel);
+        Assert.DoesNotContain("...", element.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain(page.Elements, static element => element.Kind == PdfSemanticElementKind.List);
+    }
+
+    [Theory]
+    [InlineData("List of Figures", PdfSemanticDocumentIndexKind.ListOfFigures, "Figure")]
+    [InlineData("List of Tables", PdfSemanticDocumentIndexKind.ListOfTables, "Table")]
+    public void Extract_FigureAndTableIndexes_UseFlexibleGapAndSharedNavigationPattern(
+        string heading,
+        PdfSemanticDocumentIndexKind expectedKind,
+        string entryKind)
+    {
+        PdfLayoutDocument layout = CreateDocumentIndexFixture(
+            heading,
+            [
+                CreateDocumentIndexGapFixtureLine($"{entryKind} 1. System overview", "4", 72f, 104f),
+                CreateDocumentIndexGapFixtureLine($"{entryKind} 2. Data flow", "9", 72f, 120f)
+            ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticDocumentIndex documentIndex = Assert.IsType<PdfSemanticDocumentIndex>(
+            Assert.Single(page.Elements, static element =>
+                element.Kind == PdfSemanticElementKind.Navigation).DocumentIndex);
+        Assert.Equal(expectedKind, documentIndex.Kind);
+        Assert.Equal(2, documentIndex.Items.Count);
+        Assert.Equal($"{entryKind} 1. System overview", documentIndex.Items[0].Label);
+        Assert.Equal(["4", "9"], documentIndex.Items.Select(static item => item.PageLabel));
+    }
+
+    [Fact]
+    public void Extract_TableOfContentsHeading_DoesNotPromoteArbitraryLinkList()
+    {
+        PdfLayoutDocument layout = CreateDocumentIndexFixture(
+            "Table of Contents",
+            [
+                CreateFixtureLine("Project documentation", 72f, 104f, 220f, 11f),
+                CreateFixtureLine("API examples", 72f, 120f, 160f, 11f),
+                CreateFixtureLine("Release notes", 72f, 136f, 150f, 11f)
+            ],
+            [
+                new PdfLayoutLink(
+                    0,
+                    new PdfLayoutRectangle(68f, 100f, 228f, 14f),
+                    PdfLayoutLinkKind.Uri,
+                    "https://example.com/docs",
+                    null,
+                    null,
+                    []),
+                new PdfLayoutLink(
+                    1,
+                    new PdfLayoutRectangle(68f, 116f, 168f, 14f),
+                    PdfLayoutLinkKind.Uri,
+                    "https://example.com/examples",
+                    null,
+                    null,
+                    [])
+            ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.DoesNotContain(page.Elements, static element => element.Kind == PdfSemanticElementKind.Navigation);
+    }
+
+    [Fact]
     public void Extract_AlphabeticAndRomanLists_UsesMarkerSequenceEvidence()
     {
         PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
@@ -797,6 +896,38 @@ public sealed class PdfSemanticExtractorTest
         return new PdfLayoutDocument([page], []);
     }
 
+    private static PdfLayoutDocument CreateDocumentIndexFixture(
+        string heading,
+        IReadOnlyList<PdfTextLine> entries,
+        IReadOnlyList<PdfLayoutLink>? links = null)
+    {
+        PdfTextLine[] lines =
+        [
+            CreateFixtureLine(heading, 72f, 72f, 220f, 14f, "Times-Bold"),
+            .. entries
+        ];
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            [],
+            [],
+            links ?? [],
+            []);
+        return new PdfLayoutDocument([page], []);
+    }
+
     private static PdfTextLine CreateCompositeFixtureLine(
         float y,
         params (string Text, float X, float Width, string FontName)[] segments)
@@ -843,6 +974,38 @@ public sealed class PdfSemanticExtractorTest
             null,
             stroke,
             null);
+    }
+
+    private static PdfTextLine CreateDocumentIndexGapFixtureLine(
+        string label,
+        string pageLabel,
+        float x,
+        float y)
+    {
+        const float fontSize = 11f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfLayoutRectangle labelBounds = new(x, y, 180f, 8.25f);
+        PdfTextGlyph labelGlyph = new(label, "Times-Roman", fontSize, 0f, labelBounds, color);
+        PdfTextRun labelRun = new(label, "Times-Roman", fontSize, 0f, labelBounds, color, [labelGlyph]);
+        PdfLayoutRectangle pageBounds = new(528f, y, 12f, 8.25f);
+        PdfTextGlyph pageGlyph = new(pageLabel, "Times-Roman", fontSize, 0f, pageBounds, color);
+        PdfTextRun pageRun = new(pageLabel, "Times-Roman", fontSize, 0f, pageBounds, color, [pageGlyph]);
+        return new PdfTextLine(
+            $"{label} {pageLabel}",
+            new PdfLayoutRectangle(x, y, 540f - x, 8.25f),
+            [labelRun, pageRun]);
+    }
+
+    private static PdfLayoutLink CreateDocumentIndexLink(int index, float y, int destinationPageNumber)
+    {
+        return new PdfLayoutLink(
+            index,
+            new PdfLayoutRectangle(68f, y, 476f, 14f),
+            PdfLayoutLinkKind.Destination,
+            null,
+            $"page:{destinationPageNumber}",
+            destinationPageNumber,
+            []);
     }
 
     private static PdfTextLine CreateStyledFixtureLine(

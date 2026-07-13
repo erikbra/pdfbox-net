@@ -877,6 +877,100 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsLabelledNestedDocumentNavigationWithCssLeaders()
+    {
+        PdfLayoutDocument layout = CreateDocumentIndexLayoutFixture(includeImages: false);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement navigation = Assert.Single(dom.Descendants("nav"), element =>
+            HasClass(element, "pdf-semantic-document-index"));
+        XElement heading = Assert.Single(navigation.Elements(), element =>
+            element.Name.LocalName.StartsWith("h", StringComparison.Ordinal));
+        Assert.Equal("Table of Contents", heading.Value);
+        Assert.Equal(heading.Attribute("id")?.Value, navigation.Attribute("aria-labelledby")?.Value);
+
+        XElement rootList = Assert.Single(navigation.Elements("ol"));
+        XElement[] rootItems = rootList.Elements("li").ToArray();
+        Assert.Equal(2, rootItems.Length);
+        Assert.Single(rootItems[0].Elements("ol"));
+        Assert.Single(rootItems[1].Elements("ol"));
+        XElement[] pageNumbers = ElementsByClass(dom, "pdf-semantic-document-index-page-number").ToArray();
+        Assert.Equal(["1", "2", "A-1", "A-2"], pageNumbers.Select(static element => element.Value));
+        Assert.All(ElementsByClass(dom, "pdf-semantic-document-index-leader"), leader =>
+        {
+            Assert.Empty(leader.Value);
+            Assert.Equal("true", leader.Attribute("aria-hidden")?.Value);
+        });
+        Assert.DoesNotContain("...", navigation.Value, StringComparison.Ordinal);
+
+        XElement firstEntry = Assert.Single(ElementsByClass(dom, "pdf-semantic-document-index-entry"), entry =>
+            entry.Value.Contains("1. Introduction", StringComparison.Ordinal));
+        Assert.Equal("#page-2", firstEntry.Attribute("href")?.Value);
+        Assert.Contains(dom.Descendants(), element => element.Attribute("id")?.Value == "page-2");
+        Assert.All(ElementsByClass(dom, "pdf-semantic-document-index-entry"), entry =>
+            Assert.Null(entry.Attribute("style")));
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+
+        Assert.Contains(
+            "grid-template-columns: auto minmax(1em, 1fr) auto;",
+            html.Css,
+            StringComparison.Ordinal);
+        Assert.Contains("border-bottom: 0.08em dotted currentColor;", html.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_PreservesImageBackedIndexRowsWithSemanticNavigationIsland()
+    {
+        PdfLayoutDocument layout = CreateDocumentIndexLayoutFixture(includeImages: true);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement fallbackPage = Assert.Single(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+        Assert.Equal("1", fallbackPage.Attribute("data-page-number")?.Value);
+        XElement navigation = Assert.Single(dom.Descendants("nav"), element =>
+            HasClass(element, "pdf-semantic-document-index"));
+        Assert.True(HasClass(navigation, "pdf-semantic-document-index-island"));
+        Assert.Equal(
+            layout.Pages[0].Images.Select(static image => image.AssetId),
+            fallbackPage.Descendants("img").Select(image => image.Attribute("data-asset-id")?.Value));
+        Assert.Equal(42, fallbackPage.Descendants("img").Count());
+        Assert.Equal(
+            25,
+            fallbackPage.Descendants("a").Count(element => HasClass(element, "pdf-link-overlay")));
+        Assert.Contains("clip-path: inset(50%);", html.Css, StringComparison.Ordinal);
+        Assert.Contains("position: absolute;", html.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_UnrelatedIndexPageGraphicDoesNotTriggerFixedFallback()
+    {
+        PdfLayoutDocument layout = CreateDocumentIndexLayoutFixture(
+            includeImages: false,
+            includeUnrelatedImage: true);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Single(layout.Pages[0].Images);
+        XElement navigation = Assert.Single(dom.Descendants("nav"), element =>
+            HasClass(element, "pdf-semantic-document-index"));
+        Assert.False(HasClass(navigation, "pdf-semantic-document-index-island"));
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_EmitsWrappedBulletItemsAndPreservesInlineFormatting()
     {
         using PDDocument document = CreateTextDocument("""
@@ -4327,6 +4421,128 @@ public class PdfHtmlConverterTest
             [],
             []);
         return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutDocument CreateDocumentIndexLayoutFixture(
+        bool includeImages,
+        bool includeUnrelatedImage = false)
+    {
+        PdfTextLine[] lines =
+        [
+            CreateScientificFixtureLine("Table of Contents", 72f, 72f, 220f, 14f, "Times-Bold"),
+            CreateScientificFixtureLine("1. Introduction ........................ 1", 72f, 104f, 468f, 11f),
+            CreateScientificFixtureLine("1.1. Scope .............................. 2", 96f, 120f, 444f, 11f),
+            CreateScientificFixtureLine("Appendix A. Controls .................. A-1", 72f, 456f, 468f, 11f),
+            CreateScientificFixtureLine("A.1. Exceptions ....................... A-2", 96f, 472f, 444f, 11f)
+        ];
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutImage[] images = includeImages
+            ? Enumerable.Range(0, 42)
+                .Select(index => new PdfLayoutImage(
+                    index,
+                    $"index-row-asset-{index}",
+                    PdfLayoutImageKind.XObject,
+                    new PdfLayoutRectangle(
+                        index % 2 == 0 ? 80f : 112f,
+                        180f + index / 2 * 12f,
+                        index % 2 == 0 ? 20f : 400f,
+                        8f),
+                    new PdfLayoutTransform(
+                        index % 2 == 0 ? 20f : 400f,
+                        0f,
+                        0f,
+                        8f,
+                        index % 2 == 0 ? 80f : 112f,
+                        180f + index / 2 * 12f),
+                    index % 2 == 0 ? 20 : 400,
+                    8,
+                    8,
+                    "DeviceRGB",
+                    false,
+                    null))
+                .ToArray()
+            : includeUnrelatedImage
+                ?
+                [
+                    new PdfLayoutImage(
+                        0,
+                        "index-page-logo",
+                        PdfLayoutImageKind.XObject,
+                        new PdfLayoutRectangle(500f, 24f, 64f, 24f),
+                        new PdfLayoutTransform(64f, 0f, 0f, 24f, 500f, 24f),
+                        64,
+                        24,
+                        8,
+                        "DeviceRGB",
+                        false,
+                        null)
+                ]
+                : [];
+        PdfLayoutLink[] links =
+        [
+            CreateDocumentIndexLayoutLink(0, 100f, 2),
+            CreateDocumentIndexLayoutLink(1, 116f, 2),
+            CreateDocumentIndexLayoutLink(2, 452f, 2),
+            CreateDocumentIndexLayoutLink(3, 468f, 2),
+            .. (includeImages
+                ? Enumerable.Range(0, 21)
+                    .Select(index => CreateDocumentIndexLayoutLink(4 + index, 178f + index * 12f, 2))
+                : Enumerable.Empty<PdfLayoutLink>())
+        ];
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage indexPage = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            images,
+            [],
+            [],
+            links,
+            []);
+        PdfLayoutPage destinationPage = new(
+            2,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        PdfLayoutImageAsset[] imageAssets = images
+            .Select(image => new PdfLayoutImageAsset(
+                image.AssetId,
+                $"assets/images/{image.AssetId}.png",
+                "image/png",
+                [137, 80, 78, 71]))
+            .ToArray();
+        return new PdfLayoutDocument([indexPage, destinationPage], imageAssets, []);
+    }
+
+    private static PdfLayoutLink CreateDocumentIndexLayoutLink(int index, float y, int destinationPageNumber)
+    {
+        return new PdfLayoutLink(
+            index,
+            new PdfLayoutRectangle(68f, y, 476f, 14f),
+            PdfLayoutLinkKind.Destination,
+            null,
+            $"page:{destinationPageNumber}",
+            destinationPageNumber,
+            []);
     }
 
     private static PdfTextLine CreateScientificFixtureLine(
