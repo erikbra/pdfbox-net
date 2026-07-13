@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Playwright;
 using PdfBox.Net.COS;
 using PdfBox.Net.ConversionQuality;
+using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
 
@@ -164,6 +165,35 @@ public sealed class HtmlReviewArtifactGeneratorTest
             () => HtmlReviewArtifactGenerator.ValidateExpectations(example, layout));
 
         Assert.Contains("image placements on page 2 was 0, expected at least 1", exception.Message);
+    }
+
+    [Fact]
+    public void ValidateSemanticExpectations_RequiresExactOrderedListShapeByPage()
+    {
+        HtmlReviewManifestExample example = new()
+        {
+            Id = "semantic-list-expectations",
+            Expectations = new HtmlReviewExpectations
+            {
+                SemanticOrderedListItemCountsByPage = new Dictionary<int, List<int>>
+                {
+                    [1] = [4]
+                }
+            }
+        };
+        PdfHtmlDocument accepted = new(
+            "<html><body><section data-page-number=\"1\"><ol><li>A</li><li>B</li><li>C</li><li>D</li></ol></section></body></html>",
+            "styles.css",
+            "");
+        PdfHtmlDocument rejected = new(
+            "<html><body><section data-page-number=\"1\"><ol><li>A</li><li>B</li><li>C</li></ol></section></body></html>",
+            "styles.css",
+            "");
+
+        HtmlReviewArtifactGenerator.ValidateSemanticExpectations(example, accepted);
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() =>
+            HtmlReviewArtifactGenerator.ValidateSemanticExpectations(example, rejected));
+        Assert.Contains("item counts on page 1 were [3], expected [4]", exception.Message);
     }
 
     [Fact]

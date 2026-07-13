@@ -185,9 +185,14 @@
           "identification",
           "certification"
         ],
-      "minTextRuns": 750,
-      "minVectorPaths": 100,
-      "minFormControls": 20
+        "minTextRuns": 750,
+        "minVectorPaths": 100,
+        "minFormControls": 20,
+        "semanticOrderedListItemCountsByPage": {
+          "1": [
+            4
+          ]
+        }
       }
     },
     {

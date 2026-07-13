@@ -82,6 +82,10 @@ class RemoteCorpusTest(unittest.TestCase):
         w9 = next(item for item in documents if item.id == "irs-w9")
         self.assertEqual(6, w9.quality_pages)
         self.assertEqual(
+            {"1": [4]},
+            w9.expectations["semanticOrderedListItemCountsByPage"],
+        )
+        self.assertEqual(
             {
                 "jmlr-lda": (
                     "https://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf",

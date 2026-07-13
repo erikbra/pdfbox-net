@@ -211,6 +211,31 @@ def _validate_expectations(expectations: dict[str, Any], prefix: str) -> None:
                     f"{prefix} expectations.minImagePlacementsByPage values must be non-negative integers"
                 )
 
+    semantic_lists_by_page = expectations.get("semanticOrderedListItemCountsByPage")
+    if semantic_lists_by_page is not None:
+        if not isinstance(semantic_lists_by_page, dict) or not semantic_lists_by_page:
+            raise ValueError(
+                f"{prefix} expectations.semanticOrderedListItemCountsByPage must be a non-empty object"
+            )
+        for page_number, item_counts in semantic_lists_by_page.items():
+            if not isinstance(page_number, str) or not page_number.isdigit() or int(page_number) < 1:
+                raise ValueError(
+                    f"{prefix} expectations.semanticOrderedListItemCountsByPage keys must be positive page numbers"
+                )
+            if (
+                not isinstance(item_counts, list)
+                or not item_counts
+                or any(
+                    not isinstance(item_count, int)
+                    or isinstance(item_count, bool)
+                    or item_count < 1
+                    for item_count in item_counts
+                )
+            ):
+                raise ValueError(
+                    f"{prefix} expectations.semanticOrderedListItemCountsByPage values must be non-empty positive integer arrays"
+                )
+
 
 def _validate_https_url(value: str, label: str) -> None:
     parsed = urlparse(value)

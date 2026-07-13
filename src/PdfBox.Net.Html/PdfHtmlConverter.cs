@@ -13,6 +13,33 @@ public static class PdfHtmlConverter
 {
     private const float BrowserFontBaselineRatio = 0.8f;
 
+    internal sealed class FallbackSemanticIsland
+    {
+        public FallbackSemanticIsland(
+            PdfSemanticElement element,
+            PdfLayoutRectangle bounds,
+            IReadOnlyList<PdfTextRun> ownedRuns,
+            int firstRunIndex,
+            int lastRunIndex)
+        {
+            Element = element;
+            Bounds = bounds;
+            OwnedRuns = ownedRuns.ToArray();
+            FirstRunIndex = firstRunIndex;
+            LastRunIndex = lastRunIndex;
+        }
+
+        public PdfSemanticElement Element { get; }
+
+        public PdfLayoutRectangle Bounds { get; }
+
+        public IReadOnlyList<PdfTextRun> OwnedRuns { get; }
+
+        public int FirstRunIndex { get; }
+
+        public int LastRunIndex { get; }
+    }
+
     internal readonly record struct FormulaGlyphKey(
         string Text,
         string FontName,
@@ -225,7 +252,7 @@ public static class PdfHtmlConverter
           grid-template-rows: minmax(0, 1fr);
         }
 
-        .pdf-semantic-blockquote.pdf-semantic-fallback-island {
+        .pdf-semantic-element.pdf-semantic-fallback-island {
           align-self: start;
           grid-area: 1 / 1;
           justify-self: start;
@@ -233,6 +260,18 @@ public static class PdfHtmlConverter
           margin: var(--pdf-semantic-island-top) 0 0 var(--pdf-semantic-island-left);
           min-height: var(--pdf-semantic-island-height);
           width: var(--pdf-semantic-island-width);
+        }
+
+        .pdf-semantic-blockquote.pdf-semantic-fallback-island {
+          margin: var(--pdf-semantic-island-top) 0 0 var(--pdf-semantic-island-left);
+        }
+
+        .pdf-semantic-list.pdf-semantic-fallback-island {
+          padding-left: var(--pdf-semantic-island-list-indent, 1.1em);
+        }
+
+        .pdf-semantic-list.pdf-semantic-fallback-island > li {
+          padding-left: 0;
         }
 
         .pdf-semantic-fallback-island > p,
@@ -1599,7 +1638,7 @@ public static class PdfHtmlConverter
         PdfSemanticPage? fallbackSemanticPage = null)
     {
         bool isOcrScanPage = IsRasterScanPageWithOcrText(page);
-        PdfSemanticElement[] fallbackSemanticIslands = FallbackSemanticIslands(fallbackSemanticPage);
+        FallbackSemanticIsland[] fallbackSemanticIslands = FallbackSemanticIslands(page, fallbackSemanticPage);
         html.Append("  <section class=\"pdf-page");
         if (textMode == PdfHtmlTextMode.Semantic)
         {
@@ -1692,13 +1731,26 @@ public static class PdfHtmlConverter
                 ? null
                 : ReconstructFixedRunText(page, inferredTextOptions);
             HashSet<PdfTextRun> semanticIslandRuns = fallbackSemanticIslands
-                .SelectMany(static element => element.Lines)
-                .SelectMany(static line => line.Runs)
-                .ToHashSet();
-            foreach (PdfTextRun run in page.Runs
-                .Where(run => !semanticIslandRuns.Contains(run))
-                .Where(run => !IsCoveredByTransparencyFallback(page, run.PageBounds)))
+                .SelectMany(static island => island.OwnedRuns)
+                .ToHashSet((IEqualityComparer<PdfTextRun>)ReferenceEqualityComparer.Instance);
+            Dictionary<int, FallbackSemanticIsland> semanticIslandsByStart = fallbackSemanticIslands
+                .ToDictionary(static island => island.FirstRunIndex);
+            FootnoteContext? fallbackFootnotes = fallbackSemanticIslands.Length == 0 || fallbackSemanticPage == null
+                ? null
+                : FootnoteContext.Create(page.PageNumber, fallbackSemanticPage.Elements);
+            for (int runIndex = 0; runIndex < page.Runs.Count; runIndex++)
             {
+                if (semanticIslandsByStart.TryGetValue(runIndex, out FallbackSemanticIsland? island))
+                {
+                    WriteFallbackSemanticIsland(html, page, island, fallbackFootnotes!, scale);
+                }
+
+                PdfTextRun run = page.Runs[runIndex];
+                if (semanticIslandRuns.Contains(run) || IsCoveredByTransparencyFallback(page, run.PageBounds))
+                {
+                    continue;
+                }
+
                 WriteTextRun(
                     html,
                     run,
@@ -1708,13 +1760,6 @@ public static class PdfHtmlConverter
                     inferredText?.GetValueOrDefault(run),
                     visuallyHiddenOcr: isOcrScanPage && IsUnpaintedTextRun(run));
             }
-
-            WriteFallbackSemanticIslands(
-                html,
-                page,
-                fallbackSemanticPage,
-                fallbackSemanticIslands,
-                scale);
         }
 
         foreach (PdfLayoutLink link in page.Links)
@@ -1727,67 +1772,325 @@ public static class PdfHtmlConverter
         html.AppendLine("  </section>");
     }
 
-    private static PdfSemanticElement[] FallbackSemanticIslands(PdfSemanticPage? semanticPage)
+    internal static FallbackSemanticIsland[] FallbackSemanticIslands(
+        PdfLayoutPage page,
+        PdfSemanticPage? semanticPage)
     {
-        return semanticPage?.Elements
-            .Where(static element =>
-                element.Kind == PdfSemanticElementKind.BlockQuote &&
-                element.Quotation != null &&
-                element.Lines.Count > 0)
-            .ToArray() ?? [];
+        if (semanticPage == null || IsRasterScanPageWithOcrText(page))
+        {
+            return [];
+        }
+
+        Dictionary<PdfTextRun, int> pageRunIndices = new(ReferenceEqualityComparer.Instance);
+        for (int index = 0; index < page.Runs.Count; index++)
+        {
+            if (!pageRunIndices.TryAdd(page.Runs[index], index))
+            {
+                return [];
+            }
+        }
+
+        Dictionary<PdfTextGlyph, int> pageGlyphOccurrences = new(ReferenceEqualityComparer.Instance);
+        foreach (PdfTextGlyph glyph in page.Glyphs)
+        {
+            pageGlyphOccurrences[glyph] = pageGlyphOccurrences.GetValueOrDefault(glyph) + 1;
+        }
+
+        Dictionary<PdfTextGlyph, int> semanticGlyphOwners = new(ReferenceEqualityComparer.Instance);
+        foreach (PdfSemanticElement element in semanticPage.Elements)
+        {
+            HashSet<PdfTextGlyph> elementGlyphs = element.Lines
+                .SelectMany(static line => line.Runs)
+                .SelectMany(static run => run.Glyphs)
+                .ToHashSet((IEqualityComparer<PdfTextGlyph>)ReferenceEqualityComparer.Instance);
+            foreach (PdfTextGlyph glyph in elementGlyphs)
+            {
+                semanticGlyphOwners[glyph] = semanticGlyphOwners.GetValueOrDefault(glyph) + 1;
+            }
+        }
+
+        List<FallbackSemanticIsland> proven = [];
+        foreach (PdfSemanticElement element in semanticPage.Elements.Where(IsFallbackSemanticIslandCandidate))
+        {
+            if (TryProveFallbackSemanticIsland(
+                page,
+                element,
+                pageRunIndices,
+                pageGlyphOccurrences,
+                semanticGlyphOwners,
+                out FallbackSemanticIsland? island))
+            {
+                proven.Add(island!);
+            }
+        }
+
+        return proven
+            .Where((island, index) => !proven.Where((_, otherIndex) => otherIndex != index)
+                .Any(other => BoundsOverlap(island.Bounds, other.Bounds)))
+            .OrderBy(static island => island.FirstRunIndex)
+            .ToArray();
     }
 
-    private static void WriteFallbackSemanticIslands(
+    private static bool IsFallbackSemanticIslandCandidate(PdfSemanticElement element)
+    {
+        return element.Kind switch
+        {
+            PdfSemanticElementKind.List => element.SemanticList is { Items.Count: > 0 },
+            PdfSemanticElementKind.BlockQuote => element.Quotation != null,
+            _ => false
+        } && element.Lines.Count > 0;
+    }
+
+    private static bool TryProveFallbackSemanticIsland(
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        IReadOnlyDictionary<PdfTextRun, int> pageRunIndices,
+        IReadOnlyDictionary<PdfTextGlyph, int> pageGlyphOccurrences,
+        IReadOnlyDictionary<PdfTextGlyph, int> semanticGlyphOwners,
+        out FallbackSemanticIsland? island)
+    {
+        island = null;
+        if (!TryGetFallbackSemanticIslandLines(element, out PdfSemanticLine[] sourceLines) ||
+            !HasUsableSemanticIslandBounds(element.Bounds, page))
+        {
+            return false;
+        }
+
+        PdfTextRun[] sourceRunSequence = sourceLines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextRun[] ownedRuns = sourceRunSequence
+            .Distinct((IEqualityComparer<PdfTextRun>)ReferenceEqualityComparer.Instance)
+            .ToArray();
+        if (ownedRuns.Length == 0 || ownedRuns.Length != sourceRunSequence.Length ||
+            ownedRuns.Any(static run => run.Glyphs.Count == 0 || MathF.Abs(run.Direction) > 0.01f) ||
+            ownedRuns.Any(run => !pageRunIndices.ContainsKey(run)) ||
+            ownedRuns.Any(run => IsCoveredByTransparencyFallback(page, run.PageBounds)))
+        {
+            return false;
+        }
+
+        PdfTextGlyph[] sourceGlyphSequence = ownedRuns.SelectMany(static run => run.Glyphs).ToArray();
+        HashSet<PdfTextGlyph> ownedGlyphs = sourceGlyphSequence
+            .ToHashSet((IEqualityComparer<PdfTextGlyph>)ReferenceEqualityComparer.Instance);
+        if (ownedGlyphs.Count != sourceGlyphSequence.Length ||
+            ownedGlyphs.Any(static glyph => !glyph.IsPainted) ||
+            ownedGlyphs.Any(glyph => pageGlyphOccurrences.GetValueOrDefault(glyph) != 1) ||
+            ownedGlyphs.Any(glyph => semanticGlyphOwners.GetValueOrDefault(glyph) != 1))
+        {
+            return false;
+        }
+
+        int[] runIndices = ownedRuns.Select(run => pageRunIndices[run]).Order().ToArray();
+        if (runIndices[^1] - runIndices[0] + 1 != runIndices.Length)
+        {
+            return false;
+        }
+
+        PdfLayoutRectangle sourceBounds = UnionRectangles(ownedRuns.Select(static run => run.Bounds));
+        if (!HasUsableSemanticIslandBounds(sourceBounds, page) ||
+            ownedRuns.Any(run => !RectangleContainsWithTolerance(element.Bounds, run.Bounds, 0.75f)))
+        {
+            return false;
+        }
+
+        HashSet<PdfTextRun> ownedRunSet = ownedRuns
+            .ToHashSet((IEqualityComparer<PdfTextRun>)ReferenceEqualityComparer.Instance);
+        if (page.Runs.Any(run => !ownedRunSet.Contains(run) &&
+                RectangleIntersectionArea(run.Bounds, sourceBounds) > 0.1f) ||
+            page.FormControls.Any(control => RectangleIntersectionArea(control.Bounds, sourceBounds) > 0.1f) ||
+            page.Links.SelectMany(LinkBounds)
+                .Any(bounds => RectangleIntersectionArea(bounds, sourceBounds) > 0.1f))
+        {
+            return false;
+        }
+
+        island = new FallbackSemanticIsland(
+            element,
+            sourceBounds,
+            ownedRuns,
+            runIndices[0],
+            runIndices[^1]);
+        return true;
+    }
+
+    private static bool TryGetFallbackSemanticIslandLines(
+        PdfSemanticElement element,
+        out PdfSemanticLine[] sourceLines)
+    {
+        sourceLines = element.Lines.ToArray();
+        if (element.Kind != PdfSemanticElementKind.List || element.SemanticList == null)
+        {
+            return element.Kind == PdfSemanticElementKind.BlockQuote && element.Quotation != null;
+        }
+
+        PdfSemanticLine[] structuredLines = SemanticListSourceLines(element.SemanticList).ToArray();
+        return structuredLines.Length == sourceLines.Length &&
+            structuredLines.Zip(sourceLines, ReferenceEquals).All(static matches => matches);
+    }
+
+    private static IEnumerable<PdfSemanticLine> SemanticListSourceLines(PdfSemanticList list)
+    {
+        foreach (PdfSemanticListItem item in list.Items)
+        {
+            foreach (PdfSemanticLine line in item.Lines)
+            {
+                yield return line;
+            }
+
+            foreach (PdfSemanticList nestedList in item.NestedLists)
+            {
+                foreach (PdfSemanticLine line in SemanticListSourceLines(nestedList))
+                {
+                    yield return line;
+                }
+            }
+        }
+    }
+
+    private static bool HasUsableSemanticIslandBounds(PdfLayoutRectangle bounds, PdfLayoutPage page)
+    {
+        return float.IsFinite(bounds.X) &&
+            float.IsFinite(bounds.Y) &&
+            float.IsFinite(bounds.Width) &&
+            float.IsFinite(bounds.Height) &&
+            bounds.Width > 0.5f &&
+            bounds.Height > 0.5f &&
+            bounds.X >= -0.5f &&
+            bounds.Y >= -0.5f &&
+            bounds.Right <= page.Width + 0.5f &&
+            bounds.Bottom <= page.Height + 0.5f;
+    }
+
+    private static bool RectangleContainsWithTolerance(
+        PdfLayoutRectangle outer,
+        PdfLayoutRectangle inner,
+        float tolerance)
+    {
+        return inner.X >= outer.X - tolerance &&
+            inner.Y >= outer.Y - tolerance &&
+            inner.Right <= outer.Right + tolerance &&
+            inner.Bottom <= outer.Bottom + tolerance;
+    }
+
+    private static void WriteFallbackSemanticIsland(
         StringBuilder html,
         PdfLayoutPage page,
-        PdfSemanticPage? semanticPage,
-        IReadOnlyList<PdfSemanticElement> islands,
+        FallbackSemanticIsland island,
+        FootnoteContext footnotes,
         float scale)
     {
-        if (semanticPage == null || islands.Count == 0)
+        PdfSemanticElement element = island.Element;
+        float lineStep = FallbackSemanticIslandLineStep(element);
+        string style = FallbackSemanticIslandStyle(island, lineStep, scale);
+        if (element.Kind == PdfSemanticElementKind.List)
         {
+            WriteSemanticList(
+                html,
+                element,
+                footnotes,
+                page,
+                rootAdditionalClass: "pdf-semantic-fallback-island",
+                rootStyle: style);
             return;
         }
 
-        FootnoteContext footnotes = FootnoteContext.Create(page.PageNumber, semanticPage.Elements);
-        foreach (PdfSemanticElement island in islands)
+        html.Append("    <blockquote class=\"")
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-fallback-island\" style=\"")
+            .Append(style)
+            .Append("\">");
+        WriteSemanticText(html, element, footnotes, page);
+        html.AppendLine("</blockquote>");
+    }
+
+    private static string FallbackSemanticIslandStyle(
+        FallbackSemanticIsland island,
+        float lineStep,
+        float scale)
+    {
+        StringBuilder style = new();
+        style.Append("--pdf-semantic-island-left:")
+            .Append(CssPoints(island.Bounds.X * scale))
+            .Append(";--pdf-semantic-island-top:")
+            .Append(CssPoints(island.Bounds.Y * scale))
+            .Append(";--pdf-semantic-island-width:")
+            .Append(CssPoints(island.Bounds.Width * scale))
+            .Append(";--pdf-semantic-island-height:")
+            .Append(CssPoints(island.Bounds.Height * scale))
+            .Append(";--pdf-semantic-island-line-height:")
+            .Append(CssPoints(lineStep * scale));
+        if (island.Element.SemanticList?.Items.FirstOrDefault() is PdfSemanticListItem firstItem &&
+            TryGetSemanticListBodyIndent(firstItem, out float bodyIndent))
         {
-            float lineStep = FallbackSemanticIslandLineStep(island);
-            html.Append("    <blockquote class=\"")
-                .Append(SemanticClassNames(island, page, allowMeasuredWidth: false))
-                .Append(" pdf-semantic-fallback-island\" style=\"--pdf-semantic-island-left:")
-                .Append(CssPoints(island.Bounds.X * scale))
-                .Append(";--pdf-semantic-island-top:")
-                .Append(CssPoints(island.Bounds.Y * scale))
-                .Append(";--pdf-semantic-island-width:")
-                .Append(CssPoints(island.Bounds.Width * scale))
-                .Append(";--pdf-semantic-island-height:")
-                .Append(CssPoints(island.Bounds.Height * scale))
-                .Append(";--pdf-semantic-island-line-height:")
-                .Append(CssPoints(lineStep * scale))
-                .Append("\">");
-            WriteSemanticText(html, island, footnotes, page);
-            html.AppendLine("</blockquote>");
+            style.Append(";--pdf-semantic-island-list-indent:")
+                .Append(CssPoints(bodyIndent * scale));
         }
+
+        return style.ToString();
+    }
+
+    private static bool TryGetSemanticListBodyIndent(PdfSemanticListItem item, out float bodyIndent)
+    {
+        bodyIndent = 0f;
+        PdfSemanticLine? firstLine = item.Lines.FirstOrDefault();
+        if (firstLine == null || item.MarkerLength <= 0)
+        {
+            return false;
+        }
+
+        int characterIndex = 0;
+        foreach (PdfTextGlyph glyph in firstLine.Runs.SelectMany(static run => run.Glyphs))
+        {
+            int nextCharacterIndex = characterIndex + glyph.Text.Length;
+            if (nextCharacterIndex > item.MarkerLength && !string.IsNullOrWhiteSpace(glyph.Text))
+            {
+                bodyIndent = glyph.Bounds.X - item.Bounds.X;
+                return bodyIndent > 0f && bodyIndent <= MathF.Max(72f, firstLine.DominantFontSize * 6f);
+            }
+
+            characterIndex = nextCharacterIndex;
+        }
+
+        return false;
     }
 
     private static float FallbackSemanticIslandLineStep(PdfSemanticElement element)
     {
-        float[] linePositions = element.Lines
-            .Where(static line => MathF.Abs(line.Direction) < 0.01f)
-            .Select(static line => line.Bounds.Y)
-            .Distinct()
-            .Order()
-            .ToArray();
+        IEnumerable<IReadOnlyList<PdfSemanticLine>> lineGroups = element.SemanticList == null
+            ? [element.Lines]
+            : SemanticListLineGroups(element.SemanticList);
         float minimumLineStep = MathF.Max(1f, SemanticFontSize(element) * 1.18f);
-        float[] gaps = linePositions
-            .Zip(linePositions.Skip(1), static (first, second) => second - first)
+        float[] gaps = lineGroups
+            .SelectMany(static lines =>
+            {
+                float[] positions = lines
+                    .Where(static line => MathF.Abs(line.Direction) < 0.01f)
+                    .Select(static line => line.Bounds.Y)
+                    .Distinct()
+                    .Order()
+                    .ToArray();
+                return positions.Zip(positions.Skip(1), static (first, second) => second - first);
+            })
             .Where(gap => gap >= minimumLineStep * 0.75f && gap <= minimumLineStep * 3f)
             .Order()
             .ToArray();
         return gaps.Length == 0
             ? minimumLineStep
             : MathF.Max(minimumLineStep, gaps[gaps.Length / 2]);
+    }
+
+    private static IEnumerable<IReadOnlyList<PdfSemanticLine>> SemanticListLineGroups(PdfSemanticList list)
+    {
+        foreach (PdfSemanticListItem item in list.Items)
+        {
+            yield return item.Lines;
+            foreach (PdfSemanticList nestedList in item.NestedLists)
+            {
+                foreach (IReadOnlyList<PdfSemanticLine> lines in SemanticListLineGroups(nestedList))
+                {
+                    yield return lines;
+                }
+            }
+        }
     }
 
     private static IReadOnlyDictionary<PdfTextRun, string> ReconstructFixedRunText(
@@ -7057,9 +7360,20 @@ public static class PdfHtmlConverter
         StringBuilder html,
         PdfSemanticElement element,
         FootnoteContext footnotes,
-        PdfLayoutPage? page)
+        PdfLayoutPage? page,
+        string? rootAdditionalClass = null,
+        string? rootStyle = null)
     {
-        WriteSemanticList(html, element.SemanticList!, element, footnotes, page, 6, isRoot: true);
+        WriteSemanticList(
+            html,
+            element.SemanticList!,
+            element,
+            footnotes,
+            page,
+            6,
+            isRoot: true,
+            rootAdditionalClass,
+            rootStyle);
     }
 
     private static void WriteSemanticList(
@@ -7069,7 +7383,9 @@ public static class PdfHtmlConverter
         FootnoteContext footnotes,
         PdfLayoutPage? page,
         int indentation,
-        bool isRoot)
+        bool isRoot,
+        string? rootAdditionalClass = null,
+        string? rootStyle = null)
     {
         string tagName = list.Kind == PdfSemanticListKind.Ordered ? "ol" : "ul";
         html.Append(' ', indentation)
@@ -7082,8 +7398,21 @@ public static class PdfHtmlConverter
                 .Append(' ');
         }
 
-        html.Append("pdf-semantic-list\"");
+        html.Append("pdf-semantic-list");
+        if (isRoot && !string.IsNullOrWhiteSpace(rootAdditionalClass))
+        {
+            html.Append(' ').Append(rootAdditionalClass);
+        }
+
+        html.Append('"');
         AppendTextDirectionAttribute(html, element.Text);
+        if (isRoot && !string.IsNullOrWhiteSpace(rootStyle))
+        {
+            html.Append(" style=\"")
+                .Append(HtmlAttribute(rootStyle))
+                .Append('"');
+        }
+
         if (list.Kind == PdfSemanticListKind.Ordered)
         {
             string? type = OrderedListType(list.MarkerKind);
