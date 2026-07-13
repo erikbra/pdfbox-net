@@ -631,6 +631,70 @@ public static class PdfHtmlConverter
           margin: 2pt 0 0;
         }
 
+        .pdf-semantic-document-index {
+          margin: 0 0 12pt;
+        }
+
+        .pdf-semantic-document-index-island {
+          border: 0;
+          clip: rect(0 0 0 0);
+          clip-path: inset(50%);
+          height: 1px;
+          margin: -1px;
+          overflow: hidden;
+          padding: 0;
+          position: absolute;
+          white-space: nowrap;
+          width: 1px;
+        }
+
+        .pdf-semantic-document-index-heading {
+          margin: 0 0 8pt;
+        }
+
+        .pdf-semantic-document-index-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+
+        .pdf-semantic-document-index-list .pdf-semantic-document-index-list {
+          margin: 2pt 0 0 1.5em;
+        }
+
+        .pdf-semantic-document-index-item {
+          margin: 0 0 2pt;
+        }
+
+        .pdf-semantic-document-index-entry {
+          align-items: baseline;
+          color: inherit;
+          column-gap: 0.35em;
+          display: grid;
+          grid-template-columns: auto minmax(1em, 1fr) auto;
+          line-height: 1.18;
+          min-width: 0;
+          text-decoration: none;
+        }
+
+        .pdf-semantic-document-index-label {
+          min-width: 0;
+        }
+
+        .pdf-semantic-document-index-leader {
+          align-self: baseline;
+          border-bottom: 0.08em dotted currentColor;
+          height: 0.7em;
+          min-width: 1em;
+          opacity: 0.65;
+        }
+
+        .pdf-semantic-document-index-page-number {
+          font-variant-numeric: tabular-nums;
+          text-align: right;
+          white-space: nowrap;
+        }
+
         .pdf-semantic-link,
         .pdf-semantic-auto-link {
           color: inherit;
@@ -2805,6 +2869,16 @@ public static class PdfHtmlConverter
                     PdfHtmlTextMode.FixedLayout,
                     additionalClass: "pdf-semantic-layout-fallback-page",
                     inferredTextOptions: semanticOptions);
+                PdfSemanticElement? documentIndexElement = SemanticDocumentIndexElement(context.SemanticPage);
+                if (documentIndexElement != null)
+                {
+                    WriteSemanticDocumentIndex(
+                        html,
+                        documentIndexElement,
+                        context.Page,
+                        isVisualPreservationIsland: true);
+                }
+
                 continue;
             }
 
@@ -3018,6 +3092,16 @@ public static class PdfHtmlConverter
             return true;
         }
 
+        if (RequiresDocumentIndexVisualPreservation(page, semanticPage))
+        {
+            return true;
+        }
+
+        if (SemanticDocumentIndexElement(semanticPage) != null)
+        {
+            return false;
+        }
+
         if (lineGrid != null || columns != null)
         {
             return false;
@@ -3061,6 +3145,76 @@ public static class PdfHtmlConverter
 
         return semanticPage.Elements.Count <= 1 &&
             PageContentTop(page) > page.Height * 0.14f;
+    }
+
+    private static bool RequiresDocumentIndexVisualPreservation(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage)
+    {
+        PdfSemanticElement? navigation = SemanticDocumentIndexElement(semanticPage);
+        if (navigation?.DocumentIndex == null)
+        {
+            return false;
+        }
+
+        PdfSemanticDocumentIndexItem[] items = FlattenDocumentIndexItems(navigation.DocumentIndex.Items).ToArray();
+        HashSet<int> representedLinkIndexes = items
+            .Where(static item => item.Link != null)
+            .Select(static item => item.Link!.Index)
+            .ToHashSet();
+
+        // Some index rows have no extractable text, but retain a row-sized destination
+        // annotation over localized image or vector fragments. Preserve the source page
+        // only when those unresolved linked rows are present; unrelated graphics do not
+        // make an otherwise complete semantic index absolute.
+        return page.Links
+            .Where(static link => link.Kind == PdfLayoutLinkKind.Destination)
+            .Where(HasSemanticLinkTarget)
+            .Where(link => !representedLinkIndexes.Contains(link.Index))
+            .SelectMany(LinkBounds)
+            .Where(bounds => RectanglesIntersect(bounds, navigation.Bounds, 1f))
+            .Where(bounds => !items.Any(item => RectangleIntersectionArea(bounds, item.Bounds) > 0.25f))
+            .Any(bounds => HasLocalizedDocumentIndexRowGraphic(page, bounds));
+    }
+
+    private static IEnumerable<PdfSemanticDocumentIndexItem> FlattenDocumentIndexItems(
+        IReadOnlyList<PdfSemanticDocumentIndexItem> items)
+    {
+        foreach (PdfSemanticDocumentIndexItem item in items)
+        {
+            yield return item;
+            foreach (PdfSemanticDocumentIndexItem child in FlattenDocumentIndexItems(item.Children))
+            {
+                yield return child;
+            }
+        }
+    }
+
+    private static bool HasLocalizedDocumentIndexRowGraphic(
+        PdfLayoutPage page,
+        PdfLayoutRectangle rowBounds)
+    {
+        return page.Images.Any(image => IsLocalizedDocumentIndexRowGraphic(VisibleImageBounds(image), rowBounds)) ||
+            page.Paths.Any(path => IsLocalizedDocumentIndexRowGraphic(path.Bounds, rowBounds)) ||
+            page.Shadings.Any(shading => IsLocalizedDocumentIndexRowGraphic(shading.Bounds, rowBounds)) ||
+            page.VectorGroups.Any(group => IsLocalizedDocumentIndexRowGraphic(group.Bounds, rowBounds));
+    }
+
+    private static bool IsLocalizedDocumentIndexRowGraphic(
+        PdfLayoutRectangle graphicBounds,
+        PdfLayoutRectangle rowBounds)
+    {
+        return graphicBounds.Width > 0.5f &&
+            graphicBounds.Height >= 0f &&
+            graphicBounds.Width <= rowBounds.Width * 1.25f &&
+            graphicBounds.Height <= MathF.Max(24f, rowBounds.Height * 1.75f) &&
+            RectanglesIntersect(graphicBounds, rowBounds, 1f);
+    }
+
+    private static PdfSemanticElement? SemanticDocumentIndexElement(PdfSemanticPage semanticPage)
+    {
+        return semanticPage.Elements.FirstOrDefault(static element =>
+            element.Kind == PdfSemanticElementKind.Navigation && element.DocumentIndex != null);
     }
 
     private static bool IsRasterScanPageWithOcrText(PdfLayoutPage page)
@@ -5690,6 +5844,12 @@ public static class PdfHtmlConverter
             return;
         }
 
+        if (element.Kind == PdfSemanticElementKind.Navigation && element.DocumentIndex != null)
+        {
+            WriteSemanticDocumentIndex(html, element, page);
+            return;
+        }
+
         string tagName = SemanticTagName(element);
         html.Append("      <")
             .Append(tagName)
@@ -5843,6 +6003,118 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("</li>");
+    }
+
+    private static void WriteSemanticDocumentIndex(
+        StringBuilder html,
+        PdfSemanticElement element,
+        PdfLayoutPage? page,
+        bool isVisualPreservationIsland = false)
+    {
+        PdfSemanticDocumentIndex documentIndex = element.DocumentIndex!;
+        string indexToken = DocumentIndexKindToken(documentIndex.Kind);
+        string headingId = "pdf-document-index-" +
+            (page?.PageNumber ?? 0).ToString(CultureInfo.InvariantCulture) +
+            "-" + indexToken;
+        int headingLevel = Math.Clamp(element.HeadingLevel, 1, 6);
+        PdfSemanticElement headingElement = new(
+            PdfSemanticElementKind.Heading,
+            documentIndex.Heading,
+            UnionRectangles(documentIndex.HeadingLines.Select(static line => line.Bounds)),
+            documentIndex.HeadingLines,
+            headingLevel);
+
+        html.Append("      <nav class=\"")
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-document-index");
+        if (isVisualPreservationIsland)
+        {
+            html.Append(" pdf-semantic-document-index-island");
+        }
+
+        html.Append("\" aria-labelledby=\"")
+            .Append(HtmlAttribute(headingId))
+            .AppendLine("\">");
+        html.Append("        <h")
+            .Append(headingLevel.ToString(CultureInfo.InvariantCulture))
+            .Append(" id=\"")
+            .Append(HtmlAttribute(headingId))
+            .Append("\" class=\"")
+            .Append(SemanticClassNames(headingElement, page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-document-index-heading\">")
+            .Append(Html(documentIndex.Heading))
+            .Append("</h")
+            .Append(headingLevel.ToString(CultureInfo.InvariantCulture))
+            .AppendLine(">");
+        WriteSemanticDocumentIndexItems(html, documentIndex.Items, 8);
+        html.AppendLine("      </nav>");
+    }
+
+    private static void WriteSemanticDocumentIndexItems(
+        StringBuilder html,
+        IReadOnlyList<PdfSemanticDocumentIndexItem> items,
+        int indentation)
+    {
+        html.Append(' ', indentation)
+            .AppendLine("<ol class=\"pdf-semantic-document-index-list\">");
+        foreach (PdfSemanticDocumentIndexItem item in items)
+        {
+            WriteSemanticDocumentIndexItem(html, item, indentation + 2);
+        }
+
+        html.Append(' ', indentation).AppendLine("</ol>");
+    }
+
+    private static void WriteSemanticDocumentIndexItem(
+        StringBuilder html,
+        PdfSemanticDocumentIndexItem item,
+        int indentation)
+    {
+        html.Append(' ', indentation)
+            .AppendLine("<li class=\"pdf-semantic-document-index-item\">");
+        html.Append(' ', indentation + 2);
+        if (item.Link != null)
+        {
+            html.Append("<a class=\"pdf-semantic-document-index-entry\" href=\"")
+                .Append(HtmlAttribute(LinkHref(item.Link)))
+                .Append("\" data-link-kind=\"")
+                .Append(HtmlAttribute(item.Link.Kind.ToString().ToLowerInvariant()))
+                .Append('"');
+        }
+        else
+        {
+            html.Append("<span class=\"pdf-semantic-document-index-entry\"");
+        }
+
+        AppendTextDirectionAttribute(html, item.Label);
+        html.Append("><span class=\"pdf-semantic-document-index-label\">")
+            .Append(Html(item.Label))
+            .Append("</span><span class=\"pdf-semantic-document-index-leader\" aria-hidden=\"true\"></span>")
+            .Append("<span class=\"pdf-semantic-document-index-page-number\" aria-label=\"Page ")
+            .Append(HtmlAttribute(item.PageLabel))
+            .Append("\">")
+            .Append(Html(item.PageLabel))
+            .Append("</span></")
+            .Append(item.Link != null ? "a" : "span")
+            .AppendLine(">");
+
+        if (item.Children.Count > 0)
+        {
+            WriteSemanticDocumentIndexItems(html, item.Children, indentation + 2);
+        }
+
+        html.Append(' ', indentation).AppendLine("</li>");
+    }
+
+    private static string DocumentIndexKindToken(PdfSemanticDocumentIndexKind kind)
+    {
+        return kind switch
+        {
+            PdfSemanticDocumentIndexKind.TableOfContents => "contents",
+            PdfSemanticDocumentIndexKind.ListOfFigures => "figures",
+            PdfSemanticDocumentIndexKind.ListOfTables => "tables",
+            _ => "navigation"
+        };
     }
 
     private static void TrimLeadingCharacters(List<InlineTextSegment> segments, int characterCount)
@@ -9162,6 +9434,7 @@ public static class PdfHtmlConverter
             PdfSemanticElementKind.Heading => "pdf-semantic-heading",
             PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
             PdfSemanticElementKind.List => "pdf-semantic-list-element",
+            PdfSemanticElementKind.Navigation => "pdf-semantic-navigation",
             PdfSemanticElementKind.Table => "pdf-semantic-table",
             PdfSemanticElementKind.AuthorBlock => "pdf-semantic-author-block",
             PdfSemanticElementKind.FrontMatter => "pdf-semantic-front-matter",
