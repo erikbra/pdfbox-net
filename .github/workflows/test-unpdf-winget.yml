@@ -64,6 +64,6 @@ jobs:
             exit 0
           }
           winget uninstall --manifest artifacts/winget-manifests `
-            --disable-interactivity
+            --accept-source-agreements --disable-interactivity
           $command = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links\unpdf.exe"
           if (Test-Path $command) { throw "WinGet left the unpdf command link after uninstall" }
