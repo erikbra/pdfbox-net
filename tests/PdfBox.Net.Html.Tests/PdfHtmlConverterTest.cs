@@ -1828,6 +1828,86 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public async Task Convert_SemanticCode_UsesNativeWhitespaceAndBrowserSelectionText()
+    {
+        const string sourceCode = "LOAD  R0, [R1]\nSTORE R0, [R2]\n  ADD R0, #1";
+        PdfLayoutDocument layout = CreateSemanticHtmlFixture(CreateSemanticCodeFixtureLines());
+        PdfSemanticElement semanticCode = Assert.Single(
+            PdfSemanticExtractor.Extract(layout).Elements,
+            static element => element.Kind == PdfSemanticElementKind.CodeBlock);
+        Assert.Equal(sourceCode, semanticCode.Text);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement pre = Assert.Single(dom.Descendants("pre"), element =>
+            HasClass(element, "pdf-semantic-code-block"));
+        XElement blockCode = Assert.Single(pre.Elements("code"));
+        Assert.Equal(sourceCode, blockCode.Value);
+        Assert.Empty(pre.Descendants("span"));
+        Assert.DoesNotContain(pre.DescendantsAndSelf(), element =>
+            element.Attribute("style")?.Value.Contains("position:", StringComparison.Ordinal) == true);
+        XElement inlineCode = Assert.Single(dom.Descendants("code"), element =>
+            HasClass(element, "pdf-semantic-inline-code"));
+        Assert.Equal("gpio_set()", inlineCode.Value);
+        Assert.Contains(".pdf-semantic-code-block > code", html.Css, StringComparison.Ordinal);
+        Assert.Contains("white-space: pre;", html.Css, StringComparison.Ordinal);
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage browserPage = await browser.NewPageAsync();
+        await browserPage.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        string[] browserText = await browserPage.EvaluateAsync<string[]>(
+            """
+            () => {
+              const pre = document.querySelector("pre.pdf-semantic-code-block");
+              const code = pre.querySelector(":scope > code");
+              const range = document.createRange();
+              range.selectNodeContents(code);
+              const selection = getSelection();
+              selection.removeAllRanges();
+              selection.addRange(range);
+              const selectedText = selection.toString();
+              selection.removeAllRanges();
+              return [pre.textContent, code.textContent, selectedText];
+            }
+            """);
+
+        Assert.Equal([sourceCode, sourceCode, sourceCode], browserText);
+    }
+
+    [Fact]
+    public void Convert_SemanticCode_FullPageVectorBackdropStillUsesFixedLayoutFallback()
+    {
+        PdfLayoutDocument layout = CreateSemanticHtmlFixture(
+            CreateSemanticCodeFixtureLines(),
+            [CreateSemanticCalloutPath(new PdfLayoutRectangle(0f, 0f, 612f, 792f))]);
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        Assert.Contains(semanticPage.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.CodeBlock);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Single(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+        Assert.Empty(dom.Descendants("pre"));
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_KeepsPageBreakFootnoteContinuationInOneListItem()
     {
         PdfLayoutDocument layout = CreateCrossPageFootnoteLayoutFixture();
@@ -5397,6 +5477,86 @@ public class PdfHtmlConverterTest
         PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
         PdfTextRun run = new(text, fontName, fontSize, 0f, bounds, color, [glyph]);
         return new PdfTextLine(text, bounds, [run]);
+    }
+
+    private static PdfTextLine CreateMonospacedSemanticFixtureLine(
+        string text,
+        float x,
+        float y,
+        float characterPitch = 6f)
+    {
+        const float fontSize = 10f;
+        const string fontName = "Courier";
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfTextGlyph[] glyphs = text
+            .Select((character, index) => (character, index))
+            .Where(static item => !char.IsWhiteSpace(item.character))
+            .Select(item => new PdfTextGlyph(
+                item.character.ToString(),
+                fontName,
+                fontSize,
+                0f,
+                new PdfLayoutRectangle(x + item.index * characterPitch, y, characterPitch, fontSize * 0.75f),
+                color))
+            .ToArray();
+        PdfLayoutRectangle bounds = new(x, y, text.Length * characterPitch, fontSize * 0.75f);
+        PdfTextRun run = new(text, fontName, fontSize, 0f, bounds, color, glyphs);
+        return new PdfTextLine(text, bounds, [run]);
+    }
+
+    private static PdfTextLine[] CreateSemanticCodeFixtureLines()
+    {
+        return
+        [
+            CreateScientificFixtureLine("Opening prose establishes the ordinary body font and line rhythm.", 72f, 72f, 410f),
+            CreateScientificFixtureLine("A second prose line completes the surrounding paragraph.", 72f, 84f, 340f),
+            CreateMonospacedSemanticFixtureLine("LOAD  R0, [R1]", 96f, 124f),
+            CreateMonospacedSemanticFixtureLine("STORE R0, [R2]", 96f, 136f),
+            CreateMonospacedSemanticFixtureLine("  ADD R0, #1", 96f, 148f),
+            CreateInlineCodeSemanticFixtureLine("Use the ", "gpio_set()", " helper to configure the pin.", 72f, 184f),
+            CreateScientificFixtureLine("Ordinary prose continues after the listing in normal document flow.", 72f, 208f, 390f),
+            CreateScientificFixtureLine("Another body line keeps the page outside sparse-content fallback.", 72f, 220f, 380f),
+            CreateScientificFixtureLine("The final sentence closes the surrounding technical discussion.", 72f, 232f, 370f)
+        ];
+    }
+
+    private static PdfTextLine CreateInlineCodeSemanticFixtureLine(
+        string prefix,
+        string code,
+        string suffix,
+        float x,
+        float y)
+    {
+        PdfTextRun prefixRun = CreatePositionedSemanticFixtureRun(prefix, "Times-Roman", x, y, 5f);
+        PdfTextRun codeRun = CreatePositionedSemanticFixtureRun(code, "Courier", prefixRun.Bounds.Right, y, 6f);
+        PdfTextRun suffixRun = CreatePositionedSemanticFixtureRun(suffix, "Times-Roman", codeRun.Bounds.Right, y, 5f);
+        PdfTextRun[] runs = [prefixRun, codeRun, suffixRun];
+        return new PdfTextLine(
+            prefix + code + suffix,
+            new PdfLayoutRectangle(x, y, suffixRun.Bounds.Right - x, suffixRun.Bounds.Height),
+            runs);
+    }
+
+    private static PdfTextRun CreatePositionedSemanticFixtureRun(
+        string text,
+        string fontName,
+        float x,
+        float y,
+        float characterPitch)
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfTextGlyph[] glyphs = text
+            .Select((character, index) => new PdfTextGlyph(
+                character.ToString(),
+                fontName,
+                fontSize,
+                0f,
+                new PdfLayoutRectangle(x + index * characterPitch, y, characterPitch, fontSize * 0.75f),
+                color))
+            .ToArray();
+        PdfLayoutRectangle bounds = new(x, y, text.Length * characterPitch, fontSize * 0.75f);
+        return new PdfTextRun(text, fontName, fontSize, 0f, bounds, color, glyphs);
     }
 
     private static PdfLayoutDocument CreateDefinitionListLayoutFixture(bool columns)

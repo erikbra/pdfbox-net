@@ -19,5 +19,6 @@ public enum PdfSemanticElementKind
     Bibliography,
     DefinitionList,
     BlockQuote,
-    Aside
+    Aside,
+    CodeBlock
 }

@@ -756,6 +756,23 @@ public static class PdfHtmlConverter
           margin-bottom: 6pt;
         }
 
+        .pdf-semantic-code-block {
+          line-height: 1.2;
+          margin: 0 0 6pt;
+          max-width: 100%;
+          overflow-x: auto;
+          white-space: pre;
+        }
+
+        .pdf-semantic-code-block > code {
+          font: inherit;
+          white-space: inherit;
+        }
+
+        .pdf-semantic-inline-code {
+          white-space: pre;
+        }
+
         .pdf-semantic-blockquote {
           line-height: 1.18;
           margin: 0 0 6pt;
@@ -3863,7 +3880,8 @@ public static class PdfHtmlConverter
         PdfLayoutPage page,
         PdfSemanticPage semanticPage)
     {
-        if (semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.DefinitionList))
+        if (semanticPage.Elements.Any(static element =>
+            element.Kind is PdfSemanticElementKind.DefinitionList or PdfSemanticElementKind.CodeBlock))
         {
             return null;
         }
@@ -4530,11 +4548,16 @@ public static class PdfHtmlConverter
             LineGridColumn column = columns.Columns[columnIndex];
             html.AppendLine("        <div class=\"pdf-semantic-column\">");
             PdfSemanticElement[] listElements = columns.ListElements
-                .Where(element => IsSemanticListInColumn(columns, column, element))
+                .Where(element => IsSemanticElementInColumn(columns, column, element))
+                .ToArray();
+            PdfSemanticElement[] codeElements = columns.SemanticPage.Elements
+                .Where(static element => element.Kind == PdfSemanticElementKind.CodeBlock)
+                .Where(element => IsSemanticElementInColumn(columns, column, element))
                 .ToArray();
             IReadOnlyList<PdfSemanticElement> tables = semanticTables[columnIndex];
             PdfSemanticElement[] semanticElements = listElements
                 .Concat(tables)
+                .Concat(codeElements)
                 .OrderBy(static element => element.Bounds.Y)
                 .ThenBy(static element => element.Bounds.X)
                 .ToArray();
@@ -4597,6 +4620,28 @@ public static class PdfHtmlConverter
                     continue;
                 }
 
+                if (item.Element?.Kind == PdfSemanticElementKind.CodeBlock)
+                {
+                    html.Append("          <div class=\"pdf-semantic-column-block\"");
+                    if (marginTop > 0.01f)
+                    {
+                        html.Append(" style=\"margin-top:")
+                            .Append(CssPoints(marginTop))
+                            .Append('"');
+                    }
+
+                    html.AppendLine(">");
+                    WriteFlowSemanticElement(
+                        html,
+                        item.Element,
+                        footnotes,
+                        columns.Page,
+                        allowMeasuredWidth: false);
+                    html.AppendLine("          </div>");
+                    previousSourceBottom = item.Bounds.Bottom;
+                    continue;
+                }
+
                 PdfTextRun run = item.Run!;
                 WriteSemanticColumnRun(html, columns.Page, run, marginTop, scale, semanticOptions);
                 previousSourceBottom = run.Bounds.Bottom;
@@ -4608,19 +4653,19 @@ public static class PdfHtmlConverter
         html.AppendLine("      </section>");
     }
 
-    private static bool IsSemanticListInColumn(
+    private static bool IsSemanticElementInColumn(
         PdfSemanticColumns columns,
         LineGridColumn column,
-        PdfSemanticElement listElement)
+        PdfSemanticElement element)
     {
-        LineGridColumn[] sourceColumns = listElement.Lines
+        LineGridColumn[] sourceColumns = element.Lines
             .Select(line => columns.Columns
                 .Where(candidate => candidate.Lines.Any(run => ContainsSemanticLineGlyphs(line, run)))
                 .ToArray())
             .Where(static matches => matches.Length == 1)
             .Select(static matches => matches[0])
             .ToArray();
-        return sourceColumns.Length == listElement.Lines.Count &&
+        return sourceColumns.Length == element.Lines.Count &&
             sourceColumns.All(candidate => ReferenceEquals(candidate, column));
     }
 
@@ -8400,6 +8445,14 @@ public static class PdfHtmlConverter
         FootnoteContext footnotes,
         PdfLayoutPage? page = null)
     {
+        if (element.Kind == PdfSemanticElementKind.CodeBlock)
+        {
+            html.Append("<code>")
+                .Append(Html(element.Text))
+                .Append("</code>");
+            return;
+        }
+
         if (element.Kind == PdfSemanticElementKind.BlockQuote && element.Quotation != null)
         {
             WriteSemanticQuotation(html, element.Quotation, footnotes);
@@ -8760,7 +8813,8 @@ public static class PdfHtmlConverter
                 run,
                 role,
                 SemanticLinkForGlyph(page, glyph.PageBounds),
-                includeSourceHighlights ? TextHighlightForGlyph(page, sourceGlyph) : null));
+                includeSourceHighlights ? TextHighlightForGlyph(page, sourceGlyph) : null,
+                IsInlineCodeRun(line, run)));
             previous = glyph;
             previousRole = role;
             suppressNextWordBoundaryAfterIntrusiveGlyph = false;
@@ -8774,6 +8828,12 @@ public static class PdfHtmlConverter
         MergeAdjacentTextSegments(segments);
 
         return segments;
+    }
+
+    private static bool IsInlineCodeRun(PdfSemanticLine line, PdfTextRun run)
+    {
+        return line.InlineCode.Any(code =>
+            code.Runs.Any(candidate => ReferenceEquals(candidate, run)));
     }
 
     private static PdfLayoutLink? SemanticLinkForGlyph(PdfLayoutPage? page, PdfLayoutRectangle glyphBounds)
@@ -9479,7 +9539,8 @@ public static class PdfHtmlConverter
             MathF.Abs(first.Run.FontSize - second.Run.FontSize) < 0.01f &&
             first.Run.Color.Equals(second.Run.Color) &&
             ReferenceEquals(first.Link, second.Link) &&
-            ReferenceEquals(first.Highlight, second.Highlight);
+            ReferenceEquals(first.Highlight, second.Highlight) &&
+            first.IsCode == second.IsCode;
     }
 
     private static string CompactText(string text)
@@ -10097,6 +10158,14 @@ public static class PdfHtmlConverter
         }
 
         string className = InlineRunClassNames(line, segment.Run, segment.Role);
+        if (segment.IsCode)
+        {
+            className = string.Join(
+                " ",
+                new[] { className, "pdf-semantic-inline-code" }
+                    .Where(static value => value.Length > 0));
+        }
+
         WriteStyledInlineTextSegment(
             html,
             segment.Text,
@@ -10139,6 +10208,7 @@ public static class PdfHtmlConverter
         {
             InlineBaselineRole.Subscript => "sub",
             InlineBaselineRole.Superscript => "sup",
+            InlineBaselineRole.Normal when HasCssClass(className, "pdf-semantic-inline-code") => "code",
             InlineBaselineRole.Normal when HasCssClass(className, "pdf-semantic-bold") => "strong",
             _ => className.Length > 0 ? "span" : ""
         };
@@ -10432,6 +10502,7 @@ public static class PdfHtmlConverter
                 1,
                 6).ToString(CultureInfo.InvariantCulture),
             PdfSemanticElementKind.Paragraph => "p",
+            PdfSemanticElementKind.CodeBlock => "pre",
             PdfSemanticElementKind.DefinitionList => "dl",
             PdfSemanticElementKind.BlockQuote => "blockquote",
             PdfSemanticElementKind.Aside => "aside",
@@ -11431,6 +11502,7 @@ public static class PdfHtmlConverter
         {
             PdfSemanticElementKind.Heading => "pdf-semantic-heading",
             PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
+            PdfSemanticElementKind.CodeBlock => "pdf-semantic-code-block",
             PdfSemanticElementKind.BlockQuote => "pdf-semantic-blockquote",
             PdfSemanticElementKind.Aside => "pdf-semantic-aside",
             PdfSemanticElementKind.List => "pdf-semantic-list-element",
@@ -11905,7 +11977,8 @@ public static class PdfHtmlConverter
         PdfTextRun? Run,
         InlineBaselineRole Role,
         PdfLayoutLink? Link = null,
-        PdfTextHighlight? Highlight = null);
+        PdfTextHighlight? Highlight = null,
+        bool IsCode = false);
 
     private sealed class SemanticSectionWriter
     {
