@@ -559,6 +559,35 @@ public static class PdfHtmlConverter
           min-height: 1.5em;
         }
 
+        .pdf-semantic-formula.pdf-semantic-formula-native.pdf-semantic-formula-numbered {
+          column-gap: 0.5em;
+          display: grid;
+          grid-template-columns: max-content minmax(0, 1fr) max-content;
+          width: 100%;
+        }
+
+        .pdf-semantic-formula-numbered::before {
+          content: attr(data-equation-number);
+          font-size: 0.9em;
+          grid-column: 1;
+          visibility: hidden;
+          white-space: nowrap;
+        }
+
+        .pdf-semantic-formula-numbered > .pdf-semantic-mathml {
+          grid-column: 2;
+          justify-self: center;
+          max-width: 100%;
+          min-width: 0;
+        }
+
+        .pdf-semantic-formula-numbered > .pdf-semantic-equation-number {
+          grid-column: 3;
+          justify-self: end;
+          position: static;
+          right: auto;
+        }
+
         .pdf-semantic-mathml {
           display: block;
           font-size: var(--pdf-semantic-math-font-size, 1em);
@@ -7788,7 +7817,27 @@ public static class PdfHtmlConverter
         PdfTextRun[] nativeRuns = FormulaRuns(page, nativeBounds, element, claimedFormulaGlyphs).ToArray();
         PdfLayoutPath[] nativePaths = FormulaPaths(page, nativeBounds).ToArray();
         PdfTextGlyph[] nativeGlyphs = FormulaGlyphs(nativeRuns, claimedFormulaGlyphs).ToArray();
-        bool hasNativeMath = PdfMathMlFormula.TryCreate(nativeGlyphs, nativePaths, out PdfMathMlFormula? mathMl);
+        string? equationNumber = null;
+        PdfTextGlyph[] detachedEquationNumberGlyphs = [];
+        PdfMathMlFormula? mathMl = null;
+        bool hasNativeMath = false;
+        if (TryDetachTrailingEquationNumber(
+                nativeGlyphs,
+                out string detachedEquationNumber,
+                out PdfTextGlyph[] expressionGlyphs,
+                out detachedEquationNumberGlyphs) &&
+            PdfMathMlFormula.TryCreate(expressionGlyphs, nativePaths, out mathMl))
+        {
+            hasNativeMath = true;
+            equationNumber = detachedEquationNumber;
+        }
+        else
+        {
+            detachedEquationNumberGlyphs = [];
+            hasNativeMath = PdfMathMlFormula.TryCreate(nativeGlyphs, nativePaths, out mathMl);
+            equationNumber = mathMl?.EquationNumber;
+        }
+
         PdfTextRun[] runs = hasNativeMath
             ? nativeRuns
             : FormulaRuns(
@@ -7814,11 +7863,34 @@ public static class PdfHtmlConverter
             html.Append(" pdf-semantic-formula");
         }
 
+        if (hasNativeMath)
+        {
+            html.Append(" pdf-semantic-formula-native");
+            if (equationNumber != null)
+            {
+                html.Append(" pdf-semantic-formula-numbered");
+            }
+        }
+
+        html.Append('"');
+        if (!hasNativeMath)
+        {
+            html.Append(" role=\"math\"");
+        }
+
+        if (!string.IsNullOrEmpty(elementId))
+        {
+            html.Append(" id=\"").Append(HtmlAttribute(elementId)).Append('"');
+        }
+
+        if (equationNumber != null)
+        {
+            html.Append(" data-equation-number=\"")
+                .Append(HtmlAttribute(equationNumber))
+                .Append('"');
+        }
+
         html
-            .Append(hasNativeMath ? " pdf-semantic-formula-native\"" : "\" role=\"math\"")
-            .Append(string.IsNullOrEmpty(elementId)
-                ? ""
-                : " id=\"" + HtmlAttribute(elementId) + "\"")
             .Append(" aria-label=\"")
             .Append(HtmlAttribute(hasNativeMath ? mathMl!.AccessibleText : element.Text))
             .Append("\" style=\"--pdf-semantic-formula-width:")
@@ -7837,9 +7909,14 @@ public static class PdfHtmlConverter
         if (hasNativeMath)
         {
             mathMl!.WriteTo(html);
+            if (equationNumber != null && mathMl.EquationNumber == null)
+            {
+                WriteEquationNumber(html, equationNumber);
+            }
+
             if (claimedFormulaGlyphs != null)
             {
-                foreach (PdfTextGlyph glyph in mathMl.ClaimedGlyphs)
+                foreach (PdfTextGlyph glyph in mathMl.ClaimedGlyphs.Concat(detachedEquationNumberGlyphs))
                 {
                     claimedFormulaGlyphs.Add(FormulaGlyphIdentity(glyph));
                 }
@@ -7887,6 +7964,15 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("</div>");
+    }
+
+    private static void WriteEquationNumber(StringBuilder html, string equationNumber)
+    {
+        html.Append("<span class=\"pdf-semantic-equation-number\" aria-label=\"Equation ")
+            .Append(HtmlAttribute(equationNumber[1..^1]))
+            .Append("\">")
+            .Append(Html(equationNumber))
+            .Append("</span>");
     }
 
     private static PdfLayoutRectangle FormulaRenderBounds(
@@ -8169,6 +8255,54 @@ public static class PdfHtmlConverter
         int open = text.LastIndexOf("(", StringComparison.Ordinal);
         equationNumber = open >= 0 ? text[open..].Trim() : "";
         return IsEquationNumber(equationNumber);
+    }
+
+    private static bool TryDetachTrailingEquationNumber(
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        out string equationNumber,
+        out PdfTextGlyph[] expressionGlyphs,
+        out PdfTextGlyph[] equationNumberGlyphs)
+    {
+        equationNumber = "";
+        expressionGlyphs = glyphs.ToArray();
+        equationNumberGlyphs = [];
+        PdfTextGlyph[] ordered = glyphs
+            .OrderBy(static glyph => glyph.Bounds.X)
+            .ThenBy(static glyph => glyph.Bounds.Y)
+            .ToArray();
+        for (int start = ordered.Length - 1; start > 0; start--)
+        {
+            PdfTextGlyph[] candidateGlyphs = ordered[start..];
+            string candidate = string.Concat(candidateGlyphs.Select(static glyph => glyph.Text)).Trim();
+            if (!IsEquationNumber(candidate))
+            {
+                continue;
+            }
+
+            float fontSize = candidateGlyphs.Max(static glyph => glyph.FontSize);
+            float baselineTolerance = MathF.Max(1.2f, fontSize * 0.18f);
+            float firstBottom = candidateGlyphs[0].Bounds.Bottom;
+            if (candidateGlyphs.Any(glyph =>
+                    MathF.Abs(glyph.Bounds.Bottom - firstBottom) > baselineTolerance))
+            {
+                return false;
+            }
+
+            float expressionRight = ordered[..start].Max(static glyph => glyph.Bounds.Right);
+            if (candidateGlyphs[0].Bounds.X - expressionRight < fontSize * 1.4f)
+            {
+                return false;
+            }
+
+            HashSet<PdfTextGlyph> numberGlyphs = candidateGlyphs
+                .ToHashSet((IEqualityComparer<PdfTextGlyph>)ReferenceEqualityComparer.Instance);
+            equationNumber = candidate;
+            expressionGlyphs = glyphs.Where(glyph => !numberGlyphs.Contains(glyph)).ToArray();
+            equationNumberGlyphs = candidateGlyphs;
+            return true;
+        }
+
+        return false;
     }
 
     private static PdfLayoutRectangle ExpandRectangle(PdfLayoutRectangle bounds, float horizontal, float vertical)
