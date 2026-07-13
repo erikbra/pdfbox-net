@@ -7181,24 +7181,40 @@ public static class PdfSemanticExtractor
 
     private static string JoinParagraphLines(IEnumerable<PdfSemanticLine> lines)
     {
+        PdfSemanticLine[] sourceLines = lines
+            .Where(static line => !string.IsNullOrWhiteSpace(line.Text))
+            .ToArray();
+        if (sourceLines.Length == 0)
+        {
+            return "";
+        }
+
+        PdfLayoutRectangle paragraphBounds = PdfLayoutRectangle.Union(
+            sourceLines.Select(static line => line.Bounds));
         StringBuilder text = new();
-        foreach (PdfSemanticLine line in lines)
+        PdfSemanticLine? previousLine = null;
+        foreach (PdfSemanticLine line in sourceLines)
         {
             string value = line.Text.Trim();
-            if (value.Length == 0)
-            {
-                continue;
-            }
-
             if (text.Length == 0)
             {
                 text.Append(value);
+                previousLine = line;
                 continue;
             }
 
-            if (text[^1] == '-' && value.Length > 0 && char.IsLower(value[0]))
+            bool continuesHyphenatedWord = text[^1] == '-' &&
+                value.Length > 0 &&
+                char.IsLower(value[0]);
+            if (previousLine != null &&
+                continuesHyphenatedWord &&
+                ShouldRemoveDiscretionaryLineBreakHyphen(previousLine, line, paragraphBounds, text, value))
             {
                 text.Length--;
+                text.Append(value);
+            }
+            else if (continuesHyphenatedWord)
+            {
                 text.Append(value);
             }
             else
@@ -7206,9 +7222,50 @@ public static class PdfSemanticExtractor
                 text.Append(' ');
                 text.Append(value);
             }
+
+            previousLine = line;
         }
 
         return NormalizeText(text.ToString());
+    }
+
+    private static bool ShouldRemoveDiscretionaryLineBreakHyphen(
+        PdfSemanticLine previous,
+        PdfSemanticLine current,
+        PdfLayoutRectangle paragraphBounds,
+        StringBuilder accumulatedText,
+        string currentText)
+    {
+        if (accumulatedText.Length == 0 ||
+            accumulatedText[^1] != '-' ||
+            currentText.Length == 0 ||
+            !char.IsLower(currentText[0]))
+        {
+            return false;
+        }
+
+        float fontSize = MathF.Max(1f, MathF.Min(previous.DominantFontSize, current.DominantFontSize));
+        float edgeTolerance = MathF.Max(fontSize * 1.75f, paragraphBounds.Width * 0.08f);
+        bool endsAtTextEdge = paragraphBounds.Right - previous.Bounds.Right <= edgeTolerance;
+        bool resumesAtTextEdge = current.Bounds.X - paragraphBounds.X <= edgeTolerance;
+        if (!endsAtTextEdge || !resumesAtTextEdge)
+        {
+            return false;
+        }
+
+        int leftStart = accumulatedText.Length - 1;
+        while (leftStart > 0 && char.IsLetter(accumulatedText[leftStart - 1]))
+        {
+            leftStart--;
+        }
+
+        int rightLength = 0;
+        while (rightLength < currentText.Length && char.IsLetter(currentText[rightLength]))
+        {
+            rightLength++;
+        }
+
+        return accumulatedText.Length - 1 - leftStart >= 2 && rightLength >= 2;
     }
 
     /// <summary>
@@ -7237,8 +7294,14 @@ public static class PdfSemanticExtractor
 
         StringBuilder text = new();
         PdfTextGlyph? previous = null;
-        foreach (PdfTextGlyph glyph in glyphs)
+        for (int index = 0; index < glyphs.Count; index++)
         {
+            PdfTextGlyph glyph = glyphs[index];
+            if (IsIntrusiveRadicalGlyph(glyphs, index))
+            {
+                continue;
+            }
+
             if (previous != null && IsWordBoundaryBetween(previous, glyph, options))
             {
                 AppendSpaceIfNeeded(text);
@@ -7257,6 +7320,46 @@ public static class PdfSemanticExtractor
         }
 
         return NormalizeText(text.ToString());
+    }
+
+    private static bool IsIntrusiveRadicalGlyph(IReadOnlyList<PdfTextGlyph> glyphs, int index)
+    {
+        PdfTextGlyph glyph = glyphs[index];
+        if (glyph.Text != "√" || !IsMathFont(glyph.FontName))
+        {
+            return false;
+        }
+
+        PdfTextGlyph? previous = NearestTextGlyph(glyphs, index, -1);
+        PdfTextGlyph? next = NearestTextGlyph(glyphs, index, 1);
+        if (previous == null ||
+            next == null ||
+            IsMathFont(previous.FontName) ||
+            IsMathFont(next.FontName) ||
+            next.Bounds.X >= glyph.Bounds.Right)
+        {
+            return false;
+        }
+
+        float directGap = next.Bounds.X - previous.Bounds.Right;
+        float fontSize = MathF.Max(1f, MathF.Min(previous.FontSize, next.FontSize));
+        return directGap >= -fontSize * 0.1f && directGap <= fontSize * 0.5f;
+    }
+
+    private static PdfTextGlyph? NearestTextGlyph(
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        int index,
+        int step)
+    {
+        for (int candidate = index + step; candidate >= 0 && candidate < glyphs.Count; candidate += step)
+        {
+            if (!string.IsNullOrWhiteSpace(glyphs[candidate].Text))
+            {
+                return glyphs[candidate];
+            }
+        }
+
+        return null;
     }
 
     /// <summary>

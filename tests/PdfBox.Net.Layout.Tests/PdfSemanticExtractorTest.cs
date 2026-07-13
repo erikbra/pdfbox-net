@@ -245,6 +245,52 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_AdamPageTwo_RestoresProseWordBoundariesAndDiscretionaryHyphenation()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(
+            AppContext.BaseDirectory,
+            "Fixtures",
+            "arxiv-adam-page-2.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        string prose = string.Join(" ", page.Elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Paragraph)
+            .Select(static element => element.Text));
+
+        Assert.Contains("careful choice of stepsizes", prose, StringComparison.Ordinal);
+        Assert.Contains("parameter space at timestep t", prose, StringComparison.Ordinal);
+        Assert.Contains("noisy objective function", prose, StringComparison.Ordinal);
+        Assert.DoesNotContain("ofstepsizes", prose, StringComparison.Ordinal);
+        Assert.DoesNotContain("attimestep", prose, StringComparison.Ordinal);
+        Assert.DoesNotContain("objec-tive", prose, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Extract_LineBreakHyphenation_UsesParagraphEdgesAndPreservesAuthoredCompounds()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("The noisy objec-", 72f, 72f, 400f),
+            CreateFixtureLine("tive function is state-", 72f, 84f, 250f),
+            CreateFixtureLine("of-the-art and remains readable.", 72f, 96f, 400f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement paragraph = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph);
+
+        Assert.Equal(
+            "The noisy objective function is state-of-the-art and remains readable.",
+            paragraph.Text);
+    }
+
+    [Fact]
     public void Extract_DetachedMathFragments_FormSeparateDisplayFormulaInSourceOrder()
     {
         PdfLayoutDocument layout = CreateSemanticPassageFixture(

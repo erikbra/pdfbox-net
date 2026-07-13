@@ -237,7 +237,7 @@ public sealed class PdfHtmlQualityProbe
         AddPageDimensionCheck(pageChecks, layoutPage, snapshot);
         AddTextRunCountCheck(pageChecks, layoutPage, snapshot, pageNumber);
 
-        TextQualityMetrics textMetrics = TextQualityMetrics.Create(referenceText, snapshot.Text);
+        TextQualityMetrics textMetrics = TextQualityMetrics.Create(referenceText, snapshot.Text, snapshot.ProseText);
         pageChecks.Add(CreateWordBoundaryCheck(pageNumber, textMetrics));
         foreach (string expectation in ExtractFixtureExpectations(layoutPage))
         {
@@ -332,9 +332,13 @@ public sealed class PdfHtmlQualityProbe
                 """
                 root => {
                   const pageBox = root.getBoundingClientRect();
-                  const readableText = element => {
+                  const nonProseSelector = "a,code,pre,math,.pdf-semantic-math,.pdf-semantic-formula";
+                  const readableText = (element, proseOnly = false) => {
                     const copy = element.cloneNode(true);
                     copy.querySelectorAll(".pdf-text-run-svg").forEach(node => node.remove());
+                    if (proseOnly) {
+                      copy.querySelectorAll(nonProseSelector).forEach(node => node.remove());
+                    }
                     return copy.textContent || "";
                   };
                   const readBox = element => {
@@ -351,6 +355,7 @@ public sealed class PdfHtmlQualityProbe
                     width: pageBox.width,
                     height: pageBox.height,
                     text: readableText(root),
+                    proseText: readableText(root, true),
                     textRuns: Array.from(root.querySelectorAll(".pdf-text-run")).map(readBox),
                     images: Array.from(root.querySelectorAll(".pdf-image")).map(readBox),
                     vectorPaths: Array.from(root.querySelectorAll("[data-path-index]")).map(readBox)
@@ -421,16 +426,20 @@ public sealed class PdfHtmlQualityProbe
                   box.bottom > region.y &&
                   box.top < region.bottom;
               };
-              const readableText = element => {
+              const nonProseSelector = "a,code,pre,math,.pdf-semantic-math,.pdf-semantic-formula";
+              const readableText = (element, proseOnly = false) => {
                 const copy = element.cloneNode(true);
                 copy.querySelectorAll(".pdf-text-run-svg").forEach(node => node.remove());
+                if (proseOnly) {
+                  copy.querySelectorAll(nonProseSelector).forEach(node => node.remove());
+                }
                 return copy.textContent || "";
               };
-              const readableRegionText = element => {
+              const readableRegionText = (element, proseOnly = false) => {
                 const containsCurrentMarker = element.contains(marker);
                 const containsNextBoundary = nextBoundary && element.contains(nextBoundary);
                 if (!containsCurrentMarker && !containsNextBoundary) {
-                  return readableText(element);
+                  return readableText(element, proseOnly);
                 }
 
                 const text = [];
@@ -439,6 +448,10 @@ public sealed class PdfHtmlQualityProbe
                   const node = walker.currentNode;
                   const parent = node.parentElement;
                   if (parent && parent.closest(".pdf-text-run-svg")) {
+                    continue;
+                  }
+
+                  if (proseOnly && parent && parent.closest(nonProseSelector)) {
                     continue;
                   }
 
@@ -482,6 +495,7 @@ public sealed class PdfHtmlQualityProbe
                 width: region.width,
                 height: region.height,
                 text: textElements.map(readableRegionText).join("\n"),
+                proseText: textElements.map(element => readableRegionText(element, true)).join("\n"),
                 textRuns: textElements.map(readBox),
                 images: imageElements.map(readBox),
                 vectorPaths: vectorElements.map(readBox),
@@ -596,7 +610,8 @@ public sealed class PdfHtmlQualityProbe
             needsReview = metrics.TokenCoverage < minimumCoverage ||
                 metrics.WordCountRatio < 0.85 ||
                 metrics.WordCountRatio > 1.15 ||
-                metrics.LongHtmlTokens > metrics.LongSourceTokens + 4;
+                metrics.LongHtmlTokens > metrics.LongSourceTokens + 4 ||
+                metrics.AdjacentSourceWordJoinCount > 0;
         }
         else if (metrics.HtmlWordCount > 0)
         {
@@ -619,7 +634,8 @@ public sealed class PdfHtmlQualityProbe
                 ["wordCountRatio"] = metrics.WordCountRatio,
                 ["tokenCoverage"] = metrics.TokenCoverage,
                 ["longSourceTokens"] = metrics.LongSourceTokens,
-                ["longHtmlTokens"] = metrics.LongHtmlTokens
+                ["longHtmlTokens"] = metrics.LongHtmlTokens,
+                ["adjacentSourceWordJoinCount"] = metrics.AdjacentSourceWordJoinCount
             });
     }
 
@@ -1042,8 +1058,11 @@ public sealed class PdfHtmlQualityProbe
         PdfHtmlQualityPageReport worst = pages.MinBy(static page => page.TextTokenCoverage)!;
         int pagesNeedingReview = pages.Count(static page =>
             page.Checks.Any(static check => check.Id == "word-boundaries" && check.Status == NeedsReview));
+        int suspiciousJoins = pages.Sum(static page => page.Checks
+            .Where(static check => check.Id == "word-boundaries")
+            .Sum(static check => (int)check.Metrics.GetValueOrDefault("adjacentSourceWordJoinCount")));
         return pagesNeedingReview > 0
-            ? $"{pagesNeedingReview} page(s) need review; worst token coverage is {FormatRatio(worst.TextTokenCoverage)} on page {worst.PageNumber}."
+            ? $"{pagesNeedingReview} page(s) need review; worst token coverage is {FormatRatio(worst.TextTokenCoverage)} on page {worst.PageNumber}, with {suspiciousJoins} high-confidence adjacent-word join(s)."
             : $"All analyzed pages passed; lowest token coverage is {FormatRatio(worst.TextTokenCoverage)} on page {worst.PageNumber}.";
     }
 
@@ -1800,7 +1819,8 @@ public sealed class PdfHtmlQualityProbe
             double wordCountRatio,
             double tokenCoverage,
             int longSourceTokens,
-            int longHtmlTokens)
+            int longHtmlTokens,
+            int adjacentSourceWordJoinCount)
         {
             SourceWordCount = sourceWordCount;
             HtmlWordCount = htmlWordCount;
@@ -1808,6 +1828,7 @@ public sealed class PdfHtmlQualityProbe
             TokenCoverage = tokenCoverage;
             LongSourceTokens = longSourceTokens;
             LongHtmlTokens = longHtmlTokens;
+            AdjacentSourceWordJoinCount = adjacentSourceWordJoinCount;
         }
 
         public int SourceWordCount { get; }
@@ -1822,7 +1843,9 @@ public sealed class PdfHtmlQualityProbe
 
         public int LongHtmlTokens { get; }
 
-        public static TextQualityMetrics Create(string source, string html)
+        public int AdjacentSourceWordJoinCount { get; }
+
+        public static TextQualityMetrics Create(string source, string html, string proseHtml)
         {
             string[] sourceWords = Words(source);
             string[] htmlWords = Words(html);
@@ -1836,7 +1859,109 @@ public sealed class PdfHtmlQualityProbe
                 sourceWords.Length == 0 ? (htmlWords.Length == 0 ? 1 : 0) : htmlWords.Length / (double)sourceWords.Length,
                 total == 0 ? (htmlWords.Length == 0 ? 1 : 0) : matched / (double)total,
                 sourceWords.Count(static word => word.Length >= 32),
-                htmlWords.Count(static word => word.Length >= 32));
+                htmlWords.Count(static word => word.Length >= 32),
+                CountAdjacentSourceWordJoins(source, proseHtml));
+        }
+
+        private static int CountAdjacentSourceWordJoins(string source, string proseHtml)
+        {
+            IReadOnlyList<WordToken> sourceWords = WordTokens(source);
+            IReadOnlyList<string> htmlWords = Words(proseHtml);
+            HashSet<string> sourceVocabulary = new(
+                sourceWords.Select(static word => word.Text),
+                StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, List<int>> joinedSourcePositions = new(StringComparer.OrdinalIgnoreCase);
+            for (int index = 0; index + 1 < sourceWords.Count; index++)
+            {
+                WordToken first = sourceWords[index];
+                WordToken second = sourceWords[index + 1];
+                string separator = source[first.End..second.Start];
+                string joined = first.Text + second.Text;
+                if (first.Text.Length < 2 ||
+                    second.Text.Length < 2 ||
+                    Math.Min(first.Text.Length, second.Text.Length) > 3 ||
+                    joined.Length < 6 ||
+                    !first.Text.All(static character => char.IsLetter(character) && char.IsLower(character)) ||
+                    !second.Text.All(static character => char.IsLetter(character) && char.IsLower(character)) ||
+                    separator.Length == 0 ||
+                    !separator.All(char.IsWhiteSpace) ||
+                    sourceVocabulary.Contains(joined))
+                {
+                    continue;
+                }
+
+                if (!joinedSourcePositions.TryGetValue(joined, out List<int>? positions))
+                {
+                    positions = [];
+                    joinedSourcePositions.Add(joined, positions);
+                }
+
+                positions.Add(index);
+            }
+
+            int count = 0;
+            for (int htmlIndex = 0; htmlIndex < htmlWords.Count; htmlIndex++)
+            {
+                if (!joinedSourcePositions.TryGetValue(htmlWords[htmlIndex], out List<int>? positions))
+                {
+                    continue;
+                }
+
+                bool contextualMatch = positions.Any(sourceIndex =>
+                    HasMatchingWordsBefore(sourceWords, sourceIndex, htmlWords, htmlIndex, 2) ||
+                    HasMatchingWordsAfter(sourceWords, sourceIndex + 2, htmlWords, htmlIndex + 1, 2) ||
+                    HasMatchingWordsBefore(sourceWords, sourceIndex, htmlWords, htmlIndex, 1) &&
+                    HasMatchingWordsAfter(sourceWords, sourceIndex + 2, htmlWords, htmlIndex + 1, 1));
+                if (contextualMatch)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static bool HasMatchingWordsBefore(
+            IReadOnlyList<WordToken> sourceWords,
+            int sourceIndex,
+            IReadOnlyList<string> htmlWords,
+            int htmlIndex,
+            int count)
+        {
+            if (sourceIndex < count || htmlIndex < count)
+            {
+                return false;
+            }
+
+            return Enumerable.Range(1, count).All(offset => string.Equals(
+                sourceWords[sourceIndex - offset].Text,
+                htmlWords[htmlIndex - offset],
+                StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool HasMatchingWordsAfter(
+            IReadOnlyList<WordToken> sourceWords,
+            int sourceIndex,
+            IReadOnlyList<string> htmlWords,
+            int htmlIndex,
+            int count)
+        {
+            if (sourceIndex + count > sourceWords.Count || htmlIndex + count > htmlWords.Count)
+            {
+                return false;
+            }
+
+            return Enumerable.Range(0, count).All(offset => string.Equals(
+                sourceWords[sourceIndex + offset].Text,
+                htmlWords[htmlIndex + offset],
+                StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static WordToken[] WordTokens(string value)
+        {
+            return Regex.Matches(value, @"[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)?")
+                .Select(static match => new WordToken(match.Value, match.Index, match.Index + match.Length))
+                .ToArray();
         }
 
         private static string[] Words(string value)
@@ -1856,6 +1981,8 @@ public sealed class PdfHtmlQualityProbe
 
             return counts;
         }
+
+        private readonly record struct WordToken(string Text, int Start, int End);
     }
 
     private sealed class BrowserPageSnapshot
@@ -1865,6 +1992,8 @@ public sealed class PdfHtmlQualityProbe
         public double Height { get; set; }
 
         public string Text { get; set; } = "";
+
+        public string ProseText { get; set; } = "";
 
         public List<BrowserBox> TextRuns { get; set; } = [];
 
