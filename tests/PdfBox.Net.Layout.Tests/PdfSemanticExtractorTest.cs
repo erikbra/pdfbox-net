@@ -158,6 +158,172 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_AdamPageTwo_PreservesRuledAlgorithmCaptionRowsAndIndentation()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(
+            AppContext.BaseDirectory,
+            "Fixtures",
+            "arxiv-adam-page-2.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement element = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Algorithm);
+        PdfSemanticAlgorithm algorithm = Assert.IsType<PdfSemanticAlgorithm>(element.Algorithm);
+
+        Assert.StartsWith("Algorithm 1: Adam", algorithm.Caption, StringComparison.Ordinal);
+        Assert.Contains("⊙", algorithm.Caption, StringComparison.Ordinal);
+        Assert.DoesNotContain('\f', algorithm.Caption);
+        Assert.DoesNotContain('�', algorithm.Caption);
+        Assert.Equal(5, algorithm.CaptionLines.Count);
+        Assert.Equal(17, algorithm.Rows.Count);
+        Assert.Equal(4, algorithm.Rows.Count(static row => row.Text.StartsWith("Require:", StringComparison.Ordinal)));
+        Assert.StartsWith("while", algorithm.Rows[7].Text, StringComparison.Ordinal);
+        Assert.StartsWith("end while", algorithm.Rows[^2].Text, StringComparison.Ordinal);
+        Assert.StartsWith("return", algorithm.Rows[^1].Text, StringComparison.Ordinal);
+        Assert.Equal(0f, algorithm.Rows[0].Indentation, 2);
+        Assert.InRange(algorithm.Rows[4].Indentation, 9f, 11f);
+        Assert.InRange(algorithm.Rows[8].Indentation, 18f, 21f);
+        Assert.Contains("1st", algorithm.Rows[4].Text, StringComparison.Ordinal);
+        Assert.Contains(algorithm.Rows[1].Line.Runs, static run => run.FontName.Contains("CMR7", StringComparison.Ordinal));
+        Assert.InRange(algorithm.TopRule.Thickness, 0.7f, 0.9f);
+        Assert.InRange(algorithm.CaptionRule.Thickness, 0.7f, 0.9f);
+        Assert.InRange(algorithm.BottomRule.Thickness, 0.7f, 0.9f);
+        Assert.Equal(3, new[]
+        {
+            algorithm.TopRule.SourcePathIndex,
+            algorithm.CaptionRule.SourcePathIndex,
+            algorithm.BottomRule.SourcePathIndex
+        }.Distinct().Count());
+        Assert.DoesNotContain(page.Elements, static candidate =>
+            candidate.Kind == PdfSemanticElementKind.ThematicBreak);
+        Assert.DoesNotContain(page.Elements, static candidate =>
+            candidate.Kind == PdfSemanticElementKind.Paragraph &&
+            candidate.Text.StartsWith("Require:", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_AdamPageTwo_SeparatesReplacementFormulaInVisualTokenOrder()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(
+            AppContext.BaseDirectory,
+            "Fixtures",
+            "arxiv-adam-page-2.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement prose = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.EndsWith("with the following lines:", StringComparison.Ordinal));
+        Assert.Equal(2, prose.Lines.Count);
+        Assert.DoesNotContain('√', prose.Text);
+        Assert.DoesNotContain('←', prose.Text);
+
+        PdfSemanticElement formula = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("αt = α", StringComparison.Ordinal));
+        PdfSemanticLine formulaLine = Assert.Single(formula.Lines);
+        Assert.Equal(
+            "αt = α · √1 − β2t/(1 − β1t) and θt ← θt−1 − αt · mt/(√vt + ε̂).",
+            formula.Text);
+        Assert.Equal(
+            formulaLine.Runs.OrderBy(static run => run.Bounds.X).ThenBy(static run => run.Bounds.Y),
+            formulaLine.Runs);
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.Trim().All(character => char.IsWhiteSpace(character) || character is '·' or '−' or '←'));
+    }
+
+    [Fact]
+    public void Extract_DetachedMathFragments_FormSeparateDisplayFormulaInSourceOrder()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Ordinary prose establishes the body font and column width.", 72f, 72f, 400f),
+            CreateFixtureLine("The replacement equations follow on the next visual row:", 72f, 84f, 400f),
+            CreateCompositeFixtureLine(89.5f, ("√", 150f, 8f, "CMSY10")),
+            CreateCompositeFixtureLine(
+                96.5f,
+                ("·", 148f, 4f, "CMSY10"),
+                ("−", 176f, 8f, "CMSY10"),
+                ("←", 260f, 10f, "CMSY10")),
+            CreateCompositeFixtureLine(
+                97f,
+                ("a", 120f, 8f, "CMMI10"),
+                ("=", 132f, 8f, "CMR10"),
+                ("1", 160f, 8f, "CMR10"),
+                ("b", 190f, 8f, "CMMI10"),
+                ("and", 212f, 20f, "Times-Roman"),
+                ("x", 245f, 8f, "CMMI10"),
+                ("y", 275f, 8f, "CMMI10"),
+                ("p", 300f, 8f, "CMMI10"),
+                ("/", 315f, 8f, "CMMI10"),
+                ("q", 330f, 8f, "CMMI10"),
+                ("r", 345f, 8f, "CMMI10"))
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement[] paragraphs = page.Elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Paragraph)
+            .ToArray();
+        PdfSemanticElement prose = Assert.Single(paragraphs, static paragraph =>
+            paragraph.Text.EndsWith("next visual row:", StringComparison.Ordinal));
+        PdfSemanticElement formulaElement = Assert.Single(paragraphs, static paragraph =>
+            paragraph.Text.Contains('←'));
+        PdfSemanticLine formula = Assert.Single(formulaElement.Lines);
+        Assert.Equal(
+            ["a", "=", "·", "√", "1", "−", "b", "and", "x", "←", "y", "p", "/", "q", "r"],
+            formula.Runs.Select(static run => run.Text));
+        Assert.DoesNotContain('√', prose.Text);
+        Assert.DoesNotContain('←', prose.Text);
+    }
+
+    [Fact]
+    public void Extract_GenericRuledPseudocode_UsesStructuralEvidenceAndRequiresAllRules()
+    {
+        PdfTextLine[] lines =
+        [
+            CreateFixtureLine("Opening prose establishes the ordinary body font and line rhythm.", 72f, 72f, 410f),
+            CreateFixtureLine("A second prose line completes the surrounding paragraph.", 72f, 84f, 340f),
+            CreateFixtureLine("Algorithm 7: Generic bounded search.", 72f, 118f, 250f, fontName: "Times-Bold"),
+            CreateFixtureLine("Require: input sequence", 72f, 148f, 150f),
+            CreateFixtureLine("Require: stopping condition", 72f, 160f, 180f),
+            CreateFixtureLine("while work remains do", 84f, 172f, 150f),
+            CreateFixtureLine("candidate = next(input)", 96f, 184f, 170f),
+            CreateFixtureLine("state = update(candidate)", 96f, 196f, 180f),
+            CreateFixtureLine("end while", 84f, 208f, 80f),
+            CreateFixtureLine("return state", 84f, 220f, 90f),
+            CreateFixtureLine("Ordinary prose resumes after the pseudocode block.", 72f, 260f, 330f)
+        ];
+        PdfLayoutPath[] completeRules =
+        [
+            CreateRulePath(0, 72f, 110f, 472f, 110f),
+            CreateRulePath(1, 72f, 140f, 472f, 140f),
+            CreateRulePath(2, 72f, 236f, 472f, 236f)
+        ];
+
+        PdfSemanticElement algorithm = Assert.Single(
+            Assert.Single(PdfSemanticExtractor.Extract(CreateSemanticPassageFixture(lines, completeRules)).Pages).Elements,
+            static element => element.Kind == PdfSemanticElementKind.Algorithm);
+        Assert.Equal("Algorithm 7: Generic bounded search.", algorithm.Algorithm!.Caption);
+        Assert.Equal(7, algorithm.Algorithm.Rows.Count);
+
+        PdfSemanticPage incomplete = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateSemanticPassageFixture(lines, completeRules.Take(2).ToArray())).Pages);
+        Assert.DoesNotContain(incomplete.Elements, static element => element.Kind == PdfSemanticElementKind.Algorithm);
+    }
+
+    [Fact]
     public void Extract_ScientificFrontMatter_GroupsAffiliationsAndSeparatesDateFromAbstractHeading()
     {
         PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(

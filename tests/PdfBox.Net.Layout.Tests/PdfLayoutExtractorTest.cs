@@ -136,6 +136,20 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_ComputerModernSymbolSlot12Control_NormalizesCircledDot()
+    {
+        using PDDocument document = CreateComputerModernSymbolControlDocument();
+
+        PdfLayoutPage page = Assert.Single(PdfLayoutExtractor.Extract(document).Pages);
+        PdfTextGlyph glyph = Assert.Single(page.Glyphs);
+
+        Assert.Equal("CMSY10", glyph.FontName);
+        Assert.Equal("⊙", glyph.Text);
+        Assert.Equal("⊙", Assert.Single(page.Runs).Text);
+        Assert.Equal("⊙", Assert.Single(page.Lines).Text);
+    }
+
+    [Fact]
     public void Extract_RotatesAcroFormWidgetGeometryWithPage()
     {
         using PDDocument document = CreateAcroFormDocument();
@@ -985,6 +999,54 @@ public class PdfLayoutExtractorTest
         COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
         pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
         pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream(contentStream));
+        return document;
+    }
+
+    private static PDDocument CreateComputerModernSymbolControlDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        COSArray differences = new();
+        differences.Add(COSInteger.Get(12));
+        differences.Add(COSName.GetPDFName("odot"));
+        COSDictionary encoding = new();
+        encoding.SetName(COSName.TYPE, "Encoding");
+        encoding.SetItem(COSName.DIFFERENCES, differences);
+
+        COSDictionary font = new();
+        font.SetItem(COSName.TYPE, COSName.GetPDFName("Font"));
+        font.SetName(COSName.SUBTYPE, "Type1");
+        font.SetName(COSName.GetPDFName("BaseFont"), "CMSY10");
+        font.SetInt(COSName.GetPDFName("FirstChar"), 12);
+        font.SetInt(COSName.GetPDFName("LastChar"), 12);
+        font.SetItem(COSName.GetPDFName("Widths"), COSArray.Of(778f));
+        font.SetItem(COSName.GetPDFName("Encoding"), encoding);
+        font.SetItem(COSName.GetPDFName("ToUnicode"), CreateContentStream("""
+            /CIDInit /ProcSet findresource begin
+            12 dict begin
+            begincmap
+            /CMapType 2 def
+            1 begincodespacerange
+            <00> <FF>
+            endcodespacerange
+            1 beginbfchar
+            <0C> <000C>
+            endbfchar
+            endcmap
+            CMapName currentdict /CMap defineresource pop
+            end
+            end
+            """));
+
+        COSDictionary fonts = new();
+        fonts.SetItem(COSName.GetPDFName("F1"), font);
+        COSDictionary resources = new();
+        resources.SetItem(COSName.GetPDFName("Font"), fonts);
+        COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
+        pageDictionary.SetItem(COSName.RESOURCES, resources);
+        pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream("BT /F1 12 Tf 72 700 Td <0C> Tj ET"));
         return document;
     }
 

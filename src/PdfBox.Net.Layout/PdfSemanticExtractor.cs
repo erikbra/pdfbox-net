@@ -38,6 +38,12 @@ public static class PdfSemanticExtractor
     private static readonly Regex InlineCodePattern = new(
         @"^(?:(?:--?[a-z][\w-]*)|(?:[A-Za-z_][\w-]*(?:\.[A-Za-z_][\w-]*|::[A-Za-z_][\w-]*|->(?:[A-Za-z_][\w-]*))+(?:\(\))?)|(?:[A-Za-z_][\w-]*(?:\([^\s()]*\)|\[[^\s\[\]]+\]))|(?:[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+)|(?:[a-z]+[A-Z][A-Za-z0-9]*))$",
         RegexOptions.Compiled);
+    private static readonly Regex AlgorithmCaptionPattern = new(
+        @"^Algorithm\b(?:\s+\d+)?\s*[:.]?\s*",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex AlgorithmKeywordPattern = new(
+        @"\b(?:Require|while|do|end|return)\b",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex WhitespacePattern = new(@"\s+", RegexOptions.Compiled);
     private const int MaximumDetectedTableColumnCount = 16;
 
@@ -127,7 +133,8 @@ public static class PdfSemanticExtractor
             PdfSemanticElementKind.DefinitionList or
             PdfSemanticElementKind.BlockQuote or
             PdfSemanticElementKind.Aside or
-            PdfSemanticElementKind.CodeBlock;
+            PdfSemanticElementKind.CodeBlock or
+            PdfSemanticElementKind.Algorithm;
     }
 
     private static bool TryCreateThematicRuleCandidate(
@@ -206,6 +213,7 @@ public static class PdfSemanticExtractor
         if (IsTitleRuleCandidate(page, semanticPage.Elements, candidate.Bounds) ||
             IsFootnoteRuleCandidate(page, semanticPage.Elements, candidate.Bounds) ||
             IsTableRuleCandidate(semanticPage.Elements, candidate.Bounds) ||
+            IsAlgorithmRuleCandidate(semanticPage.Elements, path.Index) ||
             page.FormControls.Any(control => Intersects(
                 ExpandRectangle(control.Bounds, 6f, 6f),
                 candidate.Bounds)) ||
@@ -275,6 +283,21 @@ public static class PdfSemanticExtractor
         return elements
             .Where(static element => element.Kind == PdfSemanticElementKind.Table)
             .Any(table => Intersects(ExpandRectangle(table.Bounds, 10f, 10f), ruleBounds));
+    }
+
+    private static bool IsAlgorithmRuleCandidate(
+        IReadOnlyList<PdfSemanticElement> elements,
+        int sourcePathIndex)
+    {
+        return elements
+            .Where(static element => element.Algorithm != null)
+            .SelectMany(static element => new[]
+            {
+                element.Algorithm!.TopRule.SourcePathIndex,
+                element.Algorithm.CaptionRule.SourcePathIndex,
+                element.Algorithm.BottomRule.SourcePathIndex
+            })
+            .Contains(sourcePathIndex);
     }
 
     private static bool IsConnectedToOtherVector(
@@ -781,6 +804,11 @@ public static class PdfSemanticExtractor
 
         float bodyFontSize = EstimateBodyFontSize(lines);
         float lineStep = EstimateLineStep(lines, bodyFontSize);
+        AlgorithmCandidate[] algorithms = DetectAlgorithms(page, lines, lineStep);
+        HashSet<int> algorithmLineIndexes = algorithms
+            .SelectMany(static algorithm => algorithm.SourceLines)
+            .Select(static line => line.Index)
+            .ToHashSet();
         CodeBlockCandidate[] codeBlocks = DetectCodeBlocks(page, lines, lineStep);
         HashSet<int> codeLineIndexes = codeBlocks
             .SelectMany(static block => block.Lines)
@@ -789,8 +817,17 @@ public static class PdfSemanticExtractor
         HashSet<int> consumed = [];
         List<PdfSemanticElement> elements = [];
 
+        foreach (AlgorithmCandidate algorithm in algorithms)
+        {
+            if (algorithm.SourceLines.All(line => !consumed.Contains(line.Index)))
+            {
+                elements.Add(CreateAlgorithm(algorithm, consumed));
+            }
+        }
+
         LineCandidate[] headingLines = lines
             .Where(line => !IsInsideRuledTableRegion(line, ruledTableRegions))
+            .Where(line => !algorithmLineIndexes.Contains(line.Index))
             .Where(line => !codeLineIndexes.Contains(line.Index))
             .Where(line => IsHeading(line, page, lines, bodyFontSize, lineStep, options))
             .ToArray();
@@ -1398,6 +1435,11 @@ public static class PdfSemanticExtractor
                 (StartsFormulaFunction(line.Text) || CountWords(line.Text) <= 4);
         }
 
+        if (IsMathDominantFormulaLine(line.Text, line.Bounds, line.Runs))
+        {
+            return true;
+        }
+
         bool centeredEnough = line.Bounds.X >= 150f && line.Bounds.Width >= 80f;
         return centeredEnough && line.DominantFontSize <= bodyFontSize + 1f && CountWords(line.Text) <= 4;
     }
@@ -1619,6 +1661,259 @@ public static class PdfSemanticExtractor
             .ToArray();
 
         return gaps.Length == 0 ? MathF.Max(10f, bodyFontSize * 1.15f) : gaps[gaps.Length / 2];
+    }
+
+    private static AlgorithmCandidate[] DetectAlgorithms(
+        PdfLayoutPage page,
+        IReadOnlyList<LineCandidate> lines,
+        float lineStep)
+    {
+        AlgorithmRuleCandidate[] rules = AlgorithmHorizontalRules(page);
+        if (rules.Length < 3)
+        {
+            return [];
+        }
+
+        List<AlgorithmCandidate> algorithms = [];
+        HashSet<int> claimedLines = [];
+        for (int topIndex = 0; topIndex + 2 < rules.Length; topIndex++)
+        {
+            AlgorithmCandidate? candidate = TryCreateAlgorithmCandidate(
+                rules[topIndex],
+                rules[topIndex + 1],
+                rules[topIndex + 2],
+                lines,
+                lineStep);
+            if (candidate == null || candidate.SourceLines.Any(line => claimedLines.Contains(line.Index)))
+            {
+                continue;
+            }
+
+            algorithms.Add(candidate);
+            foreach (LineCandidate line in candidate.SourceLines)
+            {
+                claimedLines.Add(line.Index);
+            }
+        }
+
+        return algorithms.ToArray();
+    }
+
+    private static AlgorithmRuleCandidate[] AlgorithmHorizontalRules(PdfLayoutPage page)
+    {
+        List<AlgorithmRuleCandidate> rules = [];
+        foreach (PdfLayoutPath path in page.Paths)
+        {
+            if (!TryCreateThematicRuleCandidate(page, path, out ThematicRuleCandidate rule) ||
+                rule.Bounds.Width < page.Width * 0.25f)
+            {
+                continue;
+            }
+
+            rules.Add(new AlgorithmRuleCandidate(path.Index, rule.Bounds, rule.Thickness, rule.Color));
+        }
+
+        return rules
+            .OrderBy(static rule => RuleCenterY(rule.Bounds))
+            .ThenBy(static rule => rule.Bounds.X)
+            .ToArray();
+    }
+
+    private static AlgorithmCandidate? TryCreateAlgorithmCandidate(
+        AlgorithmRuleCandidate topRule,
+        AlgorithmRuleCandidate captionRule,
+        AlgorithmRuleCandidate bottomRule,
+        IReadOnlyList<LineCandidate> lines,
+        float lineStep)
+    {
+        if (!AreAlgorithmRulesAligned(topRule, captionRule) ||
+            !AreAlgorithmRulesAligned(captionRule, bottomRule))
+        {
+            return null;
+        }
+
+        float top = RuleCenterY(topRule.Bounds);
+        float captionBottom = RuleCenterY(captionRule.Bounds);
+        float bottom = RuleCenterY(bottomRule.Bounds);
+        if (captionBottom - top < 8f || bottom - captionBottom < MathF.Max(30f, lineStep * 4f))
+        {
+            return null;
+        }
+
+        float left = MathF.Max(topRule.Bounds.X, MathF.Max(captionRule.Bounds.X, bottomRule.Bounds.X));
+        float right = MathF.Min(topRule.Bounds.Right, MathF.Min(captionRule.Bounds.Right, bottomRule.Bounds.Right));
+        LineCandidate[] captionLines = lines
+            .Where(line => LineCenterY(line) > top + 0.5f && LineCenterY(line) < captionBottom - 0.5f)
+            .Where(line => IsInsideHorizontalInterval(line.Bounds, left, right))
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        if (captionLines.Length == 0 || !AlgorithmCaptionPattern.IsMatch(captionLines[0].Text.TrimStart()))
+        {
+            return null;
+        }
+
+        LineCandidate[] bodyLines = lines
+            .Where(line => LineCenterY(line) > captionBottom + 0.5f && LineCenterY(line) < bottom - 0.5f)
+            .Where(line => IsInsideHorizontalInterval(line.Bounds, left, right))
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        LineCandidate[] rows = bodyLines
+            .Where(static line => !IsAlgorithmRowDecoration(line))
+            .ToArray();
+        if (rows.Length < 6 ||
+            !HasRepeatedAlgorithmRowSpacing(rows, lineStep) ||
+            !HasAlgorithmIndentation(rows))
+        {
+            return null;
+        }
+
+        string bodyText = string.Join(' ', rows.Select(static row => row.Text));
+        int keywordKinds = AlgorithmKeywordPattern.Matches(bodyText)
+            .Select(static match => match.Value.ToLowerInvariant())
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+        if (keywordKinds < 4)
+        {
+            return null;
+        }
+
+        return new AlgorithmCandidate(
+            topRule,
+            captionRule,
+            bottomRule,
+            captionLines,
+            rows,
+            captionLines.Concat(bodyLines).ToArray());
+    }
+
+    private static bool AreAlgorithmRulesAligned(
+        AlgorithmRuleCandidate first,
+        AlgorithmRuleCandidate second)
+    {
+        float minimumWidth = MathF.Min(first.Bounds.Width, second.Bounds.Width);
+        return minimumWidth > 0f && HorizontalOverlap(first.Bounds, second.Bounds) >= minimumWidth * 0.85f;
+    }
+
+    private static bool IsAlgorithmRowDecoration(LineCandidate line)
+    {
+        string compact = new(line.Text.Where(static character => !char.IsWhiteSpace(character)).ToArray());
+        foreach (string suffix in new[] { "st", "nd", "rd", "th" })
+        {
+            if (compact.Length > suffix.Length && compact.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            {
+                compact = compact[..^suffix.Length];
+                break;
+            }
+        }
+
+        return compact.Length is > 0 and <= 10 && compact.All(static character => !char.IsLetterOrDigit(character));
+    }
+
+    private static bool HasRepeatedAlgorithmRowSpacing(IReadOnlyList<LineCandidate> rows, float lineStep)
+    {
+        float[] gaps = rows
+            .Pairwise(static (first, second) => second.Bounds.Y - first.Bounds.Y)
+            .Where(gap => gap >= MathF.Max(3f, lineStep * 0.35f) && gap <= MathF.Max(24f, lineStep * 2.25f))
+            .Order()
+            .ToArray();
+        if (gaps.Length < 4)
+        {
+            return false;
+        }
+
+        float median = gaps[gaps.Length / 2];
+        float tolerance = MathF.Max(2f, median * 0.28f);
+        return gaps.Count(gap => MathF.Abs(gap - median) <= tolerance) >= Math.Max(4, (rows.Count - 1) / 2);
+    }
+
+    private static bool HasAlgorithmIndentation(IReadOnlyList<LineCandidate> rows)
+    {
+        float minimum = rows.Min(static row => row.Bounds.X);
+        float maximum = rows.Max(static row => row.Bounds.X);
+        float fontSize = rows.Select(static row => row.FontSize).Order().ElementAt(rows.Count / 2);
+        return maximum - minimum >= MathF.Max(4f, fontSize * 0.6f);
+    }
+
+    private static float LineCenterY(LineCandidate line) => line.Bounds.Y + line.Bounds.Height / 2f;
+
+    private static float RuleCenterY(PdfLayoutRectangle bounds) => bounds.Y + bounds.Height / 2f;
+
+    private static PdfSemanticElement CreateAlgorithm(
+        AlgorithmCandidate candidate,
+        HashSet<int> consumed)
+    {
+        foreach (LineCandidate sourceLine in candidate.SourceLines)
+        {
+            consumed.Add(sourceLine.Index);
+        }
+
+        PdfSemanticLine[] captionLines = candidate.CaptionLines
+            .Select(static line => line.SemanticLine)
+            .ToArray();
+        PdfSemanticAlgorithmRow[] rows = candidate.Rows
+            .Select(row => new PdfSemanticAlgorithmRow(
+                CreateAlgorithmRowLine(row, candidate.SourceLines),
+                row.Bounds.X - candidate.CaptionRule.Bounds.X))
+            .ToArray();
+        string caption = JoinParagraphLines(captionLines);
+        PdfSemanticAlgorithm algorithm = new(
+            caption,
+            captionLines,
+            rows,
+            ToSemanticAlgorithmRule(candidate.TopRule),
+            ToSemanticAlgorithmRule(candidate.CaptionRule),
+            ToSemanticAlgorithmRule(candidate.BottomRule));
+        PdfSemanticLine[] semanticLines = captionLines
+            .Concat(rows.Select(static row => row.Line))
+            .ToArray();
+        PdfLayoutRectangle bounds = PdfLayoutRectangle.Union(
+            semanticLines.Select(static line => line.Bounds)
+                .Concat([
+                    candidate.TopRule.Bounds,
+                    candidate.CaptionRule.Bounds,
+                    candidate.BottomRule.Bounds
+                ]));
+        return new PdfSemanticElement(
+            PdfSemanticElementKind.Algorithm,
+            string.Join('\n', new[] { caption }.Concat(rows.Select(static row => row.Text))),
+            bounds,
+            semanticLines,
+            algorithm: algorithm);
+    }
+
+    private static PdfSemanticLine CreateAlgorithmRowLine(
+        LineCandidate row,
+        IReadOnlyList<LineCandidate> sourceLines)
+    {
+        PdfTextRun[] runs = row.Source.Runs
+            .Concat(sourceLines
+                .Where(line => line.Index != row.Index &&
+                    IsAlgorithmRowDecoration(line) &&
+                    !string.Equals(line.Text.Trim(), "√", StringComparison.Ordinal) &&
+                    IsInlineWithTextLine(row, line))
+                .SelectMany(static line => line.Source.Runs))
+            .ToArray();
+        if (runs.Length == row.Source.Runs.Count)
+        {
+            return row.SemanticLine;
+        }
+
+        PdfSemanticLine source = row.SemanticLine;
+        return new PdfSemanticLine(
+            ReconstructText(runs.SelectMany(static run => run.Glyphs)),
+            PdfLayoutRectangle.Union(runs.Select(static run => run.Bounds)),
+            source.DominantFontName,
+            source.DominantFontSize,
+            source.Direction,
+            source.Color,
+            runs);
+    }
+
+    private static PdfSemanticAlgorithmRule ToSemanticAlgorithmRule(AlgorithmRuleCandidate rule)
+    {
+        return new PdfSemanticAlgorithmRule(rule.SourcePathIndex, rule.Bounds, rule.Thickness, rule.Color);
     }
 
     private static CodeBlockCandidate[] DetectCodeBlocks(
@@ -3526,7 +3821,7 @@ public static class PdfSemanticExtractor
             {
                 if (current.Count > 0)
                 {
-                    yield return CreateParagraph(current, consumed);
+                    yield return CreateParagraph(current, consumed, options);
                     current.Clear();
                     previous = null;
                 }
@@ -3557,7 +3852,7 @@ public static class PdfSemanticExtractor
 
                 if (current.Count > 0)
                 {
-                    yield return CreateParagraph(current, consumed);
+                    yield return CreateParagraph(current, consumed, options);
                     current.Clear();
                     previous = null;
                 }
@@ -3567,7 +3862,7 @@ public static class PdfSemanticExtractor
 
             if (current.Count > 0 && TryParseListMarker(line, out _))
             {
-                yield return CreateParagraph(current, consumed);
+                yield return CreateParagraph(current, consumed, options);
                 current.Clear();
                 previous = null;
             }
@@ -3577,14 +3872,22 @@ public static class PdfSemanticExtractor
                 (currentFormulaBlock && IsDisplayFormulaContinuation(current, line, lineStep));
             if (current.Count > 0 && currentFormulaBlock != lineFormulaBlock)
             {
-                yield return CreateParagraph(current, consumed);
+                List<LineCandidate> leadingFormulaAttachments = !currentFormulaBlock && lineFormulaBlock
+                    ? DetachTrailingFormulaAttachments(current, line)
+                    : [];
+                if (current.Count > 0)
+                {
+                    yield return CreateParagraph(current, consumed, options);
+                }
+
                 current.Clear();
+                current.AddRange(leadingFormulaAttachments);
                 previous = null;
             }
 
             if (previous != null && ShouldStartParagraph(previous, line, lineStep, options))
             {
-                yield return CreateParagraph(current, consumed);
+                yield return CreateParagraph(current, consumed, options);
                 current.Clear();
             }
 
@@ -3594,7 +3897,7 @@ public static class PdfSemanticExtractor
 
         if (current.Count > 0)
         {
-            yield return CreateParagraph(current, consumed);
+            yield return CreateParagraph(current, consumed, options);
         }
     }
 
@@ -6114,8 +6417,72 @@ public static class PdfSemanticExtractor
                 CountWords(line.Text) <= 4;
         }
 
+        if (IsMathDominantFormulaLine(line.Text, line.Bounds, line.Source.Runs))
+        {
+            return true;
+        }
+
         bool centeredEnough = line.Bounds.X >= 150f && line.Bounds.Width >= 80f;
         return centeredEnough && line.FontSize <= bodyFontSize + 1f && CountWords(line.Text) <= 4;
+    }
+
+    private static bool IsMathDominantFormulaLine(
+        string text,
+        PdfLayoutRectangle bounds,
+        IReadOnlyList<PdfTextRun> runs)
+    {
+        if (bounds.Width < 80f || text.Length > 220)
+        {
+            return false;
+        }
+
+        if (!IsFormulaMathFont(DominantStyle(runs).FontName))
+        {
+            return false;
+        }
+
+        int totalCharacters = runs.Sum(static run =>
+            run.Text.Count(static character => !char.IsWhiteSpace(character)));
+        int mathCharacters = runs
+            .Where(static run => IsFormulaMathFont(run.FontName))
+            .Sum(static run => run.Text.Count(static character => !char.IsWhiteSpace(character)));
+        return mathCharacters >= 8 &&
+            totalCharacters > 0 &&
+            mathCharacters / (float)totalCharacters >= 0.58f;
+    }
+
+    private static List<LineCandidate> DetachTrailingFormulaAttachments(
+        List<LineCandidate> current,
+        LineCandidate displayLine)
+    {
+        List<LineCandidate> attachments = [];
+        while (current.Count > 0 && IsFormulaLineAttachment(current[^1], displayLine))
+        {
+            attachments.Add(current[^1]);
+            current.RemoveAt(current.Count - 1);
+        }
+
+        attachments.Reverse();
+        return attachments;
+    }
+
+    private static bool IsFormulaLineAttachment(LineCandidate candidate, LineCandidate displayLine)
+    {
+        if (candidate.Text.Trim().Length is 0 or > 18 ||
+            !candidate.Source.Runs
+                .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+                .All(static run => IsMathFont(run.FontName)))
+        {
+            return false;
+        }
+
+        float verticalGap = MathF.Max(0f, MathF.Max(
+            candidate.Bounds.Y - displayLine.Bounds.Bottom,
+            displayLine.Bounds.Y - candidate.Bounds.Bottom));
+        float horizontalTolerance = MathF.Max(8f, displayLine.FontSize);
+        return verticalGap <= MathF.Max(2.5f, displayLine.FontSize * 0.35f) &&
+            candidate.Bounds.Right >= displayLine.Bounds.X - horizontalTolerance &&
+            candidate.Bounds.X <= displayLine.Bounds.Right + horizontalTolerance;
     }
 
     private static bool IsDisplayFormulaContinuation(
@@ -6226,6 +6593,19 @@ public static class PdfSemanticExtractor
             normalized.Contains("MSBM", StringComparison.Ordinal);
     }
 
+    private static bool IsFormulaMathFont(string fontName)
+    {
+        string normalized = NormalizeFontName(fontName);
+        return normalized.StartsWith("CMMI", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("CMSY", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("CMEX", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("CMBSY", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("MSAM", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("MSBM", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("AMSA", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("AMSB", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool ShouldStartParagraph(
         LineCandidate previous,
         LineCandidate current,
@@ -6281,7 +6661,10 @@ public static class PdfSemanticExtractor
         return 0f;
     }
 
-    private static PdfSemanticElement CreateParagraph(IReadOnlyList<LineCandidate> lines, HashSet<int> consumed)
+    private static PdfSemanticElement CreateParagraph(
+        IReadOnlyList<LineCandidate> lines,
+        HashSet<int> consumed,
+        PdfSemanticExtractionOptions options)
     {
         foreach (LineCandidate line in lines)
         {
@@ -6290,12 +6673,55 @@ public static class PdfSemanticExtractor
 
         LineCandidate[] readingLines = OrderLinesForReading(lines);
         PdfSemanticLine[] semanticLines = DetectInlineCode(
-            readingLines.Select(static line => line.SemanticLine).ToArray());
+            MergeDisplayFormulaSourceLines(readingLines, options));
         return new PdfSemanticElement(
             PdfSemanticElementKind.Paragraph,
             JoinParagraphLines(semanticLines),
             PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
             semanticLines);
+    }
+
+    private static PdfSemanticLine[] MergeDisplayFormulaSourceLines(
+        IReadOnlyList<LineCandidate> lines,
+        PdfSemanticExtractionOptions options)
+    {
+        LineCandidate[] anchors = lines
+            .Where(line => HasFormulaOperator(line.Text) &&
+                IsMathDominantFormulaLine(line.Text, line.Bounds, line.Source.Runs))
+            .ToArray();
+        if (anchors.Length != 1)
+        {
+            return lines.Select(static line => line.SemanticLine).ToArray();
+        }
+
+        LineCandidate anchor = anchors[0];
+        LineCandidate[] attachments = lines
+            .Where(line => !ReferenceEquals(line, anchor) && IsFormulaLineAttachment(line, anchor))
+            .ToArray();
+        if (attachments.Length == 0)
+        {
+            return lines.Select(static line => line.SemanticLine).ToArray();
+        }
+
+        HashSet<LineCandidate> mergedLines = attachments.Append(anchor).ToHashSet();
+        PdfTextRun[] runs = mergedLines
+            .SelectMany(static line => line.Source.Runs)
+            .OrderBy(static run => run.Bounds.X)
+            .ThenBy(static run => run.Bounds.Y)
+            .ToArray();
+        (string fontName, float fontSize, float direction, PdfLayoutColor color) = DominantStyle(runs);
+        PdfSemanticLine merged = new(
+            ReconstructText(runs.SelectMany(static run => run.Glyphs), options),
+            PdfLayoutRectangle.Union(mergedLines.Select(static line => line.Bounds)),
+            fontName,
+            fontSize,
+            direction,
+            color,
+            runs);
+        return OrderLinesForReading(lines
+            .Where(line => !mergedLines.Contains(line))
+            .Select(static line => line.SemanticLine)
+            .Append(merged));
     }
 
     private static PdfSemanticLine[] DetectInlineCode(IReadOnlyList<PdfSemanticLine> lines)
@@ -6892,6 +7318,20 @@ public static class PdfSemanticExtractor
         string Text,
         float CharacterPitch,
         float LineStep);
+
+    private sealed record AlgorithmCandidate(
+        AlgorithmRuleCandidate TopRule,
+        AlgorithmRuleCandidate CaptionRule,
+        AlgorithmRuleCandidate BottomRule,
+        IReadOnlyList<LineCandidate> CaptionLines,
+        IReadOnlyList<LineCandidate> Rows,
+        IReadOnlyList<LineCandidate> SourceLines);
+
+    private readonly record struct AlgorithmRuleCandidate(
+        int SourcePathIndex,
+        PdfLayoutRectangle Bounds,
+        float Thickness,
+        PdfLayoutColor Color);
 
     private sealed class RawDocumentIndexItem
     {

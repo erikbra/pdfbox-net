@@ -1791,6 +1791,14 @@ public static class PdfLayoutExtractor
         {
             string text = position.GetUnicode();
             string fontName = position.GetFont().GetName();
+            if (IsComputerModernSymbolFont(fontName) &&
+                position.GetCharacterCodes() is [12] &&
+                text.Length == 1 &&
+                text[0] is '\f' or '\uFFFD')
+            {
+                return "⊙";
+            }
+
             if (!fontName.Contains("Math", StringComparison.OrdinalIgnoreCase) ||
                 text.Length < 2 ||
                 text.Length % 2 != 0)
@@ -1802,6 +1810,13 @@ public static class PdfLayoutExtractor
             return text.AsSpan(0, halfLength).SequenceEqual(text.AsSpan(halfLength))
                 ? text[..halfLength]
                 : text;
+        }
+
+        private static bool IsComputerModernSymbolFont(string fontName)
+        {
+            string baseName = fontName[(fontName.LastIndexOf('+') + 1)..];
+            return baseName.StartsWith("CMSY", StringComparison.OrdinalIgnoreCase) ||
+                baseName.StartsWith("CMBSY", StringComparison.OrdinalIgnoreCase);
         }
 
         private static IEnumerable<PdfTextLine> CreateLines(IReadOnlyList<PdfTextGlyph> glyphs, PdfLayoutOptions options)
