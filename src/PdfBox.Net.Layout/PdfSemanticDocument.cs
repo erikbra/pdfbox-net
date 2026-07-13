@@ -51,7 +51,8 @@ public sealed class PdfSemanticElement
         IReadOnlyList<PdfSemanticTableRow>? tableRows = null,
         PdfSemanticList? semanticList = null,
         PdfSemanticDocumentIndex? documentIndex = null,
-        bool isDocumentTitle = false)
+        bool isDocumentTitle = false,
+        PdfSemanticBibliographyFragment? bibliographyFragment = null)
     {
         Kind = kind;
         Text = text;
@@ -61,6 +62,7 @@ public sealed class PdfSemanticElement
         TableRows = tableRows?.ToArray() ?? [];
         SemanticList = semanticList;
         DocumentIndex = documentIndex;
+        BibliographyFragment = bibliographyFragment;
         IsDocumentTitle = isDocumentTitle;
     }
 
@@ -79,6 +81,8 @@ public sealed class PdfSemanticElement
     public PdfSemanticList? SemanticList { get; }
 
     public PdfSemanticDocumentIndex? DocumentIndex { get; }
+
+    public PdfSemanticBibliographyFragment? BibliographyFragment { get; }
 
     /// <summary>
     /// Gets whether this heading is the inferred document title rather than a section heading.

@@ -843,6 +843,82 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsOneLinkedBibliographyAcrossPageBreaks()
+    {
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(CreateBibliographyLayoutFixture(), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement bibliography = Assert.Single(ElementsByClass(dom, "pdf-semantic-bibliography"));
+        Assert.Equal("References", bibliography.Attribute("aria-label")?.Value);
+        Assert.Equal("bracketed-number", bibliography.Attribute("data-marker-kind")?.Value);
+        Assert.Equal("3", bibliography.Attribute("start")?.Value);
+        Assert.Contains("content: \"[\" counter(list-item) \"] \"", html.Css, StringComparison.Ordinal);
+        XElement[] items = bibliography.Elements("li").ToArray();
+        Assert.Equal(2, items.Length);
+        Assert.Equal("cite.Lovelace2020", items[0].Attribute("id")?.Value);
+        Assert.Equal("cite.Noether2022", items[1].Attribute("id")?.Value);
+        Assert.Equal("5", items[1].Attribute("value")?.Value);
+        Assert.DoesNotContain("[3]", items[0].Value, StringComparison.Ordinal);
+        Assert.Contains("continued on the next source page", items[0].Value, StringComparison.Ordinal);
+        Assert.Single(items[0].Descendants(), element =>
+            HasClass(element, "pdf-semantic-page-break") &&
+            element.Attribute("data-page-number")?.Value == "3");
+        Assert.Contains(items[0].Descendants("a"), link =>
+            link.Attribute("href")?.Value == "https://doi.org/10.1000/first");
+        Assert.Contains(items[0].Descendants(), element => HasClass(element, "pdf-semantic-italic"));
+        Assert.Empty(items[0].Descendants("cite"));
+
+        XElement inTextCitation = Assert.Single(ElementsByClass(dom, "pdf-semantic-link"), link =>
+            link.Value.Contains("[3]", StringComparison.Ordinal));
+        Assert.Equal("#cite.Lovelace2020", inTextCitation.Attribute("href")?.Value);
+        Assert.NotNull(dom.Descendants().SingleOrDefault(element =>
+            element.Attribute("id")?.Value == inTextCitation.Attribute("href")?.Value.TrimStart('#')));
+        Assert.Single(dom.Descendants("ol"), element => HasClass(element, "pdf-semantic-bibliography"));
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_ArxivReferencesRemainOneLinkedBibliography()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(document), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement bibliography = Assert.Single(ElementsByClass(dom, "pdf-semantic-bibliography"));
+        XElement[] items = bibliography.Elements("li").ToArray();
+        Assert.Equal(40, items.Length);
+        Assert.DoesNotContain(items, item => item.Value.TrimStart().StartsWith("[", StringComparison.Ordinal));
+
+        XElement[] pageBreaks = bibliography.Descendants()
+            .Where(element => HasClass(element, "pdf-semantic-page-break"))
+            .ToArray();
+        Assert.Equal(["11", "12"], pageBreaks.Select(element => element.Attribute("data-page-number")?.Value));
+        Assert.All(pageBreaks, pageBreak => Assert.Contains(pageBreak.Ancestors(), ancestor => ancestor.Name == "li"));
+
+        HashSet<string> ids = dom.Descendants()
+            .Select(element => element.Attribute("id")?.Value)
+            .OfType<string>()
+            .ToHashSet(StringComparer.Ordinal);
+        string[] citationTargets = dom.Descendants("a")
+            .Select(link => link.Attribute("href")?.Value)
+            .OfType<string>()
+            .Where(href => href.StartsWith("#cite.", StringComparison.Ordinal))
+            .Select(static href => Uri.UnescapeDataString(href[1..]))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        Assert.NotEmpty(citationTargets);
+        Assert.All(citationTargets, target => Assert.Contains(target, ids));
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_EmitsBulletLinesAsListItems()
     {
         using PDDocument document = CreateTextDocument("""
@@ -4577,6 +4653,117 @@ public class PdfHtmlConverterTest
                 [137, 80, 78, 71]))
             .ToArray();
         return new PdfLayoutDocument([indexPage, destinationPage], imageAssets, []);
+    }
+
+    private static PdfLayoutDocument CreateBibliographyLayoutFixture()
+    {
+        PdfTextLine citation = CreateBibliographyStyledLine(
+            72f,
+            72f,
+            ("Prior work ", "Times-Roman"),
+            ("[3]", "Times-Roman"),
+            (" establishes the baseline.", "Times-Roman"));
+        PdfTextLine secondCitation = CreateBibliographyStyledLine(
+            72f,
+            88f,
+            ("A later comparison ", "Times-Roman"),
+            ("[5]", "Times-Roman"),
+            (" confirms it.", "Times-Roman"));
+        PdfLayoutPage firstPage = CreateBibliographyLayoutPage(
+            1,
+            [
+                CreateScientificFixtureLine("Opening scientific prose establishes the body font.", 72f, 40f, 340f),
+                CreateScientificFixtureLine("A second line establishes ordinary paragraph rhythm.", 72f, 56f, 340f),
+                citation,
+                secondCitation
+            ],
+            [
+                new PdfLayoutLink(
+                    0,
+                    citation.Runs[1].Bounds,
+                    PdfLayoutLinkKind.Destination,
+                    null,
+                    "cite.Lovelace2020",
+                    null,
+                    []),
+                new PdfLayoutLink(
+                    1,
+                    secondCitation.Runs[1].Bounds,
+                    PdfLayoutLinkKind.Destination,
+                    null,
+                    "cite.Noether2022",
+                    null,
+                    [])
+            ]);
+        PdfLayoutPage secondPage = CreateBibliographyLayoutPage(
+            2,
+            [
+                CreateScientificFixtureLine("References", 72f, 52f, 100f, 14f, "Times-Bold"),
+                CreateBibliographyStyledLine(
+                    72f,
+                    86f,
+                    ("[3] Lovelace, A. (2020). ", "Times-Roman"),
+                    ("Analytical Engines", "Times-Italic"),
+                    (". https://doi.org/10.1000/first", "Times-Roman")),
+                CreateScientificFixtureLine("The discussion continues to the bottom of this source page", 88f, 100f, 360f)
+            ]);
+        PdfLayoutPage thirdPage = CreateBibliographyLayoutPage(
+            3,
+            [
+                CreateScientificFixtureLine("and is continued on the next source page.", 88f, 52f, 300f),
+                CreateScientificFixtureLine("[5] Noether, E. (2022). Symmetry in modern physics.", 72f, 106f, 380f)
+            ]);
+        return new PdfLayoutDocument([firstPage, secondPage, thirdPage], []);
+    }
+
+    private static PdfLayoutPage CreateBibliographyLayoutPage(
+        int pageNumber,
+        IReadOnlyList<PdfTextLine> lines,
+        IReadOnlyList<PdfLayoutLink>? links = null)
+    {
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        return new PdfLayoutPage(
+            pageNumber,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            [],
+            [],
+            links ?? [],
+            []);
+    }
+
+    private static PdfTextLine CreateBibliographyStyledLine(
+        float x,
+        float y,
+        params (string Text, string FontName)[] segments)
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        List<PdfTextRun> runs = [];
+        float segmentX = x;
+        foreach ((string text, string fontName) in segments)
+        {
+            float width = MathF.Max(4f, text.Length * 5f);
+            PdfLayoutRectangle bounds = new(segmentX, y, width, fontSize * 0.75f);
+            PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
+            runs.Add(new PdfTextRun(text, fontName, fontSize, 0f, bounds, color, [glyph]));
+            segmentX += width;
+        }
+
+        return new PdfTextLine(
+            string.Concat(segments.Select(static segment => segment.Text)),
+            new PdfLayoutRectangle(x, y, segmentX - x, fontSize * 0.75f),
+            runs);
     }
 
     private static PdfLayoutLink CreateDocumentIndexLayoutLink(int index, float y, int destinationPageNumber)

@@ -636,6 +636,26 @@ public static class PdfHtmlConverter
           margin: 2pt 0 0;
         }
 
+        .pdf-semantic-bibliography {
+          line-height: 1.18;
+          margin: 0 0 6pt;
+          padding-left: 2.25em;
+        }
+
+        .pdf-semantic-bibliography[data-marker-kind="author-year"] {
+          list-style: none;
+          padding-left: 0;
+        }
+
+        .pdf-semantic-bibliography[data-marker-kind="bracketed-number"] > li::marker {
+          content: "[" counter(list-item) "] ";
+        }
+
+        .pdf-semantic-bibliography > li {
+          margin: 0 0 4pt;
+          padding-left: 0.25em;
+        }
+
         .pdf-semantic-document-index {
           margin: 0 0 12pt;
         }
@@ -2759,7 +2779,8 @@ public static class PdfHtmlConverter
             skippedElements: null,
             skippedFigureRegions: null,
             paragraphMerge: null,
-            sectionWriter);
+            sectionWriter,
+            bibliographyWriter: null);
         sectionWriter.CloseAll();
         html.AppendLine("    </article>");
     }
@@ -2832,12 +2853,14 @@ public static class PdfHtmlConverter
         html.AppendLine("  <main class=\"pdf-semantic-document-flow\">");
         bool flowOpen = false;
         SemanticSectionWriter? sectionWriter = null;
+        SemanticBibliographyWriter bibliographyWriter = new(html);
 
         for (int index = 0; index < pages.Length; index++)
         {
             ContinuousPageContext context = pages[index];
             if (context.LineGrid != null)
             {
+                bibliographyWriter.CloseAll();
                 if (!flowOpen)
                 {
                     html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
@@ -2857,6 +2880,7 @@ public static class PdfHtmlConverter
 
             if (context.Columns != null)
             {
+                bibliographyWriter.CloseAll();
                 if (!flowOpen)
                 {
                     html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
@@ -2876,6 +2900,7 @@ public static class PdfHtmlConverter
 
             if (context.UsesFixedLayoutFallback)
             {
+                bibliographyWriter.CloseAll();
                 if (flowOpen)
                 {
                     sectionWriter!.CloseAll();
@@ -2915,6 +2940,7 @@ public static class PdfHtmlConverter
             }
 
             bool isCoverPage = IsCoverPage(context.Page, context.SemanticPage);
+            bibliographyWriter.PrepareForPage(context.SemanticPage);
             PdfSemanticElement? pageOpeningSectionHeading = isCoverPage
                 ? context.SemanticPage.Elements.FirstOrDefault(element =>
                     IsTitleElement(element) && semantic.SectionTree.FindSection(element) != null)
@@ -2964,12 +2990,14 @@ public static class PdfHtmlConverter
                 skippedElements,
                 skippedFigureRegions,
                 paragraphMerges.GetValueOrDefault(index),
-                sectionWriter);
+                sectionWriter,
+                bibliographyWriter);
             WriteFormControls(html, context.Page, scale, positioned: false);
         }
 
         if (flowOpen)
         {
+            bibliographyWriter.CloseAll();
             sectionWriter!.CloseAll();
             html.AppendLine("    </article>");
         }
@@ -3171,6 +3199,16 @@ public static class PdfHtmlConverter
         if (HasFullPageVectorBackdrop(page))
         {
             return true;
+        }
+
+        // Bibliography extraction intentionally collapses many source lines into
+        // one semantic fragment. Do not mistake that successful grouping for the
+        // sparse-element signal used by the remaining visual fallback heuristics.
+        if (semanticPage.Elements.Any(static element =>
+                element.Kind == PdfSemanticElementKind.Bibliography &&
+                element.BibliographyFragment != null))
+        {
+            return false;
         }
 
         if (HasSideBySideTextColumns(page, semanticPage))
@@ -4904,7 +4942,8 @@ public static class PdfHtmlConverter
         ISet<PdfSemanticElement>? skippedElements,
         ISet<PdfLayoutRectangle>? skippedFigureRegions,
         ContinuousParagraphMerge? paragraphMerge,
-        SemanticSectionWriter? sectionWriter)
+        SemanticSectionWriter? sectionWriter,
+        SemanticBibliographyWriter? bibliographyWriter)
     {
         PdfLayoutRectangle[] figureRegions = figureRendering == SemanticFigureRendering.None
             ? []
@@ -4921,6 +4960,14 @@ public static class PdfHtmlConverter
             }
 
             if (omitSimplePageNumberFooters && IsSimplePageNumberFooter(element, page))
+            {
+                continue;
+            }
+
+            if (bibliographyWriter != null &&
+                bibliographyWriter.IsActive &&
+                bibliographyWriter.ContinuesAfter(page.PageNumber) &&
+                IsSimplePageNumberFooter(element, page))
             {
                 continue;
             }
@@ -4952,8 +4999,23 @@ public static class PdfHtmlConverter
                 nextFigureRegion++;
             }
 
+            bibliographyWriter?.BeforeElement(element);
             string? elementId = sectionWriter?.BeginElement(element);
             int? headingLevel = sectionWriter?.SectionLevelFor(element);
+
+            if (element.Kind == PdfSemanticElementKind.Bibliography && element.BibliographyFragment != null)
+            {
+                if (bibliographyWriter != null)
+                {
+                    bibliographyWriter.WriteFragment(element, footnotes, page);
+                }
+                else
+                {
+                    WriteSemanticBibliographyFragment(html, element, footnotes, page);
+                }
+
+                continue;
+            }
 
             if (paragraphMerge?.StartElement == element)
             {
@@ -5369,6 +5431,7 @@ public static class PdfHtmlConverter
             title.Bounds.Y >= page.Height * 0.45f ||
             page.Lines.Count > 18 ||
             semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Table) ||
+            semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Bibliography) ||
             semanticPage.Elements.Any(element =>
                 element.Kind == PdfSemanticElementKind.Heading &&
                 element != title &&
@@ -5943,6 +6006,12 @@ public static class PdfHtmlConverter
             return;
         }
 
+        if (element.Kind == PdfSemanticElementKind.Bibliography && element.BibliographyFragment != null)
+        {
+            WriteSemanticBibliographyFragment(html, element, footnotes, page);
+            return;
+        }
+
         string tagName = SemanticTagName(element, headingLevel);
         html.Append("      <")
             .Append(tagName)
@@ -6101,6 +6170,56 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine("</li>");
+    }
+
+    private static void WriteSemanticBibliographyFragment(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        SemanticBibliographyWriter writer = new(html);
+        writer.WriteFragment(element, footnotes, page);
+        writer.CloseAll();
+    }
+
+    private static void WriteSemanticBibliographyText(
+        StringBuilder html,
+        PdfSemanticBibliographyItem item,
+        PdfSemanticBibliographyItemFragment fragment,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        PdfSemanticElement itemElement = new(
+            PdfSemanticElementKind.Paragraph,
+            fragment.Text,
+            fragment.Bounds,
+            fragment.Lines);
+        string previousLineText = "";
+        bool wroteLine = false;
+        foreach (PdfSemanticLine line in fragment.Lines)
+        {
+            List<InlineTextSegment> segments = InlineTextSegments(line, page, itemElement).ToList();
+            if (!wroteLine && fragment.IsFirstPart && item.MarkerLength > 0)
+            {
+                TrimLeadingCharacters(segments, item.MarkerLength);
+            }
+
+            string lineText = string.Concat(segments.Select(static segment => segment.Text));
+            if (lineText.Length == 0)
+            {
+                continue;
+            }
+
+            if (wroteLine && NeedsSpaceBetween(previousLineText, lineText))
+            {
+                html.Append(' ');
+            }
+
+            WriteInlineTextSegments(html, line, segments, lineText, footnotes);
+            previousLineText = lineText;
+            wroteLine = true;
+        }
     }
 
     private static void WriteSemanticDocumentIndex(
@@ -9542,6 +9661,7 @@ public static class PdfHtmlConverter
             PdfSemanticElementKind.Heading => "pdf-semantic-heading",
             PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
             PdfSemanticElementKind.List => "pdf-semantic-list-element",
+            PdfSemanticElementKind.Bibliography => "pdf-semantic-bibliography-element",
             PdfSemanticElementKind.Navigation => "pdf-semantic-navigation",
             PdfSemanticElementKind.Table => "pdf-semantic-table",
             PdfSemanticElementKind.AuthorBlock => "pdf-semantic-author-block",
@@ -10356,6 +10476,182 @@ public static class PdfHtmlConverter
         public IReadOnlyList<PdfSemanticElement> LeadingElements { get; }
 
         public IReadOnlyList<PdfLayoutRectangle> LeadingFigureRegions { get; }
+    }
+
+    private sealed class SemanticBibliographyWriter
+    {
+        private readonly StringBuilder _html;
+        private PdfSemanticBibliography? _bibliography;
+        private int _activeItemIndex = -1;
+        private int _lastFragmentPageNumber;
+        private bool _continuesAfterLastFragment;
+
+        public SemanticBibliographyWriter(StringBuilder html)
+        {
+            _html = html;
+        }
+
+        public bool IsActive => _bibliography != null;
+
+        public bool ContinuesAfter(int pageNumber)
+        {
+            return IsActive &&
+                _lastFragmentPageNumber == pageNumber &&
+                _continuesAfterLastFragment;
+        }
+
+        public void PrepareForPage(PdfSemanticPage page)
+        {
+            if (_bibliography == null)
+            {
+                return;
+            }
+
+            PdfSemanticBibliographyFragment? continuation = page.Elements
+                .Select(static element => element.BibliographyFragment)
+                .FirstOrDefault(fragment =>
+                    fragment != null &&
+                    ReferenceEquals(fragment.Bibliography, _bibliography));
+            if (continuation == null)
+            {
+                CloseAll();
+                return;
+            }
+
+            // A page marker inside an open list must remain inside an li. When
+            // the next page starts a new reference, open that item before the
+            // marker is written; a genuinely continued item is already open.
+            if (_activeItemIndex < 0 && continuation.Items.Count > 0)
+            {
+                PdfSemanticBibliographyItemFragment firstFragment = continuation.Items[0];
+                PdfSemanticBibliographyItem firstItem = continuation.Bibliography.Items[firstFragment.ItemIndex];
+                OpenItem(continuation.Bibliography, firstItem, firstFragment.IsFirstPart);
+            }
+        }
+
+        public void BeforeElement(PdfSemanticElement element)
+        {
+            if (_bibliography == null)
+            {
+                return;
+            }
+
+            if (element.BibliographyFragment != null &&
+                ReferenceEquals(element.BibliographyFragment.Bibliography, _bibliography))
+            {
+                return;
+            }
+
+            CloseAll();
+        }
+
+        public void WriteFragment(
+            PdfSemanticElement element,
+            FootnoteContext footnotes,
+            PdfLayoutPage? page)
+        {
+            PdfSemanticBibliographyFragment fragment = element.BibliographyFragment!;
+            if (!ReferenceEquals(_bibliography, fragment.Bibliography))
+            {
+                CloseAll();
+                Open(fragment.Bibliography);
+            }
+
+            foreach (PdfSemanticBibliographyItemFragment itemFragment in fragment.Items)
+            {
+                PdfSemanticBibliographyItem item = fragment.Bibliography.Items[itemFragment.ItemIndex];
+                if (_activeItemIndex != itemFragment.ItemIndex)
+                {
+                    CloseItem();
+                    OpenItem(fragment.Bibliography, item, itemFragment.IsFirstPart);
+                }
+
+                WriteSemanticBibliographyText(_html, item, itemFragment, footnotes, page);
+                if (itemFragment.IsLastPart)
+                {
+                    CloseItem();
+                }
+            }
+
+            _lastFragmentPageNumber = fragment.PageNumber;
+            _continuesAfterLastFragment = !fragment.IsLastFragment;
+            if (fragment.IsLastFragment)
+            {
+                CloseAll();
+            }
+        }
+
+        public void CloseAll()
+        {
+            if (_bibliography == null)
+            {
+                return;
+            }
+
+            CloseItem();
+            _html.AppendLine("      </ol>");
+            _bibliography = null;
+            _lastFragmentPageNumber = 0;
+            _continuesAfterLastFragment = false;
+        }
+
+        private void Open(PdfSemanticBibliography bibliography)
+        {
+            _bibliography = bibliography;
+            _html.Append("      <ol class=\"pdf-semantic-bibliography\" aria-label=\"")
+                .Append(HtmlAttribute(bibliography.Heading))
+                .Append("\" data-marker-kind=\"")
+                .Append(bibliography.MarkerKind switch
+                {
+                    PdfSemanticBibliographyMarkerKind.BracketedNumber => "bracketed-number",
+                    PdfSemanticBibliographyMarkerKind.Number => "number",
+                    _ => "author-year"
+                })
+                .Append('"');
+            if (bibliography.Start.HasValue)
+            {
+                _html.Append(" start=\"")
+                    .Append(bibliography.Start.Value.ToString(CultureInfo.InvariantCulture))
+                    .Append('"');
+            }
+
+            _html.AppendLine(">");
+        }
+
+        private void OpenItem(
+            PdfSemanticBibliography bibliography,
+            PdfSemanticBibliographyItem item,
+            bool isFirstPart)
+        {
+            _activeItemIndex = item.Ordinal - 1;
+            _html.Append("        <li");
+            if (isFirstPart)
+            {
+                _html.Append(" id=\"").Append(HtmlAttribute(item.Id)).Append('"');
+            }
+
+            int firstNumber = bibliography.Items[0].SourceNumber ?? 1;
+            int expectedNumber = firstNumber + item.Ordinal - 1;
+            if (item.SourceNumber.HasValue && item.SourceNumber.Value != expectedNumber)
+            {
+                _html.Append(" value=\"")
+                    .Append(item.SourceNumber.Value.ToString(CultureInfo.InvariantCulture))
+                    .Append('"');
+            }
+
+            _html.Append('>');
+        }
+
+        private void CloseItem()
+        {
+            if (_activeItemIndex < 0)
+            {
+                return;
+            }
+
+            _html.AppendLine("</li>");
+            _activeItemIndex = -1;
+        }
     }
 
     private sealed class FootnoteContext
