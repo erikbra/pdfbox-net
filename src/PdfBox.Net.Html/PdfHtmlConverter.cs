@@ -4682,6 +4682,7 @@ public static class PdfHtmlConverter
         return element.Kind == PdfSemanticElementKind.Paragraph &&
             !IsFigureCaption(element) &&
             !IsSameRowLineGroup(element) &&
+            !IsFormulaBlock(element) &&
             !string.IsNullOrWhiteSpace(element.Text);
     }
 
@@ -6968,12 +6969,24 @@ public static class PdfHtmlConverter
                 .ToArray();
         }
 
+        PdfSemanticElement? trailingFootnote = TryGetTrailingFormulaFootnote(
+            element,
+            formulaLines,
+            out int trailingFootnoteStart);
+        int contentEnd = trailingFootnoteStart >= 0
+            ? trailingFootnoteStart
+            : element.Lines.Count;
+        if (trailingFootnote != null)
+        {
+            footnotes.Register(LeadingFootnoteMarker(trailingFootnote.Lines[0]));
+        }
+
         int start = 0;
-        while (start < element.Lines.Count)
+        while (start < contentEnd)
         {
             bool isFormula = formulaLines[start];
             int end = start + 1;
-            while (end < element.Lines.Count && formulaLines[end] == isFormula)
+            while (end < contentEnd && formulaLines[end] == isFormula)
             {
                 end++;
             }
@@ -7007,6 +7020,95 @@ public static class PdfHtmlConverter
 
             start = end;
         }
+
+        if (trailingFootnote != null)
+        {
+            WriteFootnoteSection(
+                html,
+                [trailingFootnote],
+                0,
+                footnotes,
+                page,
+                footnoteRule: null);
+        }
+    }
+
+    private static PdfSemanticElement? TryGetTrailingFormulaFootnote(
+        PdfSemanticElement element,
+        IReadOnlyList<bool> formulaLines,
+        out int footnoteStart)
+    {
+        footnoteStart = -1;
+        int lastFormula = -1;
+        for (int index = formulaLines.Count - 1; index >= 0; index--)
+        {
+            if (formulaLines[index])
+            {
+                lastFormula = index;
+                break;
+            }
+        }
+
+        if (lastFormula < 0)
+        {
+            return null;
+        }
+
+        float bodyFontSize = SemanticFontSize(element);
+        for (int index = lastFormula + 1; index < element.Lines.Count; index++)
+        {
+            PdfSemanticLine line = element.Lines[index];
+            string marker = LeadingFootnoteMarker(line);
+            if (marker.Length == 0 ||
+                line.DominantFontSize > bodyFontSize * 0.9f ||
+                !HasRaisedFootnoteMarker(line, marker))
+            {
+                continue;
+            }
+
+            PdfSemanticLine[] lines = element.Lines.Skip(index).ToArray();
+            footnoteStart = index;
+            return new PdfSemanticElement(
+                PdfSemanticElementKind.Footnote,
+                string.Join(' ', lines.Select(static footnoteLine => footnoteLine.Text.Trim())),
+                UnionRectangles(lines.Select(static footnoteLine => footnoteLine.Bounds)),
+                lines);
+        }
+
+        return null;
+    }
+
+    private static string LeadingFootnoteMarker(PdfSemanticLine line)
+    {
+        string text = line.Text.TrimStart();
+        if (text.Length == 0)
+        {
+            return "";
+        }
+
+        if (text[0] is '*' or '∗' or '†' or '‡')
+        {
+            return text[..1];
+        }
+
+        int digits = 0;
+        while (digits < text.Length && digits < 2 && char.IsDigit(text[digits]))
+        {
+            digits++;
+        }
+
+        return digits > 0 ? text[..digits] : "";
+    }
+
+    private static bool HasRaisedFootnoteMarker(PdfSemanticLine line, string marker)
+    {
+        return line.Runs
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .OrderBy(static run => run.Bounds.X)
+            .ThenBy(static run => run.Bounds.Y)
+            .Take(1)
+            .Any(run => run.Text.Trim() == marker &&
+                run.FontSize < line.DominantFontSize * 0.9f);
     }
 
     private static bool[] DisplayFormulaSourceLines(IReadOnlyList<PdfSemanticLine> lines)
@@ -8018,7 +8120,7 @@ public static class PdfHtmlConverter
 
     private static bool IsInlineMathOperatorGlyph(PdfTextGlyph glyph)
     {
-        return glyph.Text is "∑" or "Σ" or "·" or "×" or "∈";
+        return glyph.Text is "∑" or "Σ" or "·" or "×" or "∈" or "{" or "}";
     }
 
     private static bool ShouldAttachInlineMathOperatorGlyph(
@@ -9854,7 +9956,9 @@ public static class PdfHtmlConverter
     {
         string compact = CompactText(element.Text);
         return compact.Length is > 0 and <= 3 &&
-            compact.All(static character => character is '·' or '−' or '+' or '=' or ',' or '.');
+            !compact.Any(char.IsLetterOrDigit) &&
+            (HasFormulaSignal(compact) ||
+                compact.All(static character => character is '·' or '−' or '+' or '=' or ',' or '.'));
     }
 
     private static bool IsCompactCenteredFormulaElement(PdfSemanticElement element)
@@ -11323,6 +11427,16 @@ public static class PdfHtmlConverter
         public bool Contains(string marker)
         {
             return _footnoteIds.ContainsKey(marker);
+        }
+
+        public void Register(string marker)
+        {
+            if (marker.Length > 0)
+            {
+                _footnoteIds.TryAdd(
+                    marker,
+                    $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-fn-{FootnoteMarkerToken(marker)}");
+            }
         }
 
         public string IdFor(string marker)
