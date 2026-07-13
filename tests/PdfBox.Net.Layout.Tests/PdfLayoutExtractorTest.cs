@@ -72,6 +72,52 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_UsesAuthoredHierarchyBeforeInferringFormLabels()
+    {
+        using PDDocument document = CreateSemanticAcroFormDocument();
+
+        PdfLayoutPage page = Assert.Single(PdfLayoutExtractor.Extract(document).Pages);
+
+        PdfLayoutFormControl text = Assert.Single(page.FormControls, control => control.Name == "fullName");
+        Assert.Equal("Full legal name", text.SourceLabelText);
+
+        PdfLayoutFormControl choice = Assert.Single(page.FormControls, control => control.Name == "country");
+        Assert.Equal("Country", choice.SourceLabelText);
+
+        PdfLayoutFormControl[] taxFamily = page.FormControls
+            .Where(control => control.Name.StartsWith("Boxes3a-b_ReadOrder[0].c1_1[", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, taxFamily.Length);
+        Assert.All(taxFamily, control =>
+        {
+            Assert.Equal("Boxes3a-b_ReadOrder[0]", control.AuthoredHierarchyKey);
+            Assert.Equal("Boxes3a-b_ReadOrder[0].c1_1", control.GroupKey);
+            Assert.Equal(PdfLayoutFormGroupKind.CheckBox, control.GroupKind);
+            Assert.Equal("Tax classification", control.GroupLabelText);
+            Assert.NotNull(control.SourceLabelText);
+        });
+        Assert.Equal(["Individual", "Corporation"], taxFamily.Select(control => control.SourceLabelText));
+
+        PdfLayoutFormControl contradiction = Assert.Single(
+            page.FormControls,
+            control => control.Name == "Boxes3a-b_ReadOrder[0].c1_2[0]");
+        Assert.Equal("Boxes3a-b_ReadOrder[0]", contradiction.AuthoredHierarchyKey);
+        Assert.Null(contradiction.GroupKey);
+        Assert.Null(contradiction.GroupKind);
+        Assert.Equal("Unrelated consent", contradiction.SourceLabelText);
+
+        PdfLayoutFormControl[] radios = page.FormControls.Where(control => control.Name == "contactMethod").ToArray();
+        Assert.Equal(2, radios.Length);
+        Assert.All(radios, control =>
+        {
+            Assert.Equal("contactMethod", control.GroupKey);
+            Assert.Equal(PdfLayoutFormGroupKind.RadioButton, control.GroupKind);
+            Assert.Equal("Preferred contact", control.GroupLabelText);
+        });
+        Assert.Equal(["Email", "Phone"], radios.Select(control => control.SourceLabelText));
+    }
+
+    [Fact]
     public void Extract_XfaReportsSemanticFallbackDiagnostic()
     {
         using PDDocument document = new();
@@ -1050,6 +1096,66 @@ public class PdfLayoutExtractorTest
 
         acroForm.SetFields([text, checkBox, radio, combo, list, signature]);
         page.SetAnnotations(annotations.Cast<PDAnnotation>().ToList());
+        return document;
+    }
+
+    private static PDDocument CreateSemanticAcroFormDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDAcroForm acroForm = new(document);
+        document.GetDocumentCatalog().SetAcroForm(acroForm);
+
+        PDTextField text = new(acroForm);
+        text.SetPartialName("fullName");
+        PDComboBox choice = new(acroForm);
+        choice.SetPartialName("country");
+        choice.SetOptions(["no", "us"], ["Norway", "United States"]);
+
+        PDNonTerminalField tax = new(acroForm);
+        tax.SetPartialName("Boxes3a-b_ReadOrder[0]");
+        PDCheckBox individual = new(acroForm);
+        individual.SetPartialName("c1_1[0]");
+        PDCheckBox corporation = new(acroForm);
+        corporation.SetPartialName("c1_1[1]");
+        PDCheckBox unrelated = new(acroForm);
+        unrelated.SetPartialName("c1_2[0]");
+        tax.SetChildren([individual, corporation, unrelated]);
+
+        PDRadioButton radio = new(acroForm);
+        radio.SetPartialName("contactMethod");
+        radio.SetExportValues(["email", "phone"]);
+
+        List<PDAnnotationWidget> annotations = [];
+        SetWidgets(text, [CreateFormWidget(page, new PDRectangle(20, 700, 180, 24))], annotations);
+        SetWidgets(choice, [CreateFormWidget(page, new PDRectangle(20, 650, 120, 22))], annotations);
+        SetWidgets(individual, [CreateFormWidget(page, new PDRectangle(20, 570, 16, 16))], annotations);
+        SetWidgets(corporation, [CreateFormWidget(page, new PDRectangle(20, 545, 16, 16))], annotations);
+        SetWidgets(unrelated, [CreateFormWidget(page, new PDRectangle(20, 520, 16, 16))], annotations);
+        SetWidgets(
+            radio,
+            [
+                CreateFormWidget(page, new PDRectangle(200, 570, 16, 16)),
+                CreateFormWidget(page, new PDRectangle(260, 570, 16, 16))
+            ],
+            annotations);
+
+        acroForm.SetFields([text, choice, tax, radio]);
+        page.SetAnnotations(annotations.Cast<PDAnnotation>().ToList());
+        COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
+        pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
+        pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream("""
+            BT /F1 10 Tf 20 735 Td (Full legal name) Tj ET
+            BT /F1 10 Tf 20 680 Td (Country) Tj ET
+            BT /F1 10 Tf 20 610 Td (Tax classification) Tj ET
+            BT /F1 10 Tf 42 574 Td (Individual) Tj ET
+            BT /F1 10 Tf 42 549 Td (Corporation) Tj ET
+            BT /F1 10 Tf 42 524 Td (Unrelated consent) Tj ET
+            BT /F1 10 Tf 200 610 Td (Preferred contact) Tj ET
+            BT /F1 10 Tf 222 574 Td (Email) Tj ET
+            BT /F1 10 Tf 282 574 Td (Phone) Tj ET
+            """));
         return document;
     }
 

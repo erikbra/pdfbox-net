@@ -110,6 +110,25 @@ public static class PdfHtmlConverter
           accent-color: #1d4ed8;
         }
 
+        .pdf-form-page-positioned,
+        .pdf-form-group-positioned {
+          display: contents;
+        }
+
+        .pdf-form-label-positioned,
+        .pdf-form-legend-positioned {
+          border: 0;
+          clip: rect(0 0 0 0);
+          clip-path: inset(50%);
+          height: 1px;
+          margin: -1px;
+          overflow: hidden;
+          padding: 0;
+          position: absolute;
+          white-space: nowrap;
+          width: 1px;
+        }
+
         .pdf-form-control-positioned {
           appearance: none;
           background: transparent;
@@ -161,6 +180,15 @@ public static class PdfHtmlConverter
           gap: 8pt;
           margin: 12pt 0;
           padding: 10pt;
+        }
+
+        .pdf-form-group-flow {
+          display: grid;
+          gap: 8pt;
+        }
+
+        .pdf-form-control-label {
+          font: 10pt Arial, Helvetica, sans-serif;
         }
 
         .pdf-form-controls-flow .pdf-form-control {
@@ -1728,26 +1756,101 @@ public static class PdfHtmlConverter
             return;
         }
 
-        if (!positioned)
+        string indentation = positioned ? "    " : "      ";
+        html.Append(indentation)
+            .Append("<form class=\"pdf-form-page ")
+            .Append(positioned ? "pdf-form-page-positioned" : "pdf-form-controls-flow")
+            .Append("\" aria-label=\"Form controls on original page ")
+            .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
+            .AppendLine("\">");
+
+        HashSet<PdfLayoutFormControl> emitted = new(ReferenceEqualityComparer.Instance);
+        for (int i = 0; i < page.FormControls.Count; i++)
         {
-            html.Append("      <fieldset class=\"pdf-form-controls-flow\" aria-label=\"Form controls on original page ")
-                .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
-                .AppendLine("\">");
+            PdfLayoutFormControl control = page.FormControls[i];
+            if (!emitted.Add(control))
+            {
+                continue;
+            }
+
+            if (control.GroupKey != null)
+            {
+                PdfLayoutFormControl[] group = page.FormControls
+                    .Where(candidate => string.Equals(candidate.GroupKey, control.GroupKey, StringComparison.Ordinal))
+                    .ToArray();
+                if (group.Length > 1)
+                {
+                    WriteFormGroup(html, page, group, scale, positioned);
+                    emitted.UnionWith(group);
+                    continue;
+                }
+            }
+
+            WriteLabeledFormControl(html, page, control, scale, positioned);
         }
 
-        foreach (PdfLayoutFormControl control in page.FormControls)
+        html.Append(indentation).AppendLine("</form>");
+    }
+
+    private static void WriteFormGroup(
+        StringBuilder html,
+        PdfLayoutPage page,
+        IReadOnlyList<PdfLayoutFormControl> controls,
+        float scale,
+        bool positioned)
+    {
+        PdfLayoutFormControl first = controls[0];
+        string indentation = positioned ? "      " : "        ";
+        string legend = first.GroupLabelText ?? GroupFallbackLabel(first);
+        html.Append(indentation)
+            .Append("<fieldset class=\"pdf-form-group ")
+            .Append(positioned ? "pdf-form-group-positioned" : "pdf-form-group-flow")
+            .Append("\" data-group-key=\"")
+            .Append(HtmlAttribute(first.GroupKey!))
+            .AppendLine("\">");
+        html.Append(indentation)
+            .Append("  <legend class=\"pdf-form-legend")
+            .Append(positioned ? " pdf-form-legend-positioned" : string.Empty)
+            .Append("\">")
+            .Append(Html(legend))
+            .AppendLine("</legend>");
+
+        foreach (PdfLayoutFormControl control in controls)
         {
-            PdfLayoutImage? authoredAppearance = positioned ? MatchingWidgetAppearance(page, control) : null;
-            string? authoredAppearancePlacementId = authoredAppearance == null
-                ? null
-                : ImagePlacementId(page.PageNumber, authoredAppearance.Index);
-            WriteFormControl(html, page.PageNumber, control, scale, positioned, authoredAppearancePlacementId);
+            WriteLabeledFormControl(html, page, control, scale, positioned);
         }
 
-        if (!positioned)
-        {
-            html.AppendLine("      </fieldset>");
-        }
+        html.Append(indentation).AppendLine("</fieldset>");
+    }
+
+    private static string GroupFallbackLabel(PdfLayoutFormControl control)
+    {
+        int optionSeparator = control.AccessibleName.IndexOf(": ", StringComparison.Ordinal);
+        return optionSeparator > 0 ? control.AccessibleName[..optionSeparator] : control.AccessibleName;
+    }
+
+    private static void WriteLabeledFormControl(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfLayoutFormControl control,
+        float scale,
+        bool positioned)
+    {
+        string indentation = positioned ? "      " : "        ";
+        html.Append(indentation)
+            .Append("<label class=\"pdf-form-control-label")
+            .Append(positioned ? " pdf-form-label-positioned" : string.Empty)
+            .Append("\" for=\"")
+            .Append(FormControlId(page.PageNumber, control.Index))
+            .Append("\">")
+            .Append(Html(control.SourceLabelText ?? control.AccessibleName))
+            .AppendLine("</label>");
+
+        PdfLayoutImage? authoredAppearance = positioned ? MatchingWidgetAppearance(page, control) : null;
+        string? authoredAppearancePlacementId = authoredAppearance == null
+            ? null
+            : ImagePlacementId(page.PageNumber, authoredAppearance.Index);
+        WriteFormControl(html, page.PageNumber, control, scale, positioned, authoredAppearancePlacementId);
     }
 
     private static void WriteFormControl(
@@ -1858,14 +1961,10 @@ public static class PdfHtmlConverter
             html.Append(" pdf-form-control-authored-appearance");
         }
 
-        html.Append("\" id=\"pdf-field-")
-            .Append(pageNumber.ToString(CultureInfo.InvariantCulture))
-            .Append('-')
-            .Append(control.Index.ToString(CultureInfo.InvariantCulture))
+        html.Append("\" id=\"")
+            .Append(FormControlId(pageNumber, control.Index))
             .Append("\" name=\"")
             .Append(HtmlAttribute(control.Name))
-            .Append("\" aria-label=\"")
-            .Append(HtmlAttribute(control.AccessibleName))
             .Append("\" data-field-kind=\"")
             .Append(FormControlKind(control.Kind))
             .Append("\" data-default-value=\"")
@@ -1916,6 +2015,10 @@ public static class PdfHtmlConverter
                 .Append('"');
         }
     }
+
+    private static string FormControlId(int pageNumber, int controlIndex) =>
+        "pdf-field-" + pageNumber.ToString(CultureInfo.InvariantCulture) + "-" +
+        controlIndex.ToString(CultureInfo.InvariantCulture);
 
     private static void WriteFormControlInteractionScript(StringBuilder html)
     {

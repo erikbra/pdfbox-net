@@ -569,6 +569,8 @@ public static class PdfLayoutExtractor
                     PdfLayoutRectangle.Union(_lines.Select(line => line.Bounds)),
                     _lines));
             }
+
+            InferFormLabels();
         }
 
         private static void ApplyTextShadows(
@@ -654,6 +656,7 @@ public static class PdfLayoutExtractor
             }
             COSBase pageObject = page.GetCOSObject();
             int fieldIndex = 0;
+            List<FormFieldEntry> fields = [];
 
             foreach (PDField field in acroForm.GetFieldTree())
             {
@@ -666,6 +669,15 @@ public static class PdfLayoutExtractor
                 string name = string.IsNullOrWhiteSpace(field.GetFullyQualifiedName())
                     ? $"pdf-field-{(fieldIndex + 1).ToString(CultureInfo.InvariantCulture)}"
                     : field.GetFullyQualifiedName()!;
+                fields.Add(new FormFieldEntry(field, fieldIndex, kind, name));
+                fieldIndex++;
+            }
+
+            foreach (FormFieldEntry entry in fields)
+            {
+                PDField field = entry.Field;
+                PdfLayoutFormControlKind kind = entry.Kind;
+                string name = entry.Name;
                 string accessibleName = field.GetCOSObject() is COSDictionary fieldDictionary
                     ? fieldDictionary.GetString(COSName.GetPDFName("TU"), name) ?? name
                     : name;
@@ -673,6 +685,13 @@ public static class PdfLayoutExtractor
                 IReadOnlyList<string> defaultValues = DefaultValues(field);
                 IReadOnlyList<PdfLayoutFormOption> fieldOptions = FormOptions(field);
                 List<PDAnnotationWidget> widgets = field.GetWidgets();
+                string? authoredHierarchyKey = AuthoredHierarchyKey(name);
+                string? groupKey = LogicalGroupKey(entry, fields, widgets.Count);
+                PdfLayoutFormGroupKind? groupKind = groupKey == null
+                    ? null
+                    : kind == PdfLayoutFormControlKind.RadioButton
+                        ? PdfLayoutFormGroupKind.RadioButton
+                        : PdfLayoutFormGroupKind.CheckBox;
 
                 for (int widgetIndex = 0; widgetIndex < widgets.Count; widgetIndex++)
                 {
@@ -720,12 +739,182 @@ public static class PdfLayoutExtractor
                         textField?.IsMultiline() == true,
                         textField?.IsPassword() == true,
                         choice?.IsMultiSelect() == true,
-                        textField?.GetMaxLen()));
+                        textField?.GetMaxLen(),
+                        authoredHierarchyKey: authoredHierarchyKey,
+                        groupKey: groupKey,
+                        groupKind: groupKind));
                 }
-
-                fieldIndex++;
             }
         }
+
+        private void InferFormLabels()
+        {
+            if (_lines.Count == 0 || _formControls.Count == 0)
+            {
+                return;
+            }
+
+            Dictionary<string, string?> groupLabels = _formControls
+                .Where(static control => control.GroupKey != null)
+                .GroupBy(static control => control.GroupKey!, StringComparer.Ordinal)
+                .ToDictionary(
+                    static group => group.Key,
+                    group => VisibleGroupPrompt(group),
+                    StringComparer.Ordinal);
+
+            for (int i = 0; i < _formControls.Count; i++)
+            {
+                PdfLayoutFormControl control = _formControls[i];
+                string? sourceLabel = VisibleControlCaption(control);
+                string? groupLabel = control.GroupKey == null ? null : groupLabels[control.GroupKey];
+                _formControls[i] = control.WithInferredLabels(sourceLabel, groupLabel);
+            }
+        }
+
+        private string? VisibleControlCaption(PdfLayoutFormControl control)
+        {
+            return control.Kind is PdfLayoutFormControlKind.CheckBox or PdfLayoutFormControlKind.RadioButton
+                ? NearestToggleCaption(control.Bounds)
+                : NearestFieldPrompt(control.Bounds);
+        }
+
+        private string? NearestToggleCaption(PdfLayoutRectangle bounds)
+        {
+            float centerY = bounds.Y + bounds.Height / 2f;
+            return _runs
+                .Where(IsUsableCaption)
+                .Select(run => new
+                {
+                    Run = run,
+                    HorizontalGap = run.Bounds.X - bounds.Right,
+                    VerticalDistance = MathF.Abs(run.Bounds.Y + run.Bounds.Height / 2f - centerY)
+                })
+                .Where(candidate => candidate.HorizontalGap >= -2f && candidate.HorizontalGap <= 240f)
+                .Where(candidate => candidate.VerticalDistance <= MathF.Max(10f, bounds.Height))
+                .OrderBy(static candidate => candidate.HorizontalGap)
+                .ThenBy(static candidate => candidate.VerticalDistance)
+                .Select(static candidate => NormalizeCaption(candidate.Run.Text))
+                .FirstOrDefault();
+        }
+
+        private string? NearestFieldPrompt(PdfLayoutRectangle bounds)
+        {
+            PdfTextRun? above = _runs
+                .Where(IsUsableCaption)
+                .Where(run => run.Bounds.Bottom <= bounds.Y + 2f)
+                .Where(run => bounds.Y - run.Bounds.Bottom <= MathF.Max(36f, bounds.Height * 2f))
+                .Where(run => HorizontalOverlap(run.Bounds, bounds) >= MathF.Min(run.Bounds.Width, bounds.Width) * 0.2f)
+                .OrderBy(run => bounds.Y - run.Bounds.Bottom)
+                .ThenBy(run => MathF.Abs(run.Bounds.X - bounds.X))
+                .FirstOrDefault();
+            if (above != null)
+            {
+                return NormalizeCaption(above.Text);
+            }
+
+            float centerY = bounds.Y + bounds.Height / 2f;
+            return _runs
+                .Where(IsUsableCaption)
+                .Where(run => run.Bounds.Right <= bounds.X + 2f)
+                .Select(run => new
+                {
+                    Run = run,
+                    HorizontalGap = bounds.X - run.Bounds.Right,
+                    VerticalDistance = MathF.Abs(run.Bounds.Y + run.Bounds.Height / 2f - centerY)
+                })
+                .Where(candidate => candidate.HorizontalGap <= 120f && candidate.VerticalDistance <= MathF.Max(10f, bounds.Height))
+                .OrderBy(static candidate => candidate.HorizontalGap)
+                .ThenBy(static candidate => candidate.VerticalDistance)
+                .Select(static candidate => NormalizeCaption(candidate.Run.Text))
+                .FirstOrDefault();
+        }
+
+        private string? VisibleGroupPrompt(IGrouping<string, PdfLayoutFormControl> group)
+        {
+            PdfLayoutRectangle bounds = PdfLayoutRectangle.Union(group.Select(static control => control.Bounds));
+            PdfTextRun[] promptRuns = _runs
+                .Where(IsUsableCaption)
+                .Where(run => run.Bounds.Bottom <= bounds.Y - 2f)
+                .Where(run => bounds.Y - run.Bounds.Bottom <= 30f)
+                .Where(run => HorizontalOverlap(run.Bounds, bounds) > 0)
+                .OrderBy(static run => MathF.Round(run.Bounds.Y))
+                .ThenBy(static run => run.Bounds.X)
+                .ToArray();
+            if (promptRuns.Length > 0)
+            {
+                return NormalizeCaption(string.Join(" ", promptRuns.Select(static run => run.Text)));
+            }
+
+            return _runs
+                .Where(IsUsableCaption)
+                .Where(run => run.Bounds.Bottom <= bounds.Y - 2f)
+                .Where(run => bounds.Y - run.Bounds.Bottom <= 30f)
+                .Where(run => run.Bounds.Right >= bounds.X - 100f && run.Bounds.X <= bounds.X)
+                .OrderBy(run => bounds.Y - run.Bounds.Bottom)
+                .ThenBy(run => bounds.X - run.Bounds.Right)
+                .Select(static run => NormalizeCaption(run.Text))
+                .FirstOrDefault();
+        }
+
+        private static bool IsUsableCaption(PdfTextRun run) =>
+            !string.IsNullOrWhiteSpace(run.Text) && NormalizeCaption(run.Text).Length is > 0 and <= 240;
+
+        private static string NormalizeCaption(string text) =>
+            string.Join(" ", text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+
+        private static float HorizontalOverlap(PdfLayoutRectangle first, PdfLayoutRectangle second) =>
+            MathF.Max(0, MathF.Min(first.Right, second.Right) - MathF.Max(first.X, second.X));
+
+        private static string? AuthoredHierarchyKey(string name)
+        {
+            int separator = name.LastIndexOf('.');
+            return separator > 0 ? name[..separator] : null;
+        }
+
+        private static string? LogicalGroupKey(
+            FormFieldEntry entry,
+            IReadOnlyList<FormFieldEntry> fields,
+            int widgetCount)
+        {
+            if (entry.Kind is not (PdfLayoutFormControlKind.CheckBox or PdfLayoutFormControlKind.RadioButton))
+            {
+                return null;
+            }
+
+            string indexedFamily = RemoveTerminalArrayIndex(entry.Name);
+            if (!string.Equals(indexedFamily, entry.Name, StringComparison.Ordinal))
+            {
+                int familySize = fields.Count(field =>
+                    field.Kind == entry.Kind &&
+                    string.Equals(RemoveTerminalArrayIndex(field.Name), indexedFamily, StringComparison.Ordinal));
+                if (familySize > 1)
+                {
+                    return indexedFamily;
+                }
+            }
+
+            return widgetCount > 1 ? entry.Name : null;
+        }
+
+        private static string RemoveTerminalArrayIndex(string name)
+        {
+            if (!name.EndsWith(']'))
+            {
+                return name;
+            }
+
+            int bracket = name.LastIndexOf('[');
+            return bracket > name.LastIndexOf('.') &&
+                int.TryParse(name.AsSpan(bracket + 1, name.Length - bracket - 2), NumberStyles.None, CultureInfo.InvariantCulture, out _)
+                    ? name[..bracket]
+                    : name;
+        }
+
+        private sealed record FormFieldEntry(
+            PDField Field,
+            int Index,
+            PdfLayoutFormControlKind Kind,
+            string Name);
 
         private static bool TryGetFormControlKind(PDField field, out PdfLayoutFormControlKind kind)
         {
