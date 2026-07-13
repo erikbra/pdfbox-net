@@ -179,6 +179,9 @@ Tracked by [#784](https://github.com/erikbra/pdfbox-net/issues/784),
 [#783](https://github.com/erikbra/pdfbox-net/issues/783), and
 [#785](https://github.com/erikbra/pdfbox-net/issues/785).
 
+The first GitHub Pages preview is documented in
+[PDF-to-HTML Browser Preview](pdf-html-wasm-pages.md).
+
 A standalone Blazor WebAssembly app is a set of static files and does not need
 a .NET server. Microsoft explicitly supports static/CDN hosting for this model.
 See the [Blazor hosting-model documentation](https://learn.microsoft.com/en-us/aspnet/core/blazor/hosting-models?view=aspnetcore-10.0).
