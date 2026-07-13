@@ -614,9 +614,11 @@ public static class PdfHtmlConverter
         }
 
         .pdf-semantic-equation-number {
+          color: inherit;
           font-size: 0.9em;
           position: absolute;
           right: 0;
+          text-decoration: none;
           white-space: nowrap;
         }
 
@@ -8013,6 +8015,13 @@ public static class PdfHtmlConverter
             equationNumber = mathMl?.EquationNumber;
         }
 
+        IReadOnlyList<PdfTextGlyph> equationNumberGlyphs = detachedEquationNumberGlyphs.Length > 0
+            ? detachedEquationNumberGlyphs
+            : mathMl?.EquationNumberGlyphs ?? [];
+        PdfLayoutLink? equationNumberLink = hasNativeMath
+            ? FormulaLinkForGlyphs(page, equationNumberGlyphs)
+            : null;
+
         PdfTextRun[] runs = hasNativeMath
             ? nativeRuns
             : FormulaRuns(
@@ -8083,10 +8092,10 @@ public static class PdfHtmlConverter
 
         if (hasNativeMath)
         {
-            mathMl!.WriteTo(html);
-            if (equationNumber != null && mathMl.EquationNumber == null)
+            mathMl!.WriteTo(html, includeEquationNumber: false);
+            if (equationNumber != null)
             {
-                WriteEquationNumber(html, equationNumber);
+                WriteEquationNumber(html, equationNumber, equationNumberLink);
             }
 
             if (claimedFormulaGlyphs != null)
@@ -8141,13 +8150,56 @@ public static class PdfHtmlConverter
         html.AppendLine("</div>");
     }
 
-    private static void WriteEquationNumber(StringBuilder html, string equationNumber)
+    internal static void WriteEquationNumber(
+        StringBuilder html,
+        string equationNumber,
+        PdfLayoutLink? link = null)
     {
-        html.Append("<span class=\"pdf-semantic-equation-number\" aria-label=\"Equation ")
+        string tag = link == null ? "span" : "a";
+        html.Append('<').Append(tag).Append(" class=\"pdf-semantic-equation-number");
+        if (link != null)
+        {
+            html.Append(" pdf-semantic-link\" href=\"")
+                .Append(HtmlAttribute(LinkHref(link)))
+                .Append("\" data-link-kind=\"")
+                .Append(HtmlAttribute(link.Kind.ToString().ToLowerInvariant()))
+                .Append('"');
+            if (!string.IsNullOrWhiteSpace(link.Uri))
+            {
+                html.Append(" data-uri=\"")
+                    .Append(HtmlAttribute(link.Uri))
+                    .Append('"');
+            }
+        }
+        else
+        {
+            html.Append('"');
+        }
+
+        html.Append(" aria-label=\"Equation ")
             .Append(HtmlAttribute(equationNumber[1..^1]))
             .Append("\">")
             .Append(Html(equationNumber))
-            .Append("</span>");
+            .Append("</")
+            .Append(tag)
+            .Append('>');
+    }
+
+    internal static PdfLayoutLink? FormulaLinkForGlyphs(
+        PdfLayoutPage page,
+        IReadOnlyList<PdfTextGlyph> glyphs)
+    {
+        if (glyphs.Count == 0)
+        {
+            return null;
+        }
+
+        return page.Links
+            .Where(HasSemanticLinkTarget)
+            .Where(link => LinkBounds(link).Any(bounds =>
+                glyphs.Any(glyph => RectanglesIntersect(bounds, glyph.PageBounds, 0.25f))))
+            .OrderBy(link => LinkBounds(link).Min(static bounds => bounds.Width * bounds.Height))
+            .FirstOrDefault();
     }
 
     private static PdfLayoutRectangle FormulaRenderBounds(

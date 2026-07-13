@@ -12,11 +12,13 @@ internal sealed class PdfMathMlFormula
         MathNode root,
         string? equationNumber,
         float fontSize,
+        IReadOnlyList<PdfTextGlyph> equationNumberGlyphs,
         IReadOnlyList<PdfTextGlyph> claimedGlyphs)
     {
         _root = root;
         EquationNumber = equationNumber;
         FontSize = fontSize;
+        EquationNumberGlyphs = equationNumberGlyphs;
         ClaimedGlyphs = claimedGlyphs;
         AccessibleText = root.Text;
     }
@@ -24,6 +26,8 @@ internal sealed class PdfMathMlFormula
     public string AccessibleText { get; }
 
     public string? EquationNumber { get; }
+
+    public IReadOnlyList<PdfTextGlyph> EquationNumberGlyphs { get; }
 
     public float FontSize { get; }
 
@@ -114,11 +118,12 @@ internal sealed class PdfMathMlFormula
             root,
             equationNumber,
             fontSize,
+            equationNumberGlyphs,
             relevant.Concat(equationNumberGlyphs).ToArray());
         return true;
     }
 
-    public void WriteTo(StringBuilder html)
+    public void WriteTo(StringBuilder html, bool includeEquationNumber = true)
     {
         html.Append("<math class=\"pdf-semantic-mathml\" display=\"block\" aria-label=\"")
             .Append(EncodeAttribute(AccessibleText))
@@ -127,7 +132,7 @@ internal sealed class PdfMathMlFormula
         html.Append("<annotation encoding=\"text/plain\">")
             .Append(Encode(AccessibleText))
             .Append("</annotation></semantics></math>");
-        if (EquationNumber != null)
+        if (includeEquationNumber && EquationNumber != null)
         {
             html.Append("<span class=\"pdf-semantic-equation-number\" aria-label=\"Equation ")
                 .Append(EncodeAttribute(EquationNumber[1..^1]))
@@ -259,12 +264,188 @@ internal sealed class PdfMathMlFormula
 
         AddLargeOperatorLimits(glyphs, relevant, baseline.Bottom, fontSize);
         AddConnectedFractions(glyphs, paths, relevant, baseline.Bottom, fontSize);
+        AddBracketedMatrixGlyphs(glyphs, relevant, fontSize);
         return relevant;
     }
 
     private static bool HasStackedStructure(IReadOnlyList<PdfTextGlyph> glyphs)
     {
-        return glyphs.Any(static glyph => IsLargeOperatorText(glyph.Text));
+        return glyphs.Any(static glyph => IsLargeOperatorText(glyph.Text)) ||
+            HasBracketedMatrix(glyphs, fontSize: DominantFontSize(glyphs));
+    }
+
+    private static void AddBracketedMatrixGlyphs(
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        ISet<PdfTextGlyph> relevant,
+        float fontSize)
+    {
+        foreach (PdfTextGlyph open in glyphs.Where(static glyph => glyph.Text == "["))
+        {
+            foreach (PdfTextGlyph close in glyphs
+                .Where(glyph => glyph.Text == "]" && glyph.Bounds.X > open.Bounds.X)
+                .OrderBy(static glyph => glyph.Bounds.X))
+            {
+                if (!TryGetBracketedContent(glyphs, open, close, fontSize, out PdfTextGlyph[] content) ||
+                    open.Bounds.X > relevant.Max(static glyph => glyph.Bounds.Right) + fontSize * 2.5f)
+                {
+                    continue;
+                }
+
+                relevant.Add(open);
+                relevant.Add(close);
+                foreach (PdfTextGlyph glyph in content)
+                {
+                    relevant.Add(glyph);
+                }
+
+                break;
+            }
+        }
+    }
+
+    private static bool HasBracketedMatrix(IReadOnlyList<PdfTextGlyph> glyphs, float fontSize)
+    {
+        return glyphs
+            .Where(static glyph => glyph.Text == "[")
+            .Any(open => glyphs
+                .Where(glyph => glyph.Text == "]" && glyph.Bounds.X > open.Bounds.X)
+                .Any(close => TryGetMatrixRows(glyphs, open, close, fontSize, out _)));
+    }
+
+    private static bool TryGetMatrixRows(
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        PdfTextGlyph open,
+        PdfTextGlyph close,
+        float fontSize,
+        out PdfTextGlyph[][] rows)
+    {
+        rows = [];
+        if (!TryGetBracketedContent(glyphs, open, close, fontSize, out PdfTextGlyph[] interior))
+        {
+            return false;
+        }
+
+        if (interior.Any(glyph => glyph.FontSize < fontSize * 0.82f || !IsMatrixCellText(glyph.Text)))
+        {
+            return false;
+        }
+
+        float tolerance = MathF.Max(1.2f, fontSize * 0.18f);
+        List<List<PdfTextGlyph>> rowGroups = [];
+        foreach (PdfTextGlyph glyph in interior)
+        {
+            List<PdfTextGlyph>? row = rowGroups.LastOrDefault();
+            if (row == null || MathF.Abs(row.Average(static item => item.Bounds.Bottom) - glyph.Bounds.Bottom) > tolerance)
+            {
+                rowGroups.Add([glyph]);
+            }
+            else
+            {
+                row.Add(glyph);
+            }
+        }
+
+        if (rowGroups.Count is < 2 or > 6 ||
+            rowGroups.Any(static row => row.Count is < 2 or > 6) ||
+            rowGroups.Any(row => row.Count != rowGroups[0].Count))
+        {
+            return false;
+        }
+
+        rows = rowGroups
+            .Select(static row => row.OrderBy(static glyph => glyph.Bounds.X).ToArray())
+            .ToArray();
+        float[] rowCenters = rows
+            .Select(static row => row.Average(static glyph => glyph.Bounds.Y + glyph.Bounds.Height / 2f))
+            .ToArray();
+        for (int rowIndex = 1; rowIndex < rowCenters.Length; rowIndex++)
+        {
+            float spacing = rowCenters[rowIndex] - rowCenters[rowIndex - 1];
+            if (spacing < fontSize * 0.65f || spacing > fontSize * 2.5f)
+            {
+                rows = [];
+                return false;
+            }
+        }
+
+        int columnCount = rows[0].Length;
+        float[] columnCenters = new float[columnCount];
+        for (int columnIndex = 0; columnIndex < columnCount; columnIndex++)
+        {
+            float[] centers = rows
+                .Select(row => row[columnIndex].Bounds.X + row[columnIndex].Bounds.Width / 2f)
+                .ToArray();
+            if (centers.Max() - centers.Min() > MathF.Max(1.5f, fontSize * 0.25f))
+            {
+                rows = [];
+                return false;
+            }
+
+            columnCenters[columnIndex] = centers.Average();
+        }
+
+        for (int columnIndex = 1; columnIndex < columnCenters.Length; columnIndex++)
+        {
+            float spacing = columnCenters[columnIndex] - columnCenters[columnIndex - 1];
+            if (spacing < fontSize * 0.75f || spacing > fontSize * 5f)
+            {
+                rows = [];
+                return false;
+            }
+        }
+
+        float contentHeight = interior.Max(static glyph => glyph.Bounds.Bottom) -
+            interior.Min(static glyph => glyph.Bounds.Y);
+        if (MathF.Min(open.Bounds.Height, close.Bounds.Height) < contentHeight + fontSize * 0.2f)
+        {
+            rows = [];
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool TryGetBracketedContent(
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        PdfTextGlyph open,
+        PdfTextGlyph close,
+        float fontSize,
+        out PdfTextGlyph[] content)
+    {
+        content = [];
+        float tolerance = MathF.Max(1.2f, fontSize * 0.18f);
+        float openCenterY = open.Bounds.Y + open.Bounds.Height / 2f;
+        float closeCenterY = close.Bounds.Y + close.Bounds.Height / 2f;
+        if (close.Bounds.X - open.Bounds.Right < fontSize * 1.5f ||
+            close.Bounds.X - open.Bounds.Right > fontSize * 12f ||
+            open.Bounds.Height < fontSize * 1.25f ||
+            close.Bounds.Height < fontSize * 1.25f ||
+            MathF.Abs(openCenterY - closeCenterY) > fontSize * 0.45f ||
+            MathF.Abs(open.Bounds.Height - close.Bounds.Height) > fontSize * 0.55f)
+        {
+            return false;
+        }
+
+        content = glyphs
+            .Where(glyph => !ReferenceEquals(glyph, open) && !ReferenceEquals(glyph, close))
+            .Where(glyph => glyph.Bounds.X + glyph.Bounds.Width / 2f > open.Bounds.Right - tolerance &&
+                glyph.Bounds.X + glyph.Bounds.Width / 2f < close.Bounds.X + tolerance)
+            .Where(glyph => glyph.Bounds.Bottom >= MathF.Min(open.Bounds.Y, close.Bounds.Y) - tolerance &&
+                glyph.Bounds.Y <= MathF.Max(open.Bounds.Bottom, close.Bounds.Bottom) + tolerance)
+            .OrderBy(static glyph => glyph.Bounds.Bottom)
+            .ThenBy(static glyph => glyph.Bounds.X)
+            .ToArray();
+        return content.Length is >= 4 and <= 36 &&
+            content.Min(static glyph => glyph.Bounds.Y) >= MathF.Min(open.Bounds.Y, close.Bounds.Y) - tolerance &&
+            content.Max(static glyph => glyph.Bounds.Bottom) <= MathF.Max(open.Bounds.Bottom, close.Bounds.Bottom) + tolerance;
+    }
+
+    private static bool IsMatrixCellText(string text)
+    {
+        return text.All(char.IsDigit) ||
+            text.EnumerateRunes().All(static rune => Rune.IsLetter(rune) || Rune.GetUnicodeCategory(rune) is
+                System.Globalization.UnicodeCategory.NonSpacingMark or
+                System.Globalization.UnicodeCategory.SpacingCombiningMark);
     }
 
     private static void AddLargeOperatorLimits(
@@ -646,7 +827,9 @@ internal sealed class PdfMathMlFormula
         {
             root = null;
             List<PositionedNode> composites = [];
-            if (!TryCreateFractions(composites) || !TryCreateRoots(composites))
+            if (!TryCreateMatrices(composites) ||
+                !TryCreateFractions(composites) ||
+                !TryCreateRoots(composites))
             {
                 return false;
             }
@@ -678,6 +861,66 @@ internal sealed class PdfMathMlFormula
             }
 
             root = new RowNode(composites.Select(static item => item.Node).ToArray());
+            return true;
+        }
+
+        private bool TryCreateMatrices(ICollection<PositionedNode> nodes)
+        {
+            foreach (PdfTextGlyph open in _glyphs
+                .Where(static glyph => glyph.Text == "[")
+                .OrderBy(static glyph => glyph.Bounds.X))
+            {
+                if (_owned.Contains(open))
+                {
+                    continue;
+                }
+
+                PdfTextGlyph? close = _glyphs
+                    .Where(glyph => !_owned.Contains(glyph) && glyph.Text == "]" && glyph.Bounds.X > open.Bounds.X)
+                    .OrderBy(static glyph => glyph.Bounds.X)
+                    .FirstOrDefault(candidate => TryGetMatrixRows(_glyphs.ToArray(), open, candidate, _fontSize, out _));
+                if (close == null || !TryGetMatrixRows(_glyphs.ToArray(), open, close, _fontSize, out PdfTextGlyph[][] rows))
+                {
+                    continue;
+                }
+
+                List<IReadOnlyList<MathNode>> matrixRows = [];
+                foreach (PdfTextGlyph[] row in rows)
+                {
+                    List<MathNode> cells = [];
+                    foreach (PdfTextGlyph glyph in row)
+                    {
+                        if (!TryCreateToken(glyph, out MathNode? cell))
+                        {
+                            return false;
+                        }
+
+                        cells.Add(cell!);
+                    }
+
+                    matrixRows.Add(cells);
+                }
+
+                if (!TryCreateToken(open, out MathNode? openToken) ||
+                    !TryCreateToken(close, out MathNode? closeToken))
+                {
+                    return false;
+                }
+
+                PdfTextGlyph[] ownedGlyphs = rows
+                    .SelectMany(static row => row)
+                    .Prepend(open)
+                    .Append(close)
+                    .ToArray();
+                foreach (PdfTextGlyph glyph in ownedGlyphs)
+                {
+                    _owned.Add(glyph);
+                }
+
+                MathNode matrix = new RowNode([openToken!, new MatrixNode(matrixRows), closeToken!]);
+                nodes.Add(new PositionedNode(matrix, Union(ownedGlyphs.Select(static glyph => glyph.Bounds))));
+            }
+
             return true;
         }
 
@@ -1094,6 +1337,32 @@ internal sealed class PdfMathMlFormula
             html.Append("<msqrt>");
             Radicand.WriteTo(html);
             html.Append("</msqrt>");
+        }
+    }
+
+    private sealed record MatrixNode(IReadOnlyList<IReadOnlyList<MathNode>> Rows) : MathNode
+    {
+        public override string Text => string.Join(
+            ";",
+            Rows.Select(static row => string.Join(",", row.Select(static cell => cell.Text))));
+
+        public override void WriteTo(StringBuilder html)
+        {
+            html.Append("<mtable>");
+            foreach (IReadOnlyList<MathNode> row in Rows)
+            {
+                html.Append("<mtr>");
+                foreach (MathNode cell in row)
+                {
+                    html.Append("<mtd>");
+                    cell.WriteTo(html);
+                    html.Append("</mtd>");
+                }
+
+                html.Append("</mtr>");
+            }
+
+            html.Append("</mtable>");
         }
     }
 

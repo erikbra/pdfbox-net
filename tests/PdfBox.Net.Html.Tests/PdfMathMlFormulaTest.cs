@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Microsoft.Playwright;
 using PdfBox.Net;
 using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
@@ -11,6 +12,224 @@ namespace PdfBox.Net.Html.Tests;
 public class PdfMathMlFormulaTest
 {
     private static readonly PdfLayoutColor Black = new(0f, 0f, 0f, 1f, "DeviceGray");
+
+    [Fact]
+    public void TryCreate_EmitsIdentifierAndNumberTokens()
+    {
+        PdfTextGlyph[] glyphs =
+        [
+            Glyph("x", 92f, 100f),
+            Glyph("+", 104f, 100f, fontName: "CMR10"),
+            Glyph("y", 116f, 100f),
+            Glyph("=", 128f, 100f, fontName: "CMR10"),
+            Glyph("2", 140f, 100f, fontName: "CMR10")
+        ];
+
+        string markup = Render(glyphs, [], out PdfMathMlFormula formula);
+        XDocument dom = Parse(markup);
+        XElement math = Assert.Single(dom.Root!.Elements("math"));
+
+        Assert.Equal(["x", "y"], math.Descendants("mi").Select(static token => token.Value).ToArray());
+        Assert.Equal(["+", "="], math.Descendants("mo").Select(static token => token.Value).ToArray());
+        Assert.Equal("2", Assert.Single(math.Descendants("mn")).Value);
+        Assert.Equal("x+y=2", formula.AccessibleText);
+    }
+
+    [Fact]
+    public void TryCreate_EmitsAlignedBracketedMatrix()
+    {
+        PdfTextGlyph[] glyphs = MatrixGlyphs(secondRowSecondColumnX: 150f);
+
+        string markup = Render(glyphs, [], out PdfMathMlFormula formula);
+        XDocument dom = Parse(markup);
+        XElement math = Assert.Single(dom.Root!.Elements("math"));
+        XElement table = Assert.Single(math.Descendants("mtable"));
+        XElement[] rows = table.Elements("mtr").ToArray();
+
+        Assert.Equal(2, rows.Length);
+        Assert.All(rows, row => Assert.Equal(2, row.Elements("mtd").Count()));
+        Assert.Equal(["a", "b"], rows[0].Elements("mtd").Select(static cell => cell.Value).ToArray());
+        Assert.Equal(["c", "d"], rows[1].Elements("mtd").Select(static cell => cell.Value).ToArray());
+        Assert.Equal("A=[a,b;c,d]", formula.AccessibleText);
+        Assert.All(glyphs, glyph =>
+            Assert.Contains(formula.ClaimedGlyphs, claimed => ReferenceEquals(claimed, glyph)));
+    }
+
+    [Fact]
+    public async Task TryCreate_AlignedBracketedMatrixRendersCompactlyInBrowser()
+    {
+        PdfTextGlyph[] glyphs = MatrixGlyphs(secondRowSecondColumnX: 150f);
+        Assert.True(PdfMathMlFormula.TryCreate(glyphs, [], out PdfMathMlFormula? candidate));
+        PdfMathMlFormula formula = Assert.IsType<PdfMathMlFormula>(candidate);
+        PdfHtmlDocument styles = PdfHtmlConverter.Convert(new PdfLayoutDocument([], []));
+        StringBuilder html = new(
+            """
+            <!doctype html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8" />
+              <link rel="stylesheet" href="assets/pdfbox-net-fixed.css" />
+            </head>
+            <body class="pdf-document pdf-document-continuous">
+              <main id="matrix-fixture" style="box-sizing:border-box;padding:12pt;width:320pt">
+                <p id="matrix-before" style="margin:0">Before matrix</p>
+                <div id="matrix-formula" class="pdf-semantic-element pdf-semantic-formula pdf-semantic-formula-native" style="--pdf-semantic-formula-width:180pt;--pdf-semantic-formula-height:36pt;--pdf-semantic-math-font-size:10pt">
+            """);
+        formula.WriteTo(html, includeEquationNumber: false);
+        html.Append(
+            """
+                </div>
+                <p id="matrix-after" style="margin:0">After matrix</p>
+              </main>
+            </body>
+            </html>
+            """);
+        PdfHtmlDocument browserDocument = new(html.ToString(), styles.CssPath, styles.Css);
+        using TempDirectory tempDirectory = new();
+        browserDocument.WriteToDirectory(tempDirectory.Path);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize
+            {
+                Width = 800,
+                Height = 600
+            }
+        });
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+        await page.EvaluateAsync("() => document.fonts.ready");
+
+        MatrixBrowserMetrics metrics = await page.EvaluateAsync<MatrixBrowserMetrics>(
+            """
+            () => {
+              const formula = document.querySelector('#matrix-formula');
+              const math = formula.querySelector(':scope > .pdf-semantic-mathml');
+              const table = math.querySelector('mtable');
+              const rows = Array.from(table.querySelectorAll(':scope > mtr'));
+              const formulaBox = formula.getBoundingClientRect();
+              const mathBox = math.getBoundingClientRect();
+              const tableBox = table.getBoundingClientRect();
+              const beforeBox = document.querySelector('#matrix-before').getBoundingClientRect();
+              const afterBox = document.querySelector('#matrix-after').getBoundingClientRect();
+              const contained = (inner, outer) =>
+                inner.left >= outer.left - 1 && inner.right <= outer.right + 1 &&
+                inner.top >= outer.top - 1 && inner.bottom <= outer.bottom + 1;
+              const rowBox = row => {
+                const cells = Array.from(row.querySelectorAll(':scope > mtd'))
+                  .map(cell => cell.getBoundingClientRect());
+                return {
+                  top: Math.min(...cells.map(cell => cell.top)),
+                  bottom: Math.max(...cells.map(cell => cell.bottom))
+                };
+              };
+              const rowBoxes = rows.map(rowBox);
+              const tableStyle = getComputedStyle(table);
+              return {
+                tableDisplay: tableStyle.display,
+                tableVisibility: tableStyle.visibility,
+                tableOpacity: Number.parseFloat(tableStyle.opacity),
+                formulaWidth: formulaBox.width,
+                formulaHeight: formulaBox.height,
+                tableWidth: tableBox.width,
+                tableHeight: tableBox.height,
+                tableVisible: tableBox.width > 1 && tableBox.height > 1,
+                mathContained: contained(mathBox, formulaBox),
+                tableContained: contained(tableBox, formulaBox) && contained(tableBox, mathBox),
+                rowsNonOverlapping: rowBoxes.length === 2 && rowBoxes[0].bottom <= rowBoxes[1].top + 1,
+                siblingsNonOverlapping:
+                  beforeBox.bottom <= formulaBox.top + 1 && formulaBox.bottom <= afterBox.top + 1,
+                rowCount: rows.length,
+                cellCount: table.querySelectorAll('mtd').length
+              };
+            }
+            """);
+
+        Assert.NotEqual("none", metrics.TableDisplay);
+        Assert.NotEqual("hidden", metrics.TableVisibility);
+        Assert.True(metrics.TableOpacity > 0);
+        Assert.True(metrics.TableVisible);
+        Assert.True(metrics.MathContained);
+        Assert.True(metrics.TableContained);
+        Assert.True(metrics.RowsNonOverlapping);
+        Assert.True(metrics.SiblingsNonOverlapping);
+        Assert.Equal(2, metrics.RowCount);
+        Assert.Equal(4, metrics.CellCount);
+        Assert.InRange(metrics.FormulaWidth, 80, 260);
+        Assert.InRange(metrics.FormulaHeight, 20, 96);
+        Assert.InRange(metrics.TableWidth, 16, 180);
+        Assert.InRange(metrics.TableHeight, 16, 72);
+    }
+
+    [Fact]
+    public void TryCreate_RejectsMisalignedBracketedMatrix()
+    {
+        PdfTextGlyph[] glyphs = MatrixGlyphs(secondRowSecondColumnX: 156f);
+
+        Assert.False(PdfMathMlFormula.TryCreate(glyphs, [], out PdfMathMlFormula? formula));
+        Assert.Null(formula);
+    }
+
+    [Fact]
+    public void WriteTo_KeepsLinkedEquationNumberAdjacentToMath()
+    {
+        PdfTextGlyph[] glyphs =
+        [
+            Glyph("x", 92f, 100f),
+            Glyph("=", 104f, 100f, fontName: "CMR10"),
+            Glyph("1", 116f, 100f, fontName: "CMR10"),
+            Glyph("(", 190f, 100f, fontName: "Times-Roman"),
+            Glyph("7", 196f, 100f, fontName: "Times-Roman"),
+            Glyph(")", 202f, 100f, fontName: "Times-Roman")
+        ];
+        Assert.True(PdfMathMlFormula.TryCreate(glyphs, [], out PdfMathMlFormula? candidate));
+        PdfMathMlFormula formula = Assert.IsType<PdfMathMlFormula>(candidate);
+        PdfLayoutRectangle linkBounds = Bounds(formula.EquationNumberGlyphs.Select(static glyph => glyph.PageBounds));
+        PdfLayoutLink link = new(
+            0,
+            linkBounds,
+            PdfLayoutLinkKind.Destination,
+            null,
+            "page:4",
+            4,
+            []);
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [link],
+            []);
+        PdfLayoutLink matchedLink = Assert.IsType<PdfLayoutLink>(
+            PdfHtmlConverter.FormulaLinkForGlyphs(page, formula.EquationNumberGlyphs));
+        StringBuilder markup = new("<div>");
+
+        formula.WriteTo(markup, includeEquationNumber: false);
+        PdfHtmlConverter.WriteEquationNumber(markup, formula.EquationNumber!, matchedLink);
+        markup.Append("</div>");
+
+        XDocument dom = Parse(markup.ToString());
+        Assert.Equal(["math", "a"], dom.Root!.Elements().Select(static element => element.Name.LocalName).ToArray());
+        XElement equationLink = Assert.Single(dom.Root.Elements("a"));
+        Assert.Equal("#page-4", equationLink.Attribute("href")?.Value);
+        Assert.Equal("destination", equationLink.Attribute("data-link-kind")?.Value);
+        Assert.Equal("Equation 7", equationLink.Attribute("aria-label")?.Value);
+        Assert.Equal("(7)", equationLink.Value);
+        Assert.DoesNotContain(dom.Root.Element("math")!.Descendants(), element => element.Name.LocalName == "a");
+    }
 
     [Fact]
     public void TryCreate_EmitsFractionAndKeepsEquationNumberOutsideMath()
@@ -454,6 +673,21 @@ public class PdfMathMlFormulaTest
         return new PdfTextGlyph(text, fontName, fontSize, 0f, new PdfLayoutRectangle(x, y, width, height), Black);
     }
 
+    private static PdfTextGlyph[] MatrixGlyphs(float secondRowSecondColumnX)
+    {
+        return
+        [
+            Glyph("A", 92f, 100f),
+            Glyph("=", 104f, 100f, fontName: "CMR10"),
+            Glyph("[", 120f, 86f, 6f, 36f, fontName: "CMEX10"),
+            Glyph("a", 132f, 91f),
+            Glyph("b", 150f, 91f),
+            Glyph("c", 132f, 109f),
+            Glyph("d", secondRowSecondColumnX, 109f),
+            Glyph("]", 166f, 86f, 6f, 36f, fontName: "CMEX10")
+        ];
+    }
+
     private static PdfTextGlyph OffsetGlyph(PdfTextGlyph glyph, float x, float y)
     {
         PdfLayoutRectangle bounds = glyph.Bounds;
@@ -566,6 +800,62 @@ public class PdfMathMlFormulaTest
     {
         return (element.Attribute("class")?.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [])
             .Contains(className, StringComparer.Ordinal);
+    }
+
+    private sealed class MatrixBrowserMetrics
+    {
+        public string TableDisplay { get; set; } = "";
+
+        public string TableVisibility { get; set; } = "";
+
+        public double TableOpacity { get; set; }
+
+        public double FormulaWidth { get; set; }
+
+        public double FormulaHeight { get; set; }
+
+        public double TableWidth { get; set; }
+
+        public double TableHeight { get; set; }
+
+        public bool TableVisible { get; set; }
+
+        public bool MathContained { get; set; }
+
+        public bool TableContained { get; set; }
+
+        public bool RowsNonOverlapping { get; set; }
+
+        public bool SiblingsNonOverlapping { get; set; }
+
+        public int RowCount { get; set; }
+
+        public int CellCount { get; set; }
+    }
+
+    private sealed class TempDirectory : IDisposable
+    {
+        public TempDirectory()
+        {
+            Path = System.IO.Path.Combine(
+                System.IO.Path.GetTempPath(),
+                "pdfbox-net-mathml-matrix-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(Path);
+        }
+
+        public string Path { get; }
+
+        public void Dispose()
+        {
+            try
+            {
+                Directory.Delete(Path, recursive: true);
+            }
+            catch
+            {
+                // Best-effort cleanup for browser-held files on Windows.
+            }
+        }
     }
 
 }
