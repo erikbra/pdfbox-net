@@ -41,7 +41,104 @@ public static class PdfSemanticExtractor
         options ??= new PdfSemanticExtractionOptions();
         PdfSemanticPage[] pages = layout.Pages.Select(page => ExtractPage(page, options)).ToArray();
         pages = LinkDefinitionListContinuations(pages);
+        pages = LinkFootnoteContinuations(layout.Pages, pages);
         return new PdfSemanticDocument(PdfSemanticBibliographyExtractor.Extract(layout, pages));
+    }
+
+    private static PdfSemanticPage[] LinkFootnoteContinuations(
+        IReadOnlyList<PdfLayoutPage> layoutPages,
+        IReadOnlyList<PdfSemanticPage> sourcePages)
+    {
+        List<PdfSemanticElement>[] pages = sourcePages
+            .Select(static page => page.Elements.ToList())
+            .ToArray();
+        for (int pageIndex = 1; pageIndex < pages.Length; pageIndex++)
+        {
+            List<PdfSemanticElement> previousElements = pages[pageIndex - 1];
+            List<PdfSemanticElement> currentElements = pages[pageIndex];
+            int previousNoteIndex = previousElements.FindLastIndex(static element =>
+                element.Kind == PdfSemanticElementKind.Footnote && element.Note != null);
+            if (previousNoteIndex < 0 ||
+                previousElements.Skip(previousNoteIndex + 1).Any(static element =>
+                    element.Kind is not (PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)))
+            {
+                continue;
+            }
+
+            PdfSemanticElement previous = previousElements[previousNoteIndex];
+            if (previous.Note!.ContinuesOnNextPage ||
+                previous.Bounds.Bottom < layoutPages[pageIndex - 1].Height * 0.70f ||
+                EndsSentence(previous.Text))
+            {
+                continue;
+            }
+
+            int continuationIndex = currentElements.FindIndex(static element =>
+                element.Kind is not (PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer));
+            if (continuationIndex < 0 ||
+                currentElements.Take(continuationIndex).Any(static element =>
+                    element.Kind is not (PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)))
+            {
+                continue;
+            }
+
+            PdfSemanticElement continuation = currentElements[continuationIndex];
+            string continuationText = continuation.Text.TrimStart();
+            if (continuation.Kind != PdfSemanticElementKind.Paragraph ||
+                continuationText.Length == 0 ||
+                !char.IsLower(continuationText[0]) ||
+                continuation.Bounds.Y > layoutPages[pageIndex].Height * 0.20f ||
+                !HasCompatibleNoteFontSize(previous, continuation))
+            {
+                continue;
+            }
+
+            previousElements[previousNoteIndex] = WithNote(
+                previous,
+                new PdfSemanticNote(
+                    previous.Note.Marker,
+                    previous.Note.ContinuesPreviousNote,
+                    continuesOnNextPage: true));
+            currentElements[continuationIndex] = WithNote(
+                continuation,
+                new PdfSemanticNote(previous.Note.Marker, continuesPreviousNote: true),
+                PdfSemanticElementKind.Footnote);
+        }
+
+        return sourcePages
+            .Select((page, index) => new PdfSemanticPage(page.PageNumber, pages[index]))
+            .ToArray();
+    }
+
+    private static bool HasCompatibleNoteFontSize(PdfSemanticElement first, PdfSemanticElement second)
+    {
+        float firstSize = first.Lines.Select(static line => line.DominantFontSize).DefaultIfEmpty(0f).Average();
+        float secondSize = second.Lines.Select(static line => line.DominantFontSize).DefaultIfEmpty(0f).Average();
+        return firstSize > 0f &&
+            secondSize >= firstSize * 0.75f &&
+            secondSize <= firstSize * 1.25f;
+    }
+
+    private static PdfSemanticElement WithNote(
+        PdfSemanticElement source,
+        PdfSemanticNote note,
+        PdfSemanticElementKind? kind = null)
+    {
+        return new PdfSemanticElement(
+            kind ?? source.Kind,
+            source.Text,
+            source.Bounds,
+            source.Lines,
+            source.HeadingLevel,
+            source.TableRows,
+            source.SemanticList,
+            source.DocumentIndex,
+            source.IsDocumentTitle,
+            source.BibliographyFragment,
+            source.DefinitionList,
+            source.Quotation,
+            source.Aside,
+            note);
     }
 
     private static PdfSemanticPage[] LinkDefinitionListContinuations(IReadOnlyList<PdfSemanticPage> sourcePages)
@@ -1741,11 +1838,37 @@ public static class PdfSemanticExtractor
 
         LineCandidate[] readingLines = OrderLinesForReading(lines);
         string text = JoinParagraphLines(readingLines.Select(static line => line.SemanticLine));
+        string marker = FootnoteMarkerFromText(text);
         return new PdfSemanticElement(
             PdfSemanticElementKind.Footnote,
             text,
             PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
-            readingLines.Select(static line => line.SemanticLine).ToArray());
+            readingLines.Select(static line => line.SemanticLine).ToArray(),
+            note: marker.Length > 0 ? new PdfSemanticNote(marker) : null);
+    }
+
+    private static string FootnoteMarkerFromText(string text)
+    {
+        string trimmed = text.TrimStart();
+        if (trimmed.Length == 0)
+        {
+            return "";
+        }
+
+        if (trimmed[0] is '*' or '∗' or '†' or '‡')
+        {
+            return trimmed[..1];
+        }
+
+        int length = 0;
+        while (length < trimmed.Length && length < 2 && char.IsDigit(trimmed[length]))
+        {
+            length++;
+        }
+
+        return length > 0 && (length == trimmed.Length || char.IsWhiteSpace(trimmed[length]))
+            ? trimmed[..length]
+            : "";
     }
 
     private static IEnumerable<PdfSemanticElement> ExtractDefinitionLists(
