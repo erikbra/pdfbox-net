@@ -21,5 +21,6 @@ public enum PdfSemanticElementKind
     BlockQuote,
     Aside,
     CodeBlock,
-    ThematicBreak
+    ThematicBreak,
+    Algorithm
 }

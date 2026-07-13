@@ -2023,6 +2023,205 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_AdamPageTwo_EmitsStructuredRuledAlgorithmWithRichRows()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("arxiv-adam-page-2.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        Assert.DoesNotContain('\f', html.Html);
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement figure = Assert.Single(ElementsByClass(dom, "pdf-semantic-algorithm"));
+        Assert.Equal("figure", figure.Name.LocalName);
+        XElement caption = Assert.Single(figure.Elements("figcaption"));
+        Assert.StartsWith("Algorithm 1: Adam", caption.Value, StringComparison.Ordinal);
+        Assert.Contains("⊙", caption.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain('�', caption.Value);
+        XElement rows = Assert.Single(figure.Elements("div"), element =>
+            HasClass(element, "pdf-semantic-algorithm-rows"));
+        Assert.Equal("list", rows.Attribute("role")?.Value);
+        XElement[] sourceRows = rows.Elements("div")
+            .Where(element => HasClass(element, "pdf-semantic-algorithm-row"))
+            .ToArray();
+        Assert.Equal(17, sourceRows.Length);
+        Assert.Equal(4, sourceRows.Count(row => row.Value.StartsWith("Require:", StringComparison.Ordinal)));
+        Assert.All(sourceRows, row =>
+        {
+            Assert.Equal("listitem", row.Attribute("role")?.Value);
+            Assert.Single(row.Elements("code"));
+        });
+        Assert.StartsWith("while", sourceRows[7].Value, StringComparison.Ordinal);
+        Assert.StartsWith("end while", sourceRows[^2].Value, StringComparison.Ordinal);
+        Assert.StartsWith("return", sourceRows[^1].Value, StringComparison.Ordinal);
+        Assert.Contains('←', sourceRows[8].Value);
+        Assert.True(sourceRows[8].Value.IndexOf('←') > sourceRows[8].Value.IndexOf('t'));
+        Assert.Contains(sourceRows[9].Descendants("sub"), subscript => subscript.Value == "t");
+        Assert.Contains(sourceRows[11].Descendants("sup"), superscript => superscript.Value == "2");
+        Assert.Contains('√', sourceRows[14].Value);
+        Assert.True(sourceRows[14].Value.IndexOf('√') < sourceRows[14].Value.LastIndexOf('v'));
+        Assert.NotEmpty(figure.Descendants("sub"));
+        Assert.NotEmpty(figure.Descendants("sup"));
+        Assert.Empty(dom.Descendants("hr"));
+        Assert.DoesNotContain(dom.Descendants("p"), paragraph =>
+            paragraph.Value.StartsWith("Require:", StringComparison.Ordinal));
+
+        XElement replacementProse = Assert.Single(dom.Descendants("p"), paragraph =>
+            HasClass(paragraph, "pdf-semantic-paragraph") &&
+            paragraph.Value.EndsWith("with the following lines:", StringComparison.Ordinal));
+        Assert.DoesNotContain('√', replacementProse.Value);
+        Assert.DoesNotContain('←', replacementProse.Value);
+        XElement replacementFormula = Assert.Single(ElementsByClass(dom, "pdf-semantic-formula"));
+        Assert.Equal("div", replacementFormula.Name.LocalName);
+        Assert.Equal("math", replacementFormula.Attribute("role")?.Value);
+        Assert.Equal(
+            "αt = α · √1 − β2t/(1 − β1t) and θt ← θt−1 − αt · mt/(√vt + ε̂).",
+            replacementFormula.Attribute("aria-label")?.Value);
+        Assert.NotEmpty(replacementFormula.Descendants("span"));
+        Assert.Contains(replacementFormula, replacementProse.ElementsAfterSelf());
+        Assert.DoesNotContain(dom.Descendants("p"), paragraph =>
+            paragraph.Value.Trim().All(character => char.IsWhiteSpace(character) || character is '·' or '−' or '←'));
+
+        Dictionary<string, string> style = ParseStyle(figure.Attribute("style")?.Value ?? "");
+        Assert.Contains("--pdf-semantic-algorithm-top-rule-width", style.Keys);
+        Assert.Contains("--pdf-semantic-algorithm-caption-rule-width", style.Keys);
+        Assert.Contains("--pdf-semantic-algorithm-bottom-rule-width", style.Keys);
+        Assert.Contains(".pdf-semantic-algorithm-row > code", html.Css, StringComparison.Ordinal);
+        Assert.Contains("white-space: pre-wrap", html.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Convert_AdamPageTwo_AlgorithmGeometryIsStableAtDesktopAndNarrowWidths()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("arxiv-adam-page-2.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage browserPage = await browser.NewPageAsync();
+        await browserPage.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        foreach (int width in new[] { 1000, 360 })
+        {
+            await browserPage.SetViewportSizeAsync(width, 900);
+            double[] geometry = await browserPage.EvaluateAsync<double[]>(
+                """
+                () => {
+                  const figure = document.querySelector("figure.pdf-semantic-algorithm");
+                  const flow = document.querySelector(".pdf-semantic-flow");
+                  const caption = figure.querySelector("figcaption");
+                  const rows = Array.from(figure.querySelectorAll(".pdf-semantic-algorithm-row"));
+                  const codes = rows.map(row => row.querySelector(":scope > code").getBoundingClientRect());
+                  const figureBox = figure.getBoundingClientRect();
+                  const flowBox = flow.getBoundingClientRect();
+                  const style = getComputedStyle(figure);
+                  const captionStyle = getComputedStyle(caption);
+                  const ordered = codes.every((box, index) => index === 0 || box.top >= codes[index - 1].bottom - 0.5);
+                  const formula = document.querySelector(".pdf-semantic-formula");
+                  const formulaBox = formula.getBoundingClientRect();
+                  const formulaRuns = Array.from(formula.querySelectorAll(".pdf-semantic-formula-run"));
+                  const runBoxes = formulaRuns.map(run => run.getBoundingClientRect());
+                  const prose = Array.from(document.querySelectorAll("p.pdf-semantic-paragraph"))
+                    .find(paragraph => paragraph.textContent.endsWith("with the following lines:"));
+                  const nextHeading = Array.from(document.querySelectorAll(".pdf-semantic-element"))
+                    .find(element => element.textContent.includes("ADAM’S UPDATE RULE"));
+                  const byText = text => formulaRuns
+                    .filter(run => run.textContent === text)
+                    .sort((first, second) => first.getBoundingClientRect().left - second.getBoundingClientRect().left);
+                  const alphas = byText("α");
+                  const dots = byText("·");
+                  const radicals = byText("√");
+                  const ones = byText("1");
+                  const minuses = byText("−");
+                  const betas = byText("β");
+                  const thetas = byText("θ");
+                  const arrows = byText("←");
+                  const visualFormulaOrder =
+                    alphas.length >= 2 && dots.length >= 1 && radicals.length >= 1 &&
+                    ones.length >= 1 && minuses.length >= 1 && betas.length >= 1 &&
+                    thetas.length >= 2 && arrows.length === 1 &&
+                    alphas[1].getBoundingClientRect().left < dots[0].getBoundingClientRect().left &&
+                    dots[0].getBoundingClientRect().left < radicals[0].getBoundingClientRect().left &&
+                    radicals[0].getBoundingClientRect().left < ones[0].getBoundingClientRect().left &&
+                    ones[0].getBoundingClientRect().left < minuses[0].getBoundingClientRect().left &&
+                    minuses[0].getBoundingClientRect().left < betas[0].getBoundingClientRect().left &&
+                    thetas[0].getBoundingClientRect().left < arrows[0].getBoundingClientRect().left &&
+                    arrows[0].getBoundingClientRect().left < thetas[1].getBoundingClientRect().left;
+                  return [
+                    document.documentElement.scrollWidth,
+                    innerWidth,
+                    figureBox.left,
+                    figureBox.right,
+                    flowBox.left,
+                    flowBox.right,
+                    parseFloat(style.borderTopWidth),
+                    parseFloat(captionStyle.borderBottomWidth),
+                    parseFloat(style.borderBottomWidth),
+                    ordered ? 1 : 0,
+                    figure.scrollWidth <= figure.clientWidth + 1 ? 1 : 0,
+                    codes[0].left,
+                    codes[4].left,
+                    codes[8].left,
+                    formulaBox.left,
+                    formulaBox.right,
+                    formulaBox.top,
+                    formulaBox.bottom,
+                    prose.getBoundingClientRect().bottom,
+                    nextHeading.getBoundingClientRect().top,
+                    formulaRuns.length,
+                    visualFormulaOrder ? 1 : 0,
+                    Math.min(...runBoxes.map(box => box.left)),
+                    Math.max(...runBoxes.map(box => box.right)),
+                    formula.scrollWidth,
+                    formula.clientWidth,
+                    getComputedStyle(formula).overflowX === "auto" ? 1 : 0
+                  ];
+                }
+                """);
+
+            Assert.True(geometry[0] <= geometry[1] + 1, $"viewport {width} overflowed by {geometry[0] - geometry[1]:0.##}px");
+            Assert.True(geometry[2] >= geometry[4] - 1);
+            Assert.True(geometry[3] <= geometry[5] + 1);
+            Assert.All(geometry[6..9], border => Assert.True(border > 0));
+            Assert.Equal(1, geometry[9]);
+            Assert.Equal(1, geometry[10]);
+            Assert.True(geometry[12] >= geometry[11] + 5);
+            Assert.True(geometry[13] >= geometry[12] + 5);
+            Assert.True(geometry[14] >= geometry[4] - 1);
+            Assert.True(geometry[15] <= geometry[5] + 1);
+            Assert.True(geometry[16] >= geometry[18] - 1);
+            Assert.True(geometry[17] <= geometry[19] + 1);
+            Assert.True(geometry[20] > 0);
+            Assert.Equal(1, geometry[21]);
+            Assert.True(geometry[22] >= geometry[14] - 1);
+            Assert.Equal(1, geometry[26]);
+            if (width == 1000)
+            {
+                Assert.True(geometry[23] <= geometry[15] + 1);
+                Assert.True(geometry[24] <= geometry[25] + 1);
+            }
+            else
+            {
+                Assert.True(geometry[24] > geometry[25]);
+            }
+        }
+    }
+
+    [Fact]
     public void Convert_SemanticCode_FullPageVectorBackdropStillUsesFixedLayoutFallback()
     {
         PdfLayoutDocument layout = CreateSemanticHtmlFixture(

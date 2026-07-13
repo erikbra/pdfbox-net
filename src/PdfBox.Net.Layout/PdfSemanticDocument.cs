@@ -57,7 +57,8 @@ public sealed class PdfSemanticElement
         PdfSemanticQuotation? quotation = null,
         PdfSemanticAside? aside = null,
         PdfSemanticNote? note = null,
-        PdfSemanticThematicBreak? thematicBreak = null)
+        PdfSemanticThematicBreak? thematicBreak = null,
+        PdfSemanticAlgorithm? algorithm = null)
     {
         Kind = kind;
         Text = text;
@@ -73,6 +74,7 @@ public sealed class PdfSemanticElement
         Aside = aside;
         Note = note;
         ThematicBreak = thematicBreak;
+        Algorithm = algorithm;
         IsDocumentTitle = isDocumentTitle;
     }
 
@@ -117,9 +119,88 @@ public sealed class PdfSemanticElement
     public PdfSemanticThematicBreak? ThematicBreak { get; }
 
     /// <summary>
+    /// Gets the structured pseudocode represented by this element.
+    /// </summary>
+    public PdfSemanticAlgorithm? Algorithm { get; }
+
+    /// <summary>
     /// Gets whether this heading is the inferred document title rather than a section heading.
     /// </summary>
     public bool IsDocumentTitle { get; }
+}
+
+/// <summary>
+/// A ruled algorithm or pseudocode block with a caption and source rows.
+/// </summary>
+public sealed class PdfSemanticAlgorithm
+{
+    public PdfSemanticAlgorithm(
+        string caption,
+        IReadOnlyList<PdfSemanticLine> captionLines,
+        IReadOnlyList<PdfSemanticAlgorithmRow> rows,
+        PdfSemanticAlgorithmRule topRule,
+        PdfSemanticAlgorithmRule captionRule,
+        PdfSemanticAlgorithmRule bottomRule)
+    {
+        Caption = caption;
+        CaptionLines = captionLines.ToArray();
+        Rows = rows.ToArray();
+        TopRule = topRule;
+        CaptionRule = captionRule;
+        BottomRule = bottomRule;
+    }
+
+    public string Caption { get; }
+
+    public IReadOnlyList<PdfSemanticLine> CaptionLines { get; }
+
+    public IReadOnlyList<PdfSemanticAlgorithmRow> Rows { get; }
+
+    public PdfSemanticAlgorithmRule TopRule { get; }
+
+    public PdfSemanticAlgorithmRule CaptionRule { get; }
+
+    public PdfSemanticAlgorithmRule BottomRule { get; }
+}
+
+/// <summary>
+/// One visual source row in an algorithm, including its indentation from the block edge.
+/// </summary>
+public sealed class PdfSemanticAlgorithmRow
+{
+    public PdfSemanticAlgorithmRow(PdfSemanticLine line, float indentation)
+    {
+        Line = line;
+        Indentation = MathF.Max(0f, indentation);
+    }
+
+    public PdfSemanticLine Line { get; }
+
+    public string Text => Line.Text;
+
+    public float Indentation { get; }
+}
+
+/// <summary>
+/// A source rule retained as part of an algorithm's semantic framing.
+/// </summary>
+public sealed class PdfSemanticAlgorithmRule
+{
+    public PdfSemanticAlgorithmRule(int sourcePathIndex, PdfLayoutRectangle bounds, float thickness, PdfLayoutColor color)
+    {
+        SourcePathIndex = sourcePathIndex;
+        Bounds = bounds;
+        Thickness = MathF.Max(0f, thickness);
+        Color = color;
+    }
+
+    public int SourcePathIndex { get; }
+
+    public PdfLayoutRectangle Bounds { get; }
+
+    public float Thickness { get; }
+
+    public PdfLayoutColor Color { get; }
 }
 
 /// <summary>

@@ -546,6 +546,11 @@ public static class PdfHtmlConverter
           white-space: pre;
         }
 
+        .pdf-semantic-formula:not(.pdf-semantic-formula-native) {
+          overflow-x: auto;
+          overflow-y: hidden;
+        }
+
         .pdf-semantic-formula-attached-suffix {
           transform: translateX(-0.15em);
         }
@@ -792,6 +797,42 @@ public static class PdfHtmlConverter
         .pdf-semantic-code-block > code {
           font: inherit;
           white-space: inherit;
+        }
+
+        .pdf-semantic-algorithm {
+          align-self: center;
+          border-bottom: var(--pdf-semantic-algorithm-bottom-rule-width, 0.5pt) solid var(--pdf-semantic-algorithm-bottom-rule-color, currentColor);
+          border-top: var(--pdf-semantic-algorithm-top-rule-width, 0.5pt) solid var(--pdf-semantic-algorithm-top-rule-color, currentColor);
+          box-sizing: border-box;
+          margin: 0 0 8pt;
+          max-width: 100%;
+          width: min(100%, var(--pdf-semantic-width, 100%));
+        }
+
+        .pdf-semantic-algorithm-caption {
+          border-bottom: var(--pdf-semantic-algorithm-caption-rule-width, 0.5pt) solid var(--pdf-semantic-algorithm-caption-rule-color, currentColor);
+          line-height: 1.18;
+          padding: 2pt 0 3pt;
+        }
+
+        .pdf-semantic-algorithm-rows {
+          display: grid;
+          min-width: 0;
+          padding: 2pt 0;
+        }
+
+        .pdf-semantic-algorithm-row {
+          box-sizing: border-box;
+          line-height: 1.18;
+          min-width: 0;
+          padding-inline-start: min(var(--pdf-semantic-algorithm-indent, 0pt), 24%);
+        }
+
+        .pdf-semantic-algorithm-row > code {
+          display: block;
+          font: inherit;
+          overflow-wrap: anywhere;
+          white-space: pre-wrap;
         }
 
         .pdf-semantic-inline-code {
@@ -3911,7 +3952,7 @@ public static class PdfHtmlConverter
         PdfSemanticPage semanticPage)
     {
         if (semanticPage.Elements.Any(static element =>
-            element.Kind is PdfSemanticElementKind.DefinitionList or PdfSemanticElementKind.CodeBlock))
+            element.Kind is PdfSemanticElementKind.DefinitionList or PdfSemanticElementKind.CodeBlock or PdfSemanticElementKind.Algorithm))
         {
             return null;
         }
@@ -4395,7 +4436,7 @@ public static class PdfHtmlConverter
         gridColumns = [];
         pitch = 0;
         if (semanticPage.Elements.Any(static element =>
-                element.Kind is PdfSemanticElementKind.Table or PdfSemanticElementKind.DefinitionList) ||
+                element.Kind is PdfSemanticElementKind.Table or PdfSemanticElementKind.DefinitionList or PdfSemanticElementKind.Algorithm) ||
             page.Lines.Count < 24)
         {
             return false;
@@ -4650,7 +4691,7 @@ public static class PdfHtmlConverter
                     continue;
                 }
 
-                if (item.Element?.Kind == PdfSemanticElementKind.CodeBlock)
+                if (item.Element?.Kind is PdfSemanticElementKind.CodeBlock or PdfSemanticElementKind.Algorithm)
                 {
                     html.Append("          <div class=\"pdf-semantic-column-block\"");
                     if (marginTop > 0.01f)
@@ -8514,6 +8555,12 @@ public static class PdfHtmlConverter
         FootnoteContext footnotes,
         PdfLayoutPage? page = null)
     {
+        if (element.Kind == PdfSemanticElementKind.Algorithm && element.Algorithm != null)
+        {
+            WriteSemanticAlgorithm(html, element.Algorithm, footnotes, page);
+            return;
+        }
+
         if (element.Kind == PdfSemanticElementKind.CodeBlock)
         {
             html.Append("<code>")
@@ -8615,6 +8662,62 @@ public static class PdfHtmlConverter
         }
 
         WriteTextWithFootnoteReferences(html, element.Text, footnotes);
+    }
+
+    private static void WriteSemanticAlgorithm(
+        StringBuilder html,
+        PdfSemanticAlgorithm algorithm,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        PdfSemanticElement caption = new(
+            PdfSemanticElementKind.Paragraph,
+            algorithm.Caption,
+            UnionRectangles(algorithm.CaptionLines.Select(static line => line.Bounds)),
+            algorithm.CaptionLines);
+        html.Append("<figcaption class=\"pdf-semantic-algorithm-caption\">");
+        if (CanWriteRichSemanticText(caption))
+        {
+            WriteRichSemanticText(html, caption, footnotes, page);
+        }
+        else
+        {
+            WriteTextWithFootnoteReferences(html, algorithm.Caption, footnotes);
+        }
+
+        html.AppendLine("</figcaption>");
+        html.AppendLine("<div class=\"pdf-semantic-algorithm-rows\" role=\"list\">");
+        PdfSemanticLine[] protectedLines = algorithm.CaptionLines
+            .Concat(algorithm.Rows.Select(static row => row.Line))
+            .ToArray();
+        PdfSemanticElement protectedElement = new(
+            PdfSemanticElementKind.Algorithm,
+            algorithm.Caption + "\n" + string.Join('\n', algorithm.Rows.Select(static row => row.Text)),
+            UnionRectangles(protectedLines.Select(static line => line.Bounds)),
+            protectedLines);
+        for (int index = 0; index < algorithm.Rows.Count; index++)
+        {
+            PdfSemanticAlgorithmRow row = algorithm.Rows[index];
+            html.Append("<div class=\"pdf-semantic-algorithm-row\" role=\"listitem\" data-source-row=\"")
+                .Append((index + 1).ToString(CultureInfo.InvariantCulture))
+                .Append("\" style=\"--pdf-semantic-algorithm-indent:")
+                .Append(CssPoints(row.Indentation))
+                .Append("\"><code>");
+            if (row.Line.Runs.Count > 0)
+            {
+                List<InlineTextSegment> segments = InlineTextSegments(row.Line, page, protectedElement).ToList();
+                string lineText = string.Concat(segments.Select(static segment => segment.Text));
+                WriteInlineTextSegments(html, row.Line, segments, lineText, footnotes);
+            }
+            else
+            {
+                WriteTextWithFootnoteReferences(html, row.Text, footnotes);
+            }
+
+            html.AppendLine("</code></div>");
+        }
+
+        html.Append("</div>");
     }
 
     private static void WriteSemanticQuotation(
@@ -10816,6 +10919,7 @@ public static class PdfHtmlConverter
             PdfSemanticElementKind.Paragraph => "p",
             PdfSemanticElementKind.CodeBlock => "pre",
             PdfSemanticElementKind.ThematicBreak => "hr",
+            PdfSemanticElementKind.Algorithm => "figure",
             PdfSemanticElementKind.DefinitionList => "dl",
             PdfSemanticElementKind.BlockQuote => "blockquote",
             PdfSemanticElementKind.Aside => "aside",
@@ -10967,6 +11071,16 @@ public static class PdfHtmlConverter
             styles.Add("--pdf-semantic-line-count:" + SameRowLines(element).Length.ToString(CultureInfo.InvariantCulture));
         }
 
+        if (element.Algorithm != null)
+        {
+            styles.AddRange(AlgorithmRuleStyles(element.Algorithm));
+            if (allowMeasuredWidth && page != null)
+            {
+                float algorithmWidthPercent = Math.Clamp(element.Bounds.Width / SemanticFlowWidth(page) * 100f, 1f, 100f);
+                styles.Add("--pdf-semantic-width:" + CssPercent(algorithmWidthPercent));
+            }
+        }
+
         if (allowMeasuredWidth &&
             page != null &&
             element.Kind == PdfSemanticElementKind.Paragraph &&
@@ -11079,6 +11193,16 @@ public static class PdfHtmlConverter
         }
 
         return string.Join(";", styles);
+    }
+
+    private static IEnumerable<string> AlgorithmRuleStyles(PdfSemanticAlgorithm algorithm)
+    {
+        yield return "--pdf-semantic-algorithm-top-rule-width:" + CssPoints(algorithm.TopRule.Thickness);
+        yield return "--pdf-semantic-algorithm-top-rule-color:" + CssRgba(algorithm.TopRule.Color);
+        yield return "--pdf-semantic-algorithm-caption-rule-width:" + CssPoints(algorithm.CaptionRule.Thickness);
+        yield return "--pdf-semantic-algorithm-caption-rule-color:" + CssRgba(algorithm.CaptionRule.Color);
+        yield return "--pdf-semantic-algorithm-bottom-rule-width:" + CssPoints(algorithm.BottomRule.Thickness);
+        yield return "--pdf-semantic-algorithm-bottom-rule-color:" + CssRgba(algorithm.BottomRule.Color);
     }
 
     private static bool IsCoverTextKind(PdfSemanticElementKind kind)
@@ -11427,9 +11551,36 @@ public static class PdfHtmlConverter
                 (StartsFormulaFunction(text) || CountWords(text) <= 4);
         }
 
+        if (IsMathDominantFormulaLine(line))
+        {
+            return true;
+        }
+
         return line.Bounds.X >= 150f &&
             line.Bounds.Width >= 80f &&
             CountWords(text) <= 12;
+    }
+
+    private static bool IsMathDominantFormulaLine(PdfSemanticLine line)
+    {
+        if (line.Bounds.Width < 80f || line.Text.Length > 220)
+        {
+            return false;
+        }
+
+        if (!HasMathFont(line.DominantFontName))
+        {
+            return false;
+        }
+
+        int totalCharacters = line.Runs.Sum(static run =>
+            run.Text.Count(static character => !char.IsWhiteSpace(character)));
+        int mathCharacters = line.Runs
+            .Where(static run => HasMathFont(run.FontName))
+            .Sum(static run => run.Text.Count(static character => !char.IsWhiteSpace(character)));
+        return mathCharacters >= 8 &&
+            totalCharacters > 0 &&
+            mathCharacters / (float)totalCharacters >= 0.58f;
     }
 
     internal static bool HasMathFont(string fontName)
@@ -11817,6 +11968,7 @@ public static class PdfHtmlConverter
             PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
             PdfSemanticElementKind.CodeBlock => "pdf-semantic-code-block",
             PdfSemanticElementKind.ThematicBreak => "pdf-semantic-thematic-break",
+            PdfSemanticElementKind.Algorithm => "pdf-semantic-algorithm",
             PdfSemanticElementKind.BlockQuote => "pdf-semantic-blockquote",
             PdfSemanticElementKind.Aside => "pdf-semantic-aside",
             PdfSemanticElementKind.List => "pdf-semantic-list-element",
@@ -11854,6 +12006,7 @@ public static class PdfHtmlConverter
         return IsThematicBreakPath(semanticPage, path) ||
             IsDecorativeTitleRulePath(page, semanticPage, path) ||
             IsDecorativeFootnoteRulePath(page, semanticPage, path) ||
+            IsSemanticAlgorithmRulePath(semanticPage, path) ||
             IsSemanticAsideRegionPath(page, semanticPage, path);
     }
 
@@ -11862,6 +12015,19 @@ public static class PdfHtmlConverter
         return semanticPage.Elements.Any(element =>
             element.Kind == PdfSemanticElementKind.ThematicBreak &&
             element.ThematicBreak?.SourcePathIndex == path.Index);
+    }
+
+    private static bool IsSemanticAlgorithmRulePath(PdfSemanticPage semanticPage, PdfLayoutPath path)
+    {
+        return semanticPage.Elements
+            .Where(static element => element.Algorithm != null)
+            .SelectMany(static element => new[]
+            {
+                element.Algorithm!.TopRule.SourcePathIndex,
+                element.Algorithm.CaptionRule.SourcePathIndex,
+                element.Algorithm.BottomRule.SourcePathIndex
+            })
+            .Contains(path.Index);
     }
 
     private static bool IsSemanticAsideRegionPath(
@@ -12046,9 +12212,12 @@ public static class PdfHtmlConverter
             top = (page.Height - element.Bounds.Width) / 2f;
         }
 
-        return "left:" + CssPoints(left * scale) +
+        string style = "left:" + CssPoints(left * scale) +
             ";top:" + CssPoints(top * scale) +
             ";width:" + CssPoints(element.Bounds.Width * scale);
+        return element.Algorithm == null
+            ? style
+            : style + ";" + string.Join(';', AlgorithmRuleStyles(element.Algorithm));
     }
 
     private static float SemanticFontSize(PdfSemanticElement element)
@@ -13506,11 +13675,32 @@ public static class PdfHtmlConverter
 
     private static string Html(string value)
     {
-        return WebUtility.HtmlEncode(value);
+        return WebUtility.HtmlEncode(SanitizeHtmlValue(value));
     }
 
     private static string HtmlAttribute(string value)
     {
-        return WebUtility.HtmlEncode(value).Replace("\"", "&quot;", StringComparison.Ordinal);
+        return WebUtility.HtmlEncode(SanitizeHtmlValue(value)).Replace("\"", "&quot;", StringComparison.Ordinal);
+    }
+
+    private static string SanitizeHtmlValue(string value)
+    {
+        if (value.All(static character => character is '\t' or '\n' or '\r' || character >= ' '))
+        {
+            return value;
+        }
+
+        StringBuilder sanitized = new(value.Length);
+        foreach (Rune rune in value.EnumerateRunes())
+        {
+            int codePoint = rune.Value;
+            bool valid = codePoint is 0x9 or 0xA or 0xD ||
+                codePoint is >= 0x20 and <= 0xD7FF ||
+                codePoint is >= 0xE000 and <= 0xFFFD ||
+                codePoint is >= 0x10000 and <= 0x10FFFF;
+            sanitized.Append(valid ? rune.ToString() : "�");
+        }
+
+        return sanitized.ToString();
     }
 }
