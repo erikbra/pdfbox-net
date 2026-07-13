@@ -87,10 +87,10 @@ jobs:
     env:
       RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || format('4.0.0-preview.ci.{0}', github.run_number) }}
     permissions:
-      contents: ${{ inputs.publish_release && 'write' || 'read' }}
-      id-token: ${{ github.event_name == 'workflow_dispatch' && 'write' || 'none' }}
-      attestations: ${{ github.event_name == 'workflow_dispatch' && 'write' || 'none' }}
-      artifact-metadata: ${{ github.event_name == 'workflow_dispatch' && 'write' || 'none' }}
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
 
     steps:
       - name: Checkout
