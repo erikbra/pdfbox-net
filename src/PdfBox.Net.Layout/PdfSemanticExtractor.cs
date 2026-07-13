@@ -13,7 +13,12 @@ public static class PdfSemanticExtractor
     private static readonly Regex FootnoteMarkerPattern = new(@"^[*∗†‡]\s*$", RegexOptions.Compiled);
     private static readonly Regex SymbolFootnoteMarkerPattern = new(@"^[*∗†‡]\s*$", RegexOptions.Compiled);
     private static readonly Regex NumericFootnoteMarkerPattern = new(@"^\d{1,2}\s*$", RegexOptions.Compiled);
-    private static readonly Regex TableCaptionPattern = new(@"^Table\s+\d", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex TableCaptionPattern = new(
+        @"^\s*Table\s+(?<number>\d{1,4}(?:\.\d+)*(?:[A-Za-z])?)(?<separator>\s*[:.\-–—])?(?=\s|$)",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex TableReferenceContinuationPattern = new(
+        @"^(?:also\s+)?(?:can|contains?|compares?|describes?|gives?|has|illustrates?|is|lists?|presents?|provides?|reports?|shows?|summarizes?|was|were)\b",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     private static readonly Regex DateListItemBodyPattern = new(
         @"^(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:(?:\d{1,2})(?:,\s*)?)?\d{4}\b",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -991,9 +996,238 @@ public static class PdfSemanticExtractor
             sortedElements,
             bodyFontSize,
             lineStep);
+        IReadOnlyList<PdfSemanticElement> detectedElements = DetectQuotationsAndAsides(page, mergedElements);
         return new PdfSemanticPage(
             page.PageNumber,
-            DetectQuotationsAndAsides(page, mergedElements));
+            AttachDetectedTableCaptions(detectedElements, bodyFontSize, lineStep));
+    }
+
+    private static IReadOnlyList<PdfSemanticElement> AttachDetectedTableCaptions(
+        IReadOnlyList<PdfSemanticElement> elements,
+        float bodyFontSize,
+        float lineStep)
+    {
+        PdfSemanticElement[] tables = elements
+            .Where(static element =>
+                element.Kind == PdfSemanticElementKind.Table &&
+                element.TableRows.Count > 0 &&
+                element.TableCaption == null)
+            .ToArray();
+        TableCaptionCandidate[] captions = elements
+            .Select(TryCreateTableCaptionCandidate)
+            .Where(static candidate => candidate.HasValue)
+            .Select(static candidate => candidate!.Value)
+            .ToArray();
+        if (tables.Length == 0 || captions.Length == 0)
+        {
+            return elements;
+        }
+
+        TableCaptionAssociation[] associations = tables
+            .SelectMany(table => captions.Select(caption => TryCreateTableCaptionAssociation(
+                elements,
+                table,
+                caption,
+                bodyFontSize,
+                lineStep)))
+            .Where(static association => association.HasValue)
+            .Select(static association => association!.Value)
+            .OrderBy(static association => association.Score)
+            .ThenBy(static association => association.Caption.Element.Bounds.Y)
+            .ThenBy(static association => association.Caption.Element.Bounds.X)
+            .ToArray();
+
+        Dictionary<PdfSemanticElement, PdfSemanticElement> replacements =
+            new(ReferenceEqualityComparer.Instance);
+        HashSet<PdfSemanticElement> claimedCaptions = new(ReferenceEqualityComparer.Instance);
+        foreach (TableCaptionAssociation association in associations)
+        {
+            if (replacements.ContainsKey(association.Table) ||
+                !claimedCaptions.Add(association.Caption.Element))
+            {
+                continue;
+            }
+
+            PdfSemanticElement source = association.Caption.Element;
+            PdfSemanticTableCaption caption = new(
+                association.Caption.Number,
+                source.Text,
+                source.Bounds,
+                source.Lines,
+                association.Position);
+            replacements.Add(association.Table, WithTableCaption(association.Table, caption));
+        }
+
+        if (replacements.Count == 0)
+        {
+            return elements;
+        }
+
+        return elements
+            .Where(element => !claimedCaptions.Contains(element))
+            .Select(element => replacements.GetValueOrDefault(element, element))
+            .ToArray();
+    }
+
+    private static TableCaptionCandidate? TryCreateTableCaptionCandidate(PdfSemanticElement element)
+    {
+        if (element.Kind is not (PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading) ||
+            element.Lines.Count == 0 ||
+            element.Lines.Count > 8 ||
+            element.Text.Length > 1200)
+        {
+            return null;
+        }
+
+        Match match = TableCaptionPattern.Match(element.Text);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        string suffix = element.Text[match.Length..].TrimStart();
+        bool hasSeparator = match.Groups["separator"].Success &&
+            match.Groups["separator"].Value.Trim().Length > 0;
+        if (!hasSeparator && suffix.Length > 0 &&
+            (char.IsLower(suffix[0]) || TableReferenceContinuationPattern.IsMatch(suffix)))
+        {
+            return null;
+        }
+
+        return new TableCaptionCandidate(element, match.Groups["number"].Value);
+    }
+
+    private static TableCaptionAssociation? TryCreateTableCaptionAssociation(
+        IReadOnlyList<PdfSemanticElement> elements,
+        PdfSemanticElement table,
+        TableCaptionCandidate caption,
+        float bodyFontSize,
+        float lineStep)
+    {
+        PdfSemanticTableCaptionPosition position;
+        float gap;
+        if (caption.Element.Bounds.Bottom <= table.Bounds.Y + 1f)
+        {
+            position = PdfSemanticTableCaptionPosition.Above;
+            gap = MathF.Max(0f, table.Bounds.Y - caption.Element.Bounds.Bottom);
+        }
+        else if (caption.Element.Bounds.Y >= table.Bounds.Bottom - 1f)
+        {
+            position = PdfSemanticTableCaptionPosition.Below;
+            gap = MathF.Max(0f, caption.Element.Bounds.Y - table.Bounds.Bottom);
+        }
+        else
+        {
+            return null;
+        }
+
+        float captionFontSize = MedianFontSize(caption.Element.Lines);
+        float tableFontSize = MedianFontSize(table.Lines);
+        float maximumGap = MathF.Max(72f, MathF.Max(lineStep * 4.5f, captionFontSize * 5f));
+        if (captionFontSize <= 0f ||
+            tableFontSize <= 0f ||
+            gap > maximumGap ||
+            captionFontSize < tableFontSize * 0.65f ||
+            captionFontSize > MathF.Max(bodyFontSize * 1.35f, tableFontSize * 1.5f) ||
+            !SharesTableLane(caption.Element.Bounds, table.Bounds) ||
+            !HasContinuousCaptionLines(caption.Element.Lines, captionFontSize, lineStep) ||
+            HasInterveningTableCaptionContent(elements, table, caption.Element, position))
+        {
+            return null;
+        }
+
+        float centerDistance = MathF.Abs(
+            caption.Element.Bounds.X + caption.Element.Bounds.Width / 2f -
+            (table.Bounds.X + table.Bounds.Width / 2f));
+        float positionPenalty = position == PdfSemanticTableCaptionPosition.Below ? 2f : 0f;
+        return new TableCaptionAssociation(
+            table,
+            caption,
+            position,
+            gap + centerDistance * 0.08f + positionPenalty);
+    }
+
+    private static bool HasContinuousCaptionLines(
+        IReadOnlyList<PdfSemanticLine> lines,
+        float captionFontSize,
+        float lineStep)
+    {
+        PdfSemanticLine[] ordered = lines
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        float minimumFontSize = ordered.Min(static line => line.DominantFontSize);
+        float maximumFontSize = ordered.Max(static line => line.DominantFontSize);
+        if (maximumFontSize - minimumFontSize > MathF.Max(1.5f, captionFontSize * 0.2f))
+        {
+            return false;
+        }
+
+        float maximumLineGap = MathF.Max(lineStep * 1.75f, captionFontSize * 1.8f);
+        return ordered
+            .Pairwise(static (first, second) => MathF.Max(0f, second.Bounds.Y - first.Bounds.Bottom))
+            .All(gap => gap <= maximumLineGap);
+    }
+
+    private static bool HasInterveningTableCaptionContent(
+        IReadOnlyList<PdfSemanticElement> elements,
+        PdfSemanticElement table,
+        PdfSemanticElement caption,
+        PdfSemanticTableCaptionPosition position)
+    {
+        float top = position == PdfSemanticTableCaptionPosition.Above
+            ? caption.Bounds.Bottom
+            : table.Bounds.Bottom;
+        float bottom = position == PdfSemanticTableCaptionPosition.Above
+            ? table.Bounds.Y
+            : caption.Bounds.Y;
+        return elements.Any(element =>
+        {
+            if (ReferenceEquals(element, table) || ReferenceEquals(element, caption))
+            {
+                return false;
+            }
+
+            float centerY = element.Bounds.Y + element.Bounds.Height / 2f;
+            return centerY > top + 0.5f &&
+                centerY < bottom - 0.5f &&
+                SharesTableLane(element.Bounds, table.Bounds);
+        });
+    }
+
+    private static bool SharesTableLane(PdfLayoutRectangle content, PdfLayoutRectangle table)
+    {
+        float overlap = MathF.Max(0f, HorizontalOverlap(content, table));
+        float minimumWidth = MathF.Min(content.Width, table.Width);
+        float centerDistance = MathF.Abs(
+            content.X + content.Width / 2f -
+            (table.X + table.Width / 2f));
+        return minimumWidth > 0f &&
+            (overlap >= minimumWidth * 0.35f ||
+                centerDistance <= MathF.Max(24f, table.Width * 0.25f));
+    }
+
+    private static float MedianFontSize(IReadOnlyList<PdfSemanticLine> lines)
+    {
+        float[] sizes = lines
+            .Select(static line => line.DominantFontSize)
+            .Where(static size => size > 0f)
+            .Order()
+            .ToArray();
+        return sizes.Length == 0 ? 0f : sizes[sizes.Length / 2];
+    }
+
+    private static PdfSemanticElement WithTableCaption(
+        PdfSemanticElement table,
+        PdfSemanticTableCaption caption)
+    {
+        return new PdfSemanticElement(
+            table.Kind,
+            table.Text,
+            table.Bounds,
+            table.Lines,
+            tableRows: table.TableRows,
+            tableCaption: caption);
     }
 
     private static IReadOnlyList<PdfSemanticElement> DetectQuotationsAndAsides(
@@ -5101,6 +5335,11 @@ public static class PdfSemanticExtractor
                     break;
                 }
 
+                if (TableCaptionPattern.IsMatch(row.Text.TrimStart()))
+                {
+                    break;
+                }
+
                 if (IsTableLikeRow(row, page))
                 {
                     group.Add(row);
@@ -5154,7 +5393,8 @@ public static class PdfSemanticExtractor
                 break;
             }
 
-            if (LooksLikeProse(row.Text) ||
+            if (IsTableCaptionLeadRow(rows, index, group[0], lineStep, bodyFontSize) ||
+                LooksLikeProse(row.Text) ||
                 row.Cells.Count > anchors.Length + 1 ||
                 !IsCompatibleWithTableColumns(row, anchors, page))
             {
@@ -5163,6 +5403,35 @@ public static class PdfSemanticExtractor
 
             group.Insert(0, row);
         }
+    }
+
+    private static bool IsTableCaptionLeadRow(
+        IReadOnlyList<TableSourceRow> rows,
+        int index,
+        TableSourceRow firstTableRow,
+        float lineStep,
+        float bodyFontSize)
+    {
+        float maximumLineGap = MathF.Max(lineStep * 1.75f, bodyFontSize * 1.8f);
+        PdfLayoutRectangle nextBounds = firstTableRow.Bounds;
+        for (int candidateIndex = index; candidateIndex >= 0 && index - candidateIndex < 8; candidateIndex--)
+        {
+            TableSourceRow candidate = rows[candidateIndex];
+            float gap = MathF.Max(0f, nextBounds.Y - candidate.Bounds.Bottom);
+            if (gap > maximumLineGap || candidate.Cells.Count > 1)
+            {
+                return false;
+            }
+
+            if (TableCaptionPattern.IsMatch(candidate.Text.TrimStart()))
+            {
+                return true;
+            }
+
+            nextBounds = candidate.Bounds;
+        }
+
+        return false;
     }
 
     private static bool IsConsumed(TableSourceRow row, HashSet<int> consumed)
@@ -7681,6 +7950,16 @@ public static class PdfSemanticExtractor
         PdfLayoutRectangle Bounds,
         float Thickness,
         PdfLayoutColor Color);
+
+    private readonly record struct TableCaptionCandidate(
+        PdfSemanticElement Element,
+        string Number);
+
+    private readonly record struct TableCaptionAssociation(
+        PdfSemanticElement Table,
+        TableCaptionCandidate Caption,
+        PdfSemanticTableCaptionPosition Position,
+        float Score);
 
     private readonly record struct TableRule(TableRuleOrientation Orientation, PdfLayoutRectangle Bounds);
 
