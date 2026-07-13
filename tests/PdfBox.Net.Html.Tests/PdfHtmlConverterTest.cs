@@ -523,10 +523,20 @@ public class PdfHtmlConverterTest
         Assert.Empty(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
         XElement[] columns = ElementsByClass(dom, "pdf-semantic-column").ToArray();
         Assert.Equal(2, columns.Length);
+        XElement table = Assert.Single(columns[0].Descendants("table"));
+        Assert.True(HasClass(table, "pdf-semantic-table"));
+        Assert.Contains(table.Descendants(), element =>
+            HasClass(element, "pdf-semantic-table-cell-border-top") ||
+            HasClass(element, "pdf-semantic-table-cell-border-right") ||
+            HasClass(element, "pdf-semantic-table-cell-border-bottom") ||
+            HasClass(element, "pdf-semantic-table-cell-border-left"));
+        Assert.Empty(columns[1].Descendants("table"));
         Assert.Contains("Table A1", columns[0].Value, StringComparison.Ordinal);
         Assert.Contains("Table B3", columns[0].Value, StringComparison.Ordinal);
         Assert.DoesNotContain("Table A1", columns[1].Value, StringComparison.Ordinal);
         Assert.Contains("Right body 12", columns[1].Value, StringComparison.Ordinal);
+        Assert.Single(Regex.Matches(dom.Root!.Value, Regex.Escape("Table A1")));
+        Assert.Single(Regex.Matches(dom.Root.Value, Regex.Escape("Table B3")));
     }
 
     [Fact]
@@ -553,10 +563,22 @@ public class PdfHtmlConverterTest
 
         XElement[] columns = ElementsByClass(dom, "pdf-semantic-column").ToArray();
         Assert.Equal(2, columns.Length);
+        XElement leftTable = Assert.Single(columns[0].Descendants("table"));
+        XElement rightTable = Assert.Single(columns[1].Descendants("table"));
+        Assert.True(HasClass(leftTable, "pdf-semantic-table"));
+        Assert.True(HasClass(rightTable, "pdf-semantic-table"));
+        Assert.Contains(leftTable.Descendants(), element =>
+            HasClass(element, "pdf-semantic-table-cell-border-left") ||
+            HasClass(element, "pdf-semantic-table-cell-border-right"));
+        Assert.Contains(rightTable.Descendants(), element =>
+            HasClass(element, "pdf-semantic-table-cell-border-left") ||
+            HasClass(element, "pdf-semantic-table-cell-border-right"));
         Assert.Contains("Left A1", columns[0].Value, StringComparison.Ordinal);
         Assert.Contains("Left C3", columns[0].Value, StringComparison.Ordinal);
         Assert.Contains("Right A1", columns[1].Value, StringComparison.Ordinal);
         Assert.Contains("Right C3", columns[1].Value, StringComparison.Ordinal);
+        Assert.Single(Regex.Matches(dom.Root!.Value, Regex.Escape("Left A1")));
+        Assert.Single(Regex.Matches(dom.Root.Value, Regex.Escape("Right C3")));
     }
 
     [Fact]
@@ -586,6 +608,10 @@ public class PdfHtmlConverterTest
         XElement table = Assert.Single(ElementsByClass(dom, "pdf-semantic-table"));
         Assert.Contains("Full A1", table.Value, StringComparison.Ordinal);
         Assert.Contains("Full C3", table.Value, StringComparison.Ordinal);
+        Assert.Contains(table.Descendants(), element =>
+            HasClass(element, "pdf-semantic-table-cell-border-top") ||
+            HasClass(element, "pdf-semantic-table-cell-border-bottom"));
+        Assert.Single(Regex.Matches(dom.Root!.Value, Regex.Escape("Full A1")));
     }
 
     [Fact]

@@ -16,6 +16,9 @@ public static class PdfSemanticExtractor
     private static readonly Regex DateListItemBodyPattern = new(
         @"^(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:(?:\d{1,2})(?:,\s*)?)?\d{4}\b",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex RuledTableRowMarkerPattern = new(
+        @"^(?:[\u0095\u2022\u25e6\u25aa\u2219]\s*|\d{1,3}[.)]\s+|[A-Za-z][.)]\s+)",
+        RegexOptions.Compiled);
     private static readonly Regex WhitespacePattern = new(@"\s+", RegexOptions.Compiled);
     private const int MaximumDetectedTableColumnCount = 16;
 
@@ -28,8 +31,8 @@ public static class PdfSemanticExtractor
 
     private static PdfSemanticPage ExtractPage(PdfLayoutPage page, PdfSemanticExtractionOptions options)
     {
-        LineCandidate[] lines = page.Lines
-            .Select((line, index) => CreateLineCandidate(index, line, options))
+        RuledTableRegion[] ruledTableRegions = DetectRuledTableRegions(page);
+        LineCandidate[] lines = CreateLineCandidates(page, ruledTableRegions, options)
             .Where(static line => line.Text.Length > 0)
             .OrderBy(static line => line.Bounds.Y)
             .ThenBy(static line => line.Bounds.X)
@@ -45,6 +48,7 @@ public static class PdfSemanticExtractor
         List<PdfSemanticElement> elements = [];
 
         LineCandidate[] headingLines = lines
+            .Where(line => !IsInsideRuledTableRegion(line, ruledTableRegions))
             .Where(line => IsHeading(line, page, lines, bodyFontSize, lineStep, options))
             .ToArray();
         LineCandidate? titleCandidate = headingLines
@@ -84,6 +88,15 @@ public static class PdfSemanticExtractor
             {
                 elements.Add(CreateElement(PdfSemanticElementKind.Footer, [line]));
             }
+        }
+
+        foreach (PdfSemanticElement table in ExtractRuledTables(
+            ruledTableRegions,
+            lines,
+            consumed,
+            options))
+        {
+            elements.Add(table);
         }
 
         PdfSemanticElement? frontMatter = ExtractScientificFrontMatter(
@@ -144,7 +157,7 @@ public static class PdfSemanticExtractor
             }
         }
 
-        foreach (PdfSemanticElement table in ExtractTables(page, lines, bodyFontSize, lineStep, consumed, options))
+        foreach (PdfSemanticElement table in ExtractTextTables(page, lines, bodyFontSize, lineStep, consumed, options))
         {
             elements.Add(table);
         }
@@ -401,6 +414,62 @@ public static class PdfSemanticExtractor
             fontSize,
             direction,
             color);
+    }
+
+    private static IEnumerable<LineCandidate> CreateLineCandidates(
+        PdfLayoutPage page,
+        IReadOnlyList<RuledTableRegion> ruledTableRegions,
+        PdfSemanticExtractionOptions options)
+    {
+        if (ruledTableRegions.Count == 0)
+        {
+            return page.Lines.Select((line, index) => CreateLineCandidate(index, line, options));
+        }
+
+        List<LineCandidate> candidates = [];
+        int candidateIndex = 0;
+        foreach (PdfTextLine source in page.Lines)
+        {
+            List<PdfTextRun> remainingRuns = source.Runs.ToList();
+            foreach (RuledTableRegion region in ruledTableRegions)
+            {
+                PdfTextRun[] regionRuns = remainingRuns
+                    .Where(run => IsInsideRuledTableRegion(run.Bounds, region))
+                    .ToArray();
+                if (regionRuns.Length == 0)
+                {
+                    continue;
+                }
+
+                candidates.Add(CreateLineCandidate(
+                    candidateIndex++,
+                    CreateTextLine(regionRuns),
+                    options));
+                remainingRuns.RemoveAll(regionRuns.Contains);
+            }
+
+            if (remainingRuns.Count > 0)
+            {
+                candidates.Add(CreateLineCandidate(
+                    candidateIndex++,
+                    CreateTextLine(remainingRuns),
+                    options));
+            }
+        }
+
+        return candidates;
+    }
+
+    private static PdfTextLine CreateTextLine(IReadOnlyList<PdfTextRun> runs)
+    {
+        PdfTextRun[] orderedRuns = runs
+            .OrderBy(static run => run.Bounds.X)
+            .ThenBy(static run => run.Bounds.Y)
+            .ToArray();
+        return new PdfTextLine(
+            string.Concat(orderedRuns.Select(static run => run.Text)),
+            PdfLayoutRectangle.Union(orderedRuns.Select(static run => run.Bounds)),
+            orderedRuns);
     }
 
     private static (string FontName, float FontSize, float Direction, PdfLayoutColor Color) DominantStyle(IReadOnlyList<PdfTextRun> runs)
@@ -1795,7 +1864,545 @@ public static class PdfSemanticExtractor
         return character is '\u0095' or '\u2022' or '\u2023' or '\u2043' or '\u25e6' or '\u25aa' or '\u2219';
     }
 
-    private static IEnumerable<PdfSemanticElement> ExtractTables(
+    private static RuledTableRegion[] DetectRuledTableRegions(PdfLayoutPage page)
+    {
+        TableRule[] rules = TableRules(page, new PdfLayoutRectangle(0, 0, page.Width, page.Height)).ToArray();
+        PdfLayoutRectangle[] horizontalSpans = MergeHorizontalRuleSegments(
+            rules.Where(static rule => rule.Orientation == TableRuleOrientation.Horizontal)
+                .Select(static rule => rule.Bounds));
+        List<List<PdfLayoutRectangle>> spanFamilies = [];
+        float edgeTolerance = MathF.Max(2f, page.Width * 0.005f);
+        foreach (PdfLayoutRectangle span in horizontalSpans
+            .OrderBy(static span => span.X)
+            .ThenBy(static span => span.Right)
+            .ThenBy(static span => span.Y))
+        {
+            List<PdfLayoutRectangle>? family = spanFamilies.FirstOrDefault(existing =>
+                MathF.Abs(existing.Average(static item => item.X) - span.X) <= edgeTolerance &&
+                MathF.Abs(existing.Average(static item => item.Right) - span.Right) <= edgeTolerance);
+            if (family == null)
+            {
+                spanFamilies.Add([span]);
+            }
+            else
+            {
+                family.Add(span);
+            }
+        }
+
+        List<RuledTableRegion> regions = [];
+        float maximumVerticalGap = page.Height * 0.30f;
+        foreach (List<PdfLayoutRectangle> family in spanFamilies)
+        {
+            List<PdfLayoutRectangle> sequence = [];
+            foreach (PdfLayoutRectangle span in family.OrderBy(static span => span.Y))
+            {
+                if (sequence.Count > 0 && span.Y - sequence[^1].Y > maximumVerticalGap)
+                {
+                    AddRuledTableRegion(page, rules, sequence, regions);
+                    sequence.Clear();
+                }
+
+                sequence.Add(span);
+            }
+
+            AddRuledTableRegion(page, rules, sequence, regions);
+        }
+
+        return regions
+            .Where(candidate => !regions.Any(other =>
+                !ReferenceEquals(candidate, other) &&
+                ContainsRectangle(other.Bounds, candidate.Bounds) &&
+                other.Bounds.Width * other.Bounds.Height < candidate.Bounds.Width * candidate.Bounds.Height))
+            .OrderBy(static region => region.Bounds.Y)
+            .ThenBy(static region => region.Bounds.X)
+            .ToArray();
+    }
+
+    private static PdfLayoutRectangle[] MergeHorizontalRuleSegments(IEnumerable<PdfLayoutRectangle> source)
+    {
+        List<List<PdfLayoutRectangle>> baselines = [];
+        foreach (PdfLayoutRectangle segment in source.OrderBy(static item => item.Y).ThenBy(static item => item.X))
+        {
+            float centerY = segment.Y + segment.Height / 2f;
+            List<PdfLayoutRectangle>? baseline = baselines.FirstOrDefault(existing =>
+                MathF.Abs(existing.Average(static item => item.Y + item.Height / 2f) - centerY) <= 1f);
+            if (baseline == null)
+            {
+                baselines.Add([segment]);
+            }
+            else
+            {
+                baseline.Add(segment);
+            }
+        }
+
+        List<PdfLayoutRectangle> merged = [];
+        foreach (List<PdfLayoutRectangle> baseline in baselines)
+        {
+            PdfLayoutRectangle[] ordered = baseline.OrderBy(static item => item.X).ToArray();
+            float left = ordered[0].X;
+            float right = ordered[0].Right;
+            float y = ordered.Average(static item => item.Y + item.Height / 2f);
+            foreach (PdfLayoutRectangle segment in ordered.Skip(1))
+            {
+                if (segment.X <= right + 2f)
+                {
+                    right = MathF.Max(right, segment.Right);
+                    continue;
+                }
+
+                merged.Add(new PdfLayoutRectangle(left, y, right - left, 0));
+                left = segment.X;
+                right = segment.Right;
+            }
+
+            merged.Add(new PdfLayoutRectangle(left, y, right - left, 0));
+        }
+
+        return merged.ToArray();
+    }
+
+    private static void AddRuledTableRegion(
+        PdfLayoutPage page,
+        IReadOnlyList<TableRule> rules,
+        IReadOnlyList<PdfLayoutRectangle> horizontalSpans,
+        ICollection<RuledTableRegion> regions)
+    {
+        if (horizontalSpans.Count < 3)
+        {
+            return;
+        }
+
+        float left = horizontalSpans.Min(static span => span.X);
+        float right = horizontalSpans.Max(static span => span.Right);
+        float[] rowBoundaries = horizontalSpans
+            .Select(static span => span.Y + span.Height / 2f)
+            .Order()
+            .Aggregate(new List<float>(), static (values, value) =>
+            {
+                if (values.Count == 0 || value - values[^1] > 1f)
+                {
+                    values.Add(value);
+                }
+
+                return values;
+            })
+            .ToArray();
+        if (rowBoundaries.Length < 3)
+        {
+            return;
+        }
+
+        float width = right - left;
+        float height = rowBoundaries[^1] - rowBoundaries[0];
+        if (width < page.Width * 0.18f ||
+            width > page.Width * 0.62f ||
+            height < 16f ||
+            height > page.Height * 0.55f)
+        {
+            return;
+        }
+
+        PdfLayoutRectangle bounds = new(left, rowBoundaries[0], width, height);
+        TableRule[] verticalRules = rules
+            .Where(static rule => rule.Orientation == TableRuleOrientation.Vertical)
+            .Where(rule => rule.Bounds.X + rule.Bounds.Width / 2f >= left - 2f &&
+                rule.Bounds.X + rule.Bounds.Width / 2f <= right + 2f &&
+                VerticalOverlap(rule.Bounds, bounds) > 0f)
+            .ToArray();
+        List<List<PdfLayoutRectangle>> verticalFamilies = [];
+        foreach (PdfLayoutRectangle vertical in verticalRules
+            .Select(static rule => rule.Bounds)
+            .OrderBy(static rule => rule.X))
+        {
+            float centerX = vertical.X + vertical.Width / 2f;
+            List<PdfLayoutRectangle>? family = verticalFamilies.FirstOrDefault(existing =>
+                MathF.Abs(existing.Average(static item => item.X + item.Width / 2f) - centerX) <= 1f);
+            if (family == null)
+            {
+                verticalFamilies.Add([vertical]);
+            }
+            else
+            {
+                family.Add(vertical);
+            }
+        }
+
+        float edgeInset = MathF.Max(3f, width * 0.03f);
+        float[] internalDividers = verticalFamilies
+            .Where(family => CoveredVerticalLength(family, bounds) >= height * 0.55f)
+            .Select(static family => family.Average(static rule => rule.X + rule.Width / 2f))
+            .Where(x => x > left + edgeInset && x < right - edgeInset)
+            .Order()
+            .ToArray();
+        // The text-row detector already handles tables with three or more columns well.
+        // This path is for compact two-column ruled regions that cannot seed that detector.
+        if (internalDividers.Length != 1)
+        {
+            return;
+        }
+
+        float[] columnBoundaries = [left, .. internalDividers, right];
+        PdfTextRun[] regionRuns = page.Lines
+            .SelectMany(static line => line.Runs)
+            .Where(run => IsInsideRectangleCenter(run.Bounds, bounds, 1f))
+            .ToArray();
+        if (regionRuns.Length < 4 ||
+            Enumerable.Range(0, columnBoundaries.Length - 1).Any(columnIndex =>
+                !regionRuns.Any(run => IsInsideHorizontalInterval(
+                    run.Bounds,
+                    columnBoundaries[columnIndex],
+                    columnBoundaries[columnIndex + 1]))))
+        {
+            return;
+        }
+
+        TableRule[] regionRules = rules
+            .Where(rule => Intersects(ExpandRectangle(bounds, 2f, 2f), rule.Bounds))
+            .ToArray();
+        regions.Add(new RuledTableRegion(bounds, rowBoundaries, columnBoundaries, regionRules));
+    }
+
+    private static float CoveredVerticalLength(
+        IReadOnlyList<PdfLayoutRectangle> segments,
+        PdfLayoutRectangle bounds)
+    {
+        (float Top, float Bottom)[] intervals = segments
+            .Select(segment => (
+                Top: MathF.Max(bounds.Y, segment.Y),
+                Bottom: MathF.Min(bounds.Bottom, segment.Bottom)))
+            .Where(static interval => interval.Bottom > interval.Top)
+            .OrderBy(static interval => interval.Top)
+            .ToArray();
+        if (intervals.Length == 0)
+        {
+            return 0f;
+        }
+
+        float covered = 0f;
+        float top = intervals[0].Top;
+        float bottom = intervals[0].Bottom;
+        foreach ((float nextTop, float nextBottom) in intervals.Skip(1))
+        {
+            if (nextTop <= bottom + 1f)
+            {
+                bottom = MathF.Max(bottom, nextBottom);
+                continue;
+            }
+
+            covered += bottom - top;
+            top = nextTop;
+            bottom = nextBottom;
+        }
+
+        return covered + bottom - top;
+    }
+
+    private static bool IsInsideRuledTableRegion(
+        LineCandidate line,
+        IReadOnlyList<RuledTableRegion> regions)
+    {
+        return regions.Any(region => IsInsideRuledTableRegion(line.Bounds, region));
+    }
+
+    private static bool IsInsideRuledTableRegion(PdfLayoutRectangle bounds, RuledTableRegion region)
+    {
+        return IsInsideRectangleCenter(bounds, region.Bounds, 1f);
+    }
+
+    private static bool IsInsideRectangleCenter(
+        PdfLayoutRectangle value,
+        PdfLayoutRectangle container,
+        float tolerance)
+    {
+        float centerX = value.X + value.Width / 2f;
+        float centerY = value.Y + value.Height / 2f;
+        return centerX >= container.X - tolerance &&
+            centerX <= container.Right + tolerance &&
+            centerY >= container.Y - tolerance &&
+            centerY <= container.Bottom + tolerance;
+    }
+
+    private static bool IsInsideHorizontalInterval(PdfLayoutRectangle bounds, float left, float right)
+    {
+        float centerX = bounds.X + bounds.Width / 2f;
+        return centerX >= left - 1f && centerX <= right + 1f;
+    }
+
+    private static bool ContainsRectangle(PdfLayoutRectangle container, PdfLayoutRectangle value)
+    {
+        const float tolerance = 1f;
+        return value.X >= container.X - tolerance &&
+            value.Y >= container.Y - tolerance &&
+            value.Right <= container.Right + tolerance &&
+            value.Bottom <= container.Bottom + tolerance;
+    }
+
+    private static IEnumerable<PdfSemanticElement> ExtractRuledTables(
+        IReadOnlyList<RuledTableRegion> regions,
+        IReadOnlyList<LineCandidate> lines,
+        HashSet<int> consumed,
+        PdfSemanticExtractionOptions options)
+    {
+        foreach (RuledTableRegion region in regions)
+        {
+            LineCandidate[] regionLines = lines
+                .Where(line => !consumed.Contains(line.Index))
+                .Where(line => IsInsideRuledTableRegion(line.Bounds, region))
+                .OrderBy(static line => line.Bounds.Y)
+                .ThenBy(static line => line.Bounds.X)
+                .ToArray();
+            PdfSemanticElement? table = CreateRuledTableElement(region, regionLines, options);
+            if (table == null)
+            {
+                continue;
+            }
+
+            foreach (LineCandidate line in regionLines)
+            {
+                consumed.Add(line.Index);
+            }
+
+            yield return table;
+        }
+    }
+
+    private static PdfSemanticElement? CreateRuledTableElement(
+        RuledTableRegion region,
+        IReadOnlyList<LineCandidate> lines,
+        PdfSemanticExtractionOptions options)
+    {
+        List<PdfSemanticTableRow> rows = [];
+        for (int bandIndex = 0; bandIndex + 1 < region.RowBoundaries.Count; bandIndex++)
+        {
+            float top = region.RowBoundaries[bandIndex];
+            float bottom = region.RowBoundaries[bandIndex + 1];
+            LineCandidate[] bandLines = lines
+                .Where(line => line.Bounds.Y + line.Bounds.Height / 2f >= top - 1f &&
+                    line.Bounds.Y + line.Bounds.Height / 2f <= bottom + 1f)
+                .OrderBy(static line => line.Bounds.Y)
+                .ThenBy(static line => line.Bounds.X)
+                .ToArray();
+            if (bandLines.Length == 0)
+            {
+                continue;
+            }
+
+            List<List<LineCandidate>> logicalRows = SplitRuledTableBandRows(bandLines, region, options);
+            for (int logicalRowIndex = 0; logicalRowIndex < logicalRows.Count; logicalRowIndex++)
+            {
+                PdfSemanticTableCell[] cells = Enumerable
+                    .Range(0, region.ColumnBoundaries.Count - 1)
+                    .Select(columnIndex => CreateRuledTableCell(
+                        logicalRows[logicalRowIndex],
+                        region,
+                        columnIndex,
+                        top,
+                        bottom,
+                        borderTop: bandIndex == 0 && logicalRowIndex == 0,
+                        borderBottom: logicalRowIndex == logicalRows.Count - 1,
+                        options))
+                    .ToArray();
+                if (cells.All(static cell => string.IsNullOrWhiteSpace(cell.Text)))
+                {
+                    continue;
+                }
+
+                bool isHeader = rows.Count == 0 && IsRuledTableHeaderRow(cells);
+                rows.Add(new PdfSemanticTableRow(cells, isHeader));
+            }
+        }
+
+        if (rows.Count < 2 ||
+            Enumerable.Range(0, region.ColumnBoundaries.Count - 1).Any(columnIndex =>
+                rows.All(row => string.IsNullOrWhiteSpace(row.Cells[columnIndex].Text))))
+        {
+            return null;
+        }
+
+        PdfSemanticLine[] semanticLines = rows
+            .SelectMany(static row => row.Cells)
+            .SelectMany(static cell => cell.Lines)
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        string text = string.Join(
+            Environment.NewLine,
+            rows.Select(static row => string.Join('\t', row.Cells.Select(static cell => cell.Text))));
+        return new PdfSemanticElement(
+            PdfSemanticElementKind.Table,
+            text,
+            region.Bounds,
+            semanticLines,
+            tableRows: rows);
+    }
+
+    private static List<List<LineCandidate>> SplitRuledTableBandRows(
+        IReadOnlyList<LineCandidate> lines,
+        RuledTableRegion region,
+        PdfSemanticExtractionOptions options)
+    {
+        List<List<LineCandidate>> rows = [];
+        foreach (LineCandidate line in lines)
+        {
+            PdfTextRun[] firstColumnRuns = line.Source.Runs
+                .Where(run => IsInsideHorizontalInterval(
+                    run.Bounds,
+                    region.ColumnBoundaries[0],
+                    region.ColumnBoundaries[1]))
+                .ToArray();
+            string firstColumnText = ReconstructText(
+                firstColumnRuns.SelectMany(static run => run.Glyphs),
+                options).TrimStart();
+            if (rows.Count == 0)
+            {
+                rows.Add([line]);
+                continue;
+            }
+
+            if (!RuledTableRowMarkerPattern.IsMatch(firstColumnText) || rows[^1].Count == 0)
+            {
+                rows[^1].Add(line);
+                continue;
+            }
+
+            List<LineCandidate> raisedAnnotations = [];
+            while (rows[^1].Count > 0 && IsRaisedAnnotationForNextRuledTableRow(
+                rows[^1][^1],
+                line,
+                region,
+                options))
+            {
+                raisedAnnotations.Insert(0, rows[^1][^1]);
+                rows[^1].RemoveAt(rows[^1].Count - 1);
+            }
+
+            if (raisedAnnotations.Count == 0)
+            {
+                rows.Add([line]);
+                continue;
+            }
+
+            PdfTextRun[] mergedRuns = line.Source.Runs
+                .Concat(raisedAnnotations.SelectMany(static annotation => annotation.Source.Runs))
+                .ToArray();
+            rows.Add([CreateLineCandidate(line.Index, CreateTextLine(mergedRuns), options)]);
+        }
+
+        return rows;
+    }
+
+    private static bool IsRaisedAnnotationForNextRuledTableRow(
+        LineCandidate candidate,
+        LineCandidate rowStart,
+        RuledTableRegion region,
+        PdfSemanticExtractionOptions options)
+    {
+        bool hasFirstColumnContent = candidate.Source.Runs.Any(run => IsInsideHorizontalInterval(
+            run.Bounds,
+            region.ColumnBoundaries[0],
+            region.ColumnBoundaries[1]));
+        if (hasFirstColumnContent || candidate.FontSize >= rowStart.FontSize * 0.85f)
+        {
+            return false;
+        }
+
+        string text = ReconstructText(
+            candidate.Source.Runs.SelectMany(static run => run.Glyphs),
+            options).Trim();
+        if (!NumericFootnoteMarkerPattern.IsMatch(text) && !SymbolFootnoteMarkerPattern.IsMatch(text))
+        {
+            return false;
+        }
+
+        float candidateCenter = candidate.Bounds.Y + candidate.Bounds.Height / 2f;
+        float rowCenter = rowStart.Bounds.Y + rowStart.Bounds.Height / 2f;
+        return MathF.Abs(candidateCenter - rowCenter) <= MathF.Max(4f, rowStart.FontSize * 0.65f);
+    }
+
+    private static PdfSemanticTableCell CreateRuledTableCell(
+        IReadOnlyList<LineCandidate> sourceLines,
+        RuledTableRegion region,
+        int columnIndex,
+        float rowTop,
+        float rowBottom,
+        bool borderTop,
+        bool borderBottom,
+        PdfSemanticExtractionOptions options)
+    {
+        float left = region.ColumnBoundaries[columnIndex];
+        float right = region.ColumnBoundaries[columnIndex + 1];
+        PdfSemanticLine[] lines = sourceLines
+            .Select(sourceLine =>
+            {
+                PdfTextRun[] runs = sourceLine.Source.Runs
+                    .Where(run => IsInsideHorizontalInterval(run.Bounds, left, right))
+                    .OrderBy(static run => run.Bounds.X)
+                    .ThenBy(static run => run.Bounds.Y)
+                    .ToArray();
+                if (runs.Length == 0)
+                {
+                    return null;
+                }
+
+                string text = ReconstructText(runs.SelectMany(static run => run.Glyphs), options);
+                return CreateSyntheticTableLine(text, runs);
+            })
+            .Where(static line => line != null)
+            .Select(static line => line!)
+            .ToArray();
+        PdfLayoutRectangle bounds = lines.Length == 0
+            ? new PdfLayoutRectangle((left + right) / 2f, rowTop, 0, rowBottom - rowTop)
+            : PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds));
+        return new PdfSemanticTableCell(
+            JoinParagraphLines(lines),
+            bounds,
+            lines,
+            borderTop: borderTop && HasHorizontalRule(region, rowTop, left, right),
+            borderRight: HasVerticalRule(region, right, rowTop, rowBottom),
+            borderBottom: borderBottom && HasHorizontalRule(region, rowBottom, left, right),
+            borderLeft: HasVerticalRule(region, left, rowTop, rowBottom));
+    }
+
+    private static bool HasHorizontalRule(
+        RuledTableRegion region,
+        float y,
+        float left,
+        float right)
+    {
+        return region.Rules.Any(rule =>
+            rule.Orientation == TableRuleOrientation.Horizontal &&
+            MathF.Abs(rule.Bounds.Y + rule.Bounds.Height / 2f - y) <= 1f &&
+            HorizontalOverlap(rule.Bounds, new PdfLayoutRectangle(left, y, right - left, 0)) >=
+                (right - left) * 0.45f);
+    }
+
+    private static bool HasVerticalRule(
+        RuledTableRegion region,
+        float x,
+        float top,
+        float bottom)
+    {
+        PdfLayoutRectangle rowBounds = new(x, top, 0, bottom - top);
+        float covered = region.Rules
+            .Where(rule => rule.Orientation == TableRuleOrientation.Vertical &&
+                MathF.Abs(rule.Bounds.X + rule.Bounds.Width / 2f - x) <= 1f)
+            .Sum(rule => VerticalOverlap(rule.Bounds, rowBounds));
+        return covered >= (bottom - top) * 0.45f;
+    }
+
+    private static bool IsRuledTableHeaderRow(IReadOnlyList<PdfSemanticTableCell> cells)
+    {
+        PdfSemanticLine[] lines = cells
+            .Where(static cell => !string.IsNullOrWhiteSpace(cell.Text))
+            .SelectMany(static cell => cell.Lines)
+            .ToArray();
+        return lines.Length > 0 &&
+            lines.Count(line => IsBoldFontName(line.DominantFontName)) >= Math.Max(1, lines.Length / 2);
+    }
+
+    private static IEnumerable<PdfSemanticElement> ExtractTextTables(
         PdfLayoutPage page,
         IReadOnlyList<LineCandidate> lines,
         float bodyFontSize,
@@ -3961,6 +4568,29 @@ public static class PdfSemanticExtractor
         {
             _segments.Add(segment);
         }
+    }
+
+    private sealed class RuledTableRegion
+    {
+        public RuledTableRegion(
+            PdfLayoutRectangle bounds,
+            IReadOnlyList<float> rowBoundaries,
+            IReadOnlyList<float> columnBoundaries,
+            IReadOnlyList<TableRule> rules)
+        {
+            Bounds = bounds;
+            RowBoundaries = rowBoundaries.ToArray();
+            ColumnBoundaries = columnBoundaries.ToArray();
+            Rules = rules.ToArray();
+        }
+
+        public PdfLayoutRectangle Bounds { get; }
+
+        public IReadOnlyList<float> RowBoundaries { get; }
+
+        public IReadOnlyList<float> ColumnBoundaries { get; }
+
+        public IReadOnlyList<TableRule> Rules { get; }
     }
 
     private sealed class TableSourceRow

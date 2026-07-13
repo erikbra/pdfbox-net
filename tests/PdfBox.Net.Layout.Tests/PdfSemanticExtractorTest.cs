@@ -258,6 +258,46 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_CompactRuledTableInPageColumn_SplitsSameBaselineOppositeProse()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateCompactRuledTableColumnFixture()).Pages);
+
+        PdfSemanticElement table = Assert.Single(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Table);
+        Assert.Equal(4, table.TableRows.Count);
+        Assert.All(table.TableRows, row => Assert.Equal(2, row.Cells.Count));
+        Assert.Equal(
+            [
+                ["Field", "Value"],
+                ["1. Account", "42"],
+                ["2. Status", "Open1"],
+                ["3. Region", "West"]
+            ],
+            table.TableRows.Select(row => row.Cells.Select(static cell => cell.Text).ToArray()).ToArray());
+        Assert.InRange(table.Bounds.X, 35.9f, 36.1f);
+        Assert.InRange(table.Bounds.Right, 295.9f, 296.1f);
+        Assert.True(table.Bounds.Right < 306f, "The table must remain inside the left page column.");
+        Assert.DoesNotContain("Opposite prose", table.Text, StringComparison.Ordinal);
+        Assert.Contains(page.Elements, element =>
+            element.Kind != PdfSemanticElementKind.Table &&
+            element.Text.Contains("Opposite prose aligned with Field", StringComparison.Ordinal));
+
+        Assert.All(table.TableRows[0].Cells, cell => Assert.True(cell.BorderTop));
+        Assert.All(table.TableRows.Skip(1).SelectMany(static row => row.Cells), cell => Assert.False(cell.BorderTop));
+        Assert.All(table.TableRows, row =>
+        {
+            Assert.True(row.Cells[0].BorderLeft);
+            Assert.True(row.Cells[0].BorderRight);
+            Assert.True(row.Cells[1].BorderLeft);
+            Assert.True(row.Cells[1].BorderRight);
+        });
+        Assert.All(table.TableRows[0].Cells, cell => Assert.True(cell.BorderBottom));
+        Assert.All(table.TableRows.Skip(1).Take(2).SelectMany(static row => row.Cells), cell => Assert.False(cell.BorderBottom));
+        Assert.All(table.TableRows[^1].Cells, cell => Assert.True(cell.BorderBottom));
+    }
+
+    [Fact]
     public void Extract_ArxivFrontPage_GroupsTitleAuthorsAbstractFootnotesAndFooter()
     {
         PdfSemanticDocument semantic = ExtractArxivSemanticDocument();
@@ -680,6 +720,129 @@ public sealed class PdfSemanticExtractorTest
             [],
             []);
         return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutDocument CreateCompactRuledTableColumnFixture()
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateCompositeFixtureLine(
+                120f,
+                ("Dense left-column prose establishes the page layout.", 36f, 250f, "Times-Roman"),
+                ("Dense right-column prose establishes its independent flow.", 320f, 250f, "Times-Roman")),
+            CreateCompositeFixtureLine(
+                134f,
+                ("The left column continues immediately before the table.", 36f, 250f, "Times-Roman"),
+                ("The right column continues beside the source region.", 320f, 250f, "Times-Roman")),
+            CreateCompositeFixtureLine(
+                224f,
+                ("Field", 44f, 90f, "Times-Bold"),
+                ("Value", 174f, 90f, "Times-Bold"),
+                ("Opposite prose aligned with Field remains ordinary text.", 320f, 250f, "Times-Roman")),
+            CreateCompositeFixtureLine(
+                252f,
+                ("1. Account", 44f, 90f, "Times-Roman"),
+                ("42", 174f, 90f, "Times-Roman"),
+                ("Opposite prose aligned with Account also survives.", 320f, 250f, "Times-Roman")),
+            CreateFixtureLine("1", 224f, 269f, 4f, 6f),
+            CreateCompositeFixtureLine(
+                272f,
+                ("2. Status", 44f, 90f, "Times-Roman"),
+                ("Open", 174f, 50f, "Times-Roman"),
+                ("Opposite prose aligned with Status completes the paragraph.", 320f, 250f, "Times-Roman")),
+            CreateCompositeFixtureLine(
+                296f,
+                ("3. Region", 44f, 90f, "Times-Roman"),
+                ("West", 174f, 90f, "Times-Roman"),
+                ("Opposite prose aligned with Region stays outside the table.", 320f, 250f, "Times-Roman")),
+            CreateCompositeFixtureLine(
+                328f,
+                ("Left-column prose resumes below the compact table.", 36f, 250f, "Times-Roman"),
+                ("Right-column prose continues below the aligned rows.", 320f, 250f, "Times-Roman"))
+        ];
+
+        float[] horizontalRules = [216f, 240f, 312f];
+        float[] verticalRules = [36f, 166f, 296f];
+        List<PdfLayoutPath> paths = [];
+        foreach (float y in horizontalRules)
+        {
+            paths.Add(CreateRulePath(paths.Count, 36f, y, 296f, y));
+        }
+
+        foreach (float x in verticalRules)
+        {
+            paths.Add(CreateRulePath(paths.Count, x, 216f, x, 312f));
+        }
+
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            paths,
+            [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfTextLine CreateCompositeFixtureLine(
+        float y,
+        params (string Text, float X, float Width, string FontName)[] segments)
+    {
+        PdfTextRun[] runs = segments
+            .Select(segment => CreateFixtureLine(
+                segment.Text,
+                segment.X,
+                y,
+                segment.Width,
+                fontName: segment.FontName).Runs.Single())
+            .ToArray();
+        return new PdfTextLine(
+            string.Join(" ", segments.Select(static segment => segment.Text)),
+            new PdfLayoutRectangle(
+                runs.Min(static run => run.Bounds.X),
+                runs.Min(static run => run.Bounds.Y),
+                runs.Max(static run => run.Bounds.Right) - runs.Min(static run => run.Bounds.X),
+                runs.Max(static run => run.Bounds.Bottom) - runs.Min(static run => run.Bounds.Y)),
+            runs);
+    }
+
+    private static PdfLayoutPath CreateRulePath(
+        int index,
+        float startX,
+        float startY,
+        float endX,
+        float endY)
+    {
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfLayoutStrokeStyle stroke = new(color, 0.5f, 0, 0, 10f, [], 0f);
+        PdfLayoutRectangle bounds = new(
+            MathF.Min(startX, endX),
+            MathF.Min(startY, endY),
+            MathF.Abs(endX - startX),
+            MathF.Abs(endY - startY));
+        return new PdfLayoutPath(
+            index,
+            [
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, startX, startY, 0f, 0f, 0f, 0f),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, endX, endY, 0f, 0f, 0f, 0f)
+            ],
+            bounds,
+            null,
+            stroke,
+            null);
     }
 
     private static PdfTextLine CreateStyledFixtureLine(
