@@ -63,7 +63,7 @@ jobs:
             Write-Host "Install did not complete; no WinGet package to remove."
             exit 0
           }
-          winget uninstall --id ErikBra.Unpdf --version 4.0.0-preview.1 `
-            --accept-source-agreements --disable-interactivity
+          winget list --id ErikBra.Unpdf --exact
+          winget uninstall --id ErikBra.Unpdf --exact --disable-interactivity
           $command = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links\unpdf.exe"
           if (Test-Path $command) { throw "WinGet left the unpdf command link after uninstall" }
