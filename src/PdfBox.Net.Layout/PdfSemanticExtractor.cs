@@ -13,6 +13,9 @@ public static class PdfSemanticExtractor
     private static readonly Regex FootnoteMarkerPattern = new(@"^[*∗†‡]\s*$", RegexOptions.Compiled);
     private static readonly Regex SymbolFootnoteMarkerPattern = new(@"^[*∗†‡]\s*$", RegexOptions.Compiled);
     private static readonly Regex NumericFootnoteMarkerPattern = new(@"^\d{1,2}\s*$", RegexOptions.Compiled);
+    private static readonly Regex DateListItemBodyPattern = new(
+        @"^(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:(?:\d{1,2})(?:,\s*)?)?\d{4}\b",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex WhitespacePattern = new(@"\s+", RegexOptions.Compiled);
     private const int MaximumDetectedTableColumnCount = 16;
 
@@ -144,6 +147,11 @@ public static class PdfSemanticExtractor
         foreach (PdfSemanticElement table in ExtractTables(page, lines, bodyFontSize, lineStep, consumed, options))
         {
             elements.Add(table);
+        }
+
+        foreach (PdfSemanticElement list in ExtractLists(lines, bodyFontSize, lineStep, consumed))
+        {
+            elements.Add(list);
         }
 
         foreach (PdfSemanticElement paragraph in ExtractParagraphs(lines, bodyFontSize, lineStep, consumed, options))
@@ -1135,7 +1143,7 @@ public static class PdfSemanticExtractor
                 continue;
             }
 
-            if (current.Count > 0 && StartsWithBulletMarker(line.Text))
+            if (current.Count > 0 && TryParseListMarker(line, out _))
             {
                 yield return CreateParagraph(current, consumed);
                 current.Clear();
@@ -1166,6 +1174,625 @@ public static class PdfSemanticExtractor
         {
             yield return CreateParagraph(current, consumed);
         }
+    }
+
+    private static IEnumerable<PdfSemanticElement> ExtractLists(
+        IReadOnlyList<LineCandidate> lines,
+        float bodyFontSize,
+        float lineStep,
+        HashSet<int> consumed)
+    {
+        LineCandidate[] readingLines = lines
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        int index = 0;
+        while (index < readingLines.Length)
+        {
+            LineCandidate firstLine = readingLines[index];
+            if (consumed.Contains(firstLine.Index) ||
+                !IsParagraphCandidate(firstLine, bodyFontSize) ||
+                !TryParseListMarker(firstLine, out ListMarkerCandidate firstMarker))
+            {
+                index++;
+                continue;
+            }
+
+            List<RawListItem> rawItems = [];
+            RawListItem? currentItem = null;
+            LineCandidate? previousLine = null;
+            int cursor = index;
+            while (cursor < readingLines.Length)
+            {
+                LineCandidate line = readingLines[cursor];
+                if (consumed.Contains(line.Index) || !IsParagraphCandidate(line, bodyFontSize))
+                {
+                    break;
+                }
+
+                float verticalStep = previousLine == null ? 0f : line.Bounds.Y - previousLine.Bounds.Y;
+                if (previousLine != null && verticalStep > lineStep * 2.05f)
+                {
+                    break;
+                }
+
+                if (TryParseListMarker(line, out ListMarkerCandidate marker))
+                {
+                    if (line.Bounds.X < firstMarker.MarkerX - MathF.Max(8f, bodyFontSize) ||
+                        line.Bounds.X > firstMarker.MarkerX + MathF.Max(120f, bodyFontSize * 12f) ||
+                        MathF.Abs(line.FontSize - firstLine.FontSize) > 2f)
+                    {
+                        break;
+                    }
+
+                    currentItem = new RawListItem(marker, line);
+                    rawItems.Add(currentItem);
+                }
+                else if (currentItem != null &&
+                    IsListContinuationLine(currentItem, line, previousLine!, lineStep))
+                {
+                    currentItem.Lines.Add(line);
+                }
+                else
+                {
+                    break;
+                }
+
+                previousLine = line;
+                cursor++;
+            }
+
+            if (!TryCreateSemanticList(rawItems, out PdfSemanticElement element))
+            {
+                index++;
+                continue;
+            }
+
+            foreach (RawListItem item in rawItems)
+            {
+                foreach (LineCandidate line in item.Lines)
+                {
+                    consumed.Add(line.Index);
+                }
+            }
+
+            yield return element;
+            index = cursor;
+        }
+    }
+
+    private static bool IsListContinuationLine(
+        RawListItem item,
+        LineCandidate line,
+        LineCandidate previousLine,
+        float lineStep)
+    {
+        float verticalStep = line.Bounds.Y - previousLine.Bounds.Y;
+        float tolerance = MathF.Max(3f, item.Marker.Line.FontSize * 0.35f);
+        return verticalStep > 0f &&
+            verticalStep <= lineStep * 1.45f &&
+            MathF.Abs(line.FontSize - item.Marker.Line.FontSize) <= 2f &&
+            line.Bounds.X >= item.Marker.BodyX - tolerance &&
+            line.Bounds.X > item.Marker.MarkerX + MathF.Max(4f, item.Marker.Line.FontSize * 0.35f) &&
+            line.Bounds.X <= item.Marker.BodyX + MathF.Max(90f, item.Marker.Line.FontSize * 9f) &&
+            !IsEquationNumberText(line.Text) &&
+            !IsDisplayFormulaLine(line, item.Marker.Line.FontSize);
+    }
+
+    private static bool TryCreateSemanticList(
+        IReadOnlyList<RawListItem> rawItems,
+        out PdfSemanticElement element)
+    {
+        element = null!;
+        if (rawItems.Count < 2 || !AssignListIndentationLevels(rawItems))
+        {
+            return false;
+        }
+
+        int index = 0;
+        if (!TryBuildSemanticList(rawItems, ref index, 0, out PdfSemanticList list) || index != rawItems.Count)
+        {
+            return false;
+        }
+
+        PdfSemanticLine[] lines = rawItems
+            .SelectMany(static item => item.Lines)
+            .Select(static line => line.SemanticLine)
+            .ToArray();
+        element = new PdfSemanticElement(
+            PdfSemanticElementKind.List,
+            string.Join(Environment.NewLine, lines.Select(static line => line.Text)),
+            PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
+            lines,
+            semanticList: list);
+        return true;
+    }
+
+    private static bool AssignListIndentationLevels(IReadOnlyList<RawListItem> items)
+    {
+        List<float> anchors = [];
+        foreach (RawListItem item in items)
+        {
+            float tolerance = MathF.Max(7f, item.Marker.Line.FontSize * 0.7f);
+            int anchorIndex = anchors.FindIndex(anchor => MathF.Abs(anchor - item.Marker.BodyX) <= tolerance);
+            if (anchorIndex < 0)
+            {
+                anchors.Add(item.Marker.BodyX);
+            }
+            else
+            {
+                anchors[anchorIndex] = (anchors[anchorIndex] + item.Marker.BodyX) / 2f;
+            }
+        }
+
+        anchors.Sort();
+        if (anchors.Count > 8)
+        {
+            return false;
+        }
+
+        foreach (RawListItem item in items)
+        {
+            item.Level = anchors
+                .Select((anchor, index) => new { Index = index, Distance = MathF.Abs(anchor - item.Marker.BodyX) })
+                .OrderBy(static match => match.Distance)
+                .First()
+                .Index;
+        }
+
+        return items[0].Level == 0;
+    }
+
+    private static bool TryBuildSemanticList(
+        IReadOnlyList<RawListItem> rawItems,
+        ref int index,
+        int level,
+        out PdfSemanticList semanticList)
+    {
+        semanticList = null!;
+        int rangeEnd = index;
+        while (rangeEnd < rawItems.Count && rawItems[rangeEnd].Level >= level)
+        {
+            rangeEnd++;
+        }
+
+        RawListItem[] siblings = rawItems
+            .Skip(index)
+            .Take(rangeEnd - index)
+            .Where(item => item.Level == level)
+            .ToArray();
+        if (!TryResolveListStyle(siblings, out ResolvedListStyle style))
+        {
+            return false;
+        }
+
+        List<PdfSemanticListItem> items = [];
+        int siblingIndex = 0;
+        while (index < rangeEnd)
+        {
+            RawListItem rawItem = rawItems[index];
+            if (rawItem.Level != level)
+            {
+                return false;
+            }
+
+            index++;
+            List<PdfSemanticList> nestedLists = [];
+            while (index < rangeEnd && rawItems[index].Level > level)
+            {
+                int nestedLevel = rawItems[index].Level;
+                if (nestedLevel != level + 1 ||
+                    !TryBuildSemanticList(rawItems, ref index, nestedLevel, out PdfSemanticList nestedList))
+                {
+                    return false;
+                }
+
+                nestedLists.Add(nestedList);
+            }
+
+            int? value = null;
+            if (style.Ordinals.Count > 0 && siblingIndex > 0)
+            {
+                int expected = style.Ordinals[siblingIndex - 1] + (style.IsReversed ? -1 : 1);
+                if (style.Ordinals[siblingIndex] != expected)
+                {
+                    value = style.Ordinals[siblingIndex];
+                }
+            }
+
+            PdfSemanticLine[] lines = rawItem.Lines.Select(static line => line.SemanticLine).ToArray();
+            items.Add(new PdfSemanticListItem(
+                ListItemText(rawItem),
+                PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
+                lines,
+                rawItem.Marker.Marker,
+                rawItem.Marker.MarkerLength,
+                value,
+                nestedLists));
+            siblingIndex++;
+        }
+
+        int? start = null;
+        if (style.Ordinals.Count > 0)
+        {
+            int defaultStart = style.IsReversed ? siblings.Length : 1;
+            if (style.Ordinals[0] != defaultStart)
+            {
+                start = style.Ordinals[0];
+            }
+        }
+
+        semanticList = new PdfSemanticList(style.Kind, style.MarkerKind, items, start, style.IsReversed);
+        return true;
+    }
+
+    private static bool TryResolveListStyle(
+        IReadOnlyList<RawListItem> siblings,
+        out ResolvedListStyle style)
+    {
+        style = default;
+        if (siblings.Count < 2)
+        {
+            return false;
+        }
+
+        ListMarkerCandidate[] markers = siblings.Select(static item => item.Marker).ToArray();
+        if (markers.All(static marker => marker.Category == ListMarkerCategory.Bullet))
+        {
+            style = new ResolvedListStyle(
+                PdfSemanticListKind.Unordered,
+                PdfSemanticListMarkerKind.Bullet,
+                [],
+                false);
+            return true;
+        }
+
+        if (markers.All(static marker => marker.Category == ListMarkerCategory.Hyphen))
+        {
+            bool hasHangingContinuation = siblings.Any(static item => item.Lines.Count > 1);
+            float[] bodyOffsets = markers.Select(static marker => marker.BodyX - marker.MarkerX).ToArray();
+            float offsetTolerance = MathF.Max(4f, markers[0].Line.FontSize * 0.4f);
+            bool stableHangingIndent = bodyOffsets.All(offset =>
+                    offset >= markers[0].Line.FontSize * 0.35f &&
+                    offset <= markers[0].Line.FontSize * 3f) &&
+                bodyOffsets.Max() - bodyOffsets.Min() <= offsetTolerance;
+            if (!stableHangingIndent || siblings.Count < 3 && !hasHangingContinuation)
+            {
+                return false;
+            }
+
+            style = new ResolvedListStyle(
+                PdfSemanticListKind.Unordered,
+                PdfSemanticListMarkerKind.Hyphen,
+                [],
+                false);
+            return true;
+        }
+
+        if (markers.Any(static marker => marker.Category is ListMarkerCategory.Bullet or ListMarkerCategory.Hyphen) ||
+            markers.Select(static marker => marker.Shape).Distinct().Count() != 1)
+        {
+            return false;
+        }
+
+        if (markers.All(static marker => marker.DecimalValue.HasValue))
+        {
+            int[] values = markers.Select(static marker => marker.DecimalValue!.Value).ToArray();
+            return TryCreateOrderedStyle(PdfSemanticListMarkerKind.Decimal, values, requireSequenceEvidence: false, out style);
+        }
+
+        bool sameCase = markers.All(marker => marker.IsUpperCase == markers[0].IsUpperCase);
+        if (!sameCase)
+        {
+            return false;
+        }
+
+        bool romanCandidate = markers.All(static marker => marker.RomanValue.HasValue) &&
+            markers.Any(static marker => marker.Token.Length > 1);
+        if (romanCandidate)
+        {
+            int[] values = markers.Select(static marker => marker.RomanValue!.Value).ToArray();
+            PdfSemanticListMarkerKind markerKind = markers[0].IsUpperCase
+                ? PdfSemanticListMarkerKind.UpperRoman
+                : PdfSemanticListMarkerKind.LowerRoman;
+            return TryCreateOrderedStyle(markerKind, values, requireSequenceEvidence: true, out style);
+        }
+
+        if (markers.All(static marker => marker.AlphaValue.HasValue))
+        {
+            int[] values = markers.Select(static marker => marker.AlphaValue!.Value).ToArray();
+            PdfSemanticListMarkerKind markerKind = markers[0].IsUpperCase
+                ? PdfSemanticListMarkerKind.UpperAlpha
+                : PdfSemanticListMarkerKind.LowerAlpha;
+            return TryCreateOrderedStyle(markerKind, values, requireSequenceEvidence: false, out style);
+        }
+
+        return false;
+    }
+
+    private static bool TryCreateOrderedStyle(
+        PdfSemanticListMarkerKind markerKind,
+        IReadOnlyList<int> values,
+        bool requireSequenceEvidence,
+        out ResolvedListStyle style)
+    {
+        style = default;
+        int[] differences = values.Pairwise(static (first, second) => second - first).ToArray();
+        bool ascending = differences.All(static difference => difference > 0);
+        bool descending = differences.All(static difference => difference < 0);
+        if (!ascending && !descending ||
+            requireSequenceEvidence && !differences.Any(static difference => Math.Abs(difference) == 1))
+        {
+            return false;
+        }
+
+        style = new ResolvedListStyle(
+            PdfSemanticListKind.Ordered,
+            markerKind,
+            values.ToArray(),
+            descending);
+        return true;
+    }
+
+    private static string ListItemText(RawListItem item)
+    {
+        List<PdfSemanticLine> lines = item.Lines.Select(static line => line.SemanticLine).ToList();
+        PdfSemanticLine first = lines[0];
+        lines[0] = new PdfSemanticLine(
+            first.Text[item.Marker.MarkerLength..].TrimStart(),
+            first.Bounds,
+            first.DominantFontName,
+            first.DominantFontSize,
+            first.Direction,
+            first.Color,
+            first.Runs);
+        return JoinParagraphLines(lines);
+    }
+
+    private static bool TryParseListMarker(LineCandidate line, out ListMarkerCandidate marker)
+    {
+        marker = null!;
+        if (MathF.Abs(line.Direction) > 0.01f || HasMathFont(line))
+        {
+            return false;
+        }
+
+        string text = line.Text;
+        int start = 0;
+        while (start < text.Length && char.IsWhiteSpace(text[start]))
+        {
+            start++;
+        }
+
+        if (start >= text.Length)
+        {
+            return false;
+        }
+
+        char first = text[start];
+        if (IsBulletMarker(first) || first == '-')
+        {
+            int bodyStart = start + 1;
+            if (bodyStart >= text.Length || !char.IsWhiteSpace(text[bodyStart]))
+            {
+                return false;
+            }
+
+            while (bodyStart < text.Length && char.IsWhiteSpace(text[bodyStart]))
+            {
+                bodyStart++;
+            }
+
+            if (bodyStart >= text.Length)
+            {
+                return false;
+            }
+
+            marker = new ListMarkerCandidate(
+                line,
+                first.ToString(),
+                bodyStart,
+                first == '-' ? ListMarkerCategory.Hyphen : ListMarkerCategory.Bullet,
+                ListMarkerShape.Symbol,
+                "",
+                null,
+                null,
+                null,
+                false,
+                EstimateListBodyX(line, first.ToString(), bodyStart));
+            return true;
+        }
+
+        int tokenStart = start;
+        int tokenEnd;
+        int markerEnd;
+        ListMarkerShape shape;
+        if (first == '(')
+        {
+            tokenStart++;
+            tokenEnd = text.IndexOf(')', tokenStart);
+            if (tokenEnd < 0)
+            {
+                return false;
+            }
+
+            markerEnd = tokenEnd + 1;
+            shape = ListMarkerShape.Parenthesized;
+        }
+        else
+        {
+            tokenEnd = tokenStart;
+            while (tokenEnd < text.Length && char.IsLetterOrDigit(text[tokenEnd]))
+            {
+                tokenEnd++;
+            }
+
+            if (tokenEnd == tokenStart || tokenEnd >= text.Length || text[tokenEnd] is not ('.' or ')'))
+            {
+                return false;
+            }
+
+            shape = text[tokenEnd] == '.' ? ListMarkerShape.Period : ListMarkerShape.ClosingParenthesis;
+            markerEnd = tokenEnd + 1;
+        }
+
+        if (markerEnd >= text.Length || !char.IsWhiteSpace(text[markerEnd]))
+        {
+            return false;
+        }
+
+        int bodyIndex = markerEnd;
+        while (bodyIndex < text.Length && char.IsWhiteSpace(text[bodyIndex]))
+        {
+            bodyIndex++;
+        }
+
+        if (bodyIndex >= text.Length)
+        {
+            return false;
+        }
+
+        if (DateListItemBodyPattern.IsMatch(text[bodyIndex..]))
+        {
+            return false;
+        }
+
+        string token = text[tokenStart..tokenEnd];
+        int? decimalValue = null;
+        int? alphaValue = null;
+        int? romanValue = null;
+        if (token.Length <= 3 && token.All(char.IsDigit) &&
+            int.TryParse(token, out int parsedDecimal) && parsedDecimal > 0)
+        {
+            decimalValue = parsedDecimal;
+        }
+        else if (token.Length == 1 && token[0] is >= 'A' and <= 'Z' or >= 'a' and <= 'z')
+        {
+            alphaValue = char.ToUpperInvariant(token[0]) - 'A' + 1;
+        }
+
+        if (token.All(static character => "IVXLCDMivxlcdm".Contains(character, StringComparison.Ordinal)) &&
+            TryParseRomanNumeral(token, out int parsedRoman))
+        {
+            romanValue = parsedRoman;
+        }
+
+        if (!decimalValue.HasValue && !alphaValue.HasValue && !romanValue.HasValue)
+        {
+            return false;
+        }
+
+        string markerText = text[start..markerEnd];
+        marker = new ListMarkerCandidate(
+            line,
+            markerText,
+            bodyIndex,
+            ListMarkerCategory.Ordered,
+            shape,
+            token,
+            decimalValue,
+            alphaValue,
+            romanValue,
+            token.All(char.IsUpper),
+            EstimateListBodyX(line, markerText, bodyIndex));
+        return true;
+    }
+
+    private static float EstimateListBodyX(LineCandidate line, string marker, int bodyIndex)
+    {
+        PdfTextGlyph[] glyphs = line.Source.Runs
+            .SelectMany(static run => run.Glyphs)
+            .Where(static glyph => glyph.Text.Length > 0)
+            .OrderBy(static glyph => glyph.Bounds.X)
+            .ToArray();
+        string compactMarker = new(marker.Where(static character => !char.IsWhiteSpace(character)).ToArray());
+        int matchedMarkerCharacters = 0;
+        foreach (PdfTextGlyph glyph in glyphs)
+        {
+            for (int characterIndex = 0; characterIndex < glyph.Text.Length; characterIndex++)
+            {
+                char character = glyph.Text[characterIndex];
+                if (matchedMarkerCharacters < compactMarker.Length)
+                {
+                    if (char.IsWhiteSpace(character))
+                    {
+                        continue;
+                    }
+
+                    if (character != compactMarker[matchedMarkerCharacters])
+                    {
+                        return EstimateListBodyXFromText(line, bodyIndex);
+                    }
+
+                    matchedMarkerCharacters++;
+                    continue;
+                }
+
+                if (!char.IsWhiteSpace(character))
+                {
+                    float fraction = characterIndex / (float)glyph.Text.Length;
+                    return glyph.Bounds.X + glyph.Bounds.Width * fraction;
+                }
+            }
+        }
+
+        return EstimateListBodyXFromText(line, bodyIndex);
+    }
+
+    private static float EstimateListBodyXFromText(LineCandidate line, int bodyIndex)
+    {
+        float textFraction = line.Text.Length == 0 ? 0f : bodyIndex / (float)line.Text.Length;
+        return line.Bounds.X + MathF.Min(line.Bounds.Width * 0.3f, line.Bounds.Width * textFraction);
+    }
+
+    private static bool TryParseRomanNumeral(string token, out int value)
+    {
+        value = 0;
+        string upper = token.ToUpperInvariant();
+        Dictionary<char, int> values = new()
+        {
+            ['I'] = 1,
+            ['V'] = 5,
+            ['X'] = 10,
+            ['L'] = 50,
+            ['C'] = 100,
+            ['D'] = 500,
+            ['M'] = 1000
+        };
+        for (int index = 0; index < upper.Length; index++)
+        {
+            int current = values[upper[index]];
+            int next = index + 1 < upper.Length ? values[upper[index + 1]] : 0;
+            value += current < next ? -current : current;
+        }
+
+        return value > 0 && string.Equals(ToRomanNumeral(value), upper, StringComparison.Ordinal);
+    }
+
+    private static string ToRomanNumeral(int value)
+    {
+        (int Value, string Text)[] numerals =
+        [
+            (1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),
+            (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
+            (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")
+        ];
+        StringBuilder result = new();
+        foreach ((int numeralValue, string numeralText) in numerals)
+        {
+            while (value >= numeralValue)
+            {
+                result.Append(numeralText);
+                value -= numeralValue;
+            }
+        }
+
+        return result.ToString();
+    }
+
+    private static bool IsBulletMarker(char character)
+    {
+        return character is '\u0095' or '\u2022' or '\u2023' or '\u2043' or '\u25e6' or '\u25aa' or '\u2219';
     }
 
     private static IEnumerable<PdfSemanticElement> ExtractTables(
@@ -3076,12 +3703,6 @@ public static class PdfSemanticExtractor
         return trimmed.Length > 0 && char.IsUpper(trimmed[0]);
     }
 
-    private static bool StartsWithBulletMarker(string text)
-    {
-        string trimmed = text.TrimStart();
-        return trimmed.Length > 0 && trimmed[0] is '\u0095' or '\u2022' or '\u25e6' or '\u25aa' or '\u2219';
-    }
-
     private static bool IsBoldFontName(string fontName)
     {
         return fontName.Contains("Bold", StringComparison.OrdinalIgnoreCase) ||
@@ -3207,6 +3828,95 @@ public static class PdfSemanticExtractor
 
         public bool IsBold =>
             IsBoldFontName(FontName);
+    }
+
+    private sealed class RawListItem
+    {
+        public RawListItem(ListMarkerCandidate marker, LineCandidate line)
+        {
+            Marker = marker;
+            Lines = [line];
+        }
+
+        public ListMarkerCandidate Marker { get; }
+
+        public List<LineCandidate> Lines { get; }
+
+        public int Level { get; set; }
+    }
+
+    private sealed class ListMarkerCandidate
+    {
+        public ListMarkerCandidate(
+            LineCandidate line,
+            string marker,
+            int markerLength,
+            ListMarkerCategory category,
+            ListMarkerShape shape,
+            string token,
+            int? decimalValue,
+            int? alphaValue,
+            int? romanValue,
+            bool isUpperCase,
+            float bodyX)
+        {
+            Line = line;
+            Marker = marker;
+            MarkerLength = markerLength;
+            Category = category;
+            Shape = shape;
+            Token = token;
+            DecimalValue = decimalValue;
+            AlphaValue = alphaValue;
+            RomanValue = romanValue;
+            IsUpperCase = isUpperCase;
+            BodyX = bodyX;
+        }
+
+        public LineCandidate Line { get; }
+
+        public string Marker { get; }
+
+        public int MarkerLength { get; }
+
+        public ListMarkerCategory Category { get; }
+
+        public ListMarkerShape Shape { get; }
+
+        public string Token { get; }
+
+        public int? DecimalValue { get; }
+
+        public int? AlphaValue { get; }
+
+        public int? RomanValue { get; }
+
+        public bool IsUpperCase { get; }
+
+        public float MarkerX => Line.Bounds.X;
+
+        public float BodyX { get; }
+    }
+
+    private readonly record struct ResolvedListStyle(
+        PdfSemanticListKind Kind,
+        PdfSemanticListMarkerKind MarkerKind,
+        IReadOnlyList<int> Ordinals,
+        bool IsReversed);
+
+    private enum ListMarkerCategory
+    {
+        Bullet,
+        Hyphen,
+        Ordered
+    }
+
+    private enum ListMarkerShape
+    {
+        Symbol,
+        Period,
+        ClosingParenthesis,
+        Parenthesized
     }
 
     private sealed class AuthorSegment

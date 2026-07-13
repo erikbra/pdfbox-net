@@ -449,6 +449,63 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_PreservesOrderedListInsideDetectedColumn()
+    {
+        using PDDocument document = CreateTwoColumnDocumentWithOrderedList();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticList semanticList = Assert.IsType<PdfSemanticList>(Assert.Single(
+            semanticPage.Elements,
+            static element => element.Kind == PdfSemanticElementKind.List).SemanticList);
+        Assert.Equal(PdfSemanticListKind.Ordered, semanticList.Kind);
+        Assert.Equal(3, semanticList.Items.Count);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement[] columns = ElementsByClass(dom, "pdf-semantic-column").ToArray();
+        Assert.Equal(2, columns.Length);
+        XElement list = Assert.Single(columns[0].Descendants("ol"));
+        Assert.Equal(
+            ["First certification step", "Second certification step", "Third certification step"],
+            list.Elements("li").Select(static item => item.Value.Trim()).ToArray());
+        Assert.Empty(columns[1].Descendants("ol"));
+        Assert.Contains("Right body 12", columns[1].Value, StringComparison.Ordinal);
+        Assert.Single(ElementsByClass(dom, "pdf-semantic-column-block"));
+        Assert.Equal(24, columns
+            .SelectMany(static column => column.Descendants())
+            .Count(static element => HasClass(element, "pdf-semantic-column-run")));
+        Assert.Single(Regex.Matches(html.Html, "First certification step").Cast<Match>());
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_DoesNotPromoteListWhoseSourceLinesCrossColumns()
+    {
+        using PDDocument document = CreateTwoColumnDocumentWithOrderedList(includeCrossColumnText: true);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        Assert.Contains(semanticPage.Elements, static element => element.Kind == PdfSemanticElementKind.List);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        XElement[] columns = ElementsByClass(dom, "pdf-semantic-column").ToArray();
+        Assert.Equal(2, columns.Length);
+        Assert.Empty(columns.SelectMany(static column => column.Descendants("ol")));
+        Assert.Contains("1. First certification instruction reaches near gutter", columns[0].Value, StringComparison.Ordinal);
+        Assert.Contains("Right list note 1", columns[1].Value, StringComparison.Ordinal);
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-column-block"));
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_DetectsColumnsAroundTableConfinedToOneColumn()
     {
         using PDDocument document = CreateTwoColumnDocument(includeRuledTable: true);
@@ -821,14 +878,10 @@ public class PdfHtmlConverterTest
             """);
         PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
         PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
-        PdfSemanticElement[] semanticItems = semanticPage.Elements
-            .Where(element => element.Kind == PdfSemanticElementKind.Paragraph &&
-                element.Text.TrimStart().FirstOrDefault() is '\u0095' or '\u2022')
-            .ToArray();
-        Assert.True(
-            semanticItems.Length == 2,
-            string.Join(Environment.NewLine, semanticPage.Elements.Select(element =>
-                $"{element.Kind} ({element.Lines.Count} lines): {element.Text}")));
+        PdfSemanticElement semanticListElement = Assert.Single(semanticPage.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.List);
+        PdfSemanticList semanticList = Assert.IsType<PdfSemanticList>(semanticListElement.SemanticList);
+        Assert.Equal(2, semanticList.Items.Count);
 
         PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
         {
@@ -847,6 +900,99 @@ public class PdfHtmlConverterTest
             element.Value == "Federal perspective");
         Assert.Contains(dom.Descendants("p"), paragraph =>
             paragraph.Value == "Ordinary prose resumes after the list.");
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_ArxivApplicationBulletsRemainOneCompleteList()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = false
+        });
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement list = Assert.Single(dom.Descendants("ul"), list =>
+            list.Elements("li").Any(item =>
+                item.Value.Contains("encoder-decoder attention", StringComparison.Ordinal)));
+        XElement[] items = list.Elements("li").ToArray();
+        Assert.Equal(3, items.Length);
+        Assert.Contains("[38, 2, 9]", items[0].Value, StringComparison.Ordinal);
+        Assert.Contains("previous layer of the encoder", items[1].Value, StringComparison.Ordinal);
+        Assert.Contains("illegal connections. See Figure 2.", items[2].Value, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsOrderedAndNestedListsWithSourceNumbering()
+    {
+        using PDDocument document = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            1 0 0 1 72 748 Tm (Opening body line establishes normal prose.) Tj
+            1 0 0 1 72 736 Tm (A second line establishes vertical rhythm.) Tj
+            1 0 0 1 72 700 Tm (3. First parent) Tj
+            1 0 0 1 96 684 Tm (a. First child) Tj
+            1 0 0 1 96 668 Tm (b. Second child) Tj
+            1 0 0 1 72 652 Tm (4. Second parent) Tj
+            1 0 0 1 72 636 Tm (6. Fourth source value) Tj
+            ET
+            """);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(PdfLayoutExtractor.Extract(document), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement root = dom.Descendants("ol").First(list => list.Parent?.Name.LocalName != "li");
+        Assert.Equal("3", root.Attribute("start")?.Value);
+        XElement[] rootItems = root.Elements("li").ToArray();
+        Assert.Equal(3, rootItems.Length);
+        Assert.Null(rootItems[0].Attribute("value"));
+        Assert.Null(rootItems[1].Attribute("value"));
+        Assert.Equal("6", rootItems[2].Attribute("value")?.Value);
+
+        XElement nested = Assert.Single(rootItems[0].Elements("ol"));
+        Assert.Equal("a", nested.Attribute("type")?.Value);
+        Assert.Equal(["First child", "Second child"], nested.Elements("li").Select(static item => item.Value.Trim()));
+    }
+
+    [Fact]
+    public void Convert_SemanticTextMode_ListItemsPreserveRichInlineContent()
+    {
+        PdfLayoutDocument layout = CreateRichListLayoutFixture();
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        Assert.True(
+            semanticPage.Elements.Count(static element => element.Kind == PdfSemanticElementKind.List) == 1,
+            string.Join(Environment.NewLine, semanticPage.Elements.Select(element =>
+                $"{element.Kind} ({element.Lines.Count} lines): {element.Text}")));
+        Assert.Contains(semanticPage.Elements, static element => element.Kind == PdfSemanticElementKind.Footnote);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement firstItem = Assert.Single(dom.Descendants("ul")).Elements("li").First();
+        Assert.Contains(firstItem.Descendants(), element =>
+            HasClass(element, "pdf-semantic-bold") && element.Value == "Bold");
+        Assert.Contains(firstItem.Descendants(), element =>
+            HasClass(element, "pdf-semantic-italic") && element.Value == "italic");
+        Assert.Contains(firstItem.Descendants("sub"), element => element.Value == "2");
+        Assert.Contains(firstItem.Descendants("sup"), element => element.Value == "3");
+        Assert.Contains(firstItem.Descendants("a"), element =>
+            element.Attribute("href")?.Value == "https://example.com/list");
+        Assert.True(
+            firstItem.Descendants("a").Any(element =>
+                HasClass(element, "pdf-semantic-footnote-ref") && element.Value == "*"),
+            firstItem.ToString(SaveOptions.DisableFormatting));
     }
 
     [Fact]
@@ -4093,6 +4239,70 @@ public class PdfHtmlConverterTest
         return new PdfLayoutDocument([page], []);
     }
 
+    private static PdfLayoutDocument CreateRichListLayoutFixture()
+    {
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        List<PdfTextRun> richRuns = [];
+        float x = 72f;
+        void AddRun(string text, string fontName, float fontSize = 12f, float yOffset = 0f)
+        {
+            float width = MathF.Max(4f, text.Length * fontSize * 0.48f);
+            PdfLayoutRectangle bounds = new(x, 120f + yOffset, width, fontSize * 0.75f);
+            PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
+            richRuns.Add(new PdfTextRun(text, fontName, fontSize, 0f, bounds, color, [glyph]));
+            x += width;
+        }
+
+        AddRun("• ", "Symbol");
+        AddRun("Bold", "Times-Bold");
+        AddRun(" and ", "Times-Roman");
+        AddRun("italic", "Times-Italic");
+        AddRun(" H", "Times-Roman");
+        AddRun("2", "Times-Roman", 7f, 4f);
+        AddRun("O x", "Times-Roman");
+        AddRun("3", "Times-Roman", 7f, -4f);
+        AddRun(" visit https://example.com/list note ", "Times-Roman");
+        AddRun("*", "Times-Roman", 7f, -4f);
+        float richTop = richRuns.Min(static run => run.Bounds.Y);
+        float richBottom = richRuns.Max(static run => run.Bounds.Bottom);
+        PdfTextLine richItem = new(
+            string.Concat(richRuns.Select(static run => run.Text)),
+            new PdfLayoutRectangle(72f, richTop, x - 72f, richBottom - richTop),
+            richRuns);
+
+        List<PdfTextLine> lines =
+        [
+            CreateScientificFixtureLine("Opening body line establishes normal prose.", 72f, 72f, 260f, 12f),
+            CreateScientificFixtureLine("A second line establishes vertical rhythm.", 72f, 84f, 280f, 12f),
+            CreateScientificFixtureLine("A third line keeps the page in continuous semantic flow.", 72f, 96f, 300f, 12f),
+            richItem,
+            CreateScientificFixtureLine("• Plain second item", 72f, 140f, 160f, 12f),
+            CreateScientificFixtureLine("*", 72f, 620f, 6f, 8f, "Symbol"),
+            CreateScientificFixtureLine("Rich list footnote body.", 84f, 636f, 150f, 8f)
+        ];
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            lines.Select(line => new PdfTextBlock(line.Text, line.Bounds, [line])).ToArray(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
+    }
+
     private static PdfTextLine CreateScientificFixtureLine(
         string text,
         float x,
@@ -4123,6 +4333,45 @@ public class PdfHtmlConverterTest
     private static PDDocument CreateTwoColumnDocument(bool includeRuledTable)
     {
         return CreateTwoColumnDocument(includeRuledTable ? RuledTableLayout.Left : RuledTableLayout.None);
+    }
+
+    private static PDDocument CreateTwoColumnDocumentWithOrderedList(bool includeCrossColumnText = false)
+    {
+        StringBuilder content = new();
+        content.AppendLine("BT /F1 16 Tf 190 760 Td (Two-Column Guidance) Tj ET");
+        content.AppendLine("BT /F1 11 Tf 220 740 Td (Spanning source header) Tj ET");
+        for (int index = 1; index <= 12; index++)
+        {
+            int y = 700 - (index - 1) * 16;
+            content.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "BT /F1 10 Tf 72 {0} Td (Left body {1:00} source line reaches near gutter) Tj ET\n",
+                y,
+                index);
+            content.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "BT /F1 10 Tf 330 {0} Td (Right body {1:00} source line reaches page edge) Tj ET\n",
+                y,
+                index);
+        }
+
+        if (includeCrossColumnText)
+        {
+            content.AppendLine("BT /F1 10 Tf 72 500 Td (1. First certification instruction reaches near gutter) Tj ET");
+            content.AppendLine("BT /F1 10 Tf 330 500 Td (Right list note 1) Tj ET");
+            content.AppendLine("BT /F1 10 Tf 72 484 Td (2. Second certification instruction reaches near gutter) Tj ET");
+            content.AppendLine("BT /F1 10 Tf 330 484 Td (Right list note 2) Tj ET");
+            content.AppendLine("BT /F1 10 Tf 72 468 Td (3. Third certification instruction reaches near gutter) Tj ET");
+            content.AppendLine("BT /F1 10 Tf 330 468 Td (Right list note 3) Tj ET");
+        }
+        else
+        {
+            content.AppendLine("BT /F1 10 Tf 72 500 Td (1. First certification step) Tj ET");
+            content.AppendLine("BT /F1 10 Tf 72 484 Td (2. Second certification step) Tj ET");
+            content.AppendLine("BT /F1 10 Tf 72 468 Td (3. Third certification step) Tj ET");
+        }
+
+        return CreateTextDocument(content.ToString());
     }
 
     private static PDDocument CreateTwoColumnDocument(RuledTableLayout ruledTableLayout)

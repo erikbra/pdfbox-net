@@ -42,7 +42,8 @@ public sealed class PdfSemanticElement
         PdfLayoutRectangle bounds,
         IReadOnlyList<PdfSemanticLine> lines,
         int headingLevel = 0,
-        IReadOnlyList<PdfSemanticTableRow>? tableRows = null)
+        IReadOnlyList<PdfSemanticTableRow>? tableRows = null,
+        PdfSemanticList? semanticList = null)
     {
         Kind = kind;
         Text = text;
@@ -50,6 +51,7 @@ public sealed class PdfSemanticElement
         Lines = lines.ToArray();
         HeadingLevel = headingLevel;
         TableRows = tableRows?.ToArray() ?? [];
+        SemanticList = semanticList;
     }
 
     public PdfSemanticElementKind Kind { get; }
@@ -63,6 +65,8 @@ public sealed class PdfSemanticElement
     public int HeadingLevel { get; }
 
     public IReadOnlyList<PdfSemanticTableRow> TableRows { get; }
+
+    public PdfSemanticList? SemanticList { get; }
 }
 
 /// <summary>
