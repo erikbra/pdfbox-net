@@ -258,6 +258,104 @@ public sealed class HtmlReviewArtifactGeneratorTest
     }
 
     [Fact]
+    public async Task AnalyzeAsync_DetectsContextualJoiningOfAdjacentSourceWords()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        string padding = string.Join(" ", Enumerable.Repeat(
+            "Reliable adaptive optimization preserves readable prose across complex scientific documents and practical reports.",
+            12));
+        string sourceText = padding + " A careful choice of stepsizes at timestep t remains important for robust training.";
+        string htmlText = padding + " A careful choice ofstepsizes attimestep t remains important for robust training.";
+        PdfLayoutDocument layout;
+        using (PDDocument document = CreateTextDocument(sourceText))
+        {
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            $$"""
+            <!doctype html>
+            <html lang="en">
+            <body>
+              <section class="pdf-page" data-page-number="1" style="position:relative;width:612pt;height:792pt;background:white">
+                <span class="pdf-text-run" style="position:absolute;left:72pt;top:80pt;font-size:12pt">{{htmlText}}</span>
+              </section>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        PdfHtmlQualityCheck boundaryCheck = Assert.Single(report.Checks, static check =>
+            check.Id == "word-boundaries" && check.PageNumber == 1);
+        Assert.Equal("needs-review", boundaryCheck.Status);
+        Assert.True(boundaryCheck.Metrics["tokenCoverage"] > 0.95d);
+        Assert.Equal(2d, boundaryCheck.Metrics["adjacentSourceWordJoinCount"]);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_DoesNotTreatMathLinksCodePunctuationOrAttestedCompoundsAsWordJoins()
+    {
+        using TempDirectory tempDirectory = new();
+        string sourcePdf = Path.Combine(tempDirectory.Path, "source.pdf");
+        string padding = string.Join(" ", Enumerable.Repeat(
+            "Reliable adaptive optimization preserves readable prose across complex scientific documents and practical reports.",
+            12));
+        string sourceText = padding + " alpha beta gamma delta example.com user_id data base database end result stable output";
+        PdfLayoutDocument layout;
+        using (PDDocument document = CreateTextDocument(sourceText))
+        {
+            document.Save(sourcePdf);
+            layout = PdfLayoutExtractor.Extract(document);
+        }
+
+        string htmlDirectory = Path.Combine(tempDirectory.Path, "html");
+        Directory.CreateDirectory(htmlDirectory);
+        File.WriteAllText(
+            Path.Combine(htmlDirectory, "index.html"),
+            $$"""
+            <!doctype html>
+            <html lang="en">
+            <body>
+              <section class="pdf-page" data-page-number="1" style="position:relative;width:612pt;height:792pt;background:white">
+                <span class="pdf-text-run" style="position:absolute;left:72pt;top:80pt;font-size:12pt">
+                  {{padding}}
+                  <span class="pdf-semantic-math">alphabeta</span>
+                  <a href="https://example.test">gammadelta</a>
+                  examplecom
+                  <code>userid</code>
+                  database database end result stable output
+                </span>
+              </section>
+            </body>
+            </html>
+            """);
+
+        PdfHtmlQualityReport report = await new PdfHtmlQualityProbe().AnalyzeAsync(new PdfHtmlQualityProbeOptions(
+            sourcePdf,
+            htmlDirectory,
+            layout,
+            Path.Combine(tempDirectory.Path, "quality"),
+            MaxPages: 1),
+            TestContext.Current.CancellationToken);
+
+        PdfHtmlQualityCheck boundaryCheck = Assert.Single(report.Checks, static check =>
+            check.Id == "word-boundaries" && check.PageNumber == 1);
+        Assert.Equal(0d, boundaryCheck.Metrics["adjacentSourceWordJoinCount"]);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_ExtractsSelfDescribingFixtureExpectations()
     {
         using TempDirectory tempDirectory = new();

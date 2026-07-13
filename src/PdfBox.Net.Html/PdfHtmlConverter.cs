@@ -8886,6 +8886,7 @@ public static class PdfHtmlConverter
         bool wroteLine = false;
         bool previousLineEndedWithMathIdentifier = false;
         bool skippedLeadingText = string.IsNullOrEmpty(leadingTextToSkip);
+        List<RichSemanticSourceLine> sourceLines = [];
         foreach (PdfSemanticLine line in element.Lines)
         {
             if (IsDetachedMathAttachmentLine(line, element))
@@ -8914,15 +8915,123 @@ public static class PdfHtmlConverter
                 continue;
             }
 
-            if (wroteLine && !continuesMathIdentifier && NeedsSpaceBetween(previousLineText, lineText))
+            sourceLines.Add(new RichSemanticSourceLine(
+                line,
+                segments,
+                lineText,
+                continuesMathIdentifier));
+
+            previousLineText = lineText;
+            previousLineEndedWithMathIdentifier = EndsWithMathBaseIdentifierSegment(segments);
+        }
+
+        for (int index = 0; index < sourceLines.Count; index++)
+        {
+            RichSemanticSourceLine sourceLine = sourceLines[index];
+            bool joinsPreviousWord = index > 0 &&
+                TryApplySemanticLineBreakDehyphenation(
+                    element.Text,
+                    sourceLines[index - 1],
+                    sourceLine);
+            if (joinsPreviousWord)
+            {
+                RichSemanticSourceLine previous = sourceLines[index - 1];
+                sourceLines[index - 1] = previous with
+                {
+                    Text = string.Concat(previous.Segments.Select(static segment => segment.Text))
+                };
+            }
+
+            sourceLines[index] = sourceLine with { JoinsPreviousWord = joinsPreviousWord };
+        }
+
+        previousLineText = "";
+        wroteLine = false;
+        foreach (RichSemanticSourceLine sourceLine in sourceLines)
+        {
+            string lineText = sourceLine.Text;
+
+            if (wroteLine &&
+                !sourceLine.ContinuesMathIdentifier &&
+                !sourceLine.JoinsPreviousWord &&
+                NeedsSpaceBetween(previousLineText, lineText))
             {
                 html.Append(' ');
             }
 
-            WriteInlineTextSegments(html, line, segments, lineText, footnotes);
+            WriteInlineTextSegments(html, sourceLine.Line, sourceLine.Segments, lineText, footnotes);
             previousLineText = lineText;
             wroteLine = true;
-            previousLineEndedWithMathIdentifier = EndsWithMathBaseIdentifierSegment(segments);
+        }
+    }
+
+    private static bool TryApplySemanticLineBreakDehyphenation(
+        string semanticText,
+        RichSemanticSourceLine previous,
+        RichSemanticSourceLine current)
+    {
+        string previousText = previous.Text.TrimEnd();
+        string currentText = current.Text.TrimStart();
+        if (!previousText.EndsWith("-", StringComparison.Ordinal) ||
+            currentText.Length == 0 ||
+            !char.IsLower(currentText[0]))
+        {
+            return false;
+        }
+
+        int leftStart = previousText.Length - 1;
+        while (leftStart > 0 && char.IsLetter(previousText[leftStart - 1]))
+        {
+            leftStart--;
+        }
+
+        int rightLength = 0;
+        while (rightLength < currentText.Length && char.IsLetter(currentText[rightLength]))
+        {
+            rightLength++;
+        }
+
+        if (previousText.Length - 1 - leftStart < 2 || rightLength < 2)
+        {
+            return false;
+        }
+
+        string joinedWord = previousText[leftStart..^1] + currentText[..rightLength];
+        if (semanticText.Contains(joinedWord, StringComparison.Ordinal))
+        {
+            RemoveTrailingHyphen(previous.Segments);
+            return true;
+        }
+
+        string authoredCompound = previousText[leftStart..] + currentText[..rightLength];
+        return semanticText.Contains(authoredCompound, StringComparison.Ordinal);
+    }
+
+    private static void RemoveTrailingHyphen(List<InlineTextSegment> segments)
+    {
+        for (int index = segments.Count - 1; index >= 0; index--)
+        {
+            string text = segments[index].Text;
+            if (text.Length == 0)
+            {
+                continue;
+            }
+
+            int hyphen = text.Length - 1;
+            while (hyphen >= 0 && char.IsWhiteSpace(text[hyphen]))
+            {
+                hyphen--;
+            }
+
+            if (hyphen >= 0 && text[hyphen] == '-')
+            {
+                segments[index] = segments[index] with
+                {
+                    Text = text.Remove(hyphen, 1)
+                };
+            }
+
+            return;
         }
     }
 
@@ -8985,7 +9094,6 @@ public static class PdfHtmlConverter
         PdfTextGlyph? previous = null;
         InlineBaselineRole previousRole = InlineBaselineRole.Normal;
         bool skipNextWhitespaceAfterIntrusiveGlyph = false;
-        bool suppressNextWordBoundaryAfterIntrusiveGlyph = false;
         for (int index = 0; index < glyphs.Length; index++)
         {
             (PdfTextRun run, PdfTextGlyph glyph) = glyphs[index];
@@ -9020,13 +9128,11 @@ public static class PdfHtmlConverter
             {
                 RemoveTrailingWhitespace(segments);
                 skipNextWhitespaceAfterIntrusiveGlyph = true;
-                suppressNextWordBoundaryAfterIntrusiveGlyph = true;
                 continue;
             }
 
             InlineBaselineRole role = BaselineRole(line, glyph);
-            if (!suppressNextWordBoundaryAfterIntrusiveGlyph &&
-                previous != null &&
+            if (previous != null &&
                 ShouldInsertWordBoundary(previous, glyph) &&
                 AllowsWordBoundary(previousRole, role))
             {
@@ -9042,7 +9148,6 @@ public static class PdfHtmlConverter
                 IsInlineCodeRun(line, run)));
             previous = glyph;
             previousRole = role;
-            suppressNextWordBoundaryAfterIntrusiveGlyph = false;
         }
 
         RepairCommonWordBreaks(segments);
@@ -12524,6 +12629,13 @@ public static class PdfHtmlConverter
         bool IsCode = false,
         PdfSemanticInline? Semantic = null,
         bool IsSmall = false);
+
+    private readonly record struct RichSemanticSourceLine(
+        PdfSemanticLine Line,
+        List<InlineTextSegment> Segments,
+        string Text,
+        bool ContinuesMathIdentifier,
+        bool JoinsPreviousWord = false);
 
     private sealed class SemanticSectionWriter
     {

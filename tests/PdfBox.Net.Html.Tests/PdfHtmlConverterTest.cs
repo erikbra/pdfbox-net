@@ -2095,6 +2095,45 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public async Task Convert_AdamPageTwo_BrowserTextRestoresProseBoundariesAndDehyphenation()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("arxiv-adam-page-2.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+        string prose = string.Join(" ", dom.Descendants("p").Select(static paragraph => paragraph.Value));
+
+        Assert.Contains("careful choice of stepsizes", prose, StringComparison.Ordinal);
+        Assert.Contains("parameter space at timestep t", prose, StringComparison.Ordinal);
+        Assert.Contains("noisy objective function", prose, StringComparison.Ordinal);
+        Assert.DoesNotContain("ofstepsizes", prose, StringComparison.Ordinal);
+        Assert.DoesNotContain("attimestep", prose, StringComparison.Ordinal);
+        Assert.DoesNotContain("objec-tive", prose, StringComparison.Ordinal);
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage browserPage = await browser.NewPageAsync();
+        await browserPage.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+        IReadOnlyList<string> browserParagraphs = await browserPage
+            .Locator("p.pdf-semantic-paragraph")
+            .AllInnerTextsAsync();
+        string browserProse = string.Join(" ", browserParagraphs);
+
+        Assert.Contains("careful choice of stepsizes", browserProse, StringComparison.Ordinal);
+        Assert.Contains("parameter space at timestep t", browserProse, StringComparison.Ordinal);
+        Assert.Contains("noisy objective function", browserProse, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Convert_AdamPageTwo_AlgorithmGeometryIsStableAtDesktopAndNarrowWidths()
     {
         using PDDocument document = Loader.LoadPDF(FixturePath("arxiv-adam-page-2.pdf"));
