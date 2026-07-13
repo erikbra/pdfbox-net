@@ -964,6 +964,7 @@ public static class PdfHtmlConverter
         .pdf-semantic-link,
         .pdf-semantic-auto-link {
           color: inherit;
+          overflow-wrap: anywhere;
           text-decoration: underline;
           text-decoration-thickness: 0.06em;
           text-underline-offset: 0.12em;
@@ -9892,7 +9893,14 @@ public static class PdfHtmlConverter
                 activeLink = segment.Link;
             }
 
-            WriteInlineTextSegment(html, line, segment, lineText, offset, footnotes);
+            WriteInlineTextSegment(
+                html,
+                line,
+                segment,
+                lineText,
+                offset,
+                footnotes,
+                allowGeneratedLinks: activeLink == null);
             offset += segment.Text.Length;
         }
 
@@ -10135,23 +10143,38 @@ public static class PdfHtmlConverter
         InlineTextSegment segment,
         string lineText,
         int offset,
-        FootnoteContext footnotes)
+        FootnoteContext footnotes,
+        bool allowGeneratedLinks)
     {
         if (segment.Run == null)
         {
             if (segment.Role == InlineBaselineRole.Normal)
             {
-                WriteTextWithFootnoteReferences(html, segment.Text, footnotes, lineText, offset);
+                if (allowGeneratedLinks)
+                {
+                    WriteTextWithFootnoteReferences(html, segment.Text, footnotes, lineText, offset);
+                }
+                else
+                {
+                    html.Append(Html(segment.Text));
+                }
             }
             else
             {
-                WriteStyledInlineTextSegment(html, segment.Text, "", segment.Role, footnotes, lineText, offset);
+                WriteStyledInlineTextSegment(
+                    html,
+                    segment.Text,
+                    "",
+                    segment.Role,
+                    allowGeneratedLinks ? footnotes : null,
+                    lineText,
+                    offset);
             }
 
             return;
         }
 
-        if (IsFootnoteReferenceSegment(segment, lineText, offset, footnotes))
+        if (allowGeneratedLinks && IsFootnoteReferenceSegment(segment, lineText, offset, footnotes))
         {
             WriteTextWithFootnoteReferences(html, segment.Text, footnotes, lineText, offset);
             return;
@@ -10171,7 +10194,7 @@ public static class PdfHtmlConverter
             segment.Text,
             className,
             segment.Role,
-            footnotes,
+            allowGeneratedLinks ? footnotes : null,
             lineText,
             offset,
             TextShadowStyle(segment.Run.Shadow),
