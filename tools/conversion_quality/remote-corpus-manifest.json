@@ -202,7 +202,7 @@
         "vector-heavy",
         "links"
       ],
-      "qualityPages": 2,
+      "qualityPages": 4,
       "notes": "Employment eligibility form with structured fields, embedded images, vector line work, and links.",
       "expectations": {
         "pageCount": 4,
