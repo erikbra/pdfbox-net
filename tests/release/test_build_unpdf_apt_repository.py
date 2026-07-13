@@ -21,8 +21,9 @@ class AptRepositoryBuilderTest(unittest.TestCase):
         self.assertIn("Architecture: arm64", control)
 
     def test_gpg_command_keeps_passphrase_out_of_process_arguments(self):
-        command = MODULE.gpg_command(Path("/tmp/unpdf-passphrase"))
+        passphrase_file = Path("unpdf-passphrase")
+        command = MODULE.gpg_command(passphrase_file)
         self.assertIn("--pinentry-mode", command)
         self.assertIn("--passphrase-file", command)
-        self.assertIn("/tmp/unpdf-passphrase", command)
+        self.assertIn(str(passphrase_file), command)
         self.assertNotIn("secret", command)
