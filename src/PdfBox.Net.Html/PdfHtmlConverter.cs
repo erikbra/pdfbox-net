@@ -6960,13 +6960,20 @@ public static class PdfHtmlConverter
             return;
         }
 
+        bool[] formulaLines = DisplayFormulaSourceLines(element.Lines);
+        if (!formulaLines.Any(static isFormula => isFormula))
+        {
+            formulaLines = element.Lines
+                .Select(static line => !IsProseLikeFormulaSourceLine(line))
+                .ToArray();
+        }
+
         int start = 0;
         while (start < element.Lines.Count)
         {
-            bool isFormula = !IsProseLikeFormulaSourceLine(element.Lines[start]);
+            bool isFormula = formulaLines[start];
             int end = start + 1;
-            while (end < element.Lines.Count &&
-                IsProseLikeFormulaSourceLine(element.Lines[end]) != isFormula)
+            while (end < element.Lines.Count && formulaLines[end] == isFormula)
             {
                 end++;
             }
@@ -7000,6 +7007,50 @@ public static class PdfHtmlConverter
 
             start = end;
         }
+    }
+
+    private static bool[] DisplayFormulaSourceLines(IReadOnlyList<PdfSemanticLine> lines)
+    {
+        bool[] formulaLines = lines.Select(IsDisplayFormulaLine).ToArray();
+        PdfSemanticLine[] displayLines = lines
+            .Where((_, index) => formulaLines[index])
+            .ToArray();
+        if (displayLines.Length == 0)
+        {
+            return formulaLines;
+        }
+
+        for (int index = 0; index < lines.Count; index++)
+        {
+            PdfSemanticLine line = lines[index];
+            if (!formulaLines[index] &&
+                IsFormulaContextLine(line) &&
+                displayLines.Any(display => AreFormulaLinesVerticallyAdjacent(line, display)))
+            {
+                formulaLines[index] = true;
+            }
+        }
+
+        return formulaLines;
+    }
+
+    private static bool IsFormulaContextLine(PdfSemanticLine line)
+    {
+        string text = line.Text.Trim();
+        return text.Length > 0 &&
+            !IsProseLikeFormulaSourceLine(line) &&
+            (TryGetTrailingEquationNumber(text, out _) ||
+                HasFormulaSignal(text) ||
+                HasOptimizationProgramSignal(text) ||
+                line.Runs.Any(static run => HasMathFont(run.FontName)));
+    }
+
+    private static bool AreFormulaLinesVerticallyAdjacent(PdfSemanticLine first, PdfSemanticLine second)
+    {
+        float tolerance = MathF.Max(
+            14f,
+            MathF.Max(first.DominantFontSize, second.DominantFontSize) * 1.5f);
+        return MathF.Abs(first.Bounds.Y - second.Bounds.Y) <= tolerance;
     }
 
     private static void WriteFormulaBlock(
@@ -7154,6 +7205,9 @@ public static class PdfHtmlConverter
     {
         HashSet<PdfTextRun> sourceRuns = FormulaSourceRuns(element)
             .ToHashSet((IEqualityComparer<PdfTextRun>)ReferenceEqualityComparer.Instance);
+        bool hasMathFontContext = page.Runs.Any(run =>
+            HasMathFont(run.FontName) &&
+            RectanglesIntersect(run.Bounds, bounds, 0.75f));
         return page.Runs
             .Where(static run => MathF.Abs(run.Direction) < 0.01f)
             .Where(run => run.Glyphs.Any(glyph =>
@@ -7161,7 +7215,9 @@ public static class PdfHtmlConverter
                 !IsClaimedFormulaGlyph(glyph, claimedFormulaGlyphs)))
             .Where(run => sourceRuns.Contains(run) ||
                 !IsRunOnProseLine(page, run) &&
-                (RectanglesIntersect(run.Bounds, bounds, 0.75f) && IsFormulaRunCandidate(run) ||
+                (RectanglesIntersect(run.Bounds, bounds, 0.75f) &&
+                        (IsFormulaRunCandidate(run) ||
+                            hasMathFontContext && IsCompactFormulaContextRun(run)) ||
                     IsFormulaAdjacentRun(page, bounds, run) ||
                     IsFormulaOperatorLimitRun(page, bounds, run)));
     }
@@ -7210,6 +7266,13 @@ public static class PdfHtmlConverter
             (HasMathFont(run.FontName) ||
                 HasFormulaFunction(text) ||
                 text.All(static character => character is '(' or ')' or ',' or '.' or '=' or '+' or '-' or '/' or ':' or ';'));
+    }
+
+    private static bool IsCompactFormulaContextRun(PdfTextRun run)
+    {
+        string text = run.Text.Trim();
+        return text.Length is > 0 and <= 3 &&
+            !text.Any(char.IsWhiteSpace);
     }
 
     private static bool IsRunOnProseLine(PdfLayoutPage page, PdfTextRun run)
@@ -7370,7 +7433,18 @@ public static class PdfHtmlConverter
         return text.Length >= 3 &&
             text[0] == '(' &&
             text[^1] == ')' &&
-            text[1..^1].All(static character => char.IsDigit(character));
+            text[1..^1].Any(char.IsDigit) &&
+            text[1..^1].All(static character => char.IsDigit(character) || character == '.') &&
+            text[1] != '.' &&
+            text[^2] != '.' &&
+            !text.Contains("..", StringComparison.Ordinal);
+    }
+
+    private static bool TryGetTrailingEquationNumber(string text, out string equationNumber)
+    {
+        int open = text.LastIndexOf("(", StringComparison.Ordinal);
+        equationNumber = open >= 0 ? text[open..].Trim() : "";
+        return IsEquationNumber(equationNumber);
     }
 
     private static PdfLayoutRectangle ExpandRectangle(PdfLayoutRectangle bounds, float horizontal, float vertical)
@@ -7803,7 +7877,7 @@ public static class PdfHtmlConverter
         foreach (PdfTextGlyph glyph in page.Glyphs)
         {
             if (string.IsNullOrEmpty(glyph.Text) ||
-                !HasMathFont(glyph.FontName) ||
+                !(HasMathFont(glyph.FontName) || IsCompactMathFont(glyph.FontName)) ||
                 IsExistingGlyph(protectedGlyphs, glyph) ||
                 !ShouldAttachInlineMathGlyph(line, lineGlyphs, glyph))
             {
@@ -8937,7 +9011,7 @@ public static class PdfHtmlConverter
     {
         return segment.Run != null &&
             segment.Role is InlineBaselineRole.Superscript or InlineBaselineRole.Subscript &&
-            HasMathFont(segment.Run.FontName) &&
+            (HasMathFont(segment.Run.FontName) || IsCompactMathFont(segment.Run.FontName)) &&
             segment.Text.All(static character => char.IsLetterOrDigit(character) || character == '=');
     }
 
@@ -9049,7 +9123,7 @@ public static class PdfHtmlConverter
             return;
         }
 
-        string className = InlineRunClassNames(line, segment.Run);
+        string className = InlineRunClassNames(line, segment.Run, segment.Role);
         WriteStyledInlineTextSegment(
             html,
             segment.Text,
@@ -9067,7 +9141,7 @@ public static class PdfHtmlConverter
         InlineTextSegment segment,
         InlineBaselineRole role)
     {
-        string className = segment.Run == null ? "" : InlineRunClassNames(line, segment.Run);
+        string className = segment.Run == null ? "" : InlineRunClassNames(line, segment.Run, role);
         WriteStyledInlineTextSegment(
             html,
             segment.Text,
@@ -9151,15 +9225,22 @@ public static class PdfHtmlConverter
             IsFootnoteReferenceBoundary(lineText, offset);
     }
 
-    private static string InlineRunClassNames(PdfSemanticLine line, PdfTextRun run)
+    private static string InlineRunClassNames(
+        PdfSemanticLine line,
+        PdfTextRun run,
+        InlineBaselineRole role)
     {
         List<string> classes = [];
         string normalizedFontName = NormalizeFontName(run.FontName);
         bool lineIsBold = IsBoldFont(line.DominantFontName);
         bool runIsBold = IsBoldFont(normalizedFontName);
+        bool runIsMath = HasMathFont(normalizedFontName) ||
+            role is InlineBaselineRole.Subscript or InlineBaselineRole.Superscript &&
+            IsCompactMathFont(normalizedFontName) &&
+            line.Runs.Any(static lineRun => HasMathFont(lineRun.FontName));
         float fontSize = MathF.Round(run.FontSize * 2f) / 2f;
         if (!string.Equals(normalizedFontName, line.DominantFontName, StringComparison.Ordinal) ||
-            HasMathFont(normalizedFontName) ||
+            runIsMath ||
             IsItalicFont(normalizedFontName) ||
             (runIsBold && !lineIsBold))
         {
@@ -9176,7 +9257,7 @@ public static class PdfHtmlConverter
             classes.Add(ColorClass(run.Color));
         }
 
-        if (HasMathFont(normalizedFontName))
+        if (runIsMath)
         {
             classes.Add("pdf-semantic-math");
         }
@@ -9810,30 +9891,39 @@ public static class PdfHtmlConverter
 
     private static bool IsDisplayFormulaLine(PdfSemanticLine line)
     {
-        if (!HasMathFont(line.DominantFontName) ||
-            !HasFormulaSignal(line.Text) ||
+        string text = line.Text.Trim();
+        if (!line.Runs.Any(static run => HasMathFont(run.FontName)) ||
+            !(HasFormulaSignal(text) ||
+                HasOptimizationProgramSignal(text) ||
+                TryGetTrailingEquationNumber(text, out _)) ||
             !line.Runs.SelectMany(static run => run.Glyphs).Any(PdfMathMlFormula.IsEligibleGlyph))
         {
             return false;
         }
 
-        if (HasFormulaFunction(line.Text))
+        if (HasFormulaFunction(text))
         {
-            return line.Text.IndexOf('=') >= 0 ||
+            return text.IndexOf('=') >= 0 ||
                 line.Bounds.Width >= 80f &&
-                (StartsFormulaFunction(line.Text) || CountWords(line.Text) <= 4);
+                (StartsFormulaFunction(text) || CountWords(text) <= 4);
         }
 
         return line.Bounds.X >= 150f &&
             line.Bounds.Width >= 80f &&
-            CountWords(line.Text) <= 4;
+            CountWords(text) <= 12;
     }
 
-    private static bool HasMathFont(string fontName)
+    internal static bool HasMathFont(string fontName)
     {
         string normalized = NormalizeFontName(fontName);
-        return normalized.StartsWith("CM", StringComparison.Ordinal) ||
-            normalized.Contains("MSBM", StringComparison.Ordinal);
+        return normalized.StartsWith("CMMI", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("CMSY", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("CMEX", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("CMBSY", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("MSAM", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("MSBM", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("AMSA", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("AMSB", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsCompactMathFont(string fontName)
@@ -9871,8 +9961,16 @@ public static class PdfHtmlConverter
 
     private static bool HasFormulaSignal(string text)
     {
-        return text.IndexOfAny(['=', '∈', '×', '√', '∑', '·']) >= 0 ||
+        return text.IndexOfAny(['=', '∈', '×', '√', '∑', '·', '∗', '≥', '≤']) >= 0 ||
             HasFormulaFunction(text);
+    }
+
+    private static bool HasOptimizationProgramSignal(string text)
+    {
+        string trimmed = text.TrimStart();
+        return trimmed.StartsWith("minimize ", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("maximize ", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("subject to ", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool HasFormulaFunction(string text)
