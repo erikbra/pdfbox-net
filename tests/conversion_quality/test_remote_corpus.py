@@ -71,6 +71,8 @@ class RemoteCorpusTest(unittest.TestCase):
         self.assertTrue(all(len(item.sha256) == 64 for item in documents))
         mount_rainier = next(item for item in documents if item.id == "nps-mount-rainier")
         self.assertEqual({"2": 1}, mount_rainier.expectations["minImagePlacementsByPage"])
+        nist = next(item for item in documents if item.id == "nist-sp800-171r3")
+        self.assertEqual(15, nist.quality_pages)
         self.assertEqual(
             {
                 "jmlr-lda": (

@@ -677,6 +677,62 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsWrappedBulletItemsAndPreservesInlineFormatting()
+    {
+        using PDDocument document = CreateTextDocument("""
+            BT
+            /F1 12 Tf
+            1 0 0 1 72 748 Tm
+            (Context line one keeps semantic flow active.) Tj
+            1 0 0 1 72 736 Tm
+            (Context line two establishes ordinary prose.) Tj
+            1 0 0 1 72 724 Tm
+            (Context line three completes the opening paragraph.) Tj
+            1 0 0 1 72 700 Tm
+            (The following perspectives apply:) Tj
+            1 0 0 1 72 684 Tm
+            (\225 ) Tj /F2 12 Tf (Federal perspective) Tj /F1 12 Tf (: first wrapped item) Tj
+            1 0 0 1 90 672 Tm
+            (continues on an indented visual line.) Tj
+            1 0 0 1 72 656 Tm
+            (\225 ) Tj /F2 12 Tf (Nonfederal perspective) Tj /F1 12 Tf (: second wrapped item) Tj
+            1 0 0 1 90 644 Tm
+            (also preserves its continuation text.) Tj
+            1 0 0 1 72 620 Tm
+            (Ordinary prose resumes after the list.) Tj
+            ET
+            """);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement[] semanticItems = semanticPage.Elements
+            .Where(element => element.Kind == PdfSemanticElementKind.Paragraph &&
+                element.Text.TrimStart().FirstOrDefault() is '\u0095' or '\u2022')
+            .ToArray();
+        Assert.True(
+            semanticItems.Length == 2,
+            string.Join(Environment.NewLine, semanticPage.Elements.Select(element =>
+                $"{element.Kind} ({element.Lines.Count} lines): {element.Text}")));
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement list = Assert.Single(dom.Descendants("ul"));
+        XElement[] items = list.Elements("li").ToArray();
+        Assert.Equal(2, items.Length);
+        Assert.Contains("first wrapped item continues on an indented visual line", items[0].Value, StringComparison.Ordinal);
+        Assert.Contains("second wrapped item also preserves its continuation text", items[1].Value, StringComparison.Ordinal);
+        Assert.Contains(items[0].Descendants(), element =>
+            HasClass(element, "pdf-semantic-italic") &&
+            element.Value == "Federal perspective");
+        Assert.Contains(dom.Descendants("p"), paragraph =>
+            paragraph.Value == "Ordinary prose resumes after the list.");
+    }
+
+    [Fact]
     public async Task Convert_SemanticContinuousFlow_RendersDetectedGridWithSourceGeometry()
     {
         using PDDocument document = Loader.LoadPDF(FixturePath("4PP-Highlighting.pdf"));
@@ -4585,17 +4641,22 @@ public class PdfHtmlConverterTest
 
     private static COSDictionary CreateDefaultResourcesDictionary()
     {
-        COSDictionary fontDictionary = new();
-        fontDictionary.SetItem(COSName.TYPE, COSName.GetPDFName("Font"));
-        fontDictionary.SetItem(COSName.GetPDFName("Subtype"), COSName.GetPDFName("Type1"));
-        fontDictionary.SetItem(COSName.GetPDFName("BaseFont"), COSName.GetPDFName("Helvetica"));
-
         COSDictionary fonts = new();
-        fonts.SetItem(COSName.GetPDFName("F1"), fontDictionary);
+        fonts.SetItem(COSName.GetPDFName("F1"), CreateType1FontDictionary("Helvetica"));
+        fonts.SetItem(COSName.GetPDFName("F2"), CreateType1FontDictionary("Helvetica-Oblique"));
 
         COSDictionary resources = new();
         resources.SetItem(COSName.GetPDFName("Font"), fonts);
         return resources;
+    }
+
+    private static COSDictionary CreateType1FontDictionary(string baseFont)
+    {
+        COSDictionary fontDictionary = new();
+        fontDictionary.SetItem(COSName.TYPE, COSName.GetPDFName("Font"));
+        fontDictionary.SetItem(COSName.GetPDFName("Subtype"), COSName.GetPDFName("Type1"));
+        fontDictionary.SetItem(COSName.GetPDFName("BaseFont"), COSName.GetPDFName(baseFont));
+        return fontDictionary;
     }
 
     private static void WriteLatin1(Stream stream, string value)

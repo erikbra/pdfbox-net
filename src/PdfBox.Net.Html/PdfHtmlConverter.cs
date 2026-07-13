@@ -4873,8 +4873,9 @@ public static class PdfHtmlConverter
     private static bool IsBulletListItem(PdfSemanticElement element)
     {
         return element.Kind == PdfSemanticElementKind.Paragraph &&
-            element.Lines.Count == 1 &&
-            ListMarkerLength(element.Lines[0].Text) > 0;
+            element.Lines.Count > 0 &&
+            ListMarkerLength(element.Lines[0].Text) > 0 &&
+            element.Lines.Skip(1).All(static line => ListMarkerLength(line.Text) == 0);
     }
 
     private static int ListMarkerLength(string text)
@@ -4926,7 +4927,7 @@ public static class PdfHtmlConverter
         while (index < elements.Count && IsBulletListItem(elements[index]))
         {
             PdfSemanticElement element = elements[index];
-            WriteSemanticListItem(html, element.Lines[0], element, footnotes, page);
+            WriteSemanticListItem(html, element, footnotes, page);
             index++;
         }
 
@@ -4946,6 +4947,42 @@ public static class PdfHtmlConverter
         string lineText = string.Concat(segments.Select(static segment => segment.Text));
         html.Append("        <li>");
         WriteInlineTextSegments(html, line, segments, lineText, footnotes);
+        html.AppendLine("</li>");
+    }
+
+    private static void WriteSemanticListItem(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        html.Append("        <li>");
+        string previousLineText = "";
+        bool wroteLine = false;
+        foreach (PdfSemanticLine line in element.Lines)
+        {
+            List<InlineTextSegment> segments = InlineTextSegments(line, page, element).ToList();
+            if (!wroteLine)
+            {
+                TrimListMarker(segments);
+            }
+
+            string lineText = string.Concat(segments.Select(static segment => segment.Text));
+            if (lineText.Length == 0)
+            {
+                continue;
+            }
+
+            if (wroteLine && NeedsSpaceBetween(previousLineText, lineText))
+            {
+                html.Append(' ');
+            }
+
+            WriteInlineTextSegments(html, line, segments, lineText, footnotes);
+            previousLineText = lineText;
+            wroteLine = true;
+        }
+
         html.AppendLine("</li>");
     }
 
@@ -7910,6 +7947,7 @@ public static class PdfHtmlConverter
         string normalized = NormalizeFontName(fontName);
         return normalized.Contains("Italic", StringComparison.OrdinalIgnoreCase) ||
             normalized.Contains("Ital", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Oblique", StringComparison.OrdinalIgnoreCase) ||
             normalized.StartsWith("CMMI", StringComparison.Ordinal);
     }
 

@@ -42,7 +42,7 @@ public static class PdfSemanticExtractor
         List<PdfSemanticElement> elements = [];
 
         LineCandidate[] headingLines = lines
-            .Where(line => IsHeading(line, page, bodyFontSize, options))
+            .Where(line => IsHeading(line, page, lines, bodyFontSize, lineStep, options))
             .ToArray();
         LineCandidate? titleCandidate = headingLines
             .Where(line => line.Bounds.Y < page.Height * 0.55f)
@@ -470,7 +470,9 @@ public static class PdfSemanticExtractor
     private static bool IsHeading(
         LineCandidate line,
         PdfLayoutPage page,
+        IReadOnlyList<LineCandidate> lines,
         float bodyFontSize,
+        float lineStep,
         PdfSemanticExtractionOptions options)
     {
         if (line.Bounds.Y < page.Height * 0.055f || line.Text.Length < 3)
@@ -488,6 +490,11 @@ public static class PdfSemanticExtractor
             return line.FontSize >= bodyFontSize + options.HeadingFontSizeDelta || line.IsBold;
         }
 
+        if (IsStandaloneBodySizeHeading(line, page, lines, bodyFontSize, lineStep))
+        {
+            return true;
+        }
+
         bool largerThanBody = line.FontSize >= bodyFontSize + options.HeadingFontSizeDelta;
         if (!largerThanBody)
         {
@@ -498,6 +505,51 @@ public static class PdfSemanticExtractor
         bool shortLine = line.Text.Length <= 80;
         bool hasHeadingFont = line.IsBold || line.FontSize >= bodyFontSize + 3f;
         return hasHeadingFont && (centered || shortLine || line.Bounds.Y < page.Height * 0.30f);
+    }
+
+    private static bool IsStandaloneBodySizeHeading(
+        LineCandidate line,
+        PdfLayoutPage page,
+        IReadOnlyList<LineCandidate> lines,
+        float bodyFontSize,
+        float lineStep)
+    {
+        string text = line.Text.Trim();
+        if (MathF.Abs(line.Direction) > 0.01f ||
+            line.FontSize < bodyFontSize - 0.75f ||
+            text.Length > 80 ||
+            CountWords(text) > 12 ||
+            text.EndsWith('.') ||
+            text.EndsWith('?') ||
+            text.EndsWith('!') ||
+            text.EndsWith(';') ||
+            line.Bounds.Width > page.Width * 0.65f ||
+            !IsUniformlyBold(line))
+        {
+            return false;
+        }
+
+        LineCandidate? previous = lines
+            .Where(candidate => candidate.Index != line.Index &&
+                candidate.Bounds.Bottom <= line.Bounds.Y + 0.5f)
+            .OrderByDescending(static candidate => candidate.Bounds.Bottom)
+            .FirstOrDefault();
+        if (previous == null)
+        {
+            return line.Bounds.Y < page.Height * 0.18f;
+        }
+
+        float gapBefore = line.Bounds.Y - previous.Bounds.Bottom;
+        return gapBefore >= MathF.Max(3f, lineStep * 0.65f);
+    }
+
+    private static bool IsUniformlyBold(LineCandidate line)
+    {
+        PdfTextRun[] substantiveRuns = line.Source.Runs
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .ToArray();
+        return substantiveRuns.Length > 0 &&
+            substantiveRuns.All(static run => IsBoldFontName(run.FontName));
     }
 
     private static int HeadingLevel(LineCandidate line, float bodyFontSize)
@@ -1081,6 +1133,13 @@ public static class PdfSemanticExtractor
                 }
 
                 continue;
+            }
+
+            if (current.Count > 0 && StartsWithBulletMarker(line.Text))
+            {
+                yield return CreateParagraph(current, consumed);
+                current.Clear();
+                previous = null;
             }
 
             bool currentFormulaBlock = current.Any(existing => IsDisplayFormulaLine(existing, bodyFontSize));
@@ -3017,6 +3076,19 @@ public static class PdfSemanticExtractor
         return trimmed.Length > 0 && char.IsUpper(trimmed[0]);
     }
 
+    private static bool StartsWithBulletMarker(string text)
+    {
+        string trimmed = text.TrimStart();
+        return trimmed.Length > 0 && trimmed[0] is '\u0095' or '\u2022' or '\u25e6' or '\u25aa' or '\u2219';
+    }
+
+    private static bool IsBoldFontName(string fontName)
+    {
+        return fontName.Contains("Bold", StringComparison.OrdinalIgnoreCase) ||
+            fontName.Contains("Medi", StringComparison.OrdinalIgnoreCase) ||
+            fontName.Contains("CMBX", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static string NormalizeFontName(string fontName)
     {
         int subsetSeparator = fontName.IndexOf('+', StringComparison.Ordinal);
@@ -3134,9 +3206,7 @@ public static class PdfSemanticExtractor
         public float CenterX => Bounds.X + Bounds.Width / 2f;
 
         public bool IsBold =>
-            FontName.Contains("Bold", StringComparison.OrdinalIgnoreCase) ||
-            FontName.Contains("Medi", StringComparison.OrdinalIgnoreCase) ||
-            FontName.Contains("CMBX", StringComparison.OrdinalIgnoreCase);
+            IsBoldFontName(FontName);
     }
 
     private sealed class AuthorSegment

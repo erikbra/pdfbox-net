@@ -231,7 +231,7 @@
         "figures",
         "links"
       ],
-      "qualityPages": 2,
+      "qualityPages": 15,
       "notes": "Long government publication with structured requirements, tables, figures, dense vectors, and extensive links.",
       "expectations": {
         "pageCount": 120,

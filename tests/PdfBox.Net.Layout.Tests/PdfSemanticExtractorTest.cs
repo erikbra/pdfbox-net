@@ -96,6 +96,53 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_BodySizeBoldStandaloneLine_WithSectionGapBecomesHeadingButInlineLeadInDoesNot()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateSemanticBoundaryFixture(includeBullets: false)).Pages);
+
+        PdfSemanticElement heading = Assert.Single(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading &&
+            element.Text == "Standalone Policy Label");
+        Assert.Equal(2, heading.HeadingLevel);
+
+        PdfSemanticElement inlineLeadIn = Assert.Single(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("Important:", StringComparison.Ordinal));
+        Assert.Contains("remains ordinary prose", inlineLeadIn.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading &&
+            element.Text.StartsWith("Important:", StringComparison.Ordinal));
+        Assert.DoesNotContain(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading &&
+            element.Text.StartsWith("All comments", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_BulletMarkerLines_StartAdjacentParagraphsAndKeepWrappedInlineFormatting()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
+            CreateSemanticBoundaryFixture(includeBullets: true)).Pages);
+
+        PdfSemanticElement[] items = page.Elements
+            .Where(element => element.Kind == PdfSemanticElementKind.Paragraph &&
+                element.Text.StartsWith("•", StringComparison.Ordinal))
+            .OrderBy(static element => element.Bounds.Y)
+            .ToArray();
+
+        Assert.Equal(2, items.Length);
+        Assert.Equal(2, items[0].Lines.Count);
+        Assert.Equal(2, items[1].Lines.Count);
+        Assert.Contains("first wrapped item continues", items[0].Text, StringComparison.Ordinal);
+        Assert.Contains(items[0].Lines.SelectMany(static line => line.Runs), run =>
+            run.FontName.Contains("Italic", StringComparison.OrdinalIgnoreCase) &&
+            run.Text.Contains("Federal perspective", StringComparison.Ordinal));
+        Assert.Contains(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text == "Ordinary prose resumes after the list.");
+    }
+
+    [Fact]
     public void Extract_ArxivFrontPage_GroupsTitleAuthorsAbstractFootnotesAndFooter()
     {
         PdfSemanticDocument semantic = ExtractArxivSemanticDocument();
@@ -428,6 +475,89 @@ public sealed class PdfSemanticExtractorTest
             [],
             []);
         return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutDocument CreateSemanticBoundaryFixture(bool includeBullets)
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateFixtureLine("Opening body text establishes the ordinary font and line geometry.", 72f, 72f, 410f),
+            CreateFixtureLine("A second body line completes the paragraph before the section boundary.", 72f, 84f, 410f),
+            CreateFixtureLine("Standalone Policy Label", 72f, 108f, 126f, 10f, "Times-Bold"),
+            CreateFixtureLine("The section body begins on the next ordinary line.", 72f, 120f, 330f),
+            CreateStyledFixtureLine(
+                72f,
+                156f,
+                ("Important: ", "Times-Bold"),
+                ("this shared visual line remains ordinary prose.", "Times-Roman")),
+            CreateFixtureLine("All comments remain subject to release.", 72f, 180f, 230f, 10f, "Times-Bold")
+        ];
+
+        if (includeBullets)
+        {
+            lines.Add(CreateFixtureLine("The following perspectives apply:", 72f, 216f, 240f));
+            lines.Add(CreateStyledFixtureLine(
+                72f,
+                232f,
+                ("• ", "Symbol"),
+                ("Federal perspective", "Times-Italic"),
+                (": the first wrapped item", "Times-Roman")));
+            lines.Add(CreateFixtureLine("continues on an indented visual line.", 90f, 244f, 250f));
+            lines.Add(CreateStyledFixtureLine(
+                72f,
+                260f,
+                ("• ", "Symbol"),
+                ("Nonfederal perspective", "Times-Italic"),
+                (": the second wrapped item", "Times-Roman")));
+            lines.Add(CreateFixtureLine("also preserves its continuation text.", 90f, 272f, 240f));
+            lines.Add(CreateFixtureLine("Ordinary prose resumes after the list.", 72f, 302f, 240f));
+        }
+
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfTextLine CreateStyledFixtureLine(
+        float x,
+        float y,
+        params (string Text, string FontName)[] segments)
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        List<PdfTextRun> runs = [];
+        float segmentX = x;
+        foreach ((string text, string fontName) in segments)
+        {
+            float width = MathF.Max(4f, text.Length * 5f);
+            PdfLayoutRectangle bounds = new(segmentX, y, width, fontSize * 0.75f);
+            PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
+            runs.Add(new PdfTextRun(text, fontName, fontSize, 0f, bounds, color, [glyph]));
+            segmentX += width;
+        }
+
+        return new PdfTextLine(
+            string.Concat(segments.Select(static segment => segment.Text)),
+            new PdfLayoutRectangle(x, y, segmentX - x, fontSize * 0.75f),
+            runs);
     }
 
     private static PdfTextLine CreateFixtureLine(
