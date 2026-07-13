@@ -341,19 +341,42 @@ public sealed class PdfSemanticExtractorTest
     [Fact]
     public void Extract_NumberedHeadingsEquationsDatesAndIsolatedNumbers_AreNotLists()
     {
-        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
+        PdfSemanticDocument document = PdfSemanticExtractor.Extract(CreateListFixture(
             CreateFixtureLine("1. Introduction", 72f, 120f, 120f, 13f, "Times-Bold"),
+            CreateFixtureLine("1.1. Purpose", 72f, 136f, 110f, 13f, "Times-Bold"),
             CreateFixtureLine("2. Methods", 72f, 152f, 100f, 13f, "Times-Bold"),
             CreateStyledFixtureLine(170f, 200f, ("(1) ", "CMR10"), ("E = mc2", "CMR10")),
             CreateStyledFixtureLine(170f, 216f, ("(2) ", "CMR10"), ("F = ma", "CMR10")),
             CreateFixtureLine("13. July 2026", 72f, 264f, 120f),
             CreateFixtureLine("14. August 2026", 72f, 280f, 130f),
             CreateFixtureLine("[1] A bracketed scientific citation remains prose.", 72f, 304f, 260f),
-            CreateFixtureLine("1. This isolated numbered paragraph is not a list.", 72f, 328f, 280f))).Pages);
+            CreateFixtureLine("1. This isolated numbered paragraph is not a list.", 72f, 328f, 280f)));
+        PdfSemanticPage page = Assert.Single(document.Pages);
 
         Assert.DoesNotContain(page.Elements, static element => element.Kind == PdfSemanticElementKind.List);
-        Assert.Contains(page.Elements, element =>
+        PdfSemanticElement introduction = Assert.Single(page.Elements, element =>
             element.Kind == PdfSemanticElementKind.Heading && element.Text.Contains("Introduction", StringComparison.Ordinal));
+        PdfSemanticElement purpose = Assert.Single(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading && element.Text.Contains("Purpose", StringComparison.Ordinal));
+        Assert.Equal(1, document.SectionTree.FindSection(introduction)?.Level);
+        Assert.Equal(2, document.SectionTree.FindSection(purpose)?.Level);
+    }
+
+    [Fact]
+    public void Extract_ProminentTopLineRemainsPageHeadingInsteadOfRunningHeader()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
+            CreateFixtureLine("Mission Objectives", 36f, 20f, 180f, 20f, "HelveticaNeueLTStd-Bd"),
+            CreateFixtureLine("Opening body text establishes the ordinary font size.", 72f, 80f, 300f),
+            CreateFixtureLine("A second body line establishes the normal text rhythm.", 72f, 94f, 300f),
+            CreateFixtureLine("A third body line completes the representative page.", 72f, 108f, 300f))).Pages);
+
+        PdfSemanticElement heading = Assert.Single(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading && element.Text == "Mission Objectives");
+        Assert.Equal(1, heading.HeadingLevel);
+        Assert.False(heading.IsDocumentTitle);
+        Assert.DoesNotContain(page.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Header && element.Text.Contains("Mission Objectives", StringComparison.Ordinal));
     }
 
     [Fact]

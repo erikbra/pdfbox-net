@@ -8,7 +8,7 @@ namespace PdfBox.Net.Layout;
 /// </summary>
 public static class PdfSemanticExtractor
 {
-    private static readonly Regex NumberedHeadingPattern = new(@"^\d{1,2}(?:\.\d+)*\s+\p{L}", RegexOptions.Compiled);
+    private static readonly Regex NumberedHeadingPattern = new(@"^(?<number>\d{1,2}(?:\.\d+)*)\s+\p{L}", RegexOptions.Compiled);
     private static readonly Regex EmailPattern = new(@"@", RegexOptions.Compiled);
     private static readonly Regex FootnoteMarkerPattern = new(@"^[*∗†‡]\s*$", RegexOptions.Compiled);
     private static readonly Regex SymbolFootnoteMarkerPattern = new(@"^[*∗†‡]\s*$", RegexOptions.Compiled);
@@ -80,6 +80,7 @@ public static class PdfSemanticExtractor
         {
             headerLines = lines
                 .Where(line => line.Bounds.Y < page.Height * 0.055f)
+                .Where(line => !headingLines.Contains(line) || line.FontSize < bodyFontSize + 5f)
                 .ToArray();
         }
 
@@ -160,7 +161,8 @@ public static class PdfSemanticExtractor
                     elements.Add(CreateElement(
                         PdfSemanticElementKind.Heading,
                         MergeSameBaselineLines(documentTitleLines, options),
-                        headingLevel: HeadingLevel(documentTitleLines[0], bodyFontSize)));
+                        headingLevel: HeadingLevel(documentTitleLines[0], bodyFontSize),
+                        isDocumentTitle: true));
                 }
 
                 continue;
@@ -568,9 +570,16 @@ public static class PdfSemanticExtractor
         float lineStep,
         PdfSemanticExtractionOptions options)
     {
-        if (line.Bounds.Y < page.Height * 0.055f || line.Text.Length < 3)
+        if (line.Text.Length < 3)
         {
             return false;
+        }
+
+        if (line.Bounds.Y < page.Height * 0.055f)
+        {
+            return MathF.Abs(line.Direction) < 0.01f &&
+                line.FontSize >= bodyFontSize + 5f &&
+                line.Text.Length <= 80;
         }
 
         if (IsStandaloneAbstractHeading(line.Text))
@@ -647,12 +656,19 @@ public static class PdfSemanticExtractor
 
     private static int HeadingLevel(LineCandidate line, float bodyFontSize)
     {
+        Match numberedHeading = NumberedHeadingPattern.Match(line.Text);
+        if (numberedHeading.Success)
+        {
+            int depth = numberedHeading.Groups["number"].Value.Count(static character => character == '.') + 1;
+            return Math.Clamp(depth, 1, 6);
+        }
+
         if (line.FontSize >= bodyFontSize + 5f)
         {
             return 1;
         }
 
-        return NumberedHeadingPattern.IsMatch(line.Text) ? 1 : 2;
+        return 2;
     }
 
     private static bool IsDocumentTitle(LineCandidate line, PdfLayoutPage page, float bodyFontSize)
@@ -4368,7 +4384,8 @@ public static class PdfSemanticExtractor
     private static PdfSemanticElement CreateElement(
         PdfSemanticElementKind kind,
         IReadOnlyList<LineCandidate> lines,
-        int headingLevel = 0)
+        int headingLevel = 0,
+        bool isDocumentTitle = false)
     {
         PdfSemanticLine[] semanticLines = lines.Select(static line => line.SemanticLine).ToArray();
         string text = kind == PdfSemanticElementKind.Paragraph || kind == PdfSemanticElementKind.Footnote
@@ -4379,7 +4396,8 @@ public static class PdfSemanticExtractor
             text,
             PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
             semanticLines,
-            headingLevel);
+            headingLevel,
+            isDocumentTitle: isDocumentTitle);
     }
 
     private static PdfSemanticLine CreateSyntheticLine(string text, IReadOnlyList<AuthorSegment> segments)

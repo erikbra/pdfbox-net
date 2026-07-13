@@ -1750,12 +1750,29 @@ public class PdfHtmlConverterTest
         Assert.Equal("page-2", pageBreaks[1].Attribute("id")?.Value);
         Assert.Equal("2", pageBreaks[1].Attribute("data-page-number")?.Value);
 
-        XElement[] articleChildren = article.Elements().ToArray();
-        int pageTwoBreakIndex = Array.IndexOf(articleChildren, pageBreaks[1]);
-        int introductionIndex = Array.FindIndex(articleChildren, element =>
+        XElement[] articleContent = article.Descendants().ToArray();
+        int pageTwoBreakIndex = Array.IndexOf(articleContent, pageBreaks[1]);
+        int introductionIndex = Array.FindIndex(articleContent, element =>
             element.Name.LocalName == "h1" &&
             element.Value == "1 Introduction");
         Assert.True(pageTwoBreakIndex >= 0 && introductionIndex > pageTwoBreakIndex);
+
+        XElement introductionSection = Assert.Single(article.Descendants("section"), element =>
+            element.Attribute("id")?.Value == "section-1-introduction");
+        XElement backgroundSection = Assert.Single(article.Descendants("section"), element =>
+            element.Attribute("id")?.Value == "section-2-background");
+        XElement architectureSection = Assert.Single(article.Descendants("section"), element =>
+            element.Attribute("id")?.Value == "section-3-model-architecture");
+        Assert.Same(article, introductionSection.Parent);
+        Assert.Same(article, backgroundSection.Parent);
+        Assert.Same(article, architectureSection.Parent);
+        Assert.Equal("heading-1-introduction", introductionSection.Attribute("aria-labelledby")?.Value);
+        Assert.Equal("heading-1-introduction", introductionSection.Element("h1")?.Attribute("id")?.Value);
+        Assert.Contains(pageBreaks[1].Ancestors(), ancestor => ReferenceEquals(ancestor, introductionSection));
+        XElement encoderSection = Assert.Single(architectureSection.Descendants("section"), element =>
+            element.Attribute("id")?.Value == "section-3-1-encoder-and-decoder-stacks");
+        Assert.Same(architectureSection, encoderSection.Parent);
+        Assert.Equal("h2", encoderSection.Elements().First().Name.LocalName);
 
         XElement abstractHeading = Assert.Single(article.Descendants("h2"), element => element.Value == "Abstract");
         Assert.Contains("pdf-semantic-align-center", abstractHeading.Attribute("class")?.Value);
@@ -1799,6 +1816,35 @@ public class PdfHtmlConverterTest
         Assert.Contains(clipPath.Descendants(), element =>
             element.Name.LocalName == "path" &&
             element.Attribute("d")?.Value.Contains("204", StringComparison.Ordinal) == true);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_KeepsPageBreakInsideContinuingSection()
+    {
+        using PDDocument document = CreateContinuingSectionDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfSemanticDocument semantic = PdfSemanticExtractor.Extract(layout);
+        PdfSemanticElement extractedHeading = Assert.Single(semantic.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Heading);
+        Assert.Equal(1, extractedHeading.HeadingLevel);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement article = Assert.Single(ElementsByClass(dom, "pdf-semantic-continuous-flow"));
+        XElement section = Assert.Single(ElementsByClass(dom, "pdf-semantic-section"));
+        XElement heading = Assert.Single(section.Elements("h1"));
+        XElement pageTwoBreak = Assert.Single(ElementsByClass(dom, "pdf-semantic-page-break"), element =>
+            element.Attribute("data-page-number")?.Value == "2");
+        Assert.Same(article, section.Parent);
+        Assert.Equal("section-1-continuing-section", section.Attribute("id")?.Value);
+        Assert.Equal("heading-1-continuing-section", heading.Attribute("id")?.Value);
+        Assert.Contains(pageTwoBreak.Ancestors(), ancestor => ReferenceEquals(ancestor, section));
+        Assert.Contains("Second-page content", section.Value, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -4569,6 +4615,34 @@ public class PdfHtmlConverterTest
         COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
         pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
         pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream(contentStream));
+        return document;
+    }
+
+    private static PDDocument CreateContinuingSectionDocument()
+    {
+        PDDocument document = new();
+        string[] pageContent =
+        [
+            """
+            BT /F1 14 Tf 72 735 Td (1 Continuing Section) Tj ET
+            BT /F1 10 Tf 72 700 Td (First-page content ends here.) Tj ET
+            BT /F1 10 Tf 72 684 Td (The section has enough body text for inference.) Tj ET
+            BT /F1 10 Tf 72 668 Td (This final sentence also ends on page one.) Tj ET
+            """,
+            """
+            BT /F1 10 Tf 72 735 Td (Second-page content remains in the section.) Tj ET
+            BT /F1 10 Tf 72 719 Td (Another complete line prevents sparse fallback.) Tj ET
+            """
+        ];
+        foreach (string content in pageContent)
+        {
+            PDPage page = new();
+            document.AddPage(page);
+            COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
+            pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
+            pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream(content));
+        }
+
         return document;
     }
 

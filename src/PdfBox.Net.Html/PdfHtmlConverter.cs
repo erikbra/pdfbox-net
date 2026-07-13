@@ -297,7 +297,12 @@ public static class PdfHtmlConverter
           width: min(396pt, 100%);
         }
 
-        .pdf-semantic-flow > * + * {
+        .pdf-semantic-section {
+          display: contents;
+        }
+
+        .pdf-semantic-flow > * + *,
+        .pdf-semantic-section > * + * {
           margin-top: 0;
         }
 
@@ -343,7 +348,7 @@ public static class PdfHtmlConverter
           margin-right: 0;
         }
 
-        .pdf-semantic-continuous-flow > .pdf-semantic-page-break:not(.pdf-semantic-page-start),
+        .pdf-semantic-continuous-flow .pdf-semantic-page-break:not(.pdf-semantic-page-start),
         .pdf-semantic-continuous-flow .pdf-semantic-inline-page-break {
           background:
             radial-gradient(ellipse at right top, var(--pdf-page-edge-shadow), rgba(17, 24, 39, 0) 70%) left top / calc(var(--pdf-page-shadow-mask) + var(--pdf-page-corner-shadow)) 4pt no-repeat,
@@ -910,7 +915,8 @@ public static class PdfHtmlConverter
           line-height: 1.1;
         }
 
-        .pdf-semantic-flow > footer.pdf-semantic-footer {
+        .pdf-semantic-flow > footer.pdf-semantic-footer,
+        .pdf-semantic-section footer.pdf-semantic-footer {
           margin-top: auto;
           padding-top: 16pt;
         }
@@ -1014,6 +1020,7 @@ public static class PdfHtmlConverter
                     imageAssets,
                     options.Scale,
                     semantic?.Pages[index],
+                    semantic?.SectionTree,
                     options.TextMode);
             }
         }
@@ -1185,6 +1192,7 @@ public static class PdfHtmlConverter
         IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
         float scale,
         PdfSemanticPage? semanticPage,
+        PdfSemanticSectionTree? sectionTree,
         PdfHtmlTextMode textMode,
         string? additionalClass = null,
         PdfSemanticExtractionOptions? inferredTextOptions = null)
@@ -1269,7 +1277,7 @@ public static class PdfHtmlConverter
 
         if (textMode == PdfHtmlTextMode.Semantic && semanticPage != null)
         {
-            WriteSemanticPage(html, page, semanticPage, scale);
+            WriteSemanticPage(html, page, semanticPage, sectionTree!, scale);
         }
         else
         {
@@ -2711,6 +2719,7 @@ public static class PdfHtmlConverter
         StringBuilder html,
         PdfLayoutPage page,
         PdfSemanticPage semanticPage,
+        PdfSemanticSectionTree sectionTree,
         float scale)
     {
         FootnoteContext footnotes = FootnoteContext.Create(page.PageNumber, semanticPage.Elements);
@@ -2721,7 +2730,14 @@ public static class PdfHtmlConverter
             .ToArray();
         foreach (PdfSemanticElement element in positioned)
         {
-            WritePositionedSemanticElement(html, page, element, footnotes, scale);
+            WritePositionedSemanticElement(
+                html,
+                page,
+                element,
+                footnotes,
+                scale,
+                sectionTree.FindHeading(element)?.Id,
+                sectionTree.FindSection(element)?.Level);
         }
 
         HashSet<PdfSemanticElement> positionedSet = positioned.ToHashSet();
@@ -2729,6 +2745,7 @@ public static class PdfHtmlConverter
             .Where(element => !positionedSet.Contains(element))
             .ToArray();
         html.AppendLine("    <article class=\"pdf-semantic-flow\">");
+        SemanticSectionWriter sectionWriter = new(html, sectionTree);
         WriteSemanticFlowElements(
             html,
             page,
@@ -2741,7 +2758,9 @@ public static class PdfHtmlConverter
             omitSimplePageNumberFooters: false,
             skippedElements: null,
             skippedFigureRegions: null,
-            paragraphMerge: null);
+            paragraphMerge: null,
+            sectionWriter);
+        sectionWriter.CloseAll();
         html.AppendLine("    </article>");
     }
 
@@ -2812,6 +2831,7 @@ public static class PdfHtmlConverter
 
         html.AppendLine("  <main class=\"pdf-semantic-document-flow\">");
         bool flowOpen = false;
+        SemanticSectionWriter? sectionWriter = null;
 
         for (int index = 0; index < pages.Length; index++)
         {
@@ -2822,6 +2842,7 @@ public static class PdfHtmlConverter
                 {
                     html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
                     flowOpen = true;
+                    sectionWriter = new SemanticSectionWriter(html, semantic.SectionTree);
                 }
 
                 if (!inlinePageBreaks.Contains(context.Page.PageNumber))
@@ -2840,6 +2861,7 @@ public static class PdfHtmlConverter
                 {
                     html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
                     flowOpen = true;
+                    sectionWriter = new SemanticSectionWriter(html, semantic.SectionTree);
                 }
 
                 if (!inlinePageBreaks.Contains(context.Page.PageNumber))
@@ -2856,8 +2878,10 @@ public static class PdfHtmlConverter
             {
                 if (flowOpen)
                 {
+                    sectionWriter!.CloseAll();
                     html.AppendLine("    </article>");
                     flowOpen = false;
+                    sectionWriter = null;
                 }
 
                 WritePage(
@@ -2866,7 +2890,8 @@ public static class PdfHtmlConverter
                     imageAssets,
                     scale,
                     semanticPage: null,
-                    PdfHtmlTextMode.FixedLayout,
+                    sectionTree: null,
+                    textMode: PdfHtmlTextMode.FixedLayout,
                     additionalClass: "pdf-semantic-layout-fallback-page",
                     inferredTextOptions: semanticOptions);
                 PdfSemanticElement? documentIndexElement = SemanticDocumentIndexElement(context.SemanticPage);
@@ -2886,6 +2911,17 @@ public static class PdfHtmlConverter
             {
                 html.AppendLine("    <article class=\"pdf-semantic-flow pdf-semantic-continuous-flow\">");
                 flowOpen = true;
+                sectionWriter = new SemanticSectionWriter(html, semantic.SectionTree);
+            }
+
+            bool isCoverPage = IsCoverPage(context.Page, context.SemanticPage);
+            PdfSemanticElement? pageOpeningSectionHeading = isCoverPage
+                ? context.SemanticPage.Elements.FirstOrDefault(element =>
+                    IsTitleElement(element) && semantic.SectionTree.FindSection(element) != null)
+                : FindPageOpeningSectionHeading(context.FlowElements, semantic.SectionTree);
+            if (pageOpeningSectionHeading != null)
+            {
+                sectionWriter!.BeginElement(pageOpeningSectionHeading);
             }
 
             if (!inlinePageBreaks.Contains(context.Page.PageNumber))
@@ -2893,7 +2929,7 @@ public static class PdfHtmlConverter
                 WriteSemanticPageBreak(html, context.Page.PageNumber, isFirstPage: index == 0);
             }
 
-            if (IsCoverPage(context.Page, context.SemanticPage))
+            if (isCoverPage)
             {
                 WriteSemanticCoverRegion(
                     html,
@@ -2901,7 +2937,8 @@ public static class PdfHtmlConverter
                     context.SemanticPage,
                     context.Footnotes,
                     imageAssets,
-                    scale);
+                    scale,
+                    semantic.SectionTree);
                 continue;
             }
 
@@ -2911,7 +2948,8 @@ public static class PdfHtmlConverter
                 context.PositionedElements,
                 context.Footnotes,
                 context.FigureRegions,
-                scale);
+                scale,
+                semantic.SectionTree);
             skippedFigureRegionsByPage.TryGetValue(context.Page.PageNumber, out HashSet<PdfLayoutRectangle>? skippedFigureRegions);
             WriteSemanticFlowElements(
                 html,
@@ -2925,12 +2963,14 @@ public static class PdfHtmlConverter
                 omitSimplePageNumberFooters: false,
                 skippedElements,
                 skippedFigureRegions,
-                paragraphMerges.GetValueOrDefault(index));
+                paragraphMerges.GetValueOrDefault(index),
+                sectionWriter);
             WriteFormControls(html, context.Page, scale, positioned: false);
         }
 
         if (flowOpen)
         {
+            sectionWriter!.CloseAll();
             html.AppendLine("    </article>");
         }
 
@@ -2943,7 +2983,8 @@ public static class PdfHtmlConverter
         PdfSemanticPage semanticPage,
         FootnoteContext footnotes,
         IReadOnlyDictionary<string, PdfLayoutImageAsset> imageAssets,
-        float scale)
+        float scale,
+        PdfSemanticSectionTree sectionTree)
     {
         html.Append("      <section class=\"pdf-semantic-cover-region\" aria-label=\"Cover page\" style=\"--pdf-semantic-cover-width:")
             .Append(CssPoints(page.Width * scale))
@@ -2984,7 +3025,14 @@ public static class PdfHtmlConverter
         html.AppendLine("        </div>");
         foreach (PdfSemanticElement element in semanticPage.Elements)
         {
-            WriteCoverSemanticElement(html, page, element, footnotes, scale);
+            WriteCoverSemanticElement(
+                html,
+                page,
+                element,
+                footnotes,
+                scale,
+                sectionTree.FindHeading(element)?.Id,
+                sectionTree.FindSection(element)?.Level);
         }
 
         html.AppendLine("      </section>");
@@ -2995,14 +3043,22 @@ public static class PdfHtmlConverter
         PdfLayoutPage page,
         PdfSemanticElement element,
         FootnoteContext footnotes,
-        float scale)
+        float scale,
+        string? elementId,
+        int? headingLevel)
     {
-        string tagName = SemanticTagName(element);
+        string tagName = SemanticTagName(element, headingLevel);
         html.Append("        <")
             .Append(tagName)
             .Append(" class=\"")
             .Append(SemanticClassNames(element, page, allowMeasuredWidth: false, allowCoverPositioning: false))
-            .Append(" pdf-semantic-cover-region-element\" style=\"top:")
+            .Append(" pdf-semantic-cover-region-element\"");
+        if (!string.IsNullOrEmpty(elementId))
+        {
+            html.Append(" id=\"").Append(HtmlAttribute(elementId)).Append('"');
+        }
+
+        html.Append(" style=\"top:")
             .Append(CssPoints(element.Bounds.Y * scale))
             .Append(';')
             .Append(CoverElementHorizontalStyle(page, element, scale));
@@ -4750,13 +4806,31 @@ public static class PdfHtmlConverter
             .AppendLine("\"></div>");
     }
 
+    private static PdfSemanticElement? FindPageOpeningSectionHeading(
+        IReadOnlyList<PdfSemanticElement> flowElements,
+        PdfSemanticSectionTree sectionTree)
+    {
+        foreach (PdfSemanticElement element in flowElements)
+        {
+            if (element.Kind is PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
+            {
+                continue;
+            }
+
+            return sectionTree.FindSection(element) != null ? element : null;
+        }
+
+        return null;
+    }
+
     private static void WriteContinuousPageArtifacts(
         StringBuilder html,
         PdfLayoutPage page,
         IReadOnlyList<PdfSemanticElement> elements,
         FootnoteContext footnotes,
         IReadOnlyList<PdfLayoutRectangle> figureRegions,
-        float scale)
+        float scale,
+        PdfSemanticSectionTree sectionTree)
     {
         if (elements.Count == 0)
         {
@@ -4771,7 +4845,14 @@ public static class PdfHtmlConverter
             .Where(element => !IsFigureLabelFlowElement(element, figureRegions))
             .Where(element => IsContinuousPositionedPageArtifact(page, element)))
         {
-            WritePositionedSemanticElement(html, page, element, footnotes, scale);
+            WritePositionedSemanticElement(
+                html,
+                page,
+                element,
+                footnotes,
+                scale,
+                sectionTree.FindHeading(element)?.Id,
+                sectionTree.FindSection(element)?.Level);
         }
 
         if (flowArtifacts.Length == 0)
@@ -4822,7 +4903,8 @@ public static class PdfHtmlConverter
         bool omitSimplePageNumberFooters,
         ISet<PdfSemanticElement>? skippedElements,
         ISet<PdfLayoutRectangle>? skippedFigureRegions,
-        ContinuousParagraphMerge? paragraphMerge)
+        ContinuousParagraphMerge? paragraphMerge,
+        SemanticSectionWriter? sectionWriter)
     {
         PdfLayoutRectangle[] figureRegions = figureRendering == SemanticFigureRendering.None
             ? []
@@ -4870,6 +4952,9 @@ public static class PdfHtmlConverter
                 nextFigureRegion++;
             }
 
+            string? elementId = sectionWriter?.BeginElement(element);
+            int? headingLevel = sectionWriter?.SectionLevelFor(element);
+
             if (paragraphMerge?.StartElement == element)
             {
                 WriteMergedParagraph(
@@ -4903,7 +4988,9 @@ public static class PdfHtmlConverter
                 element,
                 footnotes,
                 page,
-                allowMeasuredWidth: IsMeasuredWidthCandidate(flowElements, index));
+                allowMeasuredWidth: IsMeasuredWidthCandidate(flowElements, index),
+                elementId: elementId,
+                headingLevel: headingLevel);
         }
 
         while (nextFigureRegion < figureRegions.Length)
@@ -5281,7 +5368,11 @@ public static class PdfHtmlConverter
         if (title == null ||
             title.Bounds.Y >= page.Height * 0.45f ||
             page.Lines.Count > 18 ||
-            semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Table))
+            semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Table) ||
+            semanticPage.Elements.Any(element =>
+                element.Kind == PdfSemanticElementKind.Heading &&
+                element != title &&
+                char.IsDigit(element.Text.TrimStart().FirstOrDefault())))
         {
             return false;
         }
@@ -5819,7 +5910,9 @@ public static class PdfHtmlConverter
         PdfSemanticElement element,
         FootnoteContext footnotes,
         PdfLayoutPage? page = null,
-        bool allowMeasuredWidth = true)
+        bool allowMeasuredWidth = true,
+        string? elementId = null,
+        int? headingLevel = null)
     {
         if (element.Kind == PdfSemanticElementKind.Table && element.TableRows.Count > 0)
         {
@@ -5850,12 +5943,17 @@ public static class PdfHtmlConverter
             return;
         }
 
-        string tagName = SemanticTagName(element);
+        string tagName = SemanticTagName(element, headingLevel);
         html.Append("      <")
             .Append(tagName)
             .Append(" class=\"")
             .Append(SemanticClassNames(element, page, allowMeasuredWidth))
             .Append('"');
+        if (!string.IsNullOrEmpty(elementId))
+        {
+            html.Append(" id=\"").Append(HtmlAttribute(elementId)).Append('"');
+        }
+
         AppendTextDirectionAttribute(html, element.Text);
         string style = FlowSemanticStyle(element, page, allowMeasuredWidth);
         if (style.Length > 0)
@@ -6640,15 +6738,22 @@ public static class PdfHtmlConverter
         PdfLayoutPage page,
         PdfSemanticElement element,
         FootnoteContext footnotes,
-        float scale)
+        float scale,
+        string? elementId = null,
+        int? headingLevel = null)
     {
-        string tagName = SemanticTagName(element);
+        string tagName = SemanticTagName(element, headingLevel);
         html.Append("    <")
             .Append(tagName)
             .Append(" class=\"")
             .Append(SemanticClassNames(element))
             .Append(" pdf-semantic-positioned pdf-semantic-vertical")
             .Append('"');
+        if (!string.IsNullOrEmpty(elementId))
+        {
+            html.Append(" id=\"").Append(HtmlAttribute(elementId)).Append('"');
+        }
+
         AppendTextDirectionAttribute(html, element.Text);
         html.Append(" style=\"")
             .Append(PositionStyle(page, element, scale))
@@ -8503,7 +8608,7 @@ public static class PdfHtmlConverter
         html.Append(Html(plainBody));
     }
 
-    private static string SemanticTagName(PdfSemanticElement element)
+    private static string SemanticTagName(PdfSemanticElement element, int? headingLevel = null)
     {
         if (IsFigureCaption(element))
         {
@@ -8512,7 +8617,10 @@ public static class PdfHtmlConverter
 
         return element.Kind switch
         {
-            PdfSemanticElementKind.Heading => "h" + Math.Clamp(element.HeadingLevel, 1, 6).ToString(CultureInfo.InvariantCulture),
+            PdfSemanticElementKind.Heading => "h" + Math.Clamp(
+                headingLevel ?? element.HeadingLevel,
+                1,
+                6).ToString(CultureInfo.InvariantCulture),
             PdfSemanticElementKind.Paragraph => "p",
             PdfSemanticElementKind.AuthorBlock => "address",
             PdfSemanticElementKind.Footnote => "p",
@@ -9828,6 +9936,73 @@ public static class PdfHtmlConverter
         PdfTextRun? Run,
         InlineBaselineRole Role,
         PdfLayoutLink? Link = null);
+
+    private sealed class SemanticSectionWriter
+    {
+        private readonly StringBuilder _html;
+        private readonly PdfSemanticSectionTree _tree;
+        private readonly List<PdfSemanticSection> _openSections = [];
+
+        public SemanticSectionWriter(StringBuilder html, PdfSemanticSectionTree tree)
+        {
+            _html = html;
+            _tree = tree;
+        }
+
+        public string? BeginElement(PdfSemanticElement element)
+        {
+            PdfSemanticHeading? heading = _tree.FindHeading(element);
+            if (heading == null)
+            {
+                return null;
+            }
+
+            PdfSemanticSection? section = _tree.FindSection(element);
+            if (section == null)
+            {
+                return heading.Id;
+            }
+
+            if (_openSections.Count > 0 && _openSections[^1] == section)
+            {
+                return heading.Id;
+            }
+
+            while (_openSections.Count > 0 && _openSections[^1] != section.Parent)
+            {
+                CloseLast();
+            }
+
+            _html.Append("      <section class=\"pdf-semantic-section pdf-semantic-section-level-")
+                .Append(section.Level.ToString(CultureInfo.InvariantCulture))
+                .Append("\" id=\"")
+                .Append(HtmlAttribute(section.Id))
+                .Append("\" aria-labelledby=\"")
+                .Append(HtmlAttribute(heading.Id))
+                .AppendLine("\">");
+            _openSections.Add(section);
+            return heading.Id;
+        }
+
+        public int? SectionLevelFor(PdfSemanticElement element)
+        {
+            return _tree.FindSection(element)?.Level;
+        }
+
+        public void CloseAll()
+        {
+            while (_openSections.Count > 0)
+            {
+                CloseLast();
+            }
+        }
+
+        private void CloseLast()
+        {
+            _html.AppendLine("      </section>");
+            _openSections.RemoveAt(_openSections.Count - 1);
+        }
+    }
 
     private sealed class ContinuousPageContext
     {
