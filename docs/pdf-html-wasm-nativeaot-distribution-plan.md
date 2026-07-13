@@ -252,10 +252,12 @@ official Debian archive submission is a separate, longer-term process. See the
 
 Tracked by [#789](https://github.com/erikbra/pdfbox-net/issues/789).
 
-After the first three channels work, compare Scoop, Chocolatey, Snap, AUR,
-container images, and a direct installer. Prefer channels that consume the same
-release archives and can be updated automatically without multiplying signing
-or support obligations.
+The completed [secondary-channel comparison](unpdf-secondary-distribution-channels.md)
+selects Scoop as the next low-maintenance channel after stable Windows
+Authenticode signing is available. Chocolatey, Snap, AUR, containers, and a
+direct installer are deferred because they currently add more moderation,
+payload, or support cost than audience value. Checksummed release archives
+remain the package-manager-independent fallback.
 
 ## Delivery Order
 
