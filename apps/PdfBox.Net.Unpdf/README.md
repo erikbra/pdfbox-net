@@ -69,3 +69,6 @@ not support general cross-OS compilation, so the release matrix must use native
 Linux, Windows, and macOS runners. `osx-arm64` and `osx-x64` have been verified
 locally; `linux-x64` is enforced in CI. Linux ARM64 and Windows x64 are release
 matrix targets pending their native hosted-runner gates.
+
+Cross-platform archives, checksums, SBOMs, provenance, and signing policy are
+documented in [`docs/unpdf-release-process.md`](../../docs/unpdf-release-process.md).
