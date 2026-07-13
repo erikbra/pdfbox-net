@@ -20,5 +20,6 @@ public enum PdfSemanticElementKind
     DefinitionList,
     BlockQuote,
     Aside,
-    CodeBlock
+    CodeBlock,
+    ThematicBreak
 }

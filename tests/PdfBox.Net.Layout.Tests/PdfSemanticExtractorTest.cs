@@ -326,6 +326,181 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_StandaloneHorizontalRuleBetweenFlowRegions_BecomesThematicBreak()
+    {
+        PdfLayoutColor color = new(0.2f, 0.4f, 0.6f, 1f, "DeviceRGB");
+        PdfLayoutPath rule = CreateRulePath(7, 180f, 172f, 432f, 172f, 2.25f, color);
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes the ordinary page measure and rhythm.", 72f, 72f, 420f),
+            CreateFixtureLine("A second line completes the introductory flow region.", 72f, 84f, 350f),
+            CreateFixtureLine("The first discussion region occupies its own natural-flow block.", 72f, 118f, 410f),
+            CreateFixtureLine("Its continuation closes before the visual transition.", 72f, 130f, 330f),
+            CreateFixtureLine("A distinct discussion region begins after the visual transition.", 72f, 214f, 410f),
+            CreateFixtureLine("The following line confirms ordinary content has resumed.", 72f, 226f, 360f)
+        ],
+        [rule]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement thematicBreak = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.ThematicBreak);
+
+        Assert.Equal(7, thematicBreak.ThematicBreak!.SourcePathIndex);
+        Assert.Equal(2.25f, thematicBreak.ThematicBreak.Thickness);
+        Assert.Equal(color, thematicBreak.ThematicBreak.Color);
+        Assert.Equal(PdfSemanticThematicBreakAlignment.Center, thematicBreak.ThematicBreak.Alignment);
+        Assert.Equal(252f, thematicBreak.Bounds.Width);
+        int breakIndex = Array.IndexOf(page.Elements.ToArray(), thematicBreak);
+        Assert.True(breakIndex > 0 && breakIndex < page.Elements.Count - 1);
+        Assert.True(page.Elements[breakIndex - 1].Bounds.Bottom < thematicBreak.Bounds.Y);
+        Assert.True(thematicBreak.Bounds.Bottom < page.Elements[breakIndex + 1].Bounds.Y);
+    }
+
+    [Fact]
+    public void Extract_HorizontalRuleBesideConcurrentColumnFlow_RemainsSourceVector()
+    {
+        List<PdfTextLine> lines = [];
+        for (int index = 0; index < 12; index++)
+        {
+            float leftY = index < 6 ? 72f + index * 12f : 220f + (index - 6) * 12f;
+            float rightY = 72f + index * 12f;
+            lines.Add(CreateFixtureLine($"Left column flow line {index + 1}", 72f, leftY, 210f));
+            lines.Add(CreateFixtureLine($"Right column flow line {index + 1}", 330f, rightY, 210f));
+        }
+
+        PdfLayoutPath sourceRule = CreateRulePath(11, 72f, 176f, 290f, 176f);
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(lines, [sourceRule]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.Contains(layout.Pages[0].Runs, run =>
+            run.Bounds.X >= 330f &&
+            run.Bounds.Y > 140f &&
+            run.Bounds.Bottom < 220f);
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.ThematicBreak);
+        Assert.Contains(sourceRule, layout.Pages[0].Paths);
+    }
+
+    [Fact]
+    public void Extract_DocumentTitleRule_RemainsOwnedByTitle()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("A Geometric Study of Reliable Documents", 150f, 90f, 312f, 22f, "Times-Bold"),
+            CreateFixtureLine("Ada Lovelace and Emmy Noether", 198f, 154f, 216f),
+            CreateFixtureLine("Ordinary body prose begins below the title composition.", 72f, 198f, 360f),
+            CreateFixtureLine("A second body line establishes normal reading flow.", 72f, 210f, 340f)
+        ],
+        [CreateRulePath(0, 126f, 132f, 486f, 132f, 1.5f)]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Heading && element.IsDocumentTitle);
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.ThematicBreak);
+    }
+
+    [Fact]
+    public void Extract_FootnoteSeparator_RemainsOwnedByFootnotes()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes ordinary page content.", 72f, 72f, 330f),
+            CreateFixtureLine("A second line establishes the normal line rhythm.", 72f, 84f, 320f),
+            CreateFixtureLine("The final body region closes before the source notes.", 72f, 530f, 340f),
+            CreateFixtureLine("*", 72f, 620f, 5f, 8f, "Symbol"),
+            CreateFixtureLine("A source note remains below its short separator.", 86f, 620f, 290f, 8f)
+        ],
+        [CreateRulePath(0, 72f, 596f, 216f, 596f)]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.Contains(page.Elements, static element => element.Kind == PdfSemanticElementKind.Footnote);
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.ThematicBreak);
+    }
+
+    [Fact]
+    public void Extract_FormBoxRule_RemainsOwnedByFormControl()
+    {
+        PdfLayoutRectangle controlBounds = new(180f, 166f, 252f, 24f);
+        PdfLayoutFormControl control = new(
+            0,
+            "field",
+            "Field",
+            PdfLayoutFormControlKind.Text,
+            controlBounds);
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes ordinary page content.", 72f, 120f, 350f),
+            CreateFixtureLine("The first flow region closes above the control.", 72f, 132f, 320f),
+            CreateFixtureLine("A later flow region resumes below the control.", 72f, 224f, 330f),
+            CreateFixtureLine("Its continuation confirms the ordinary reading order.", 72f, 236f, 350f)
+        ],
+        [CreateRulePath(0, controlBounds.X, controlBounds.Y, controlBounds.Right, controlBounds.Y)],
+        formControls: [control]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.ThematicBreak);
+    }
+
+    [Fact]
+    public void Extract_FigureRule_RemainsOwnedByFigureRegion()
+    {
+        PdfLayoutImage image = new(
+            0,
+            "figure",
+            PdfLayoutImageKind.XObject,
+            new PdfLayoutRectangle(180f, 178f, 252f, 80f),
+            new PdfLayoutTransform(252f, 0f, 0f, 80f, 180f, 178f),
+            252,
+            80,
+            8,
+            "DeviceRGB",
+            false,
+            null);
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes ordinary page content.", 72f, 120f, 350f),
+            CreateFixtureLine("The first flow region closes above the figure.", 72f, 132f, 320f),
+            CreateFixtureLine("A later flow region resumes below the figure.", 72f, 290f, 330f),
+            CreateFixtureLine("Its continuation confirms the ordinary reading order.", 72f, 302f, 350f)
+        ],
+        [CreateRulePath(0, 180f, 166f, 432f, 166f)],
+        images: [image]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.ThematicBreak);
+    }
+
+    [Fact]
+    public void Extract_PairedDecorativeRules_RemainVectorDecoration()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes ordinary page content.", 72f, 120f, 350f),
+            CreateFixtureLine("The first flow region closes above the decoration.", 72f, 132f, 320f),
+            CreateFixtureLine("A later flow region resumes below the decoration.", 72f, 216f, 330f),
+            CreateFixtureLine("Its continuation confirms the ordinary reading order.", 72f, 228f, 350f)
+        ],
+        [
+            CreateRulePath(0, 180f, 164f, 432f, 164f),
+            CreateRulePath(1, 180f, 172f, 432f, 172f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.ThematicBreak);
+    }
+
+    [Fact]
     public void Extract_BodySizeBoldStandaloneLine_WithSectionGapBecomesHeadingButInlineLeadInDoesNot()
     {
         PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
@@ -931,6 +1106,8 @@ public sealed class PdfSemanticExtractorTest
         Assert.All(table.TableRows[0].Cells, cell => Assert.True(cell.BorderBottom));
         Assert.All(table.TableRows.Skip(1).Take(2).SelectMany(static row => row.Cells), cell => Assert.False(cell.BorderBottom));
         Assert.All(table.TableRows[^1].Cells, cell => Assert.True(cell.BorderBottom));
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.ThematicBreak);
     }
 
     [Fact]
@@ -1824,10 +2001,12 @@ public sealed class PdfSemanticExtractorTest
         float startX,
         float startY,
         float endX,
-        float endY)
+        float endY,
+        float strokeWidth = 0.5f,
+        PdfLayoutColor? strokeColor = null)
     {
-        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
-        PdfLayoutStrokeStyle stroke = new(color, 0.5f, 0, 0, 10f, [], 0f);
+        PdfLayoutColor color = strokeColor ?? new PdfLayoutColor(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfLayoutStrokeStyle stroke = new(color, strokeWidth, 0, 0, 10f, [], 0f);
         PdfLayoutRectangle bounds = new(
             MathF.Min(startX, endX),
             MathF.Min(startY, endY),
@@ -2050,7 +2229,9 @@ public sealed class PdfSemanticExtractorTest
 
     private static PdfLayoutDocument CreateSemanticPassageFixture(
         IReadOnlyList<PdfTextLine> lines,
-        IReadOnlyList<PdfLayoutPath>? paths = null)
+        IReadOnlyList<PdfLayoutPath>? paths = null,
+        IReadOnlyList<PdfLayoutImage>? images = null,
+        IReadOnlyList<PdfLayoutFormControl>? formControls = null)
     {
         PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
         PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
@@ -2066,11 +2247,14 @@ public sealed class PdfSemanticExtractorTest
             runs,
             lines,
             [],
-            [],
+            images ?? [],
             paths ?? [],
             [],
             [],
-            []);
+            [],
+            [],
+            null,
+            formControls);
         return new PdfLayoutDocument([page], []);
     }
 

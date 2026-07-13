@@ -716,6 +716,19 @@ public static class PdfHtmlConverter
           padding-bottom: var(--pdf-title-rule-bottom-gap, 0);
         }
 
+        .pdf-semantic-thematic-break {
+          align-self: var(--pdf-thematic-break-alignment, center);
+          border: 0;
+          border-top: var(--pdf-thematic-break-thickness, 0.5pt) solid var(--pdf-thematic-break-color, currentColor);
+          box-sizing: border-box;
+          display: block;
+          flex: 0 0 auto;
+          height: 0;
+          margin: 12pt 0;
+          max-width: 100%;
+          width: var(--pdf-thematic-break-width, 100%);
+        }
+
         .pdf-semantic-title .pdf-semantic-line + .pdf-semantic-line {
           margin-top: 3pt;
         }
@@ -6555,6 +6568,14 @@ public static class PdfHtmlConverter
             return;
         }
 
+        if (element.Kind == PdfSemanticElementKind.ThematicBreak &&
+            element.ThematicBreak != null &&
+            page != null)
+        {
+            WriteSemanticThematicBreak(html, page, element);
+            return;
+        }
+
         if (element.Kind == PdfSemanticElementKind.DefinitionList && element.DefinitionList != null)
         {
             WriteSemanticDefinitionList(html, element, footnotes, page, state: null);
@@ -6640,6 +6661,37 @@ public static class PdfHtmlConverter
             allowMeasuredWidth,
             elementId,
             headingLevel);
+    }
+
+    private static void WriteSemanticThematicBreak(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfSemanticElement element)
+    {
+        PdfSemanticThematicBreak thematicBreak = element.ThematicBreak!;
+        float flowWidth = SemanticFlowWidth(page);
+        float widthPercent = flowWidth <= 0.01f
+            ? 100f
+            : Math.Clamp(element.Bounds.Width / flowWidth * 100f, 1f, 100f);
+        string alignment = thematicBreak.Alignment switch
+        {
+            PdfSemanticThematicBreakAlignment.Left => "flex-start",
+            PdfSemanticThematicBreakAlignment.Right => "flex-end",
+            _ => "center"
+        };
+        html.Append("      <hr class=\"pdf-semantic-element pdf-semantic-thematic-break\" data-source-path-index=\"")
+            .Append(thematicBreak.SourcePathIndex.ToString(CultureInfo.InvariantCulture))
+            .Append("\" data-source-width=\"")
+            .Append(HtmlAttribute(CssPoints(element.Bounds.Width)))
+            .Append("\" style=\"--pdf-thematic-break-width:")
+            .Append(CssPercent(widthPercent))
+            .Append(";--pdf-thematic-break-thickness:")
+            .Append(CssPoints(thematicBreak.Thickness))
+            .Append(";--pdf-thematic-break-color:")
+            .Append(CssRgba(thematicBreak.Color))
+            .Append(";--pdf-thematic-break-alignment:")
+            .Append(alignment)
+            .AppendLine("\" />");
     }
 
     private static void WriteFlowTextElement(
@@ -10526,6 +10578,7 @@ public static class PdfHtmlConverter
                 6).ToString(CultureInfo.InvariantCulture),
             PdfSemanticElementKind.Paragraph => "p",
             PdfSemanticElementKind.CodeBlock => "pre",
+            PdfSemanticElementKind.ThematicBreak => "hr",
             PdfSemanticElementKind.DefinitionList => "dl",
             PdfSemanticElementKind.BlockQuote => "blockquote",
             PdfSemanticElementKind.Aside => "aside",
@@ -11526,6 +11579,7 @@ public static class PdfHtmlConverter
             PdfSemanticElementKind.Heading => "pdf-semantic-heading",
             PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
             PdfSemanticElementKind.CodeBlock => "pdf-semantic-code-block",
+            PdfSemanticElementKind.ThematicBreak => "pdf-semantic-thematic-break",
             PdfSemanticElementKind.BlockQuote => "pdf-semantic-blockquote",
             PdfSemanticElementKind.Aside => "pdf-semantic-aside",
             PdfSemanticElementKind.List => "pdf-semantic-list-element",
@@ -11560,9 +11614,17 @@ public static class PdfHtmlConverter
         PdfSemanticPage semanticPage,
         PdfLayoutPath path)
     {
-        return IsDecorativeTitleRulePath(page, semanticPage, path) ||
+        return IsThematicBreakPath(semanticPage, path) ||
+            IsDecorativeTitleRulePath(page, semanticPage, path) ||
             IsDecorativeFootnoteRulePath(page, semanticPage, path) ||
             IsSemanticAsideRegionPath(page, semanticPage, path);
+    }
+
+    private static bool IsThematicBreakPath(PdfSemanticPage semanticPage, PdfLayoutPath path)
+    {
+        return semanticPage.Elements.Any(element =>
+            element.Kind == PdfSemanticElementKind.ThematicBreak &&
+            element.ThematicBreak?.SourcePathIndex == path.Index);
     }
 
     private static bool IsSemanticAsideRegionPath(
