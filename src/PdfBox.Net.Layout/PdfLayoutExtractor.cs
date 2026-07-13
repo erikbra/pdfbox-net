@@ -493,6 +493,7 @@ public static class PdfLayoutExtractor
         private readonly List<PdfLayoutVectorGroup> _vectorGroups = new();
         private readonly List<PdfLayoutLink> _links = new();
         private readonly List<PdfLayoutFormControl> _formControls = new();
+        private readonly List<PdfTextHighlight> _textHighlights = new();
         private readonly List<PdfLayoutDiagnostic> _diagnostics = new();
         private readonly List<PdfLayoutPaintOperation> _paintOperations = new();
         private readonly List<SoftMaskedTransparencyGroup> _softMaskedTransparencyGroups = new();
@@ -556,11 +557,13 @@ public static class PdfLayoutExtractor
             _runs.Clear();
             _lines.Clear();
             _blocks.Clear();
+            _textHighlights.Clear();
 
             _glyphs.AddRange(textPositions.Select(position => CreateGlyph(position, textColors, textPaintStates, fontAssets)));
             _lines.AddRange(CreateLines(_glyphs, options));
             _runs.AddRange(_lines.SelectMany(line => line.Runs));
             ApplyTextShadows(_runs, _softMaskedTransparencyGroups);
+            _textHighlights.AddRange(DetectTextHighlights(_paths, _glyphs, _formControls));
 
             if (_lines.Count > 0)
             {
@@ -624,6 +627,118 @@ public static class PdfLayoutExtractor
             return width * height;
         }
 
+        private static IEnumerable<PdfTextHighlight> DetectTextHighlights(
+            IReadOnlyList<PdfLayoutPath> paths,
+            IReadOnlyList<PdfTextGlyph> glyphs,
+            IReadOnlyList<PdfLayoutFormControl> formControls)
+        {
+            PdfTextGlyph[] horizontalGlyphs = glyphs
+                .Where(static glyph => glyph.IsPainted && MathF.Abs(glyph.Direction) < 0.01f)
+                .Where(static glyph => !string.IsNullOrEmpty(glyph.Text))
+                .ToArray();
+            foreach (PdfLayoutPath path in paths)
+            {
+                if (!IsSourceHighlightRectangle(path) ||
+                    path.FillColor is not PdfLayoutColor color ||
+                    formControls.Any(control => IntersectionArea(path.Bounds, control.Bounds) > 0.01f))
+                {
+                    continue;
+                }
+
+                PdfTextGlyph[] coveredGlyphs = horizontalGlyphs
+                    .Where(glyph => CoversGlyphCenter(path.Bounds, glyph.PageBounds))
+                    .OrderBy(static glyph => glyph.PageBounds.X)
+                    .ToArray();
+                PdfTextGlyph[] visibleGlyphs = coveredGlyphs
+                    .Where(static glyph => !string.IsNullOrWhiteSpace(glyph.Text))
+                    .ToArray();
+                if (visibleGlyphs.Length == 0 || !FitsSingleTextLine(path.Bounds, coveredGlyphs, visibleGlyphs))
+                {
+                    continue;
+                }
+
+                yield return new PdfTextHighlight(path.Index, path.Bounds, color, coveredGlyphs);
+            }
+        }
+
+        private static bool IsSourceHighlightRectangle(PdfLayoutPath path)
+        {
+            if (path.FillColor is not PdfLayoutColor color ||
+                color.Alpha <= 0.01f ||
+                path.Stroke != null ||
+                path.UsesShapeAlpha ||
+                path.UsesSoftMask ||
+                path.Bounds.Width <= 0.5f ||
+                path.Bounds.Height <= 0.5f ||
+                path.Commands.Count != 5 ||
+                path.Commands[0].Kind != PdfLayoutPathCommandKind.MoveTo ||
+                path.Commands[1].Kind != PdfLayoutPathCommandKind.LineTo ||
+                path.Commands[2].Kind != PdfLayoutPathCommandKind.LineTo ||
+                path.Commands[3].Kind != PdfLayoutPathCommandKind.LineTo ||
+                path.Commands[4].Kind != PdfLayoutPathCommandKind.ClosePath)
+            {
+                return false;
+            }
+
+            PdfLayoutPathCommand[] corners = path.Commands.Take(4).ToArray();
+            for (int index = 0; index < corners.Length; index++)
+            {
+                PdfLayoutPathCommand current = corners[index];
+                PdfLayoutPathCommand next = corners[(index + 1) % corners.Length];
+                if (MathF.Abs(current.X1 - next.X1) > 0.01f &&
+                    MathF.Abs(current.Y1 - next.Y1) > 0.01f)
+                {
+                    return false;
+                }
+            }
+
+            return corners.Select(static command => command.X1).DistinctBy(RoundedCoordinate).Count() == 2 &&
+                corners.Select(static command => command.Y1).DistinctBy(RoundedCoordinate).Count() == 2;
+        }
+
+        private static int RoundedCoordinate(float value) => (int)MathF.Round(value * 100f);
+
+        private static bool CoversGlyphCenter(PdfLayoutRectangle highlight, PdfLayoutRectangle glyph)
+        {
+            float centerX = glyph.X + glyph.Width / 2f;
+            float centerY = glyph.Y + glyph.Height / 2f;
+            return centerX >= highlight.X - 0.25f &&
+                centerX <= highlight.Right + 0.25f &&
+                centerY >= highlight.Y - 0.5f &&
+                centerY <= highlight.Bottom + 0.5f;
+        }
+
+        private static bool FitsSingleTextLine(
+            PdfLayoutRectangle highlight,
+            IReadOnlyList<PdfTextGlyph> coveredGlyphs,
+            IReadOnlyList<PdfTextGlyph> visibleGlyphs)
+        {
+            PdfLayoutRectangle textBounds = PdfLayoutRectangle.Union(coveredGlyphs.Select(static glyph => glyph.PageBounds));
+            float centerTop = visibleGlyphs.Min(static glyph => glyph.PageBounds.Y + glyph.PageBounds.Height / 2f);
+            float centerBottom = visibleGlyphs.Max(static glyph => glyph.PageBounds.Y + glyph.PageBounds.Height / 2f);
+            float averageHeight = visibleGlyphs.Average(static glyph => glyph.PageBounds.Height);
+            if (centerBottom - centerTop > MathF.Max(1f, averageHeight * 0.35f) ||
+                highlight.Height < textBounds.Height * 0.55f ||
+                highlight.Height > textBounds.Height * 2.25f ||
+                highlight.Width < textBounds.Width * 0.8f ||
+                highlight.Width > textBounds.Width * 1.25f)
+            {
+                return false;
+            }
+
+            float horizontalTolerance = MathF.Max(
+                1f,
+                visibleGlyphs.Average(static glyph => glyph.PageBounds.Width) * 0.75f);
+            if (MathF.Abs(highlight.X - textBounds.X) > horizontalTolerance ||
+                MathF.Abs(highlight.Right - textBounds.Right) > horizontalTolerance)
+            {
+                return false;
+            }
+
+            float intersection = IntersectionArea(highlight, textBounds);
+            return intersection >= highlight.Width * highlight.Height * 0.5f;
+        }
+
         public PdfLayoutPage Build()
         {
             return new PdfLayoutPage(
@@ -644,7 +759,8 @@ public static class PdfLayoutExtractor
                 _links,
                 _diagnostics,
                 _paintOperations,
-                _formControls);
+                _formControls,
+                _textHighlights);
         }
 
         private void CollectFormControls(PDPage page, PDAcroForm acroForm)

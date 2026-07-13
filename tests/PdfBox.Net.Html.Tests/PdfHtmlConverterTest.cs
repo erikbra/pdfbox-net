@@ -323,10 +323,20 @@ public class PdfHtmlConverterTest
         Assert.Equal(84, gridRows.Length);
         Assert.All(gridRows, row => Assert.Equal(2, row.Descendants()
             .Count(element => HasClass(element, "pdf-semantic-line-grid-cell"))));
-        Assert.Equal(16, columnsGrid.Descendants()
-            .Count(element => HasClass(element, "pdf-semantic-line-grid-highlight")));
+        XElement[] marks = columnsGrid.Descendants("mark").ToArray();
+        Assert.Equal(16, marks.Length);
+        Assert.All(marks, mark =>
+        {
+            Assert.True(HasClass(mark, "pdf-semantic-mark"));
+            Dictionary<string, string> style = ParseStyle(mark.Attribute("style")?.Value ?? "");
+            Assert.Equal("rgba(255,255,0,1)", style["--pdf-semantic-mark-background"]);
+            Assert.DoesNotContain("position", style.Keys);
+        });
+        Assert.Equal(152, columnsGrid.Descendants()
+            .Count(element => HasClass(element, "pdf-semantic-line-grid-cell") && !element.Descendants("mark").Any()));
         Assert.Empty(ElementsByClass(columnsDom, "pdf-semantic-layout-fallback-page"));
         Assert.Contains(".pdf-semantic-line-grid", columnsHtml.Css, StringComparison.Ordinal);
+        Assert.Contains("mark.pdf-semantic-mark", columnsHtml.Css, StringComparison.Ordinal);
 
         using PDDocument staggeredColumnsDocument = CreateTextDocument("""
             BT
@@ -1553,10 +1563,10 @@ public class PdfHtmlConverterTest
               const firstCell = firstCells[0].getBoundingClientRect();
               const secondCell = firstCells[1].getBoundingClientRect();
               const gridBox = grid.getBoundingClientRect();
-              const firstHighlight = grid.querySelector(".pdf-semantic-line-grid-highlight").getBoundingClientRect();
+              const firstHighlight = grid.querySelector("mark.pdf-semantic-mark").getBoundingClientRect();
               return {
                 rowCount: rows.length,
-                highlightCount: grid.querySelectorAll(".pdf-semantic-line-grid-highlight").length,
+                highlightCount: grid.querySelectorAll("mark.pdf-semantic-mark").length,
                 firstCellLeft: firstCell.left - gridBox.left,
                 secondCellLeft: secondCell.left - gridBox.left,
                 firstCellTop: firstCell.top - gridBox.top,
@@ -1573,7 +1583,52 @@ public class PdfHtmlConverterTest
         AssertWithin(1f, 306f * cssPixelsPerPoint, (float)metrics.SecondCellLeft);
         AssertWithin(1f, 44.579f * cssPixelsPerPoint, (float)metrics.FirstCellTop);
         AssertWithin(1f, (52.679f - 44.579f) * cssPixelsPerPoint, (float)metrics.FirstRowStep);
-        AssertWithin(1f, 16.141f * cssPixelsPerPoint, (float)metrics.FirstHighlightWidth);
+        AssertWithin(1f, layout.Pages[0].TextHighlights[0].Bounds.Width * cssPixelsPerPoint, (float)metrics.FirstHighlightWidth);
+    }
+
+    [Fact]
+    public void Convert_SemanticTextUsesMarkForOnlyTheCoveredPartOfALine()
+    {
+        using PDDocument document = CreateTextDocument("""
+            1 0.5 0 rg
+            102 698.5 33.4 8 re
+            f
+            0 0 0 rg
+            BT /F1 10 Tf 72 700 Td (left 01 marked tail) Tj ET
+            """);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement mark = Assert.Single(dom.Descendants("mark"));
+        Assert.Equal("marked", mark.Value);
+        Assert.Contains("left 01 ", mark.Parent?.Value, StringComparison.Ordinal);
+        Assert.Contains(" tail", mark.Parent?.Value, StringComparison.Ordinal);
+        Dictionary<string, string> style = ParseStyle(mark.Attribute("style")?.Value ?? "");
+        Assert.Equal("rgba(255,128,0,1)", style["--pdf-semantic-mark-background"]);
+        AssertWithin(0.01f, 33.4f, ParsePoints(style["--pdf-semantic-mark-width"]));
+    }
+
+    [Fact]
+    public void Convert_SemanticTableFillRemainsPresentational()
+    {
+        using PDDocument document = CreateFilledTableDocument();
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        Assert.Single(layout.Pages[0].TextHighlights);
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        Assert.NotEmpty(dom.Descendants("table"));
+        Assert.Empty(dom.Descendants("mark"));
     }
 
 
@@ -3643,6 +3698,7 @@ public class PdfHtmlConverterTest
 
         PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout);
         XDocument dom = ParseHtml(converted.Html);
+        Assert.Empty(dom.Descendants("mark"));
 
         XElement[] emitted = ElementsByClass(dom, "pdf-form-control").ToArray();
         Assert.Equal(controls.Length, emitted.Length);
@@ -5679,6 +5735,32 @@ public class PdfHtmlConverterTest
                     row);
             }
         }
+    }
+
+    private static PDDocument CreateFilledTableDocument()
+    {
+        StringBuilder content = new();
+        content.AppendLine("BT /F1 16 Tf 190 760 Td (Filled Table Guidance) Tj ET");
+        content.AppendLine("BT /F1 11 Tf 220 740 Td (Spanning source header) Tj ET");
+        for (int index = 1; index <= 12; index++)
+        {
+            int y = 700 - (index - 1) * 16;
+            content.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "BT /F1 10 Tf 72 {0} Td (Left body {1:00} source line reaches near gutter) Tj ET\n",
+                y,
+                index);
+            content.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "BT /F1 10 Tf 330 {0} Td (Right body {1:00} source line reaches page edge) Tj ET\n",
+                y,
+                index);
+        }
+
+        content.AppendLine("1 1 0 rg 78 474.8 32 6.4 re f");
+        content.AppendLine("0 g 0 G");
+        AppendRuledTable(content, 72, 160, 248, 290, "Table");
+        return CreateTextDocument(content.ToString());
     }
 
     private enum RuledTableLayout

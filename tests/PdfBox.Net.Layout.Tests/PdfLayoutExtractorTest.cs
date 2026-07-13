@@ -164,6 +164,46 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_DetectsPartialLineSourceHighlightFromTightRectangleGeometry()
+    {
+        using PDDocument document = CreateTextDocument("""
+            1 0.5 0 rg
+            102 698.5 33.4 8 re
+            f
+            0 0 0 rg
+            BT /F1 10 Tf 72 700 Td (left 01 marked tail) Tj ET
+            """);
+
+        PdfLayoutPage page = Assert.Single(PdfLayoutExtractor.Extract(document).Pages);
+
+        PdfTextHighlight highlight = Assert.Single(page.TextHighlights);
+        Assert.Equal("marked", string.Concat(highlight.Glyphs.Select(static glyph => glyph.Text)));
+        AssertClose(102f, highlight.Bounds.X);
+        AssertClose(85.5f, highlight.Bounds.Y);
+        AssertClose(33.4f, highlight.Bounds.Width);
+        AssertClose(8f, highlight.Bounds.Height);
+        AssertClose(1f, highlight.Color.Red);
+        AssertClose(128f / 255f, highlight.Color.Green);
+        AssertClose(0f, highlight.Color.Blue);
+        AssertClose(1f, highlight.Color.Alpha);
+        Assert.Equal("DeviceRGB", highlight.Color.ColorSpaceName);
+        Assert.Equal(0, highlight.SourcePathIndex);
+    }
+
+    [Theory]
+    [InlineData("1 0 0 rg BT /F1 10 Tf 72 700 Td (ordinary colored text) Tj ET")]
+    [InlineData("1 1 0 rg 68 692 140 20 re f 0 0 0 rg BT /F1 10 Tf 72 700 Td (vector background) Tj ET")]
+    [InlineData("1 1 0 rg 72 698.5 42 8 re 0 0 0 RG B BT /F1 10 Tf 72 700 Td (table fill) Tj ET")]
+    public void Extract_DoesNotClassifyColoredTextOrDecorativeFillsAsHighlights(string contentStream)
+    {
+        using PDDocument document = CreateTextDocument(contentStream);
+
+        PdfLayoutPage page = Assert.Single(PdfLayoutExtractor.Extract(document).Pages);
+
+        Assert.Empty(page.TextHighlights);
+    }
+
+    [Fact]
     public void Extract_OutputIntentManagesDeviceCmykTextAndPathColors()
     {
         using PDDocument document = CreateTextDocument("""

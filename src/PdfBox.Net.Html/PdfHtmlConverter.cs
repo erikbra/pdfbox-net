@@ -276,9 +276,13 @@ public static class PdfHtmlConverter
           white-space: pre;
         }
 
-        .pdf-semantic-line-grid-highlight {
-          background-color: var(--pdf-semantic-grid-highlight);
-          min-width: var(--pdf-semantic-grid-highlight-width, auto);
+        mark.pdf-semantic-mark {
+          background-color: var(--pdf-semantic-mark-background);
+          color: inherit;
+          display: inline-block;
+          line-height: inherit;
+          min-width: var(--pdf-semantic-mark-width, auto);
+          padding: 0;
         }
 
         .pdf-semantic-columns {
@@ -330,10 +334,6 @@ public static class PdfHtmlConverter
           min-height: var(--pdf-semantic-column-row-height, auto);
           overflow: visible;
           white-space: pre;
-        }
-
-        .pdf-semantic-column-run.pdf-semantic-line-grid-highlight {
-          width: fit-content;
         }
 
         .pdf-semantic-document-flow {
@@ -4450,30 +4450,15 @@ public static class PdfHtmlConverter
             foreach (PdfTextRun? cell in row.Cells)
             {
                 PdfTextRun run = cell!;
-                PdfLayoutColor? highlight = GridHighlightColor(grid.Page, run);
-                html.Append("          <span class=\"pdf-semantic-line-grid-cell");
-                if (highlight.HasValue)
-                {
-                    html.Append(" pdf-semantic-line-grid-highlight");
-                }
-
-                html.Append("\" style=\"font-family:")
+                html.Append("          <span class=\"pdf-semantic-line-grid-cell\" style=\"font-family:")
                     .Append(CssFontFamily(run.FontName))
                     .Append(";font-size:")
                     .Append(CssPoints(FixedTextFontSize(run) * scale))
                     .Append(";color:")
-                    .Append(ColorHex(run.Color));
-                if (highlight is PdfLayoutColor highlightColor)
-                {
-                    html.Append(";--pdf-semantic-grid-highlight:")
-                        .Append(ColorHex(highlightColor))
-                        .Append(";--pdf-semantic-grid-highlight-width:")
-                        .Append(CssPoints(run.Bounds.Width * scale));
-                }
-
-                html.Append("\">")
-                    .Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)))
-                    .AppendLine("</span>");
+                    .Append(ColorHex(run.Color))
+                    .Append("\">");
+                WriteSourceHighlightedRun(html, grid.Page, run, semanticOptions, scale);
+                html.AppendLine("</span>");
             }
 
             html.AppendLine("        </div>");
@@ -4657,14 +4642,7 @@ public static class PdfHtmlConverter
         float scale,
         PdfSemanticExtractionOptions semanticOptions)
     {
-        PdfLayoutColor? highlight = GridHighlightColor(page, run);
-        html.Append("          <span class=\"pdf-semantic-column-run");
-        if (highlight.HasValue)
-        {
-            html.Append(" pdf-semantic-line-grid-highlight");
-        }
-
-        html.Append("\" style=\"--pdf-semantic-column-row-height:")
+        html.Append("          <span class=\"pdf-semantic-column-run\" style=\"--pdf-semantic-column-row-height:")
             .Append(CssPoints(run.Bounds.Height * scale));
         if (marginTop > 0.01f)
         {
@@ -4678,18 +4656,10 @@ public static class PdfHtmlConverter
             .Append(CssPoints(FixedTextFontSize(run) * scale))
             .Append(FixedTextFontPresentation(run))
             .Append(";color:")
-            .Append(ColorHex(run.Color));
-        if (highlight is PdfLayoutColor highlightColor)
-        {
-            html.Append(";--pdf-semantic-grid-highlight:")
-                .Append(ColorHex(highlightColor))
-                .Append(";--pdf-semantic-grid-highlight-width:")
-                .Append(CssPoints(run.Bounds.Width * scale));
-        }
-
-        html.Append("\">")
-            .Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)))
-            .AppendLine("</span>");
+            .Append(ColorHex(run.Color))
+            .Append("\">");
+        WriteSourceHighlightedRun(html, page, run, semanticOptions, scale);
+        html.AppendLine("</span>");
     }
 
     private static IReadOnlyList<PdfSemanticElement>[] ColumnSemanticTables(PdfSemanticColumns columns)
@@ -4898,15 +4868,70 @@ public static class PdfHtmlConverter
             glyphs);
     }
 
-    private static PdfLayoutColor? GridHighlightColor(PdfLayoutPage page, PdfTextRun run)
+    private static void WriteSourceHighlightedRun(
+        StringBuilder html,
+        PdfLayoutPage page,
+        PdfTextRun run,
+        PdfSemanticExtractionOptions semanticOptions,
+        float scale)
     {
-        return page.Paths
-            .Where(static path => path.FillColor.HasValue)
-            .Where(path => path.Bounds.Width <= page.Width * 0.12f)
-            .Where(path => path.Bounds.Height <= MathF.Max(12f, run.Bounds.Height * 2f))
-            .Where(path => RectanglesIntersect(path.Bounds, run.Bounds, 1f))
-            .Select(static path => path.FillColor)
-            .FirstOrDefault();
+        PdfTextGlyph[] glyphs = PdfSemanticExtractor.OrderGlyphsForLogicalText(run.Glyphs).ToArray();
+        if (glyphs.Length == 0 || !glyphs.Any(glyph => TextHighlightForGlyph(page, glyph) != null))
+        {
+            html.Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)));
+            return;
+        }
+
+        List<PdfTextGlyph> segmentGlyphs = [];
+        PdfTextHighlight? activeHighlight = TextHighlightForGlyph(page, glyphs[0]);
+        foreach (PdfTextGlyph glyph in glyphs)
+        {
+            PdfTextHighlight? highlight = TextHighlightForGlyph(page, glyph);
+            if (!ReferenceEquals(activeHighlight, highlight) && segmentGlyphs.Count > 0)
+            {
+                WriteSourceHighlightedGlyphs(html, segmentGlyphs, activeHighlight, semanticOptions, scale);
+                segmentGlyphs.Clear();
+            }
+
+            activeHighlight = highlight;
+            segmentGlyphs.Add(glyph);
+        }
+
+        WriteSourceHighlightedGlyphs(html, segmentGlyphs, activeHighlight, semanticOptions, scale);
+    }
+
+    private static void WriteSourceHighlightedGlyphs(
+        StringBuilder html,
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        PdfTextHighlight? highlight,
+        PdfSemanticExtractionOptions semanticOptions,
+        float scale)
+    {
+        if (highlight != null)
+        {
+            WriteSourceMarkStart(html, highlight, scale);
+        }
+
+        html.Append(Html(PdfSemanticExtractor.ReconstructText(glyphs, semanticOptions)));
+        if (highlight != null)
+        {
+            html.Append("</mark>");
+        }
+    }
+
+    private static void WriteSourceMarkStart(StringBuilder html, PdfTextHighlight highlight, float scale)
+    {
+        html.Append("<mark class=\"pdf-semantic-mark\" style=\"--pdf-semantic-mark-background:")
+            .Append(CssRgba(highlight.Color))
+            .Append(";--pdf-semantic-mark-width:")
+            .Append(CssPoints(highlight.Bounds.Width * scale))
+            .Append("\">");
+    }
+
+    private static PdfTextHighlight? TextHighlightForGlyph(PdfLayoutPage? page, PdfTextGlyph glyph)
+    {
+        return page?.TextHighlights.FirstOrDefault(highlight =>
+            highlight.Glyphs.Any(candidate => ReferenceEquals(candidate, glyph)));
     }
 
     private static int BodyParagraphCount(PdfSemanticPage semanticPage)
@@ -7541,7 +7566,8 @@ public static class PdfHtmlConverter
                 page,
                 cellElement,
                 includeAttachedInlineMath: false,
-                claimedFormulaGlyphs).ToList();
+                claimedFormulaGlyphs,
+                includeSourceHighlights: false).ToList();
             string lineText = string.Concat(segments.Select(static segment => segment.Text));
             WriteInlineTextSegments(html, line, segments, lineText, footnotes);
         }
@@ -8603,7 +8629,8 @@ public static class PdfHtmlConverter
         PdfLayoutPage? page,
         PdfSemanticElement element,
         bool includeAttachedInlineMath = true,
-        ISet<FormulaGlyphKey>? claimedFormulaGlyphs = null)
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs = null,
+        bool includeSourceHighlights = true)
     {
         bool hasClaimedFormulaGlyphs = claimedFormulaGlyphs is { Count: > 0 } &&
             line.Runs
@@ -8652,6 +8679,7 @@ public static class PdfHtmlConverter
         for (int index = 0; index < glyphs.Length; index++)
         {
             (PdfTextRun run, PdfTextGlyph glyph) = glyphs[index];
+            PdfTextGlyph sourceGlyph = glyph;
             if (skipNextWhitespaceAfterIntrusiveGlyph)
             {
                 if (string.IsNullOrWhiteSpace(glyph.Text))
@@ -8699,7 +8727,8 @@ public static class PdfHtmlConverter
                 glyph.Text,
                 run,
                 role,
-                SemanticLinkForGlyph(page, glyph.PageBounds)));
+                SemanticLinkForGlyph(page, glyph.PageBounds),
+                includeSourceHighlights ? TextHighlightForGlyph(page, sourceGlyph) : null));
             previous = glyph;
             previousRole = role;
             suppressNextWordBoundaryAfterIntrusiveGlyph = false;
@@ -9417,7 +9446,8 @@ public static class PdfHtmlConverter
         return string.Equals(NormalizeFontName(first.Run.FontName), NormalizeFontName(second.Run.FontName), StringComparison.Ordinal) &&
             MathF.Abs(first.Run.FontSize - second.Run.FontSize) < 0.01f &&
             first.Run.Color.Equals(second.Run.Color) &&
-            ReferenceEquals(first.Link, second.Link);
+            ReferenceEquals(first.Link, second.Link) &&
+            ReferenceEquals(first.Highlight, second.Highlight);
     }
 
     private static string CompactText(string text)
@@ -10043,7 +10073,8 @@ public static class PdfHtmlConverter
             footnotes,
             lineText,
             offset,
-            TextShadowStyle(segment.Run.Shadow));
+            TextShadowStyle(segment.Run.Shadow),
+            segment.Highlight);
     }
 
     private static void WriteInlineTextSegmentAsRole(
@@ -10069,7 +10100,8 @@ public static class PdfHtmlConverter
         FootnoteContext? footnotes = null,
         string? lineText = null,
         int offset = 0,
-        string? style = null)
+        string? style = null,
+        PdfTextHighlight? highlight = null)
     {
         string tagName = role switch
         {
@@ -10078,6 +10110,11 @@ public static class PdfHtmlConverter
             InlineBaselineRole.Normal when HasCssClass(className, "pdf-semantic-bold") => "strong",
             _ => className.Length > 0 ? "span" : ""
         };
+
+        if (highlight != null)
+        {
+            WriteSourceMarkStart(html, highlight, scale: 1f);
+        }
 
         if (tagName.Length > 0)
         {
@@ -10114,6 +10151,11 @@ public static class PdfHtmlConverter
             html.Append("</")
                 .Append(tagName)
                 .Append('>');
+        }
+
+        if (highlight != null)
+        {
+            html.Append("</mark>");
         }
     }
 
@@ -11830,7 +11872,8 @@ public static class PdfHtmlConverter
         string Text,
         PdfTextRun? Run,
         InlineBaselineRole Role,
-        PdfLayoutLink? Link = null);
+        PdfLayoutLink? Link = null,
+        PdfTextHighlight? Highlight = null);
 
     private sealed class SemanticSectionWriter
     {

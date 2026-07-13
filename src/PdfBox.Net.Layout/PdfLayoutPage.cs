@@ -59,7 +59,8 @@ public sealed class PdfLayoutPage
         IReadOnlyList<PdfLayoutLink> links,
         IReadOnlyList<PdfLayoutDiagnostic> diagnostics,
         IReadOnlyList<PdfLayoutPaintOperation>? paintOperations = null,
-        IReadOnlyList<PdfLayoutFormControl>? formControls = null)
+        IReadOnlyList<PdfLayoutFormControl>? formControls = null,
+        IReadOnlyList<PdfTextHighlight>? textHighlights = null)
     {
         PageNumber = pageNumber;
         MediaBox = mediaBox;
@@ -79,6 +80,7 @@ public sealed class PdfLayoutPage
         Diagnostics = diagnostics.ToArray();
         PaintOperations = paintOperations?.ToArray() ?? [];
         FormControls = formControls?.ToArray() ?? [];
+        TextHighlights = textHighlights?.ToArray() ?? [];
     }
 
     /// <summary>
@@ -170,6 +172,11 @@ public sealed class PdfLayoutPage
     /// Gets supported AcroForm widgets represented as semantic controls.
     /// </summary>
     public IReadOnlyList<PdfLayoutFormControl> FormControls { get; }
+
+    /// <summary>
+    /// Gets source highlight rectangles confidently matched to text glyphs.
+    /// </summary>
+    public IReadOnlyList<PdfTextHighlight> TextHighlights { get; }
 
     /// <summary>
     /// Gets the page text in reading order.
