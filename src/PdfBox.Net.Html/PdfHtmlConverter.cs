@@ -497,7 +497,7 @@ public static class PdfHtmlConverter
           width: var(--pdf-semantic-formula-width, 100%);
         }
 
-        .pdf-semantic-formula-native {
+        .pdf-semantic-formula.pdf-semantic-formula-native {
           align-items: center;
           display: flex;
           height: auto;
@@ -6061,7 +6061,12 @@ public static class PdfHtmlConverter
 
         if (element.Kind == PdfSemanticElementKind.Table && element.TableRows.Count > 0)
         {
-            WriteSemanticTable(html, element, footnotes, page);
+            WriteSemanticTable(
+                html,
+                element,
+                footnotes,
+                page,
+                claimedFormulaGlyphs: claimedFormulaGlyphs);
             return;
         }
 
@@ -6474,12 +6479,13 @@ public static class PdfHtmlConverter
         PdfSemanticElement element,
         FootnoteContext footnotes,
         PdfLayoutPage? page,
-        bool allowMeasuredWidth = true)
+        bool allowMeasuredWidth = true,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs = null)
     {
         html.Append("      <table class=\"")
             .Append(SemanticClassNames(element, page, allowMeasuredWidth))
             .Append("\" aria-label=\"")
-            .Append(HtmlAttribute(TableAriaLabel(element)))
+            .Append(HtmlAttribute(TableAriaLabel(element, claimedFormulaGlyphs)))
             .Append('"');
         AppendTextDirectionAttribute(html, element.Text);
         string style = FlowSemanticStyle(element, page, allowMeasuredWidth);
@@ -6504,7 +6510,14 @@ public static class PdfHtmlConverter
             html.AppendLine("        <thead>");
             foreach (PdfSemanticTableRow row in headerRows)
             {
-                WriteSemanticTableRow(html, row, footnotes, page, header: true, columnAlignments);
+                WriteSemanticTableRow(
+                    html,
+                    row,
+                    footnotes,
+                    page,
+                    header: true,
+                    columnAlignments,
+                    claimedFormulaGlyphs);
             }
 
             html.AppendLine("        </thead>");
@@ -6513,7 +6526,14 @@ public static class PdfHtmlConverter
         html.AppendLine("        <tbody>");
         foreach (PdfSemanticTableRow row in bodyRows.Length == 0 ? headerRows : bodyRows)
         {
-            WriteSemanticTableRow(html, row, footnotes, page, header: false, columnAlignments);
+            WriteSemanticTableRow(
+                html,
+                row,
+                footnotes,
+                page,
+                header: false,
+                columnAlignments,
+                claimedFormulaGlyphs);
         }
 
         html.AppendLine("        </tbody>");
@@ -6526,7 +6546,8 @@ public static class PdfHtmlConverter
         FootnoteContext footnotes,
         PdfLayoutPage? page,
         bool header,
-        IReadOnlyList<TableCellAlignment> columnAlignments)
+        IReadOnlyList<TableCellAlignment> columnAlignments,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs)
     {
         html.AppendLine("          <tr>");
         for (int columnIndex = 0; columnIndex < row.Cells.Count; columnIndex++)
@@ -6576,7 +6597,7 @@ public static class PdfHtmlConverter
             }
 
             html.Append('>');
-            WriteSemanticTableCell(html, cell, footnotes, page);
+            WriteSemanticTableCell(html, cell, footnotes, page, claimedFormulaGlyphs);
 
             html.Append("</")
                 .Append(cellTag)
@@ -6724,7 +6745,8 @@ public static class PdfHtmlConverter
         StringBuilder html,
         PdfSemanticTableCell cell,
         FootnoteContext footnotes,
-        PdfLayoutPage? page)
+        PdfLayoutPage? page,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs)
     {
         if (cell.Lines.Count == 0)
         {
@@ -6749,16 +6771,49 @@ public static class PdfHtmlConverter
                 line,
                 page,
                 cellElement,
-                includeAttachedInlineMath: false).ToList();
+                includeAttachedInlineMath: false,
+                claimedFormulaGlyphs).ToList();
             string lineText = string.Concat(segments.Select(static segment => segment.Text));
             WriteInlineTextSegments(html, line, segments, lineText, footnotes);
         }
     }
 
-    private static string TableAriaLabel(PdfSemanticElement element)
+    internal static string TableAriaLabel(
+        PdfSemanticElement element,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs = null)
     {
-        string label = element.Text.Replace('\t', ' ').Replace(Environment.NewLine, " ");
+        bool containsClaimedGlyphs = claimedFormulaGlyphs is { Count: > 0 } &&
+            TableGlyphs(element).Any(glyph => IsClaimedFormulaGlyph(glyph, claimedFormulaGlyphs));
+        string text = !containsClaimedGlyphs
+            ? element.Text
+            : string.Join(' ', element.TableRows
+                .SelectMany(static row => row.Cells)
+                .Where(static cell => !cell.IsPlaceholder)
+                .Select(cell => ReconstructText(UnclaimedTableCellGlyphs(cell, claimedFormulaGlyphs)))
+                .Where(static cellText => !string.IsNullOrWhiteSpace(cellText)));
+        string label = text.Replace('\t', ' ').Replace(Environment.NewLine, " ");
         return label.Length <= 120 ? label : label[..120];
+    }
+
+    internal static IReadOnlyList<PdfTextGlyph> UnclaimedTableCellGlyphs(
+        PdfSemanticTableCell cell,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs)
+    {
+        return cell.Lines
+            .SelectMany(static line => line.Runs)
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .SelectMany(static run => run.Glyphs)
+            .Where(static glyph => !string.IsNullOrEmpty(glyph.Text))
+            .Where(glyph => !IsClaimedFormulaGlyph(glyph, claimedFormulaGlyphs))
+            .ToArray();
+    }
+
+    private static bool IsClaimedFormulaGlyph(
+        PdfTextGlyph glyph,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs)
+    {
+        return claimedFormulaGlyphs is { Count: > 0 } &&
+            claimedFormulaGlyphs.Contains(FormulaGlyphIdentity(glyph));
     }
 
     private static void WriteFormulaFlowElement(
@@ -7413,12 +7468,18 @@ public static class PdfHtmlConverter
         PdfSemanticLine line,
         PdfLayoutPage? page,
         PdfSemanticElement element,
-        bool includeAttachedInlineMath = true)
+        bool includeAttachedInlineMath = true,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs = null)
     {
+        bool hasClaimedFormulaGlyphs = claimedFormulaGlyphs is { Count: > 0 } &&
+            line.Runs
+                .SelectMany(static run => run.Glyphs)
+                .Any(glyph => IsClaimedFormulaGlyph(glyph, claimedFormulaGlyphs));
         IEnumerable<(PdfTextRun Run, PdfTextGlyph Glyph)> glyphSource = line.Runs
             .Where(static run => MathF.Abs(run.Direction) < 0.01f)
             .SelectMany(static run => run.Glyphs.Select(glyph => (Run: run, Glyph: glyph)))
-            .Where(static item => !string.IsNullOrEmpty(item.Glyph.Text));
+            .Where(static item => !string.IsNullOrEmpty(item.Glyph.Text))
+            .Where(item => !IsClaimedFormulaGlyph(item.Glyph, claimedFormulaGlyphs));
         if (includeAttachedInlineMath)
         {
             glyphSource = glyphSource.Concat(AttachedInlineMathGlyphs(line, page, element));
@@ -7441,7 +7502,7 @@ public static class PdfHtmlConverter
             .ToArray();
         if (glyphs.Length == 0)
         {
-            if (line.Runs.Count > 0 && line.Runs.All(IsFigureLabelRun))
+            if (hasClaimedFormulaGlyphs || line.Runs.Count > 0 && line.Runs.All(IsFigureLabelRun))
             {
                 return [];
             }

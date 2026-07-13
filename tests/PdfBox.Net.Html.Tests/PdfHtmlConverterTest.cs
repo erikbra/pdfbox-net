@@ -2025,6 +2025,12 @@ public class PdfHtmlConverterTest
         Assert.DoesNotContain("Input-Input Layer5", dom.Root?.Value ?? "", StringComparison.Ordinal);
         Assert.Empty(ElementsByClass(dom, "pdf-semantic-figure-space"));
         Assert.Contains(".pdf-semantic-formula", html.Css, StringComparison.Ordinal);
+        Assert.Contains(
+            ".pdf-semantic-formula.pdf-semantic-formula-native",
+            html.Css,
+            StringComparison.Ordinal);
+        Assert.Contains("max-width: calc(100% - 3em);", html.Css, StringComparison.Ordinal);
+        Assert.Contains("overflow-x: auto;", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-run", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-vector-layer", html.Css, StringComparison.Ordinal);
         Assert.DoesNotContain(".pdf-semantic-inline-run", html.Css, StringComparison.Ordinal);

@@ -176,6 +176,92 @@ public class PdfMathMlFormulaTest
     }
 
     [Fact]
+    public void UnclaimedTableCellGlyphs_OmitsClonedClaimsAndKeepsOtherRows()
+    {
+        PdfTextGlyph[] equationGlyphs =
+        [
+            Glyph("q", 92f, 100f),
+            Glyph("=", 104f, 100f, fontName: "CMR10"),
+            Glyph("1", 116f, 100f, fontName: "CMR10"),
+            Glyph("(", 190f, 100f, fontName: "Times-Roman"),
+            Glyph("2", 196f, 100f, fontName: "Times-Roman"),
+            Glyph(")", 202f, 100f, fontName: "Times-Roman")
+        ];
+        PdfTextGlyph[] clonedEquationGlyphs = equationGlyphs
+            .Select(static glyph => glyph with { })
+            .ToArray();
+        PdfTextGlyph prose = Glyph(
+            "Training is performed.",
+            92f,
+            126f,
+            width: 100f,
+            fontName: "Times-Roman");
+        PdfTextGlyph[] nearbyEquationGlyphs = equationGlyphs
+            .Select(static glyph => OffsetGlyph(glyph, 0f, 52f))
+            .ToArray();
+        PdfSemanticTableCell claimedCell = TableCell(clonedEquationGlyphs, borderTop: true);
+        PdfSemanticTableCell proseCell = TableCell([prose]);
+        PdfSemanticTableCell nearbyCell = TableCell(nearbyEquationGlyphs, borderBottom: true);
+        PdfSemanticElement table = Table(claimedCell, proseCell, nearbyCell);
+        HashSet<PdfHtmlConverter.FormulaGlyphKey> claimed = equationGlyphs
+            .Select(PdfHtmlConverter.FormulaGlyphIdentity)
+            .ToHashSet();
+
+        PdfTextGlyph[] renderedGlyphs = table.TableRows
+            .SelectMany(static row => row.Cells)
+            .SelectMany(cell => PdfHtmlConverter.UnclaimedTableCellGlyphs(cell, claimed))
+            .ToArray();
+
+        Assert.All(clonedEquationGlyphs, glyph =>
+            Assert.DoesNotContain(renderedGlyphs, rendered => ReferenceEquals(rendered, glyph)));
+        Assert.Contains(renderedGlyphs, glyph => ReferenceEquals(glyph, prose));
+        Assert.All(nearbyEquationGlyphs, glyph =>
+            Assert.Contains(renderedGlyphs, rendered => ReferenceEquals(rendered, glyph)));
+        Assert.True(claimedCell.BorderTop);
+        Assert.True(nearbyCell.BorderBottom);
+        string ariaLabel = PdfHtmlConverter.TableAriaLabel(table, claimed);
+        Assert.Contains("Training is performed.", ariaLabel, StringComparison.Ordinal);
+        Assert.Equal(1, ariaLabel.Split("(2)", StringSplitOptions.None).Length - 1);
+    }
+
+    [Fact]
+    public void UnclaimedTableCellGlyphs_UnrelatedClaimsLeaveTableUnchanged()
+    {
+        PdfSemanticElement table = Table(
+            TableCell([
+                Glyph("A", 92f, 100f, fontName: "Times-Roman"),
+                Glyph("1", 104f, 100f, fontName: "Times-Roman")
+            ], borderLeft: true),
+            TableCell([
+                Glyph("B", 92f, 126f, fontName: "Times-Roman"),
+                Glyph("2", 104f, 126f, fontName: "Times-Roman")
+            ], borderRight: true));
+        HashSet<PdfHtmlConverter.FormulaGlyphKey> unrelatedClaims =
+        [
+            PdfHtmlConverter.FormulaGlyphIdentity(
+                Glyph("z", 300f, 300f, fontName: "CMMI10"))
+        ];
+        PdfTextGlyph[] sourceGlyphs = table.TableRows
+            .SelectMany(static row => row.Cells)
+            .SelectMany(static cell => cell.Lines)
+            .SelectMany(static line => line.Runs)
+            .SelectMany(static run => run.Glyphs)
+            .ToArray();
+        PdfTextGlyph[] renderedGlyphs = table.TableRows
+            .SelectMany(static row => row.Cells)
+            .SelectMany(cell => PdfHtmlConverter.UnclaimedTableCellGlyphs(cell, unrelatedClaims))
+            .ToArray();
+
+        Assert.Equal(sourceGlyphs.Length, renderedGlyphs.Length);
+        Assert.All(sourceGlyphs, (glyph, index) => Assert.Same(glyph, renderedGlyphs[index]));
+        Assert.Equal(
+            table.Text.Replace('\t', ' ').Replace(Environment.NewLine, " "),
+            PdfHtmlConverter.TableAriaLabel(table, unrelatedClaims));
+        Assert.True(table.TableRows[0].Cells[0].BorderLeft);
+        Assert.True(table.TableRows[1].Cells[0].BorderRight);
+    }
+
+    [Fact]
     public void FormulaSourceRuns_ExcludesProseLineFromFallback()
     {
         PdfTextGlyph[] formulaGlyphs =
@@ -266,6 +352,38 @@ public class PdfMathMlFormulaTest
     private static PdfLayoutPath Rule(float x, float y, float width)
     {
         return new PdfLayoutPath(0, [], new PdfLayoutRectangle(x, y, width, 0.4f), null, null, null);
+    }
+
+    private static PdfSemanticTableCell TableCell(
+        IReadOnlyList<PdfTextGlyph> glyphs,
+        bool borderTop = false,
+        bool borderRight = false,
+        bool borderBottom = false,
+        bool borderLeft = false)
+    {
+        PdfSemanticLine line = SemanticLine(glyphs);
+        return new PdfSemanticTableCell(
+            line.Text,
+            line.Bounds,
+            [line],
+            borderTop,
+            borderRight,
+            borderBottom,
+            borderLeft);
+    }
+
+    private static PdfSemanticElement Table(params PdfSemanticTableCell[] cells)
+    {
+        PdfSemanticTableRow[] rows = cells
+            .Select(static cell => new PdfSemanticTableRow([cell], isHeader: false))
+            .ToArray();
+        PdfSemanticLine[] lines = cells.SelectMany(static cell => cell.Lines).ToArray();
+        return new PdfSemanticElement(
+            PdfSemanticElementKind.Table,
+            string.Join(Environment.NewLine, cells.Select(static cell => cell.Text)),
+            Bounds(cells.Select(static cell => cell.Bounds)),
+            lines,
+            tableRows: rows);
     }
 
     private static PdfSemanticElement Element(
