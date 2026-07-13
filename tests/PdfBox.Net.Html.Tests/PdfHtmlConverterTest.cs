@@ -1692,9 +1692,11 @@ public class PdfHtmlConverterTest
         XElement[] ashishLines = ashish.Descendants().Where(element => HasClass(element, "pdf-semantic-line")).ToArray();
         Assert.True(ashishLines.Length >= 3);
         Assert.NotEqual(ashishLines[0].Attribute("class")?.Value, ashishLines[^1].Attribute("class")?.Value);
-        Assert.Contains(dom.Descendants("a"), link =>
+        XElement[] asteriskReferences = dom.Descendants("a").Where(link =>
             link.Attribute("href")?.Value == "#page-1-fn-asterisk" &&
-            link.Value == "∗");
+            link.Value == "∗").ToArray();
+        Assert.Equal(8, asteriskReferences.Length);
+        Assert.All(asteriskReferences, reference => Assert.Equal("sup", reference.Parent?.Name.LocalName));
 
         XElement abstractHeading = Assert.Single(dom.Descendants("h2"), element => element.Value == "Abstract");
         Assert.Null(abstractHeading.Attribute("data-semantic-kind"));
@@ -1717,13 +1719,111 @@ public class PdfHtmlConverterTest
         Assert.DoesNotContain("pdf-semantic-measured-width", pageEndParagraph.Attribute("class")?.Value ?? "");
         XElement[] footnotes = ElementsByClass(dom, "pdf-semantic-footnote").ToArray();
         Assert.True(footnotes.Length >= 4);
-        Assert.All(footnotes, footnote => Assert.Equal("p", footnote.Name.LocalName));
-        Assert.Contains(footnotes, footnote => footnote.Attribute("id")?.Value == "page-1-fn-asterisk");
-        Assert.Contains(footnotes, footnote => footnote.Attribute("id")?.Value == "page-4-fn-4");
+        Assert.All(footnotes, footnote => Assert.Equal("li", footnote.Name.LocalName));
+        Assert.Equal(footnotes.Length, footnotes.Select(footnote => footnote.Attribute("id")?.Value).Distinct().Count());
+        XElement asteriskFootnote = Assert.Single(footnotes, footnote =>
+            footnote.Attribute("id")?.Value == "page-1-fn-asterisk");
+        XElement numericFootnote = Assert.Single(footnotes, footnote =>
+            footnote.Attribute("id")?.Value == "page-4-fn-4");
+        XElement pageEightFootnote = Assert.Single(footnotes, footnote =>
+            footnote.Attribute("id")?.Value == "page-8-fn-5");
+        Assert.Null(asteriskFootnote.Attribute("value"));
+        Assert.Equal("4", numericFootnote.Attribute("value")?.Value);
+        Assert.Equal(
+            asteriskReferences.Select(reference => "#" + reference.Parent!.Attribute("id")!.Value),
+            asteriskFootnote.Descendants("a")
+                .Where(link => HasClass(link, "pdf-semantic-footnote-backref"))
+                .Select(link => link.Attribute("href")?.Value));
+        AssertVisuallyHiddenAdditionalBacklinks(asteriskFootnote, 7);
+        AssertVisuallyHiddenAdditionalBacklinks(pageEightFootnote, 1);
+        XElement visibleMarker = Assert.Single(asteriskFootnote.Descendants(), element =>
+            HasClass(element, "pdf-semantic-footnote-marker"));
+        Assert.Single(visibleMarker.Elements("a"));
+
+        const string additionalBacklinksSelector = ".pdf-semantic-footnote-backrefs {";
+        int additionalBacklinksStart = html.Css.IndexOf(additionalBacklinksSelector, StringComparison.Ordinal);
+        Assert.True(additionalBacklinksStart >= 0);
+        int additionalBacklinksEnd = html.Css.IndexOf('}', additionalBacklinksStart);
+        Assert.True(additionalBacklinksEnd > additionalBacklinksStart);
+        string additionalBacklinksRule = html.Css[additionalBacklinksStart..additionalBacklinksEnd];
+        Assert.Contains("clip: rect(0 0 0 0);", additionalBacklinksRule, StringComparison.Ordinal);
+        Assert.Contains("clip-path: inset(50%);", additionalBacklinksRule, StringComparison.Ordinal);
+        Assert.Contains("position: absolute;", additionalBacklinksRule, StringComparison.Ordinal);
+        Assert.Contains("overflow: hidden;", additionalBacklinksRule, StringComparison.Ordinal);
+
+        XElement[] footnoteSections = ElementsByClass(dom, "pdf-semantic-footnotes").ToArray();
+        Assert.NotEmpty(footnoteSections);
+        Assert.All(footnoteSections, section =>
+        {
+            Assert.Equal("section", section.Name.LocalName);
+            Assert.Empty(section.Ancestors("aside"));
+            Assert.Empty(section.Ancestors("p"));
+            string labelId = Assert.IsType<XAttribute>(section.Attribute("aria-labelledby")).Value;
+            XElement label = Assert.Single(section.Elements(), element => element.Attribute("id")?.Value == labelId);
+            Assert.Equal("Footnotes", label.Value);
+            XElement list = Assert.Single(section.Elements("ol"));
+            Assert.Empty(list.Ancestors("p"));
+            Assert.NotEmpty(list.Elements("li"));
+            Assert.All(list.Elements("li"), item => Assert.True(HasClass(item, "pdf-semantic-footnote")));
+        });
         Assert.Contains(ElementsByClass(dom, "pdf-semantic-footer"), footer =>
             footer.Value.Contains("31st Conference", StringComparison.Ordinal));
         Assert.Contains(".pdf-semantic-flow > footer.pdf-semantic-footer", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-footnotes::before", html.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_KeepsPageBreakFootnoteContinuationInOneListItem()
+    {
+        PdfLayoutDocument layout = CreateCrossPageFootnoteLayoutFixture();
+        PdfSemanticDocument semantic = PdfSemanticExtractor.Extract(layout);
+        PdfSemanticElement firstFragment = Assert.Single(semantic.Pages[0].Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Footnote);
+        PdfSemanticElement continuation = Assert.Single(semantic.Pages[1].Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Footnote);
+
+        Assert.Equal("*", firstFragment.Note!.Marker);
+        Assert.True(firstFragment.Note.ContinuesOnNextPage);
+        Assert.Equal("*", continuation.Note!.Marker);
+        Assert.True(continuation.Note.ContinuesPreviousNote);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-line-grid"));
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-columns"));
+        XElement section = Assert.Single(ElementsByClass(dom, "pdf-semantic-footnotes"));
+        Assert.Equal("section", section.Name.LocalName);
+        Assert.Empty(section.Ancestors("aside"));
+        Assert.Empty(section.Ancestors("p"));
+        string labelId = Assert.IsType<XAttribute>(section.Attribute("aria-labelledby")).Value;
+        Assert.Equal("Footnotes", Assert.Single(section.Elements(), element =>
+            element.Attribute("id")?.Value == labelId).Value);
+        XElement list = Assert.Single(section.Elements("ol"));
+        Assert.Empty(list.Ancestors("p"));
+        XElement note = Assert.Single(list.Elements("li"));
+        Assert.Equal("page-1-fn-asterisk", note.Attribute("id")?.Value);
+        Assert.Contains("A note starts near the page boundary and", note.Value, StringComparison.Ordinal);
+        Assert.Contains("continues on the next page.", note.Value, StringComparison.Ordinal);
+        Assert.Single(note.Descendants(), element =>
+            HasClass(element, "pdf-semantic-note-continuation") &&
+            element.Attribute("data-source-page")?.Value == "2");
+
+        XElement[] references = dom.Descendants("a")
+            .Where(link => HasClass(link, "pdf-semantic-footnote-ref"))
+            .ToArray();
+        Assert.Equal(2, references.Length);
+        Assert.All(references, reference => Assert.Equal("#page-1-fn-asterisk", reference.Attribute("href")?.Value));
+        Assert.Equal(
+            references.Select(reference => "#" + reference.Parent!.Attribute("id")!.Value),
+            note.Descendants("a")
+                .Where(link => HasClass(link, "pdf-semantic-footnote-backref"))
+                .Select(link => link.Attribute("href")?.Value));
     }
 
     [Fact]
@@ -2359,7 +2459,6 @@ public class PdfHtmlConverterTest
         Assert.Contains(".pdf-semantic-inline-fraction", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-math", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-italic", html.Css, StringComparison.Ordinal);
-        Assert.Contains(".pdf-semantic-inline-footnotes", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-radical", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-formula-attached-suffix", html.Css, StringComparison.Ordinal);
         Assert.Contains(".pdf-semantic-table", html.Css, StringComparison.Ordinal);
@@ -4721,6 +4820,15 @@ public class PdfHtmlConverterTest
             .Contains(className, StringComparer.Ordinal);
     }
 
+    private static void AssertVisuallyHiddenAdditionalBacklinks(XElement footnote, int expectedCount)
+    {
+        XElement additionalBacklinks = Assert.Single(footnote.Descendants(), element =>
+            HasClass(element, "pdf-semantic-footnote-backrefs"));
+        XElement[] links = additionalBacklinks.Elements("a").ToArray();
+        Assert.Equal(expectedCount, links.Length);
+        Assert.All(links, link => Assert.True(HasClass(link, "pdf-semantic-footnote-backref")));
+    }
+
     private static Dictionary<string, string> ParseStyle(string style)
     {
         return style.Split(';', StringSplitOptions.RemoveEmptyEntries)
@@ -4954,6 +5062,37 @@ public class PdfHtmlConverterTest
             [],
             []);
         return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutDocument CreateCrossPageFootnoteLayoutFixture()
+    {
+        List<PdfTextLine> firstPage =
+        [
+            CreateScientificFixtureLine("Opening prose cites note * and repeats *.", 72f, 72f, 280f, 12f),
+            CreateScientificFixtureLine("A second body line establishes ordinary page rhythm.", 72f, 86f, 320f, 12f),
+            CreateScientificFixtureLine("The discussion continues with enough source lines for normal flow.", 72f, 104f, 390f, 12f),
+            CreateScientificFixtureLine("Each line remains part of the same uncomplicated prose column.", 72f, 118f, 370f, 12f),
+            CreateScientificFixtureLine("Semantic extraction can therefore retain the native reading order.", 72f, 136f, 390f, 12f),
+            CreateScientificFixtureLine("No tables, grids, or side-by-side regions occur on this page.", 72f, 150f, 360f, 12f),
+            CreateScientificFixtureLine("The remaining prose fills an ordinary single-column document.", 72f, 168f, 370f, 12f),
+            CreateScientificFixtureLine("Another complete sentence keeps the fixture representative.", 72f, 182f, 350f, 12f),
+            CreateScientificFixtureLine("The final body sentence appears well before the bottom note.", 72f, 200f, 360f, 12f),
+            CreateScientificFixtureLine("*", 72f, 620f, 6f, 8f, "Symbol"),
+            CreateScientificFixtureLine("A note starts near the page boundary and", 84f, 620f, 230f, 8f)
+        ];
+        List<PdfTextLine> secondPage =
+        [
+            CreateScientificFixtureLine("continues on the next page.", 72f, 72f, 170f, 8f),
+            CreateScientificFixtureLine("Ordinary body prose resumes after the continued note.", 72f, 132f, 330f, 12f),
+            CreateScientificFixtureLine("The second page also follows a simple single-column reading order.", 72f, 146f, 390f, 12f),
+            CreateScientificFixtureLine("Its source lines are intentionally ordinary prose content.", 72f, 164f, 330f, 12f),
+            CreateScientificFixtureLine("There are no geometric structures requiring special handling.", 72f, 178f, 350f, 12f),
+            CreateScientificFixtureLine("Additional sentences keep the page on the semantic flow path.", 72f, 196f, 360f, 12f),
+            CreateScientificFixtureLine("The note continuation remains the first meaningful element.", 72f, 210f, 350f, 12f),
+            CreateScientificFixtureLine("Later body content remains separate from that note item.", 72f, 228f, 330f, 12f),
+            CreateScientificFixtureLine("The final sentence completes the focused regression fixture.", 72f, 242f, 350f, 12f)
+        ];
+        return CreateDefinitionLayoutDocument([firstPage, secondPage]);
     }
 
     private static PdfLayoutDocument CreateDocumentIndexLayoutFixture(

@@ -127,7 +127,8 @@ public class PdfHtmlComputerModernTest
 
         XElement footnotes = Assert.Single(ElementsByClass(dom, "pdf-semantic-footnotes"));
         Assert.Equal("section", footnotes.Name.LocalName);
-        XElement footnote = Assert.Single(footnotes.Descendants("p"));
+        XElement list = Assert.Single(footnotes.Elements("ol"));
+        XElement footnote = Assert.Single(list.Elements("li"));
         Assert.Contains("Note that an", footnote.Value, StringComparison.Ordinal);
         Assert.Contains("degrees of freedom", footnote.Value, StringComparison.Ordinal);
         AssertPrecedes(programThree, footnotes);

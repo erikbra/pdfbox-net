@@ -1124,6 +1124,19 @@ public static class PdfHtmlConverter
           padding-top: 0;
         }
 
+        .pdf-semantic-footnote-group-label {
+          border: 0;
+          clip: rect(0 0 0 0);
+          clip-path: inset(50%);
+          height: 1px;
+          margin: -1px;
+          overflow: hidden;
+          padding: 0;
+          position: absolute;
+          white-space: nowrap;
+          width: 1px;
+        }
+
         .pdf-semantic-footnotes::before {
           border-top: var(--pdf-footnote-rule-thickness, 0.5pt) solid var(--pdf-footnote-rule-color, #9ca3af);
           content: "";
@@ -1132,20 +1145,33 @@ public static class PdfHtmlConverter
           width: var(--pdf-footnote-rule-width, 144pt);
         }
 
-        .pdf-semantic-footnotes p {
+        .pdf-semantic-note-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+
+        .pdf-semantic-footnotes .pdf-semantic-footnote {
           line-height: 1.18;
           margin: 0 0 4pt;
         }
 
-        .pdf-semantic-inline-footnotes {
-          display: block;
-          margin: 10pt 0 8pt;
+        .pdf-semantic-footnote-marker {
+          display: inline-block;
+          min-width: 1.25em;
         }
 
-        .pdf-semantic-inline-footnotes .pdf-semantic-footnote {
-          display: block;
-          line-height: 1.18;
-          margin: 0 0 4pt;
+        .pdf-semantic-footnote-backrefs {
+          border: 0;
+          clip: rect(0 0 0 0);
+          clip-path: inset(50%);
+          height: 1px;
+          margin: -1px;
+          overflow: hidden;
+          padding: 0;
+          position: absolute;
+          white-space: nowrap;
+          width: 1px;
         }
 
         .pdf-semantic-footnote-ref,
@@ -3175,8 +3201,12 @@ public static class PdfHtmlConverter
         float scale,
         PdfSemanticExtractionOptions semanticOptions)
     {
+        FootnoteContext[] footnoteContexts = FootnoteContext.CreateContinuous(layout.Pages, semantic.Pages);
         ContinuousPageContext[] pages = layout.Pages
-            .Select((page, index) => CreateContinuousPageContext(page, semantic.Pages[index]))
+            .Select((page, index) => CreateContinuousPageContext(
+                page,
+                semantic.Pages[index],
+                footnoteContexts[index]))
             .ToArray();
         Dictionary<int, ContinuousParagraphMerge> paragraphMerges = [];
         HashSet<PdfSemanticElement> skippedElements = [];
@@ -3206,11 +3236,6 @@ public static class PdfHtmlConverter
             if (merge.CurrentPageNumberFooter != null)
             {
                 skippedElements.Add(merge.CurrentPageNumberFooter);
-            }
-
-            foreach (PdfSemanticElement footnote in merge.CurrentTrailingFootnotes)
-            {
-                skippedElements.Add(footnote);
             }
 
             foreach (PdfSemanticElement element in merge.LeadingElements)
@@ -3537,7 +3562,10 @@ public static class PdfHtmlConverter
             ";right:0";
     }
 
-    private static ContinuousPageContext CreateContinuousPageContext(PdfLayoutPage page, PdfSemanticPage semanticPage)
+    private static ContinuousPageContext CreateContinuousPageContext(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        FootnoteContext? footnotes = null)
     {
         PdfSemanticLineGrid? lineGrid = TryCreateSemanticLineGrid(page, semanticPage);
         PdfSemanticColumns? columns = lineGrid == null
@@ -3555,7 +3583,7 @@ public static class PdfHtmlConverter
         return new ContinuousPageContext(
             page,
             semanticPage,
-            FootnoteContext.Create(page.PageNumber, semanticPage.Elements),
+            footnotes ?? FootnoteContext.Create(page.PageNumber, semanticPage.Elements),
             positioned,
             flowElements,
             figureRegions,
@@ -4920,25 +4948,27 @@ public static class PdfHtmlConverter
             .Where(region => region.Y < continuationElement.Bounds.Y - 2f)
             .ToArray();
         PdfSemanticElement? currentPageNumberFooter = FindSimplePageNumberFooterAfter(current, startElement);
-        PdfSemanticElement[] currentTrailingFootnotes = FindTrailingFootnotesAfter(current, startElement, currentPageNumberFooter);
+        if (HasTrailingFootnoteAfter(current, startElement, currentPageNumberFooter))
+        {
+            return null;
+        }
+
         return new ContinuousParagraphMerge(
             current,
             next,
             startElement,
             continuationElement,
             currentPageNumberFooter,
-            currentTrailingFootnotes,
             leadingElements,
             leadingFigureRegions);
     }
 
-    private static PdfSemanticElement[] FindTrailingFootnotesAfter(
+    private static bool HasTrailingFootnoteAfter(
         ContinuousPageContext context,
         PdfSemanticElement startElement,
         PdfSemanticElement? currentPageNumberFooter)
     {
         bool foundStart = false;
-        List<PdfSemanticElement> footnotes = [];
         foreach (PdfSemanticElement element in context.FlowElements)
         {
             if (ReferenceEquals(element, startElement))
@@ -4964,8 +4994,7 @@ public static class PdfHtmlConverter
 
             if (element.Kind == PdfSemanticElementKind.Footnote)
             {
-                footnotes.Add(element);
-                continue;
+                return true;
             }
 
             if (element.Kind == PdfSemanticElementKind.Header)
@@ -4976,7 +5005,7 @@ public static class PdfHtmlConverter
             break;
         }
 
-        return footnotes.ToArray();
+        return false;
     }
 
     private static PdfSemanticElement? FindSimplePageNumberFooterAfter(
@@ -5172,16 +5201,6 @@ public static class PdfHtmlConverter
 
         html.Append('>');
         WriteSemanticText(html, merge.StartElement, merge.Current.Footnotes, merge.Current.Page);
-        if (merge.CurrentTrailingFootnotes.Count > 0)
-        {
-            WriteInlineFootnoteSection(
-                html,
-                merge.CurrentTrailingFootnotes,
-                merge.Current.Footnotes,
-                merge.Current.Page,
-                DecorativeFootnoteRulePath(merge.Current.Page, merge.Current.SemanticPage));
-        }
-
         if (merge.CurrentPageNumberFooter != null)
         {
             WriteInlineFlowSemanticElement(
@@ -6401,7 +6420,23 @@ public static class PdfHtmlConverter
         PdfLayoutPage? page,
         PdfLayoutPath? footnoteRule)
     {
-        html.Append("      <section class=\"pdf-semantic-footnotes\" aria-label=\"Footnotes\"");
+        int index = startIndex;
+        List<PdfSemanticElement> fragments = [];
+        for (; index < elements.Count && elements[index].Kind == PdfSemanticElementKind.Footnote; index++)
+        {
+            fragments.Add(elements[index]);
+        }
+
+        IReadOnlyList<LogicalFootnote> notes = footnotes.NotesToRender(fragments);
+        if (notes.Count == 0)
+        {
+            return index - 1;
+        }
+
+        string labelId = footnotes.NextGroupLabelId();
+        html.Append("      <section class=\"pdf-semantic-footnotes\" aria-labelledby=\"")
+            .Append(HtmlAttribute(labelId))
+            .Append('"');
         if (footnoteRule != null)
         {
             html.Append(" style=\"")
@@ -6410,64 +6445,18 @@ public static class PdfHtmlConverter
         }
 
         html.AppendLine(">");
-        int index = startIndex;
-        for (; index < elements.Count && elements[index].Kind == PdfSemanticElementKind.Footnote; index++)
+        html.Append("        <h2 id=\"")
+            .Append(HtmlAttribute(labelId))
+            .AppendLine("\" class=\"pdf-semantic-footnote-group-label\">Footnotes</h2>");
+        html.AppendLine("        <ol class=\"pdf-semantic-note-list\">");
+        foreach (LogicalFootnote note in notes)
         {
-            WriteFootnote(html, elements[index], footnotes, page);
+            WriteFootnote(html, note, footnotes, page);
         }
 
+        html.AppendLine("        </ol>");
         html.AppendLine("      </section>");
         return index - 1;
-    }
-
-    private static void WriteInlineFootnoteSection(
-        StringBuilder html,
-        IReadOnlyList<PdfSemanticElement> footnoteElements,
-        FootnoteContext footnotes,
-        PdfLayoutPage? page,
-        PdfLayoutPath? footnoteRule)
-    {
-        html.Append("<span class=\"pdf-semantic-footnotes pdf-semantic-inline-footnotes\" aria-label=\"Footnotes\"");
-        if (footnoteRule != null)
-        {
-            html.Append(" style=\"")
-                .Append(HtmlAttribute(FootnoteRuleStyle(footnoteRule)))
-                .Append('"');
-        }
-
-        html.Append(">");
-        foreach (PdfSemanticElement footnote in footnoteElements)
-        {
-            WriteInlineFootnote(html, footnote, footnotes, page);
-        }
-
-        html.Append("</span>");
-    }
-
-    private static void WriteInlineFootnote(
-        StringBuilder html,
-        PdfSemanticElement element,
-        FootnoteContext footnotes,
-        PdfLayoutPage? page)
-    {
-        string text = element.Text.Trim();
-        string marker = text.Length > 0 ? text[..1] : "";
-        string body = footnotes.Contains(marker) && text.Length > marker.Length
-            ? text[marker.Length..].TrimStart()
-            : text;
-        html.Append("<span id=\"")
-            .Append(HtmlAttribute(footnotes.IdFor(marker)))
-            .Append("\" class=\"")
-            .Append(SemanticClassNames(element))
-            .Append('"');
-        AppendTextDirectionAttribute(html, element.Text);
-        html.Append("><a class=\"pdf-semantic-footnote-backref\" href=\"")
-            .Append(HtmlAttribute(footnotes.FirstReferenceHref(marker)))
-            .Append("\">")
-            .Append(Html(marker))
-            .Append("</a> ");
-        WriteFootnoteBody(html, element, marker, body, footnotes, page);
-        html.Append("</span>");
     }
 
     private static string FootnoteRuleStyle(PdfLayoutPath path)
@@ -7723,7 +7712,8 @@ public static class PdfHtmlConverter
                 PdfSemanticElementKind.Footnote,
                 string.Join(' ', lines.Select(static footnoteLine => footnoteLine.Text.Trim())),
                 UnionRectangles(lines.Select(static footnoteLine => footnoteLine.Bounds)),
-                lines);
+                lines,
+                note: new PdfSemanticNote(marker));
         }
 
         return null;
@@ -10140,10 +10130,10 @@ public static class PdfHtmlConverter
         int offset,
         FootnoteContext footnotes)
     {
-        return segment.Text.Length == 1 &&
-            segment.Role == InlineBaselineRole.Superscript &&
-            footnotes.Contains(segment.Text) &&
-            IsFootnoteReferenceBoundary(lineText, offset);
+        return segment.Role == InlineBaselineRole.Superscript &&
+            footnotes.TryMatchReference(segment.Text, 0, out _, out int markerLength) &&
+            markerLength == segment.Text.Length &&
+            IsFootnoteReferenceBoundary(lineText, offset, markerLength);
     }
 
     private static string InlineRunClassNames(
@@ -10226,26 +10216,115 @@ public static class PdfHtmlConverter
 
     private static void WriteFootnote(
         StringBuilder html,
-        PdfSemanticElement element,
+        LogicalFootnote note,
         FootnoteContext footnotes,
         PdfLayoutPage? page)
     {
-        string text = element.Text.Trim();
-        string marker = text.Length > 0 ? text[..1] : "";
-        string body = footnotes.Contains(marker) && text.Length > marker.Length
-            ? text[marker.Length..].TrimStart()
-            : text;
-        html.Append("        <p id=\"")
-            .Append(HtmlAttribute(footnotes.IdFor(marker)))
+        PdfSemanticElement element = note.Fragments[0].Element;
+        string marker = note.Marker;
+        html.Append("          <li id=\"")
+            .Append(HtmlAttribute(note.Id))
             .Append("\" class=\"")
             .Append(SemanticClassNames(element))
-            .Append("\"><a class=\"pdf-semantic-footnote-backref\" href=\"")
-            .Append(HtmlAttribute(footnotes.FirstReferenceHref(marker)))
-            .Append("\">")
-            .Append(Html(marker))
-            .Append("</a> ");
-        WriteFootnoteBody(html, element, marker, body, footnotes, page);
-        html.AppendLine("</p>");
+            .Append("\" data-note-marker=\"")
+            .Append(HtmlAttribute(marker))
+            .Append('"');
+        if (int.TryParse(marker, NumberStyles.None, CultureInfo.InvariantCulture, out int numericMarker) &&
+            numericMarker > 0)
+        {
+            html.Append(" value=\"")
+                .Append(numericMarker.ToString(CultureInfo.InvariantCulture))
+                .Append('"');
+        }
+
+        AppendTextDirectionAttribute(html, element.Text);
+        html.Append("><span class=\"pdf-semantic-footnote-marker\">");
+        WriteFootnoteMarker(html, note);
+        html.Append("</span> ");
+
+        string previousText = "";
+        for (int fragmentIndex = 0; fragmentIndex < note.Fragments.Count; fragmentIndex++)
+        {
+            FootnoteFragment fragment = note.Fragments[fragmentIndex];
+            bool isContinuation = fragmentIndex > 0 || fragment.Element.Note?.ContinuesPreviousNote == true;
+            string text = fragment.Element.Text.Trim();
+            string markerToSkip = isContinuation ? "" : marker;
+            string body = markerToSkip.Length > 0 && StartsWithFootnoteMarker(text, markerToSkip)
+                ? text[markerToSkip.Length..].TrimStart()
+                : text;
+            if (isContinuation)
+            {
+                if (NeedsSpaceBetween(previousText, body))
+                {
+                    html.Append(' ');
+                }
+
+                html.Append("<span class=\"pdf-semantic-note-continuation\" data-source-page=\"")
+                    .Append(fragment.PageNumber.ToString(CultureInfo.InvariantCulture))
+                    .Append("\">");
+            }
+
+            WriteFootnoteBody(
+                html,
+                fragment.Element,
+                markerToSkip,
+                body,
+                fragment.Context,
+                fragment.Page ?? page);
+            if (isContinuation)
+            {
+                html.Append("</span>");
+            }
+
+            previousText = body;
+        }
+
+        WriteAdditionalFootnoteBacklinks(html, note);
+        html.AppendLine("</li>");
+    }
+
+    private static void WriteFootnoteMarker(StringBuilder html, LogicalFootnote note)
+    {
+        if (note.ReferenceIds.Count == 0)
+        {
+            html.Append(Html(note.Marker));
+            return;
+        }
+
+        html.Append("<a class=\"pdf-semantic-footnote-backref\" href=\"#")
+            .Append(HtmlAttribute(note.ReferenceIds[0]))
+            .Append("\" aria-label=\"Back to note reference 1\">")
+            .Append(Html(note.Marker))
+            .Append("</a>");
+    }
+
+    private static void WriteAdditionalFootnoteBacklinks(StringBuilder html, LogicalFootnote note)
+    {
+        if (note.ReferenceIds.Count <= 1)
+        {
+            return;
+        }
+
+        html.Append(" <span class=\"pdf-semantic-footnote-backrefs\">");
+        for (int index = 1; index < note.ReferenceIds.Count; index++)
+        {
+            string referenceNumber = (index + 1).ToString(CultureInfo.InvariantCulture);
+            html.Append("<a class=\"pdf-semantic-footnote-backref\" href=\"#")
+                .Append(HtmlAttribute(note.ReferenceIds[index]))
+                .Append("\" aria-label=\"Back to note reference ")
+                .Append(referenceNumber)
+                .Append("\">")
+                .Append(referenceNumber)
+                .Append("</a>");
+        }
+
+        html.Append("</span>");
+    }
+
+    private static bool StartsWithFootnoteMarker(string text, string marker)
+    {
+        return text.StartsWith(marker, StringComparison.Ordinal) &&
+            (text.Length == marker.Length || char.IsWhiteSpace(text[marker.Length]));
     }
 
     private static void WriteFootnoteBody(
@@ -10283,7 +10362,7 @@ public static class PdfHtmlConverter
             PdfSemanticElementKind.BlockQuote => "blockquote",
             PdfSemanticElementKind.Aside => "aside",
             PdfSemanticElementKind.AuthorBlock => "address",
-            PdfSemanticElementKind.Footnote => "p",
+            PdfSemanticElementKind.Footnote => "li",
             PdfSemanticElementKind.Footer => "footer",
             PdfSemanticElementKind.Header => "header",
             _ => "div"
@@ -11572,12 +11651,11 @@ public static class PdfHtmlConverter
                 continue;
             }
 
-            string marker = text[index].ToString();
             int boundaryIndex = boundaryOffset + index;
-            if (footnotes.Contains(marker) &&
+            if (footnotes.TryMatchReference(text, index, out string marker, out int markerLength) &&
                 boundaryIndex >= 0 &&
                 boundaryIndex < boundaryText.Length &&
-                IsFootnoteReferenceBoundary(boundaryText, boundaryIndex))
+                IsFootnoteReferenceBoundary(boundaryText, boundaryIndex, markerLength))
             {
                 string referenceId = footnotes.NextReferenceId(marker);
                 html.Append("<sup id=\"")
@@ -11585,8 +11663,9 @@ public static class PdfHtmlConverter
                     .Append("\"><a class=\"pdf-semantic-footnote-ref\" href=\"#")
                     .Append(HtmlAttribute(footnotes.IdFor(marker)))
                     .Append("\">")
-                    .Append(Html(marker))
+                    .Append(Html(text.Substring(index, markerLength)))
                     .Append("</a></sup>");
+                index += markerLength - 1;
                 continue;
             }
 
@@ -11669,10 +11748,13 @@ public static class PdfHtmlConverter
         return char.IsLetterOrDigit(character) || character is '.' or '-';
     }
 
-    private static bool IsFootnoteReferenceBoundary(string text, int index)
+    private static bool IsFootnoteReferenceBoundary(string text, int index, int length = 1)
     {
         bool before = index == 0 || char.IsWhiteSpace(text[index - 1]) || text[index - 1] == '(';
-        bool after = index == text.Length - 1 || char.IsWhiteSpace(text[index + 1]) || text[index + 1] is ',' or ';' or '.' or ')';
+        int afterIndex = index + length;
+        bool after = afterIndex >= text.Length ||
+            char.IsWhiteSpace(text[afterIndex]) ||
+            text[afterIndex] is ',' or ';' or '.' or ')';
         return before && after;
     }
 
@@ -12167,7 +12249,6 @@ public static class PdfHtmlConverter
             PdfSemanticElement startElement,
             PdfSemanticElement continuationElement,
             PdfSemanticElement? currentPageNumberFooter,
-            IReadOnlyList<PdfSemanticElement> currentTrailingFootnotes,
             IReadOnlyList<PdfSemanticElement> leadingElements,
             IReadOnlyList<PdfLayoutRectangle> leadingFigureRegions)
         {
@@ -12176,7 +12257,6 @@ public static class PdfHtmlConverter
             StartElement = startElement;
             ContinuationElement = continuationElement;
             CurrentPageNumberFooter = currentPageNumberFooter;
-            CurrentTrailingFootnotes = currentTrailingFootnotes;
             LeadingElements = leadingElements;
             LeadingFigureRegions = leadingFigureRegions;
         }
@@ -12190,8 +12270,6 @@ public static class PdfHtmlConverter
         public PdfSemanticElement ContinuationElement { get; }
 
         public PdfSemanticElement? CurrentPageNumberFooter { get; }
-
-        public IReadOnlyList<PdfSemanticElement> CurrentTrailingFootnotes { get; }
 
         public IReadOnlyList<PdfSemanticElement> LeadingElements { get; }
 
@@ -12374,69 +12452,300 @@ public static class PdfHtmlConverter
         }
     }
 
+    private sealed class FootnoteFragment
+    {
+        public FootnoteFragment(
+            PdfSemanticElement element,
+            int pageNumber,
+            FootnoteContext context,
+            PdfLayoutPage? page)
+        {
+            Element = element;
+            PageNumber = pageNumber;
+            Context = context;
+            Page = page;
+        }
+
+        public PdfSemanticElement Element { get; }
+
+        public int PageNumber { get; }
+
+        public FootnoteContext Context { get; }
+
+        public PdfLayoutPage? Page { get; }
+    }
+
+    private sealed class LogicalFootnote
+    {
+        private readonly List<FootnoteFragment> _fragments = [];
+        private readonly List<string> _referenceIds = [];
+
+        public LogicalFootnote(string key, string marker, string id)
+        {
+            Key = key;
+            Marker = marker;
+            Id = id;
+        }
+
+        public string Key { get; }
+
+        public string Marker { get; }
+
+        public string Id { get; }
+
+        public IReadOnlyList<FootnoteFragment> Fragments => _fragments;
+
+        public IReadOnlyList<string> ReferenceIds => _referenceIds;
+
+        public void AddFragment(FootnoteFragment fragment)
+        {
+            if (_fragments.Any(existing => ReferenceEquals(existing.Element, fragment.Element)) ||
+                fragment.Element.Note?.ContinuesPreviousNote != true &&
+                _fragments.Any(existing =>
+                    existing.PageNumber == fragment.PageNumber &&
+                    string.Equals(existing.Element.Text, fragment.Element.Text, StringComparison.Ordinal)))
+            {
+                return;
+            }
+
+            _fragments.Add(fragment);
+        }
+
+        public string NextReferenceId()
+        {
+            string id = $"{Id}-ref-{(_referenceIds.Count + 1).ToString(CultureInfo.InvariantCulture)}";
+            _referenceIds.Add(id);
+            return id;
+        }
+    }
+
     private sealed class FootnoteContext
     {
         private readonly int _pageNumber;
-        private readonly Dictionary<string, string> _footnoteIds;
-        private readonly Dictionary<string, int> _referenceCounts = new(StringComparer.Ordinal);
+        private readonly PdfLayoutPage? _page;
+        private readonly Dictionary<string, LogicalFootnote> _notesByMarker = new(StringComparer.Ordinal);
+        private readonly Dictionary<PdfSemanticElement, LogicalFootnote> _notesByElement = [];
+        private int _groupCount;
 
-        private FootnoteContext(int pageNumber, Dictionary<string, string> footnoteIds)
+        private FootnoteContext(int pageNumber, PdfLayoutPage? page = null)
         {
             _pageNumber = pageNumber;
-            _footnoteIds = footnoteIds;
+            _page = page;
         }
 
         public static FootnoteContext Create(int pageNumber, IReadOnlyList<PdfSemanticElement> elements)
         {
-            Dictionary<string, string> ids = new(StringComparer.Ordinal);
-            foreach (PdfSemanticElement footnote in elements.Where(static element => element.Kind == PdfSemanticElementKind.Footnote))
+            FootnoteContext context = new(pageNumber);
+            foreach (PdfSemanticElement element in elements.Where(static element =>
+                element.Kind == PdfSemanticElementKind.Footnote))
             {
-                string text = footnote.Text.Trim();
-                if (text.Length == 0)
-                {
-                    continue;
-                }
-
-                string marker = text[..1];
-                ids.TryAdd(marker, $"page-{pageNumber.ToString(CultureInfo.InvariantCulture)}-fn-{FootnoteMarkerToken(marker)}");
+                context.AddElement(element);
             }
 
-            return new FootnoteContext(pageNumber, ids);
+            return context;
+        }
+
+        public static FootnoteContext[] CreateContinuous(
+            IReadOnlyList<PdfLayoutPage> layoutPages,
+            IReadOnlyList<PdfSemanticPage> semanticPages)
+        {
+            FootnoteContext[] contexts = semanticPages
+                .Select((page, index) => new FootnoteContext(page.PageNumber, layoutPages[index]))
+                .ToArray();
+            LogicalFootnote? continuedNote = null;
+            for (int pageIndex = 0; pageIndex < semanticPages.Count; pageIndex++)
+            {
+                FootnoteContext context = contexts[pageIndex];
+                foreach (PdfSemanticElement element in semanticPages[pageIndex].Elements.Where(static element =>
+                    element.Kind == PdfSemanticElementKind.Footnote))
+                {
+                    string marker = FootnoteMarker(element);
+                    if (marker.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    string key = FootnoteMarkerKey(marker);
+                    LogicalFootnote note;
+                    if (element.Note?.ContinuesPreviousNote == true &&
+                        continuedNote != null &&
+                        string.Equals(continuedNote.Key, key, StringComparison.Ordinal))
+                    {
+                        note = continuedNote;
+                    }
+                    else if (!context._notesByMarker.TryGetValue(key, out note!))
+                    {
+                        note = CreateLogicalFootnote(semanticPages[pageIndex].PageNumber, key, marker);
+                    }
+
+                    context.MapElement(element, note);
+                    note.AddFragment(new FootnoteFragment(
+                        element,
+                        semanticPages[pageIndex].PageNumber,
+                        context,
+                        layoutPages[pageIndex]));
+                    continuedNote = element.Note?.ContinuesOnNextPage == true ? note : null;
+                }
+            }
+
+            return contexts;
         }
 
         public bool Contains(string marker)
         {
-            return _footnoteIds.ContainsKey(marker);
+            return _notesByMarker.ContainsKey(FootnoteMarkerKey(marker));
+        }
+
+        public bool TryMatchReference(
+            string text,
+            int index,
+            out string marker,
+            out int length)
+        {
+            marker = "";
+            length = 0;
+            if (index < 0 || index >= text.Length)
+            {
+                return false;
+            }
+
+            if (char.IsDigit(text[index]))
+            {
+                int end = index;
+                while (end < text.Length && end - index < 2 && char.IsDigit(text[end]))
+                {
+                    end++;
+                }
+
+                marker = text[index..end];
+                length = marker.Length;
+                return Contains(marker);
+            }
+
+            marker = text[index].ToString();
+            length = 1;
+            return marker[0] is '*' or '∗' or '†' or '‡' && Contains(marker);
         }
 
         public void Register(string marker)
         {
-            if (marker.Length > 0)
+            if (marker.Length == 0)
             {
-                _footnoteIds.TryAdd(
-                    marker,
-                    $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-fn-{FootnoteMarkerToken(marker)}");
+                return;
+            }
+
+            string key = FootnoteMarkerKey(marker);
+            if (!_notesByMarker.ContainsKey(key))
+            {
+                _notesByMarker[key] = CreateLogicalFootnote(_pageNumber, key, marker);
             }
         }
 
         public string IdFor(string marker)
         {
-            return _footnoteIds.TryGetValue(marker, out string? id)
-                ? id
-                : $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-fn";
+            Register(marker);
+            return _notesByMarker[FootnoteMarkerKey(marker)].Id;
         }
 
         public string NextReferenceId(string marker)
         {
-            _referenceCounts.TryGetValue(marker, out int count);
-            count++;
-            _referenceCounts[marker] = count;
-            return $"{IdFor(marker)}-ref-{count.ToString(CultureInfo.InvariantCulture)}";
+            Register(marker);
+            return _notesByMarker[FootnoteMarkerKey(marker)].NextReferenceId();
         }
 
-        public string FirstReferenceHref(string marker)
+        public IReadOnlyList<LogicalFootnote> NotesToRender(IReadOnlyList<PdfSemanticElement> elements)
         {
-            return "#" + IdFor(marker) + "-ref-1";
+            List<LogicalFootnote> notes = [];
+            foreach (PdfSemanticElement element in elements)
+            {
+                if (!_notesByElement.TryGetValue(element, out LogicalFootnote? note))
+                {
+                    note = AddElement(element);
+                }
+
+                if (note != null &&
+                    note.Fragments.Count > 0 &&
+                    ReferenceEquals(note.Fragments[0].Element, element) &&
+                    !notes.Contains(note))
+                {
+                    notes.Add(note);
+                }
+            }
+
+            return notes;
+        }
+
+        public string NextGroupLabelId()
+        {
+            _groupCount++;
+            return $"page-{_pageNumber.ToString(CultureInfo.InvariantCulture)}-footnotes-{_groupCount.ToString(CultureInfo.InvariantCulture)}-label";
+        }
+
+        private LogicalFootnote? AddElement(PdfSemanticElement element)
+        {
+            string marker = FootnoteMarker(element);
+            if (marker.Length == 0)
+            {
+                return null;
+            }
+
+            string key = FootnoteMarkerKey(marker);
+            if (!_notesByMarker.TryGetValue(key, out LogicalFootnote? note))
+            {
+                note = CreateLogicalFootnote(_pageNumber, key, marker);
+            }
+
+            MapElement(element, note);
+            note.AddFragment(new FootnoteFragment(element, _pageNumber, this, _page));
+            return note;
+        }
+
+        private void MapElement(PdfSemanticElement element, LogicalFootnote note)
+        {
+            _notesByElement[element] = note;
+            _notesByMarker[note.Key] = note;
+        }
+
+        private static LogicalFootnote CreateLogicalFootnote(int pageNumber, string key, string marker)
+        {
+            return new LogicalFootnote(
+                key,
+                marker,
+                $"page-{pageNumber.ToString(CultureInfo.InvariantCulture)}-fn-{FootnoteMarkerToken(marker)}");
+        }
+
+        private static string FootnoteMarker(PdfSemanticElement element)
+        {
+            if (!string.IsNullOrWhiteSpace(element.Note?.Marker))
+            {
+                return element.Note.Marker;
+            }
+
+            string text = element.Text.TrimStart();
+            if (text.Length == 0)
+            {
+                return "";
+            }
+
+            if (text[0] is '*' or '∗' or '†' or '‡')
+            {
+                return text[..1];
+            }
+
+            int length = 0;
+            while (length < text.Length && length < 2 && char.IsDigit(text[length]))
+            {
+                length++;
+            }
+
+            return length > 0 && (length == text.Length || char.IsWhiteSpace(text[length]))
+                ? text[..length]
+                : "";
+        }
+
+        private static string FootnoteMarkerKey(string marker)
+        {
+            return marker is "*" or "∗" ? "asterisk" : marker;
         }
 
         private static string FootnoteMarkerToken(string marker)

@@ -55,7 +55,8 @@ public sealed class PdfSemanticElement
         PdfSemanticBibliographyFragment? bibliographyFragment = null,
         PdfSemanticDefinitionList? definitionList = null,
         PdfSemanticQuotation? quotation = null,
-        PdfSemanticAside? aside = null)
+        PdfSemanticAside? aside = null,
+        PdfSemanticNote? note = null)
     {
         Kind = kind;
         Text = text;
@@ -69,6 +70,7 @@ public sealed class PdfSemanticElement
         DefinitionList = definitionList;
         Quotation = quotation;
         Aside = aside;
+        Note = note;
         IsDocumentTitle = isDocumentTitle;
     }
 
@@ -103,9 +105,37 @@ public sealed class PdfSemanticElement
     public PdfSemanticAside? Aside { get; }
 
     /// <summary>
+    /// Gets the logical marker and page-continuation state for this note fragment.
+    /// </summary>
+    public PdfSemanticNote? Note { get; }
+
+    /// <summary>
     /// Gets whether this heading is the inferred document title rather than a section heading.
     /// </summary>
     public bool IsDocumentTitle { get; }
+}
+
+/// <summary>
+/// Identifies one numeric or symbol note and whether this element is a page-spanning fragment.
+/// </summary>
+public sealed class PdfSemanticNote
+{
+    public PdfSemanticNote(
+        string marker,
+        bool continuesPreviousNote = false,
+        bool continuesOnNextPage = false)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(marker);
+        Marker = marker.Trim();
+        ContinuesPreviousNote = continuesPreviousNote;
+        ContinuesOnNextPage = continuesOnNextPage;
+    }
+
+    public string Marker { get; }
+
+    public bool ContinuesPreviousNote { get; }
+
+    public bool ContinuesOnNextPage { get; }
 }
 
 /// <summary>
