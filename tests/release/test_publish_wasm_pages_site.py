@@ -87,7 +87,7 @@ class WasmPagesPublisherTest(unittest.TestCase):
             landing, not_found = create_templates(root)
             (application / "samples/hello.pdf").unlink()
 
-            with self.assertRaisesRegex(FileNotFoundError, "samples/hello.pdf"):
+            with self.assertRaises(FileNotFoundError) as raised:
                 MODULE.publish_site(
                     application,
                     root / "site",
@@ -95,3 +95,4 @@ class WasmPagesPublisherTest(unittest.TestCase):
                     not_found,
                     "/pdfbox-net/wasm/",
                 )
+            self.assertIn(str(Path("samples") / "hello.pdf"), str(raised.exception))
