@@ -48,7 +48,415 @@ public static class PdfSemanticExtractor
         PdfSemanticPage[] pages = layout.Pages.Select(page => ExtractPage(page, options)).ToArray();
         pages = LinkDefinitionListContinuations(pages);
         pages = LinkFootnoteContinuations(layout.Pages, pages);
-        return new PdfSemanticDocument(PdfSemanticBibliographyExtractor.Extract(layout, pages));
+        pages = PdfSemanticBibliographyExtractor.Extract(layout, pages).ToArray();
+        pages = pages
+            .Select((page, index) => AddThematicBreaks(layout.Pages[index], page))
+            .ToArray();
+        return new PdfSemanticDocument(pages);
+    }
+
+    private static PdfSemanticPage AddThematicBreaks(PdfLayoutPage page, PdfSemanticPage semanticPage)
+    {
+        PdfSemanticElement[] flowRegions = semanticPage.Elements
+            .Where(IsThematicBreakFlowRegion)
+            .OrderBy(static element => element.Bounds.Y)
+            .ThenBy(static element => element.Bounds.X)
+            .ToArray();
+        if (flowRegions.Length < 2)
+        {
+            return semanticPage;
+        }
+
+        List<PdfSemanticElement> thematicBreaks = [];
+        foreach (PdfLayoutPath path in page.Paths)
+        {
+            if (!TryCreateThematicRuleCandidate(page, path, out ThematicRuleCandidate candidate) ||
+                IsOwnedThematicRuleCandidate(page, semanticPage, path, candidate) ||
+                !TryGetThematicBreakNeighbors(
+                    page,
+                    semanticPage.Elements,
+                    flowRegions,
+                    candidate,
+                    out PdfSemanticElement? previous,
+                    out PdfSemanticElement? next))
+            {
+                continue;
+            }
+
+            thematicBreaks.Add(new PdfSemanticElement(
+                PdfSemanticElementKind.ThematicBreak,
+                "",
+                candidate.Bounds,
+                [],
+                thematicBreak: new PdfSemanticThematicBreak(
+                    path.Index,
+                    candidate.Thickness,
+                    candidate.Color,
+                    ThematicBreakAlignment(page, candidate.Bounds, previous!, next!))));
+        }
+
+        if (thematicBreaks.Count == 0)
+        {
+            return semanticPage;
+        }
+
+        return new PdfSemanticPage(
+            semanticPage.PageNumber,
+            semanticPage.Elements
+                .Concat(thematicBreaks)
+                .OrderBy(static element => element.Bounds.Y)
+                .ThenBy(static element => element.Bounds.X)
+                .ToArray());
+    }
+
+    private static bool IsThematicBreakFlowRegion(PdfSemanticElement element)
+    {
+        return element.Kind is PdfSemanticElementKind.Heading or
+            PdfSemanticElementKind.Paragraph or
+            PdfSemanticElementKind.List or
+            PdfSemanticElementKind.Table or
+            PdfSemanticElementKind.AuthorBlock or
+            PdfSemanticElementKind.FrontMatter or
+            PdfSemanticElementKind.Navigation or
+            PdfSemanticElementKind.Bibliography or
+            PdfSemanticElementKind.DefinitionList or
+            PdfSemanticElementKind.BlockQuote or
+            PdfSemanticElementKind.Aside or
+            PdfSemanticElementKind.CodeBlock;
+    }
+
+    private static bool TryCreateThematicRuleCandidate(
+        PdfLayoutPage page,
+        PdfLayoutPath path,
+        out ThematicRuleCandidate candidate)
+    {
+        candidate = default;
+        if (path.UsesShapeAlpha || path.UsesSoftMask ||
+            path.Stroke?.DashArray.Any(static dash => dash > 0f) == true)
+        {
+            return false;
+        }
+
+        PdfLayoutRectangle sourceBounds;
+        float thickness;
+        PdfLayoutColor color;
+        bool directStroke = path.IsStroked &&
+            path.Commands.Count == 2 &&
+            path.Commands[0].Kind == PdfLayoutPathCommandKind.MoveTo &&
+            path.Commands[1].Kind == PdfLayoutPathCommandKind.LineTo;
+        if (directStroke)
+        {
+            PdfLayoutPathCommand start = path.Commands[0];
+            PdfLayoutPathCommand end = path.Commands[1];
+            float width = MathF.Abs(end.X1 - start.X1);
+            float rise = MathF.Abs(end.Y1 - start.Y1);
+            thickness = MathF.Max(0.01f, path.Stroke!.Width);
+            if (rise > MathF.Max(0.75f, thickness * 0.5f))
+            {
+                return false;
+            }
+
+            float centerY = (start.Y1 + end.Y1) / 2f;
+            sourceBounds = new PdfLayoutRectangle(
+                MathF.Min(start.X1, end.X1),
+                centerY - thickness / 2f,
+                width,
+                thickness);
+            color = path.Stroke.Color;
+        }
+        else if (path.IsFilled &&
+            path.Bounds.Height > 0.01f &&
+            path.Bounds.Height <= 4f &&
+            path.Commands.All(static command => command.Kind != PdfLayoutPathCommandKind.CurveTo))
+        {
+            sourceBounds = path.Bounds;
+            thickness = MathF.Max(path.Bounds.Height, path.Stroke?.Width ?? 0f);
+            color = path.FillColor!.Value;
+        }
+        else
+        {
+            return false;
+        }
+
+        if (sourceBounds.Width < page.Width * 0.18f ||
+            sourceBounds.Width > page.Width * 0.90f ||
+            sourceBounds.Width < MathF.Max(24f, sourceBounds.Height * 20f) ||
+            sourceBounds.Y < page.Height * 0.06f ||
+            sourceBounds.Bottom > page.Height * 0.94f ||
+            color.Alpha <= 0.01f)
+        {
+            return false;
+        }
+
+        candidate = new ThematicRuleCandidate(sourceBounds, thickness, color);
+        return true;
+    }
+
+    private static bool IsOwnedThematicRuleCandidate(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        PdfLayoutPath path,
+        ThematicRuleCandidate candidate)
+    {
+        if (IsTitleRuleCandidate(page, semanticPage.Elements, candidate.Bounds) ||
+            IsFootnoteRuleCandidate(page, semanticPage.Elements, candidate.Bounds) ||
+            IsTableRuleCandidate(semanticPage.Elements, candidate.Bounds) ||
+            page.FormControls.Any(control => Intersects(
+                ExpandRectangle(control.Bounds, 6f, 6f),
+                candidate.Bounds)) ||
+            page.Images.Any(image => Intersects(
+                ExpandRectangle(image.Bounds, 18f, 18f),
+                candidate.Bounds)) ||
+            page.VectorGroups.Any(group =>
+                group.HasPaths &&
+                path.Index >= group.FirstPathIndex &&
+                path.Index <= group.LastPathIndex))
+        {
+            return true;
+        }
+
+        return IsConnectedToOtherVector(page, path, candidate.Bounds);
+    }
+
+    private static bool IsTitleRuleCandidate(
+        PdfLayoutPage page,
+        IReadOnlyList<PdfSemanticElement> elements,
+        PdfLayoutRectangle ruleBounds)
+    {
+        return elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Heading && element.IsDocumentTitle)
+            .Any(title =>
+            {
+                bool spansTitle = ruleBounds.Width >= MathF.Max(title.Bounds.Width * 0.90f, page.Width * 0.40f) &&
+                    ruleBounds.X <= title.Bounds.X + 8f &&
+                    ruleBounds.Right >= title.Bounds.Right - 8f;
+                if (!spansTitle)
+                {
+                    return false;
+                }
+
+                float gapAbove = title.Bounds.Y - ruleBounds.Bottom;
+                float gapBelow = ruleBounds.Y - title.Bounds.Bottom;
+                return gapAbove is >= -3f and <= 32f || gapBelow is >= -3f and <= 32f;
+            });
+    }
+
+    private static bool IsFootnoteRuleCandidate(
+        PdfLayoutPage page,
+        IReadOnlyList<PdfSemanticElement> elements,
+        PdfLayoutRectangle ruleBounds)
+    {
+        PdfSemanticElement[] footnotes = elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Footnote)
+            .ToArray();
+        if (footnotes.Length == 0)
+        {
+            return false;
+        }
+
+        float footnoteTop = footnotes.Min(static footnote => footnote.Bounds.Y);
+        float footnoteLeft = footnotes.Min(static footnote => footnote.Bounds.X);
+        return ruleBounds.Width >= page.Width * 0.10f &&
+            ruleBounds.Width <= page.Width * 0.45f &&
+            ruleBounds.X <= footnoteLeft + 16f &&
+            ruleBounds.Y <= footnoteTop + 4f &&
+            footnoteTop - ruleBounds.Y <= 28f;
+    }
+
+    private static bool IsTableRuleCandidate(
+        IReadOnlyList<PdfSemanticElement> elements,
+        PdfLayoutRectangle ruleBounds)
+    {
+        return elements
+            .Where(static element => element.Kind == PdfSemanticElementKind.Table)
+            .Any(table => Intersects(ExpandRectangle(table.Bounds, 10f, 10f), ruleBounds));
+    }
+
+    private static bool IsConnectedToOtherVector(
+        PdfLayoutPage page,
+        PdfLayoutPath source,
+        PdfLayoutRectangle ruleBounds)
+    {
+        PdfLayoutRectangle nearby = ExpandRectangle(ruleBounds, 8f, 12f);
+        foreach (PdfLayoutPath path in page.Paths.Where(path => !ReferenceEquals(path, source)))
+        {
+            if (Intersects(nearby, ExpandPathBounds(path)))
+            {
+                return true;
+            }
+
+            foreach (PdfLayoutRectangle segment in PathRuleSegments(path))
+            {
+                bool joinsRule = segment.Height >= 6f &&
+                    segment.Height >= MathF.Max(0.1f, segment.Width) * 8f &&
+                    segment.X + segment.Width / 2f >= ruleBounds.X - 2f &&
+                    segment.X + segment.Width / 2f <= ruleBounds.Right + 2f &&
+                    segment.Y <= ruleBounds.Bottom + 2f &&
+                    segment.Bottom >= ruleBounds.Y - 2f;
+                if (joinsRule)
+                {
+                    return true;
+                }
+            }
+
+            if (TryCreateThematicRuleCandidate(page, path, out ThematicRuleCandidate parallel) &&
+                MathF.Abs(parallel.Bounds.X - ruleBounds.X) <= 4f &&
+                MathF.Abs(parallel.Bounds.Right - ruleBounds.Right) <= 4f &&
+                MathF.Abs(
+                    parallel.Bounds.Y + parallel.Bounds.Height / 2f -
+                    (ruleBounds.Y + ruleBounds.Height / 2f)) <= page.Height * 0.12f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static PdfLayoutRectangle ExpandPathBounds(PdfLayoutPath path)
+    {
+        float strokeInset = MathF.Max(0f, (path.Stroke?.Width ?? 0f) / 2f);
+        return ExpandRectangle(path.Bounds, strokeInset, strokeInset);
+    }
+
+    private static bool TryGetThematicBreakNeighbors(
+        PdfLayoutPage page,
+        IReadOnlyList<PdfSemanticElement> semanticElements,
+        IReadOnlyList<PdfSemanticElement> flowRegions,
+        ThematicRuleCandidate candidate,
+        out PdfSemanticElement? previous,
+        out PdfSemanticElement? next)
+    {
+        previous = flowRegions
+            .Where(element => element.Bounds.Bottom <= candidate.Bounds.Y + 0.5f)
+            .Where(element => SharesThematicFlowLane(candidate.Bounds, element.Bounds))
+            .OrderByDescending(static element => element.Bounds.Bottom)
+            .ThenBy(static element => element.Bounds.X)
+            .FirstOrDefault();
+        next = flowRegions
+            .Where(element => element.Bounds.Y >= candidate.Bounds.Bottom - 0.5f)
+            .Where(element => SharesThematicFlowLane(candidate.Bounds, element.Bounds))
+            .OrderBy(static element => element.Bounds.Y)
+            .ThenBy(static element => element.Bounds.X)
+            .FirstOrDefault();
+        if (previous == null || next == null || ReferenceEquals(previous, next))
+        {
+            return false;
+        }
+
+        float[] fontSizes = flowRegions
+            .SelectMany(static element => element.Lines)
+            .Select(static line => line.DominantFontSize)
+            .Where(static size => size > 0f)
+            .Order()
+            .ToArray();
+        float bodySize = fontSizes.Length == 0 ? 10f : fontSizes[fontSizes.Length / 2];
+        float gapAbove = candidate.Bounds.Y - previous.Bounds.Bottom;
+        float gapBelow = next.Bounds.Y - candidate.Bounds.Bottom;
+        float minimumSideGap = MathF.Max(5f, bodySize * 0.60f);
+        float minimumTransitionGap = MathF.Max(22f, bodySize * 2.4f);
+        if (gapAbove < minimumSideGap ||
+            gapBelow < minimumSideGap ||
+            gapAbove + gapBelow < minimumTransitionGap)
+        {
+            return false;
+        }
+
+        if (HasSideBySideFlowOutsideRuleLane(page, candidate.Bounds, previous, next))
+        {
+            return false;
+        }
+
+        PdfLayoutRectangle transitionRegion = new(
+            MathF.Min(previous.Bounds.X, next.Bounds.X),
+            previous.Bounds.Bottom,
+            MathF.Max(previous.Bounds.Right, next.Bounds.Right) - MathF.Min(previous.Bounds.X, next.Bounds.X),
+            next.Bounds.Y - previous.Bounds.Bottom);
+        if (HasInterveningSemanticElement(semanticElements, previous, next, candidate.Bounds) ||
+            page.FormControls.Any(control => Intersects(control.Bounds, transitionRegion)))
+        {
+            return false;
+        }
+
+        return true;
+
+        static bool HasInterveningSemanticElement(
+            IReadOnlyList<PdfSemanticElement> elements,
+            PdfSemanticElement before,
+            PdfSemanticElement after,
+            PdfLayoutRectangle rule)
+        {
+            return elements.Any(element =>
+                !ReferenceEquals(element, before) &&
+                !ReferenceEquals(element, after) &&
+                element.Bounds.Y < after.Bounds.Y &&
+                element.Bounds.Bottom > before.Bounds.Bottom &&
+                SharesThematicFlowLane(rule, element.Bounds));
+        }
+    }
+
+    private static bool HasSideBySideFlowOutsideRuleLane(
+        PdfLayoutPage page,
+        PdfLayoutRectangle ruleBounds,
+        PdfSemanticElement previous,
+        PdfSemanticElement next)
+    {
+        float transitionTop = previous.Bounds.Bottom;
+        float transitionBottom = next.Bounds.Y;
+        float laneGutter = MathF.Max(8f, page.Width * 0.015f);
+        return page.Runs
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .Where(run =>
+            {
+                float centerY = run.Bounds.Y + run.Bounds.Height / 2f;
+                return centerY > transitionTop && centerY < transitionBottom;
+            })
+            .Any(run =>
+                run.Bounds.Right <= ruleBounds.X - laneGutter ||
+                run.Bounds.X >= ruleBounds.Right + laneGutter);
+    }
+
+    private static bool SharesThematicFlowLane(
+        PdfLayoutRectangle ruleBounds,
+        PdfLayoutRectangle contentBounds)
+    {
+        float overlap = HorizontalOverlap(ruleBounds, contentBounds);
+        return overlap >= MathF.Min(ruleBounds.Width, contentBounds.Width) * 0.35f ||
+            ruleBounds.X + ruleBounds.Width / 2f >= contentBounds.X - 12f &&
+            ruleBounds.X + ruleBounds.Width / 2f <= contentBounds.Right + 12f;
+    }
+
+    private static PdfSemanticThematicBreakAlignment ThematicBreakAlignment(
+        PdfLayoutPage page,
+        PdfLayoutRectangle ruleBounds,
+        PdfSemanticElement previous,
+        PdfSemanticElement next)
+    {
+        float flowLeft = MathF.Min(previous.Bounds.X, next.Bounds.X);
+        float flowRight = MathF.Max(previous.Bounds.Right, next.Bounds.Right);
+        float tolerance = MathF.Max(6f, (flowRight - flowLeft) * 0.04f);
+        float ruleCenter = ruleBounds.X + ruleBounds.Width / 2f;
+        float flowCenter = flowLeft + (flowRight - flowLeft) / 2f;
+        if (MathF.Abs(ruleCenter - page.Width / 2f) <= page.Width * 0.04f ||
+            MathF.Abs(ruleCenter - flowCenter) <= tolerance)
+        {
+            return PdfSemanticThematicBreakAlignment.Center;
+        }
+
+        if (MathF.Abs(ruleBounds.X - flowLeft) <= tolerance)
+        {
+            return PdfSemanticThematicBreakAlignment.Left;
+        }
+
+        if (MathF.Abs(ruleBounds.Right - flowRight) <= tolerance)
+        {
+            return PdfSemanticThematicBreakAlignment.Right;
+        }
+
+        return ruleCenter < flowCenter
+            ? PdfSemanticThematicBreakAlignment.Left
+            : PdfSemanticThematicBreakAlignment.Right;
     }
 
     private static PdfSemanticPage[] LinkFootnoteContinuations(
@@ -144,7 +552,8 @@ public static class PdfSemanticExtractor
             source.DefinitionList,
             source.Quotation,
             source.Aside,
-            note);
+            note,
+            source.ThematicBreak);
     }
 
     private static PdfSemanticPage[] LinkDefinitionListContinuations(IReadOnlyList<PdfSemanticPage> sourcePages)
@@ -6822,6 +7231,11 @@ public static class PdfSemanticExtractor
 
         public bool Left { get; set; }
     }
+
+    private readonly record struct ThematicRuleCandidate(
+        PdfLayoutRectangle Bounds,
+        float Thickness,
+        PdfLayoutColor Color);
 
     private readonly record struct TableRule(TableRuleOrientation Orientation, PdfLayoutRectangle Bounds);
 

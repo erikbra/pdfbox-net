@@ -459,6 +459,37 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticTwoColumnRule_RemainsVectorAndIsNotPromoted()
+    {
+        PdfLayoutDocument layout = CreateSideBySideSemanticRuleLayoutFixture();
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        Assert.DoesNotContain(semanticPage.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.ThematicBreak);
+
+        PdfHtmlDocument continuous = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument continuousDom = ParseHtml(continuous.Html);
+        Assert.Equal(2, ElementsByClass(continuousDom, "pdf-semantic-column").Count());
+        Assert.Empty(continuousDom.Descendants("hr"));
+
+        PdfHtmlDocument fixedPages = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.FixedPages
+        });
+        XDocument fixedDom = ParseHtml(fixedPages.Html);
+        Assert.Empty(fixedDom.Descendants("hr"));
+        XElement sourceRule = Assert.Single(fixedDom.Descendants(), element =>
+            element.Name.LocalName == "path" &&
+            element.Attribute("data-path-index")?.Value == "11");
+        Assert.Equal("none", sourceRule.Attribute("fill")?.Value);
+        Assert.NotNull(sourceRule.Attribute("stroke"));
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_PreservesOrderedListInsideDetectedColumn()
     {
         using PDDocument document = CreateTwoColumnDocumentWithOrderedList();
@@ -2062,6 +2093,7 @@ public class PdfHtmlConverterTest
         XElement firstPage = Assert.Single(dom.Descendants("section"), section =>
             section.Attribute("id")?.Value == "page-1");
         Assert.DoesNotContain(firstPage.Descendants(), element => HasClass(element, "pdf-vector-layer"));
+        Assert.Empty(firstPage.Descendants("hr"));
         XElement title = Assert.Single(firstPage.Descendants("h1"), heading => HasClass(heading, "pdf-semantic-title"));
         Assert.True(HasClass(title, "pdf-semantic-title-rule-top"));
         Assert.True(HasClass(title, "pdf-semantic-title-rule-bottom"));
@@ -2111,6 +2143,59 @@ public class PdfHtmlConverterTest
         int labelIndex = Array.IndexOf(flowChildren, attentionLabels);
         int figureSpaceIndex = Array.FindIndex(flowChildren, element => HasClass(element, "pdf-semantic-figure-space"));
         Assert.True(labelIndex >= 0 && figureSpaceIndex > labelIndex);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsNativeThematicBreakWithoutDuplicateVector()
+    {
+        PdfLayoutColor color = new(0.2f, 0.4f, 0.6f, 1f, "DeviceRGB");
+        PdfLayoutDocument layout = CreateSemanticHtmlFixture(
+        [
+            CreateScientificFixtureLine("Leading prose keeps this focused fixture in semantic flow mode.", 72f, 40f, 390f),
+            CreateScientificFixtureLine("Its continuation establishes the page's ordinary top margin.", 72f, 52f, 360f),
+            CreateScientificFixtureLine("Opening prose establishes the ordinary page measure and rhythm.", 72f, 72f, 420f),
+            CreateScientificFixtureLine("A second line completes the introductory flow region.", 72f, 84f, 350f),
+            CreateScientificFixtureLine("The first discussion region occupies its own natural-flow block.", 72f, 118f, 410f),
+            CreateScientificFixtureLine("Its continuation closes before the visual transition.", 72f, 130f, 330f),
+            CreateScientificFixtureLine("A distinct discussion region begins after the visual transition.", 72f, 214f, 410f),
+            CreateScientificFixtureLine("The following line confirms ordinary content has resumed.", 72f, 226f, 360f)
+        ],
+        [CreateSemanticRulePath(0, 180f, 172f, 432f, 172f, 2.25f, color)]);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+        XElement thematicBreak = Assert.Single(dom.Descendants("hr"));
+        Dictionary<string, string> style = ParseStyle(thematicBreak.Attribute("style")?.Value ?? "");
+
+        Assert.True(HasClass(thematicBreak, "pdf-semantic-thematic-break"));
+        Assert.Equal("0", thematicBreak.Attribute("data-source-path-index")?.Value);
+        Assert.Equal(252f, ParsePoints(thematicBreak.Attribute("data-source-width")?.Value ?? ""));
+        Assert.InRange(ParsePercent(style["--pdf-thematic-break-width"]), 63.63f, 63.64f);
+        Assert.Equal(2.25f, ParsePoints(style["--pdf-thematic-break-thickness"]));
+        Assert.Equal("rgba(51,102,153,1)", style["--pdf-thematic-break-color"]);
+        Assert.Equal("center", style["--pdf-thematic-break-alignment"]);
+        Assert.DoesNotContain("position", thematicBreak.Attribute("style")?.Value ?? "", StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(dom.Descendants(), element =>
+            element.Name.LocalName == "path" &&
+            element.Attribute("data-path-index")?.Value == "0");
+
+        XElement[] siblings = thematicBreak.Parent!.Elements().ToArray();
+        int breakIndex = Array.IndexOf(siblings, thematicBreak);
+        Assert.True(breakIndex > 0 && breakIndex < siblings.Length - 1);
+        Assert.True(HasClass(siblings[breakIndex - 1], "pdf-semantic-paragraph"));
+        Assert.True(HasClass(siblings[breakIndex + 1], "pdf-semantic-paragraph"));
+
+        Match cssRule = Regex.Match(
+            html.Css,
+            @"\.pdf-semantic-thematic-break\s*\{(?<body>[^}]*)\}",
+            RegexOptions.CultureInvariant);
+        Assert.True(cssRule.Success);
+        Assert.Contains("border-top: var(--pdf-thematic-break-thickness", cssRule.Groups["body"].Value);
+        Assert.DoesNotContain("position", cssRule.Groups["body"].Value, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -2552,6 +2637,8 @@ public class PdfHtmlConverterTest
         XDocument dom = ParseHtml(html.Html);
 
         XElement[] figures = ElementsByClass(dom, "pdf-semantic-figure").ToArray();
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-thematic-break"));
+        Assert.Empty(dom.Descendants("hr"));
         Assert.True(figures.Length >= 2);
         Assert.Contains(figures, figure => figure.Attribute("data-source-page")?.Value == "3");
         Assert.Contains(figures, figure => figure.Attribute("data-source-page")?.Value == "4");
@@ -5599,6 +5686,23 @@ public class PdfHtmlConverterTest
         return new PdfLayoutDocument([page], []);
     }
 
+    private static PdfLayoutDocument CreateSideBySideSemanticRuleLayoutFixture()
+    {
+        List<PdfTextLine> lines = [];
+        for (int index = 0; index < 12; index++)
+        {
+            float leftY = index < 6 ? 72f + index * 12f : 220f + (index - 6) * 12f;
+            float rightY = 72f + index * 12f;
+            lines.Add(CreateScientificFixtureLine($"Left column flow line {index + 1}", 72f, leftY, 210f));
+            lines.Add(CreateScientificFixtureLine($"Right column flow line {index + 1}", 330f, rightY, 210f));
+        }
+
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        return CreateSemanticHtmlFixture(
+            lines,
+            [CreateSemanticRulePath(11, 72f, 176f, 290f, 176f, 0.5f, color)]);
+    }
+
     private static PdfLayoutPath CreateSemanticCalloutPath(PdfLayoutRectangle bounds)
     {
         PdfLayoutColor fill = new(0.92f, 0.94f, 0.96f, 1f, "DeviceRGB");
@@ -5611,6 +5715,32 @@ public class PdfHtmlConverterTest
             [],
             0f);
         return new PdfLayoutPath(0, [], bounds, fill, stroke, fillRule: 1);
+    }
+
+    private static PdfLayoutPath CreateSemanticRulePath(
+        int index,
+        float startX,
+        float startY,
+        float endX,
+        float endY,
+        float strokeWidth,
+        PdfLayoutColor color)
+    {
+        PdfLayoutStrokeStyle stroke = new(color, strokeWidth, 0, 0, 10f, [], 0f);
+        return new PdfLayoutPath(
+            index,
+            [
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, startX, startY, 0f, 0f, 0f, 0f),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, endX, endY, 0f, 0f, 0f, 0f)
+            ],
+            new PdfLayoutRectangle(
+                MathF.Min(startX, endX),
+                MathF.Min(startY, endY),
+                MathF.Abs(endX - startX),
+                MathF.Abs(endY - startY)),
+            null,
+            stroke,
+            null);
     }
 
     private static PdfLayoutDocument CreateDefinitionListAliasLayoutFixture()

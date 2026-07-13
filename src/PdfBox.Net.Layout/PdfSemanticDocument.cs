@@ -56,7 +56,8 @@ public sealed class PdfSemanticElement
         PdfSemanticDefinitionList? definitionList = null,
         PdfSemanticQuotation? quotation = null,
         PdfSemanticAside? aside = null,
-        PdfSemanticNote? note = null)
+        PdfSemanticNote? note = null,
+        PdfSemanticThematicBreak? thematicBreak = null)
     {
         Kind = kind;
         Text = text;
@@ -71,6 +72,7 @@ public sealed class PdfSemanticElement
         Quotation = quotation;
         Aside = aside;
         Note = note;
+        ThematicBreak = thematicBreak;
         IsDocumentTitle = isDocumentTitle;
     }
 
@@ -108,6 +110,11 @@ public sealed class PdfSemanticElement
     /// Gets the logical marker and page-continuation state for this note fragment.
     /// </summary>
     public PdfSemanticNote? Note { get; }
+
+    /// <summary>
+    /// Gets source paint metadata when this element is a thematic break.
+    /// </summary>
+    public PdfSemanticThematicBreak? ThematicBreak { get; }
 
     /// <summary>
     /// Gets whether this heading is the inferred document title rather than a section heading.
