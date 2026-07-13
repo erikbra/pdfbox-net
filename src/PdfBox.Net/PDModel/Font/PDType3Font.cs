@@ -39,6 +39,7 @@ namespace PdfBox.Net.PDModel.Font;
 public sealed class PDType3Font : PDSimpleFont
 {
     private static readonly COSName NameKey = COSName.NAME;
+    private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
     private static readonly COSName CharProcsKey = COSName.GetPDFName("CharProcs");
     private static readonly COSName FontBBoxKey = COSName.GetPDFName("FontBBox");
     private static readonly COSName FirstCharKey = COSName.GetPDFName("FirstChar");
@@ -60,7 +61,12 @@ public sealed class PDType3Font : PDSimpleFont
         }
     }
 
-    public override string GetName() => FontDictionary.GetNameAsString(NameKey) ?? base.GetName();
+    public override string GetName()
+    {
+        return FontDictionary.GetNameAsString(NameKey)
+            ?? FontDictionary.GetNameAsString(BaseFontKey)
+            ?? "Type3";
+    }
 
     public override Vector GetDisplacement(int code)
     {
@@ -190,6 +196,12 @@ public sealed class PDType3Font : PDSimpleFont
     {
         string glyphName = FontEncoding.GetName(code);
         return glyphName != ".notdef" && GetCharProcs()?.GetDictionaryObject(COSName.GetPDFName(glyphName)) is COSStream;
+    }
+
+    public override bool HasGlyph(string name)
+    {
+        return !string.IsNullOrEmpty(name) && name != ".notdef" &&
+               GetCharProcs()?.GetDictionaryObject(COSName.GetPDFName(name)) is COSStream;
     }
 
     public override GeneralPath GetNormalizedPath(int code) => new();

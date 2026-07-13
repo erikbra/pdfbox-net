@@ -229,12 +229,31 @@ public static class PdfLayoutExtractor
 
         public bool Collect(PDFont font, int pageNumber)
         {
-            if (!_includeAssets || string.IsNullOrWhiteSpace(font.GetName()))
+            if (!_includeAssets)
             {
                 return false;
             }
 
             string fontName = font.GetName();
+            if (font is PDType3Font)
+            {
+                if (_reportedUnsupportedFonts.Add(fontName))
+                {
+                    _diagnostics.Add(new PdfLayoutDiagnostic(
+                        PdfLayoutDiagnosticSeverity.Warning,
+                        "embedded-font-web-unsupported",
+                        $"Type 3 font '{fontName}' uses PDF character procedures and cannot be emitted as CSS @font-face; fallback text is used.",
+                        pageNumber));
+                }
+
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(fontName))
+            {
+                return false;
+            }
+
             if (_assetHashByFontName.ContainsKey(fontName))
             {
                 return true;

@@ -724,6 +724,28 @@ public class PdfLayoutExtractorTest
         Assert.Equal(Snapshot(first), Snapshot(second));
     }
 
+    [Fact]
+    public void Extract_UnnamedType3FontUsesFallbackTextAndReportsUnsupportedWebFont()
+    {
+        using PDDocument document = CreateUnnamedType3TextDocument();
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeFontAssets = true
+        });
+
+        PdfLayoutPage page = Assert.Single(layout.Pages);
+        PdfTextGlyph glyph = Assert.Single(page.Glyphs, item => item.Text == "A");
+        Assert.Equal("Type3", glyph.FontName);
+        Assert.False(glyph.UsesBrowserFontAsset);
+        Assert.Empty(layout.FontAssets);
+        PdfLayoutDiagnostic diagnostic = Assert.Single(
+            layout.Diagnostics,
+            item => item.Code == "embedded-font-web-unsupported");
+        Assert.Contains("Type 3", diagnostic.Message);
+        Assert.Contains("fallback text", diagnostic.Message);
+    }
+
     private static string Snapshot(PdfLayoutDocument document)
     {
         StringBuilder builder = new();
@@ -877,6 +899,36 @@ public class PdfLayoutExtractorTest
         COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
         pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
         pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream(contentStream));
+        return document;
+    }
+
+    private static PDDocument CreateUnnamedType3TextDocument()
+    {
+        PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        COSDictionary type3Font = new();
+        type3Font.SetItem(COSName.TYPE, COSName.GetPDFName("Font"));
+        type3Font.SetName(COSName.SUBTYPE, "Type3");
+        type3Font.SetItem(COSName.GetPDFName("FontMatrix"), COSArray.Of(0.001f, 0f, 0f, 0.001f, 0f, 0f));
+        type3Font.SetItem(COSName.GetPDFName("FontBBox"), COSArray.Of(0f, 0f, 500f, 700f));
+        type3Font.SetInt(COSName.GetPDFName("FirstChar"), 65);
+        type3Font.SetInt(COSName.GetPDFName("LastChar"), 65);
+        type3Font.SetItem(COSName.GetPDFName("Widths"), COSArray.Of(500f));
+        type3Font.SetName(COSName.GetPDFName("Encoding"), "WinAnsiEncoding");
+        COSDictionary charProcs = new();
+        charProcs.SetItem(COSName.GetPDFName("A"), CreateContentStream("500 0 d0"));
+        type3Font.SetItem(COSName.GetPDFName("CharProcs"), charProcs);
+
+        COSDictionary fonts = new();
+        fonts.SetItem(COSName.GetPDFName("FType3"), type3Font);
+        COSDictionary resources = new();
+        resources.SetItem(COSName.GetPDFName("Font"), fonts);
+
+        COSDictionary pageDictionary = (COSDictionary)page.GetCOSObject();
+        pageDictionary.SetItem(COSName.RESOURCES, resources);
+        pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream("BT /FType3 24 Tf 72 700 Td (A) Tj ET"));
         return document;
     }
 
