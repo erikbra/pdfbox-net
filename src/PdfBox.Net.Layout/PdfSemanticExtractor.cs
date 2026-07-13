@@ -32,7 +32,8 @@ public static class PdfSemanticExtractor
     {
         ArgumentNullException.ThrowIfNull(layout);
         options ??= new PdfSemanticExtractionOptions();
-        return new PdfSemanticDocument(layout.Pages.Select(page => ExtractPage(page, options)).ToArray());
+        PdfSemanticPage[] pages = layout.Pages.Select(page => ExtractPage(page, options)).ToArray();
+        return new PdfSemanticDocument(PdfSemanticBibliographyExtractor.Extract(layout, pages));
     }
 
     private static PdfSemanticPage ExtractPage(PdfLayoutPage page, PdfSemanticExtractionOptions options)

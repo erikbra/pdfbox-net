@@ -363,6 +363,84 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_BracketedBibliography_PreservesSourceNumbersDestinationsAndCrossPageItems()
+    {
+        PdfSemanticDocument document = PdfSemanticExtractor.Extract(CreateBracketedBibliographyFixture());
+
+        PdfSemanticElement[] fragments = document.Pages
+            .SelectMany(static page => page.Elements)
+            .Where(static element => element.Kind == PdfSemanticElementKind.Bibliography)
+            .ToArray();
+        Assert.Equal(2, fragments.Length);
+        PdfSemanticBibliography bibliography = Assert.IsType<PdfSemanticBibliographyFragment>(
+            fragments[0].BibliographyFragment).Bibliography;
+        Assert.All(fragments, element => Assert.Same(bibliography, element.BibliographyFragment?.Bibliography));
+        Assert.Equal(PdfSemanticBibliographyMarkerKind.BracketedNumber, bibliography.MarkerKind);
+        Assert.Equal(3, bibliography.Start);
+        Assert.Equal([3, 5], bibliography.Items.Select(static item => item.SourceNumber));
+        Assert.Equal("cite.Lovelace2020", bibliography.Items[0].Id);
+        Assert.Equal("cite.Noether2022", bibliography.Items[1].Id);
+        Assert.Contains("continued on the next source page", bibliography.Items[0].Text, StringComparison.Ordinal);
+
+        PdfSemanticBibliographyItemFragment pageTwoItem = Assert.Single(fragments[0].BibliographyFragment!.Items);
+        Assert.True(pageTwoItem.IsFirstPart);
+        Assert.False(pageTwoItem.IsLastPart);
+        PdfSemanticBibliographyItemFragment[] pageThreeItems = fragments[1].BibliographyFragment!.Items.ToArray();
+        Assert.Equal(2, pageThreeItems.Length);
+        Assert.False(pageThreeItems[0].IsFirstPart);
+        Assert.True(pageThreeItems[0].IsLastPart);
+        Assert.True(pageThreeItems[1].IsFirstPart);
+        Assert.True(pageThreeItems[1].IsLastPart);
+        Assert.DoesNotContain(document.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph && element.Text.StartsWith("[", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_AuthorYearBibliography_UsesAnOrderedSemanticModelWithoutSourceMarkers()
+    {
+        PdfSemanticDocument document = PdfSemanticExtractor.Extract(CreateAuthorYearBibliographyFixture());
+
+        PdfSemanticBibliography bibliography = Assert.IsType<PdfSemanticBibliographyFragment>(
+            Assert.Single(document.Elements, static element =>
+                element.Kind == PdfSemanticElementKind.Bibliography).BibliographyFragment).Bibliography;
+        Assert.Equal(PdfSemanticBibliographyMarkerKind.AuthorYear, bibliography.MarkerKind);
+        Assert.Null(bibliography.Start);
+        Assert.Equal(2, bibliography.Items.Count);
+        Assert.All(bibliography.Items, static item =>
+        {
+            Assert.Null(item.SourceNumber);
+            Assert.Equal(0, item.MarkerLength);
+        });
+        Assert.StartsWith("Lovelace, Ada (1843)", bibliography.Items[0].Text, StringComparison.Ordinal);
+        Assert.StartsWith("Noether, Emmy (1918)", bibliography.Items[1].Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Extract_NumberedBibliography_ReinterpretsEvidenceBackedDecimalList()
+    {
+        PdfSemanticDocument document = PdfSemanticExtractor.Extract(CreateNumberedBibliographyFixture());
+
+        PdfSemanticBibliography bibliography = Assert.IsType<PdfSemanticBibliographyFragment>(
+            Assert.Single(document.Elements, static element =>
+                element.Kind == PdfSemanticElementKind.Bibliography).BibliographyFragment).Bibliography;
+        Assert.Equal(PdfSemanticBibliographyMarkerKind.Number, bibliography.MarkerKind);
+        Assert.Equal([1, 2], bibliography.Items.Select(static item => item.SourceNumber));
+        Assert.Contains("Analytical Engine", bibliography.Items[0].Text, StringComparison.Ordinal);
+        Assert.Contains("invariant variation", bibliography.Items[1].Text, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(document.Elements, static element => element.Kind == PdfSemanticElementKind.List);
+    }
+
+    [Fact]
+    public void Extract_NumberedInstructions_AreNotClassifiedAsBibliographyEntries()
+    {
+        PdfSemanticDocument document = PdfSemanticExtractor.Extract(CreateNumberedReferenceInstructionsFixture());
+
+        Assert.DoesNotContain(document.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Bibliography);
+        Assert.Contains(document.Elements, static element => element.Kind == PdfSemanticElementKind.List);
+    }
+
+    [Fact]
     public void Extract_ProminentTopLineRemainsPageHeadingInsteadOfRunningHeader()
     {
         PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
@@ -752,6 +830,133 @@ public sealed class PdfSemanticExtractorTest
             [],
             []);
         return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutDocument CreateBracketedBibliographyFixture()
+    {
+        PdfTextLine citation = CreateStyledFixtureLine(
+            72f,
+            104f,
+            ("Prior work ", "Times-Roman"),
+            ("[3]", "Times-Roman"),
+            (" establishes the baseline.", "Times-Roman"));
+        PdfTextRun citationMarker = citation.Runs[1];
+        PdfLayoutLink citationLink = new(
+            0,
+            citationMarker.Bounds,
+            PdfLayoutLinkKind.Destination,
+            null,
+            "cite.Lovelace2020",
+            null,
+            []);
+        PdfTextLine secondCitation = CreateStyledFixtureLine(
+            72f,
+            120f,
+            ("A later comparison ", "Times-Roman"),
+            ("[5]", "Times-Roman"),
+            (" confirms it.", "Times-Roman"));
+        PdfLayoutLink secondCitationLink = new(
+            1,
+            secondCitation.Runs[1].Bounds,
+            PdfLayoutLinkKind.Destination,
+            null,
+            "cite.Noether2022",
+            null,
+            []);
+        PdfLayoutPage firstPage = CreateBibliographyFixturePage(
+            1,
+            [
+                CreateFixtureLine("Opening scientific prose establishes the body font.", 72f, 72f, 340f),
+                CreateFixtureLine("A second line establishes ordinary paragraph rhythm.", 72f, 88f, 340f),
+                citation,
+                secondCitation
+            ],
+            [citationLink, secondCitationLink]);
+        PdfLayoutPage secondPage = CreateBibliographyFixturePage(
+            2,
+            [
+                CreateFixtureLine("References", 72f, 72f, 100f, 14f, "Times-Bold"),
+                CreateStyledFixtureLine(
+                    72f,
+                    108f,
+                    ("[3] Lovelace, A. (2020). ", "Times-Roman"),
+                    ("Analytical Engines", "Times-Italic"),
+                    (". https://doi.org/10.1000/first", "Times-Roman")),
+                CreateFixtureLine("The discussion continues to the bottom of this source page", 88f, 122f, 360f)
+            ]);
+        PdfLayoutPage thirdPage = CreateBibliographyFixturePage(
+            3,
+            [
+                CreateFixtureLine("and is continued on the next source page.", 88f, 72f, 300f),
+                CreateFixtureLine("[5] Noether, E. (2022). Symmetry in modern physics.", 72f, 126f, 380f)
+            ]);
+        return new PdfLayoutDocument([firstPage, secondPage, thirdPage], []);
+    }
+
+    private static PdfLayoutDocument CreateAuthorYearBibliographyFixture()
+    {
+        PdfLayoutPage page = CreateBibliographyFixturePage(
+            1,
+            [
+                CreateFixtureLine("Opening body prose establishes the ordinary font.", 72f, 52f, 340f),
+                CreateFixtureLine("References", 72f, 84f, 100f, 14f, "Times-Bold"),
+                CreateFixtureLine("Lovelace, Ada (1843). Notes on the Analytical Engine.", 72f, 120f, 380f),
+                CreateFixtureLine("Noether, Emmy (1918). Invariant variation problems.", 72f, 156f, 380f)
+            ]);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutDocument CreateNumberedReferenceInstructionsFixture()
+    {
+        PdfLayoutPage page = CreateBibliographyFixturePage(
+            1,
+            [
+                CreateFixtureLine("Opening body prose establishes the ordinary font.", 72f, 52f, 340f),
+                CreateFixtureLine("References", 72f, 84f, 100f, 14f, "Times-Bold"),
+                CreateFixtureLine("1. Open the document.", 72f, 120f, 180f),
+                CreateFixtureLine("2. Select Save.", 72f, 136f, 160f),
+                CreateFixtureLine("3. Close the application.", 72f, 152f, 210f)
+            ]);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutDocument CreateNumberedBibliographyFixture()
+    {
+        PdfLayoutPage page = CreateBibliographyFixturePage(
+            1,
+            [
+                CreateFixtureLine("Opening body prose establishes the ordinary font.", 72f, 52f, 340f),
+                CreateFixtureLine("References", 72f, 84f, 100f, 14f, "Times-Bold"),
+                CreateFixtureLine("1. Lovelace, A. Notes on the Analytical Engine. 1843.", 72f, 120f, 380f),
+                CreateFixtureLine("2. Noether, E. Invariant variation problems. 1918.", 72f, 136f, 380f)
+            ]);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutPage CreateBibliographyFixturePage(
+        int pageNumber,
+        IReadOnlyList<PdfTextLine> lines,
+        IReadOnlyList<PdfLayoutLink>? links = null)
+    {
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        return new PdfLayoutPage(
+            pageNumber,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            [],
+            [],
+            links ?? [],
+            []);
     }
 
     private static PdfLayoutDocument CreateSemanticBoundaryFixture(bool includeBullets)
