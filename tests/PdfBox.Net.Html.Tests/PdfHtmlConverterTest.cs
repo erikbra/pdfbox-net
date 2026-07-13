@@ -416,6 +416,122 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_PreservesSpanningHeaderBeforeDetectedColumns()
+    {
+        using PDDocument document = CreateTwoColumnDocument(includeRuledTable: false);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-line-grid"));
+        XElement spanning = Assert.Single(ElementsByClass(dom, "pdf-semantic-column-spanning"));
+        Assert.Contains("Two-Column Guidance", spanning.Value, StringComparison.Ordinal);
+        Assert.Contains("Spanning source header", spanning.Value, StringComparison.Ordinal);
+        XElement[] columns = ElementsByClass(dom, "pdf-semantic-column").ToArray();
+        Assert.Equal(2, columns.Length);
+        Assert.Contains("Left body 01", columns[0].Value, StringComparison.Ordinal);
+        Assert.Contains("Left body 12", columns[0].Value, StringComparison.Ordinal);
+        Assert.Contains("Right body 01", columns[1].Value, StringComparison.Ordinal);
+        Assert.True(
+            dom.Root!.Value.IndexOf("Spanning source header", StringComparison.Ordinal) <
+            dom.Root.Value.IndexOf("Left body 01", StringComparison.Ordinal));
+
+        Dictionary<string, string> style = ParseStyle(
+            Assert.Single(ElementsByClass(dom, "pdf-semantic-columns")).Attribute("style")?.Value ?? "");
+        Assert.True(ParsePoints(style["--pdf-semantic-column-gap"]) >= 10f);
+        Assert.True(ParsePoints(style["--pdf-semantic-column-left-width"]) >= 170f);
+        Assert.True(ParsePoints(style["--pdf-semantic-column-right-width"]) >= 170f);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_DetectsColumnsAroundTableConfinedToOneColumn()
+    {
+        using PDDocument document = CreateTwoColumnDocument(includeRuledTable: true);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        Assert.Contains(semanticPage.Elements, element => element.Kind == PdfSemanticElementKind.Table);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+        XElement[] columns = ElementsByClass(dom, "pdf-semantic-column").ToArray();
+        Assert.Equal(2, columns.Length);
+        Assert.Contains("Table A1", columns[0].Value, StringComparison.Ordinal);
+        Assert.Contains("Table B3", columns[0].Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("Table A1", columns[1].Value, StringComparison.Ordinal);
+        Assert.Contains("Right body 12", columns[1].Value, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_AllowsIndependentSideBySideRuledTables()
+    {
+        using PDDocument document = CreateTwoColumnDocument(RuledTableLayout.SideBySide);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement spanningTable = Assert.Single(semanticPage.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Table &&
+            element.Bounds.X < layout.Pages[0].Width / 2f &&
+            element.Bounds.Right > layout.Pages[0].Width / 2f);
+        PdfLayoutPath headerRule = Assert.Single(layout.Pages[0].Paths, path =>
+            path.IsStroked &&
+            path.Bounds.X < layout.Pages[0].Width / 2f &&
+            path.Bounds.Right > layout.Pages[0].Width / 2f);
+        Assert.True(headerRule.Bounds.Bottom < spanningTable.Bounds.Y);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        XElement[] columns = ElementsByClass(dom, "pdf-semantic-column").ToArray();
+        Assert.Equal(2, columns.Length);
+        Assert.Contains("Left A1", columns[0].Value, StringComparison.Ordinal);
+        Assert.Contains("Left C3", columns[0].Value, StringComparison.Ordinal);
+        Assert.Contains("Right A1", columns[1].Value, StringComparison.Ordinal);
+        Assert.Contains("Right C3", columns[1].Value, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_PreservesSemanticTableWhenRulesCrossGutter()
+    {
+        using PDDocument document = CreateTwoColumnDocument(RuledTableLayout.FullWidth);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement spanningTable = Assert.Single(semanticPage.Elements, element =>
+            element.Kind == PdfSemanticElementKind.Table &&
+            element.Bounds.X < layout.Pages[0].Width / 2f &&
+            element.Bounds.Right > layout.Pages[0].Width / 2f);
+        Assert.True(layout.Pages[0].Paths.Count(path =>
+            path.IsStroked &&
+            path.Bounds.X < layout.Pages[0].Width / 2f &&
+            path.Bounds.Right > layout.Pages[0].Width / 2f &&
+            path.Bounds.Bottom >= spanningTable.Bounds.Y - 2f &&
+            path.Bounds.Y <= spanningTable.Bounds.Bottom + 2f) >= 2);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-columns"));
+        XElement table = Assert.Single(ElementsByClass(dom, "pdf-semantic-table"));
+        Assert.Contains("Full A1", table.Value, StringComparison.Ordinal);
+        Assert.Contains("Full C3", table.Value, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_RotatedImagePageIsNotBlank()
     {
         using PDDocument document = CreateRotatedCroppedImageDocument();
@@ -4002,6 +4118,95 @@ public class PdfHtmlConverterTest
         pageDictionary.SetItem(COSName.RESOURCES, CreateDefaultResourcesDictionary());
         pageDictionary.SetItem(COSName.CONTENTS, CreateContentStream(contentStream));
         return document;
+    }
+
+    private static PDDocument CreateTwoColumnDocument(bool includeRuledTable)
+    {
+        return CreateTwoColumnDocument(includeRuledTable ? RuledTableLayout.Left : RuledTableLayout.None);
+    }
+
+    private static PDDocument CreateTwoColumnDocument(RuledTableLayout ruledTableLayout)
+    {
+        StringBuilder content = new();
+        content.AppendLine("BT /F1 16 Tf 190 760 Td (Two-Column Guidance) Tj ET");
+        content.AppendLine("BT /F1 11 Tf 220 740 Td (Spanning source header) Tj ET");
+        for (int index = 1; index <= 12; index++)
+        {
+            int y = 700 - (index - 1) * 16;
+            content.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "BT /F1 10 Tf 72 {0} Td (Left body {1:00} source line reaches near gutter) Tj ET\n",
+                y,
+                index);
+            content.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "BT /F1 10 Tf 330 {0} Td (Right body {1:00} source line reaches page edge) Tj ET\n",
+                y,
+                index);
+        }
+
+        if (ruledTableLayout is RuledTableLayout.Left or RuledTableLayout.SideBySide)
+        {
+            AppendRuledTable(content, 72, 160, 248, 290, ruledTableLayout == RuledTableLayout.Left ? "Table" : "Left");
+        }
+
+        if (ruledTableLayout == RuledTableLayout.SideBySide)
+        {
+            content.AppendLine("72 720 m 548 720 l S");
+            AppendRuledTable(content, 330, 418, 506, 548, "Right");
+        }
+
+        if (ruledTableLayout == RuledTableLayout.FullWidth)
+        {
+            AppendRuledTable(content, 72, 230, 390, 548, "Full");
+        }
+
+        return CreateTextDocument(content.ToString());
+    }
+
+    private static void AppendRuledTable(
+        StringBuilder content,
+        int left,
+        int firstDivider,
+        int secondDivider,
+        int right,
+        string label)
+    {
+        content.AppendLine("0.5 w");
+        foreach (int y in new[] { 490, 472, 454, 436 })
+        {
+            content.AppendFormat(CultureInfo.InvariantCulture, "{0} {1} m {2} {1} l S\n", left, y, right);
+        }
+
+        foreach (int x in new[] { left, firstDivider, secondDivider, right })
+        {
+            content.AppendFormat(CultureInfo.InvariantCulture, "{0} 436 m {0} 490 l S\n", x);
+        }
+
+        int[] textLefts = [left + 6, firstDivider + 10, secondDivider + 10];
+        for (int row = 1; row <= 3; row++)
+        {
+            int y = 476 - (row - 1) * 18;
+            for (int column = 0; column < textLefts.Length; column++)
+            {
+                content.AppendFormat(
+                    CultureInfo.InvariantCulture,
+                    "BT /F1 8 Tf {0} {1} Td ({2} {3}{4}) Tj ET\n",
+                    textLefts[column],
+                    y,
+                    label,
+                    (char)('A' + column),
+                    row);
+            }
+        }
+    }
+
+    private enum RuledTableLayout
+    {
+        None,
+        Left,
+        SideBySide,
+        FullWidth
     }
 
     private static PDDocument CreateEmbeddedTrueTypeDocument(byte[] fontBytes)
