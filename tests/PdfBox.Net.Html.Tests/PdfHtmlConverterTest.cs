@@ -1123,6 +1123,222 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsNativeBlockQuoteWithSourceAttribution()
+    {
+        PdfLayoutDocument layout = CreateSemanticHtmlFixture(
+        [
+            CreateScientificFixtureLine("Ordinary body prose establishes the surrounding document rhythm.", 72f, 50f, 440f),
+            CreateScientificFixtureLine("“The Ghent PDF Output Suite 5.0 was created to check whether a PDF output", 72f, 120f, 450f),
+            CreateScientificFixtureLine("workflow conforms to PDF/X-4 and can process production files reliably", 72f, 133f, 430f),
+            CreateScientificFixtureLine("without unexpected problems worldwide”, stated Ada Lovelace, workflow chair.", 72f, 146f, 455f),
+            CreateScientificFixtureLine("Ordinary body prose resumes after the attributed quotation.", 72f, 194f, 390f)
+        ]);
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement blockquote = Assert.Single(dom.Descendants("blockquote"));
+        Assert.True(HasClass(blockquote, "pdf-semantic-blockquote"));
+        XElement quoteText = Assert.Single(blockquote.Elements("p"));
+        Assert.StartsWith("“The Ghent PDF Output Suite", quoteText.Value);
+        Assert.EndsWith("worldwide”,", quoteText.Value, StringComparison.Ordinal);
+        Assert.Equal(
+            "stated Ada Lovelace, workflow chair.",
+            Assert.Single(blockquote.Elements("footer")).Value);
+        Assert.DoesNotMatch(
+            @"\.pdf-semantic-(?:blockquote|aside)\s*\{[^}]*position\s*:\s*absolute",
+            converted.Css);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_FixedFallbackRetainsSourceSizedBlockQuoteIsland()
+    {
+        PdfLayoutDocument layout = CreateSemanticHtmlFixture(
+        [
+            CreateScientificFixtureLine("Ordinary body prose establishes the surrounding document rhythm.", 72f, 72f, 440f),
+            CreateScientificFixtureLine("“The Ghent PDF Output Suite 5.0 was created to check whether a PDF output", 72f, 120f, 450f),
+            CreateScientificFixtureLine("workflow conforms to PDF/X-4 and can process production files reliably", 72f, 133f, 430f),
+            CreateScientificFixtureLine("without unexpected problems worldwide”, stated Ada Lovelace, workflow chair.", 72f, 146f, 455f),
+            CreateScientificFixtureLine("Ordinary body prose resumes after the attributed quotation.", 72f, 194f, 390f)
+        ]);
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement fallbackPage = Assert.Single(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+        Assert.True(HasClass(fallbackPage, "pdf-semantic-layout-fallback-page-with-islands"));
+        XElement blockquote = Assert.Single(fallbackPage.Elements("blockquote"));
+        Assert.True(HasClass(blockquote, "pdf-semantic-fallback-island"));
+        Assert.True(
+            HasClass(blockquote, "pdf-font-times-roman"),
+            blockquote.Attribute("class")?.Value);
+        Assert.True(HasClass(blockquote, "pdf-font-size-10"));
+        Assert.EndsWith(
+            "worldwide”,",
+            Assert.Single(blockquote.Elements("p")).Value,
+            StringComparison.Ordinal);
+        Assert.Equal("stated Ada Lovelace, workflow chair.", Assert.Single(blockquote.Elements("footer")).Value);
+
+        Dictionary<string, string> style = ParseStyle(blockquote.Attribute("style")?.Value ?? "");
+        Assert.Equal(72f, ParsePoints(style["--pdf-semantic-island-left"]), 2);
+        Assert.Equal(120f, ParsePoints(style["--pdf-semantic-island-top"]), 2);
+        Assert.Equal(455f, ParsePoints(style["--pdf-semantic-island-width"]), 2);
+        Assert.Equal(13f, ParsePoints(style["--pdf-semantic-island-line-height"]), 2);
+        Assert.DoesNotContain("position", blockquote.Attribute("style")?.Value ?? "", StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(fallbackPage.Elements("span"), element =>
+            HasClass(element, "pdf-text-run") &&
+            element.Value.Contains("Ghent PDF Output", StringComparison.Ordinal));
+        Assert.Contains(fallbackPage.Elements("span"), element =>
+            HasClass(element, "pdf-text-run") &&
+            (element.Attribute("style")?.Value.Contains("position:absolute", StringComparison.Ordinal) ?? false));
+        Assert.DoesNotMatch(
+            @"\.pdf-semantic-blockquote\.pdf-semantic-fallback-island\s*\{[^}]*position\s*:\s*absolute",
+            converted.Css);
+        Assert.Matches(
+            @"\.pdf-semantic-blockquote\.pdf-semantic-fallback-island\s*\{[^}]*margin\s*:\s*var\(--pdf-semantic-island-top\)",
+            converted.Css);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_BlockQuoteWithoutAttributionHasNoFooter()
+    {
+        PdfLayoutDocument layout = CreateSemanticHtmlFixture(
+        [
+            CreateScientificFixtureLine("Ordinary body prose establishes the full measure used by nearby paragraphs.", 72f, 50f, 460f),
+            CreateScientificFixtureLine("A second body line confirms the normal left and right margins.", 72f, 85f, 430f),
+            CreateScientificFixtureLine("This deliberately inset passage carries a sustained observation about reliable", 108f, 132f, 380f),
+            CreateScientificFixtureLine("document exchange across several visual lines and remains independent from the", 108f, 145f, 380f),
+            CreateScientificFixtureLine("surrounding narrative even without explicit quotation punctuation in the source.", 108f, 158f, 365f),
+            CreateScientificFixtureLine("Ordinary body prose resumes at the established page margin after the passage.", 72f, 206f, 450f)
+        ]);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        XElement blockquote = Assert.Single(dom.Descendants("blockquote"));
+        Assert.Empty(blockquote.Elements("footer"));
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_OrdinaryQuotedTextRemainsParagraphs()
+    {
+        PdfLayoutDocument layout = CreateSemanticHtmlFixture(
+        [
+            CreateScientificFixtureLine("Ordinary body prose establishes the surrounding document rhythm.", 72f, 50f, 440f),
+            CreateScientificFixtureLine("The report calls this “a useful phrase” while continuing an ordinary", 72f, 120f, 430f),
+            CreateScientificFixtureLine("paragraph whose quoted words are not a separate passage.", 72f, 133f, 360f),
+            CreateScientificFixtureLine("“Quoted words” can also begin a normal paragraph that continues with", 72f, 180f, 430f),
+            CreateScientificFixtureLine("the author’s own analysis over another visual line.", 72f, 193f, 330f)
+        ]);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        Assert.Empty(dom.Descendants("blockquote"));
+        Assert.Contains(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.StartsWith("The report calls this", StringComparison.Ordinal));
+        Assert.Contains(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.StartsWith("“Quoted words”", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsLabelledFlowAsideForShadedCallout()
+    {
+        PdfLayoutPath shading = CreateSemanticCalloutPath(new PdfLayoutRectangle(96f, 116f, 400f, 88f));
+        PdfLayoutDocument layout = CreateSemanticHtmlFixture(
+        [
+            CreateScientificFixtureLine("Ordinary body prose establishes the surrounding document rhythm.", 72f, 50f, 440f),
+            CreateScientificFixtureLine("NOTE", 108f, 128f, 42f, 11f, "Times-Bold"),
+            CreateScientificFixtureLine("This independent callout records a tangential implementation detail", 108f, 151f, 360f),
+            CreateScientificFixtureLine("without interrupting the natural reading order of the main discussion.", 108f, 164f, 350f),
+            CreateScientificFixtureLine("Ordinary body prose resumes outside the shaded callout.", 72f, 230f, 360f)
+        ],
+        [shading]);
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement aside = Assert.Single(dom.Descendants("aside"));
+        Assert.Equal("NOTE", aside.Attribute("aria-label")?.Value);
+        Assert.Equal("NOTE", Assert.Single(aside.Elements("header")).Value);
+        Assert.Contains("tangential implementation detail", Assert.Single(aside.Elements("p")).Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("position:absolute", aside.Attribute("style")?.Value ?? "", StringComparison.Ordinal);
+        Assert.True(HasClass(aside, "pdf-semantic-aside-source-decorated"));
+        Dictionary<string, string> style = ParseStyle(aside.Attribute("style")?.Value ?? "");
+        Assert.Equal(-12f, ParsePoints(style["--pdf-semantic-aside-inset-left"]), 2);
+        Assert.Equal(400f, ParsePoints(style["--pdf-semantic-aside-source-width"]), 2);
+        Assert.Equal("rgba(235,240,245,1)", style["--pdf-semantic-aside-source-background"]);
+        Assert.Equal("rgba(51,102,153,1)", style["--pdf-semantic-aside-source-border-color"]);
+        Assert.Equal(1.5f, ParsePoints(style["--pdf-semantic-aside-source-border-width"]), 2);
+        Assert.Equal(12f, ParsePoints(style["--pdf-semantic-aside-source-padding-top"]), 2);
+        Assert.Equal(28f, ParsePoints(style["--pdf-semantic-aside-source-padding-right"]), 2);
+        Assert.Equal(32.5f, ParsePoints(style["--pdf-semantic-aside-source-padding-bottom"]), 2);
+        Assert.Equal(12f, ParsePoints(style["--pdf-semantic-aside-source-padding-left"]), 2);
+        Assert.Matches(
+            @"\.pdf-semantic-aside-source-decorated\s*\{[^}]*box-sizing\s*:\s*border-box",
+            converted.Css);
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+        Assert.Empty(ElementsByClass(dom, "pdf-vector-layer"));
+        Assert.DoesNotMatch(
+            @"\.pdf-semantic-aside\s*\{[^}]*position\s*:\s*absolute",
+            converted.Css);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_KnownInsetAsidePreservesNeutralSourceGeometry()
+    {
+        PdfLayoutDocument layout = CreateSemanticHtmlFixture(
+        [
+            CreateScientificFixtureLine("Ordinary body prose establishes the surrounding document rhythm.", 72f, 50f, 440f),
+            CreateScientificFixtureLine("DISCUSSION", 126f, 108f, 72f, 10f, "Times-Bold"),
+            CreateScientificFixtureLine("This labelled discussion remains tangential to the primary requirement and", 126f, 130f, 416f),
+            CreateScientificFixtureLine("retains the narrower source measure without invented visual decoration.", 126f, 143f, 390f),
+            CreateScientificFixtureLine("Ordinary body prose resumes at the established page margin.", 72f, 194f, 390f)
+        ]);
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement aside = Assert.Single(dom.Descendants("aside"));
+        Assert.True(HasClass(aside, "pdf-semantic-aside-source-geometry"));
+        Assert.False(HasClass(aside, "pdf-semantic-aside-source-decorated"));
+        Dictionary<string, string> style = ParseStyle(aside.Attribute("style")?.Value ?? "");
+        Assert.Equal(18f, ParsePoints(style["--pdf-semantic-aside-inset-left"]), 2);
+        Assert.Equal(416f, ParsePoints(style["--pdf-semantic-aside-source-width"]), 2);
+        Assert.DoesNotContain("source-background", aside.Attribute("style")?.Value ?? "", StringComparison.Ordinal);
+        Assert.DoesNotContain("source-border", aside.Attribute("style")?.Value ?? "", StringComparison.Ordinal);
+        Match asideRule = Assert.IsType<Match>(Regex.Match(
+            converted.Css,
+            @"\.pdf-semantic-aside\s*\{(?<body>[^}]*)\}"));
+        Assert.True(asideRule.Success);
+        string asideRuleBody = asideRule.Groups["body"].Value;
+        Assert.DoesNotContain("border", asideRuleBody, StringComparison.OrdinalIgnoreCase);
+        Assert.Matches(@"padding\s*:\s*0\s*;", asideRuleBody);
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_EmitsInlinePairsAsNativeDefinitionTerms()
     {
         PdfLayoutDocument layout = CreateDefinitionListLayoutFixture(columns: false);
@@ -4919,6 +5135,46 @@ public class PdfHtmlConverterTest
             CreateDefinitionPairLine("SIEM", "Security information and event management", 180f, columns)
         ];
         return CreateDefinitionLayoutDocument([lines]);
+    }
+
+    private static PdfLayoutDocument CreateSemanticHtmlFixture(
+        IReadOnlyList<PdfTextLine> lines,
+        IReadOnlyList<PdfLayoutPath>? paths = null)
+    {
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            paths ?? [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutPath CreateSemanticCalloutPath(PdfLayoutRectangle bounds)
+    {
+        PdfLayoutColor fill = new(0.92f, 0.94f, 0.96f, 1f, "DeviceRGB");
+        PdfLayoutStrokeStyle stroke = new(
+            new PdfLayoutColor(0.2f, 0.4f, 0.6f, 1f, "DeviceRGB"),
+            1.5f,
+            0,
+            0,
+            10f,
+            [],
+            0f);
+        return new PdfLayoutPath(0, [], bounds, fill, stroke, fillRule: 1);
     }
 
     private static PdfLayoutDocument CreateDefinitionListAliasLayoutFixture()

@@ -96,6 +96,132 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_StronglyInsetMultiLinePassage_BecomesBlockQuoteWithoutInventedAttribution()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Ordinary body prose establishes the full measure used by nearby paragraphs.", 72f, 72f, 460f),
+            CreateFixtureLine("A second body line confirms the normal left and right margins.", 72f, 85f, 430f),
+            CreateFixtureLine("This deliberately inset passage carries a sustained observation about reliable", 108f, 132f, 380f),
+            CreateFixtureLine("document exchange across several visual lines and remains independent from the", 108f, 145f, 380f),
+            CreateFixtureLine("surrounding narrative even without explicit quotation punctuation in the source.", 108f, 158f, 365f),
+            CreateFixtureLine("Ordinary body prose resumes at the established page margin after the passage.", 72f, 206f, 450f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement quotation = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.BlockQuote);
+
+        Assert.Equal(3, quotation.Lines.Count);
+        Assert.NotNull(quotation.Quotation);
+        Assert.Null(quotation.Quotation!.Attribution);
+        Assert.StartsWith("This deliberately inset passage", quotation.Quotation.Text);
+    }
+
+    [Fact]
+    public void Extract_MultiLineQuotedPassage_PreservesSourceAttribution()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Ordinary body prose establishes the surrounding document rhythm.", 72f, 72f, 440f),
+            CreateFixtureLine("“The Ghent PDF Output Suite 5.0 was created to check whether a PDF output", 72f, 120f, 450f),
+            CreateFixtureLine("workflow conforms to PDF/X-4 and can process production files reliably", 72f, 133f, 430f),
+            CreateFixtureLine("without unexpected problems worldwide”, stated Ada Lovelace, workflow chair.", 72f, 146f, 455f),
+            CreateFixtureLine("Ordinary body prose resumes after the attributed quotation.", 72f, 194f, 390f)
+        ]);
+
+        PdfSemanticElement quotation = Assert.Single(
+            Assert.Single(PdfSemanticExtractor.Extract(layout).Pages).Elements,
+            static element => element.Kind == PdfSemanticElementKind.BlockQuote);
+
+        Assert.EndsWith("worldwide”,", quotation.Quotation!.Text, StringComparison.Ordinal);
+        Assert.Equal("stated Ada Lovelace, workflow chair.", quotation.Quotation.Attribution);
+    }
+
+    [Fact]
+    public void Extract_OrdinaryQuotedPhraseAndParagraphBeginningWithShortQuote_RemainParagraphs()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Ordinary body prose establishes the surrounding document rhythm.", 72f, 72f, 440f),
+            CreateFixtureLine("The report calls this “a useful phrase” while continuing an ordinary", 72f, 120f, 430f),
+            CreateFixtureLine("paragraph whose quoted words are not a separate passage.", 72f, 133f, 360f),
+            CreateFixtureLine("“Quoted words” can also begin a normal paragraph that continues with", 72f, 180f, 430f),
+            CreateFixtureLine("the author’s own analysis over another visual line.", 72f, 193f, 330f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.DoesNotContain(page.Elements, static element => element.Kind == PdfSemanticElementKind.BlockQuote);
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("The report calls this", StringComparison.Ordinal));
+        Assert.Contains(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("“Quoted words”", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_InsetBibliographyEntryWithUrl_RemainsNonQuotationContent()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Ordinary body prose establishes the full measure used by nearby paragraphs.", 72f, 72f, 460f),
+            CreateFixtureLine("A second body line confirms the normal left and right margins.", 72f, 85f, 430f),
+            CreateFixtureLine("Federal Information and Information Systems. U.S. Department of Commerce,", 108f, 132f, 380f),
+            CreateFixtureLine("Federal Information Processing Standards Publication 200, Washington, DC.", 108f, 145f, 380f),
+            CreateFixtureLine("https://doi.org/10.6028/NIST.FIPS.200", 108f, 158f, 310f),
+            CreateFixtureLine("Ordinary body prose resumes at the established page margin after the reference.", 72f, 206f, 450f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.DoesNotContain(page.Elements, static element => element.Kind == PdfSemanticElementKind.BlockQuote);
+    }
+
+    [Fact]
+    public void Extract_ShadedLabelledCallout_BecomesAside()
+    {
+        PdfLayoutPath shading = CreateFilledRectanglePath(new PdfLayoutRectangle(96f, 116f, 400f, 88f));
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Ordinary body prose establishes the surrounding document rhythm.", 72f, 72f, 440f),
+            CreateFixtureLine("NOTE", 108f, 128f, 42f, 11f, "Times-Bold"),
+            CreateFixtureLine("This independent callout records a tangential implementation detail", 108f, 151f, 360f),
+            CreateFixtureLine("without interrupting the natural reading order of the main discussion.", 108f, 164f, 350f),
+            CreateFixtureLine("Ordinary body prose resumes outside the shaded callout.", 72f, 230f, 360f)
+        ],
+        [shading]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement aside = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Aside);
+
+        Assert.Equal("NOTE", aside.Aside!.Label);
+        Assert.Single(aside.Aside.Content);
+        Assert.Contains("tangential implementation detail", aside.Aside.Content[0].Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Extract_ShadedFootnote_IsNeverPromotedToAside()
+    {
+        PdfLayoutPath shading = CreateFilledRectanglePath(new PdfLayoutRectangle(96f, 570f, 400f, 82f));
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Ordinary body prose establishes the surrounding document rhythm.", 72f, 72f, 440f),
+            CreateFixtureLine("NOTE", 108f, 588f, 42f, 11f, "Times-Bold"),
+            CreateFixtureLine("*", 108f, 614f, 6f, 8f, "Symbol"),
+            CreateFixtureLine("Footnote text remains a footnote even inside a shaded region.", 122f, 614f, 330f, 8f)
+        ],
+        [shading]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.Contains(page.Elements, static element => element.Kind == PdfSemanticElementKind.Footnote);
+        Assert.DoesNotContain(page.Elements, static element => element.Kind == PdfSemanticElementKind.Aside);
+    }
+
+    [Fact]
     public void Extract_BodySizeBoldStandaloneLine_WithSectionGapBecomesHeadingButInlineLeadInDoesNot()
     {
         PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
@@ -1635,6 +1761,38 @@ public sealed class PdfSemanticExtractorTest
         PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
         PdfTextRun run = new(text, fontName, fontSize, 0f, bounds, color, [glyph]);
         return new PdfTextLine(text, bounds, [run]);
+    }
+
+    private static PdfLayoutDocument CreateSemanticPassageFixture(
+        IReadOnlyList<PdfTextLine> lines,
+        IReadOnlyList<PdfLayoutPath>? paths = null)
+    {
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            paths ?? [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
+    }
+
+    private static PdfLayoutPath CreateFilledRectanglePath(PdfLayoutRectangle bounds)
+    {
+        PdfLayoutColor fill = new(0.92f, 0.94f, 0.96f, 1f, "DeviceRGB");
+        return new PdfLayoutPath(0, [], bounds, fill, null, fillRule: 1);
     }
 
     private static PdfSemanticElement[] ParagraphsBetween(

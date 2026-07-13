@@ -17,5 +17,7 @@ public enum PdfSemanticElementKind
     FrontMatter,
     Navigation,
     Bibliography,
-    DefinitionList
+    DefinitionList,
+    BlockQuote,
+    Aside
 }
