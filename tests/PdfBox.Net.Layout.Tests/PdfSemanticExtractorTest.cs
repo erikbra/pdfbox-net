@@ -798,6 +798,75 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_NumberedBibliographyStartsWithinOneParagraph_UsesAlignedSourceLines()
+    {
+        using PDDocument source = Loader.LoadPDF(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-unet-page-8.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(source, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = true,
+            IncludePaths = true
+        });
+
+        PdfSemanticDocument document = PdfSemanticExtractor.Extract(layout);
+
+        PdfSemanticElement bibliographyElement = Assert.Single(document.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Bibliography);
+        PdfSemanticBibliographyFragment fragment = Assert.IsType<PdfSemanticBibliographyFragment>(
+            bibliographyElement.BibliographyFragment);
+        PdfSemanticBibliography bibliography = fragment.Bibliography;
+        Assert.Equal(PdfSemanticBibliographyMarkerKind.Number, bibliography.MarkerKind);
+        Assert.Equal(
+            Enumerable.Range(1, 14).Select(static number => (int?)number).ToArray(),
+            bibliography.Items.Select(static item => item.SourceNumber).ToArray());
+        Assert.Equal(14, fragment.Items.Count);
+        Assert.All(fragment.Items, static item =>
+        {
+            Assert.True(item.IsFirstPart);
+            Assert.True(item.IsLastPart);
+        });
+
+        PdfSemanticBibliographyItemFragment firstItem = fragment.Items[0];
+        Assert.True(firstItem.Lines.Count >= 3);
+        Assert.Contains("electron microscopy images", firstItem.Text, StringComparison.OrdinalIgnoreCase);
+        Assert.All(firstItem.Lines.Skip(1), line =>
+            Assert.True(line.Bounds.X > firstItem.Lines[0].Bounds.X + 4f));
+        float[] markerStarts = fragment.Items
+            .Select(static item => item.Lines[0].Bounds.X)
+            .ToArray();
+        Assert.InRange(markerStarts[..9].Max() - markerStarts[..9].Min(), 0f, 1f);
+        Assert.InRange(markerStarts[9..].Max() - markerStarts[9..].Min(), 0f, 1f);
+        Assert.InRange(markerStarts[..9].Average() - markerStarts[9..].Average(), 3f, 7f);
+
+        PdfSemanticElement footnote = Assert.Single(document.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.Contains("U-net implementation", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains("U-net implementation", footnote.Text, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(bibliography.Items, static item =>
+            item.Text.Contains("U-net implementation", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_BibliographicNumberedProseOutsideReferenceSection_IsNotBibliography()
+    {
+        PdfLayoutPage page = CreateBibliographyFixturePage(
+            1,
+            [
+                CreateFixtureLine("Related work", 72f, 72f, 100f, 14f, "Times-Bold"),
+                CreateFixtureLine("1. Lovelace, A. Notes on the Analytical Engine. 1843.", 72f, 108f, 380f),
+                CreateFixtureLine("A continuation line uses the same hanging indentation.", 88f, 122f, 330f),
+                CreateFixtureLine("2. Noether, E. Invariant variation problems. 1918.", 72f, 136f, 380f),
+                CreateFixtureLine("A second continuation remains ordinary numbered prose.", 88f, 150f, 330f)
+            ]);
+
+        PdfSemanticDocument document = PdfSemanticExtractor.Extract(new PdfLayoutDocument([page], []));
+
+        Assert.DoesNotContain(document.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Bibliography);
+    }
+
+    [Fact]
     public void Extract_NumberedInstructions_AreNotClassifiedAsBibliographyEntries()
     {
         PdfSemanticDocument document = PdfSemanticExtractor.Extract(CreateNumberedReferenceInstructionsFixture());

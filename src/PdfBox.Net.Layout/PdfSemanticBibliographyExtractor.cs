@@ -203,8 +203,9 @@ internal static class PdfSemanticBibliographyExtractor
         out List<RawBibliographyItem> items)
     {
         items = [];
+        List<ElementLocation> markerStarts = [];
         RawBibliographyItem? current = null;
-        foreach (ElementLocation location in scope)
+        foreach (ElementLocation location in NumberedEntryLocations(scope))
         {
             if (location.Content.Kind != PdfSemanticElementKind.Paragraph)
             {
@@ -227,16 +228,118 @@ internal static class PdfSemanticBibliographyExtractor
                     match.Length,
                     location);
                 items.Add(current);
+                markerStarts.Add(location);
                 continue;
             }
 
             if (current != null)
             {
+                if (IsSeparatedTrailingParagraph(location, current, markerStarts))
+                {
+                    break;
+                }
+
                 current.Elements.Add(location);
             }
         }
 
-        return items.Count >= 2;
+        return items.Count >= 2 && HasConsistentEmbeddedMarkerGeometry(markerStarts);
+    }
+
+    private static IEnumerable<ElementLocation> NumberedEntryLocations(
+        IReadOnlyList<ElementLocation> scope)
+    {
+        foreach (ElementLocation location in scope)
+        {
+            PdfSemanticElement content = location.Content;
+            if (content.Kind != PdfSemanticElementKind.Paragraph || content.Lines.Count <= 1)
+            {
+                yield return location;
+                continue;
+            }
+
+            foreach (PdfSemanticLine line in content.Lines)
+            {
+                if (string.IsNullOrWhiteSpace(line.Text))
+                {
+                    continue;
+                }
+
+                PdfSemanticElement lineElement = new(
+                    PdfSemanticElementKind.Paragraph,
+                    line.Text,
+                    line.Bounds,
+                    [line]);
+                yield return location with { ContentElement = lineElement };
+            }
+        }
+    }
+
+    private static bool HasConsistentEmbeddedMarkerGeometry(
+        IReadOnlyList<ElementLocation> markerStarts)
+    {
+        foreach (IGrouping<PdfSemanticElement, ElementLocation> group in markerStarts
+            .GroupBy(static location => location.Element)
+            .Where(static group => group.Count() > 1))
+        {
+            PdfSemanticLine[] lines = group
+                .Select(static location => location.Content.Lines[0])
+                .ToArray();
+            float representativeFontSize = lines
+                .Select(static line => line.DominantFontSize)
+                .Order()
+                .ElementAt(lines.Length / 2);
+            // Multi-digit markers are commonly right-aligned, so their left
+            // edge may move by roughly one glyph while the marker column stays aligned.
+            float horizontalTolerance = MathF.Max(2f, representativeFontSize * 0.75f);
+            if (lines.Max(static line => line.Bounds.X) - lines.Min(static line => line.Bounds.X) >
+                horizontalTolerance)
+            {
+                return false;
+            }
+
+            for (int index = 1; index < lines.Length; index++)
+            {
+                if (lines[index].Bounds.Y <= lines[index - 1].Bounds.Y ||
+                    MathF.Abs(lines[index].Direction - lines[0].Direction) > 1f)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsSeparatedTrailingParagraph(
+        ElementLocation location,
+        RawBibliographyItem current,
+        IReadOnlyList<ElementLocation> markerStarts)
+    {
+        ElementLocation previous = current.Elements[^1];
+        if (ReferenceEquals(previous.Element, location.Element) ||
+            previous.PageNumber != location.PageNumber ||
+            markerStarts.Count == 0)
+        {
+            return false;
+        }
+
+        PdfSemanticLine previousLine = previous.Content.Lines[^1];
+        PdfSemanticLine currentLine = location.Content.Lines[0];
+        float representativeFontSize = MathF.Max(previousLine.DominantFontSize, currentLine.DominantFontSize);
+        float verticalGap = currentLine.Bounds.Y - previousLine.Bounds.Bottom;
+        if (verticalGap <= representativeFontSize * 1.25f)
+        {
+            return false;
+        }
+
+        // A separated paragraph that returns to the marker gutter is not a
+        // hanging continuation of the active entry.
+        float markerColumn = markerStarts
+            .Select(static marker => marker.Content.Lines[0].Bounds.X)
+            .Order()
+            .ElementAt(markerStarts.Count / 2);
+        return MathF.Abs(currentLine.Bounds.X - markerColumn) <= representativeFontSize;
     }
 
     private static bool TryBuildAuthorYearEntries(
