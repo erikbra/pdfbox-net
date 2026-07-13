@@ -13,6 +13,7 @@ public static class PdfSemanticExtractor
     private static readonly Regex FootnoteMarkerPattern = new(@"^[*∗†‡]\s*$", RegexOptions.Compiled);
     private static readonly Regex SymbolFootnoteMarkerPattern = new(@"^[*∗†‡]\s*$", RegexOptions.Compiled);
     private static readonly Regex NumericFootnoteMarkerPattern = new(@"^\d{1,2}\s*$", RegexOptions.Compiled);
+    private static readonly Regex TableCaptionPattern = new(@"^Table\s+\d", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex DateListItemBodyPattern = new(
         @"^(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:(?:\d{1,2})(?:,\s*)?)?\d{4}\b",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -25,6 +26,9 @@ public static class PdfSemanticExtractor
     private static readonly Regex DocumentIndexPageLabelPattern = new(
         @"^(?:(?:[A-Z]{1,3}-?)?\d+(?:[-–]\d+)?|[IVXLCDM]+)$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex DefinitionReferencePattern = new(
+        @"^(?:\[\s*\d{1,3}(?:\s*(?:,|[-–])\s*(?:\d{1,3}|adapted))*\s*\]\s*)+$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex WhitespacePattern = new(@"\s+", RegexOptions.Compiled);
     private const int MaximumDetectedTableColumnCount = 16;
 
@@ -33,7 +37,213 @@ public static class PdfSemanticExtractor
         ArgumentNullException.ThrowIfNull(layout);
         options ??= new PdfSemanticExtractionOptions();
         PdfSemanticPage[] pages = layout.Pages.Select(page => ExtractPage(page, options)).ToArray();
+        pages = LinkDefinitionListContinuations(pages);
         return new PdfSemanticDocument(PdfSemanticBibliographyExtractor.Extract(layout, pages));
+    }
+
+    private static PdfSemanticPage[] LinkDefinitionListContinuations(IReadOnlyList<PdfSemanticPage> sourcePages)
+    {
+        List<PdfSemanticElement>[] pages = sourcePages
+            .Select(static page => page.Elements.ToList())
+            .ToArray();
+        for (int pageIndex = 1; pageIndex < pages.Length; pageIndex++)
+        {
+            List<PdfSemanticElement> previousElements = pages[pageIndex - 1];
+            List<PdfSemanticElement> currentElements = pages[pageIndex];
+            int previousListIndex = previousElements.FindLastIndex(static element =>
+                element.Kind == PdfSemanticElementKind.DefinitionList && element.DefinitionList != null);
+            int currentListIndex = currentElements.FindIndex(static element =>
+                element.Kind == PdfSemanticElementKind.DefinitionList && element.DefinitionList != null);
+            if (previousListIndex < 0 || currentListIndex < 0)
+            {
+                continue;
+            }
+
+            PdfSemanticElement previousListElement = previousElements[previousListIndex];
+            PdfSemanticElement currentListElement = currentElements[currentListIndex];
+            PdfSemanticDefinitionListEntry? previousEntry = previousListElement.DefinitionList!.Entries.LastOrDefault();
+            if (previousEntry == null ||
+                previousListElement.DefinitionList.TermColumnWidth.HasValue !=
+                currentListElement.DefinitionList!.TermColumnWidth.HasValue)
+            {
+                continue;
+            }
+
+            int continuationIndex = -1;
+            int continuationLineIndex = -1;
+            if (!EndsSentence(previousEntry.Definition.Text))
+            {
+                for (int index = 0; index < currentListIndex; index++)
+                {
+                    PdfSemanticElement candidate = currentElements[index];
+                    if (candidate.Kind != PdfSemanticElementKind.Paragraph || candidate.Text.Length < 8)
+                    {
+                        continue;
+                    }
+
+                    int lineIndex = candidate.Lines
+                        .Select(static line => line.Text.TrimStart())
+                        .Select((text, index) => (text, index))
+                        .Where(static item => item.text.Length > 0 && char.IsLower(item.text[0]))
+                        .Select(static item => item.index)
+                        .DefaultIfEmpty(-1)
+                        .First();
+                    if (lineIndex >= 0)
+                    {
+                        continuationIndex = index;
+                        continuationLineIndex = lineIndex;
+                        break;
+                    }
+                }
+            }
+
+            bool previousSuffixIsOnlyPageArtifacts = previousElements
+                .Skip(previousListIndex + 1)
+                .All(IsDefinitionListPageArtifact);
+            bool currentPrefixIsOnlyPageArtifacts = currentElements
+                .Take(currentListIndex)
+                .Select((element, index) => (element, index))
+                .All(item => item.index == continuationIndex || IsDefinitionListPageArtifact(item.element));
+            if (!previousSuffixIsOnlyPageArtifacts || !currentPrefixIsOnlyPageArtifacts)
+            {
+                continue;
+            }
+
+            for (int index = previousListIndex + 1; index < previousElements.Count; index++)
+            {
+                if (previousElements[index].Kind == PdfSemanticElementKind.Paragraph)
+                {
+                    previousElements[index] = CreateSemanticLinesElement(
+                        PdfSemanticElementKind.Footer,
+                        previousElements[index].Lines);
+                }
+            }
+
+            for (int index = 0; index < currentListIndex; index++)
+            {
+                if (index != continuationIndex && currentElements[index].Kind == PdfSemanticElementKind.Paragraph)
+                {
+                    currentElements[index] = CreateSemanticLinesElement(
+                        PdfSemanticElementKind.Header,
+                        currentElements[index].Lines);
+                }
+            }
+
+            PdfSemanticDefinitionList previousList = new(
+                previousListElement.DefinitionList.Entries,
+                previousListElement.DefinitionList.TermColumnWidth,
+                previousListElement.DefinitionList.ColumnGap,
+                previousListElement.DefinitionList.ContinuesPreviousList,
+                continuesOnNextPage: true);
+            PdfSemanticDefinitionList currentList = new(
+                currentListElement.DefinitionList.Entries,
+                currentListElement.DefinitionList.TermColumnWidth,
+                currentListElement.DefinitionList.ColumnGap,
+                continuesPreviousList: true,
+                currentListElement.DefinitionList.ContinuesOnNextPage);
+
+            PdfSemanticLine[] continuationLines = [];
+            if (continuationIndex >= 0 && continuationLineIndex >= 0)
+            {
+                PdfSemanticElement continuation = currentElements[continuationIndex];
+                continuationLines = continuation.Lines.Skip(continuationLineIndex).ToArray();
+                PdfSemanticDefinitionContent continuationContent = new(
+                    JoinParagraphLines(continuationLines),
+                    PdfLayoutRectangle.Union(continuationLines.Select(static line => line.Bounds)),
+                    continuationLines);
+                PdfSemanticDefinitionListEntry continuedPreviousEntry = new(
+                    previousEntry.Terms,
+                    previousEntry.Definition,
+                    previousEntry.ContinuesPreviousDefinition,
+                    continuesOnNextPage: true);
+                previousList = new PdfSemanticDefinitionList(
+                    previousList.Entries.SkipLast(1).Append(continuedPreviousEntry).ToArray(),
+                    previousList.TermColumnWidth,
+                    previousList.ColumnGap,
+                    previousList.ContinuesPreviousList,
+                    previousList.ContinuesOnNextPage);
+
+                PdfSemanticDefinitionListEntry continuationEntry = new(
+                    [],
+                    continuationContent,
+                    continuesPreviousDefinition: true);
+                currentList = new PdfSemanticDefinitionList(
+                    currentList.Entries.Prepend(continuationEntry).ToArray(),
+                    currentList.TermColumnWidth,
+                    currentList.ColumnGap,
+                    currentList.ContinuesPreviousList,
+                    currentList.ContinuesOnNextPage);
+                if (continuationLineIndex == 0)
+                {
+                    currentElements.RemoveAt(continuationIndex);
+                    currentListIndex--;
+                }
+                else
+                {
+                    currentElements[continuationIndex] = CreateSemanticLinesElement(
+                        PdfSemanticElementKind.Header,
+                        continuation.Lines.Take(continuationLineIndex).ToArray());
+                }
+            }
+
+            previousElements[previousListIndex] = WithDefinitionList(previousListElement, previousList);
+            currentElements[currentListIndex] = WithDefinitionList(
+                currentListElement,
+                currentList,
+                continuationLines);
+        }
+
+        return sourcePages
+            .Select((page, index) => new PdfSemanticPage(page.PageNumber, pages[index]))
+            .ToArray();
+    }
+
+    private static bool IsDefinitionListPageArtifact(PdfSemanticElement element)
+    {
+        if (element.Kind is PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
+        {
+            return true;
+        }
+
+        string text = element.Text.Trim();
+        return element.Kind == PdfSemanticElementKind.Paragraph &&
+            text.Length <= 32 &&
+            CountWords(text) <= 5;
+    }
+
+    private static PdfSemanticElement WithDefinitionList(
+        PdfSemanticElement source,
+        PdfSemanticDefinitionList definitionList,
+        IEnumerable<PdfSemanticLine>? additionalLines = null)
+    {
+        PdfSemanticLine[] lines = source.Lines
+            .Concat(additionalLines ?? [])
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        string text = string.Join(
+            Environment.NewLine,
+            definitionList.Entries.Select(static entry =>
+                string.Join("; ", entry.Terms.Select(static term => term.Text)) + "\t" + entry.Definition.Text));
+        return new PdfSemanticElement(
+            PdfSemanticElementKind.DefinitionList,
+            text,
+            PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
+            lines,
+            definitionList: definitionList);
+    }
+
+    private static PdfSemanticElement CreateSemanticLinesElement(
+        PdfSemanticElementKind kind,
+        IReadOnlyList<PdfSemanticLine> lines)
+    {
+        return new PdfSemanticElement(
+            kind,
+            kind == PdfSemanticElementKind.Paragraph
+                ? JoinParagraphLines(lines)
+                : string.Join(Environment.NewLine, lines.Select(static line => line.Text)),
+            PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
+            lines);
     }
 
     private static PdfSemanticPage ExtractPage(PdfLayoutPage page, PdfSemanticExtractionOptions options)
@@ -142,6 +352,17 @@ public static class PdfSemanticExtractor
             consumed))
         {
             elements.Add(documentIndex);
+        }
+
+        foreach (PdfSemanticElement definitionList in ExtractDefinitionLists(
+            page,
+            lines,
+            bodyFontSize,
+            lineStep,
+            consumed,
+            options))
+        {
+            elements.Add(definitionList);
         }
 
         HashSet<int> documentTitleLineIndexes = documentTitleLines
@@ -598,6 +819,11 @@ public static class PdfSemanticExtractor
             return true;
         }
 
+        if (IsWrappedProseLine(line, lines, bodyFontSize, lineStep))
+        {
+            return false;
+        }
+
         bool largerThanBody = line.FontSize >= bodyFontSize + options.HeadingFontSizeDelta;
         if (!largerThanBody)
         {
@@ -608,6 +834,31 @@ public static class PdfSemanticExtractor
         bool shortLine = line.Text.Length <= 80;
         bool hasHeadingFont = line.IsBold || line.FontSize >= bodyFontSize + 3f;
         return hasHeadingFont && (centered || shortLine || line.Bounds.Y < page.Height * 0.30f);
+    }
+
+    private static bool IsWrappedProseLine(
+        LineCandidate line,
+        IReadOnlyList<LineCandidate> lines,
+        float bodyFontSize,
+        float lineStep)
+    {
+        if (IsUniformlyBold(line) ||
+            line.FontSize > bodyFontSize + 3.25f ||
+            CountWords(line.Text) < 3 && !EndsSentence(line.Text))
+        {
+            return false;
+        }
+
+        return lines
+            .Where(candidate => candidate.Index != line.Index)
+            .Where(candidate => MathF.Abs(candidate.FontSize - line.FontSize) <= 0.35f)
+            .Where(candidate => !IsUniformlyBold(candidate))
+            .Where(candidate =>
+                MathF.Abs(candidate.Bounds.Y - line.Bounds.Bottom) <= lineStep * 1.35f ||
+                MathF.Abs(line.Bounds.Y - candidate.Bounds.Bottom) <= lineStep * 1.35f)
+            .Any(candidate =>
+                CountWords(candidate.Text) + CountWords(line.Text) >= 10 &&
+                (candidate.Text.Length >= 36 || line.Text.Length >= 36));
     }
 
     private static bool IsStandaloneBodySizeHeading(
@@ -1189,6 +1440,566 @@ public static class PdfSemanticExtractor
             text,
             PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
             readingLines.Select(static line => line.SemanticLine).ToArray());
+    }
+
+    private static IEnumerable<PdfSemanticElement> ExtractDefinitionLists(
+        PdfLayoutPage page,
+        IReadOnlyList<LineCandidate> lines,
+        float bodyFontSize,
+        float lineStep,
+        HashSet<int> consumed,
+        PdfSemanticExtractionOptions options)
+    {
+        if (page.FormControls.Count > 0)
+        {
+            yield break;
+        }
+
+        DefinitionSourceRow[] rows = BuildDefinitionSourceRows(lines, consumed, options).ToArray();
+        foreach (PdfSemanticElement definitionList in ExtractInlineDefinitionLists(
+            page,
+            rows,
+            bodyFontSize,
+            lineStep,
+            consumed,
+            options))
+        {
+            yield return definitionList;
+        }
+
+        foreach (PdfSemanticElement definitionList in ExtractStackedDefinitionLists(
+            page,
+            rows,
+            bodyFontSize,
+            lineStep,
+            consumed))
+        {
+            yield return definitionList;
+        }
+    }
+
+    private static IEnumerable<DefinitionSourceRow> BuildDefinitionSourceRows(
+        IReadOnlyList<LineCandidate> lines,
+        HashSet<int> consumed,
+        PdfSemanticExtractionOptions options)
+    {
+        List<LineRow> rows = [];
+        foreach (LineCandidate line in lines
+            .Where(line => !consumed.Contains(line.Index))
+            .Where(static line => MathF.Abs(line.Direction) < 0.01f)
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X))
+        {
+            LineRow? row = rows.FirstOrDefault(row => row.Contains(line));
+            if (row == null)
+            {
+                rows.Add(new LineRow(line));
+            }
+            else
+            {
+                row.Add(line);
+            }
+        }
+
+        foreach (LineRow row in rows.OrderBy(static row => row.Bounds.Y).ThenBy(static row => row.Bounds.X))
+        {
+            PdfTextRun[] runs = row.Lines
+                .SelectMany(static line => line.Source.Runs)
+                .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+                .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+                .OrderBy(static run => run.Bounds.X)
+                .ThenBy(static run => run.Bounds.Y)
+                .ToArray();
+            if (runs.Length > 0)
+            {
+                yield return new DefinitionSourceRow(
+                    row.Lines,
+                    runs,
+                    CreateDefinitionSemanticLine(runs, options));
+            }
+        }
+    }
+
+    private static PdfSemanticLine CreateDefinitionSemanticLine(
+        IReadOnlyList<PdfTextRun> runs,
+        PdfSemanticExtractionOptions options)
+    {
+        (string fontName, float fontSize, float direction, PdfLayoutColor color) = DominantStyle(runs);
+        return new PdfSemanticLine(
+            ReconstructText(runs.SelectMany(static run => run.Glyphs), options),
+            PdfLayoutRectangle.Union(runs.Select(static run => run.Bounds)),
+            fontName,
+            fontSize,
+            direction,
+            color,
+            runs);
+    }
+
+    private static IEnumerable<PdfSemanticElement> ExtractInlineDefinitionLists(
+        PdfLayoutPage page,
+        IReadOnlyList<DefinitionSourceRow> rows,
+        float bodyFontSize,
+        float lineStep,
+        HashSet<int> consumed,
+        PdfSemanticExtractionOptions options)
+    {
+        int index = 0;
+        while (index < rows.Count)
+        {
+            if (IsConsumed(rows[index], consumed) ||
+                !TryCreateInlineDefinitionEntry(rows[index], bodyFontSize, options, out DefinitionSourceEntry? first))
+            {
+                index++;
+                continue;
+            }
+
+            int start = index;
+            List<DefinitionSourceEntry> entries = [first!];
+            DefinitionSourceEntry current = first!;
+            index++;
+            while (index < rows.Count && !IsConsumed(rows[index], consumed))
+            {
+                DefinitionSourceRow row = rows[index];
+                float gap = MathF.Max(0f, row.Bounds.Y - current.Bounds.Bottom);
+                if (gap > MathF.Max(lineStep * 1.85f, bodyFontSize * 2.2f))
+                {
+                    break;
+                }
+
+                if (TryCreateInlineDefinitionEntry(row, bodyFontSize, options, out DefinitionSourceEntry? next) &&
+                    AreCompatibleDefinitionEntries(first!, next!, page))
+                {
+                    if (ShouldAssociateAdditionalTerm(current, next!))
+                    {
+                        current.AddTermsAndDefinition(
+                            next!.Terms,
+                            next.DefinitionLines,
+                            next.SourceLines);
+                    }
+                    else
+                    {
+                        entries.Add(next!);
+                        current = next!;
+                    }
+
+                    index++;
+                    continue;
+                }
+
+                if (IsInlineDefinitionContinuation(row, current, page))
+                {
+                    current.AddDefinitionLine(row.SemanticLine, row.Lines);
+                    index++;
+                    continue;
+                }
+
+                break;
+            }
+
+            if (entries.Count >= 3 &&
+                !HasDefinitionTableRules(page, DefinitionListBounds(entries)))
+            {
+                yield return CreateDefinitionListElement(entries, consumed, preserveColumns: true);
+                continue;
+            }
+
+            index = start + 1;
+        }
+    }
+
+    private static bool TryCreateInlineDefinitionEntry(
+        DefinitionSourceRow row,
+        float bodyFontSize,
+        PdfSemanticExtractionOptions options,
+        out DefinitionSourceEntry? entry)
+    {
+        entry = null;
+        PdfTextRun[] runs = row.Runs.ToArray();
+        int normalRunIndex = 0;
+        while (normalRunIndex < runs.Length && IsBoldFontName(runs[normalRunIndex].FontName))
+        {
+            normalRunIndex++;
+        }
+
+        if (normalRunIndex > 0 && normalRunIndex < runs.Length)
+        {
+            PdfTextRun[] termRuns = runs[..normalRunIndex];
+            PdfTextRun[] definitionRuns = runs[normalRunIndex..];
+            DefinitionSourceKind kind = HorizontalGap(termRuns[^1].Bounds, definitionRuns[0].Bounds) >=
+                MathF.Max(8f, bodyFontSize * 0.9f)
+                    ? DefinitionSourceKind.Columns
+                    : DefinitionSourceKind.Inline;
+            if (TryCreateInlineDefinitionEntry(
+                row,
+                termRuns,
+                definitionRuns,
+                kind,
+                bodyFontSize,
+                options,
+                out entry))
+            {
+                return true;
+            }
+        }
+
+        float splitGap = MathF.Max(8f, bodyFontSize * 0.9f);
+        int largestGapIndex = -1;
+        float largestGap = splitGap;
+        for (int index = 1; index < runs.Length; index++)
+        {
+            float gap = HorizontalGap(runs[index - 1].Bounds, runs[index].Bounds);
+            if (gap > largestGap)
+            {
+                largestGap = gap;
+                largestGapIndex = index;
+            }
+        }
+
+        if (largestGapIndex <= 0)
+        {
+            return false;
+        }
+
+        return TryCreateInlineDefinitionEntry(
+            row,
+            runs[..largestGapIndex],
+            runs[largestGapIndex..],
+            DefinitionSourceKind.Columns,
+            bodyFontSize,
+            options,
+            out entry);
+    }
+
+    private static bool TryCreateInlineDefinitionEntry(
+        DefinitionSourceRow row,
+        IReadOnlyList<PdfTextRun> termRuns,
+        IReadOnlyList<PdfTextRun> definitionRuns,
+        DefinitionSourceKind kind,
+        float bodyFontSize,
+        PdfSemanticExtractionOptions options,
+        out DefinitionSourceEntry? entry)
+    {
+        entry = null;
+        PdfSemanticLine termLine = CreateDefinitionSemanticLine(termRuns, options);
+        PdfSemanticLine definitionLine = CreateDefinitionSemanticLine(definitionRuns, options);
+        bool sourceMarksTerm = termRuns.All(static run => IsBoldFontName(run.FontName)) || LooksLikeAcronym(termLine.Text);
+        if (!sourceMarksTerm ||
+            termRuns.Max(static run => run.FontSize) > bodyFontSize + 1.25f ||
+            !LooksLikeDefinitionTerm(termLine.Text) ||
+            !LooksLikeDefinitionText(definitionLine.Text))
+        {
+            return false;
+        }
+
+        PdfSemanticDefinitionTerm term = new(termLine.Text, termLine.Bounds, [termLine]);
+        entry = new DefinitionSourceEntry(
+            [term],
+            [definitionLine],
+            row.Lines,
+            kind,
+            termLine.Bounds.X,
+            definitionLine.Bounds.X);
+        return true;
+    }
+
+    private static bool AreCompatibleDefinitionEntries(
+        DefinitionSourceEntry first,
+        DefinitionSourceEntry next,
+        PdfLayoutPage page)
+    {
+        if (first.Kind != next.Kind ||
+            MathF.Abs(first.TermLeft - next.TermLeft) > MathF.Max(12f, page.Width * 0.035f))
+        {
+            return false;
+        }
+
+        return first.Kind != DefinitionSourceKind.Columns ||
+            MathF.Abs(first.DefinitionLeft - next.DefinitionLeft) <= MathF.Max(18f, page.Width * 0.045f);
+    }
+
+    private static bool ShouldAssociateAdditionalTerm(
+        DefinitionSourceEntry current,
+        DefinitionSourceEntry next)
+    {
+        if (current.Kind != DefinitionSourceKind.Columns || current.DefinitionLines.Count == 0)
+        {
+            return false;
+        }
+
+        string previousDefinition = current.DefinitionLines[^1].Text.TrimEnd();
+        string nextDefinition = next.DefinitionLines[0].Text.TrimStart();
+        return previousDefinition.Length > 0 &&
+            nextDefinition.Length > 0 &&
+            !EndsSentence(previousDefinition) &&
+            char.IsLower(nextDefinition[0]);
+    }
+
+    private static bool IsInlineDefinitionContinuation(
+        DefinitionSourceRow row,
+        DefinitionSourceEntry current,
+        PdfLayoutPage page)
+    {
+        if (!LooksLikeDefinitionText(row.SemanticLine.Text) ||
+            row.Runs.All(static run => IsBoldFontName(run.FontName)))
+        {
+            return false;
+        }
+
+        float tolerance = MathF.Max(16f, page.Width * 0.04f);
+        if (current.Kind == DefinitionSourceKind.Columns)
+        {
+            return MathF.Abs(row.Bounds.X - current.DefinitionLeft) <= tolerance;
+        }
+
+        return row.Bounds.X >= current.TermLeft - tolerance &&
+            row.Bounds.X <= current.DefinitionLeft + tolerance;
+    }
+
+    private static IEnumerable<PdfSemanticElement> ExtractStackedDefinitionLists(
+        PdfLayoutPage page,
+        IReadOnlyList<DefinitionSourceRow> rows,
+        float bodyFontSize,
+        float lineStep,
+        HashSet<int> consumed)
+    {
+        int index = 0;
+        while (index < rows.Count)
+        {
+            if (IsConsumed(rows[index], consumed) || !IsStackedDefinitionTerm(rows[index], bodyFontSize))
+            {
+                index++;
+                continue;
+            }
+
+            int start = index;
+            List<DefinitionSourceEntry> entries = [];
+            while (index < rows.Count && !IsConsumed(rows[index], consumed))
+            {
+                if (!IsStackedDefinitionTerm(rows[index], bodyFontSize))
+                {
+                    break;
+                }
+
+                List<DefinitionSourceRow> termRows = [rows[index]];
+                index++;
+                while (index < rows.Count &&
+                    !IsConsumed(rows[index], consumed) &&
+                    IsStackedDefinitionTerm(rows[index], bodyFontSize) &&
+                    rows[index].Bounds.Y - termRows[^1].Bounds.Bottom <= lineStep * 1.25f)
+                {
+                    termRows.Add(rows[index]);
+                    index++;
+                }
+
+                List<DefinitionSourceRow> definitionRows = [];
+                DefinitionSourceRow previous = termRows[^1];
+                while (index < rows.Count && !IsConsumed(rows[index], consumed))
+                {
+                    DefinitionSourceRow row = rows[index];
+                    float gap = MathF.Max(0f, row.Bounds.Y - previous.Bounds.Bottom);
+                    if (gap > MathF.Max(lineStep * 1.9f, bodyFontSize * 2.25f) ||
+                        IsStackedDefinitionTerm(row, bodyFontSize))
+                    {
+                        break;
+                    }
+
+                    bool isReference = DefinitionReferencePattern.IsMatch(row.SemanticLine.Text.Trim());
+                    if (!LooksLikeDefinitionText(row.SemanticLine.Text) && !isReference ||
+                        row.Runs.All(static run => IsBoldFontName(run.FontName)) && !isReference ||
+                        MathF.Abs(row.Bounds.X - termRows[0].Bounds.X) > MathF.Max(28f, page.Width * 0.075f))
+                    {
+                        break;
+                    }
+
+                    definitionRows.Add(row);
+                    previous = row;
+                    index++;
+                }
+
+                if (definitionRows.Count == 0)
+                {
+                    break;
+                }
+
+                PdfSemanticLine[] termLines = termRows.Select(static row => row.SemanticLine).ToArray();
+                PdfSemanticDefinitionTerm term = new(
+                    JoinParagraphLines(termLines),
+                    PdfLayoutRectangle.Union(termLines.Select(static line => line.Bounds)),
+                    termLines);
+                DefinitionSourceEntry entry = new(
+                    [term],
+                    definitionRows.Select(static row => row.SemanticLine),
+                    termRows.SelectMany(static row => row.Lines)
+                        .Concat(definitionRows.SelectMany(static row => row.Lines)),
+                    DefinitionSourceKind.Stacked,
+                    term.Bounds.X,
+                    definitionRows[0].Bounds.X);
+                entries.Add(entry);
+
+                if (index >= rows.Count ||
+                    IsConsumed(rows[index], consumed) ||
+                    !IsStackedDefinitionTerm(rows[index], bodyFontSize))
+                {
+                    break;
+                }
+
+                float entryGap = MathF.Max(0f, rows[index].Bounds.Y - entry.Bounds.Bottom);
+                if (entryGap > MathF.Max(lineStep * 2.5f, bodyFontSize * 3f))
+                {
+                    break;
+                }
+            }
+
+            if (entries.Count >= 4 &&
+                IsLikelyStackedDefinitionGroup(entries) &&
+                !HasDefinitionTableRules(page, DefinitionListBounds(entries)))
+            {
+                yield return CreateDefinitionListElement(entries, consumed, preserveColumns: false);
+                continue;
+            }
+
+            index = start + 1;
+        }
+    }
+
+    private static bool IsStackedDefinitionTerm(DefinitionSourceRow row, float bodyFontSize)
+    {
+        return row.Runs.Count > 0 &&
+            row.Runs.All(static run => IsBoldFontName(run.FontName)) &&
+            row.Runs.Max(static run => run.FontSize) <= bodyFontSize + 0.5f &&
+            row.Runs.Min(static run => run.FontSize) >= bodyFontSize - 2.25f &&
+            LooksLikeDefinitionTerm(row.SemanticLine.Text);
+    }
+
+    private static bool IsLikelyStackedDefinitionGroup(IReadOnlyList<DefinitionSourceEntry> entries)
+    {
+        int glossaryStyleTerms = entries.Count(entry =>
+        {
+            string text = entry.Terms[0].Text.TrimStart();
+            return text.Length > 0 && (char.IsLower(text[0]) || LooksLikeAcronym(text));
+        });
+        int[] wordCounts = entries
+            .Select(entry => WhitespacePattern.Split(entry.Terms[0].Text.Trim()).Count(static word => word.Length > 0))
+            .OrderBy(static count => count)
+            .ToArray();
+        return glossaryStyleTerms >= Math.Max(1, entries.Count / 3) ||
+            wordCounts[wordCounts.Length / 2] <= 3;
+    }
+
+    private static PdfLayoutRectangle DefinitionListBounds(IReadOnlyList<DefinitionSourceEntry> entries)
+    {
+        return PdfLayoutRectangle.Union(entries.Select(static entry => entry.Bounds));
+    }
+
+    private static bool HasDefinitionTableRules(PdfLayoutPage page, PdfLayoutRectangle bounds)
+    {
+        float tolerance = 3f;
+        bool hasNearbyTableCaption = page.Lines
+            .Where(line => line.Bounds.Bottom <= bounds.Y + tolerance)
+            .Where(line => bounds.Y - line.Bounds.Bottom <= 90f)
+            .Any(line => TableCaptionPattern.IsMatch(line.Text.TrimStart()));
+        if (hasNearbyTableCaption)
+        {
+            return true;
+        }
+
+        PdfLayoutPath[] rules = page.Paths
+            .Where(static path => path.IsStroked || path.IsFilled)
+            .Where(path => path.Bounds.Bottom >= bounds.Y - tolerance && path.Bounds.Y <= bounds.Bottom + tolerance)
+            .Where(path => path.Bounds.Right >= bounds.X - tolerance && path.Bounds.X <= bounds.Right + tolerance)
+            .Where(static path =>
+                path.Bounds.Width >= MathF.Max(8f, path.Bounds.Height * 4f) ||
+                path.Bounds.Height >= MathF.Max(8f, path.Bounds.Width * 4f))
+            .ToArray();
+        int horizontalRules = rules.Count(static path => path.Bounds.Width >= path.Bounds.Height * 4f);
+        int verticalRules = rules.Count(static path => path.Bounds.Height >= path.Bounds.Width * 4f);
+        return rules.Length >= 3 && horizontalRules >= 2 && verticalRules >= 1;
+    }
+
+    private static bool LooksLikeDefinitionTerm(string text)
+    {
+        string trimmed = text.Trim();
+        if (trimmed.Length == 0 || trimmed.Length > 96 ||
+            trimmed[0] is '\u0095' or '\u2022' ||
+            NumberedHeadingPattern.IsMatch(trimmed) ||
+            Regex.IsMatch(trimmed, @"^\d+(?:\.\d+)*\.?\s+") ||
+            trimmed.EndsWith('.') || trimmed.EndsWith('!') || trimmed.EndsWith('?') ||
+            trimmed.EndsWith(':'))
+        {
+            return false;
+        }
+
+        int letters = trimmed.Count(char.IsLetter);
+        int digits = trimmed.Count(char.IsDigit);
+        int words = WhitespacePattern.Split(trimmed).Count(static word => word.Length > 0);
+        return letters > 0 && digits <= Math.Max(letters, 3) && words <= 10;
+    }
+
+    private static bool LooksLikeDefinitionText(string text)
+    {
+        string trimmed = text.Trim();
+        int letters = trimmed.Count(char.IsLetter);
+        int digits = trimmed.Count(char.IsDigit);
+        return trimmed.Length >= 8 &&
+            letters >= 4 &&
+            letters >= digits;
+    }
+
+    private static bool LooksLikeAcronym(string text)
+    {
+        string compact = new(text.Where(static character => char.IsLetterOrDigit(character)).ToArray());
+        return compact.Length is >= 2 and <= 12 &&
+            compact.Any(char.IsLetter) &&
+            compact.Where(char.IsLetter).All(char.IsUpper);
+    }
+
+    private static bool IsConsumed(DefinitionSourceRow row, HashSet<int> consumed)
+    {
+        return row.Lines.All(line => consumed.Contains(line.Index));
+    }
+
+    private static PdfSemanticElement CreateDefinitionListElement(
+        IReadOnlyList<DefinitionSourceEntry> sourceEntries,
+        HashSet<int> consumed,
+        bool preserveColumns)
+    {
+        foreach (LineCandidate line in sourceEntries.SelectMany(static entry => entry.SourceLines).Distinct())
+        {
+            consumed.Add(line.Index);
+        }
+
+        PdfSemanticDefinitionListEntry[] entries = sourceEntries
+            .Select(static entry => entry.ToSemanticEntry())
+            .ToArray();
+        PdfSemanticLine[] lines = sourceEntries
+            .SelectMany(static entry => entry.Terms.SelectMany(static term => term.Lines)
+                .Concat(entry.DefinitionLines))
+            .ToArray();
+        float? termColumnWidth = null;
+        float columnGap = 0f;
+        if (preserveColumns)
+        {
+            float left = sourceEntries.Min(static entry => entry.Terms.Min(static term => term.Bounds.X));
+            termColumnWidth = sourceEntries.Max(entry => entry.Terms.Max(term => term.Bounds.Right)) - left;
+            float[] gaps = sourceEntries
+                .Select(entry => entry.DefinitionLeft - entry.Terms.Max(static term => term.Bounds.Right))
+                .Where(static gap => gap >= 0f)
+                .OrderBy(static gap => gap)
+                .ToArray();
+            columnGap = gaps.Length == 0 ? 0f : gaps[gaps.Length / 2];
+        }
+
+        PdfSemanticDefinitionList definitionList = new(entries, termColumnWidth, columnGap);
+        string text = string.Join(
+            Environment.NewLine,
+            entries.Select(static entry =>
+                string.Join("; ", entry.Terms.Select(static term => term.Text)) + "\t" + entry.Definition.Text));
+        return new PdfSemanticElement(
+            PdfSemanticElementKind.DefinitionList,
+            text,
+            PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
+            lines,
+            definitionList: definitionList);
     }
 
     private static IEnumerable<PdfSemanticElement> ExtractDocumentIndexes(
@@ -4993,6 +5804,111 @@ public static class PdfSemanticExtractor
         {
             _segments.Add(segment);
         }
+    }
+
+    private sealed class DefinitionSourceRow
+    {
+        public DefinitionSourceRow(
+            IReadOnlyList<LineCandidate> lines,
+            IReadOnlyList<PdfTextRun> runs,
+            PdfSemanticLine semanticLine)
+        {
+            Lines = lines.ToArray();
+            Runs = runs.ToArray();
+            SemanticLine = semanticLine;
+        }
+
+        public IReadOnlyList<LineCandidate> Lines { get; }
+
+        public IReadOnlyList<PdfTextRun> Runs { get; }
+
+        public PdfSemanticLine SemanticLine { get; }
+
+        public PdfLayoutRectangle Bounds => SemanticLine.Bounds;
+    }
+
+    private sealed class DefinitionSourceEntry
+    {
+        private readonly List<PdfSemanticDefinitionTerm> _terms;
+        private readonly List<PdfSemanticLine> _definitionLines;
+        private readonly List<LineCandidate> _sourceLines;
+
+        public DefinitionSourceEntry(
+            IReadOnlyList<PdfSemanticDefinitionTerm> terms,
+            IEnumerable<PdfSemanticLine> definitionLines,
+            IEnumerable<LineCandidate> sourceLines,
+            DefinitionSourceKind kind,
+            float termLeft,
+            float definitionLeft)
+        {
+            _terms = terms.ToList();
+            _definitionLines = definitionLines.ToList();
+            _sourceLines = sourceLines.Distinct().ToList();
+            Kind = kind;
+            TermLeft = termLeft;
+            DefinitionLeft = definitionLeft;
+        }
+
+        public IReadOnlyList<PdfSemanticDefinitionTerm> Terms => _terms;
+
+        public IReadOnlyList<PdfSemanticLine> DefinitionLines => _definitionLines;
+
+        public IReadOnlyList<LineCandidate> SourceLines => _sourceLines;
+
+        public DefinitionSourceKind Kind { get; }
+
+        public float TermLeft { get; }
+
+        public float DefinitionLeft { get; }
+
+        public PdfLayoutRectangle Bounds => PdfLayoutRectangle.Union(
+            Terms.Select(static term => term.Bounds).Concat(_definitionLines.Select(static line => line.Bounds)));
+
+        public void AddDefinitionLine(PdfSemanticLine line, IEnumerable<LineCandidate> sourceLines)
+        {
+            _definitionLines.Add(line);
+            foreach (LineCandidate sourceLine in sourceLines)
+            {
+                if (!_sourceLines.Contains(sourceLine))
+                {
+                    _sourceLines.Add(sourceLine);
+                }
+            }
+        }
+
+        public void AddTermsAndDefinition(
+            IEnumerable<PdfSemanticDefinitionTerm> terms,
+            IEnumerable<PdfSemanticLine> definitionLines,
+            IEnumerable<LineCandidate> sourceLines)
+        {
+            _terms.AddRange(terms);
+            _definitionLines.AddRange(definitionLines);
+            foreach (LineCandidate sourceLine in sourceLines)
+            {
+                if (!_sourceLines.Contains(sourceLine))
+                {
+                    _sourceLines.Add(sourceLine);
+                }
+            }
+        }
+
+        public PdfSemanticDefinitionListEntry ToSemanticEntry()
+        {
+            PdfSemanticLine[] lines = OrderLinesForReading(_definitionLines);
+            return new PdfSemanticDefinitionListEntry(
+                Terms,
+                new PdfSemanticDefinitionContent(
+                    JoinParagraphLines(lines),
+                    PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
+                    lines));
+        }
+    }
+
+    private enum DefinitionSourceKind
+    {
+        Inline,
+        Columns,
+        Stacked
     }
 
     private sealed class RuledTableRegion

@@ -670,6 +670,41 @@ public static class PdfHtmlConverter
           margin: 2pt 0 0;
         }
 
+        .pdf-semantic-definition-list {
+          column-gap: var(--pdf-semantic-definition-gap, 12pt);
+          display: grid;
+          grid-template-columns: minmax(0, var(--pdf-semantic-term-width, max-content)) minmax(0, 1fr);
+          line-height: 1.18;
+          margin: 0 0 8pt;
+          row-gap: 5pt;
+        }
+
+        .pdf-semantic-definition-list > dt {
+          font-weight: 600;
+          min-width: 0;
+        }
+
+        .pdf-semantic-definition-list > dd {
+          margin: 0;
+          min-width: 0;
+        }
+
+        .pdf-semantic-definition-list-stacked {
+          display: block;
+        }
+
+        .pdf-semantic-definition-list-stacked > dt {
+          margin-top: 7pt;
+        }
+
+        .pdf-semantic-definition-list-stacked > dt:first-child {
+          margin-top: 0;
+        }
+
+        .pdf-semantic-definition-list-stacked > dd {
+          margin: 1pt 0 0;
+        }
+
         .pdf-semantic-bibliography {
           line-height: 1.18;
           margin: 0 0 6pt;
@@ -2888,12 +2923,14 @@ public static class PdfHtmlConverter
         bool flowOpen = false;
         SemanticSectionWriter? sectionWriter = null;
         SemanticBibliographyWriter bibliographyWriter = new(html);
+        SemanticDefinitionListRenderState definitionListState = new();
 
         for (int index = 0; index < pages.Length; index++)
         {
             ContinuousPageContext context = pages[index];
             if (context.LineGrid != null)
             {
+                CloseSemanticDefinitionList(html, definitionListState);
                 bibliographyWriter.CloseAll();
                 if (!flowOpen)
                 {
@@ -2914,6 +2951,7 @@ public static class PdfHtmlConverter
 
             if (context.Columns != null)
             {
+                CloseSemanticDefinitionList(html, definitionListState);
                 bibliographyWriter.CloseAll();
                 if (!flowOpen)
                 {
@@ -2934,6 +2972,7 @@ public static class PdfHtmlConverter
 
             if (context.UsesFixedLayoutFallback)
             {
+                CloseSemanticDefinitionList(html, definitionListState);
                 bibliographyWriter.CloseAll();
                 if (flowOpen)
                 {
@@ -2991,6 +3030,7 @@ public static class PdfHtmlConverter
 
             if (isCoverPage)
             {
+                CloseSemanticDefinitionList(html, definitionListState);
                 WriteSemanticCoverRegion(
                     html,
                     context.Page,
@@ -3002,14 +3042,19 @@ public static class PdfHtmlConverter
                 continue;
             }
 
-            WriteContinuousPageArtifacts(
-                html,
-                context.Page,
-                context.PositionedElements,
-                context.Footnotes,
-                context.FigureRegions,
-                scale,
-                semantic.SectionTree);
+            bool continuesDefinitionFromPreviousPage = definitionListState.IsOpen;
+            if (!continuesDefinitionFromPreviousPage)
+            {
+                WriteContinuousPageArtifacts(
+                    html,
+                    context.Page,
+                    context.PositionedElements,
+                    context.Footnotes,
+                    context.FigureRegions,
+                    scale,
+                    semantic.SectionTree);
+            }
+
             skippedFigureRegionsByPage.TryGetValue(context.Page.PageNumber, out HashSet<PdfLayoutRectangle>? skippedFigureRegions);
             WriteSemanticFlowElements(
                 html,
@@ -3025,12 +3070,26 @@ public static class PdfHtmlConverter
                 skippedFigureRegions,
                 paragraphMerges.GetValueOrDefault(index),
                 sectionWriter,
-                bibliographyWriter);
+                bibliographyWriter,
+                definitionListState);
+            if (continuesDefinitionFromPreviousPage && !definitionListState.IsOpen)
+            {
+                WriteContinuousPageArtifacts(
+                    html,
+                    context.Page,
+                    context.PositionedElements,
+                    context.Footnotes,
+                    context.FigureRegions,
+                    scale,
+                    semantic.SectionTree);
+            }
+
             WriteFormControls(html, context.Page, scale, positioned: false);
         }
 
         if (flowOpen)
         {
+            CloseSemanticDefinitionList(html, definitionListState);
             bibliographyWriter.CloseAll();
             sectionWriter!.CloseAll();
             html.AppendLine("    </article>");
@@ -3235,6 +3294,11 @@ public static class PdfHtmlConverter
             return true;
         }
 
+        if (semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.DefinitionList))
+        {
+            return false;
+        }
+
         // Bibliography extraction intentionally collapses many source lines into
         // one semantic fragment. Do not mistake that successful grouping for the
         // sparse-element signal used by the remaining visual fallback heuristics.
@@ -3422,7 +3486,8 @@ public static class PdfHtmlConverter
 
     private static bool HasSideBySideTextColumns(PdfLayoutPage page, PdfSemanticPage semanticPage)
     {
-        if (semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Table) ||
+        if (semanticPage.Elements.Any(static element =>
+                element.Kind is PdfSemanticElementKind.Table or PdfSemanticElementKind.DefinitionList) ||
             page.Lines.Count < 20)
         {
             return false;
@@ -3456,6 +3521,11 @@ public static class PdfHtmlConverter
         PdfLayoutPage page,
         PdfSemanticPage semanticPage)
     {
+        if (semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.DefinitionList))
+        {
+            return null;
+        }
+
         if (!TryGetTwoColumnRuns(page, semanticPage, out PdfTextRun[] candidateLines, out LineGridColumn[] gridColumns, out float pitch))
         {
             return null;
@@ -3510,6 +3580,11 @@ public static class PdfHtmlConverter
         PdfLayoutPage page,
         PdfSemanticPage semanticPage)
     {
+        if (semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.DefinitionList))
+        {
+            return null;
+        }
+
         if (!TryGetFlowColumnRuns(
                 page,
                 semanticPage,
@@ -3929,7 +4004,8 @@ public static class PdfHtmlConverter
         candidateRuns = [];
         gridColumns = [];
         pitch = 0;
-        if (semanticPage.Elements.Any(static element => element.Kind == PdfSemanticElementKind.Table) ||
+        if (semanticPage.Elements.Any(static element =>
+                element.Kind is PdfSemanticElementKind.Table or PdfSemanticElementKind.DefinitionList) ||
             page.Lines.Count < 24)
         {
             return false;
@@ -5016,7 +5092,8 @@ public static class PdfHtmlConverter
         ISet<PdfLayoutRectangle>? skippedFigureRegions,
         ContinuousParagraphMerge? paragraphMerge,
         SemanticSectionWriter? sectionWriter,
-        SemanticBibliographyWriter? bibliographyWriter)
+        SemanticBibliographyWriter? bibliographyWriter,
+        SemanticDefinitionListRenderState? definitionListState = null)
     {
         PdfLayoutRectangle[] figureRegions = figureRendering == SemanticFigureRendering.None
             ? []
@@ -5024,6 +5101,7 @@ public static class PdfHtmlConverter
                 .Where(region => skippedFigureRegions == null || !skippedFigureRegions.Contains(region))
                 .ToArray();
         HashSet<FormulaGlyphKey> claimedFormulaGlyphs = [];
+        List<PdfSemanticElement> deferredPageArtifacts = [];
         int nextFigureRegion = 0;
         for (int index = 0; index < flowElements.Count; index++)
         {
@@ -5073,9 +5151,39 @@ public static class PdfHtmlConverter
                 nextFigureRegion++;
             }
 
+            bool isDefinitionList = element.Kind == PdfSemanticElementKind.DefinitionList &&
+                element.DefinitionList != null;
+            if (definitionListState?.IsOpen == true &&
+                element.Kind is PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
+            {
+                deferredPageArtifacts.Add(element);
+                continue;
+            }
+
+            if (definitionListState?.IsOpen == true && !isDefinitionList)
+            {
+                CloseSemanticDefinitionList(html, definitionListState);
+            }
+
             bibliographyWriter?.BeforeElement(element);
             string? elementId = sectionWriter?.BeginElement(element);
             int? headingLevel = sectionWriter?.SectionLevelFor(element);
+
+            if (isDefinitionList)
+            {
+                WriteSemanticDefinitionList(html, element, footnotes, page, definitionListState);
+                if (definitionListState?.IsOpen != true && deferredPageArtifacts.Count > 0)
+                {
+                    foreach (PdfSemanticElement artifact in deferredPageArtifacts)
+                    {
+                        WriteFlowSemanticElement(html, artifact, footnotes, page, allowMeasuredWidth: false);
+                    }
+
+                    deferredPageArtifacts.Clear();
+                }
+
+                continue;
+            }
 
             if (element.Kind == PdfSemanticElementKind.Bibliography && element.BibliographyFragment != null)
             {
@@ -5128,6 +5236,14 @@ public static class PdfHtmlConverter
                 claimedFormulaGlyphs: claimedFormulaGlyphs,
                 elementId: elementId,
                 headingLevel: headingLevel);
+        }
+
+        if (definitionListState?.IsOpen != true && deferredPageArtifacts.Count > 0)
+        {
+            foreach (PdfSemanticElement artifact in deferredPageArtifacts)
+            {
+                WriteFlowSemanticElement(html, artifact, footnotes, page, allowMeasuredWidth: false);
+            }
         }
 
         while (nextFigureRegion < figureRegions.Length)
@@ -6059,6 +6175,12 @@ public static class PdfHtmlConverter
             return;
         }
 
+        if (element.Kind == PdfSemanticElementKind.DefinitionList && element.DefinitionList != null)
+        {
+            WriteSemanticDefinitionList(html, element, footnotes, page, state: null);
+            return;
+        }
+
         if (element.Kind == PdfSemanticElementKind.Table && element.TableRows.Count > 0)
         {
             if (page != null &&
@@ -6174,6 +6296,215 @@ public static class PdfHtmlConverter
         html.Append("</")
             .Append(tagName)
             .AppendLine(">");
+    }
+
+    private static void WriteSemanticDefinitionList(
+        StringBuilder html,
+        PdfSemanticElement element,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page,
+        SemanticDefinitionListRenderState? state)
+    {
+        PdfSemanticDefinitionList definitionList = element.DefinitionList!;
+        bool ownsState = state == null;
+        state ??= new SemanticDefinitionListRenderState();
+        PdfSemanticDefinitionListEntry? firstEntry = definitionList.Entries.FirstOrDefault();
+        if (state.IsOpen &&
+            !definitionList.ContinuesPreviousList &&
+            firstEntry?.ContinuesPreviousDefinition != true)
+        {
+            CloseSemanticDefinitionList(html, state);
+        }
+
+        if (!state.IsOpen)
+        {
+            WriteSemanticDefinitionListStart(html, element, definitionList, page, state);
+        }
+
+        for (int entryIndex = 0; entryIndex < definitionList.Entries.Count; entryIndex++)
+        {
+            PdfSemanticDefinitionListEntry entry = definitionList.Entries[entryIndex];
+            if (entry.ContinuesPreviousDefinition)
+            {
+                if (!state.DefinitionOpen)
+                {
+                    html.Append("        <dd>");
+                    state.DefinitionOpen = true;
+                }
+                else if (NeedsSpaceBetween(state.PreviousText, entry.Definition.Text))
+                {
+                    html.Append(' ');
+                }
+
+                WriteSemanticDefinitionContent(html, entry.Definition, footnotes, page);
+                state.PreviousText = entry.Definition.Text;
+            }
+            else
+            {
+                if (state.DefinitionOpen)
+                {
+                    html.AppendLine("</dd>");
+                    state.DefinitionOpen = false;
+                }
+
+                int termCount = Math.Max(1, entry.Terms.Count);
+                int row = state.NextGridRow;
+                for (int termIndex = 0; termIndex < entry.Terms.Count; termIndex++)
+                {
+                    PdfSemanticDefinitionTerm term = entry.Terms[termIndex];
+                    html.Append("        <dt");
+                    if (state.UsesColumns)
+                    {
+                        html.Append(" style=\"grid-row:")
+                            .Append((row + termIndex).ToString(CultureInfo.InvariantCulture))
+                            .Append("\"");
+                    }
+
+                    html.Append('>');
+                    WriteSemanticDefinitionTerm(html, term, footnotes, page);
+                    html.AppendLine("</dt>");
+                }
+
+                html.Append("        <dd");
+                if (state.UsesColumns)
+                {
+                    html.Append(" style=\"grid-row:")
+                        .Append(row.ToString(CultureInfo.InvariantCulture));
+                    if (termCount > 1)
+                    {
+                        html.Append(" / span ")
+                            .Append(termCount.ToString(CultureInfo.InvariantCulture));
+                    }
+
+                    html.Append("\"");
+                }
+
+                html.Append('>');
+                WriteSemanticDefinitionContent(html, entry.Definition, footnotes, page);
+                state.DefinitionOpen = true;
+                state.PreviousText = entry.Definition.Text;
+                state.NextGridRow += termCount;
+            }
+
+            bool keepsListOpenAcrossPage =
+                entryIndex == definitionList.Entries.Count - 1 && definitionList.ContinuesOnNextPage;
+            if (!entry.ContinuesOnNextPage && !keepsListOpenAcrossPage && state.DefinitionOpen)
+            {
+                html.AppendLine("</dd>");
+                state.DefinitionOpen = false;
+            }
+        }
+
+        bool continues = definitionList.ContinuesOnNextPage;
+        if (ownsState || !continues)
+        {
+            CloseSemanticDefinitionList(html, state);
+        }
+    }
+
+    private static void WriteSemanticDefinitionListStart(
+        StringBuilder html,
+        PdfSemanticElement element,
+        PdfSemanticDefinitionList definitionList,
+        PdfLayoutPage? page,
+        SemanticDefinitionListRenderState state)
+    {
+        state.IsOpen = true;
+        state.UsesColumns = definitionList.TermColumnWidth.HasValue;
+        state.NextGridRow = 1;
+        html.Append("      <dl class=\"")
+            .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
+            .Append(" pdf-semantic-definition-list");
+        if (!state.UsesColumns)
+        {
+            html.Append(" pdf-semantic-definition-list-stacked");
+        }
+
+        html.Append('"');
+        AppendTextDirectionAttribute(html, element.Text);
+        if (definitionList.TermColumnWidth is float termColumnWidth)
+        {
+            html.Append(" style=\"--pdf-semantic-term-width:")
+                .Append(CssPoints(termColumnWidth))
+                .Append(";--pdf-semantic-definition-gap:")
+                .Append(CssPoints(definitionList.ColumnGap))
+                .Append('"');
+        }
+
+        html.AppendLine(">");
+    }
+
+    private static void CloseSemanticDefinitionList(
+        StringBuilder html,
+        SemanticDefinitionListRenderState state)
+    {
+        if (!state.IsOpen)
+        {
+            return;
+        }
+
+        if (state.DefinitionOpen)
+        {
+            html.AppendLine("</dd>");
+        }
+
+        html.AppendLine("      </dl>");
+        state.Reset();
+    }
+
+    private static void WriteSemanticDefinitionTerm(
+        StringBuilder html,
+        PdfSemanticDefinitionTerm term,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        WriteSemanticDefinitionLines(html, term.Text, term.Bounds, term.Lines, footnotes, page);
+    }
+
+    private static void WriteSemanticDefinitionContent(
+        StringBuilder html,
+        PdfSemanticDefinitionContent definition,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        WriteSemanticDefinitionLines(html, definition.Text, definition.Bounds, definition.Lines, footnotes, page);
+    }
+
+    private static void WriteSemanticDefinitionLines(
+        StringBuilder html,
+        string text,
+        PdfLayoutRectangle bounds,
+        IReadOnlyList<PdfSemanticLine> lines,
+        FootnoteContext footnotes,
+        PdfLayoutPage? page)
+    {
+        if (lines.Count == 0)
+        {
+            html.Append(Html(text));
+            return;
+        }
+
+        PdfSemanticElement source = new(PdfSemanticElementKind.Paragraph, text, bounds, lines);
+        string previousLineText = "";
+        bool wroteLine = false;
+        foreach (PdfSemanticLine line in lines)
+        {
+            List<InlineTextSegment> segments = InlineTextSegments(line, page, source).ToList();
+            string lineText = string.Concat(segments.Select(static segment => segment.Text));
+            if (lineText.Length == 0)
+            {
+                continue;
+            }
+
+            if (wroteLine && NeedsSpaceBetween(previousLineText, lineText))
+            {
+                html.Append(' ');
+            }
+
+            WriteInlineTextSegments(html, line, segments, lineText, footnotes);
+            previousLineText = lineText;
+            wroteLine = true;
+        }
     }
 
     private static void WriteSemanticList(
@@ -9277,6 +9608,7 @@ public static class PdfHtmlConverter
                 1,
                 6).ToString(CultureInfo.InvariantCulture),
             PdfSemanticElementKind.Paragraph => "p",
+            PdfSemanticElementKind.DefinitionList => "dl",
             PdfSemanticElementKind.AuthorBlock => "address",
             PdfSemanticElementKind.Footnote => "p",
             PdfSemanticElementKind.Footer => "footer",
@@ -10199,6 +10531,7 @@ public static class PdfHtmlConverter
             PdfSemanticElementKind.Heading => "pdf-semantic-heading",
             PdfSemanticElementKind.Paragraph => "pdf-semantic-paragraph",
             PdfSemanticElementKind.List => "pdf-semantic-list-element",
+            PdfSemanticElementKind.DefinitionList => "pdf-semantic-definition-list-element",
             PdfSemanticElementKind.Bibliography => "pdf-semantic-bibliography-element",
             PdfSemanticElementKind.Navigation => "pdf-semantic-navigation",
             PdfSemanticElementKind.Table => "pdf-semantic-table",
@@ -10703,6 +11036,28 @@ public static class PdfHtmlConverter
         public PdfSemanticColumns? Columns { get; }
 
         public bool UsesFixedLayoutFallback { get; }
+    }
+
+    private sealed class SemanticDefinitionListRenderState
+    {
+        public bool IsOpen { get; set; }
+
+        public bool DefinitionOpen { get; set; }
+
+        public bool UsesColumns { get; set; }
+
+        public int NextGridRow { get; set; } = 1;
+
+        public string PreviousText { get; set; } = "";
+
+        public void Reset()
+        {
+            IsOpen = false;
+            DefinitionOpen = false;
+            UsesColumns = false;
+            NextGridRow = 1;
+            PreviousText = "";
+        }
     }
 
     private sealed class PdfSemanticLineGrid

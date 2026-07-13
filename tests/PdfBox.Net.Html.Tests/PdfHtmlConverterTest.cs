@@ -1099,6 +1099,112 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsNativeDefinitionListWithSourceColumnWidth()
+    {
+        PdfLayoutDocument layout = CreateDefinitionListLayoutFixture(columns: true);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        XElement list = Assert.Single(dom.Descendants("dl"));
+        Assert.Equal(new[] { "API", "CUI", "MFA", "SIEM" },
+            list.Elements("dt").Select(static term => term.Value.Trim()).ToArray());
+        Assert.Equal(4, list.Elements("dd").Count());
+        Assert.Contains("Controlled Unclassified Information", list.Elements("dd").ElementAt(1).Value, StringComparison.Ordinal);
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-columns"));
+        Assert.Empty(dom.Descendants("table"));
+
+        Dictionary<string, string> style = ParseStyle(list.Attribute("style")?.Value ?? "");
+        Assert.InRange(ParsePoints(style["--pdf-semantic-term-width"]), 55f, 65f);
+        Assert.InRange(ParsePoints(style["--pdf-semantic-definition-gap"]), 70f, 90f);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsInlinePairsAsNativeDefinitionTerms()
+    {
+        PdfLayoutDocument layout = CreateDefinitionListLayoutFixture(columns: false);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        XElement list = Assert.Single(dom.Descendants("dl"));
+        Assert.Equal(4, list.Elements("dt").Count());
+        Assert.Equal(4, list.Elements("dd").Count());
+        Assert.Contains("Application programming interface", list.Elements("dd").First().Value, StringComparison.Ordinal);
+        Assert.DoesNotContain(dom.Descendants("h2"), static heading => heading.Value == "API");
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_EmitsMultipleTermsOnlyForSharedSourceDefinition()
+    {
+        PdfLayoutDocument layout = CreateDefinitionListAliasLayoutFixture();
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        XElement list = Assert.Single(dom.Descendants("dl"));
+        Assert.Equal(5, list.Elements("dt").Count());
+        Assert.Equal(4, list.Elements("dd").Count());
+        Assert.Equal(new[] { "API", "application interface" }, list.Elements("dt").Take(2)
+            .Select(static term => term.Value.Trim())
+            .ToArray());
+        XElement sharedDefinition = list.Elements("dd").First();
+        Assert.Contains("Application programming interfaces provide access", sharedDefinition.Value, StringComparison.Ordinal);
+        Assert.Equal("1 / span 2", ParseStyle(sharedDefinition.Attribute("style")?.Value ?? "")["grid-row"]);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_KeepsPageMarkerInsideContinuingDefinition()
+    {
+        PdfLayoutDocument layout = CreateCrossPageDefinitionListLayoutFixture();
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        XElement list = Assert.Single(dom.Descendants("dl"));
+        XElement term = Assert.Single(list.Elements("dt"), static term => term.Value == "common secure configuration");
+        XElement definition = term.ElementsAfterSelf("dd").First();
+        XElement pageBreak = Assert.Single(definition.Descendants(), static element =>
+            HasClass(element, "pdf-semantic-page-break"));
+        Assert.Equal("page-2", pageBreak.Attribute("id")?.Value);
+        Assert.Contains("operational requirements and implementation guidance", definition.Value, StringComparison.Ordinal);
+        Assert.True(
+            definition.Value.IndexOf("Recognized benchmarks", StringComparison.Ordinal) <
+            definition.Value.IndexOf("operational requirements", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_KeepsDefinitionListOpenBetweenCompletedPageEntries()
+    {
+        PdfLayoutDocument layout = CreateCrossPageDefinitionListLayoutFixture(definitionContinues: false);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        XElement list = Assert.Single(dom.Descendants("dl"));
+        Assert.Equal(8, list.Elements("dt").Count());
+        XElement completedDefinition = list.Elements("dd").ElementAt(3);
+        Assert.Contains("Recognized benchmarks for systems.", completedDefinition.Value, StringComparison.Ordinal);
+        Assert.Single(completedDefinition.Descendants(), static element =>
+            HasClass(element, "pdf-semantic-page-break"));
+    }
+
+    [Fact]
     public void Convert_SemanticContinuousFlow_ArxivApplicationBulletsRemainOneCompleteList()
     {
         using PDDocument document = Loader.LoadPDF(Path.Combine(AppContext.BaseDirectory, "Fixtures", "arxiv-sample.pdf"));
@@ -4799,6 +4905,144 @@ public class PdfHtmlConverterTest
         PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
         PdfTextRun run = new(text, fontName, fontSize, 0f, bounds, color, [glyph]);
         return new PdfTextLine(text, bounds, [run]);
+    }
+
+    private static PdfLayoutDocument CreateDefinitionListLayoutFixture(bool columns)
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateDefinitionFixtureLine("Opening context establishes ordinary body text for semantic inference.", 72f, 72f, 410f),
+            CreateDefinitionFixtureLine("A second context line completes the introductory paragraph.", 72f, 84f, 360f),
+            CreateDefinitionPairLine("API", "Application programming interface", 120f, columns),
+            CreateDefinitionPairLine("CUI", "Controlled Unclassified Information", 140f, columns),
+            CreateDefinitionPairLine("MFA", "Multi-factor authentication", 160f, columns),
+            CreateDefinitionPairLine("SIEM", "Security information and event management", 180f, columns)
+        ];
+        return CreateDefinitionLayoutDocument([lines]);
+    }
+
+    private static PdfLayoutDocument CreateDefinitionListAliasLayoutFixture()
+    {
+        List<PdfTextLine> lines =
+        [
+            CreateDefinitionFixtureLine("Opening context establishes ordinary body text for semantic inference.", 72f, 72f, 410f),
+            CreateDefinitionFixtureLine("A second context line completes the introductory paragraph.", 72f, 84f, 360f),
+            CreateDefinitionPairLine("API", "Application programming interfaces provide", 120f, columns: true),
+            CreateDefinitionPairLine("application interface", "access to reusable software operations.", 140f, columns: true),
+            CreateDefinitionPairLine("CUI", "Controlled Unclassified Information", 164f, columns: true),
+            CreateDefinitionPairLine("MFA", "Multi-factor authentication", 184f, columns: true),
+            CreateDefinitionPairLine("SIEM", "Security information and event management", 204f, columns: true)
+        ];
+        return CreateDefinitionLayoutDocument([lines]);
+    }
+
+    private static PdfLayoutDocument CreateCrossPageDefinitionListLayoutFixture(bool definitionContinues = true)
+    {
+        List<PdfTextLine> firstPage =
+        [
+            CreateDefinitionFixtureLine("agency", 72f, 520f, 48f, "Times-Bold"),
+            CreateDefinitionFixtureLine("An executive department or government organization.", 72f, 532f, 330f),
+            CreateDefinitionFixtureLine("assessment", 72f, 556f, 70f, "Times-Bold"),
+            CreateDefinitionFixtureLine("See security control assessment.", 72f, 568f, 220f),
+            CreateDefinitionFixtureLine("audit log", 72f, 592f, 60f, "Times-Bold"),
+            CreateDefinitionFixtureLine("A chronological record of system activity.", 72f, 604f, 280f),
+            CreateDefinitionFixtureLine("common secure configuration", 72f, 628f, 180f, "Times-Bold"),
+            CreateDefinitionFixtureLine(
+                definitionContinues ? "Recognized benchmarks for systems that meet" : "Recognized benchmarks for systems. [79]",
+                72f,
+                640f,
+                300f)
+        ];
+        List<PdfTextLine> secondPage =
+        [
+            CreateDefinitionFixtureLine("May 2024", 72f, 51f, 70f),
+            .. (definitionContinues
+                ? new[] { CreateDefinitionFixtureLine("operational requirements and implementation guidance.", 72f, 75f, 340f) }
+                : Array.Empty<PdfTextLine>()),
+            CreateDefinitionFixtureLine("confidentiality", 72f, 110f, 90f, "Times-Bold"),
+            CreateDefinitionFixtureLine("Preserving authorized restrictions on information access.", 72f, 122f, 360f),
+            CreateDefinitionFixtureLine("configuration management", 72f, 146f, 160f, "Times-Bold"),
+            CreateDefinitionFixtureLine("Activities that maintain the integrity of system configurations.", 72f, 158f, 390f),
+            CreateDefinitionFixtureLine("controlled area", 72f, 182f, 100f, "Times-Bold"),
+            CreateDefinitionFixtureLine("An area with sufficient physical and procedural protections.", 72f, 194f, 380f),
+            CreateDefinitionFixtureLine("external network", 72f, 218f, 100f, "Times-Bold"),
+            CreateDefinitionFixtureLine("A network not controlled by the organization.", 72f, 230f, 300f)
+        ];
+        return CreateDefinitionLayoutDocument([firstPage, secondPage]);
+    }
+
+    private static PdfTextLine CreateDefinitionPairLine(
+        string term,
+        string definition,
+        float y,
+        bool columns)
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        float termWidth = columns ? 60f : MathF.Max(12f, term.Length * 6f);
+        float definitionX = columns ? 210f : 72f + termWidth;
+        PdfTextRun termRun = CreateRun(
+            term,
+            "Times-Bold",
+            fontSize,
+            new PdfLayoutRectangle(72f, y, termWidth, 7.5f),
+            color);
+        PdfTextRun definitionRun = CreateRun(
+            (columns ? "" : " ") + definition,
+            "Times-Roman",
+            fontSize,
+            new PdfLayoutRectangle(definitionX, y, 300f, 7.5f),
+            color);
+        PdfTextRun[] runs = [termRun, definitionRun];
+        return new PdfTextLine(
+            term + " " + definition,
+            new PdfLayoutRectangle(72f, y, definitionX + 300f - 72f, 7.5f),
+            runs);
+    }
+
+    private static PdfTextLine CreateDefinitionFixtureLine(
+        string text,
+        float x,
+        float y,
+        float width,
+        string fontName = "Times-Roman")
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfLayoutRectangle bounds = new(x, y, width, 7.5f);
+        PdfTextRun run = CreateRun(text, fontName, fontSize, bounds, color);
+        return new PdfTextLine(text, bounds, [run]);
+    }
+
+    private static PdfLayoutDocument CreateDefinitionLayoutDocument(
+        IReadOnlyList<IReadOnlyList<PdfTextLine>> pageLines)
+    {
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage[] pages = pageLines
+            .Select((lines, index) =>
+            {
+                PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+                PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+                return new PdfLayoutPage(
+                    index + 1,
+                    pageBounds,
+                    pageBounds,
+                    pageBounds.Width,
+                    pageBounds.Height,
+                    0,
+                    glyphs,
+                    runs,
+                    lines,
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    []);
+            })
+            .ToArray();
+        return new PdfLayoutDocument(pages, []);
     }
 
     private static PDDocument CreateTextDocument(string contentStream)
