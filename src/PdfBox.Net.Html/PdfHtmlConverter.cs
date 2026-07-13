@@ -461,6 +461,18 @@ public static class PdfHtmlConverter
           font-style: italic;
         }
 
+        .pdf-semantic-small {
+          font-size: inherit;
+        }
+
+        .pdf-semantic-citation {
+          font-style: inherit;
+        }
+
+        .pdf-semantic-abbreviation[title] {
+          text-decoration: none;
+        }
+
         .pdf-semantic-bold {
           font-weight: 600;
         }
@@ -1928,9 +1940,13 @@ public static class PdfHtmlConverter
             .Append(positioned ? " pdf-form-label-positioned" : string.Empty)
             .Append("\" for=\"")
             .Append(FormControlId(page.PageNumber, control.Index))
-            .Append("\">")
-            .Append(Html(control.SourceLabelText ?? control.AccessibleName))
-            .AppendLine("</label>");
+            .Append("\">");
+        string labelText = control.SourceLabelText ?? control.AccessibleName;
+        WritePlainTextWithInlineSemantics(
+            html,
+            labelText,
+            control.SourceLabelText == null ? [] : control.SourceLabelInlineSemantics);
+        html.AppendLine("</label>");
 
         PdfLayoutImage? authoredAppearance = positioned ? MatchingWidgetAppearance(page, control) : null;
         string? authoredAppearancePlacementId = authoredAppearance == null
@@ -8570,8 +8586,9 @@ public static class PdfHtmlConverter
 
         if (element.Kind is PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer)
         {
-            if (element.Kind == PdfSemanticElementKind.Header &&
-                page != null &&
+            if (page != null &&
+                (element.Kind == PdfSemanticElementKind.Header ||
+                    element.Lines.Any(static line => line.InlineSemantics.Count > 0)) &&
                 CanWriteRichSemanticText(element))
             {
                 WriteRichSemanticText(html, element, footnotes, page);
@@ -8696,7 +8713,7 @@ public static class PdfHtmlConverter
 
     private static bool CanWriteRichSemanticText(PdfSemanticElement element)
     {
-        return element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading or PdfSemanticElementKind.FrontMatter or PdfSemanticElementKind.Footnote or PdfSemanticElementKind.Header &&
+        return element.Kind is PdfSemanticElementKind.Paragraph or PdfSemanticElementKind.Heading or PdfSemanticElementKind.FrontMatter or PdfSemanticElementKind.Footnote or PdfSemanticElementKind.Header or PdfSemanticElementKind.Footer &&
             !IsFormulaBlock(element) &&
             element.Lines.Count > 0 &&
             element.Lines.All(static line => line.Runs.Count > 0) &&
@@ -8879,8 +8896,91 @@ public static class PdfHtmlConverter
         RemoveDuplicateAdjacentSubscripts(segments);
         AssociateLinkWhitespace(segments);
         MergeAdjacentTextSegments(segments);
+        ApplyInlineSemantics(line, segments);
 
         return segments;
+    }
+
+    private static void ApplyInlineSemantics(
+        PdfSemanticLine line,
+        List<InlineTextSegment> segments)
+    {
+        if (line.InlineSemantics.Count == 0 || segments.Count == 0)
+        {
+            return;
+        }
+
+        string renderedText = string.Concat(segments.Select(static segment => segment.Text));
+        List<(PdfSemanticInline Semantic, int Start)> mapped = [];
+        foreach (PdfSemanticInline semantic in line.InlineSemantics)
+        {
+            if (semantic.Start + semantic.Length > line.Text.Length)
+            {
+                continue;
+            }
+
+            string sourceText = line.Text.Substring(semantic.Start, semantic.Length);
+            int renderedStart = string.Equals(renderedText, line.Text, StringComparison.Ordinal)
+                ? semantic.Start
+                : renderedText.IndexOf(sourceText, StringComparison.Ordinal);
+            if (renderedStart >= 0)
+            {
+                mapped.Add((semantic, renderedStart));
+            }
+        }
+
+        if (mapped.Count == 0)
+        {
+            return;
+        }
+
+        List<InlineTextSegment> annotated = [];
+        int segmentStart = 0;
+        foreach (InlineTextSegment segment in segments)
+        {
+            int segmentEnd = segmentStart + segment.Text.Length;
+            int[] boundaries = mapped
+                .SelectMany(item => new[] { item.Start, item.Start + item.Semantic.Length })
+                .Where(boundary => boundary > segmentStart && boundary < segmentEnd)
+                .Append(segmentStart)
+                .Append(segmentEnd)
+                .Distinct()
+                .Order()
+                .ToArray();
+            for (int index = 0; index + 1 < boundaries.Length; index++)
+            {
+                int pieceStart = boundaries[index];
+                int pieceEnd = boundaries[index + 1];
+                string pieceText = segment.Text.Substring(
+                    pieceStart - segmentStart,
+                    pieceEnd - pieceStart);
+                bool normalBaseline = segment.Role == InlineBaselineRole.Normal;
+                PdfSemanticInline? semantic = normalBaseline
+                    ? mapped
+                        .Where(item => item.Semantic.Kind != PdfSemanticInlineKind.Small &&
+                            item.Start <= pieceStart &&
+                            item.Start + item.Semantic.Length >= pieceEnd)
+                        .OrderBy(item => item.Semantic.Length)
+                        .Select(static item => item.Semantic)
+                        .FirstOrDefault()
+                    : null;
+                bool isSmall = normalBaseline && mapped.Any(item =>
+                    item.Semantic.Kind == PdfSemanticInlineKind.Small &&
+                    item.Start <= pieceStart &&
+                    item.Start + item.Semantic.Length >= pieceEnd);
+                annotated.Add(segment with
+                {
+                    Text = pieceText,
+                    Semantic = semantic,
+                    IsSmall = isSmall
+                });
+            }
+
+            segmentStart = segmentEnd;
+        }
+
+        segments.Clear();
+        segments.AddRange(annotated);
     }
 
     private static bool IsInlineCodeRun(PdfSemanticLine line, PdfTextRun run)
@@ -9892,6 +9992,8 @@ public static class PdfHtmlConverter
     {
         int offset = 0;
         PdfLayoutLink? activeLink = null;
+        PdfSemanticInline? activeSemantic = null;
+        bool activeSmall = false;
         for (int index = 0; index < segments.Count; index++)
         {
             InlineTextSegment segment = segments[index];
@@ -9910,10 +10012,16 @@ public static class PdfHtmlConverter
                 IsCompactSquareRootSegment(segments[index]) &&
                 IsCompactFractionNumeratorOne(segments[index + 1]);
             bool startsCompactSummation = segments[index].Text is "∑" or "Σ";
-            if ((startsCompactFraction || startsCompactSummation) && activeLink != null)
+            if ((startsCompactFraction || startsCompactSummation) &&
+                (activeLink != null || activeSemantic != null || activeSmall))
             {
-                html.Append("</a>");
-                activeLink = null;
+                CloseInlineSemantic(html, ref activeSemantic);
+                CloseSmall(html, ref activeSmall);
+                if (activeLink != null)
+                {
+                    html.Append("</a>");
+                    activeLink = null;
+                }
             }
 
             if (TryWriteCompactInverseSquareRootFraction(html, line, segments, index, out int consumedSegments, out int consumedLength))
@@ -9932,6 +10040,8 @@ public static class PdfHtmlConverter
 
             if (!ReferenceEquals(activeLink, segment.Link))
             {
+                CloseInlineSemantic(html, ref activeSemantic);
+                CloseSmall(html, ref activeSmall);
                 if (activeLink != null)
                 {
                     html.Append("</a>");
@@ -9943,6 +10053,20 @@ public static class PdfHtmlConverter
                 }
 
                 activeLink = segment.Link;
+                OpenSmall(html, segment.IsSmall, ref activeSmall);
+                OpenInlineSemantic(html, segment.Semantic, ref activeSemantic);
+            }
+            else if (activeSmall != segment.IsSmall)
+            {
+                CloseInlineSemantic(html, ref activeSemantic);
+                CloseSmall(html, ref activeSmall);
+                OpenSmall(html, segment.IsSmall, ref activeSmall);
+                OpenInlineSemantic(html, segment.Semantic, ref activeSemantic);
+            }
+            else if (!ReferenceEquals(activeSemantic, segment.Semantic))
+            {
+                CloseInlineSemantic(html, ref activeSemantic);
+                OpenInlineSemantic(html, segment.Semantic, ref activeSemantic);
             }
 
             WriteInlineTextSegment(
@@ -9956,10 +10080,117 @@ public static class PdfHtmlConverter
             offset += segment.Text.Length;
         }
 
+        CloseInlineSemantic(html, ref activeSemantic);
+        CloseSmall(html, ref activeSmall);
         if (activeLink != null)
         {
             html.Append("</a>");
         }
+    }
+
+    private static void OpenSmall(StringBuilder html, bool shouldOpen, ref bool activeSmall)
+    {
+        if (shouldOpen)
+        {
+            html.Append("<small class=\"pdf-semantic-small\">");
+            activeSmall = true;
+        }
+    }
+
+    private static void CloseSmall(StringBuilder html, ref bool activeSmall)
+    {
+        if (activeSmall)
+        {
+            html.Append("</small>");
+            activeSmall = false;
+        }
+    }
+
+    private static void OpenInlineSemantic(
+        StringBuilder html,
+        PdfSemanticInline? semantic,
+        ref PdfSemanticInline? activeSemantic)
+    {
+        if (semantic == null)
+        {
+            return;
+        }
+
+        WriteInlineSemanticStart(html, semantic);
+        activeSemantic = semantic;
+    }
+
+    private static void CloseInlineSemantic(
+        StringBuilder html,
+        ref PdfSemanticInline? activeSemantic)
+    {
+        if (activeSemantic == null)
+        {
+            return;
+        }
+
+        WriteInlineSemanticEnd(html, activeSemantic);
+        activeSemantic = null;
+    }
+
+    private static void WriteInlineSemanticStart(StringBuilder html, PdfSemanticInline semantic)
+    {
+        switch (semantic.Kind)
+        {
+            case PdfSemanticInlineKind.Time:
+                html.Append("<time class=\"pdf-semantic-time\" datetime=\"")
+                    .Append(HtmlAttribute(semantic.Value ?? string.Empty))
+                    .Append("\">");
+                break;
+            case PdfSemanticInlineKind.Abbreviation:
+                html.Append("<abbr class=\"pdf-semantic-abbreviation\" title=\"")
+                    .Append(HtmlAttribute(semantic.Value ?? string.Empty))
+                    .Append("\">");
+                break;
+            case PdfSemanticInlineKind.Citation:
+                html.Append("<cite class=\"pdf-semantic-citation\">");
+                break;
+        }
+    }
+
+    private static void WriteInlineSemanticEnd(StringBuilder html, PdfSemanticInline semantic)
+    {
+        string tagName = semantic.Kind switch
+        {
+            PdfSemanticInlineKind.Time => "time",
+            PdfSemanticInlineKind.Abbreviation => "abbr",
+            PdfSemanticInlineKind.Citation => "cite",
+            _ => ""
+        };
+        if (tagName.Length > 0)
+        {
+            html.Append("</").Append(tagName).Append('>');
+        }
+    }
+
+    private static void WritePlainTextWithInlineSemantics(
+        StringBuilder html,
+        string text,
+        IReadOnlyList<PdfSemanticInline> semantics)
+    {
+        int offset = 0;
+        foreach (PdfSemanticInline semantic in semantics
+            .Where(static value => value.Kind != PdfSemanticInlineKind.Small)
+            .OrderBy(static value => value.Start))
+        {
+            if (semantic.Start < offset || semantic.Start + semantic.Length > text.Length)
+            {
+                continue;
+            }
+
+            html.Append(Html(text[offset..semantic.Start]));
+            WriteInlineSemanticStart(html, semantic);
+            html.Append(Html(text.Substring(semantic.Start, semantic.Length)));
+            WriteInlineSemanticEnd(html, semantic);
+            offset = semantic.Start + semantic.Length;
+        }
+
+        html.Append(Html(text[offset..]));
     }
 
     private static void WriteSemanticLinkStart(StringBuilder html, PdfLayoutLink link)
@@ -10250,7 +10481,8 @@ public static class PdfHtmlConverter
             lineText,
             offset,
             TextShadowStyle(segment.Run.Shadow),
-            segment.Highlight);
+            segment.Highlight,
+            suppressItalicSemantics: segment.Semantic?.Kind == PdfSemanticInlineKind.Citation);
     }
 
     private static void WriteInlineTextSegmentAsRole(
@@ -10277,7 +10509,8 @@ public static class PdfHtmlConverter
         string? lineText = null,
         int offset = 0,
         string? style = null,
-        PdfTextHighlight? highlight = null)
+        PdfTextHighlight? highlight = null,
+        bool suppressItalicSemantics = false)
     {
         string tagName = role switch
         {
@@ -10285,6 +10518,10 @@ public static class PdfHtmlConverter
             InlineBaselineRole.Superscript => "sup",
             InlineBaselineRole.Normal when HasCssClass(className, "pdf-semantic-inline-code") => "code",
             InlineBaselineRole.Normal when HasCssClass(className, "pdf-semantic-bold") => "strong",
+            InlineBaselineRole.Normal when
+                !suppressItalicSemantics &&
+                HasCssClass(className, "pdf-semantic-italic") &&
+                !HasCssClass(className, "pdf-semantic-math") => "em",
             _ => className.Length > 0 ? "span" : ""
         };
 
@@ -12063,7 +12300,9 @@ public static class PdfHtmlConverter
         InlineBaselineRole Role,
         PdfLayoutLink? Link = null,
         PdfTextHighlight? Highlight = null,
-        bool IsCode = false);
+        bool IsCode = false,
+        PdfSemanticInline? Semantic = null,
+        bool IsSmall = false);
 
     private sealed class SemanticSectionWriter
     {

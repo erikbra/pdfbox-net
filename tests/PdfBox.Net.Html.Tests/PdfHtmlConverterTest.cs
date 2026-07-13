@@ -910,8 +910,12 @@ public class PdfHtmlConverterTest
             element.Attribute("data-page-number")?.Value == "3");
         Assert.Contains(items[0].Descendants("a"), link =>
             link.Attribute("href")?.Value == "https://doi.org/10.1000/first");
-        Assert.Contains(items[0].Descendants(), element => HasClass(element, "pdf-semantic-italic"));
-        Assert.Empty(items[0].Descendants("cite"));
+        XElement citedTitle = Assert.Single(items[0].Descendants("cite"));
+        Assert.Equal("Analytical Engines", citedTitle.Value);
+        Assert.Contains(citedTitle.DescendantsAndSelf(), element => HasClass(element, "pdf-semantic-italic"));
+        XElement person = Assert.Single(items[1].Descendants("em"), element => element.Value == "Noether, E.");
+        Assert.True(HasClass(person, "pdf-semantic-italic"));
+        Assert.Empty(items[1].Descendants("cite"));
 
         XElement inTextCitation = Assert.Single(ElementsByClass(dom, "pdf-semantic-link"), link =>
             link.Value.Contains("[3]", StringComparison.Ordinal));
@@ -919,6 +923,101 @@ public class PdfHtmlConverterTest
         Assert.NotNull(dom.Descendants().SingleOrDefault(element =>
             element.Attribute("id")?.Value == inTextCitation.Attribute("href")?.Value.TrimStart('#')));
         Assert.Single(dom.Descendants("ol"), element => HasClass(element, "pdf-semantic-bibliography"));
+    }
+
+    [Fact]
+    public void Convert_SemanticTextMode_EmitsOnlyEvidenceBackedInlineSemantics()
+    {
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(CreateInlineSemanticLayoutFixture(), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        XElement published = Assert.Single(dom.Descendants("time"), element => element.Value == "March 14, 2024");
+        Assert.Equal("2024-03-14", published.Attribute("datetime")?.Value);
+        XElement timeline = Assert.Single(dom.Descendants("time"), element => element.Value == "2024-04-05");
+        Assert.Equal("2024-04-05", timeline.Attribute("datetime")?.Value);
+        Assert.DoesNotContain(dom.Descendants("time"), element => element.Value.Contains("03/04/2024", StringComparison.Ordinal));
+
+        XElement abbreviation = Assert.Single(dom.Descendants("abbr"));
+        Assert.Equal("WHO", abbreviation.Value);
+        Assert.Equal("World Health Organization", abbreviation.Attribute("title")?.Value);
+        Assert.DoesNotContain(dom.Descendants("abbr"), element => element.Value == "NASA");
+
+        string[] smallText = dom.Descendants("small").Select(static element => element.Value).ToArray();
+        Assert.Contains(smallText, static text => text.StartsWith("Published:", StringComparison.Ordinal));
+        Assert.Contains(smallText, static text => text.StartsWith("Updated:", StringComparison.Ordinal));
+        Assert.Contains(smallText, static text => text.StartsWith("Copyright", StringComparison.Ordinal));
+        Assert.DoesNotContain(smallText, static text => text.Contains("Ordinary smaller", StringComparison.Ordinal));
+
+        XElement captionTitle = Assert.Single(dom.Descendants("cite"), element =>
+            element.Value == "The Design of Everyday Things");
+        Assert.Contains(captionTitle.DescendantsAndSelf(), element => HasClass(element, "pdf-semantic-italic"));
+        XElement emphasis = Assert.Single(dom.Descendants("em"), element => element.Value == "important emphasis");
+        Assert.True(HasClass(emphasis, "pdf-semantic-italic"));
+        Assert.DoesNotContain(dom.Descendants("cite"), element => element.Value == "important emphasis");
+
+        string visibleText = dom.Root?.Value ?? string.Empty;
+        Assert.Contains("World Health Organization (WHO) issued guidance.", visibleText, StringComparison.Ordinal);
+        Assert.Contains("Updated: 03/04/2024", visibleText, StringComparison.Ordinal);
+        Assert.Contains("Copyright 2026 Example. All rights reserved.", visibleText, StringComparison.Ordinal);
+        Assert.Contains(".pdf-semantic-small", html.Css, StringComparison.Ordinal);
+        Assert.Contains("font-size: inherit", html.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_FormDateLabels_EmitInvariantTimeWithoutGuessingNumericDates()
+    {
+        PdfLayoutFormControl[] controls =
+        [
+            new PdfLayoutFormControl(
+                0,
+                "published",
+                "Published",
+                PdfLayoutFormControlKind.Text,
+                new PdfLayoutRectangle(180f, 120f, 180f, 20f),
+                sourceLabelText: "Published: 14 March 2024"),
+            new PdfLayoutFormControl(
+                1,
+                "updated",
+                "Updated",
+                PdfLayoutFormControlKind.Text,
+                new PdfLayoutRectangle(180f, 160f, 180f, 20f),
+                sourceLabelText: "Updated: 03/04/2024")
+        ];
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            pageNumber: 1,
+            mediaBox: pageBounds,
+            cropBox: pageBounds,
+            width: pageBounds.Width,
+            height: pageBounds.Height,
+            rotation: 0,
+            glyphs: [],
+            runs: [],
+            lines: [],
+            blocks: [],
+            images: [],
+            paths: [],
+            shadings: [],
+            vectorGroups: [],
+            links: [],
+            diagnostics: [],
+            formControls: controls);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []), new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        }).Html);
+
+        XElement time = Assert.Single(dom.Descendants("time"));
+        Assert.Equal("14 March 2024", time.Value);
+        Assert.Equal("2024-03-14", time.Attribute("datetime")?.Value);
+        XElement ambiguous = Assert.Single(dom.Descendants("label"), element =>
+            element.Value == "Updated: 03/04/2024");
+        Assert.Empty(ambiguous.Descendants("time"));
     }
 
     [Fact]
@@ -1544,6 +1643,9 @@ public class PdfHtmlConverterTest
             HasClass(element, "pdf-semantic-bold") && element.Value == "Bold");
         Assert.Contains(firstItem.Descendants(), element =>
             HasClass(element, "pdf-semantic-italic") && element.Value == "italic");
+        Assert.Contains(firstItem.Descendants("em"), element => element.Value == "italic");
+        Assert.Empty(firstItem.Descendants("cite"));
+        Assert.Empty(firstItem.Descendants("small"));
         Assert.Contains(firstItem.Descendants("sub"), element => element.Value == "2");
         Assert.Contains(firstItem.Descendants("sup"), element => element.Value == "3");
         Assert.Contains(firstItem.Descendants("a"), element =>
@@ -1552,6 +1654,9 @@ public class PdfHtmlConverterTest
             firstItem.Descendants("a").Any(element =>
                 HasClass(element, "pdf-semantic-footnote-ref") && element.Value == "*"),
             firstItem.ToString(SaveOptions.DisableFormatting));
+        Assert.All(
+            ElementsByClass(dom, "pdf-semantic-footnote"),
+            static footnote => Assert.Empty(footnote.Descendants("small")));
     }
 
     [Fact]
@@ -5484,9 +5589,62 @@ public class PdfHtmlConverterTest
             3,
             [
                 CreateScientificFixtureLine("and is continued on the next source page.", 88f, 52f, 300f),
-                CreateScientificFixtureLine("[5] Noether, E. (2022). Symmetry in modern physics.", 72f, 106f, 380f)
+                CreateBibliographyStyledLine(
+                    72f,
+                    106f,
+                    ("[5] ", "Times-Roman"),
+                    ("Noether, E.", "Times-Italic"),
+                    (" (2022). Symmetry in modern physics.", "Times-Roman"))
             ]);
         return new PdfLayoutDocument([firstPage, secondPage, thirdPage], []);
+    }
+
+    private static PdfLayoutDocument CreateInlineSemanticLayoutFixture()
+    {
+        PdfTextLine[] lines =
+        [
+            CreateScientificFixtureLine("Published: March 14, 2024", 72f, 20f, 190f, 10f),
+            CreateScientificFixtureLine("Updated: 03/04/2024", 310f, 20f, 150f, 10f),
+            CreateScientificFixtureLine("Opening body text establishes the ordinary font size.", 72f, 72f, 340f, 12f),
+            CreateScientificFixtureLine("A second body line establishes normal document rhythm.", 72f, 88f, 340f, 12f),
+            CreateScientificFixtureLine("World Health Organization (WHO) issued guidance.", 72f, 126f, 340f, 12f),
+            CreateScientificFixtureLine("NASA issued separate guidance without an expansion.", 72f, 144f, 330f, 12f),
+            CreateScientificFixtureLine("2024-04-05 - Public consultation opened.", 72f, 180f, 280f, 12f),
+            CreateBibliographyStyledLine(
+                72f,
+                216f,
+                ("Figure 1. Adapted from ", "Times-Roman"),
+                ("The Design of Everyday Things", "Times-Italic"),
+                (".", "Times-Roman")),
+            CreateBibliographyStyledLine(
+                72f,
+                246f,
+                ("This is ", "Times-Roman"),
+                ("important emphasis", "Times-Italic"),
+                (" in ordinary prose.", "Times-Roman")),
+            CreateScientificFixtureLine("Ordinary smaller text is not ancillary.", 72f, 700f, 220f, 8f),
+            CreateScientificFixtureLine("Copyright 2026 Example. All rights reserved.", 72f, 744f, 270f, 8f)
+        ];
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            lines.Select(line => new PdfTextBlock(line.Text, line.Bounds, [line])).ToArray(),
+            [],
+            [],
+            [],
+            [],
+            []);
+        return new PdfLayoutDocument([page], []);
     }
 
     private static PdfLayoutPage CreateBibliographyLayoutPage(

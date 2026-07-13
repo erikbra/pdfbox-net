@@ -52,6 +52,11 @@ public static class PdfSemanticExtractor
         pages = pages
             .Select((page, index) => AddThematicBreaks(layout.Pages[index], page))
             .ToArray();
+        for (int index = 0; index < pages.Length; index++)
+        {
+            PdfSemanticInlineInference.Apply(layout.Pages[index], pages[index]);
+        }
+
         return new PdfSemanticDocument(pages);
     }
 
