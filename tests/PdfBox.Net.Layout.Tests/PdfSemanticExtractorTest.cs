@@ -315,7 +315,7 @@ public sealed class PdfSemanticExtractorTest
             CreateFixtureLine("Ordinary body prose establishes the surrounding document rhythm.", 72f, 72f, 440f),
             CreateFixtureLine("NOTE", 108f, 588f, 42f, 11f, "Times-Bold"),
             CreateFixtureLine("*", 108f, 614f, 6f, 8f, "Symbol"),
-            CreateFixtureLine("Footnote text remains a footnote even inside a shaded region.", 122f, 614f, 330f, 8f)
+            CreateFixtureLine("Copyright notice remains a footnote even inside a shaded region.", 122f, 614f, 330f, 8f)
         ],
         [shading]);
 
@@ -323,6 +323,10 @@ public sealed class PdfSemanticExtractorTest
 
         Assert.Contains(page.Elements, static element => element.Kind == PdfSemanticElementKind.Footnote);
         Assert.DoesNotContain(page.Elements, static element => element.Kind == PdfSemanticElementKind.Aside);
+        Assert.All(
+            page.Elements.Where(static element => element.Kind == PdfSemanticElementKind.Footnote)
+                .SelectMany(static element => element.Lines),
+            static line => Assert.Empty(line.InlineSemantics));
     }
 
     [Fact]
@@ -902,6 +906,62 @@ public sealed class PdfSemanticExtractorTest
             element.Kind == PdfSemanticElementKind.Heading && element.Text.Contains("Purpose", StringComparison.Ordinal));
         Assert.Equal(1, document.SectionTree.FindSection(introduction)?.Level);
         Assert.Equal(2, document.SectionTree.FindSection(purpose)?.Level);
+
+        Assert.All(
+            page.Elements.SelectMany(static element => element.Lines)
+                .Where(static line => line.Text.Contains('=')),
+            static line => Assert.Empty(line.InlineSemantics));
+    }
+
+    [Fact]
+    public void Extract_ConservativeInlineSemantics_RequireExplicitTextAndApprovedContext()
+    {
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
+            CreateFixtureLine("Published: March 14, 2024", 72f, 20f, 190f, 10f),
+            CreateFixtureLine("Updated: 03/04/2024", 310f, 20f, 150f, 10f),
+            CreateFixtureLine("Issued: 2024-03-14 09:30 UTC", 72f, 34f, 220f, 10f),
+            CreateFixtureLine("World Health Organization (WHO) issued guidance.", 72f, 120f, 340f, 12f),
+            CreateFixtureLine("NASA issued separate guidance without an expansion.", 72f, 136f, 330f, 12f),
+            CreateFixtureLine("2024-04-05 - Public consultation opened.", 72f, 168f, 280f, 12f),
+            CreateFixtureLine("Copyright 2026 Example. All rights reserved.", 72f, 744f, 270f, 8f),
+            CreateFixtureLine("Ordinary smaller text is not ancillary.", 72f, 700f, 220f, 8f))).Pages);
+
+        PdfSemanticLine[] lines = page.Elements
+            .SelectMany(static element => element.Lines)
+            .Distinct((IEqualityComparer<PdfSemanticLine>)ReferenceEqualityComparer.Instance)
+            .ToArray();
+        PdfSemanticLine published = Assert.Single(lines, static line => line.Text.StartsWith("Published:", StringComparison.Ordinal));
+        PdfSemanticInline publishedTime = Assert.Single(published.InlineSemantics, static semantic =>
+            semantic.Kind == PdfSemanticInlineKind.Time);
+        Assert.Equal("2024-03-14", publishedTime.Value);
+
+        PdfSemanticLine ambiguous = Assert.Single(lines, static line => line.Text.StartsWith("Updated:", StringComparison.Ordinal));
+        Assert.DoesNotContain(ambiguous.InlineSemantics, static semantic => semantic.Kind == PdfSemanticInlineKind.Time);
+
+        PdfSemanticLine issued = Assert.Single(lines, static line => line.Text.StartsWith("Issued:", StringComparison.Ordinal));
+        PdfSemanticInline issuedTime = Assert.Single(issued.InlineSemantics, static semantic =>
+            semantic.Kind == PdfSemanticInlineKind.Time);
+        Assert.Equal("2024-03-14T09:30Z", issuedTime.Value);
+
+        PdfSemanticLine expanded = Assert.Single(lines, static line => line.Text.StartsWith("World Health", StringComparison.Ordinal));
+        PdfSemanticInline abbreviation = Assert.Single(expanded.InlineSemantics, static semantic =>
+            semantic.Kind == PdfSemanticInlineKind.Abbreviation);
+        Assert.Equal("WHO", expanded.Text.Substring(abbreviation.Start, abbreviation.Length));
+        Assert.Equal("World Health Organization", abbreviation.Value);
+
+        PdfSemanticLine unpaired = Assert.Single(lines, static line => line.Text.StartsWith("NASA", StringComparison.Ordinal));
+        Assert.DoesNotContain(unpaired.InlineSemantics, static semantic =>
+            semantic.Kind == PdfSemanticInlineKind.Abbreviation);
+
+        PdfSemanticLine timeline = Assert.Single(lines, static line => line.Text.StartsWith("2024-04-05", StringComparison.Ordinal));
+        PdfSemanticInline timelineTime = Assert.Single(timeline.InlineSemantics, static semantic =>
+            semantic.Kind == PdfSemanticInlineKind.Time);
+        Assert.Equal("2024-04-05", timelineTime.Value);
+
+        PdfSemanticLine copyright = Assert.Single(lines, static line => line.Text.StartsWith("Copyright", StringComparison.Ordinal));
+        Assert.Contains(copyright.InlineSemantics, static semantic => semantic.Kind == PdfSemanticInlineKind.Small);
+        PdfSemanticLine ordinarySmall = Assert.Single(lines, static line => line.Text.StartsWith("Ordinary smaller", StringComparison.Ordinal));
+        Assert.DoesNotContain(ordinarySmall.InlineSemantics, static semantic => semantic.Kind == PdfSemanticInlineKind.Small);
     }
 
     [Fact]
@@ -1108,6 +1168,7 @@ public sealed class PdfSemanticExtractorTest
         Assert.All(table.TableRows[^1].Cells, cell => Assert.True(cell.BorderBottom));
         Assert.DoesNotContain(page.Elements, static element =>
             element.Kind == PdfSemanticElementKind.ThematicBreak);
+        Assert.All(table.Lines, static line => Assert.Empty(line.InlineSemantics));
     }
 
     [Fact]

@@ -384,6 +384,7 @@ public sealed class PdfSemanticLine
         Color = color;
         Runs = runs.ToArray();
         InlineCode = inlineCode?.ToArray() ?? [];
+        InlineSemantics = [];
     }
 
     public string Text { get; }
@@ -404,6 +405,19 @@ public sealed class PdfSemanticLine
     /// Gets source runs confidently identified as isolated code inside surrounding prose.
     /// </summary>
     public IReadOnlyList<PdfSemanticInlineCode> InlineCode { get; }
+
+    /// <summary>
+    /// Gets conservative text-level semantics inferred from explicit source text and layout context.
+    /// </summary>
+    public IReadOnlyList<PdfSemanticInline> InlineSemantics { get; private set; }
+
+    internal void SetInlineSemantics(IEnumerable<PdfSemanticInline> semantics)
+    {
+        InlineSemantics = semantics
+            .OrderBy(static semantic => semantic.Start)
+            .ThenByDescending(static semantic => semantic.Length)
+            .ToArray();
+    }
 }
 
 /// <summary>

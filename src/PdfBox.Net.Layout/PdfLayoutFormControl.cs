@@ -48,6 +48,7 @@ public sealed class PdfLayoutFormControl
         IsMultiple = isMultiple;
         MaxLength = maxLength is > 0 ? maxLength : null;
         SourceLabelText = NullIfWhiteSpace(sourceLabelText);
+        SourceLabelInlineSemantics = PdfSemanticInlineInference.InferFormLabel(SourceLabelText);
         AuthoredHierarchyKey = NullIfWhiteSpace(authoredHierarchyKey);
         GroupKey = NullIfWhiteSpace(groupKey);
         GroupKind = groupKind;
@@ -104,6 +105,9 @@ public sealed class PdfLayoutFormControl
 
     /// <summary>Gets visible page text inferred as the control's authored label.</summary>
     public string? SourceLabelText { get; }
+
+    /// <summary>Gets conservative text-level semantics inferred from the visible source label.</summary>
+    public IReadOnlyList<PdfSemanticInline> SourceLabelInlineSemantics { get; }
 
     /// <summary>Gets the stable AcroForm parent hierarchy key, when authored.</summary>
     public string? AuthoredHierarchyKey { get; }
