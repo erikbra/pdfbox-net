@@ -8,11 +8,17 @@ public sealed class PdfSemanticDocument
     public PdfSemanticDocument(IReadOnlyList<PdfSemanticPage> pages)
     {
         Pages = pages.ToArray();
+        SectionTree = PdfSemanticSectionTree.Create(Pages);
     }
 
     public IReadOnlyList<PdfSemanticPage> Pages { get; }
 
     public IReadOnlyList<PdfSemanticElement> Elements => Pages.SelectMany(page => page.Elements).ToArray();
+
+    /// <summary>
+    /// Gets the deterministic section hierarchy inferred from document headings.
+    /// </summary>
+    public PdfSemanticSectionTree SectionTree { get; }
 }
 
 /// <summary>
@@ -44,7 +50,8 @@ public sealed class PdfSemanticElement
         int headingLevel = 0,
         IReadOnlyList<PdfSemanticTableRow>? tableRows = null,
         PdfSemanticList? semanticList = null,
-        PdfSemanticDocumentIndex? documentIndex = null)
+        PdfSemanticDocumentIndex? documentIndex = null,
+        bool isDocumentTitle = false)
     {
         Kind = kind;
         Text = text;
@@ -54,6 +61,7 @@ public sealed class PdfSemanticElement
         TableRows = tableRows?.ToArray() ?? [];
         SemanticList = semanticList;
         DocumentIndex = documentIndex;
+        IsDocumentTitle = isDocumentTitle;
     }
 
     public PdfSemanticElementKind Kind { get; }
@@ -71,6 +79,11 @@ public sealed class PdfSemanticElement
     public PdfSemanticList? SemanticList { get; }
 
     public PdfSemanticDocumentIndex? DocumentIndex { get; }
+
+    /// <summary>
+    /// Gets whether this heading is the inferred document title rather than a section heading.
+    /// </summary>
+    public bool IsDocumentTitle { get; }
 }
 
 /// <summary>
