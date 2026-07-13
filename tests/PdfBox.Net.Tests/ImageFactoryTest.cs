@@ -176,6 +176,121 @@ public class ImageFactoryTest
     }
 
     [Fact]
+    public void PdfImageExporter_ExportForBrowser_PreservesDeviceRgbJpegBytes()
+    {
+        using PDDocument document = new();
+        byte[] original = File.ReadAllBytes(ImageFixture("test-2x1-rgb.jpg"));
+        using MemoryStream input = new(original);
+        PDImageXObject image = JPEGFactory.CreateFromStream(document, input);
+
+        PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image);
+
+        Assert.Equal("image/jpeg", result.ContentType);
+        Assert.Equal("jpg", result.FileExtension);
+        Assert.Equal(original, result.Data);
+    }
+
+    [Fact]
+    public void PdfImageExporter_ExportForBrowser_PreservesDemonstrablySrgbIccJpeg()
+    {
+        using PDDocument document = new();
+        byte[] original = File.ReadAllBytes(ImageFixture("test-2x1-rgb.jpg"));
+        using MemoryStream input = new(original);
+        PDImageXObject image = JPEGFactory.CreateFromStream(document, input);
+        image.GetCOSObject()!.SetItem(
+            COSName.COLORSPACE,
+            CreateIccColorSpace(ColorProfiles.SRGB.ToByteArray(), 3).GetCOSObject());
+
+        PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image);
+
+        Assert.Equal("image/jpeg", result.ContentType);
+        Assert.Equal(original, result.Data);
+    }
+
+    [Fact]
+    public void PdfImageExporter_ExportForBrowser_ConvertsNonSrgbIccJpegToPng()
+    {
+        using PDDocument document = new();
+        using FileStream input = File.OpenRead(ImageFixture("test-2x1-rgb.jpg"));
+        PDImageXObject image = JPEGFactory.CreateFromStream(document, input);
+        image.GetCOSObject()!.SetItem(
+            COSName.COLORSPACE,
+            CreateIccColorSpace(ColorProfiles.AdobeRGB1998.ToByteArray(), 3).GetCOSObject());
+
+        PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image);
+
+        AssertPng(result);
+    }
+
+    [Fact]
+    public void PdfImageExporter_ExportForBrowser_ConvertsJpegWithDecodeArrayToPng()
+    {
+        using PDDocument document = new();
+        using FileStream input = File.OpenRead(ImageFixture("test-2x1-rgb.jpg"));
+        PDImageXObject image = JPEGFactory.CreateFromStream(document, input);
+        image.GetCOSObject()!.SetItem(COSName.DECODE, COSArray.Of(1f, 0f, 1f, 0f, 1f, 0f));
+
+        PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image);
+
+        AssertPng(result);
+    }
+
+    [Fact]
+    public void PdfImageExporter_ExportForBrowser_ConvertsJpegWithDctDecodeParametersToPng()
+    {
+        using PDDocument document = new();
+        using FileStream input = File.OpenRead(ImageFixture("test-2x1-rgb.jpg"));
+        PDImageXObject image = JPEGFactory.CreateFromStream(document, input);
+        COSDictionary decodeParameters = new();
+        decodeParameters.SetInt(COSName.GetPDFName("ColorTransform"), 1);
+        image.GetCOSObject()!.SetItem(COSName.DECODE_PARMS, decodeParameters);
+
+        PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image);
+
+        AssertPng(result);
+    }
+
+    [Fact]
+    public void PdfImageExporter_ExportForBrowser_ConvertsNonThreeComponentJpegToPng()
+    {
+        using PDDocument document = new();
+        using FileStream input = File.OpenRead(ImageFixture("test-2x1-gray.jpg"));
+        PDImageXObject image = JPEGFactory.CreateFromStream(document, input);
+
+        PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image);
+
+        AssertPng(result);
+    }
+
+    [Fact]
+    public void PdfImageExporter_ExportForBrowser_ConvertsJpegWithColorKeyMaskToPng()
+    {
+        using PDDocument document = new();
+        using FileStream input = File.OpenRead(ImageFixture("test-2x1-rgb.jpg"));
+        PDImageXObject image = JPEGFactory.CreateFromStream(document, input);
+        image.GetCOSObject()!.SetItem(COSName.GetPDFName("Mask"), COSArray.Of(0, 0, 0, 0, 0, 0));
+
+        PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image);
+
+        AssertPng(result);
+    }
+
+    [Fact]
+    public void PdfImageExporter_ExportForBrowser_ConvertsDeviceRgbJpegWhenOutputIntentRequiresTransform()
+    {
+        using PDDocument document = new();
+        using FileStream input = File.OpenRead(ImageFixture("test-2x1-rgb.jpg"));
+        PDImageXObject image = JPEGFactory.CreateFromStream(document, input);
+        using MemoryStream profile = new(ColorProfiles.AdobeRGB1998.ToByteArray());
+        document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, profile));
+        PDColorManagementContext context = PDColorManagementContext.Create(document)!;
+
+        PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image, context);
+
+        AssertPng(result);
+    }
+
+    [Fact]
     public void PdfImageExporter_OutputIntentDeviceCmyk_UsesSingleBatchTransform()
     {
         using PDDocument document = new();
@@ -214,7 +329,7 @@ public class ImageFactoryTest
         PDImageXObject softMask = LosslessFactory.CreateFromRawData(doc, [255, 0], 2, 1, 8, 1);
         image.GetCOSObject()!.SetItem(COSName.SMASK, softMask.GetCOSObject());
 
-        PdfImageExportResult result = PdfImageExporter.ExportPng(image);
+        PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image);
 
         using BufferedImage exported = RenderingBackend.Current.ImageCodec.Decode(result.Data)
             ?? throw new InvalidOperationException("The exported PNG could not be decoded.");
@@ -367,6 +482,14 @@ public class ImageFactoryTest
         array.Add(COSName.GetPDFName("ICCBased"));
         array.Add(profileStream);
         return Assert.IsType<PDICCBased>(PDColorSpace.Create(array));
+    }
+
+    private static void AssertPng(PdfImageExportResult result)
+    {
+        Assert.Equal("image/png", result.ContentType);
+        Assert.Equal("png", result.FileExtension);
+        Assert.True(result.Data.Length >= 24);
+        Assert.Equal(0x89504E47u, BinaryPrimitives.ReadUInt32BigEndian(result.Data.AsSpan(0, 4)));
     }
 
     [Fact]

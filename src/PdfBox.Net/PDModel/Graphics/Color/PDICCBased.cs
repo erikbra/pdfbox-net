@@ -39,6 +39,7 @@ public sealed class PDICCBased : PDColorSpace
     private readonly int _numberOfComponents;
     private readonly PDColor _initialColor;
     private readonly IIccColorTransform? _colorTransform;
+    private readonly bool _isSrgb;
 
     private PDICCBased(
         COSArray array,
@@ -56,6 +57,7 @@ public sealed class PDICCBased : PDColorSpace
         COSBase? alternateBase = profile?.GetDictionaryObject(COSName.GetPDFName("Alternate"));
         _alternate = alternateBase is not null ? Create(alternateBase, resources) : GetDeviceFallback(_numberOfComponents);
         _initialColor = new PDColor(new float[_numberOfComponents], this);
+        _isSrgb = IccProfileInspector.IsSrgb(profileData);
         PdfBoxNetImageServices.IccColorTransformFactory.TryCreate(profileData, _numberOfComponents, renderingIntent, out _colorTransform);
     }
 
@@ -104,6 +106,8 @@ public sealed class PDICCBased : PDColorSpace
     }
 
     internal int GetColorTransformOperationCount() => _colorTransform?.OperationCount ?? 0;
+
+    internal bool IsSrgb() => _isSrgb;
 
     internal static bool TryCreateFromProfile(
         COSStream profile,
