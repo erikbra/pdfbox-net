@@ -54,6 +54,110 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_AlignedMonospacedBlock_PreservesSourceColumnsAndLineBreaks()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes the ordinary body font and line rhythm.", 72f, 72f, 410f),
+            CreateFixtureLine("A second prose line completes the surrounding paragraph.", 72f, 84f, 340f),
+            CreateMonospacedFixtureLine("LOAD  R0, [R1]", 96f, 124f, fontName: "CMTT10"),
+            CreateMonospacedFixtureLine("STORE R0, [R2]", 96f, 136f, fontName: "CMTT10"),
+            CreateMonospacedFixtureLine("  ADD R0, #1", 96f, 148f, fontName: "CMTT10"),
+            CreateFixtureLine("Ordinary prose resumes after the aligned listing.", 72f, 184f, 310f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement code = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.CodeBlock);
+
+        Assert.Equal("LOAD  R0, [R1]\nSTORE R0, [R2]\n  ADD R0, #1", code.Text);
+        Assert.Equal(
+            ["LOAD  R0, [R1]", "STORE R0, [R2]", "  ADD R0, #1"],
+            code.Lines.Select(static line => line.Text));
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Table &&
+            element.Text.Contains("LOAD", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_IsolatedCodeLikeMonospacedTokenInsideProse_IsAnnotatedInline()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes the ordinary body font and line rhythm.", 72f, 72f, 410f),
+            CreateFixtureLine("A second prose line completes the surrounding paragraph.", 72f, 84f, 340f),
+            CreateInlineCodeFixtureLine("Use the ", "gpio_set()", " helper to configure the pin.", 72f, 124f)
+        ]);
+
+        PdfSemanticElement paragraph = Assert.Single(
+            Assert.Single(PdfSemanticExtractor.Extract(layout).Pages).Elements,
+            static element => element.Kind == PdfSemanticElementKind.Paragraph &&
+                element.Text.Contains("gpio_set()", StringComparison.Ordinal));
+        PdfSemanticInlineCode inlineCode = Assert.Single(Assert.Single(paragraph.Lines).InlineCode);
+
+        Assert.Equal("gpio_set()", inlineCode.Text);
+        Assert.All(inlineCode.Runs, static run => Assert.Contains("Courier", run.FontName, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Extract_MonospacedHeadersFormValuesEmailsAndFormulas_AreNotCode()
+    {
+        PdfLayoutDocument headerLayout = CreateSemanticPassageFixture(
+        [
+            CreateMonospacedFixtureLine("[main]  build", 72f, 10f),
+            CreateMonospacedFixtureLine("[main]  release", 72f, 22f),
+            CreateFixtureLine("Opening body prose establishes the ordinary document content.", 72f, 72f, 380f),
+            CreateFixtureLine("A second body line establishes the normal line rhythm.", 72f, 84f, 330f)
+        ]);
+        PdfSemanticPage headerPage = Assert.Single(PdfSemanticExtractor.Extract(headerLayout).Pages);
+        Assert.Contains(headerPage.Elements, static element => element.Kind == PdfSemanticElementKind.Header);
+        Assert.DoesNotContain(headerPage.Elements, static element => element.Kind == PdfSemanticElementKind.CodeBlock);
+
+        PdfTextLine firstValue = CreateMonospacedFixtureLine("ACCOUNT  0042", 96f, 124f);
+        PdfTextLine secondValue = CreateMonospacedFixtureLine("STATUS   OPEN", 96f, 148f);
+        PdfLayoutDocument formLayout = CreateCodeFixtureDocument(
+        [
+            CreateFixtureLine("Opening body prose establishes an ordinary form page.", 72f, 72f, 340f),
+            CreateFixtureLine("A second body line establishes the normal line rhythm.", 72f, 84f, 330f),
+            firstValue,
+            secondValue
+        ],
+        [
+            CreateFormControl(0, "account", firstValue.Bounds),
+            CreateFormControl(1, "status", secondValue.Bounds)
+        ]);
+        Assert.DoesNotContain(
+            Assert.Single(PdfSemanticExtractor.Extract(formLayout).Pages).Elements,
+            static element => element.Kind == PdfSemanticElementKind.CodeBlock);
+
+        PdfLayoutDocument emailLayout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening body prose establishes the ordinary document content.", 72f, 72f, 380f),
+            CreateFixtureLine("A second body line establishes the normal line rhythm.", 72f, 84f, 330f),
+            CreateInlineCodeFixtureLine("Contact ", "ops@example.com", " for access.", 72f, 124f),
+            CreateMonospacedFixtureLine("ada@example.com", 96f, 148f),
+            CreateMonospacedFixtureLine("emmy@example.com", 96f, 160f)
+        ]);
+        PdfSemanticPage emailPage = Assert.Single(PdfSemanticExtractor.Extract(emailLayout).Pages);
+        PdfSemanticElement emailParagraph = Assert.Single(
+            emailPage.Elements,
+            static element => element.Text.Contains("ops@example.com", StringComparison.Ordinal));
+        Assert.All(emailParagraph.Lines, static line => Assert.Empty(line.InlineCode));
+        Assert.DoesNotContain(emailPage.Elements, static element => element.Kind == PdfSemanticElementKind.CodeBlock);
+
+        PdfLayoutDocument formulaLayout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening body prose establishes the ordinary scientific content.", 72f, 72f, 400f),
+            CreateFixtureLine("A second body line establishes the normal line rhythm.", 72f, 84f, 330f),
+            CreateMonospacedFixtureLine("x = y + z", 200f, 124f, fontName: "CMMI10"),
+            CreateMonospacedFixtureLine("z = a + b", 200f, 136f, fontName: "CMMI10")
+        ]);
+        Assert.DoesNotContain(
+            Assert.Single(PdfSemanticExtractor.Extract(formulaLayout).Pages).Elements,
+            static element => element.Kind == PdfSemanticElementKind.CodeBlock);
+    }
+
+    [Fact]
     public void Extract_ScientificFrontMatter_GroupsAffiliationsAndSeparatesDateFromAbstractHeading()
     {
         PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(
@@ -800,6 +904,8 @@ public sealed class PdfSemanticExtractorTest
         Assert.Contains(authorBlocks, author => author.Text.Contains("Illia Polosukhin", StringComparison.Ordinal) &&
             author.Text.Contains("illia.polosukhin@gmail.com", StringComparison.Ordinal) &&
             author.Lines.Count == 2);
+        Assert.All(authorBlocks.SelectMany(static author => author.Lines), static line => Assert.Empty(line.InlineCode));
+        Assert.DoesNotContain(page.Elements, static element => element.Kind == PdfSemanticElementKind.CodeBlock);
 
         PdfSemanticElement abstractHeading = Assert.Single(page.Elements, element =>
             element.Kind == PdfSemanticElementKind.Heading &&
@@ -1700,6 +1806,116 @@ public sealed class PdfSemanticExtractorTest
             $"page:{destinationPageNumber}",
             destinationPageNumber,
             []);
+    }
+
+    private static PdfTextLine CreateMonospacedFixtureLine(
+        string text,
+        float x,
+        float y,
+        float characterPitch = 6f,
+        string fontName = "Courier")
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfTextGlyph[] glyphs = text
+            .Select((character, index) => (character, index))
+            .Where(static item => !char.IsWhiteSpace(item.character))
+            .Select(item => new PdfTextGlyph(
+                item.character.ToString(),
+                fontName,
+                fontSize,
+                0f,
+                new PdfLayoutRectangle(x + item.index * characterPitch, y, characterPitch, fontSize * 0.75f),
+                color))
+            .ToArray();
+        PdfLayoutRectangle bounds = new(x, y, text.Length * characterPitch, fontSize * 0.75f);
+        PdfTextRun run = new(text, fontName, fontSize, 0f, bounds, color, glyphs);
+        return new PdfTextLine(text, bounds, [run]);
+    }
+
+    private static PdfTextLine CreateInlineCodeFixtureLine(
+        string prefix,
+        string code,
+        string suffix,
+        float x,
+        float y)
+    {
+        PdfTextRun prefixRun = CreatePositionedFixtureRun(prefix, "Times-Roman", x, y, 5f);
+        PdfTextRun codeRun = CreatePositionedFixtureRun(code, "Courier", prefixRun.Bounds.Right, y, 6f);
+        PdfTextRun suffixRun = CreatePositionedFixtureRun(suffix, "Times-Roman", codeRun.Bounds.Right, y, 5f);
+        PdfTextRun[] runs = [prefixRun, codeRun, suffixRun];
+        return new PdfTextLine(
+            prefix + code + suffix,
+            new PdfLayoutRectangle(x, y, suffixRun.Bounds.Right - x, suffixRun.Bounds.Height),
+            runs);
+    }
+
+    private static PdfTextRun CreatePositionedFixtureRun(
+        string text,
+        string fontName,
+        float x,
+        float y,
+        float characterPitch)
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        PdfTextGlyph[] glyphs = text
+            .Select((character, index) => new PdfTextGlyph(
+                character.ToString(),
+                fontName,
+                fontSize,
+                0f,
+                new PdfLayoutRectangle(x + index * characterPitch, y, characterPitch, fontSize * 0.75f),
+                color))
+            .ToArray();
+        PdfLayoutRectangle bounds = new(x, y, text.Length * characterPitch, fontSize * 0.75f);
+        return new PdfTextRun(text, fontName, fontSize, 0f, bounds, color, glyphs);
+    }
+
+    private static PdfLayoutFormControl CreateFormControl(
+        int index,
+        string name,
+        PdfLayoutRectangle valueBounds)
+    {
+        return new PdfLayoutFormControl(
+            index,
+            name,
+            name,
+            PdfLayoutFormControlKind.Text,
+            new PdfLayoutRectangle(
+                valueBounds.X - 4f,
+                valueBounds.Y - 3f,
+                valueBounds.Width + 8f,
+                valueBounds.Height + 6f));
+    }
+
+    private static PdfLayoutDocument CreateCodeFixtureDocument(
+        IReadOnlyList<PdfTextLine> lines,
+        IReadOnlyList<PdfLayoutFormControl> formControls)
+    {
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
+        PdfTextGlyph[] glyphs = runs.SelectMany(static run => run.Glyphs).ToArray();
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            glyphs,
+            runs,
+            lines,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            null,
+            formControls);
+        return new PdfLayoutDocument([page], []);
     }
 
     private static PdfTextLine CreateStyledFixtureLine(

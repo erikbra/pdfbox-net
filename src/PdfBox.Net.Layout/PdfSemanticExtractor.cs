@@ -32,6 +32,12 @@ public static class PdfSemanticExtractor
     private static readonly Regex QuoteAttributionPattern = new(
         @"^(?:[-–—]\s*)?(?:according\s+to|added|explained|noted|recalled|reported|said|stated|wrote)\b",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex CodeSyntaxPattern = new(
+        @"(?:[{}\[\];]|::|->|=>|:=|^\s*[$#>]\s|\b(?:case|const|do|else|for|foreach|if|let|return|sudo|var|while)\b|--[\w-]+|(?:^|\s)[./\\][\w-])",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex InlineCodePattern = new(
+        @"^(?:(?:--?[a-z][\w-]*)|(?:[A-Za-z_][\w-]*(?:\.[A-Za-z_][\w-]*|::[A-Za-z_][\w-]*|->(?:[A-Za-z_][\w-]*))+(?:\(\))?)|(?:[A-Za-z_][\w-]*(?:\([^\s()]*\)|\[[^\s\[\]]+\]))|(?:[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+)|(?:[a-z]+[A-Z][A-Za-z0-9]*))$",
+        RegexOptions.Compiled);
     private static readonly Regex WhitespacePattern = new(@"\s+", RegexOptions.Compiled);
     private const int MaximumDetectedTableColumnCount = 16;
 
@@ -361,11 +367,17 @@ public static class PdfSemanticExtractor
 
         float bodyFontSize = EstimateBodyFontSize(lines);
         float lineStep = EstimateLineStep(lines, bodyFontSize);
+        CodeBlockCandidate[] codeBlocks = DetectCodeBlocks(page, lines, lineStep);
+        HashSet<int> codeLineIndexes = codeBlocks
+            .SelectMany(static block => block.Lines)
+            .Select(static line => line.Line.Index)
+            .ToHashSet();
         HashSet<int> consumed = [];
         List<PdfSemanticElement> elements = [];
 
         LineCandidate[] headingLines = lines
             .Where(line => !IsInsideRuledTableRegion(line, ruledTableRegions))
+            .Where(line => !codeLineIndexes.Contains(line.Index))
             .Where(line => IsHeading(line, page, lines, bodyFontSize, lineStep, options))
             .ToArray();
         LineCandidate? titleCandidate = headingLines
@@ -463,6 +475,14 @@ public static class PdfSemanticExtractor
             options))
         {
             elements.Add(definitionList);
+        }
+
+        foreach (CodeBlockCandidate codeBlock in codeBlocks)
+        {
+            if (codeBlock.Lines.All(line => !consumed.Contains(line.Line.Index)))
+            {
+                elements.Add(CreateCodeBlock(codeBlock, consumed));
+            }
         }
 
         HashSet<int> documentTitleLineIndexes = documentTitleLines
@@ -1185,6 +1205,297 @@ public static class PdfSemanticExtractor
             .ToArray();
 
         return gaps.Length == 0 ? MathF.Max(10f, bodyFontSize * 1.15f) : gaps[gaps.Length / 2];
+    }
+
+    private static CodeBlockCandidate[] DetectCodeBlocks(
+        PdfLayoutPage page,
+        IReadOnlyList<LineCandidate> lines,
+        float lineStep)
+    {
+        List<CodeBlockCandidate> blocks = [];
+        List<CodeLineEvidence> current = [];
+        foreach (LineCandidate line in lines
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X))
+        {
+            CodeLineEvidence? evidence = CreateCodeLineEvidence(page, line);
+            if (evidence == null)
+            {
+                AddCodeBlockCandidate(blocks, current);
+                current.Clear();
+                continue;
+            }
+
+            if (current.Count > 0 && !CanGroupCodeLines(current[^1], evidence, lineStep))
+            {
+                AddCodeBlockCandidate(blocks, current);
+                current.Clear();
+            }
+
+            current.Add(evidence);
+        }
+
+        AddCodeBlockCandidate(blocks, current);
+        return blocks.ToArray();
+    }
+
+    private static CodeLineEvidence? CreateCodeLineEvidence(PdfLayoutPage page, LineCandidate line)
+    {
+        if (MathF.Abs(line.Direction) > 0.01f ||
+            line.Text.Length < 2 ||
+            line.Source.Runs.Any(static run => IsCodeIncompatibleMathFontName(run.FontName)) ||
+            IsInsideFormControl(page, line.Bounds))
+        {
+            return null;
+        }
+
+        PdfTextRun[] textRuns = line.Source.Runs
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .ToArray();
+        int characterCount = textRuns.Sum(static run => run.Text.Count(static character => !char.IsWhiteSpace(character)));
+        int monospacedCharacters = textRuns
+            .Where(static run => IsMonospacedFontName(run.FontName))
+            .Sum(static run => run.Text.Count(static character => !char.IsWhiteSpace(character)));
+        if (characterCount == 0 || monospacedCharacters < characterCount * 0.9f)
+        {
+            return null;
+        }
+
+        PdfTextGlyph[] glyphs = textRuns
+            .Where(static run => IsMonospacedFontName(run.FontName))
+            .SelectMany(static run => run.Glyphs)
+            .Where(static glyph => !string.IsNullOrEmpty(glyph.Text))
+            .ToArray();
+        if (!TryEstimateStableCharacterPitch(glyphs, out float characterPitch))
+        {
+            return null;
+        }
+
+        return new CodeLineEvidence(line, NormalizeFontName(line.FontName), characterPitch);
+    }
+
+    private static bool CanGroupCodeLines(
+        CodeLineEvidence previous,
+        CodeLineEvidence current,
+        float lineStep)
+    {
+        float verticalStep = current.Line.Bounds.Y - previous.Line.Bounds.Y;
+        return verticalStep > 1f &&
+            verticalStep <= MathF.Max(lineStep * 1.8f, previous.Line.FontSize * 2f) &&
+            string.Equals(previous.FontName, current.FontName, StringComparison.Ordinal) &&
+            MathF.Abs(previous.Line.FontSize - current.Line.FontSize) <= 0.5f &&
+            MathF.Abs(previous.CharacterPitch - current.CharacterPitch) <=
+                MathF.Max(previous.CharacterPitch, current.CharacterPitch) * 0.12f;
+    }
+
+    private static void AddCodeBlockCandidate(
+        ICollection<CodeBlockCandidate> blocks,
+        IReadOnlyList<CodeLineEvidence> lines)
+    {
+        if (lines.Count < 2 || lines.Any(static line => line.Line.Text.Contains('@', StringComparison.Ordinal)))
+        {
+            return;
+        }
+
+        float[] verticalSteps = lines
+            .Pairwise(static (first, second) => second.Line.Bounds.Y - first.Line.Bounds.Y)
+            .Order()
+            .ToArray();
+        float lineStep = verticalSteps[verticalSteps.Length / 2];
+        if (verticalSteps.Length > 1 &&
+            verticalSteps.Any(step => MathF.Abs(step - lineStep) > MathF.Max(1.5f, lineStep * 0.20f)))
+        {
+            return;
+        }
+
+        float[] pitches = lines.Select(static line => line.CharacterPitch).Order().ToArray();
+        float characterPitch = pitches[pitches.Length / 2];
+        float blockX = lines
+            .SelectMany(static line => line.Line.Source.Runs)
+            .SelectMany(static run => run.Glyphs)
+            .Where(static glyph => !string.IsNullOrEmpty(glyph.Text))
+            .Select(static glyph => glyph.Bounds.X)
+            .DefaultIfEmpty(lines.Min(static line => line.Line.Bounds.X))
+            .Min();
+        string[] textLines = lines
+            .Select(line => ReconstructPreformattedLine(line.Line, blockX, characterPitch))
+            .ToArray();
+        if (textLines.Any(static text => text.Length == 0) || textLines.Sum(static text => text.Trim().Length) < 12)
+        {
+            return;
+        }
+
+        int syntaxLines = textLines.Count(static text => CodeSyntaxPattern.IsMatch(text.TrimStart()));
+        int[] indentation = textLines.Select(static text => text.Length - text.TrimStart().Length).ToArray();
+        bool hasIndentation = indentation.Distinct().Count() > 1 && indentation.Max() >= 2;
+        bool hasAlignedColumns = HasRepeatedAlignedWhitespace(textLines);
+        if (!hasAlignedColumns && syntaxLines < 2 && !(hasIndentation && syntaxLines >= 1))
+        {
+            return;
+        }
+
+        blocks.Add(new CodeBlockCandidate(
+            lines.ToArray(),
+            string.Join('\n', textLines),
+            characterPitch,
+            lineStep));
+    }
+
+    private static bool HasRepeatedAlignedWhitespace(IReadOnlyList<string> lines)
+    {
+        int[] gapColumns = lines
+            .Select(static line =>
+            {
+                for (int index = 1; index + 1 < line.Length; index++)
+                {
+                    if (!char.IsWhiteSpace(line[index - 1]) &&
+                        char.IsWhiteSpace(line[index]) &&
+                        char.IsWhiteSpace(line[index + 1]))
+                    {
+                        return index;
+                    }
+                }
+
+                return -1;
+            })
+            .Where(static column => column >= 0)
+            .ToArray();
+        return gapColumns.Length >= 2 &&
+            gapColumns.Any(column => gapColumns.Count(candidate => Math.Abs(candidate - column) <= 1) >= 2);
+    }
+
+    private static string ReconstructPreformattedLine(
+        LineCandidate line,
+        float blockX,
+        float characterPitch)
+    {
+        PdfTextGlyph[] glyphs = line.Source.Runs
+            .SelectMany(static run => run.Glyphs)
+            .Where(static glyph => !string.IsNullOrEmpty(glyph.Text))
+            .OrderBy(static glyph => glyph.Bounds.X)
+            .ThenBy(static glyph => glyph.Bounds.Y)
+            .ToArray();
+        StringBuilder text = new();
+        int column = 0;
+        foreach (PdfTextGlyph glyph in glyphs)
+        {
+            int targetColumn = Math.Max(0, (int)MathF.Round((glyph.Bounds.X - blockX) / characterPitch));
+            if (targetColumn > column)
+            {
+                text.Append(' ', targetColumn - column);
+                column = targetColumn;
+            }
+
+            string value = glyph.Text.Replace("\r", "", StringComparison.Ordinal)
+                .Replace("\n", "", StringComparison.Ordinal);
+            if (value.Length == 0)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                int widthColumns = Math.Max(value.Length, (int)MathF.Round(glyph.Bounds.Width / characterPitch));
+                text.Append(' ', Math.Max(1, widthColumns));
+                column += Math.Max(1, widthColumns);
+            }
+            else
+            {
+                text.Append(value);
+                column += value.Length;
+            }
+        }
+
+        return text.ToString().TrimEnd();
+    }
+
+    private static bool TryEstimateStableCharacterPitch(
+        IEnumerable<PdfTextGlyph> glyphSource,
+        out float characterPitch)
+    {
+        float[] samples = glyphSource
+            .Where(static glyph => glyph.Bounds.Width > 0.1f)
+            .Select(static glyph =>
+            {
+                int characters = glyph.Text.Count(static character => character is not ('\r' or '\n'));
+                return characters == 0 ? 0f : glyph.Bounds.Width / characters;
+            })
+            .Where(static sample => sample > 0.1f)
+            .Order()
+            .ToArray();
+        if (samples.Length < 2)
+        {
+            characterPitch = 0f;
+            return false;
+        }
+
+        float medianPitch = samples[samples.Length / 2];
+        int inliers = samples.Count(sample =>
+            MathF.Abs(sample - medianPitch) <= MathF.Max(0.2f, medianPitch * 0.15f));
+        characterPitch = medianPitch;
+        return inliers >= Math.Max(2, (int)MathF.Ceiling(samples.Length * 0.8f));
+    }
+
+    private static bool IsInsideFormControl(PdfLayoutPage page, PdfLayoutRectangle bounds)
+    {
+        float centerX = bounds.X + bounds.Width / 2f;
+        float centerY = bounds.Y + bounds.Height / 2f;
+        return page.FormControls.Any(control =>
+            centerX >= control.Bounds.X && centerX <= control.Bounds.Right &&
+            centerY >= control.Bounds.Y && centerY <= control.Bounds.Bottom);
+    }
+
+    private static bool IsMonospacedFontName(string fontName)
+    {
+        string normalized = NormalizeFontName(fontName);
+        return normalized.Contains("Courier", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Mono", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("NimbusMon", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Consolas", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Menlo", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Monaco", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Typewriter", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("CMTT", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("LMTT", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("SFTT", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("SourceCode", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("FiraCode", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("Inconsolata", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("OCRB", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("LetterGothic", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("LucidaConsole", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsCodeIncompatibleMathFontName(string fontName)
+    {
+        return IsMathFont(fontName) && !IsMonospacedFontName(fontName);
+    }
+
+    private static PdfSemanticElement CreateCodeBlock(
+        CodeBlockCandidate codeBlock,
+        HashSet<int> consumed)
+    {
+        PdfSemanticLine[] lines = codeBlock.Lines
+            .Select((evidence, index) =>
+            {
+                consumed.Add(evidence.Line.Index);
+                PdfSemanticLine source = evidence.Line.SemanticLine;
+                string text = codeBlock.Text.Split('\n')[index];
+                return new PdfSemanticLine(
+                    text,
+                    source.Bounds,
+                    source.DominantFontName,
+                    source.DominantFontSize,
+                    source.Direction,
+                    source.Color,
+                    source.Runs);
+            })
+            .ToArray();
+        return new PdfSemanticElement(
+            PdfSemanticElementKind.CodeBlock,
+            codeBlock.Text,
+            PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
+            lines);
     }
 
     private static bool IsHeading(
@@ -5564,12 +5875,102 @@ public static class PdfSemanticExtractor
         }
 
         LineCandidate[] readingLines = OrderLinesForReading(lines);
-        PdfSemanticLine[] semanticLines = readingLines.Select(static line => line.SemanticLine).ToArray();
+        PdfSemanticLine[] semanticLines = DetectInlineCode(
+            readingLines.Select(static line => line.SemanticLine).ToArray());
         return new PdfSemanticElement(
             PdfSemanticElementKind.Paragraph,
             JoinParagraphLines(semanticLines),
             PdfLayoutRectangle.Union(lines.Select(static line => line.Bounds)),
             semanticLines);
+    }
+
+    private static PdfSemanticLine[] DetectInlineCode(IReadOnlyList<PdfSemanticLine> lines)
+    {
+        int proseCharacters = lines
+            .SelectMany(static line => line.Runs)
+            .Where(static run => !IsMonospacedFontName(run.FontName) && !IsMathFont(run.FontName))
+            .Sum(static run => run.Text.Count(static character => !char.IsWhiteSpace(character)));
+        if (proseCharacters < 8)
+        {
+            return lines.ToArray();
+        }
+
+        return lines.Select(DetectInlineCode).ToArray();
+    }
+
+    private static PdfSemanticLine DetectInlineCode(PdfSemanticLine line)
+    {
+        PdfTextRun[] runs = line.Runs
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .OrderBy(static run => run.Bounds.X)
+            .ThenBy(static run => run.Bounds.Y)
+            .ToArray();
+        int proseCharacters = runs
+            .Where(static run => !IsMonospacedFontName(run.FontName) && !IsMathFont(run.FontName))
+            .Sum(static run => run.Text.Count(static character => !char.IsWhiteSpace(character)));
+        if (proseCharacters < 8)
+        {
+            return line;
+        }
+
+        List<PdfSemanticInlineCode> inlineCode = [];
+        for (int index = 0; index < runs.Length; index++)
+        {
+            PdfTextRun run = runs[index];
+            if (!IsMonospacedFontName(run.FontName) ||
+                IsCodeIncompatibleMathFontName(run.FontName) ||
+                !TryEstimateStableCharacterPitch(run.Glyphs, out _))
+            {
+                continue;
+            }
+
+            List<PdfTextRun> codeRuns = [run];
+            while (index + 1 < runs.Length &&
+                IsMonospacedFontName(runs[index + 1].FontName) &&
+                !IsCodeIncompatibleMathFontName(runs[index + 1].FontName) &&
+                string.Equals(
+                    NormalizeFontName(run.FontName),
+                    NormalizeFontName(runs[index + 1].FontName),
+                    StringComparison.Ordinal) &&
+                HorizontalGap(codeRuns[^1].Bounds, runs[index + 1].Bounds) <= MathF.Max(1f, run.FontSize * 0.25f))
+            {
+                codeRuns.Add(runs[++index]);
+            }
+
+            string text = ReconstructText(codeRuns.SelectMany(static codeRun => codeRun.Glyphs));
+            bool hasProseBefore = runs.Take(index - codeRuns.Count + 1)
+                .Any(static candidate => !IsMonospacedFontName(candidate.FontName) && !string.IsNullOrWhiteSpace(candidate.Text));
+            bool hasProseAfter = runs.Skip(index + 1)
+                .Any(static candidate => !IsMonospacedFontName(candidate.FontName) && !string.IsNullOrWhiteSpace(candidate.Text));
+            if ((hasProseBefore || hasProseAfter) && LooksLikeInlineCode(text))
+            {
+                inlineCode.Add(new PdfSemanticInlineCode(
+                    text,
+                    PdfLayoutRectangle.Union(codeRuns.Select(static codeRun => codeRun.Bounds)),
+                    codeRuns));
+            }
+        }
+
+        return inlineCode.Count == 0
+            ? line
+            : new PdfSemanticLine(
+                line.Text,
+                line.Bounds,
+                line.DominantFontName,
+                line.DominantFontSize,
+                line.Direction,
+                line.Color,
+                line.Runs,
+                inlineCode);
+    }
+
+    private static bool LooksLikeInlineCode(string text)
+    {
+        string trimmed = text.Trim();
+        return trimmed.Length is >= 2 and <= 64 &&
+            !trimmed.Contains('@', StringComparison.Ordinal) &&
+            !trimmed.Any(char.IsWhiteSpace) &&
+            InlineCodePattern.IsMatch(trimmed);
     }
 
     private static LineCandidate[] OrderLinesForReading(IReadOnlyList<LineCandidate> lines)
@@ -6066,6 +6467,17 @@ public static class PdfSemanticExtractor
         public bool IsBold =>
             IsBoldFontName(FontName);
     }
+
+    private sealed record CodeLineEvidence(
+        LineCandidate Line,
+        string FontName,
+        float CharacterPitch);
+
+    private sealed record CodeBlockCandidate(
+        IReadOnlyList<CodeLineEvidence> Lines,
+        string Text,
+        float CharacterPitch,
+        float LineStep);
 
     private sealed class RawDocumentIndexItem
     {

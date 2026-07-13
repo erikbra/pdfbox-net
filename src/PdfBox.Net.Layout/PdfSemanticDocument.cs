@@ -38,7 +38,7 @@ public sealed class PdfSemanticPage
 }
 
 /// <summary>
-/// A semantic text element such as a heading, paragraph, author cell, footnote, or footer.
+/// A semantic text element such as a heading, paragraph, code block, author cell, footnote, or footer.
 /// </summary>
 public sealed class PdfSemanticElement
 {
@@ -366,7 +366,8 @@ public sealed class PdfSemanticLine
         float dominantFontSize,
         float direction,
         PdfLayoutColor color,
-        IReadOnlyList<PdfTextRun> runs)
+        IReadOnlyList<PdfTextRun> runs,
+        IReadOnlyList<PdfSemanticInlineCode>? inlineCode = null)
     {
         Text = text;
         Bounds = bounds;
@@ -375,6 +376,7 @@ public sealed class PdfSemanticLine
         Direction = direction;
         Color = color;
         Runs = runs.ToArray();
+        InlineCode = inlineCode?.ToArray() ?? [];
     }
 
     public string Text { get; }
@@ -388,6 +390,33 @@ public sealed class PdfSemanticLine
     public float Direction { get; }
 
     public PdfLayoutColor Color { get; }
+
+    public IReadOnlyList<PdfTextRun> Runs { get; }
+
+    /// <summary>
+    /// Gets source runs confidently identified as isolated code inside surrounding prose.
+    /// </summary>
+    public IReadOnlyList<PdfSemanticInlineCode> InlineCode { get; }
+}
+
+/// <summary>
+/// An isolated monospaced token identified as code inside a semantic text line.
+/// </summary>
+public sealed class PdfSemanticInlineCode
+{
+    public PdfSemanticInlineCode(
+        string text,
+        PdfLayoutRectangle bounds,
+        IReadOnlyList<PdfTextRun> runs)
+    {
+        Text = text;
+        Bounds = bounds;
+        Runs = runs.ToArray();
+    }
+
+    public string Text { get; }
+
+    public PdfLayoutRectangle Bounds { get; }
 
     public IReadOnlyList<PdfTextRun> Runs { get; }
 }
