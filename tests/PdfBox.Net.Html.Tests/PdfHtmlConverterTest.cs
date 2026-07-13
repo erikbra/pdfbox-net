@@ -442,6 +442,16 @@ public class PdfHtmlConverterTest
         XElement spanning = Assert.Single(ElementsByClass(dom, "pdf-semantic-column-spanning"));
         Assert.Contains("Two-Column Guidance", spanning.Value, StringComparison.Ordinal);
         Assert.Contains("Spanning source header", spanning.Value, StringComparison.Ordinal);
+        XElement[] spanningRuns = spanning.DescendantsAndSelf()
+            .Where(element => HasClass(element, "pdf-semantic-column-spanning-run"))
+            .ToArray();
+        Assert.NotEmpty(spanningRuns);
+        Assert.All(spanningRuns, run =>
+        {
+            string fontSize = ParseStyle(run.Attribute("style")?.Value ?? "")["font-size"];
+            Assert.Matches(@"^\d+(?:\.\d+)?pt$", fontSize);
+            Assert.True(ParsePoints(fontSize) > 0);
+        });
         XElement[] columns = ElementsByClass(dom, "pdf-semantic-column").ToArray();
         Assert.Equal(2, columns.Length);
         Assert.Contains("Left body 01", columns[0].Value, StringComparison.Ordinal);
@@ -456,6 +466,110 @@ public class PdfHtmlConverterTest
         Assert.True(ParsePoints(style["--pdf-semantic-column-gap"]) >= 10f);
         Assert.True(ParsePoints(style["--pdf-semantic-column-left-width"]) >= 170f);
         Assert.True(ParsePoints(style["--pdf-semantic-column-right-width"]) >= 170f);
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_UsesMeasuredThreeColumnGridInColumnMajorOrder()
+    {
+        using PDDocument document = CreateThreeColumnDocument(includeRuledTable: false);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-line-grid"));
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+        XElement wrapper = Assert.Single(ElementsByClass(dom, "pdf-semantic-columns"));
+        Assert.Equal("div", wrapper.Name.LocalName);
+        Dictionary<string, string> style = ParseStyle(wrapper.Attribute("style")?.Value ?? "");
+        Assert.Equal("3", style["--pdf-semantic-column-count"]);
+        Assert.Contains("fr", style["--pdf-semantic-column-tracks"], StringComparison.Ordinal);
+
+        float[] widths = Enumerable.Range(1, 3)
+            .Select(index => ParsePoints(style[$"--pdf-semantic-column-width-{index}"]))
+            .ToArray();
+        float[] gutters = Enumerable.Range(1, 2)
+            .Select(index => ParsePoints(style[$"--pdf-semantic-column-gutter-{index}"]))
+            .ToArray();
+        Assert.All(widths, width => Assert.True(width >= 90f));
+        Assert.True(widths.Max() - widths.Min() >= 18f);
+        Assert.All(gutters, gutter => Assert.True(gutter >= 18f));
+        Assert.True(MathF.Abs(gutters[0] - gutters[1]) >= 4f);
+
+        XElement spanning = Assert.Single(ElementsByClass(dom, "pdf-semantic-column-spanning"));
+        Assert.Contains("Three-Column Field Notes", spanning.Value, StringComparison.Ordinal);
+        Assert.Single(Regex.Matches(dom.Root!.Value, Regex.Escape("Three-Column Field Notes")));
+
+        XElement[] columns = ElementsByClass(dom, "pdf-semantic-column").ToArray();
+        Assert.Equal(3, columns.Length);
+        Assert.Contains("Alpha column 01", columns[0].Value, StringComparison.Ordinal);
+        Assert.Contains("Alpha column 14", columns[0].Value, StringComparison.Ordinal);
+        Assert.Contains("Middle column 01", columns[1].Value, StringComparison.Ordinal);
+        Assert.Contains("Right column 14", columns[2].Value, StringComparison.Ordinal);
+        Assert.True(dom.Root.Value.IndexOf("Alpha column 14", StringComparison.Ordinal) <
+            dom.Root.Value.IndexOf("Middle column 01", StringComparison.Ordinal));
+        Assert.True(dom.Root.Value.IndexOf("Middle column 14", StringComparison.Ordinal) <
+            dom.Root.Value.IndexOf("Right column 01", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Convert_SemanticContinuousFlow_RejectsRuledThreeBandTableAsColumns()
+    {
+        using PDDocument document = CreateThreeColumnDocument(includeRuledTable: true);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        }).Html);
+
+        Assert.Empty(ElementsByClass(dom, "pdf-semantic-columns"));
+    }
+
+    [Fact]
+    public async Task Convert_SemanticContinuousFlow_RendersResponsiveMeasuredThreeColumnGeometry()
+    {
+        using PDDocument document = CreateThreeColumnDocument(includeRuledTable: false);
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(html.Html);
+        Dictionary<string, string> style = ParseStyle(
+            Assert.Single(ElementsByClass(dom, "pdf-semantic-columns")).Attribute("style")?.Value ?? "");
+        float expectedWidthRatio = ParsePoints(style["--pdf-semantic-column-width-2"]) /
+            ParsePoints(style["--pdf-semantic-column-width-1"]);
+
+        using TempDirectory tempDirectory = new();
+        html.WriteToDirectory(tempDirectory.Path);
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize { Width = 1000, Height = 1200 }
+        });
+        await page.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+
+        ColumnGridRenderMetrics desktop = await ReadColumnGridRenderMetrics(page);
+        await page.SetViewportSizeAsync(420, 1200);
+        ColumnGridRenderMetrics narrow = await ReadColumnGridRenderMetrics(page);
+
+        AssertColumnGridGeometry(desktop);
+        AssertColumnGridGeometry(narrow);
+        AssertWithin(0.03f, expectedWidthRatio, (float)(desktop.Widths[1] / desktop.Widths[0]));
+        AssertWithin(0.03f, expectedWidthRatio, (float)(narrow.Widths[1] / narrow.Widths[0]));
+        Assert.True(narrow.GridWidth < desktop.GridWidth);
+        Assert.True(narrow.GridRight <= 420.5);
     }
 
     [Fact]
@@ -5390,6 +5504,47 @@ public class PdfHtmlConverterTest
             BinaryPrimitives.ReadInt32BigEndian(png.AsSpan(20, 4)));
     }
 
+    private static Task<ColumnGridRenderMetrics> ReadColumnGridRenderMetrics(IPage page)
+    {
+        return page.EvaluateAsync<ColumnGridRenderMetrics>(
+            """
+            () => {
+              const grid = document.querySelector(".pdf-semantic-columns");
+              const columns = Array.from(grid.querySelectorAll(":scope > .pdf-semantic-column"));
+              const gridBox = grid.getBoundingClientRect();
+              const boxes = columns.map(column => column.getBoundingClientRect());
+              return {
+                columnCount: columns.length,
+                gridLeft: gridBox.left,
+                gridRight: gridBox.right,
+                gridWidth: gridBox.width,
+                lefts: boxes.map(box => box.left),
+                rights: boxes.map(box => box.right),
+                widths: boxes.map(box => box.width)
+              };
+            }
+            """);
+    }
+
+    private static void AssertColumnGridGeometry(ColumnGridRenderMetrics metrics)
+    {
+        Assert.Equal(3, metrics.ColumnCount);
+        Assert.Equal(3, metrics.Lefts.Length);
+        Assert.Equal(3, metrics.Rights.Length);
+        Assert.Equal(3, metrics.Widths.Length);
+        for (int index = 0; index < metrics.ColumnCount; index++)
+        {
+            Assert.True(metrics.Widths[index] > 0);
+            Assert.True(metrics.Lefts[index] >= metrics.GridLeft - 0.5);
+            Assert.True(metrics.Rights[index] <= metrics.GridRight + 0.5);
+            if (index > 0)
+            {
+                Assert.True(metrics.Lefts[index] > metrics.Lefts[index - 1]);
+                Assert.True(metrics.Rights[index - 1] <= metrics.Lefts[index] + 0.5);
+            }
+        }
+    }
+
     private sealed class ContinuousFlowMetrics
     {
         public int FixedPageCount { get; set; }
@@ -5432,6 +5587,23 @@ public class PdfHtmlConverterTest
         public double FirstRowStep { get; set; }
 
         public double FirstHighlightWidth { get; set; }
+    }
+
+    private sealed class ColumnGridRenderMetrics
+    {
+        public int ColumnCount { get; set; }
+
+        public double GridLeft { get; set; }
+
+        public double GridRight { get; set; }
+
+        public double GridWidth { get; set; }
+
+        public double[] Lefts { get; set; } = [];
+
+        public double[] Rights { get; set; } = [];
+
+        public double[] Widths { get; set; } = [];
     }
 
     private sealed class BrowserRenderComparison
@@ -6617,6 +6789,48 @@ public class PdfHtmlConverterTest
         }
 
         return document;
+    }
+
+    private static PDDocument CreateThreeColumnDocument(bool includeRuledTable)
+    {
+        StringBuilder content = new();
+        content.AppendLine("BT /F1 16 Tf 150 750 Td (Three-Column Field Notes) Tj ET");
+        content.AppendLine("BT /F1 10 Tf 195 730 Td (Measured source header) Tj ET");
+        for (int index = 1; index <= 14; index++)
+        {
+            int y = 680 - (index - 1) * 14;
+            content.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "BT /F1 8 Tf 42 {0} Td (Alpha column {1:00} compact note) Tj ET\n",
+                y,
+                index);
+            content.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "BT /F1 8 Tf 194 {0} Td (Middle column {1:00} carries wider field notes) Tj ET\n",
+                y - 4,
+                index);
+            content.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "BT /F1 8 Tf 390 {0} Td (Right column {1:00} moderate copy) Tj ET\n",
+                y - 8,
+                index);
+        }
+
+        if (includeRuledTable)
+        {
+            content.AppendLine("0.5 w");
+            for (int y = 692; y >= 482; y -= 14)
+            {
+                content.AppendFormat(CultureInfo.InvariantCulture, "36 {0} m 552 {0} l S\n", y);
+            }
+
+            foreach (int x in new[] { 36, 184, 380, 552 })
+            {
+                content.AppendFormat(CultureInfo.InvariantCulture, "{0} 482 m {0} 692 l S\n", x);
+            }
+        }
+
+        return CreateTextDocument(content.ToString());
     }
 
     private static PDDocument CreateTwoColumnDocument(bool includeRuledTable)

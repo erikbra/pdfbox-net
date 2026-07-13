@@ -328,15 +328,12 @@ public static class PdfHtmlConverter
           align-self: stretch;
           align-items: start;
           box-sizing: border-box;
-          column-gap: var(--pdf-semantic-column-gap, 0);
           display: grid;
-          grid-template-columns:
-            minmax(0, var(--pdf-semantic-column-left-width, 1fr))
-            minmax(0, var(--pdf-semantic-column-right-width, 1fr));
-          margin: 0 0 0 -108pt;
+          grid-template-columns: var(--pdf-semantic-column-tracks, repeat(2, minmax(0, 1fr)));
+          margin: 0 0 0 calc((100% - var(--pdf-page-width)) / 2);
           max-width: none;
-          padding: var(--pdf-semantic-columns-top, 0) var(--pdf-semantic-columns-right, 0) 0 var(--pdf-semantic-columns-left, 0);
-          width: calc(100% + 216pt);
+          padding: var(--pdf-semantic-columns-top, 0) var(--pdf-semantic-columns-right-relative, var(--pdf-semantic-columns-right, 0)) 0 var(--pdf-semantic-columns-left-relative, var(--pdf-semantic-columns-left, 0));
+          width: var(--pdf-page-width);
         }
 
         .pdf-semantic-page-start + .pdf-semantic-columns {
@@ -344,7 +341,17 @@ public static class PdfHtmlConverter
         }
 
         .pdf-semantic-column {
+          grid-column: var(--pdf-semantic-column-grid-position, auto);
+          grid-row: var(--pdf-semantic-column-grid-row, auto);
           min-width: 0;
+          position: relative;
+        }
+
+        .pdf-semantic-column-positioned-figure {
+          margin: 0;
+          max-width: none;
+          position: absolute;
+          z-index: 0;
         }
 
         .pdf-semantic-column-block {
@@ -4378,12 +4385,27 @@ public static class PdfHtmlConverter
                 page,
                 semanticPage,
                 out PdfTextRun[] leadingRuns,
-                out LineGridColumn[] columns,
-                out float gutterLeft,
-                out float gutterRight,
-                out float leftInset,
-                out float rightInset))
+                out SemanticColumnTrack[] tracks,
+                out SemanticColumnGutter[] gutters))
         {
+            if (TryGetCaptionedFigureTwoColumnRuns(
+                    page,
+                    semanticPage,
+                    out leadingRuns,
+                    out tracks,
+                    out gutters))
+            {
+                return AddColumnSpanningFigures(new PdfSemanticColumns(
+                    page,
+                    semanticPage,
+                    leadingRuns,
+                    tracks,
+                    gutters,
+                    SemanticColumnListElements(semanticPage),
+                    tracks[0].Left,
+                    MathF.Max(0, page.Width - tracks[^1].Right)));
+            }
+
             if (!TryGetTwoColumnRuns(page, semanticPage, out _, out LineGridColumn[] legacyColumns, out float pitch))
             {
                 return null;
@@ -4394,28 +4416,25 @@ public static class PdfHtmlConverter
                 page,
                 semanticPage,
                 [],
-                legacyColumns,
+                [
+                    new SemanticColumnTrack(legacyColumns[0], legacyColumns[0].Left, legacyColumns[0].Left + pitch),
+                    new SemanticColumnTrack(legacyColumns[1], legacyColumns[1].Left, page.Width - legacyRightInset)
+                ],
+                [new SemanticColumnGutter(legacyColumns[0].Left + pitch, legacyColumns[1].Left)],
                 SemanticColumnListElements(semanticPage),
-                (legacyColumns[0].Left + legacyColumns[1].Left) / 2f,
                 legacyColumns[0].Left,
-                legacyRightInset,
-                pitch,
-                pitch,
-                0));
+                legacyRightInset));
         }
 
         return AddColumnSpanningFigures(new PdfSemanticColumns(
             page,
             semanticPage,
             leadingRuns,
-            columns,
+            tracks,
+            gutters,
             SemanticColumnListElements(semanticPage),
-            (gutterLeft + gutterRight) / 2f,
-            leftInset,
-            rightInset,
-            MathF.Max(0, gutterLeft - leftInset),
-            MathF.Max(0, page.Width - rightInset - gutterRight),
-            MathF.Max(0, gutterRight - gutterLeft)));
+            tracks[0].Left,
+            MathF.Max(0, page.Width - tracks[^1].Right)));
     }
 
     private static PdfSemanticColumns AddColumnSpanningFigures(PdfSemanticColumns columns)
@@ -4453,23 +4472,185 @@ public static class PdfHtmlConverter
             .ToArray();
     }
 
+    private static PdfLayoutRectangle[] CaptionedTopSpanningFigureRegions(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage)
+    {
+        return SemanticFigureRegions(page, semanticPage)
+            .Where(region => region.Y <= page.Height * 0.25f)
+            .Where(region => region.Width >= page.Width * 0.65f)
+            .Where(region => semanticPage.Elements
+                .Where(IsFigureCaption)
+                .Any(caption => IsCaptionAssociatedWithFigure(page, caption.Bounds, region)))
+            .ToArray();
+    }
+
     private static bool TryGetFlowColumnRuns(
         PdfLayoutPage page,
         PdfSemanticPage semanticPage,
         out PdfTextRun[] leadingRuns,
-        out LineGridColumn[] columns,
-        out float gutterLeft,
-        out float gutterRight,
-        out float leftInset,
-        out float rightInset)
+        out SemanticColumnTrack[] tracks,
+        out SemanticColumnGutter[] gutters)
     {
         leadingRuns = [];
-        columns = [];
-        gutterLeft = 0;
-        gutterRight = 0;
-        leftInset = 0;
-        rightInset = 0;
+        tracks = [];
+        gutters = [];
         if (page.FormControls.Count > 0)
+        {
+            return false;
+        }
+
+        PdfTextRun[] horizontalRuns = page.Runs
+            .Where(static run => !string.IsNullOrWhiteSpace(run.Text))
+            .Where(static run => MathF.Abs(run.Direction) < 0.01f)
+            .ToArray();
+        if (horizontalRuns.Length < 24)
+        {
+            return false;
+        }
+
+        ColumnDetectionRow[] rows = CreateColumnDetectionRows(horizontalRuns);
+        if (rows.Length < 12)
+        {
+            return false;
+        }
+
+        float minimumGap = page.Width * 0.018f;
+        ColumnGapObservation[] observations = rows
+            .SelectMany((row, rowIndex) => row.Gaps(
+                rowIndex,
+                page.Width * 0.12f,
+                page.Width * 0.88f,
+                minimumGap))
+            .ToArray();
+
+        ColumnCorridor[] corridors = CreateColumnCorridors(page, rows, observations, minimumGap);
+        ColumnCorridor[] anchoredCorridors = CreateAnchoredColumnCorridors(
+            page,
+            horizontalRuns,
+            observations,
+            minimumGap);
+        if (anchoredCorridors.Length >= 2)
+        {
+            corridors = anchoredCorridors;
+        }
+
+        if (corridors.Length is < 1 or > 3)
+        {
+            return false;
+        }
+
+        SemanticColumnGutter[] detectedGutters = corridors
+            .Select(corridor => new SemanticColumnGutter(corridor.Left, corridor.Right))
+            .ToArray();
+        if (HasRuledTableAcrossColumnCorridors(page, corridors))
+        {
+            return false;
+        }
+
+        foreach (ColumnCorridor corridor in corridors)
+        {
+            if (!SpanningTablesAreColumnCompatible(page, semanticPage, corridor.Boundary))
+            {
+                return false;
+            }
+        }
+
+        float columnTop = corridors
+            .Select(corridor => corridor.ColumnTop ?? FlowColumnTop(page.Height, rows, corridor.SupportingGaps))
+            .Max();
+        leadingRuns = rows
+            .Where(row => row.Top < columnTop)
+            .SelectMany(static row => row.Runs)
+            .OrderBy(static run => run.Bounds.Y)
+            .ThenBy(static run => run.Bounds.X)
+            .ToArray();
+        ColumnDetectionRow[] contentRows = rows
+            .Where(row => row.Top >= columnTop)
+            .ToArray();
+        float corridorTolerance = MathF.Max(1f, page.Width * 0.002f);
+        if (contentRows
+            .SelectMany(static row => row.Runs)
+            .Any(run => detectedGutters.Any(gutter =>
+                run.Bounds.X < gutter.Left - corridorTolerance &&
+                run.Bounds.Right > gutter.Right + corridorTolerance)))
+        {
+            return false;
+        }
+
+        float[] boundaries = corridors.Select(static corridor => corridor.Boundary).ToArray();
+        PdfTextRun[][] columnRuns = Enumerable.Range(0, boundaries.Length + 1)
+            .Select(columnIndex => contentRows
+                .Select(row => CombineColumnLine(row.Runs.Where(run =>
+                    ColumnIndexAt(boundaries, run.Bounds.X + run.Bounds.Width / 2f) == columnIndex)))
+                .Where(static run => run != null)
+                .Cast<PdfTextRun>()
+                .ToArray())
+            .ToArray();
+        if (columnRuns.Any(static runs => runs.Length < 12))
+        {
+            return false;
+        }
+
+        float commonTop = columnRuns.Max(static runs => runs.Min(static run => run.Bounds.Y));
+        float commonBottom = columnRuns.Min(static runs => runs.Max(static run => run.Bounds.Bottom));
+        float minimumSpan = columnRuns.Min(static runs =>
+            runs.Max(static run => run.Bounds.Bottom) - runs.Min(static run => run.Bounds.Y));
+        if (MathF.Max(0, commonBottom - commonTop) < minimumSpan * 0.4f)
+        {
+            return false;
+        }
+
+        float[] anchors = columnRuns
+            .Select(static runs => Percentile(runs.Select(static run => run.Bounds.X), 0.1f))
+            .ToArray();
+        if (anchors.Zip(anchors.Skip(1), static (left, right) => right - left)
+            .Any(distance => distance < page.Width * 0.12f || distance > page.Width * 0.55f))
+        {
+            return false;
+        }
+
+        float leftInset = MathF.Max(0, anchors[0]);
+        float contentRight = Percentile(columnRuns[^1].Select(static run => run.Bounds.Right), 0.9f);
+        float rightInset = MathF.Max(0, page.Width - contentRight);
+        List<SemanticColumnTrack> measuredTracks = [];
+        for (int columnIndex = 0; columnIndex < columnRuns.Length; columnIndex++)
+        {
+            LineGridColumn column = new(anchors[columnIndex]);
+            foreach (PdfTextRun run in columnRuns[columnIndex])
+            {
+                column.Add(run);
+            }
+
+            float left = columnIndex == 0 ? leftInset : detectedGutters[columnIndex - 1].Right;
+            float right = columnIndex == detectedGutters.Length
+                ? page.Width - rightInset
+                : detectedGutters[columnIndex].Left;
+            if (right - left < page.Width * 0.1f)
+            {
+                return false;
+            }
+
+            measuredTracks.Add(new SemanticColumnTrack(column, left, right));
+        }
+
+        tracks = measuredTracks.ToArray();
+        gutters = detectedGutters;
+        return true;
+    }
+
+    private static bool TryGetCaptionedFigureTwoColumnRuns(
+        PdfLayoutPage page,
+        PdfSemanticPage semanticPage,
+        out PdfTextRun[] leadingRuns,
+        out SemanticColumnTrack[] tracks,
+        out SemanticColumnGutter[] gutters)
+    {
+        leadingRuns = [];
+        tracks = [];
+        gutters = [];
+        if (page.FormControls.Count > 0 ||
+            CaptionedTopSpanningFigureRegions(page, semanticPage).Length == 0)
         {
             return false;
         }
@@ -4515,15 +4696,15 @@ public static class PdfHtmlConverter
         ColumnGapObservation[] supportingGaps = observations
             .Where(observation => observation.Left <= boundary && observation.Right >= boundary)
             .GroupBy(static observation => observation.RowIndex)
-            .Select(group => group.OrderBy(static observation => observation.Right - observation.Left).First())
+            .Select(static group => group.OrderBy(static observation => observation.Right - observation.Left).First())
             .ToArray();
         if (supportingGaps.Length < 12 || supportingGaps.Length < rows.Length * 0.18f)
         {
             return false;
         }
 
-        gutterLeft = Percentile(supportingGaps.Select(static gap => gap.Left), 0.85f);
-        gutterRight = Percentile(supportingGaps.Select(static gap => gap.Right), 0.15f);
+        float gutterLeft = Percentile(supportingGaps.Select(static gap => gap.Left), 0.85f);
+        float gutterRight = Percentile(supportingGaps.Select(static gap => gap.Right), 0.15f);
         if (gutterRight - gutterLeft < minimumGap)
         {
             gutterLeft = boundary - minimumGap / 2f;
@@ -4592,11 +4773,200 @@ public static class PdfHtmlConverter
             rightColumn.Add(run);
         }
 
-        columns = [leftColumn, rightColumn];
-        leftInset = MathF.Max(0, leftAnchor);
+        float leftInset = MathF.Max(0, leftAnchor);
         float contentRight = Percentile(rightRuns.Select(static run => run.Bounds.Right), 0.9f);
-        rightInset = MathF.Max(0, page.Width - contentRight);
+        float rightInset = MathF.Max(0, page.Width - contentRight);
+        tracks =
+        [
+            new SemanticColumnTrack(leftColumn, leftInset, gutterLeft),
+            new SemanticColumnTrack(rightColumn, gutterRight, page.Width - rightInset)
+        ];
+        gutters = [new SemanticColumnGutter(gutterLeft, gutterRight)];
         return true;
+    }
+
+    private static ColumnCorridor[] CreateColumnCorridors(
+        PdfLayoutPage page,
+        IReadOnlyList<ColumnDetectionRow> rows,
+        IReadOnlyList<ColumnGapObservation> observations,
+        float minimumGap)
+    {
+        int minimumSupport = Math.Max(12, (int)MathF.Ceiling(rows.Count * 0.18f));
+        float minimumSeparation = page.Width * 0.12f;
+        ColumnCorridor[] candidates = observations
+            .Select(static observation => (observation.Left + observation.Right) / 2f)
+            .Append(page.Width / 2f)
+            .Where(candidate => candidate >= page.Width * 0.12f && candidate <= page.Width * 0.88f)
+            .Distinct()
+            .Select(candidate => CreateColumnCorridorCandidate(candidate, observations, minimumGap))
+            .Where(static candidate => candidate != null)
+            .Cast<ColumnCorridor>()
+            .Where(candidate => candidate.SupportingGaps.Length >= minimumSupport)
+            .OrderByDescending(static candidate => candidate.SupportingGaps.Length)
+            .ThenByDescending(static candidate => candidate.Right - candidate.Left)
+            .ThenBy(candidate => MathF.Abs(candidate.Boundary - page.Width / 2f))
+            .ToArray();
+
+        List<ColumnCorridor> selected = [];
+        foreach (ColumnCorridor candidate in candidates)
+        {
+            if (selected.Any(existing => MathF.Abs(existing.Boundary - candidate.Boundary) < minimumSeparation))
+            {
+                continue;
+            }
+
+            selected.Add(candidate);
+            if (selected.Count == 3)
+            {
+                break;
+            }
+        }
+
+        return selected.OrderBy(static corridor => corridor.Boundary).ToArray();
+    }
+
+    private static ColumnCorridor[] CreateAnchoredColumnCorridors(
+        PdfLayoutPage page,
+        IReadOnlyList<PdfTextRun> horizontalRuns,
+        IReadOnlyList<ColumnGapObservation> observations,
+        float minimumGap)
+    {
+        float anchorTolerance = page.Width * 0.035f;
+        List<LineGridColumn> anchorCandidates = [];
+        foreach (PdfTextRun run in horizontalRuns
+            .Where(run => run.Bounds.Width <= page.Width * 0.36f)
+            .OrderBy(static run => run.Bounds.X)
+            .ThenBy(static run => run.Bounds.Y))
+        {
+            LineGridColumn? candidate = anchorCandidates
+                .Where(candidate => MathF.Abs(candidate.Left - run.Bounds.X) <= anchorTolerance)
+                .OrderBy(candidate => MathF.Abs(candidate.Left - run.Bounds.X))
+                .FirstOrDefault();
+            if (candidate == null)
+            {
+                candidate = new LineGridColumn(run.Bounds.X);
+                anchorCandidates.Add(candidate);
+            }
+
+            candidate.Add(run);
+        }
+
+        int minimumAnchorSupport = Math.Max(12, (int)MathF.Ceiling(horizontalRuns.Count * 0.08f));
+        float minimumAnchorSeparation = page.Width * 0.12f;
+        List<LineGridColumn> selected = [];
+        foreach (LineGridColumn candidate in anchorCandidates
+            .Where(candidate => candidate.Lines.Count >= minimumAnchorSupport)
+            .OrderByDescending(static candidate => candidate.Lines.Count)
+            .ThenBy(static candidate => candidate.Left))
+        {
+            if (selected.Any(existing => MathF.Abs(existing.Left - candidate.Left) < minimumAnchorSeparation))
+            {
+                continue;
+            }
+
+            selected.Add(candidate);
+            if (selected.Count == 4)
+            {
+                break;
+            }
+        }
+
+        if (selected.Count < 3)
+        {
+            return [];
+        }
+
+        LineGridColumn[] anchors = selected.OrderBy(static candidate => candidate.Left).ToArray();
+        float columnTop = anchors.Min(anchor => StableColumnAnchorTop(page, anchor));
+        List<ColumnCorridor> corridors = [];
+        for (int index = 0; index + 1 < anchors.Length; index++)
+        {
+            float left = Percentile(anchors[index].Lines.Select(static run => run.Bounds.Right), 0.85f);
+            float right = Percentile(anchors[index + 1].Lines.Select(static run => run.Bounds.X), 0.15f);
+            float boundary = (left + right) / 2f;
+            if (right - left < minimumGap)
+            {
+                left = boundary - minimumGap / 2f;
+                right = boundary + minimumGap / 2f;
+            }
+
+            ColumnGapObservation[] supportingGaps = observations
+                .Where(observation => observation.Left <= boundary && observation.Right >= boundary)
+                .GroupBy(static observation => observation.RowIndex)
+                .Select(static group => group.OrderBy(static observation => observation.Right - observation.Left).First())
+                .ToArray();
+            corridors.Add(new ColumnCorridor(boundary, left, right, supportingGaps, columnTop));
+        }
+
+        return corridors.ToArray();
+    }
+
+    private static float StableColumnAnchorTop(PdfLayoutPage page, LineGridColumn anchor)
+    {
+        PdfTextRun[] runs = anchor.Lines.OrderBy(static run => run.Bounds.Y).ToArray();
+        float supportHeight = page.Height * 0.08f;
+        int minimumSupport = Math.Min(5, runs.Length);
+        foreach (PdfTextRun run in runs)
+        {
+            if (runs.Count(candidate =>
+                    candidate.Bounds.Y >= run.Bounds.Y &&
+                    candidate.Bounds.Y <= run.Bounds.Y + supportHeight) >= minimumSupport)
+            {
+                return run.Bounds.Y;
+            }
+        }
+
+        return runs[0].Bounds.Y;
+    }
+
+    private static ColumnCorridor? CreateColumnCorridorCandidate(
+        float boundary,
+        IReadOnlyList<ColumnGapObservation> observations,
+        float minimumGap)
+    {
+        ColumnGapObservation[] supportingGaps = observations
+            .Where(observation => observation.Left <= boundary && observation.Right >= boundary)
+            .GroupBy(static observation => observation.RowIndex)
+            .Select(static group => group.OrderBy(static observation => observation.Right - observation.Left).First())
+            .ToArray();
+        if (supportingGaps.Length == 0)
+        {
+            return null;
+        }
+
+        float left = Percentile(supportingGaps.Select(static gap => gap.Left), 0.85f);
+        float right = Percentile(supportingGaps.Select(static gap => gap.Right), 0.15f);
+        if (right - left < minimumGap)
+        {
+            left = boundary - minimumGap / 2f;
+            right = boundary + minimumGap / 2f;
+        }
+
+        return new ColumnCorridor(boundary, left, right, supportingGaps);
+    }
+
+    private static int ColumnIndexAt(IReadOnlyList<float> boundaries, float horizontalCenter)
+    {
+        for (int index = 0; index < boundaries.Count; index++)
+        {
+            if (horizontalCenter < boundaries[index])
+            {
+                return index;
+            }
+        }
+
+        return boundaries.Count;
+    }
+
+    private static bool HasRuledTableAcrossColumnCorridors(
+        PdfLayoutPage page,
+        IReadOnlyList<ColumnCorridor> corridors)
+    {
+        return CreateSourceRuleFamilies(page).Any(family =>
+            family.RuleCount >= 3 &&
+            corridors.Count(corridor =>
+                family.Left < corridor.Boundary &&
+                family.Right > corridor.Boundary) >= Math.Min(2, corridors.Count));
     }
 
     private static bool SpanningTablesAreColumnCompatible(
@@ -4607,6 +4977,7 @@ public static class PdfHtmlConverter
         PdfSemanticElement[] spanningTables = semanticPage.Elements
             .Where(static element => element.Kind == PdfSemanticElementKind.Table)
             .Where(table => table.Bounds.X < columnBoundary && table.Bounds.Right > columnBoundary)
+            .Where(table => HasSupportingTableRules(page, table))
             .ToArray();
         if (spanningTables.Length == 0)
         {
@@ -4951,25 +5322,58 @@ public static class PdfHtmlConverter
         float columnTop = columns.Columns
             .SelectMany(static column => column.Lines)
             .Min(static run => run.Bounds.Y);
+        PdfLayoutRectangle[] imageRegions = columns.Page.Images
+            .Select(VisibleImageBounds)
+            .Where(static bounds => bounds.Width >= 4f && bounds.Height >= 4f)
+            .Where(bounds => !columns.SpanningFigures.Any(figure =>
+                RectanglesIntersect(bounds, figure.Region, 2f)))
+            .ToArray();
+        PdfLayoutRectangle[] leadingImageRegions = imageRegions
+            .Where(region => region.Y < columnTop)
+            .ToArray();
         float top = columns.LeadingRuns
             .Select(static run => run.Bounds.Y)
+            .Concat(leadingImageRegions.Select(static region => region.Y))
             .Append(columnTop)
             .Min();
-        html.Append("      <section class=\"pdf-semantic-columns\" style=\"--pdf-semantic-column-count:")
+        bool hasLeadingContent = columns.LeadingRuns.Count > 0 || leadingImageRegions.Length > 0;
+        html.Append("      <div class=\"pdf-semantic-columns\" style=\"--pdf-semantic-column-count:")
             .Append(columns.Columns.Count.ToString(CultureInfo.InvariantCulture))
             .Append(";--pdf-semantic-columns-left:")
             .Append(CssPoints(columns.LeftInset * scale))
             .Append(";--pdf-semantic-columns-right:")
             .Append(CssPoints(columns.RightInset * scale))
+            .Append(";--pdf-semantic-columns-left-relative:")
+            .Append(CssPercent(columns.LeftInset / columns.Page.Width * 100f))
+            .Append(";--pdf-semantic-columns-right-relative:")
+            .Append(CssPercent(columns.RightInset / columns.Page.Width * 100f))
             .Append(";--pdf-semantic-column-left-width:")
-            .Append(CssPoints(columns.LeftWidth * scale))
+            .Append(CssPoints(columns.Tracks[0].Width * scale))
             .Append(";--pdf-semantic-column-right-width:")
-            .Append(CssPoints(columns.RightWidth * scale))
+            .Append(CssPoints(columns.Tracks[^1].Width * scale))
             .Append(";--pdf-semantic-column-gap:")
-            .Append(CssPoints(columns.GutterWidth * scale))
+            .Append(CssPoints(columns.Gutters[0].Width * scale))
+            .Append(";--pdf-semantic-column-tracks:")
+            .Append(SemanticColumnGridTemplate(columns))
             .Append(";--pdf-semantic-columns-top:")
-            .Append(CssPoints(top * scale))
-            .AppendLine("\">");
+            .Append(CssPoints(top * scale));
+        for (int trackIndex = 0; trackIndex < columns.Tracks.Count; trackIndex++)
+        {
+            html.Append(";--pdf-semantic-column-width-")
+                .Append((trackIndex + 1).ToString(CultureInfo.InvariantCulture))
+                .Append(':')
+                .Append(CssPoints(columns.Tracks[trackIndex].Width * scale));
+        }
+
+        for (int gutterIndex = 0; gutterIndex < columns.Gutters.Count; gutterIndex++)
+        {
+            html.Append(";--pdf-semantic-column-gutter-")
+                .Append((gutterIndex + 1).ToString(CultureInfo.InvariantCulture))
+                .Append(':')
+                .Append(CssPoints(columns.Gutters[gutterIndex].Width * scale));
+        }
+
+        html.AppendLine("\">");
 
         foreach (PdfSemanticColumnFigure figure in columns.SpanningFigures)
         {
@@ -4987,11 +5391,29 @@ public static class PdfHtmlConverter
                 columnSpanning: true);
         }
 
-        if (columns.LeadingRuns.Count > 0)
+        if (hasLeadingContent)
         {
             html.Append("        <div class=\"pdf-semantic-column-spanning\" style=\"height:")
                 .Append(CssPoints(MathF.Max(0, columnTop - top) * scale))
+                .Append(";grid-row:")
+                .Append((columns.SpanningFigures.Count + 1).ToString(CultureInfo.InvariantCulture))
                 .AppendLine("\">");
+            foreach (PdfLayoutRectangle region in leadingImageRegions)
+            {
+                WriteSemanticFigure(
+                    html,
+                    columns.Page,
+                    columns.SemanticPage,
+                    region,
+                    imageAssets,
+                    scale,
+                    inline: false,
+                    additionalClass: "pdf-semantic-column-positioned-figure",
+                    additionalStyle: "left:" + CssPoints((region.X - columns.LeftInset) * scale) +
+                        ";top:" + CssPoints((region.Y - top) * scale),
+                    includeSourceDecorations: false);
+            }
+
             foreach (PdfTextRun run in columns.LeadingRuns)
             {
                 html.Append("          <span class=\"pdf-semantic-column-run pdf-semantic-column-spanning-run\" style=\"left:")
@@ -5005,19 +5427,44 @@ public static class PdfHtmlConverter
                     .Append(FixedTextFontPresentation(run))
                     .Append(";color:")
                     .Append(ColorHex(run.Color))
-                    .Append("\">")
-                    .Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)))
-                    .AppendLine("</span>");
+                    .Append("\">");
+                WriteSourceHighlightedRun(html, columns.Page, run, semanticOptions, scale);
+                html.AppendLine("</span>");
             }
 
             html.AppendLine("        </div>");
         }
 
         IReadOnlyList<PdfSemanticElement>[] semanticTables = ColumnSemanticTables(columns);
+        int bodyGridRow = columns.SpanningFigures.Count + (hasLeadingContent ? 2 : 1);
         for (int columnIndex = 0; columnIndex < columns.Columns.Count; columnIndex++)
         {
             LineGridColumn column = columns.Columns[columnIndex];
-            html.AppendLine("        <div class=\"pdf-semantic-column\">");
+            html.Append("        <div class=\"pdf-semantic-column\" style=\"--pdf-semantic-column-grid-position:")
+                .Append((columnIndex * 2 + 1).ToString(CultureInfo.InvariantCulture))
+                .Append(";--pdf-semantic-column-grid-row:")
+                .Append(bodyGridRow.ToString(CultureInfo.InvariantCulture))
+                .AppendLine("\">");
+            SemanticColumnTrack track = columns.Tracks[columnIndex];
+            foreach (PdfLayoutRectangle region in imageRegions.Where(region =>
+                region.Y >= columnTop &&
+                ColumnIndexAt(columns.Boundaries, region.X + region.Width / 2f) == columnIndex &&
+                !columns.Gutters.Any(gutter => region.X < gutter.Left && region.Right > gutter.Right)))
+            {
+                WriteSemanticFigure(
+                    html,
+                    columns.Page,
+                    columns.SemanticPage,
+                    region,
+                    imageAssets,
+                    scale,
+                    inline: false,
+                    additionalClass: "pdf-semantic-column-positioned-figure",
+                    additionalStyle: "left:" + CssPoints((region.X - track.Left) * scale) +
+                        ";top:" + CssPoints((region.Y - columnTop) * scale),
+                    includeSourceDecorations: false);
+            }
+
             PdfSemanticElement[] listElements = columns.ListElements
                 .Where(element => IsSemanticElementInColumn(columns, column, element))
                 .ToArray();
@@ -5125,14 +5572,42 @@ public static class PdfHtmlConverter
                 }
 
                 PdfTextRun run = item.Run!;
-                WriteSemanticColumnRun(html, columns.Page, run, marginTop, scale, semanticOptions);
+                WriteSemanticColumnRun(
+                    html,
+                    columns.Page,
+                    run,
+                    track.Left,
+                    marginTop,
+                    scale,
+                    semanticOptions);
                 previousSourceBottom = run.Bounds.Bottom;
             }
 
             html.AppendLine("        </div>");
         }
 
-        html.AppendLine("      </section>");
+        html.AppendLine("      </div>");
+    }
+
+    private static string SemanticColumnGridTemplate(PdfSemanticColumns columns)
+    {
+        StringBuilder template = new();
+        for (int index = 0; index < columns.Tracks.Count; index++)
+        {
+            if (index > 0)
+            {
+                template.Append(' ')
+                    .Append("minmax(0,")
+                    .Append(SvgNumber(columns.Gutters[index - 1].Width))
+                    .Append("fr) ");
+            }
+
+            template.Append("minmax(0,")
+                .Append(SvgNumber(columns.Tracks[index].Width))
+                .Append("fr)");
+        }
+
+        return template.ToString();
     }
 
     private static bool IsSemanticElementInColumn(
@@ -5165,6 +5640,7 @@ public static class PdfHtmlConverter
         StringBuilder html,
         PdfLayoutPage page,
         PdfTextRun run,
+        float columnLeft,
         float marginTop,
         float scale,
         PdfSemanticExtractionOptions semanticOptions)
@@ -5175,6 +5651,13 @@ public static class PdfHtmlConverter
         {
             html.Append(";margin-top:")
                 .Append(CssPoints(marginTop));
+        }
+
+        float marginLeft = MathF.Max(0, run.Bounds.X - columnLeft) * scale;
+        if (marginLeft > 0.01f)
+        {
+            html.Append(";margin-left:")
+                .Append(CssPoints(marginLeft));
         }
 
         html.Append(";font-family:")
@@ -5196,6 +5679,19 @@ public static class PdfHtmlConverter
             .ToArray();
         if (result.Length != 2)
         {
+            foreach (PdfSemanticElement table in columns.SemanticPage.Elements
+                .Where(static element => element.Kind == PdfSemanticElementKind.Table && element.TableRows.Count > 0)
+                .Where(table => HasSupportingTableRules(columns.Page, table)))
+            {
+                int[] matchingColumns = Enumerable.Range(0, columns.Columns.Count)
+                    .Where(index => IsSemanticElementInColumn(columns, columns.Columns[index], table))
+                    .ToArray();
+                if (matchingColumns.Length == 1)
+                {
+                    result[matchingColumns[0]].Add(table);
+                }
+            }
+
             return result;
         }
 
@@ -5205,22 +5701,24 @@ public static class PdfHtmlConverter
         float tolerance = MathF.Max(1f, columns.Page.Width * 0.002f);
         foreach (PdfSemanticElement table in columns.SemanticPage.Elements
             .Where(static element => element.Kind == PdfSemanticElementKind.Table && element.TableRows.Count > 0)
+            .Where(table => HasSupportingTableRules(columns.Page, table))
             .Where(table => table.Bounds.Bottom >= columnTop - tolerance))
         {
-            if (table.Bounds.Right <= columns.Boundary + tolerance)
+            float boundary = columns.Boundaries[0];
+            if (table.Bounds.Right <= boundary + tolerance)
             {
                 result[0].Add(table);
                 continue;
             }
 
-            if (table.Bounds.X >= columns.Boundary - tolerance)
+            if (table.Bounds.X >= boundary - tolerance)
             {
                 result[1].Add(table);
                 continue;
             }
 
-            PdfSemanticElement? left = SplitSemanticTable(table, columns.Boundary, keepLeft: true, tolerance);
-            PdfSemanticElement? right = SplitSemanticTable(table, columns.Boundary, keepLeft: false, tolerance);
+            PdfSemanticElement? left = SplitSemanticTable(table, boundary, keepLeft: true, tolerance);
+            PdfSemanticElement? right = SplitSemanticTable(table, boundary, keepLeft: false, tolerance);
             if (left != null && HasSupportingTableRules(columns.Page, left))
             {
                 result[0].Add(left);
@@ -5413,7 +5911,9 @@ public static class PdfHtmlConverter
         float scale)
     {
         PdfTextGlyph[] glyphs = PdfSemanticExtractor.OrderGlyphsForLogicalText(run.Glyphs).ToArray();
-        if (glyphs.Length == 0 || !glyphs.Any(glyph => TextHighlightForGlyph(page, glyph) != null))
+        if (glyphs.Length == 0 || !glyphs.Any(glyph =>
+                TextHighlightForGlyph(page, glyph) != null ||
+                SemanticLinkForGlyph(page, glyph.PageBounds) != null))
         {
             html.Append(Html(PdfSemanticExtractor.ReconstructText(run.Glyphs, semanticOptions)));
             return;
@@ -5421,38 +5921,67 @@ public static class PdfHtmlConverter
 
         List<PdfTextGlyph> segmentGlyphs = [];
         PdfTextHighlight? activeHighlight = TextHighlightForGlyph(page, glyphs[0]);
+        PdfLayoutLink? activeLink = SemanticLinkForGlyph(page, glyphs[0].PageBounds);
         foreach (PdfTextGlyph glyph in glyphs)
         {
             PdfTextHighlight? highlight = TextHighlightForGlyph(page, glyph);
-            if (!ReferenceEquals(activeHighlight, highlight) && segmentGlyphs.Count > 0)
+            PdfLayoutLink? link = SemanticLinkForGlyph(page, glyph.PageBounds);
+            if ((!ReferenceEquals(activeHighlight, highlight) || !ReferenceEquals(activeLink, link)) &&
+                segmentGlyphs.Count > 0)
             {
-                WriteSourceHighlightedGlyphs(html, segmentGlyphs, activeHighlight, semanticOptions, scale);
+                WriteSourceHighlightedGlyphs(
+                    html,
+                    segmentGlyphs,
+                    activeHighlight,
+                    activeLink,
+                    semanticOptions,
+                    scale);
                 segmentGlyphs.Clear();
             }
 
             activeHighlight = highlight;
+            activeLink = link;
             segmentGlyphs.Add(glyph);
         }
 
-        WriteSourceHighlightedGlyphs(html, segmentGlyphs, activeHighlight, semanticOptions, scale);
+        WriteSourceHighlightedGlyphs(
+            html,
+            segmentGlyphs,
+            activeHighlight,
+            activeLink,
+            semanticOptions,
+            scale);
     }
 
     private static void WriteSourceHighlightedGlyphs(
         StringBuilder html,
         IReadOnlyList<PdfTextGlyph> glyphs,
         PdfTextHighlight? highlight,
+        PdfLayoutLink? link,
         PdfSemanticExtractionOptions semanticOptions,
         float scale)
     {
+        string text = PdfSemanticExtractor.ReconstructText(glyphs, semanticOptions);
+        bool hasLinkedText = link != null && !string.IsNullOrWhiteSpace(text);
+        if (hasLinkedText)
+        {
+            WriteSemanticLinkStart(html, link!);
+        }
+
         if (highlight != null)
         {
             WriteSourceMarkStart(html, highlight, scale);
         }
 
-        html.Append(Html(PdfSemanticExtractor.ReconstructText(glyphs, semanticOptions)));
+        html.Append(Html(text));
         if (highlight != null)
         {
             html.Append("</mark>");
+        }
+
+        if (hasLinkedText)
+        {
+            html.Append("</a>");
         }
     }
 
@@ -6189,13 +6718,20 @@ public static class PdfHtmlConverter
         PdfSemanticElement? caption = null,
         FootnoteContext? footnotes = null,
         bool includeAllText = false,
-        bool columnSpanning = false)
+        bool columnSpanning = false,
+        string? additionalClass = null,
+        string? additionalStyle = null,
+        bool includeSourceDecorations = true)
     {
         PdfLayoutImage[] images = page.Images
             .Where(image => RectanglesIntersect(VisibleImageBounds(image), region, 2f))
             .ToArray();
-        PdfLayoutPath[] paths = FigureRegionPaths(page, semanticPage, region).ToArray();
-        PdfTextRun[] textRuns = FigureRegionTextRuns(page, region, includeAllText).ToArray();
+        PdfLayoutPath[] paths = includeSourceDecorations
+            ? FigureRegionPaths(page, semanticPage, region).ToArray()
+            : [];
+        PdfTextRun[] textRuns = includeSourceDecorations
+            ? FigureRegionTextRuns(page, region, includeAllText).ToArray()
+            : [];
         if (images.Length == 0 && paths.Length == 0 && textRuns.Length == 0)
         {
             return false;
@@ -6213,12 +6749,23 @@ public static class PdfHtmlConverter
         {
             html.Append(" pdf-semantic-column-spanning-figure");
         }
+        if (!string.IsNullOrEmpty(additionalClass))
+        {
+            html.Append(' ')
+                .Append(HtmlAttribute(additionalClass));
+        }
         html.Append("\" data-source-page=\"")
             .Append(page.PageNumber.ToString(CultureInfo.InvariantCulture))
             .Append("\" data-source-top=\"")
             .Append(HtmlAttribute(CssPoints(region.Y)))
             .Append("\" style=\"--pdf-semantic-figure-width:")
-            .Append(CssPoints(region.Width * scale))
+            .Append(CssPoints(region.Width * scale));
+        if (!string.IsNullOrEmpty(additionalStyle))
+        {
+            html.Append(';')
+                .Append(HtmlAttribute(additionalStyle));
+        }
+        html
             .Append("\">");
         html.Append("<svg class=\"pdf-semantic-figure-svg\" viewBox=\"0 0 ")
             .Append(SvgNumber(region.Width))
@@ -13417,26 +13964,22 @@ public static class PdfHtmlConverter
             PdfLayoutPage page,
             PdfSemanticPage semanticPage,
             IReadOnlyList<PdfTextRun> leadingRuns,
-            IReadOnlyList<LineGridColumn> columns,
+            IReadOnlyList<SemanticColumnTrack> tracks,
+            IReadOnlyList<SemanticColumnGutter> gutters,
             IReadOnlyList<PdfSemanticElement> listElements,
-            float boundary,
             float leftInset,
-            float rightInset,
-            float leftWidth,
-            float rightWidth,
-            float gutterWidth)
+            float rightInset)
         {
             Page = page;
             SemanticPage = semanticPage;
             LeadingRuns = leadingRuns;
-            Columns = columns;
+            Tracks = tracks;
+            Gutters = gutters;
+            Columns = tracks.Select(static track => track.Column).ToArray();
+            Boundaries = gutters.Select(static gutter => gutter.Boundary).ToArray();
             ListElements = listElements;
-            Boundary = boundary;
             LeftInset = leftInset;
             RightInset = rightInset;
-            LeftWidth = leftWidth;
-            RightWidth = rightWidth;
-            GutterWidth = gutterWidth;
         }
 
         public PdfLayoutPage Page { get; }
@@ -13447,21 +13990,19 @@ public static class PdfHtmlConverter
 
         public IReadOnlyList<LineGridColumn> Columns { get; }
 
-        public IReadOnlyList<PdfSemanticElement> ListElements { get; }
+        public IReadOnlyList<SemanticColumnTrack> Tracks { get; }
 
         public IReadOnlyList<PdfSemanticColumnFigure> SpanningFigures { get; set; } = [];
 
-        public float Boundary { get; }
+        public IReadOnlyList<SemanticColumnGutter> Gutters { get; }
+
+        public IReadOnlyList<float> Boundaries { get; }
+
+        public IReadOnlyList<PdfSemanticElement> ListElements { get; }
 
         public float LeftInset { get; }
 
         public float RightInset { get; }
-
-        public float LeftWidth { get; }
-
-        public float RightWidth { get; }
-
-        public float GutterWidth { get; }
     }
 
     private readonly record struct SemanticColumnItem(
@@ -13472,6 +14013,48 @@ public static class PdfHtmlConverter
     private readonly record struct PdfSemanticColumnFigure(
         PdfLayoutRectangle Region,
         PdfSemanticElement? Caption);
+
+    private readonly record struct SemanticColumnTrack(
+        LineGridColumn Column,
+        float Left,
+        float Right)
+    {
+        public float Width => MathF.Max(0, Right - Left);
+    }
+
+    private readonly record struct SemanticColumnGutter(float Left, float Right)
+    {
+        public float Boundary => (Left + Right) / 2f;
+
+        public float Width => MathF.Max(0, Right - Left);
+    }
+
+    private sealed class ColumnCorridor
+    {
+        public ColumnCorridor(
+            float boundary,
+            float left,
+            float right,
+            ColumnGapObservation[] supportingGaps,
+            float? columnTop = null)
+        {
+            Boundary = boundary;
+            Left = left;
+            Right = right;
+            SupportingGaps = supportingGaps;
+            ColumnTop = columnTop;
+        }
+
+        public float Boundary { get; }
+
+        public float Left { get; }
+
+        public float Right { get; }
+
+        public ColumnGapObservation[] SupportingGaps { get; }
+
+        public float? ColumnTop { get; }
+    }
 
     private sealed class ColumnDetectionRow
     {
