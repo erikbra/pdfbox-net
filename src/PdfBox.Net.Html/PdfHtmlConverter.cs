@@ -6061,12 +6061,35 @@ public static class PdfHtmlConverter
 
         if (element.Kind == PdfSemanticElementKind.Table && element.TableRows.Count > 0)
         {
-            WriteSemanticTable(
-                html,
-                element,
-                footnotes,
-                page,
-                claimedFormulaGlyphs: claimedFormulaGlyphs);
+            if (page != null &&
+                TrySplitClaimedFormulaTable(
+                    element,
+                    claimedFormulaGlyphs,
+                    out PdfSemanticElement? residualTable,
+                    out PdfSemanticElement? formula))
+            {
+                if (residualTable != null)
+                {
+                    WriteSemanticTable(
+                        html,
+                        residualTable,
+                        footnotes,
+                        page,
+                        claimedFormulaGlyphs: claimedFormulaGlyphs);
+                }
+
+                WriteFormulaBlock(html, page, formula!, claimedFormulaGlyphs);
+            }
+            else
+            {
+                WriteSemanticTable(
+                    html,
+                    element,
+                    footnotes,
+                    page,
+                    claimedFormulaGlyphs: claimedFormulaGlyphs);
+            }
+
             return;
         }
 
@@ -6540,6 +6563,111 @@ public static class PdfHtmlConverter
         html.AppendLine("      </table>");
     }
 
+    private static bool TrySplitClaimedFormulaTable(
+        PdfSemanticElement table,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs,
+        out PdfSemanticElement? residualTable,
+        out PdfSemanticElement? formula)
+    {
+        residualTable = null;
+        formula = null;
+        if (claimedFormulaGlyphs is not { Count: > 0 } ||
+            !TableGlyphs(table).Any(glyph => IsClaimedFormulaGlyph(glyph, claimedFormulaGlyphs)))
+        {
+            return false;
+        }
+
+        int formulaRowIndex = -1;
+        for (int rowIndex = 0; rowIndex < table.TableRows.Count - 1; rowIndex++)
+        {
+            if (TableRowEndsWithEquationNumber(table.TableRows[rowIndex], claimedFormulaGlyphs))
+            {
+                formulaRowIndex = rowIndex;
+                break;
+            }
+        }
+
+        if (formulaRowIndex < 0)
+        {
+            return false;
+        }
+
+        PdfSemanticTableRow[] formulaRows = table.TableRows.Skip(formulaRowIndex).ToArray();
+        PdfSemanticLine[] continuationLines = formulaRows
+            .Skip(1)
+            .SelectMany(static row => row.Cells)
+            .Where(static cell => !cell.IsPlaceholder)
+            .SelectMany(static cell => cell.Lines)
+            .Where(static line => !string.IsNullOrWhiteSpace(line.Text))
+            .ToArray();
+        if (continuationLines.Length == 0 || continuationLines.Any(IsProseLikeFormulaSourceLine))
+        {
+            return false;
+        }
+
+        PdfSemanticTableRow[] residualRows = table.TableRows.Take(formulaRowIndex).ToArray();
+        if (residualRows.Length > 0)
+        {
+            residualTable = SemanticTableFromRows(residualRows);
+        }
+
+        PdfSemanticTableCell[] formulaCells = formulaRows
+            .SelectMany(static row => row.Cells)
+            .Where(static cell => !cell.IsPlaceholder)
+            .ToArray();
+        PdfSemanticLine[] formulaLines = formulaCells
+            .SelectMany(static cell => cell.Lines)
+            .Distinct((IEqualityComparer<PdfSemanticLine>)ReferenceEqualityComparer.Instance)
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        formula = new PdfSemanticElement(
+            PdfSemanticElementKind.Paragraph,
+            string.Join(Environment.NewLine, formulaLines.Select(static line => line.Text)),
+            UnionRectangles(formulaCells.Select(static cell => cell.Bounds)),
+            formulaLines);
+        return true;
+    }
+
+    private static bool TableRowEndsWithEquationNumber(
+        PdfSemanticTableRow row,
+        ISet<FormulaGlyphKey> claimedFormulaGlyphs)
+    {
+        foreach (PdfSemanticTableCell cell in row.Cells.Where(static cell => !cell.IsPlaceholder))
+        {
+            string text = CompactText(ReconstructText(UnclaimedTableCellGlyphs(cell, claimedFormulaGlyphs)));
+            int open = text.LastIndexOf("(", StringComparison.Ordinal);
+            if (open >= 0 && IsEquationNumber(text[open..]))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static PdfSemanticElement SemanticTableFromRows(IReadOnlyList<PdfSemanticTableRow> rows)
+    {
+        PdfSemanticTableCell[] cells = rows
+            .SelectMany(static row => row.Cells)
+            .Where(static cell => !cell.IsPlaceholder)
+            .ToArray();
+        PdfSemanticLine[] lines = cells
+            .SelectMany(static cell => cell.Lines)
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        return new PdfSemanticElement(
+            PdfSemanticElementKind.Table,
+            string.Join(Environment.NewLine, rows.Select(row =>
+                string.Join('\t', row.Cells
+                    .Where(static cell => !cell.IsPlaceholder)
+                    .Select(static cell => cell.Text)))),
+            UnionRectangles(cells.Select(static cell => cell.Bounds)),
+            lines,
+            tableRows: rows);
+    }
+
     private static void WriteSemanticTableRow(
         StringBuilder html,
         PdfSemanticTableRow row,
@@ -6881,23 +7009,37 @@ public static class PdfHtmlConverter
         ISet<FormulaGlyphKey>? claimedFormulaGlyphs,
         string? elementId = null)
     {
-        PdfLayoutRectangle nativeBounds = FormulaRenderBounds(page, element);
-        PdfTextRun[] nativeRuns = FormulaRuns(page, nativeBounds, element).ToArray();
+        PdfLayoutRectangle nativeBounds = FormulaRenderBounds(page, element, claimedFormulaGlyphs);
+        PdfTextRun[] nativeRuns = FormulaRuns(page, nativeBounds, element, claimedFormulaGlyphs).ToArray();
         PdfLayoutPath[] nativePaths = FormulaPaths(page, nativeBounds).ToArray();
-        PdfTextGlyph[] nativeGlyphs = FormulaGlyphs(nativeRuns).ToArray();
+        PdfTextGlyph[] nativeGlyphs = FormulaGlyphs(nativeRuns, claimedFormulaGlyphs).ToArray();
         bool hasNativeMath = PdfMathMlFormula.TryCreate(nativeGlyphs, nativePaths, out PdfMathMlFormula? mathMl);
         PdfTextRun[] runs = hasNativeMath
             ? nativeRuns
-            : FormulaRuns(page, ExpandRectangle(element.Bounds, 5f, 5f), element).ToArray();
-        PdfTextGlyph[] glyphs = hasNativeMath ? nativeGlyphs : FormulaGlyphs(runs).ToArray();
+            : FormulaRuns(
+                page,
+                ExpandRectangle(element.Bounds, 5f, 5f),
+                element,
+                claimedFormulaGlyphs).ToArray();
+        PdfTextGlyph[] glyphs = hasNativeMath
+            ? nativeGlyphs
+            : FormulaGlyphs(runs, claimedFormulaGlyphs).ToArray();
         PdfLayoutRectangle bounds = hasNativeMath
             ? nativeBounds
             : FormulaFallbackBounds(page, element, runs);
         PdfLayoutPath[] paths = hasNativeMath
             ? nativePaths
             : FormulaPaths(page, bounds).ToArray();
+        string classNames = SemanticClassNames(element, page, allowMeasuredWidth: false);
         html.Append("      <div class=\"")
-            .Append(SemanticClassNames(element, page, allowMeasuredWidth: false))
+            .Append(classNames);
+        if (!classNames.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Contains("pdf-semantic-formula", StringComparer.Ordinal))
+        {
+            html.Append(" pdf-semantic-formula");
+        }
+
+        html
             .Append(hasNativeMath ? " pdf-semantic-formula-native\"" : "\" role=\"math\"")
             .Append(string.IsNullOrEmpty(elementId)
                 ? ""
@@ -6974,12 +7116,13 @@ public static class PdfHtmlConverter
 
     private static PdfLayoutRectangle FormulaRenderBounds(
         PdfLayoutPage page,
-        PdfSemanticElement element)
+        PdfSemanticElement element,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs = null)
     {
         PdfLayoutRectangle bounds = ExpandRectangle(element.Bounds, 5f, 5f);
         for (int iteration = 0; iteration < 4; iteration++)
         {
-            PdfTextRun[] runs = FormulaRuns(page, bounds, element).ToArray();
+            PdfTextRun[] runs = FormulaRuns(page, bounds, element, claimedFormulaGlyphs).ToArray();
             PdfLayoutPath[] paths = FormulaPaths(page, bounds).ToArray();
             if (runs.Length == 0 && paths.Length == 0)
             {
@@ -7006,13 +7149,16 @@ public static class PdfHtmlConverter
     private static IEnumerable<PdfTextRun> FormulaRuns(
         PdfLayoutPage page,
         PdfLayoutRectangle bounds,
-        PdfSemanticElement element)
+        PdfSemanticElement element,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs = null)
     {
         HashSet<PdfTextRun> sourceRuns = FormulaSourceRuns(element)
             .ToHashSet((IEqualityComparer<PdfTextRun>)ReferenceEqualityComparer.Instance);
         return page.Runs
             .Where(static run => MathF.Abs(run.Direction) < 0.01f)
-            .Where(static run => run.Glyphs.Any(PdfMathMlFormula.IsEligibleGlyph))
+            .Where(run => run.Glyphs.Any(glyph =>
+                PdfMathMlFormula.IsEligibleGlyph(glyph) &&
+                !IsClaimedFormulaGlyph(glyph, claimedFormulaGlyphs)))
             .Where(run => sourceRuns.Contains(run) ||
                 !IsRunOnProseLine(page, run) &&
                 (RectanglesIntersect(run.Bounds, bounds, 0.75f) && IsFormulaRunCandidate(run) ||
@@ -7102,11 +7248,14 @@ public static class PdfHtmlConverter
         return proseLetters >= 12 && proseLetters * 3 >= totalLetters * 2;
     }
 
-    private static IEnumerable<PdfTextGlyph> FormulaGlyphs(IEnumerable<PdfTextRun> runs)
+    private static IEnumerable<PdfTextGlyph> FormulaGlyphs(
+        IEnumerable<PdfTextRun> runs,
+        ISet<FormulaGlyphKey>? claimedFormulaGlyphs = null)
     {
         return runs
             .SelectMany(static run => run.Glyphs)
-            .Where(PdfMathMlFormula.IsEligibleGlyph);
+            .Where(PdfMathMlFormula.IsEligibleGlyph)
+            .Where(glyph => !IsClaimedFormulaGlyph(glyph, claimedFormulaGlyphs));
     }
 
     private static bool IsFormulaRadicalGlyph(PdfTextGlyph glyph)

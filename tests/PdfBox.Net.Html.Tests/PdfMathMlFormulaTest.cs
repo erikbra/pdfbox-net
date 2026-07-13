@@ -1,7 +1,10 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using PdfBox.Net;
 using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
+using PdfBox.Net.PDModel;
 
 namespace PdfBox.Net.Html.Tests;
 
@@ -308,6 +311,62 @@ public class PdfMathMlFormulaTest
         Assert.Contains("<mi>x</mi><mo>=</mo><mn>1</mn>", markup, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Convert_DdpmPageTwo_PreservesNativeEquationAndAmbiguousFallback()
+    {
+        // Original page 2 of Denoising Diffusion Probabilistic Models: https://arxiv.org/abs/2006.11239
+        using PDDocument document = Loader.LoadPDF(FixturePath("arxiv-ddpm-page-2.pdf"));
+        Assert.Equal(1, document.GetNumberOfPages());
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeLinks = false
+        });
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement equationTwo = Assert.Single(
+            dom.Descendants(),
+            element => HasClass(element, "pdf-semantic-formula-native") &&
+                element.Elements().Any(child =>
+                    HasClass(child, "pdf-semantic-equation-number") && child.Value == "(2)"));
+        XElement math = Assert.Single(equationTwo.Elements("math"));
+        string annotation = Assert.Single(
+            math.Descendants("annotation"),
+            element => element.Attribute("encoding")?.Value == "text/plain").Value;
+
+        Assert.Contains("q(x_(1:T)|x_(0)):=∏_(t=1)^(T)", annotation, StringComparison.Ordinal);
+        Assert.Contains("q(x_(t)|x_(t−1))", annotation, StringComparison.Ordinal);
+        Assert.Contains("sqrt(1−β_(t))x_(t−1),β_(t)I", annotation, StringComparison.Ordinal);
+        Assert.Single(math.Descendants("munderover"));
+        Assert.Single(math.Descendants("msqrt"));
+        XElement equationNumber = Assert.Single(
+            equationTwo.Elements(),
+            element => HasClass(element, "pdf-semantic-equation-number"));
+        Assert.Equal("(2)", equationNumber.Value);
+        Assert.DoesNotContain("(2)", math.Value, StringComparison.Ordinal);
+
+        XElement[] tables = dom.Descendants("table").ToArray();
+        Assert.NotEmpty(tables);
+        Assert.DoesNotContain(tables, table => table.Value.Contains("(2)", StringComparison.Ordinal));
+        Assert.DoesNotContain(tables, table => table.Value.Contains("∏", StringComparison.Ordinal));
+        Assert.Single(dom.Descendants(), element => element.Value == "(2)");
+
+        XElement equationThree = Assert.Single(
+            dom.Descendants(),
+            element => element.Attribute("role")?.Value == "math" &&
+                element.Value.Contains("(3)", StringComparison.Ordinal));
+        Assert.True(HasClass(equationThree, "pdf-semantic-formula"));
+        Assert.Empty(equationThree.Descendants("math"));
+        Assert.Contains(
+            equationThree.Descendants(),
+            element => HasClass(element, "pdf-semantic-formula-run") &&
+                element.Attribute("style")?.Value.Contains("left:", StringComparison.Ordinal) == true);
+    }
+
     private static string Render(
         IReadOnlyList<PdfTextGlyph> glyphs,
         IReadOnlyList<PdfLayoutPath> paths,
@@ -429,5 +488,23 @@ public class PdfMathMlFormulaTest
     }
 
     private static XDocument Parse(string markup) => XDocument.Parse(markup);
+
+    private static XDocument ParseHtml(string html)
+    {
+        string xml = Regex.Replace(html, "<!doctype html>\\s*", "", RegexOptions.IgnoreCase)
+            .Replace("\0", "", StringComparison.Ordinal);
+        return XDocument.Parse(xml, LoadOptions.PreserveWhitespace);
+    }
+
+    private static string FixturePath(string fileName)
+    {
+        return Path.Combine(AppContext.BaseDirectory, "Fixtures", fileName);
+    }
+
+    private static bool HasClass(XElement element, string className)
+    {
+        return (element.Attribute("class")?.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [])
+            .Contains(className, StringComparer.Ordinal);
+    }
 
 }
