@@ -84,6 +84,23 @@ public sealed class UnpdfCommandTest
     }
 
     [Fact]
+    public void Convert_UnnamedType3FontUsesFallbackWithoutAborting()
+    {
+        using TemporaryDirectory temporary = new();
+        string outputDirectory = Path.Combine(temporary.Path, "html");
+
+        CommandResult result = Run(Type3FixturePath, "--output", outputDirectory);
+
+        Assert.Equal(UnpdfExitCode.Success, result.ExitCode);
+        Assert.Contains("Converted 1 page(s)", result.Output);
+        Assert.DoesNotContain("conversion failed", result.Error);
+        Assert.Contains("embedded-font-web-unsupported", result.Error);
+        Assert.Contains("Type 3 font 'Type3'", result.Error);
+        string html = File.ReadAllText(Path.Combine(outputDirectory, "index.html"));
+        Assert.Contains("Test Markdown that is converted to PDF", html);
+    }
+
+    [Fact]
     public void ExistingNonEmptyOutput_RequiresForce()
     {
         using TemporaryDirectory temporary = new();
@@ -120,6 +137,7 @@ public sealed class UnpdfCommandTest
     }
 
     private static string FixturePath => Path.Combine(AppContext.BaseDirectory, "Fixtures", "classic-xref-fixture.pdf");
+    private static string Type3FixturePath => Path.Combine(AppContext.BaseDirectory, "Fixtures", "unnamed-type3-font-fixture.pdf");
     private static string RepositoryRoot => FindRepositoryRoot();
 
     private static CommandResult Run(params string[] args)

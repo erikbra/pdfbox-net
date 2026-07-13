@@ -45,6 +45,29 @@ public class PDModelFontBackfillTest
     }
 
     [Fact]
+    public void PDType3Font_MissingName_UsesTypeSafeFallbacksWithoutFontBox()
+    {
+        COSDictionary fontDict = new();
+        fontDict.SetName(COSName.SUBTYPE, "Type3");
+        fontDict.SetName(COSName.GetPDFName("Encoding"), "WinAnsiEncoding");
+        COSDictionary charProcs = new();
+        charProcs.SetItem(COSName.GetPDFName("A"), CreateContentStream("500 0 d0"));
+        fontDict.SetItem(COSName.GetPDFName("CharProcs"), charProcs);
+
+        PDType3Font unnamed = new(fontDict);
+
+        Assert.Equal("Type3", unnamed.GetName());
+        Assert.True(unnamed.HasGlyph("A"));
+        Assert.False(unnamed.HasGlyph("missing"));
+
+        fontDict.SetName(COSName.GetPDFName("BaseFont"), "Type3FallbackName");
+        PDType3Font baseFontNamed = new(fontDict);
+
+        Assert.Equal("Type3FallbackName", baseFontNamed.GetName());
+        Assert.Throws<NotSupportedException>(() => baseFontNamed.GetFontBoxFont());
+    }
+
+    [Fact]
     public void PDType3CharProc_ReadsWidthAndGlyphBBox()
     {
         var fontDict = new COSDictionary();

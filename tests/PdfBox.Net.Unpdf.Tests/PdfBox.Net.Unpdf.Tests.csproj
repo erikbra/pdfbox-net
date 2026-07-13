@@ -22,5 +22,8 @@
     <Content Include="../PdfBox.Net.Tests/Fixtures/classic-xref-fixture.pdf" Link="Fixtures/classic-xref-fixture.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="../PdfBox.Net.Tests/Fixtures/unnamed-type3-font-fixture.pdf" Link="Fixtures/unnamed-type3-font-fixture.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
