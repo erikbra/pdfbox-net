@@ -167,7 +167,7 @@ public class PdfHtmlConverterTest
             .ToArray();
         Assert.Equal(2, paths.Length);
         Assert.All(paths, path => Assert.StartsWith("url(#pdf-vector-page-1-", path.Attribute("clip-path")?.Value));
-        Assert.Equal(3, dom.Descendants().Count(element =>
+        Assert.Equal(2, dom.Descendants().Count(element =>
             element.Name.LocalName == "clipPath" && element.Attribute("id")?.Value.Contains("path-clip", StringComparison.Ordinal) == true));
         Assert.All(dom.Descendants().Where(element =>
             element.Name.LocalName == "clipPath" &&
@@ -210,6 +210,76 @@ public class PdfHtmlConverterTest
         Assert.Equal("objectBoundingBox", imageClip.Attribute("clipPathUnits")?.Value);
         Assert.Contains(imageClip.Descendants(), element =>
             element.Name.LocalName == "path" && element.Attribute("d")?.Value.Contains("L", StringComparison.Ordinal) == true);
+    }
+
+    [Fact]
+    public void Convert_RectangularImageClipChain_EmitsItsSingleIntersection()
+    {
+        static PdfLayoutClipPath Rectangle(float x, float y, float width, float height)
+        {
+            PdfLayoutRectangle bounds = new(x, y, width, height);
+            return new PdfLayoutClipPath(
+                [
+                    new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, bounds.X, bounds.Y, 0f, 0f, 0f, 0f),
+                    new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, bounds.Right, bounds.Y, 0f, 0f, 0f, 0f),
+                    new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, bounds.Right, bounds.Bottom, 0f, 0f, 0f, 0f),
+                    new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, bounds.X, bounds.Bottom, 0f, 0f, 0f, 0f),
+                    new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, bounds.X, bounds.Y, 0f, 0f, 0f, 0f),
+                    new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0f, 0f, 0f, 0f, 0f, 0f)
+                ],
+                bounds,
+                1);
+        }
+
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutImage image = new(
+            0,
+            "image",
+            PdfLayoutImageKind.XObject,
+            new PdfLayoutRectangle(100f, 100f, 100f, 100f),
+            new PdfLayoutTransform(100f, 0f, 0f, 100f, 100f, 100f),
+            1,
+            1,
+            8,
+            "DeviceRGB",
+            false,
+            "Im0",
+            clipPaths:
+            [
+                Rectangle(0f, 0f, 612f, 792f),
+                Rectangle(80f, 80f, 140f, 140f),
+                Rectangle(100f, 100f, 100f, 100f)
+            ]);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [],
+            [],
+            [],
+            [],
+            [image],
+            [],
+            [],
+            [],
+            []);
+        PdfLayoutDocument layout = new(
+            [page],
+            [new PdfLayoutImageAsset("image", "assets/images/image.png", "image/png", [1, 2, 3])],
+            []);
+
+        XDocument dom = ParseHtml(PdfHtmlConverter.Convert(layout).Html);
+
+        XElement clip = Assert.Single(dom.Descendants(), element =>
+            element.Name.LocalName == "clipPath" &&
+            element.Attribute("id")?.Value == "pdf-image-page-1-clip-0");
+        Assert.DoesNotContain(dom.Descendants(), element =>
+            element.Name.LocalName == "clipPath" &&
+            element.Attribute("id")?.Value.StartsWith("pdf-image-page-1-clip-0-step-", StringComparison.Ordinal) == true);
+        Assert.Equal("M 0 0 L 1 0 L 1 1 L 0 1 Z", Assert.Single(clip.Elements()).Attribute("d")?.Value);
     }
 
     [Fact]
@@ -2990,8 +3060,8 @@ public class PdfHtmlConverterTest
             element.Name.LocalName == "clipPath" &&
             element.Descendants().Any(path =>
                 path.Name.LocalName == "path" &&
-                path.Attribute("d")?.Value.Contains("M 108 302.06", StringComparison.Ordinal) == true &&
-                path.Attribute("d")?.Value.Contains("100.787", StringComparison.Ordinal) == true));
+                path.Attribute("d")?.Value.Contains("M 108 100.787", StringComparison.Ordinal) == true &&
+                path.Attribute("d")?.Value.Contains("L 504.005 302.06", StringComparison.Ordinal) == true));
     }
 
     [Fact]
@@ -4239,10 +4309,32 @@ public class PdfHtmlConverterTest
     }
 
     [Fact]
-    public void Convert_ShapeAlphaPath_DoesNotEmitAnIncorrectSvgOpacityArtifact()
+    public void Convert_OpaqueShapeAlphaPath_EmitsSvgPath()
     {
-        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
-        PdfLayoutPath path = new(
+        PdfLayoutPath path = CreateShapeAlphaPath(alpha: 1f);
+        PdfLayoutPage page = CreatePathPage(path);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+
+        Assert.Contains("data-path-index=\"0\"", html.Html, StringComparison.Ordinal);
+        Assert.Contains("pdf-vector-layer", html.Html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Convert_TranslucentShapeAlphaPath_DoesNotEmitAnIncorrectSvgOpacityArtifact()
+    {
+        PdfLayoutPath path = CreateShapeAlphaPath(alpha: 0.75f);
+        PdfLayoutPage page = CreatePathPage(path);
+
+        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
+
+        Assert.DoesNotContain("data-path-index=\"0\"", html.Html, StringComparison.Ordinal);
+        Assert.DoesNotContain("pdf-vector-layer", html.Html, StringComparison.Ordinal);
+    }
+
+    private static PdfLayoutPath CreateShapeAlphaPath(float alpha)
+    {
+        return new PdfLayoutPath(
             0,
             [
                 new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, 72f, 80f, 0f, 0f, 0f, 0f),
@@ -4251,11 +4343,16 @@ public class PdfHtmlConverterTest
                 new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0f, 0f, 0f, 0f, 0f, 0f)
             ],
             new PdfLayoutRectangle(72f, 80f, 120f, 24f),
-            new PdfLayoutColor(0f, 0f, 0f, 0.75f, "DeviceCMYK"),
+            new PdfLayoutColor(0f, 0f, 0f, alpha, "DeviceCMYK"),
             null,
             1,
             usesShapeAlpha: true);
-        PdfLayoutPage page = new(
+    }
+
+    private static PdfLayoutPage CreatePathPage(PdfLayoutPath path)
+    {
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        return new PdfLayoutPage(
             1,
             pageBounds,
             pageBounds,
@@ -4272,11 +4369,6 @@ public class PdfHtmlConverterTest
             [],
             [],
             []);
-
-        PdfHtmlDocument html = PdfHtmlConverter.Convert(new PdfLayoutDocument([page], []));
-
-        Assert.DoesNotContain("data-path-index=\"0\"", html.Html, StringComparison.Ordinal);
-        Assert.DoesNotContain("pdf-vector-layer", html.Html, StringComparison.Ordinal);
     }
 
     [Fact]

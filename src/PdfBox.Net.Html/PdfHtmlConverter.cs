@@ -2678,10 +2678,17 @@ public static class PdfHtmlConverter
     {
         return page.Paths
             .Where(path => semanticPage == null || !IsSemanticFlowRulePath(page, semanticPage, path))
-            .Where(static path => !path.UsesShapeAlpha)
+            .Where(static path => !RequiresShapeAlphaFallback(path))
             .Where(static path => !path.UsesSoftMask)
             .Where(path => !IsCoveredByTransparencyFallback(page, path.Bounds))
             .ToArray();
+    }
+
+    private static bool RequiresShapeAlphaFallback(PdfLayoutPath path)
+    {
+        return path.UsesShapeAlpha &&
+            ((path.FillColor is PdfLayoutColor fillColor && fillColor.Alpha < 0.999f) ||
+                path.Stroke?.Color.Alpha < 0.999f);
     }
 
     private static bool IsImageBackdropPath(PdfLayoutPath path, IReadOnlyList<PdfLayoutImage> images)
@@ -3127,6 +3134,19 @@ public static class PdfHtmlConverter
         string unitsAttribute,
         Func<PdfLayoutClipPath, string> pathData)
     {
+        if (TryIntersectRectangularClipPaths(clipPaths, out PdfLayoutClipPath intersection))
+        {
+            html.Append(indentation)
+                .Append("<clipPath id=\"")
+                .Append(clipPathId)
+                .Append('"')
+                .Append(unitsAttribute)
+                .Append("><path d=\"")
+                .Append(HtmlAttribute(pathData(intersection)))
+                .AppendLine("\" clip-rule=\"nonzero\" /></clipPath>");
+            return;
+        }
+
         string? previousId = null;
         for (int index = 0; index < clipPaths.Count; index++)
         {
@@ -3160,6 +3180,82 @@ public static class PdfHtmlConverter
             html.AppendLine("</clipPath>");
             previousId = currentId;
         }
+    }
+
+    private static bool TryIntersectRectangularClipPaths(
+        IReadOnlyList<PdfLayoutClipPath> clipPaths,
+        out PdfLayoutClipPath intersection)
+    {
+        intersection = null!;
+        if (clipPaths.Count == 0 || clipPaths.Any(static clipPath => !IsAxisAlignedRectangle(clipPath)))
+        {
+            return false;
+        }
+
+        float left = clipPaths.Max(static clipPath => clipPath.Bounds.X);
+        float top = clipPaths.Max(static clipPath => clipPath.Bounds.Y);
+        float right = clipPaths.Min(static clipPath => clipPath.Bounds.Right);
+        float bottom = clipPaths.Min(static clipPath => clipPath.Bounds.Bottom);
+        PdfLayoutRectangle bounds = new(
+            left,
+            top,
+            MathF.Max(0f, right - left),
+            MathF.Max(0f, bottom - top));
+        intersection = new PdfLayoutClipPath(
+            [
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.MoveTo, bounds.X, bounds.Y, 0f, 0f, 0f, 0f),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, bounds.Right, bounds.Y, 0f, 0f, 0f, 0f),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, bounds.Right, bounds.Bottom, 0f, 0f, 0f, 0f),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.LineTo, bounds.X, bounds.Bottom, 0f, 0f, 0f, 0f),
+                new PdfLayoutPathCommand(PdfLayoutPathCommandKind.ClosePath, 0f, 0f, 0f, 0f, 0f, 0f)
+            ],
+            bounds,
+            1);
+        return true;
+    }
+
+    private static bool IsAxisAlignedRectangle(PdfLayoutClipPath clipPath)
+    {
+        if (clipPath.Commands.Count is not (5 or 6) ||
+            clipPath.Commands[^1].Kind != PdfLayoutPathCommandKind.ClosePath)
+        {
+            return false;
+        }
+
+        const float tolerance = 0.01f;
+        PdfLayoutPathCommand[] points = clipPath.Commands.Take(clipPath.Commands.Count - 1).ToArray();
+        if (points.Length == 5 &&
+            MathF.Abs(points[^1].X1 - points[0].X1) <= tolerance &&
+            MathF.Abs(points[^1].Y1 - points[0].Y1) <= tolerance)
+        {
+            points = points[..^1];
+        }
+
+        if (points.Length != 4 ||
+            points[0].Kind != PdfLayoutPathCommandKind.MoveTo ||
+            points.Skip(1).Any(static command => command.Kind != PdfLayoutPathCommandKind.LineTo))
+        {
+            return false;
+        }
+
+        PdfLayoutRectangle bounds = clipPath.Bounds;
+        bool topLeft = false;
+        bool topRight = false;
+        bool bottomRight = false;
+        bool bottomLeft = false;
+        foreach (PdfLayoutPathCommand command in points)
+        {
+            bool left = MathF.Abs(command.X1 - bounds.X) <= tolerance;
+            bool right = MathF.Abs(command.X1 - bounds.Right) <= tolerance;
+            bool top = MathF.Abs(command.Y1 - bounds.Y) <= tolerance;
+            bool bottom = MathF.Abs(command.Y1 - bounds.Bottom) <= tolerance;
+            topLeft |= left && top;
+            topRight |= right && top;
+            bottomRight |= right && bottom;
+            bottomLeft |= left && bottom;
+        }
+
+        return topLeft && topRight && bottomRight && bottomLeft;
     }
 
     private static string VectorClipPathId(string clipIdPrefix, PdfLayoutVectorGroup group)
