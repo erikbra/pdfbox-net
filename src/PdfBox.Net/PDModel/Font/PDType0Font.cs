@@ -40,6 +40,11 @@ public partial class PDType0Font : PDVectorFont
 {
     private static readonly COSName EncodingKey = COSName.GetPDFName("Encoding");
     private static readonly COSName CidSystemInfoKey = COSName.GetPDFName("CIDSystemInfo");
+    private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
+    private static readonly COSName DescendantFontsKey = COSName.GetPDFName("DescendantFonts");
+    private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
+    private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
+    private static readonly COSName ToUnicodeKey = COSName.GetPDFName("ToUnicode");
 
     private readonly PDCIDFont? _descendantFont;
     private readonly CMap? _cMap;
@@ -112,20 +117,109 @@ public partial class PDType0Font : PDVectorFont
         }
 
         COSDictionary descendantDictionary = new();
+        descendantDictionary.SetItem(COSName.TYPE, COSName.GetPDFName("Font"));
         descendantDictionary.SetName(COSName.SUBTYPE, "CIDFontType2");
-        descendantDictionary.SetName(COSName.GetPDFName("BaseFont"), baseFontName);
+        descendantDictionary.SetName(BaseFontKey, baseFontName);
+        descendantDictionary.SetItem(CidSystemInfoKey, CreateIdentitySystemInfo());
+        descendantDictionary.SetItem(COSName.GetPDFName("CIDToGIDMap"), COSName.GetPDFName("Identity"));
+        descendantDictionary.SetInt(COSName.GetPDFName("DW"), 1000);
+        descendantDictionary.SetItem(COSName.GetPDFName("W"), CreateWidths(trueTypeFont));
+
+        COSDictionary descriptor = CreateFontDescriptor(trueTypeFont, baseFontName);
+        COSStream fontFile = document.GetDocument().CreateCOSStream();
+        fontFile.SetKey(document.AllocateObjectKey());
+        using (Stream output = fontFile.CreateOutputStream(COSName.FLATE_DECODE))
+        {
+            output.Write(fontBytes, 0, fontBytes.Length);
+        }
+        fontFile.SetInt(COSName.GetPDFName("Length1"), fontBytes.Length);
+        descriptor.SetItem(FontFile2Key, fontFile);
+        descendantDictionary.SetItem(FontDescriptorKey, descriptor);
 
         COSDictionary type0Dictionary = new();
+        type0Dictionary.SetItem(COSName.TYPE, COSName.GetPDFName("Font"));
         type0Dictionary.SetName(COSName.SUBTYPE, "Type0");
-        type0Dictionary.SetName(COSName.GetPDFName("BaseFont"), baseFontName);
+        type0Dictionary.SetName(BaseFontKey, baseFontName);
         type0Dictionary.SetItem(EncodingKey, COSName.GetPDFName("Identity-H"));
 
         COSArray descendants = new();
         descendants.Add(descendantDictionary);
-        type0Dictionary.SetItem(COSName.GetPDFName("DescendantFonts"), descendants);
+        type0Dictionary.SetItem(DescendantFontsKey, descendants);
+
+        COSStream toUnicode = document.GetDocument().CreateCOSStream();
+        toUnicode.SetKey(document.AllocateObjectKey());
+        using (Stream output = toUnicode.CreateOutputStream(COSName.FLATE_DECODE))
+        {
+            CreateToUnicode(trueTypeFont).WriteTo(output);
+        }
+        type0Dictionary.SetItem(ToUnicodeKey, toUnicode);
 
         PDCIDFontType2 descendantFont = new(descendantDictionary, trueTypeFont);
         return new PDType0Font(type0Dictionary, descendantFont);
+    }
+
+    private static COSDictionary CreateIdentitySystemInfo()
+    {
+        COSDictionary systemInfo = new();
+        systemInfo.SetString(COSName.GetPDFName("Registry"), "Adobe");
+        systemInfo.SetString(COSName.GetPDFName("Ordering"), "Identity");
+        systemInfo.SetInt(COSName.GetPDFName("Supplement"), 0);
+        return systemInfo;
+    }
+
+    private static COSArray CreateWidths(TrueTypeFont trueTypeFont)
+    {
+        int unitsPerEm = Math.Max(1, trueTypeFont.GetUnitsPerEm());
+        COSArray glyphWidths = new();
+        for (int gid = 0; gid < trueTypeFont.GetNumberOfGlyphs(); gid++)
+        {
+            glyphWidths.Add(COSInteger.Get((long)MathF.Round(trueTypeFont.GetAdvanceWidth(gid) * 1000f / unitsPerEm)));
+        }
+
+        COSArray widths = new();
+        widths.Add(COSInteger.ZERO);
+        widths.Add(glyphWidths);
+        return widths;
+    }
+
+    private static COSDictionary CreateFontDescriptor(TrueTypeFont trueTypeFont, string baseFontName)
+    {
+        COSDictionary descriptor = new();
+        descriptor.SetItem(COSName.TYPE, COSName.GetPDFName("FontDescriptor"));
+        descriptor.SetName(COSName.GetPDFName("FontName"), baseFontName);
+        descriptor.SetInt(COSName.GetPDFName("Flags"), 4);
+        BoundingBox bbox = trueTypeFont.GetFontBBox();
+        descriptor.SetItem(COSName.GetPDFName("FontBBox"), COSArray.Of(
+            bbox.GetLowerLeftX(), bbox.GetLowerLeftY(), bbox.GetUpperRightX(), bbox.GetUpperRightY()));
+        descriptor.SetFloat(COSName.GetPDFName("ItalicAngle"), trueTypeFont.GetPostScript()?.ItalicAngle ?? 0);
+        descriptor.SetFloat(COSName.GetPDFName("Ascent"), bbox.GetUpperRightY());
+        descriptor.SetFloat(COSName.GetPDFName("Descent"), bbox.GetLowerLeftY());
+        descriptor.SetFloat(COSName.GetPDFName("CapHeight"),
+            trueTypeFont.GetOS2Windows()?.GetCapHeight() * 1000f / Math.Max(1, trueTypeFont.GetUnitsPerEm())
+            ?? bbox.GetUpperRightY());
+        descriptor.SetFloat(COSName.GetPDFName("StemV"), 80);
+        return descriptor;
+    }
+
+    private static ToUnicodeWriter CreateToUnicode(TrueTypeFont trueTypeFont)
+    {
+        ToUnicodeWriter writer = new();
+        CmapLookup? cmap = trueTypeFont.GetUnicodeCmapLookup(false);
+        if (cmap == null)
+        {
+            return writer;
+        }
+
+        for (int gid = 0; gid < trueTypeFont.GetNumberOfGlyphs(); gid++)
+        {
+            int? codePoint = cmap.GetCharCodes(gid)?.FirstOrDefault(code =>
+                code >= 0 && code <= 0x10FFFF && (code < 0xD800 || code > 0xDFFF));
+            if (codePoint.HasValue && (codePoint.Value != 0 || cmap.GetGlyphId(0) == gid))
+            {
+                writer.Add(gid, char.ConvertFromUtf32(codePoint.Value));
+            }
+        }
+        return writer;
     }
 
     public int CodeToCID(int code)

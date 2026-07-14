@@ -237,14 +237,67 @@ public class FontStubsReplacementTest
     public void PDType0Font_LoadFromStream_ReturnsFontWithType2Descendant()
     {
         using PDDocument document = new();
-        using MemoryStream input = new(FontBoxTestFixtures.CreateMinimalTrueType());
+        byte[] fontBytes = FontBoxTestFixtures.CreateMinimalTrueType();
+        using MemoryStream input = new(fontBytes);
 
         PDType0Font font = PDType0Font.Load(document, input);
 
-        Assert.Equal("Type0", ((COSDictionary)font.GetCOSObject()).GetNameAsString(COSName.SUBTYPE));
+        COSDictionary type0 = (COSDictionary)font.GetCOSObject();
+        Assert.Equal("Font", type0.GetNameAsString(COSName.TYPE));
+        Assert.Equal("Type0", type0.GetNameAsString(COSName.SUBTYPE));
+        Assert.Equal("Identity-H", type0.GetNameAsString(COSName.GetPDFName("Encoding")));
+        Assert.IsType<COSStream>(type0.GetDictionaryObject(COSName.GetPDFName("ToUnicode")));
+
+        COSDictionary descendant = Assert.IsType<COSDictionary>(
+            type0.GetCOSArray(COSName.GetPDFName("DescendantFonts"))?.GetObject(0));
+        Assert.Equal("CIDFontType2", descendant.GetNameAsString(COSName.SUBTYPE));
+        Assert.Equal("Identity", descendant.GetNameAsString(COSName.GetPDFName("CIDToGIDMap")));
+        Assert.NotNull(descendant.GetCOSArray(COSName.GetPDFName("W")));
+
+        COSDictionary descriptor = Assert.IsType<COSDictionary>(
+            descendant.GetDictionaryObject(COSName.GetPDFName("FontDescriptor")));
+        COSStream fontFile = Assert.IsType<COSStream>(
+            descriptor.GetDictionaryObject(COSName.GetPDFName("FontFile2")));
+        using Stream embedded = fontFile.CreateInputStream();
+        using MemoryStream embeddedBytes = new();
+        embedded.CopyTo(embeddedBytes);
+        Assert.Equal(fontBytes, embeddedBytes.ToArray());
         Assert.IsType<PDCIDFontType2>(font.GetDescendantFont());
         Assert.True(font.IsEmbedded());
         Assert.True(font.GetDescendantFont()?.IsEmbedded());
+        Assert.Equal("A", font.ToUnicode(1));
+        Assert.True(font.GetWidth(1) > 0);
+
+        PDPage page = new();
+        document.AddPage(page);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.BeginText();
+            content.SetFont(font, 12);
+            content.EndText();
+        }
+
+        using MemoryStream saved = new();
+        document.Save(saved);
+        saved.Position = 0;
+        using PDDocument loaded = PDDocument.Load(saved);
+        PDFont? loadedFont = Assert.Single(loaded.GetPage(0).GetResources()!.GetFontNames()
+            .Select(name => loaded.GetPage(0).GetResources()!.GetFont(name)));
+        Assert.NotNull(loadedFont);
+        PDType0Font loadedType0 = Assert.IsType<PDType0Font>(loadedFont);
+        COSDictionary loadedDescendant = Assert.IsType<COSDictionary>(
+            ((COSDictionary)loadedType0.GetCOSObject()).GetCOSArray(COSName.GetPDFName("DescendantFonts"))?.GetObject(0));
+        COSDictionary loadedDescriptor = Assert.IsType<COSDictionary>(
+            loadedDescendant.GetDictionaryObject(COSName.GetPDFName("FontDescriptor")));
+        COSStream loadedFontFile = Assert.IsType<COSStream>(
+            loadedDescriptor.GetDictionaryObject(COSName.GetPDFName("FontFile2")));
+        using Stream loadedEmbedded = loadedFontFile.CreateInputStream();
+        using MemoryStream loadedEmbeddedBytes = new();
+        loadedEmbedded.CopyTo(loadedEmbeddedBytes);
+        Assert.Equal(fontBytes, loadedEmbeddedBytes.ToArray());
+        Assert.True(loadedType0.IsEmbedded());
+        Assert.Equal("A", loadedType0.ToUnicode(1));
+        Assert.True(loadedType0.GetWidth(1) > 0);
     }
 
     [Fact]
