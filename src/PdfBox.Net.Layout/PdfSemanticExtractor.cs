@@ -1700,10 +1700,10 @@ public static class PdfSemanticExtractor
         bool centeredEnough = line.Bounds.X >= 150f && line.Bounds.Width >= 80f;
         int wordCount = CountWords(line.Text);
         return centeredEnough &&
+            !IsProseDominantFormulaLine(line.Text, line.Runs) &&
             (wordCount <= 4 && line.DominantFontSize <= bodyFontSize + 1f ||
                 wordCount <= 12 &&
-                HasLargeFormulaOperator(line.Runs) &&
-                !IsProseDominantFormulaLine(line.Runs));
+                HasLargeFormulaOperator(line.Runs));
     }
 
     private static bool StartsFormulaClause(string text)
@@ -4260,7 +4260,7 @@ public static class PdfSemanticExtractor
             bool hasFormulaFont = expressionGlyphs.Any(static glyph =>
             {
                 string fontName = NormalizeFontName(glyph.FontName);
-                return IsMathFont(fontName) ||
+                return IsFormulaMathFont(fontName) ||
                     fontName.StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase) ||
                     fontName.Contains("ITAL", StringComparison.OrdinalIgnoreCase) ||
                     fontName.Contains("OBLIQUE", StringComparison.OrdinalIgnoreCase);
@@ -4312,7 +4312,7 @@ public static class PdfSemanticExtractor
         }
 
         if (IsProseDominantFormulaRegionLine(candidate) &&
-            !StartsOptimizationFormulaClause(candidate.Text))
+            !IsOptimizationFormulaClause(candidate))
         {
             return false;
         }
@@ -4372,18 +4372,108 @@ public static class PdfSemanticExtractor
 
     private static bool IsProseDominantFormulaRegionLine(LineCandidate candidate)
     {
-        return IsProseDominantFormulaLine(candidate.Source.Runs);
+        return IsProseDominantFormulaLine(candidate.Text, candidate.Source.Runs);
     }
 
-    private static bool StartsOptimizationFormulaClause(string text)
+    private static bool IsOptimizationFormulaClause(LineCandidate candidate)
     {
-        string normalized = string.Concat(text.Where(static character => !char.IsWhiteSpace(character)));
-        return normalized.StartsWith("minimize", StringComparison.OrdinalIgnoreCase) ||
-            normalized.StartsWith("maximize", StringComparison.OrdinalIgnoreCase) ||
-            normalized.StartsWith("subjectto", StringComparison.OrdinalIgnoreCase);
+        bool hasFormulaFont = candidate.Source.Runs.Any(static run =>
+            IsFormulaMathFont(run.FontName) ||
+            NormalizeFontName(run.FontName).StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase));
+        if (!hasFormulaFont ||
+            !TryGetOptimizationExpression(candidate.Text, out string expression))
+        {
+            return false;
+        }
+
+        return !HasSentenceLikeOptimizationTail(expression);
+    }
+
+    private static bool TryGetOptimizationExpression(string text, out string expression)
+    {
+        string trimmed = text.TrimStart();
+        if (TryConsumeLeadingWord(trimmed, "minimize", out expression) ||
+            TryConsumeLeadingWord(trimmed, "maximize", out expression))
+        {
+            return true;
+        }
+
+        if (TryConsumeLeadingWord(trimmed, "subject", out string afterSubject) &&
+            TryConsumeLeadingWord(afterSubject, "to", out expression))
+        {
+            return true;
+        }
+
+        expression = string.Empty;
+        return false;
+    }
+
+    private static bool TryConsumeLeadingWord(
+        string text,
+        string expected,
+        out string remainder)
+    {
+        if (!text.StartsWith(expected, StringComparison.OrdinalIgnoreCase) ||
+            text.Length <= expected.Length ||
+            !char.IsWhiteSpace(text[expected.Length]))
+        {
+            remainder = string.Empty;
+            return false;
+        }
+
+        remainder = text[expected.Length..].TrimStart();
+        return remainder.Length > 0;
+    }
+
+    private static bool HasSentenceLikeOptimizationTail(string expression)
+    {
+        int proseWords = 0;
+        for (int index = 0; index < expression.Length;)
+        {
+            if (!char.IsLetter(expression[index]))
+            {
+                index++;
+                continue;
+            }
+
+            int start = index;
+            while (index < expression.Length && char.IsLetter(expression[index]))
+            {
+                index++;
+            }
+
+            int length = index - start;
+            if (length <= 1)
+            {
+                continue;
+            }
+
+            char previous = start > 0 ? expression[start - 1] : '\0';
+            char next = index < expression.Length ? expression[index] : '\0';
+            if (IsFormulaWordBoundary(previous) || IsFormulaWordBoundary(next))
+            {
+                continue;
+            }
+
+            proseWords++;
+            if (proseWords >= 2)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsFormulaWordBoundary(char value)
+    {
+        return value is '=' or '<' or '>' or '≤' or '≥' or '∈' or '×' or '√' or
+            '∑' or '∝' or '·' or '∗' or '*' or '/' or '^' or '_' or '(' or ')' or
+            '[' or ']' or '{' or '}' or '|' or ',' or ';' or ':';
     }
 
     private static bool IsProseDominantFormulaLine(
+        string text,
         IReadOnlyList<PdfTextRun> runs)
     {
         int totalLetters = runs.Sum(static run => run.Text.Count(char.IsLetter));
@@ -4397,9 +4487,37 @@ public static class PdfSemanticExtractor
                     !fontName.Contains("OBLIQUE", StringComparison.OrdinalIgnoreCase);
             })
             .Sum(static run => run.Text.Count(char.IsLetter));
-        return proseLetters >= 8 &&
-            totalLetters > 0 &&
-            proseLetters * 3 >= totalLetters * 2;
+        if (totalLetters == 0 || proseLetters * 3 < totalLetters * 2)
+        {
+            return false;
+        }
+
+        return proseLetters >= 8 || StartsWithProseWord(text);
+    }
+
+    private static bool StartsWithProseWord(string text)
+    {
+        string leadingWord = new(text
+            .TrimStart()
+            .TakeWhile(char.IsLetter)
+            .ToArray());
+        return leadingWord.Equals("a", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("an", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("the", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("if", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("for", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("use", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("using", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("where", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("when", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("then", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("thus", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("let", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("suppose", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("assume", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("because", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("since", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("subject", StringComparison.OrdinalIgnoreCase);
     }
 
     private static int FormulaRegionWordCount(
@@ -6999,10 +7117,10 @@ public static class PdfSemanticExtractor
         bool centeredEnough = line.Bounds.X >= 150f && line.Bounds.Width >= 80f;
         int wordCount = CountWords(line.Text);
         return centeredEnough &&
+            !IsProseDominantFormulaLine(line.Text, line.Source.Runs) &&
             (wordCount <= 4 && line.FontSize <= bodyFontSize + 1f ||
                 wordCount <= 12 &&
-                HasLargeFormulaOperator(line.Source.Runs) &&
-                !IsProseDominantFormulaLine(line.Source.Runs));
+                HasLargeFormulaOperator(line.Source.Runs));
     }
 
     private static bool IsMathDominantFormulaLine(

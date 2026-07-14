@@ -490,6 +490,29 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_ShortInlineLargeOperatorInRightColumn_RemainsInParagraphFlow()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("A short instruction follows in the right column.", 330f, 72f, 230f),
+            CreateStyledFixtureLine(
+                330f,
+                84f,
+                ("Use the ", "Times-Roman"),
+                ("∑", "CMEX10"),
+                (" operator", "Times-Roman")),
+            CreateFixtureLine("The discussion then continues normally.", 330f, 96f, 210f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement paragraph = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph && element.Text.Contains('∑'));
+
+        Assert.Equal(3, paragraph.Lines.Count);
+        Assert.Contains("Use the ∑ operator", paragraph.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Extract_NumberedFormula_DoesNotAbsorbNearbyMixedProse()
     {
         PdfTextLine formula = CreateStyledFixtureLineWithTrailingNumber(
@@ -505,7 +528,12 @@ public sealed class PdfSemanticExtractorTest
             CreateFixtureLine("Opening prose establishes the body font and line rhythm.", 72f, 72f, 390f),
             CreateFixtureLine("The next display is followed by a short explanatory clause.", 72f, 84f, 410f),
             formula,
-            CreateFixtureLine("where x = 1 is fixed", 220f, 132f, 130f),
+            CreateStyledFixtureLine(
+                220f,
+                132f,
+                ("if ", "Times-Roman"),
+                ("x", "CMMI10"),
+                (" = 1", "Times-Roman")),
             CreateFixtureLine("Ordinary prose resumes after the explanation.", 72f, 160f, 310f)
         ]);
 
@@ -514,10 +542,116 @@ public sealed class PdfSemanticExtractorTest
             element.Kind == PdfSemanticElementKind.Paragraph && element.Text.EndsWith("(1)", StringComparison.Ordinal));
         PdfSemanticElement explanation = Assert.Single(page.Elements, static element =>
             element.Kind == PdfSemanticElementKind.Paragraph &&
-            element.Text.StartsWith("where x = 1 is fixed", StringComparison.Ordinal));
+            element.Text.StartsWith("if x = 1", StringComparison.Ordinal));
 
         Assert.Single(equation.Lines);
-        Assert.DoesNotContain("where", equation.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("if", equation.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("(1)", explanation.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Extract_SubjectToProseNearNumberedFormula_RemainsSeparate()
+    {
+        PdfTextLine formula = CreateStyledFixtureLineWithTrailingNumber(
+            220f,
+            120f,
+            500f,
+            "(1)",
+            ("x", "CMMI10"),
+            ("=", "CMR10"),
+            ("1", "CMR10"));
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes the body font and line rhythm.", 72f, 72f, 390f),
+            formula,
+            CreateStyledFixtureLine(
+                220f,
+                132f,
+                ("Subject to ", "Times-Roman"),
+                ("x", "CMMI10"),
+                (" = 1 being approved remains provisional", "Times-Roman")),
+            CreateFixtureLine("Ordinary prose resumes after the explanation.", 72f, 160f, 310f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement equation = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph && element.Text.EndsWith("(1)", StringComparison.Ordinal));
+        PdfSemanticElement explanation = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("Subject to x = 1 being approved", StringComparison.Ordinal));
+
+        Assert.Single(equation.Lines);
+        Assert.DoesNotContain("approved", equation.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("(1)", explanation.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Extract_SubjectToFormulaWithLongFunctionName_JoinsNumberedProgram()
+    {
+        PdfTextLine formula = CreateStyledFixtureLineWithTrailingNumber(
+            220f,
+            120f,
+            500f,
+            "(1)",
+            ("x", "CMMI10"),
+            ("=", "CMR10"),
+            ("1", "CMR10"));
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes the body font and line rhythm.", 72f, 72f, 390f),
+            formula,
+            CreateStyledFixtureLine(
+                220f,
+                132f,
+                ("subject to diag(", "Times-Roman"),
+                ("X", "CMMI10"),
+                (") = 1", "Times-Roman")),
+            CreateFixtureLine("Ordinary prose resumes after the program.", 72f, 160f, 310f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement equation = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.Contains("(1)", StringComparison.Ordinal) &&
+            element.Text.Contains("subject to", StringComparison.Ordinal));
+
+        Assert.Equal(2, equation.Lines.Count);
+        Assert.Contains("subject to diag(X) = 1", equation.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Extract_MinimizedProseNearNumberedFormula_RemainsSeparate()
+    {
+        PdfTextLine formula = CreateStyledFixtureLineWithTrailingNumber(
+            220f,
+            120f,
+            500f,
+            "(1)",
+            ("x", "CMMI10"),
+            ("=", "CMR10"),
+            ("1", "CMR10"));
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes the body font and line rhythm.", 72f, 72f, 390f),
+            formula,
+            CreateStyledFixtureLine(
+                220f,
+                132f,
+                ("Minimized result ", "Times-Roman"),
+                ("x", "CMMI10"),
+                (" = 1 remains provisional", "Times-Roman")),
+            CreateFixtureLine("Ordinary prose resumes after the explanation.", 72f, 160f, 310f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement equation = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph && element.Text.EndsWith("(1)", StringComparison.Ordinal));
+        PdfSemanticElement explanation = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("Minimized result", StringComparison.Ordinal));
+
+        Assert.Single(equation.Lines);
+        Assert.DoesNotContain("Minimized", equation.Text, StringComparison.Ordinal);
         Assert.DoesNotContain("(1)", explanation.Text, StringComparison.Ordinal);
     }
 
@@ -3024,8 +3158,8 @@ public sealed class PdfSemanticExtractorTest
         PdfTextRun[] runs = cells.Select(cell =>
         {
             PdfLayoutRectangle bounds = new(cell.X, y, cell.Width, fontSize * 0.75f);
-            PdfTextGlyph glyph = new(cell.Text, "Times-Roman", fontSize, 0f, bounds, color);
-            return new PdfTextRun(cell.Text, "Times-Roman", fontSize, 0f, bounds, color, [glyph]);
+            PdfTextGlyph glyph = new(cell.Text, "CMR10", fontSize, 0f, bounds, color);
+            return new PdfTextRun(cell.Text, "CMR10", fontSize, 0f, bounds, color, [glyph]);
         }).ToArray();
         return new PdfTextLine(
             string.Concat(cells.Select(static cell => cell.Text)),
