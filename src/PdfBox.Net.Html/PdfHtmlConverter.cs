@@ -19,12 +19,14 @@ public static class PdfHtmlConverter
             PdfSemanticElement element,
             PdfLayoutRectangle bounds,
             IReadOnlyList<PdfTextRun> ownedRuns,
+            IReadOnlyList<PdfLayoutLink> ownedLinks,
             int firstRunIndex,
             int lastRunIndex)
         {
             Element = element;
             Bounds = bounds;
             OwnedRuns = ownedRuns.ToArray();
+            OwnedLinks = ownedLinks.ToArray();
             FirstRunIndex = firstRunIndex;
             LastRunIndex = lastRunIndex;
         }
@@ -34,6 +36,8 @@ public static class PdfHtmlConverter
         public PdfLayoutRectangle Bounds { get; }
 
         public IReadOnlyList<PdfTextRun> OwnedRuns { get; }
+
+        public IReadOnlyList<PdfLayoutLink> OwnedLinks { get; }
 
         public int FirstRunIndex { get; }
 
@@ -271,7 +275,12 @@ public static class PdfHtmlConverter
         }
 
         .pdf-semantic-list.pdf-semantic-fallback-island > li {
+          margin-bottom: var(--pdf-semantic-island-list-item-gap, 0);
           padding-left: 0;
+        }
+
+        .pdf-semantic-list.pdf-semantic-fallback-island > li:last-child {
+          margin-bottom: 0;
         }
 
         .pdf-semantic-fallback-island > p,
@@ -1778,9 +1787,15 @@ public static class PdfHtmlConverter
             }
         }
 
+        HashSet<PdfLayoutLink> semanticIslandLinks = fallbackSemanticIslands
+            .SelectMany(static island => island.OwnedLinks)
+            .ToHashSet((IEqualityComparer<PdfLayoutLink>)ReferenceEqualityComparer.Instance);
         foreach (PdfLayoutLink link in page.Links)
         {
-            WriteLink(html, link, scale);
+            if (!semanticIslandLinks.Contains(link))
+            {
+                WriteLink(html, link, scale);
+            }
         }
 
         WriteFormControls(html, page, scale, positioned: true);
@@ -1913,8 +1928,12 @@ public static class PdfHtmlConverter
         if (page.Runs.Any(run => !ownedRunSet.Contains(run) &&
                 RectangleIntersectionArea(run.Bounds, sourceBounds) > 0.1f) ||
             page.FormControls.Any(control => RectangleIntersectionArea(control.Bounds, sourceBounds) > 0.1f) ||
-            page.Links.SelectMany(LinkBounds)
-                .Any(bounds => RectangleIntersectionArea(bounds, sourceBounds) > 0.1f))
+            !TryGetFallbackSemanticIslandLinks(
+                page,
+                element,
+                sourceBounds,
+                ownedGlyphs,
+                out PdfLayoutLink[] ownedLinks))
         {
             return false;
         }
@@ -1923,9 +1942,92 @@ public static class PdfHtmlConverter
             element,
             sourceBounds,
             ownedRuns,
+            ownedLinks,
             runIndices[0],
             runIndices[^1]);
         return true;
+    }
+
+    private static bool TryGetFallbackSemanticIslandLinks(
+        PdfLayoutPage page,
+        PdfSemanticElement element,
+        PdfLayoutRectangle sourceBounds,
+        IReadOnlySet<PdfTextGlyph> ownedGlyphs,
+        out PdfLayoutLink[] ownedLinks)
+    {
+        ownedLinks = page.Links
+            .Where(link => LinkBounds(link)
+                .Any(bounds => RectangleIntersectionArea(bounds, sourceBounds) > 0.1f))
+            .ToArray();
+        if (ownedLinks.Length == 0)
+        {
+            return true;
+        }
+
+        HashSet<PdfTextGlyph> visibleGlyphs = FallbackSemanticIslandVisibleGlyphs(element)
+            .ToHashSet((IEqualityComparer<PdfTextGlyph>)ReferenceEqualityComparer.Instance);
+        foreach (PdfLayoutLink link in ownedLinks)
+        {
+            if (!HasSemanticLinkTarget(link) ||
+                !visibleGlyphs.Any(glyph =>
+                    ReferenceEquals(SemanticLinkForGlyph(page, glyph.PageBounds), link)) ||
+                page.Glyphs.Any(glyph =>
+                    !ownedGlyphs.Contains(glyph) &&
+                    ReferenceEquals(SemanticLinkForGlyph(page, glyph.PageBounds), link)))
+            {
+                ownedLinks = [];
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static IEnumerable<PdfTextGlyph> FallbackSemanticIslandVisibleGlyphs(PdfSemanticElement element)
+    {
+        if (element.SemanticList == null)
+        {
+            return element.Lines
+                .SelectMany(static line => line.Runs)
+                .SelectMany(static run => run.Glyphs)
+                .Where(static glyph => !string.IsNullOrWhiteSpace(glyph.Text));
+        }
+
+        return SemanticListVisibleGlyphs(element.SemanticList);
+    }
+
+    private static IEnumerable<PdfTextGlyph> SemanticListVisibleGlyphs(PdfSemanticList list)
+    {
+        foreach (PdfSemanticListItem item in list.Items)
+        {
+            for (int lineIndex = 0; lineIndex < item.Lines.Count; lineIndex++)
+            {
+                int leadingCharacters = lineIndex == 0 ? item.MarkerLength : 0;
+                foreach (PdfTextGlyph glyph in item.Lines[lineIndex].Runs.SelectMany(static run => run.Glyphs))
+                {
+                    if (leadingCharacters >= glyph.Text.Length)
+                    {
+                        leadingCharacters -= glyph.Text.Length;
+                        continue;
+                    }
+
+                    string visibleText = glyph.Text[leadingCharacters..];
+                    leadingCharacters = 0;
+                    if (!string.IsNullOrWhiteSpace(visibleText))
+                    {
+                        yield return glyph;
+                    }
+                }
+            }
+
+            foreach (PdfSemanticList nestedList in item.NestedLists)
+            {
+                foreach (PdfTextGlyph glyph in SemanticListVisibleGlyphs(nestedList))
+                {
+                    yield return glyph;
+                }
+            }
+        }
     }
 
     private static bool TryGetFallbackSemanticIslandLines(
@@ -1995,8 +2097,8 @@ public static class PdfHtmlConverter
         float scale)
     {
         PdfSemanticElement element = island.Element;
-        float lineStep = FallbackSemanticIslandLineStep(element);
-        string style = FallbackSemanticIslandStyle(island, lineStep, scale);
+        float lineHeight = FallbackSemanticIslandLineHeight(element);
+        string style = FallbackSemanticIslandStyle(island, lineHeight, scale);
         if (element.Kind == PdfSemanticElementKind.List)
         {
             WriteSemanticList(
@@ -2020,7 +2122,7 @@ public static class PdfHtmlConverter
 
     private static string FallbackSemanticIslandStyle(
         FallbackSemanticIsland island,
-        float lineStep,
+        float lineHeight,
         float scale)
     {
         StringBuilder style = new();
@@ -2033,12 +2135,20 @@ public static class PdfHtmlConverter
             .Append(";--pdf-semantic-island-height:")
             .Append(CssPoints(island.Bounds.Height * scale))
             .Append(";--pdf-semantic-island-line-height:")
-            .Append(CssPoints(lineStep * scale));
+            .Append(CssPoints(lineHeight * scale));
         if (island.Element.SemanticList?.Items.FirstOrDefault() is PdfSemanticListItem firstItem &&
             TryGetSemanticListBodyIndent(firstItem, out float bodyIndent))
         {
             style.Append(";--pdf-semantic-island-list-indent:")
                 .Append(CssPoints(bodyIndent * scale));
+        }
+
+        if (island.Element.SemanticList is { } list &&
+            FallbackSemanticListItemGap(list, lineHeight) is float itemGap &&
+            itemGap > 0f)
+        {
+            style.Append(";--pdf-semantic-island-list-item-gap:")
+                .Append(CssPoints(itemGap * scale));
         }
 
         return style.ToString();
@@ -2069,23 +2179,22 @@ public static class PdfHtmlConverter
         return false;
     }
 
-    private static float FallbackSemanticIslandLineStep(PdfSemanticElement element)
+    private static float FallbackSemanticIslandLineHeight(PdfSemanticElement element)
     {
-        IEnumerable<IReadOnlyList<PdfSemanticLine>> lineGroups = element.SemanticList == null
-            ? [element.Lines]
-            : SemanticListLineGroups(element.SemanticList);
         float minimumLineStep = MathF.Max(1f, SemanticFontSize(element) * 1.18f);
-        float[] gaps = lineGroups
-            .SelectMany(static lines =>
-            {
-                float[] positions = lines
-                    .Where(static line => MathF.Abs(line.Direction) < 0.01f)
-                    .Select(static line => line.Bounds.Y)
-                    .Distinct()
-                    .Order()
-                    .ToArray();
-                return positions.Zip(positions.Skip(1), static (first, second) => second - first);
-            })
+        if (element.SemanticList != null)
+        {
+            return minimumLineStep;
+        }
+
+        float[] positions = element.Lines
+            .Where(static line => MathF.Abs(line.Direction) < 0.01f)
+            .Select(static line => line.Bounds.Y)
+            .Distinct()
+            .Order()
+            .ToArray();
+        float[] gaps = positions
+            .Zip(positions.Skip(1), static (first, second) => second - first)
             .Where(gap => gap >= minimumLineStep * 0.75f && gap <= minimumLineStep * 3f)
             .Order()
             .ToArray();
@@ -2094,19 +2203,16 @@ public static class PdfHtmlConverter
             : MathF.Max(minimumLineStep, gaps[gaps.Length / 2]);
     }
 
-    private static IEnumerable<IReadOnlyList<PdfSemanticLine>> SemanticListLineGroups(PdfSemanticList list)
+    private static float FallbackSemanticListItemGap(PdfSemanticList list, float lineHeight)
     {
-        foreach (PdfSemanticListItem item in list.Items)
-        {
-            yield return item.Lines;
-            foreach (PdfSemanticList nestedList in item.NestedLists)
-            {
-                foreach (IReadOnlyList<PdfSemanticLine> lines in SemanticListLineGroups(nestedList))
-                {
-                    yield return lines;
-                }
-            }
-        }
+        float[] gaps = list.Items
+            .Zip(list.Items.Skip(1), static (first, second) => (First: first, Second: second))
+            .Where(static pair => pair.First.Lines.Count > 0 && pair.Second.Lines.Count > 0)
+            .Select(pair => pair.Second.Lines[0].Bounds.Y - pair.First.Lines[^1].Bounds.Y - lineHeight)
+            .Where(gap => float.IsFinite(gap) && gap > 0f && gap <= lineHeight * 2f)
+            .Order()
+            .ToArray();
+        return gaps.Length == 0 ? 0f : gaps[gaps.Length / 2];
     }
 
     private static IReadOnlyDictionary<PdfTextRun, string> ReconstructFixedRunText(
@@ -8204,6 +8310,11 @@ public static class PdfHtmlConverter
                 TrimLeadingCharacters(segments, item.MarkerLength);
             }
 
+            if (ReferenceEquals(line, item.Lines[^1]))
+            {
+                RemoveTrailingWhitespace(segments);
+            }
+
             string lineText = string.Concat(segments.Select(static segment => segment.Text));
             if (lineText.Length == 0)
             {
@@ -8215,7 +8326,13 @@ public static class PdfHtmlConverter
                 html.Append(' ');
             }
 
-            WriteInlineTextSegments(html, line, segments, lineText, footnotes);
+            WriteInlineTextSegments(
+                html,
+                line,
+                segments,
+                lineText,
+                footnotes,
+                SemanticListColor(listElement));
             previousLineText = lineText;
             wroteLine = true;
         }
@@ -10518,9 +10635,18 @@ public static class PdfHtmlConverter
 
         return page.Links
             .Where(HasSemanticLinkTarget)
-            .Where(link => LinkBounds(link).Any(bounds => RectanglesIntersect(bounds, glyphBounds, 0.25f)))
+            .Where(link => LinkBounds(link).Any(bounds => HasSemanticLinkGlyphOverlap(bounds, glyphBounds)))
             .OrderBy(link => LinkBounds(link).Min(bounds => bounds.Width * bounds.Height))
             .FirstOrDefault();
+    }
+
+    private static bool HasSemanticLinkGlyphOverlap(
+        PdfLayoutRectangle linkBounds,
+        PdfLayoutRectangle glyphBounds)
+    {
+        float glyphArea = glyphBounds.Width * glyphBounds.Height;
+        return glyphArea > 0.01f &&
+            RectangleIntersectionArea(linkBounds, glyphBounds) >= glyphArea * 0.5f;
     }
 
     private static bool HasSemanticLinkTarget(PdfLayoutLink link)
@@ -11508,7 +11634,8 @@ public static class PdfHtmlConverter
         PdfSemanticLine line,
         IReadOnlyList<InlineTextSegment> segments,
         string lineText,
-        FootnoteContext footnotes)
+        FootnoteContext footnotes,
+        PdfLayoutColor? baselineColor = null)
     {
         int offset = 0;
         PdfLayoutLink? activeLink = null;
@@ -11596,7 +11723,8 @@ public static class PdfHtmlConverter
                 lineText,
                 offset,
                 footnotes,
-                allowGeneratedLinks: activeLink == null);
+                allowGeneratedLinks: activeLink == null,
+                baselineColor: baselineColor);
             offset += segment.Text.Length;
         }
 
@@ -11947,7 +12075,8 @@ public static class PdfHtmlConverter
         string lineText,
         int offset,
         FootnoteContext footnotes,
-        bool allowGeneratedLinks)
+        bool allowGeneratedLinks,
+        PdfLayoutColor? baselineColor = null)
     {
         if (segment.Run == null)
         {
@@ -11983,7 +12112,7 @@ public static class PdfHtmlConverter
             return;
         }
 
-        string className = InlineRunClassNames(line, segment.Run, segment.Role);
+        string className = InlineRunClassNames(line, segment.Run, segment.Role, baselineColor);
         if (segment.IsCode)
         {
             className = string.Join(
@@ -12115,7 +12244,8 @@ public static class PdfHtmlConverter
     private static string InlineRunClassNames(
         PdfSemanticLine line,
         PdfTextRun run,
-        InlineBaselineRole role)
+        InlineBaselineRole role,
+        PdfLayoutColor? baselineColor = null)
     {
         List<string> classes = [];
         string normalizedFontName = NormalizeFontName(run.FontName);
@@ -12139,7 +12269,10 @@ public static class PdfHtmlConverter
             classes.Add(FontSizeClass(fontSize));
         }
 
-        if (!string.Equals(ColorClass(run.Color), ColorClass(line.Color), StringComparison.Ordinal))
+        if (!string.Equals(
+                ColorClass(run.Color),
+                ColorClass(baselineColor ?? line.Color),
+                StringComparison.Ordinal))
         {
             classes.Add(ColorClass(run.Color));
         }
@@ -12374,7 +12507,10 @@ public static class PdfHtmlConverter
         {
             classes.Add(FontClass(SemanticFontName(element)));
             classes.Add(FontSizeClass(SemanticFontSize(element)));
-            classes.Add(ColorClass(SemanticColor(element)));
+            classes.Add(ColorClass(
+                element.Kind == PdfSemanticElementKind.List
+                    ? SemanticListColor(element)
+                    : SemanticColor(element)));
         }
 
         if (element.Kind == PdfSemanticElementKind.Aside && page != null)
@@ -13769,6 +13905,17 @@ public static class PdfHtmlConverter
             .OrderByDescending(static group => group.Sum(static line => Math.Max(1, line.Text.Length)))
             .Select(static group => group.First().Color)
             .FirstOrDefault();
+    }
+
+    private static PdfLayoutColor SemanticListColor(PdfSemanticElement element)
+    {
+        PdfTextRun? markerRun = element.SemanticList?.Items
+            .FirstOrDefault()?
+            .Lines
+            .FirstOrDefault()?
+            .Runs
+            .FirstOrDefault(static run => !string.IsNullOrWhiteSpace(run.Text));
+        return markerRun?.Color ?? SemanticColor(element);
     }
 
     private static void WriteTextWithFootnoteReferences(

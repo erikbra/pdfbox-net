@@ -247,9 +247,11 @@ public static class HtmlReviewArtifactGenerator
         HtmlReviewManifestExample example,
         PdfHtmlDocument continuousSemanticHtml)
     {
-        Dictionary<int, List<int>> expectedByPage =
+        Dictionary<int, List<int>> expectedOrderedByPage =
             example.Expectations?.SemanticOrderedListItemCountsByPage ?? [];
-        if (expectedByPage.Count == 0)
+        Dictionary<int, List<int>> expectedUnorderedByPage =
+            example.Expectations?.SemanticUnorderedListItemCountsByPage ?? [];
+        if (expectedOrderedByPage.Count == 0 && expectedUnorderedByPage.Count == 0)
         {
             return;
         }
@@ -261,12 +263,42 @@ public static class HtmlReviewArtifactGenerator
             RegexOptions.IgnoreCase);
         XDocument dom = XDocument.Parse(xml);
         List<string> failures = [];
+        ValidateSemanticListExpectations(
+            example,
+            dom,
+            expectedOrderedByPage,
+            "ol",
+            "ordered",
+            failures);
+        ValidateSemanticListExpectations(
+            example,
+            dom,
+            expectedUnorderedByPage,
+            "ul",
+            "unordered",
+            failures);
+
+        if (failures.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"HTML review semantic expectations failed for '{example.Id}': {string.Join("; ", failures)}.");
+        }
+    }
+
+    private static void ValidateSemanticListExpectations(
+        HtmlReviewManifestExample example,
+        XDocument dom,
+        IReadOnlyDictionary<int, List<int>> expectedByPage,
+        string tagName,
+        string listKind,
+        List<string> failures)
+    {
         foreach ((int pageNumber, List<int> expectedItemCounts) in expectedByPage)
         {
             if (pageNumber < 1 || expectedItemCounts.Count == 0 || expectedItemCounts.Any(static count => count < 1))
             {
                 throw new InvalidOperationException(
-                    $"HTML review example '{example.Id}' has an invalid semantic ordered-list expectation for page {pageNumber}.");
+                    $"HTML review example '{example.Id}' has an invalid semantic {listKind}-list expectation for page {pageNumber}.");
             }
 
             XElement? page = dom.Descendants()
@@ -274,21 +306,15 @@ public static class HtmlReviewArtifactGenerator
                     element.Name.LocalName == "section" &&
                     element.Attribute("data-page-number")?.Value == pageNumber.ToString());
             int[] actualItemCounts = page?.Descendants()
-                .Where(static element => element.Name.LocalName == "ol")
+                .Where(element => element.Name.LocalName == tagName)
                 .Select(static list => list.Elements().Count(static item => item.Name.LocalName == "li"))
                 .ToArray() ?? [];
             if (!actualItemCounts.SequenceEqual(expectedItemCounts))
             {
                 failures.Add(
-                    $"semantic ordered-list item counts on page {pageNumber} were " +
+                    $"semantic {listKind}-list item counts on page {pageNumber} were " +
                     $"[{string.Join(", ", actualItemCounts)}], expected [{string.Join(", ", expectedItemCounts)}]");
             }
-        }
-
-        if (failures.Count > 0)
-        {
-            throw new InvalidOperationException(
-                $"HTML review semantic expectations failed for '{example.Id}': {string.Join("; ", failures)}.");
         }
     }
 
@@ -728,4 +754,6 @@ public sealed class HtmlReviewExpectations
     public int? MinFormControls { get; set; }
 
     public Dictionary<int, List<int>> SemanticOrderedListItemCountsByPage { get; set; } = [];
+
+    public Dictionary<int, List<int>> SemanticUnorderedListItemCountsByPage { get; set; } = [];
 }
