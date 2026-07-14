@@ -37,7 +37,10 @@
         "requiredText": ["Ghent", "Conformance", "Certification"],
         "minTextRuns": 250,
         "minImagePlacements": 5,
-        "minLinks": 10
+        "minLinks": 10,
+        "semanticUnorderedListItemCountsByPage": {
+          "3": [10]
+        }
       }
     },
     {

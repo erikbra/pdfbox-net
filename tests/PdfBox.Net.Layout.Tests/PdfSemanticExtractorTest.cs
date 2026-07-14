@@ -1202,6 +1202,55 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_SymbolFontBulletRowsWithMixedBodyRuns_BecomeOneUnorderedList()
+    {
+        (string Name, string Country)[] members =
+        [
+            ("Alpha Studio", "Germany"),
+            ("Beta Press", "China"),
+            ("Color Experts", "Latin America"),
+            ("Delta Imaging", "International"),
+            ("Epsilon Systems", "Europe"),
+            ("Future Academy", "India"),
+            ("Government Printing Institute", "India"),
+            ("University Press", "Malaysia"),
+            ("Visual Arts Faculty", "Slovenia"),
+            ("Workflow Center", "Belgium")
+        ];
+        PdfTextLine[] sourceLines = members
+            .Select((member, index) => CreateSymbolBulletMemberFixtureLine(
+                member.Name,
+                member.Country,
+                252f + index * 15.5f))
+            .ToArray();
+
+        PdfSemanticPage page = Assert.Single(
+            PdfSemanticExtractor.Extract(CreateListFixture(sourceLines)).Pages);
+        PdfSemanticElement element = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.List);
+        PdfSemanticList list = Assert.IsType<PdfSemanticList>(element.SemanticList);
+
+        Assert.Equal(PdfSemanticListKind.Unordered, list.Kind);
+        Assert.Equal(PdfSemanticListMarkerKind.Bullet, list.MarkerKind);
+        Assert.Equal(10, list.Items.Count);
+        Assert.Equal(
+            members.Select(static member => $"{member.Name} ({member.Country})"),
+            list.Items.Select(static item => item.Text));
+        Assert.All(list.Items, static item =>
+        {
+            Assert.Equal("•", item.Marker);
+            Assert.Equal(2, item.MarkerLength);
+            Assert.Equal(5, Assert.Single(item.Lines).Runs.Count);
+            Assert.DoesNotContain("•", item.Text, StringComparison.Ordinal);
+        });
+        Assert.Equal(sourceLines.Length, element.Lines.Count);
+        for (int index = 0; index < sourceLines.Length; index++)
+        {
+            Assert.Equal(sourceLines[index].Runs, element.Lines[index].Runs);
+        }
+    }
+
+    [Fact]
     public void Extract_DecimalOrderedList_RecordsSourceStartAndNumberingGap()
     {
         PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(CreateListFixture(
@@ -3187,6 +3236,48 @@ public sealed class PdfSemanticExtractorTest
             "•" + body,
             new PdfLayoutRectangle(x, y, bodyBounds.Right - x, 6f),
             [markerRun, bodyRun]);
+    }
+
+    private static PdfTextLine CreateSymbolBulletMemberFixtureLine(
+        string memberName,
+        string country,
+        float y)
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");
+        PdfLayoutColor accent = new(0.51f, 0.01f, 0.29f, 1f, "DeviceRGB");
+        List<PdfTextRun> runs = [];
+
+        AddRun("•", "SymbolMT", 114.05f, y + 2.18f, 4.83f, 4.77f, black);
+        AddRun(" ", "ArialMT", 118.8f, y + 2.03f, 2.92f, 4.92f, black);
+        float memberWidth = memberName.Length * 5f;
+        AddRun(memberName, "SourceSansPro-Regular", 132.05f, y + 0.34f, memberWidth, 6.62f, accent);
+        string countryText = $" ({country})";
+        float countryX = 132.05f + memberWidth;
+        float countryWidth = countryText.Length * 4.5f;
+        AddRun(countryText, "SourceSansPro-Regular", countryX, y + 0.34f, countryWidth, 6.62f, black);
+        AddRun(" ", "SourceSansPro-Bold", countryX + countryWidth, y, 2.1f, 6.95f, black);
+
+        float left = runs.Min(static run => run.Bounds.X);
+        float top = runs.Min(static run => run.Bounds.Y);
+        float right = runs.Max(static run => run.Bounds.Right);
+        float bottom = runs.Max(static run => run.Bounds.Bottom);
+        PdfLayoutRectangle bounds = new(left, top, right - left, bottom - top);
+        return new PdfTextLine(string.Concat(runs.Select(static run => run.Text)), bounds, runs);
+
+        void AddRun(
+            string text,
+            string fontName,
+            float x,
+            float runY,
+            float width,
+            float height,
+            PdfLayoutColor color)
+        {
+            PdfLayoutRectangle runBounds = new(x, runY, width, height);
+            PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, runBounds, color);
+            runs.Add(new PdfTextRun(text, fontName, fontSize, 0f, runBounds, color, [glyph]));
+        }
     }
 
     private static PdfTextLine CreateFixtureLine(

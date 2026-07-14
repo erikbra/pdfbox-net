@@ -168,7 +168,7 @@ public sealed class HtmlReviewArtifactGeneratorTest
     }
 
     [Fact]
-    public void ValidateSemanticExpectations_RequiresExactOrderedListShapeByPage()
+    public void ValidateSemanticExpectations_RequiresExactOrderedAndUnorderedListShapesByPage()
     {
         HtmlReviewManifestExample example = new()
         {
@@ -178,15 +178,23 @@ public sealed class HtmlReviewArtifactGeneratorTest
                 SemanticOrderedListItemCountsByPage = new Dictionary<int, List<int>>
                 {
                     [1] = [4]
+                },
+                SemanticUnorderedListItemCountsByPage = new Dictionary<int, List<int>>
+                {
+                    [3] = [10]
                 }
             }
         };
         PdfHtmlDocument accepted = new(
-            "<html><body><section data-page-number=\"1\"><ol><li>A</li><li>B</li><li>C</li><li>D</li></ol></section></body></html>",
+            "<html><body><section data-page-number=\"1\"><ol><li>A</li><li>B</li><li>C</li><li>D</li></ol></section>" +
+            "<section data-page-number=\"3\"><ul>" + string.Concat(Enumerable.Repeat("<li>Member</li>", 10)) +
+            "</ul></section></body></html>",
             "styles.css",
             "");
         PdfHtmlDocument rejected = new(
-            "<html><body><section data-page-number=\"1\"><ol><li>A</li><li>B</li><li>C</li></ol></section></body></html>",
+            "<html><body><section data-page-number=\"1\"><ol><li>A</li><li>B</li><li>C</li></ol></section>" +
+            "<section data-page-number=\"3\"><ul>" + string.Concat(Enumerable.Repeat("<li>Member</li>", 9)) +
+            "</ul></section></body></html>",
             "styles.css",
             "");
 
@@ -194,6 +202,7 @@ public sealed class HtmlReviewArtifactGeneratorTest
         InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() =>
             HtmlReviewArtifactGenerator.ValidateSemanticExpectations(example, rejected));
         Assert.Contains("item counts on page 1 were [3], expected [4]", exception.Message);
+        Assert.Contains("unordered-list item counts on page 3 were [9], expected [10]", exception.Message);
     }
 
     [Fact]

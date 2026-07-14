@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Microsoft.Playwright;
 using PdfBox.Net.Html;
 using PdfBox.Net.Layout;
 using PdfBox.Net.PDModel;
@@ -14,6 +15,19 @@ public class PdfHtmlSemanticIslandTest
         "I am not subject to backup withholding because (a) I am exempt from backup withholding, or (b) I have not been notified by the Internal Revenue Service (IRS) that I am subject to backup withholding as a result of a failure to report all interest or dividends, or (c) the IRS has notified me that I am no longer subject to backup withholding; and",
         "I am a U.S. citizen or other U.S. person (defined below); and",
         "The FATCA code(s) entered on this form (if any) indicating that I am exempt from FATCA reporting is correct."
+    ];
+    private static readonly (string Name, string Country)[] LinkedMembers =
+    [
+        ("Alpha Studio", "Germany"),
+        ("Beta Press", "China"),
+        ("Color Experts", "Latin America"),
+        ("Delta Imaging", "International"),
+        ("Epsilon Systems", "Europe"),
+        ("Future Academy", "India"),
+        ("Government Printing Institute", "India"),
+        ("University Press", "Malaysia"),
+        ("Visual Arts Faculty", "Slovenia"),
+        ("Workflow Center", "Belgium")
     ];
 
     [Fact]
@@ -195,6 +209,125 @@ public class PdfHtmlSemanticIslandTest
                 element.Name.LocalName is "input" or "select" or "textarea"));
     }
 
+    [Fact]
+    public void Convert_LinkedSymbolBulletRows_EmitOneFallbackListWithSemanticLinks()
+    {
+        PdfLayoutDocument layout = CreateLinkedMemberListLayout();
+        PdfLayoutPage sourcePage = Assert.Single(layout.Pages);
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement sourceList = Assert.Single(semanticPage.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.List);
+
+        PdfHtmlConverter.FallbackSemanticIsland island = Assert.Single(
+            PdfHtmlConverter.FallbackSemanticIslands(sourcePage, semanticPage));
+        Assert.Same(sourceList, island.Element);
+        Assert.Equal(50, island.OwnedRuns.Count);
+        Assert.Equal(10, island.OwnedLinks.Count);
+
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, SemanticContinuousOptions());
+        XDocument dom = ParseHtml(converted.Html);
+        XElement fallbackPage = Assert.Single(ElementsByClass(dom, "pdf-semantic-layout-fallback-page"));
+        XElement list = Assert.Single(fallbackPage.Elements("ul"));
+        Assert.True(HasClass(list, "pdf-semantic-fallback-island"));
+        Assert.True(HasClass(list, "pdf-color-000000-ff"));
+        XElement[] items = list.Elements("li").ToArray();
+        Assert.Equal(10, items.Length);
+
+        for (int index = 0; index < items.Length; index++)
+        {
+            (string name, string country) = LinkedMembers[index];
+            XElement link = Assert.Single(items[index].Elements("a"));
+            Assert.Equal(name, link.Value);
+            Assert.Equal($"mailto:member-{index + 1}@example.test", link.Attribute("href")?.Value);
+            Assert.Contains(
+                link.DescendantsAndSelf(),
+                static element => HasClass(element, "pdf-color-82034a-ff"));
+            Assert.Equal($"{name} ({country})", NormalizeWhitespace(items[index].Value));
+            Assert.DoesNotContain("•", items[index].Value, StringComparison.Ordinal);
+        }
+
+        Assert.Empty(ElementsByClass(dom, "pdf-link-overlay"));
+        XElement[] remainingFixedRuns = fallbackPage.Elements("span")
+            .Where(static element => HasClass(element, "pdf-text-run"))
+            .ToArray();
+        Assert.DoesNotContain(remainingFixedRuns, static run => run.Value.Contains('•'));
+        Assert.All(LinkedMembers, member => Assert.DoesNotContain(
+            remainingFixedRuns,
+            run => run.Value.Contains(member.Name, StringComparison.Ordinal) ||
+                run.Value.Contains(member.Country, StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task Convert_LinkedSymbolBulletRows_PreserveSourceGeometryInBrowser()
+    {
+        PdfLayoutDocument layout = CreateLinkedMemberListLayout();
+        PdfSemanticElement sourceList = Assert.Single(
+            Assert.Single(PdfSemanticExtractor.Extract(layout).Pages).Elements,
+            static element => element.Kind == PdfSemanticElementKind.List);
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, SemanticContinuousOptions());
+        using TempDirectory tempDirectory = new();
+        converted.WriteToDirectory(tempDirectory.Path);
+
+        using IPlaywright playwright = await Playwright.CreateAsync();
+        await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+        IPage browserPage = await browser.NewPageAsync(new BrowserNewPageOptions
+        {
+            ViewportSize = new ViewportSize { Width = 1000, Height = 1200 }
+        });
+        await browserPage.GotoAsync(new Uri(Path.Combine(tempDirectory.Path, "index.html")).AbsoluteUri);
+        await browserPage.EvaluateAsync("() => document.fonts.ready");
+
+        const float cssPixelsPerPoint = 96f / 72f;
+        const float tolerancePx = 1f;
+        LocatorBoundingBoxResult pageBox = await browserPage.Locator(".pdf-page").BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Fallback page did not render a bounding box.");
+        LocatorBoundingBoxResult listBox = await browserPage.Locator("ul.pdf-semantic-fallback-island").BoundingBoxAsync()
+            ?? throw new InvalidOperationException("Semantic list island did not render a bounding box.");
+        AssertWithin(tolerancePx, sourceList.Bounds.X * cssPixelsPerPoint, (float)(listBox.X - pageBox.X));
+        AssertWithin(tolerancePx, sourceList.Bounds.Y * cssPixelsPerPoint, (float)(listBox.Y - pageBox.Y));
+
+        ILocator items = browserPage.Locator("ul.pdf-semantic-fallback-island > li");
+        Assert.Equal(10, await items.CountAsync());
+        LocatorBoundingBoxResult firstItem = await items.First.BoundingBoxAsync()
+            ?? throw new InvalidOperationException("First list item did not render a bounding box.");
+        LocatorBoundingBoxResult? previousItem = null;
+        for (int index = 0; index < sourceList.Lines.Count; index++)
+        {
+            LocatorBoundingBoxResult itemBox = await items.Nth(index).BoundingBoxAsync()
+                ?? throw new InvalidOperationException($"List item {index + 1} did not render a bounding box.");
+            float expectedOffset = (sourceList.Lines[index].Bounds.Y - sourceList.Lines[0].Bounds.Y) * cssPixelsPerPoint;
+            AssertWithin(tolerancePx, expectedOffset, (float)(itemBox.Y - firstItem.Y));
+            if (previousItem != null)
+            {
+                Assert.True(itemBox.Y >= previousItem.Y + previousItem.Height - tolerancePx);
+            }
+
+            previousItem = itemBox;
+        }
+
+        ILocator links = browserPage.Locator("ul.pdf-semantic-fallback-island > li > a");
+        Assert.Equal(10, await links.CountAsync());
+        for (int index = 0; index < await links.CountAsync(); index++)
+        {
+            LocatorBoundingBoxResult linkBox = await links.Nth(index).BoundingBoxAsync()
+                ?? throw new InvalidOperationException($"Member link {index + 1} did not render a bounding box.");
+            Assert.True(linkBox.Width > 0 && linkBox.Height > 0);
+        }
+    }
+
+    [Fact]
+    public void FallbackSemanticIslands_RejectsLinkSharedWithContentOutsideList()
+    {
+        PdfLayoutDocument layout = CreateLinkedMemberListLayout(firstLinkCoversFollowingContent: true);
+        PdfLayoutPage sourcePage = Assert.Single(layout.Pages);
+        PdfSemanticPage semanticPage = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+
+        Assert.Empty(PdfHtmlConverter.FallbackSemanticIslands(sourcePage, semanticPage));
+    }
+
     private static PdfLayoutDocument CreateFixedFormListLayout()
     {
         PdfTextRun[] runs =
@@ -216,14 +349,63 @@ public class PdfHtmlSemanticIslandTest
         return new PdfLayoutDocument([page], []);
     }
 
+    private static PdfLayoutDocument CreateLinkedMemberListLayout(
+        bool firstLinkCoversFollowingContent = false)
+    {
+        List<PdfTextLine> lines =
+        [
+            Line(Run("The following members expressed interest:", 78f, 225f))
+        ];
+        List<PdfLayoutLink> links = [];
+        for (int index = 0; index < LinkedMembers.Length; index++)
+        {
+            PdfTextLine line = LinkedMemberLine(
+                LinkedMembers[index].Name,
+                LinkedMembers[index].Country,
+                252f + index * 15.5f);
+            lines.Add(line);
+            PdfLayoutRectangle nameBounds = line.Runs[2].Bounds;
+            links.Add(new PdfLayoutLink(
+                index,
+                new PdfLayoutRectangle(
+                    nameBounds.X - 2f,
+                    nameBounds.Y - 4f,
+                    nameBounds.Width + 2.25f,
+                    firstLinkCoversFollowingContent && index == 0 ? 190f : 15.4f),
+                PdfLayoutLinkKind.Uri,
+                $"mailto:member-{index + 1}@example.test",
+                null,
+                null,
+                []));
+        }
+
+        lines.Add(Line(Run("Following fixed content.", 78f, 430f)));
+        PdfLayoutFormControl control = new(
+            0,
+            "approval",
+            "Approval",
+            PdfLayoutFormControlKind.Text,
+            new PdfLayoutRectangle(72f, 700f, 180f, 20f));
+        return new PdfLayoutDocument([Page(lines, links, [control])], []);
+    }
+
     private static PdfLayoutPage Page(
         IReadOnlyList<PdfTextRun> runs,
         IReadOnlyList<PdfLayoutFormControl>? controls = null)
     {
-        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
         PdfTextLine[] lines = runs
-            .Select(static run => new PdfTextLine(run.Text, run.Bounds, [run]))
+            .Select(Line)
             .ToArray();
+        return Page(lines, [], controls);
+    }
+
+    private static PdfLayoutPage Page(
+        IReadOnlyList<PdfTextLine> lines,
+        IReadOnlyList<PdfLayoutLink> links,
+        IReadOnlyList<PdfLayoutFormControl>? controls = null)
+    {
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfTextRun[] runs = lines.SelectMany(static line => line.Runs).ToArray();
         return new PdfLayoutPage(
             1,
             pageBounds,
@@ -239,10 +421,49 @@ public class PdfHtmlSemanticIslandTest
             [],
             [],
             [],
-            [],
-            [],
+            links,
             [],
             formControls: controls);
+    }
+
+    private static PdfTextLine Line(PdfTextRun run)
+    {
+        return new PdfTextLine(run.Text, run.Bounds, [run]);
+    }
+
+    private static PdfTextLine LinkedMemberLine(string memberName, string country, float y)
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor black = new(0f, 0f, 0f, 1f, "DeviceRGB");
+        PdfLayoutColor accent = new(0.51f, 0.01f, 0.29f, 1f, "DeviceRGB");
+        List<PdfTextRun> runs = [];
+
+        AddRun("•", "SymbolMT", 114.05f, y + 2.18f, 4.83f, 4.77f, black);
+        AddRun(" ", "ArialMT", 118.8f, y + 2.03f, 2.92f, 4.92f, black);
+        float memberWidth = memberName.Length * 5f;
+        AddRun(memberName, "SourceSansPro-Regular", 132.05f, y + 0.34f, memberWidth, 6.62f, accent);
+        string countryText = $" ({country})";
+        float countryX = 132.05f + memberWidth;
+        float countryWidth = countryText.Length * 4.5f;
+        AddRun(countryText, "SourceSansPro-Regular", countryX, y + 0.34f, countryWidth, 6.62f, black);
+        AddRun(" ", "SourceSansPro-Bold", countryX + countryWidth, y, 2.1f, 6.95f, black);
+
+        PdfLayoutRectangle bounds = Union(runs.Select(static run => run.Bounds));
+        return new PdfTextLine(string.Concat(runs.Select(static run => run.Text)), bounds, runs);
+
+        void AddRun(
+            string text,
+            string fontName,
+            float x,
+            float runY,
+            float width,
+            float height,
+            PdfLayoutColor color)
+        {
+            PdfLayoutRectangle runBounds = new(x, runY, width, height);
+            PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, runBounds, color);
+            runs.Add(new PdfTextRun(text, fontName, fontSize, 0f, runBounds, color, [glyph]));
+        }
     }
 
     private static PdfTextRun Run(string text, float x, float y)
@@ -370,8 +591,34 @@ public class PdfHtmlSemanticIslandTest
         return Regex.Replace(text, "\\s+", " ").Trim();
     }
 
+    private static void AssertWithin(float tolerance, float expected, float actual)
+    {
+        Assert.InRange(actual, expected - tolerance, expected + tolerance);
+    }
+
     private static string FixturePath(string fileName)
     {
         return Path.Combine(AppContext.BaseDirectory, "Fixtures", fileName);
+    }
+
+    private sealed class TempDirectory : IDisposable
+    {
+        public TempDirectory()
+        {
+            Path = System.IO.Path.Combine(
+                System.IO.Path.GetTempPath(),
+                "pdfbox-net-semantic-island-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(Path);
+        }
+
+        public string Path { get; }
+
+        public void Dispose()
+        {
+            if (Directory.Exists(Path))
+            {
+                Directory.Delete(Path, recursive: true);
+            }
+        }
     }
 }
