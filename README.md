@@ -2,6 +2,10 @@
 
 A mechanical port of [Apache PDFBox](https://pdfbox.apache.org/) to modern .NET.
 
+PDF-to-HTML conversion, the `PdfBox.Net.Layout` and `PdfBox.Net.Html`
+libraries, and the `unpdf` CLI live in
+[erikbra/unpdf](https://github.com/erikbra/unpdf).
+
 ## Status: 100% parity achieved ✅
 
 All **1,067** upstream Java source files from Apache PDFBox have been ported to C#.

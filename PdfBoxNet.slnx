@@ -10,10 +10,8 @@
     <Project Path="src/PdfBox.Net.Debugger/PdfBox.Net.Debugger.csproj" />
     <Project Path="src/PdfBox.Net.Examples/PdfBox.Net.Examples.csproj" />
     <Project Path="src/PdfBox.Net.FontBox/PdfBox.Net.FontBox.csproj" />
-    <Project Path="src/PdfBox.Net.Html/PdfBox.Net.Html.csproj" />
     <Project Path="src/PdfBox.Net.ImageSharp/PdfBox.Net.ImageSharp.csproj" />
     <Project Path="src/PdfBox.Net.IO/PdfBox.Net.IO.csproj" />
-    <Project Path="src/PdfBox.Net.Layout/PdfBox.Net.Layout.csproj" />
     <Project Path="src/PdfBox.Net.MauiGraphics/PdfBox.Net.MauiGraphics.csproj" />
     <Project Path="src/PdfBox.Net/PdfBox.Net.csproj" />
     <Project Path="src/PdfBox.Net.ImageMagick/PdfBox.Net.ImageMagick.csproj" />
@@ -24,25 +22,17 @@
   </Folder>
   <Folder Name="/apps/">
     <Project Path="apps/PdfBox.Net.Debugger.App/PdfBox.Net.Debugger.App.csproj" />
-    <Project Path="apps/PdfBox.Net.Unpdf/PdfBox.Net.Unpdf.csproj" />
-  </Folder>
-  <Folder Name="/samples/">
-    <Project Path="samples/PdfBox.Net.Html.Wasm/PdfBox.Net.Html.Wasm.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.FontBox.Tests/PdfBox.Net.FontBox.Tests.csproj" />
-    <Project Path="tests/PdfBox.Net.Html.Tests/PdfBox.Net.Html.Tests.csproj" />
-    <Project Path="tests/PdfBox.Net.Unpdf.Tests/PdfBox.Net.Unpdf.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.ImageSharp.Tests/PdfBox.Net.ImageSharp.Tests.csproj" />
-    <Project Path="tests/PdfBox.Net.Layout.Tests/PdfBox.Net.Layout.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.MauiGraphics.Tests/PdfBox.Net.MauiGraphics.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.SystemDrawing.Tests/PdfBox.Net.SystemDrawing.Tests.csproj" />
     <Project Path="tests/PdfBox.Net.XmpBox.Tests/PdfBox.Net.XmpBox.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">
-    <Project Path="tools/conversion_quality/PdfBox.Net.ConversionQuality/PdfBox.Net.ConversionQuality.csproj" />
     <Project Path="tools/parity/runtime/DotnetPdfProbe/DotnetPdfProbe.csproj" />
   </Folder>
 </Solution>
