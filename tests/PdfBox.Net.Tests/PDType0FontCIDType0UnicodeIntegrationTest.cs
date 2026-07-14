@@ -23,6 +23,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Debugger.Fontencodingpane;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Font.Encoding;
@@ -73,6 +74,30 @@ public class PDType0FontCIDType0UnicodeIntegrationTest
         var type0 = new PDType0Font(parentDict, descendant);
         string? unicode = type0.ToUnicode(0x21, GlyphList.GetAdobeGlyphList());
         Assert.Equal("A", unicode);
+    }
+
+    [Fact]
+    public void DebuggerType0Font_ReadMap_UsesParentEncodingCMap()
+    {
+        TrueTypeFont ttf = new TTFParser().Parse(FontBoxTestFixtures.CreateMinimalTrueType());
+        var descendantDict = new COSDictionary();
+        descendantDict.SetName(COSName.GetPDFName("Subtype"), "CIDFontType2");
+        var descendant = new PDCIDFontType2(descendantDict, ttf);
+
+        var parentDict = new COSDictionary();
+        parentDict.SetName(COSName.GetPDFName("Subtype"), "Type0");
+        parentDict.SetItem(
+            COSName.GetPDFName("Encoding"),
+            CreateEncodingCMapStream("1 begincidrange\n<21> <21> 1\nendcidrange", "<21> <21>"));
+        var parent = new PDType0Font(parentDict, descendant);
+
+        var model = new Type0Font(descendant, parent);
+
+        object[] row = Assert.Single(model.TableData!);
+        Assert.Equal(0x21, row[0]);
+        Assert.Equal(1, row[1]);
+        Assert.Equal(1, row[2]);
+        Assert.Equal("A", row[3]);
     }
 
     [Fact]

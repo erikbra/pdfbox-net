@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-06-30T15:35:33.593Z",
+  "generated_at_utc": "2026-07-14T19:18:51.827Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "origin/3.0",
   "excluded_upstream_modules": [
@@ -10,8 +10,8 @@
     "preflight": 116,
     "preflight-app": 0
   },
-  "upstream_head": "ea68b6feae80e671b3d26565b12eccc79e74d967",
-  "tracked_parity_baseline_commit": "ea68b6feae80e671b3d26565b12eccc79e74d967",
+  "upstream_head": "10950c29006e36cfba48e74d4031784e31562cbf",
+  "tracked_parity_baseline_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1071,
   "mapped": 1071,
@@ -12741,10 +12741,9 @@
         "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net/PDModel/Font/FontStubs.cs"
+        "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs"
       ],
       "target_paths": [
-        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
         "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs"
       ],
       "gap_category": "none"
@@ -12784,10 +12783,9 @@
         "src/PdfBox.Net/PDModel/Font/TrueTypePathNormalizer.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net/PDModel/Font/FontStubs.cs"
+        "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs"
       ],
       "target_paths": [
-        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
         "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
         "src/PdfBox.Net/PDModel/Font/TrueTypePathNormalizer.cs"
       ],
@@ -13043,10 +13041,9 @@
         "src/PdfBox.Net/PDModel/Font/PDType0Font.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net/PDModel/Font/FontStubs.cs"
+        "src/PdfBox.Net/PDModel/Font/PDType0Font.cs"
       ],
       "target_paths": [
-        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
         "src/PdfBox.Net/PDModel/Font/PDType0Font.cs"
       ],
       "gap_category": "none"

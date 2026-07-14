@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java
- * PDFBOX_SOURCE_COMMIT: e369837044c655ad3ee34f41cd30bef2465d9566
+ * PDFBOX_SOURCE_COMMIT: 10950c29006e36cfba48e74d4031784e31562cbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: cab997139d253eba7d4a520c209437b66ed12c90
+ * PORT_LAST_SYNC_COMMIT: 10950c29006e36cfba48e74d4031784e31562cbf
  */
 
 /*
@@ -252,7 +252,7 @@ public partial class PDType0Font : PDVectorFont
         if (_descendantFont is PDCIDFontType2 type2)
         {
             int gid = type2.CodeToGID(CodeToCID(code));
-            return type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(gid) != null;
+            return gid != 0;
         }
 
         return false;
