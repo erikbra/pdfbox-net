@@ -722,11 +722,11 @@
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateEmbeddedTimeStamp.java",
     "target_path": "src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
+    "sync_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T16:09:20Z",
+    "last_checked_utc": "2026-07-14T18:35:49.300Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs"
   },
   {
@@ -792,11 +792,11 @@
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java",
     "target_path": "src/PdfBox.Net.Examples/Signature/ShowSignature.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
+    "sync_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T16:09:20Z",
+    "last_checked_utc": "2026-07-14T18:35:49.300Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/ShowSignature.cs"
   },
   {
@@ -892,21 +892,21 @@
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/AddValidationInformation.java",
     "target_path": "src/PdfBox.Net.Examples/Signature/Validation/AddValidationInformation.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
+    "sync_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T16:09:20Z",
+    "last_checked_utc": "2026-07-14T18:35:49.300Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Validation/AddValidationInformation.cs"
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/CertInformationCollector.java",
     "target_path": "src/PdfBox.Net.Examples/Signature/Validation/CertInformationCollector.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
+    "sync_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T16:09:20Z",
+    "last_checked_utc": "2026-07-14T18:35:49.300Z",
     "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Validation/CertInformationCollector.cs"
   },
   {
@@ -7991,11 +7991,11 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type0Font.java",
     "target_path": "src/PdfBox.Net.Debugger/Fontencodingpane/Type0Font.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
+    "sync_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
+    "last_checked_utc": "2026-07-14T18:35:49.300Z",
     "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
   },
   {
