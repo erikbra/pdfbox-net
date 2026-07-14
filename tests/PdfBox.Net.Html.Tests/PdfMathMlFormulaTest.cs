@@ -574,6 +574,46 @@ public class PdfMathMlFormulaTest
     }
 
     [Fact]
+    public void FormulaOperatorLimitRun_AcceptsSingleLimitAndRejectsShortProseWord()
+    {
+        PdfTextGlyph sum = Glyph("∑", 200f, 100f, 12f, 14f, 15f, "CMEX10");
+        PdfTextGlyph limit = Glyph("k", 204f, 86f, 5f, 5f, 6f, "Times-Italic");
+        PdfTextGlyph prose = Glyph("for", 199f, 116f, 15f, 5f, 6f, "Times-Roman");
+        PdfTextGlyph article = Glyph("a", 204f, 86f, 5f, 5f, 6f, "Times-Roman");
+        PdfTextLine sumLine = LayoutLine([sum]);
+        PdfTextLine limitLine = LayoutLine([limit]);
+        PdfTextLine proseLine = LayoutLine([prose]);
+        PdfTextLine articleLine = LayoutLine([article]);
+        PdfTextRun sumRun = Assert.Single(sumLine.Runs);
+        PdfTextRun limitRun = Assert.Single(limitLine.Runs);
+        PdfTextRun proseRun = Assert.Single(proseLine.Runs);
+        PdfTextRun articleRun = Assert.Single(articleLine.Runs);
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [sum, limit, prose, article],
+            [sumRun, limitRun, proseRun, articleRun],
+            [sumLine, limitLine, proseLine, articleLine],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        PdfLayoutRectangle formulaBounds = new(190f, 92f, 36f, 30f);
+
+        Assert.True(PdfHtmlConverter.IsFormulaOperatorLimitRun(page, formulaBounds, limitRun));
+        Assert.False(PdfHtmlConverter.IsFormulaOperatorLimitRun(page, formulaBounds, proseRun));
+        Assert.False(PdfHtmlConverter.IsFormulaOperatorLimitRun(page, formulaBounds, articleRun));
+    }
+
+    [Fact]
     public void TryCreate_IgnoresUnpaintedAndTinyLatexitPayloads()
     {
         PdfTextGlyph[] glyphs =
@@ -908,6 +948,23 @@ public class PdfMathMlFormulaTest
             glyphs[0].FontSize,
             glyphs[0].Direction,
             glyphs[0].Color,
+            runs);
+    }
+
+    private static PdfTextLine LayoutLine(IReadOnlyList<PdfTextGlyph> glyphs)
+    {
+        PdfTextRun[] runs = glyphs.Select(glyph => new PdfTextRun(
+            glyph.Text,
+            glyph.FontName,
+            glyph.FontSize,
+            glyph.Direction,
+            glyph.Bounds,
+            glyph.Color,
+            [glyph],
+            glyph.PageBounds)).ToArray();
+        return new PdfTextLine(
+            string.Concat(glyphs.Select(static glyph => glyph.Text)),
+            Bounds(glyphs.Select(static glyph => glyph.Bounds)),
             runs);
     }
 

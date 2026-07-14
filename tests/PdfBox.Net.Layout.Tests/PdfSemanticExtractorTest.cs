@@ -465,6 +465,91 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_InlineLargeOperatorInRightColumn_RemainsInParagraphFlow()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("The estimator is evaluated on every observation in the sample.", 330f, 72f, 230f),
+            CreateFixtureLine("Its definition remains part of this ordinary right-column paragraph.", 330f, 84f, 240f),
+            CreateStyledFixtureLine(
+                330f,
+                96f,
+                ("The estimator is computed as ", "Times-Roman"),
+                ("∑", "CMEX10"),
+                (" x over the sample.", "Times-Roman")),
+            CreateFixtureLine("The surrounding discussion continues without a display break.", 330f, 108f, 220f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement paragraph = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph && element.Text.Contains('∑'));
+
+        Assert.Equal(4, paragraph.Lines.Count);
+        Assert.StartsWith("The estimator is evaluated", paragraph.Text, StringComparison.Ordinal);
+        Assert.EndsWith("without a display break.", paragraph.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Extract_NumberedFormula_DoesNotAbsorbNearbyMixedProse()
+    {
+        PdfTextLine formula = CreateStyledFixtureLineWithTrailingNumber(
+            220f,
+            120f,
+            500f,
+            "(1)",
+            ("x", "CMMI10"),
+            ("=", "CMR10"),
+            ("1", "CMR10"));
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("Opening prose establishes the body font and line rhythm.", 72f, 72f, 390f),
+            CreateFixtureLine("The next display is followed by a short explanatory clause.", 72f, 84f, 410f),
+            formula,
+            CreateFixtureLine("where x = 1 is fixed", 220f, 132f, 130f),
+            CreateFixtureLine("Ordinary prose resumes after the explanation.", 72f, 160f, 310f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement equation = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph && element.Text.EndsWith("(1)", StringComparison.Ordinal));
+        PdfSemanticElement explanation = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("where x = 1 is fixed", StringComparison.Ordinal));
+
+        Assert.Single(equation.Lines);
+        Assert.DoesNotContain("where", equation.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("(1)", explanation.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Extract_TableRowsEndingInParenthesizedNumbers_RemainTableRows()
+    {
+        PdfLayoutDocument layout = CreateSemanticPassageFixture(
+        [
+            CreateFixtureLine("The following parameter summary contains two aligned columns.", 72f, 72f, 390f),
+            CreateFormulaLikeTableRow("parameter", "value", "(2)", 120f),
+            CreateFormulaLikeTableRow("threshold", "limit", "(3)", 134f),
+            CreateFormulaLikeTableRow("offset", "constant", "(4)", 148f),
+            CreateFixtureLine("Ordinary prose resumes below the table.", 72f, 190f, 300f)
+        ]);
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement table = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Table);
+
+        Assert.Equal(
+            ["parameter", "= value", "(2)"],
+            table.TableRows[0].Cells.Select(static cell => cell.Text));
+        Assert.Equal(
+            ["threshold", "= limit", "(3)"],
+            table.TableRows[1].Cells.Select(static cell => cell.Text));
+        Assert.Equal(
+            ["offset", "= constant", "(4)"],
+            table.TableRows[2].Cells.Select(static cell => cell.Text));
+        Assert.Equal(["(2)", "(3)", "(4)"], table.TableRows.Select(static row => row.Cells[^1].Text));
+    }
+
+    [Fact]
     public void Extract_LineBreakHyphenation_UsesParagraphEdgesAndPreservesAuthoredCompounds()
     {
         PdfLayoutDocument layout = CreateSemanticPassageFixture(
@@ -2890,6 +2975,61 @@ public sealed class PdfSemanticExtractorTest
         return new PdfTextLine(
             string.Concat(segments.Select(static segment => segment.Text)),
             new PdfLayoutRectangle(x, y, segmentX - x, fontSize * 0.75f),
+            runs);
+    }
+
+    private static PdfTextLine CreateStyledFixtureLineWithTrailingNumber(
+        float x,
+        float y,
+        float numberX,
+        string number,
+        params (string Text, string FontName)[] segments)
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        List<PdfTextRun> runs = [];
+        float segmentX = x;
+        foreach ((string text, string fontName) in segments)
+        {
+            float width = MathF.Max(4f, text.Length * 5f);
+            PdfLayoutRectangle bounds = new(segmentX, y, width, fontSize * 0.75f);
+            PdfTextGlyph glyph = new(text, fontName, fontSize, 0f, bounds, color);
+            runs.Add(new PdfTextRun(text, fontName, fontSize, 0f, bounds, color, [glyph]));
+            segmentX += width;
+        }
+
+        PdfLayoutRectangle numberBounds = new(numberX, y, MathF.Max(4f, number.Length * 5f), fontSize * 0.75f);
+        PdfTextGlyph numberGlyph = new(number, "Times-Roman", fontSize, 0f, numberBounds, color);
+        runs.Add(new PdfTextRun(number, "Times-Roman", fontSize, 0f, numberBounds, color, [numberGlyph]));
+        return new PdfTextLine(
+            string.Concat(segments.Select(static segment => segment.Text)) + number,
+            new PdfLayoutRectangle(x, y, numberBounds.Right - x, fontSize * 0.75f),
+            runs);
+    }
+
+    private static PdfTextLine CreateFormulaLikeTableRow(
+        string label,
+        string value,
+        string number,
+        float y)
+    {
+        const float fontSize = 10f;
+        PdfLayoutColor color = new(0f, 0f, 0f, 1f, "DeviceGray");
+        (string Text, float X, float Width)[] cells =
+        [
+            (label, 90f, 80f),
+            (" = " + value, 240f, 90f),
+            (number, 420f, 24f)
+        ];
+        PdfTextRun[] runs = cells.Select(cell =>
+        {
+            PdfLayoutRectangle bounds = new(cell.X, y, cell.Width, fontSize * 0.75f);
+            PdfTextGlyph glyph = new(cell.Text, "Times-Roman", fontSize, 0f, bounds, color);
+            return new PdfTextRun(cell.Text, "Times-Roman", fontSize, 0f, bounds, color, [glyph]);
+        }).ToArray();
+        return new PdfTextLine(
+            string.Concat(cells.Select(static cell => cell.Text)),
+            new PdfLayoutRectangle(90f, y, 354f, fontSize * 0.75f),
             runs);
     }
 

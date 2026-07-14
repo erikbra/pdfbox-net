@@ -1701,7 +1701,9 @@ public static class PdfSemanticExtractor
         int wordCount = CountWords(line.Text);
         return centeredEnough &&
             (wordCount <= 4 && line.DominantFontSize <= bodyFontSize + 1f ||
-                wordCount <= 12 && HasLargeFormulaOperator(line.Runs));
+                wordCount <= 12 &&
+                HasLargeFormulaOperator(line.Runs) &&
+                !IsProseDominantFormulaLine(line.Runs));
     }
 
     private static bool StartsFormulaClause(string text)
@@ -4255,8 +4257,17 @@ public static class PdfSemanticExtractor
             float numberBaseline = numberGlyphs.Average(static glyph => glyph.Bounds.Bottom);
             bool sharesExpressionBaseline = expressionGlyphs.Any(glyph =>
                 MathF.Abs(glyph.Bounds.Bottom - numberBaseline) <= MathF.Max(1.2f, glyph.FontSize * 0.18f));
+            bool hasFormulaFont = expressionGlyphs.Any(static glyph =>
+            {
+                string fontName = NormalizeFontName(glyph.FontName);
+                return IsMathFont(fontName) ||
+                    fontName.StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase) ||
+                    fontName.Contains("ITAL", StringComparison.OrdinalIgnoreCase) ||
+                    fontName.Contains("OBLIQUE", StringComparison.OrdinalIgnoreCase);
+            });
             if (!sharesExpressionBaseline ||
                 numberGlyphs[0].Bounds.X - expressionGlyphs.Max(static glyph => glyph.Bounds.Right) < fontSize * 1.4f ||
+                !hasFormulaFont ||
                 !HasFormulaOperator(expression))
             {
                 continue;
@@ -4300,14 +4311,15 @@ public static class PdfSemanticExtractor
             return false;
         }
 
+        if (IsProseDominantFormulaRegionLine(candidate) &&
+            !StartsOptimizationFormulaClause(candidate.Text))
+        {
+            return false;
+        }
+
         if (HasFormulaOperator(candidate.Text))
         {
             return true;
-        }
-
-        if (IsProseDominantFormulaRegionLine(candidate))
-        {
-            return false;
         }
 
         return candidate.Text.Trim().Length <= 8 ||
@@ -4360,13 +4372,22 @@ public static class PdfSemanticExtractor
 
     private static bool IsProseDominantFormulaRegionLine(LineCandidate candidate)
     {
-        if (FormulaRegionWordCount(candidate.Text, candidate.Source.Runs) < 2)
-        {
-            return false;
-        }
+        return IsProseDominantFormulaLine(candidate.Source.Runs);
+    }
 
-        int totalLetters = candidate.Source.Runs.Sum(static run => run.Text.Count(char.IsLetter));
-        int proseLetters = candidate.Source.Runs
+    private static bool StartsOptimizationFormulaClause(string text)
+    {
+        string normalized = string.Concat(text.Where(static character => !char.IsWhiteSpace(character)));
+        return normalized.StartsWith("minimize", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("maximize", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("subjectto", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsProseDominantFormulaLine(
+        IReadOnlyList<PdfTextRun> runs)
+    {
+        int totalLetters = runs.Sum(static run => run.Text.Count(char.IsLetter));
+        int proseLetters = runs
             .Where(static run =>
             {
                 string fontName = NormalizeFontName(run.FontName);
@@ -6979,7 +7000,9 @@ public static class PdfSemanticExtractor
         int wordCount = CountWords(line.Text);
         return centeredEnough &&
             (wordCount <= 4 && line.FontSize <= bodyFontSize + 1f ||
-                wordCount <= 12 && HasLargeFormulaOperator(line.Source.Runs));
+                wordCount <= 12 &&
+                HasLargeFormulaOperator(line.Source.Runs) &&
+                !IsProseDominantFormulaLine(line.Source.Runs));
     }
 
     private static bool IsMathDominantFormulaLine(

@@ -9440,16 +9440,7 @@ public static class PdfHtmlConverter
 
     private static bool IsFormulaOnlySourceLine(PdfSemanticLine line)
     {
-        if (!IsProseLikeFormulaSourceLine(line))
-        {
-            return true;
-        }
-
-        string text = line.Text.Trim();
-        return FormulaSourceWordCount(text, line.Runs) <= 12 &&
-            HasFormulaSignal(text) &&
-            text.IndexOfAny(['∑', '∏', '∫']) >= 0 &&
-            line.Runs.Any(static run => HasMathFont(run.FontName));
+        return !IsProseLikeFormulaSourceLine(line);
     }
 
     private static bool IsProseLikeFormulaSourceLine(
@@ -9475,7 +9466,7 @@ public static class PdfHtmlConverter
         string text,
         IReadOnlyList<PdfTextRun> runs)
     {
-        if (FormulaSourceWordCount(text, runs) < 2 || HasFormulaSignal(text))
+        if (HasFormulaSignal(text))
         {
             return false;
         }
@@ -9588,15 +9579,18 @@ public static class PdfHtmlConverter
             IsEquationNumber(text);
     }
 
-    private static bool IsFormulaOperatorLimitRun(
+    internal static bool IsFormulaOperatorLimitRun(
         PdfLayoutPage page,
         PdfLayoutRectangle bounds,
         PdfTextRun run)
     {
         string text = run.Text.Trim();
+        bool hasMathFont = HasMathFont(run.FontName);
+        bool plausibleNonMathLimit = text.Length == 1 &&
+            (char.IsDigit(text[0]) || char.IsLetter(text[0]) && IsItalicFont(run.FontName));
         if (text.Length is 0 or > 16 ||
             run.Bounds.Width > MathF.Max(48f, run.FontSize * 8f) ||
-            !HasMathFont(run.FontName) && text.Any(char.IsLetter) && text.Length > 3)
+            !hasMathFont && !plausibleNonMathLimit)
         {
             return false;
         }
