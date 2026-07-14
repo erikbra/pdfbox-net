@@ -26,13 +26,17 @@
  */
 
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace PdfBox.Net.COS;
 
 public sealed class COSName : COSBase, IComparable<COSName>
 {
-    private static readonly ConcurrentDictionary<string, COSName> NameMap = new(StringComparer.Ordinal);
+    // using ConcurrentDictionary because this can be accessed by multiple threads
+    private static readonly ConcurrentDictionary<NameKey, WeakReference<COSName>> NameMap =
+        new(Environment.ProcessorCount, 8192);
+    private static readonly ConditionalWeakTable<COSName, CleanupRegistration> CleanupRegistrations = new();
 
     //
     // IMPORTANT: this list is *alphabetized* and does not need additional doc comments
@@ -232,8 +236,80 @@ public sealed class COSName : COSBase, IComparable<COSName>
 
     public static COSName GetPDFName(byte[] bytes)
     {
-        string key = Convert.ToBase64String(bytes);
-        return NameMap.GetOrAdd(key, _ => new COSName((byte[])bytes.Clone()));
+        NameKey lookupKey = new(bytes);
+        WeakReference<COSName>? weakReference = NameMap.GetValueOrDefault(lookupKey);
+        COSName? name = null;
+        weakReference?.TryGetTarget(out name);
+
+        if (name is null)
+        {
+            // Although we use a ConcurrentDictionary, GetOrAdd cannot be used because the returned reference
+            // might be stale. Use double-checked locking to preserve one live instance for each byte sequence.
+            lock (NameMap)
+            {
+                weakReference = NameMap.GetValueOrDefault(lookupKey);
+                weakReference?.TryGetTarget(out name);
+                if (name is null)
+                {
+                    // Defensive copy which is safe to share as the key and the name bytes are immutable.
+                    byte[] storedBytes = (byte[])bytes.Clone();
+                    NameKey storedKey = new(storedBytes);
+                    name = new COSName(storedBytes);
+                    weakReference = new WeakReference<COSName>(name);
+
+                    NameMap.TryRemove(lookupKey, out _);
+                    NameMap[storedKey] = weakReference;
+                    CleanupRegistrations.Add(name, new CleanupRegistration(storedKey, weakReference));
+                }
+            }
+        }
+
+        return name;
+    }
+
+    private sealed class NameKey(byte[] bytes) : IEquatable<NameKey>
+    {
+        private readonly byte[] _bytes = bytes;
+        private readonly int _hashCode = ComputeHashCode(bytes);
+
+        public bool Equals(NameKey? other)
+        {
+            return other is not null &&
+                   _hashCode == other._hashCode &&
+                   _bytes.AsSpan().SequenceEqual(other._bytes);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is NameKey other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return _hashCode;
+        }
+
+        private static int ComputeHashCode(ReadOnlySpan<byte> value)
+        {
+            HashCode hash = new();
+            foreach (byte item in value)
+            {
+                hash.Add(item);
+            }
+
+            return hash.ToHashCode();
+        }
+    }
+
+    private sealed class CleanupRegistration(
+        NameKey key,
+        WeakReference<COSName> weakReference)
+    {
+        ~CleanupRegistration()
+        {
+            ICollection<KeyValuePair<NameKey, WeakReference<COSName>>> entries = NameMap;
+            entries.Remove(new KeyValuePair<NameKey, WeakReference<COSName>>(key, weakReference));
+        }
     }
 
     private COSName(byte[] bytes)

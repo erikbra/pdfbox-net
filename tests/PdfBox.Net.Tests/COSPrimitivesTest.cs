@@ -21,7 +21,10 @@
  * limitations under the License.
  */
 
+using System.Collections;
 using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using PdfBox.Net.COS;
 using Xunit;
@@ -30,6 +33,35 @@ namespace PdfBox.Net.Tests;
 
 public class COSPrimitivesTest
 {
+    [Fact]
+    public void TestCOSNameReturnsCanonicalInstanceAcrossThreads()
+    {
+        string value = $"concurrent-name-{Guid.NewGuid():N}";
+        COSName[] names = new COSName[256];
+
+        Parallel.For(0, names.Length, index => names[index] = COSName.GetPDFName(value));
+
+        Assert.All(names, name => Assert.Same(names[0], name));
+    }
+
+    [Fact]
+    public void TestCOSNameCacheReleasesUnusedDynamicNames()
+    {
+        byte[] bytes = Encoding.UTF8.GetBytes($"collectible-name-{Guid.NewGuid():N}");
+        WeakReference<COSName> reference = CreateCollectibleName(bytes);
+
+        Assert.True(IsNameCached(bytes));
+
+        for (int attempt = 0; attempt < 10 && IsNameCached(bytes); attempt++)
+        {
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
+            GC.WaitForPendingFinalizers();
+        }
+
+        Assert.False(reference.TryGetTarget(out _));
+        Assert.False(IsNameCached(bytes));
+    }
+
     [Fact]
     public void TestCOSObjectKeyBehavior()
     {
@@ -171,6 +203,34 @@ public class COSPrimitivesTest
         {
             COSNull.NULL.Accept(visitor);
         }
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static WeakReference<COSName> CreateCollectibleName(byte[] bytes)
+    {
+        COSName name = COSName.GetPDFName(bytes);
+        Assert.Same(name, COSName.GetPDFName(bytes));
+        return new WeakReference<COSName>(name);
+    }
+
+    private static bool IsNameCached(byte[] bytes)
+    {
+        FieldInfo nameMapField = typeof(COSName).GetField("NameMap", BindingFlags.NonPublic | BindingFlags.Static)!;
+        IEnumerable entries = (IEnumerable)nameMapField.GetValue(null)!;
+
+        foreach (object entry in entries)
+        {
+            object key = entry.GetType().GetProperty("Key")!.GetValue(entry)!;
+            byte[] cachedBytes = (byte[])key.GetType()
+                .GetField("_bytes", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .GetValue(key)!;
+            if (cachedBytes.AsSpan().SequenceEqual(bytes))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private sealed class RecordingVisitor : ICOSVisitor
