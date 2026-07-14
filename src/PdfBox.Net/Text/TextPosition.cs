@@ -670,7 +670,7 @@ public sealed partial class TextPosition
             return mapped;
         }
 
-        return value.Normalize(NormalizationForm.FormKC).Trim();
+        return PdfStringNormalization.Normalize(value, NormalizationForm.FormKC).Trim();
     }
 
     public bool IsDiacritic()

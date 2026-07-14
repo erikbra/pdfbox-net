@@ -1,6 +1,6 @@
-# PDF-to-HTML Browser Preview
+# unpdf Browser Preview
 
-The browser-lite PDF-to-HTML converter is published at
+The `unpdf` browser PDF-to-HTML converter is published at
 [erikbra.github.io/pdfbox-net/wasm/](https://erikbra.github.io/pdfbox-net/wasm/).
 It reads the selected PDF locally and does not upload the document or extracted
 content to a server.

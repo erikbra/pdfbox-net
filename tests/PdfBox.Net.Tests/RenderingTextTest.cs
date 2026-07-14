@@ -679,6 +679,12 @@ public class RenderingTextTest
     }
 
     [Fact]
+    public void PdfStringNormalization_CompatibilityFormExpandsLigatures()
+    {
+        Assert.Equal("fi", PdfStringNormalization.Normalize("\uFB01", NormalizationForm.FormKC));
+    }
+
+    [Fact]
     public void PDFMarkedContentExtractor_ProcessPage_CapturesMarkedContentText()
     {
         using var document = CreateSimpleTextFixtureDocument("""

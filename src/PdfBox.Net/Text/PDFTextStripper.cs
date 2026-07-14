@@ -32,6 +32,7 @@ using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
 using PdfBox.Net.PDModel.Interactive.PageNavigation;
+using PdfBox.Net.Util;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -1198,7 +1199,7 @@ public partial class PDFTextStripper : LegacyPDFStreamEngine
                 }
                 else
                 {
-                    string normalized = word.Substring(q, 1).Normalize(NormalizationForm.FormKC).Trim();
+                    string normalized = PdfStringNormalization.Normalize(word.Substring(q, 1), NormalizationForm.FormKC).Trim();
                     if (0xFB1D <= c && normalized.Length > 1)
                     {
                         char[] chars = normalized.ToCharArray();
