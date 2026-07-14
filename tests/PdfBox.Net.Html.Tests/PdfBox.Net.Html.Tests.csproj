@@ -52,6 +52,15 @@
     <Content Include="Fixtures\acl-bert-page-3.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\PdfBox.Net.Layout.Tests\Fixtures\jmlr-lda-page-4.pdf" Link="Fixtures\jmlr-lda-page-4.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\PdfBox.Net.Layout.Tests\Fixtures\jmlr-lda-page-11.pdf" Link="Fixtures\jmlr-lda-page-11.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\PdfBox.Net.Layout.Tests\Fixtures\jmlr-lda-page-12.pdf" Link="Fixtures\jmlr-lda-page-12.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\PdfBox.Net.Tests\Fixtures\TextExtraction\Issue412\arxiv-sample.pdf" Link="Fixtures\arxiv-sample.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

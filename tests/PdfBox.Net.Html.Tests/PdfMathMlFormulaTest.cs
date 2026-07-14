@@ -574,6 +574,46 @@ public class PdfMathMlFormulaTest
     }
 
     [Fact]
+    public void FormulaOperatorLimitRun_AcceptsSingleLimitAndRejectsShortProseWord()
+    {
+        PdfTextGlyph sum = Glyph("∑", 200f, 100f, 12f, 14f, 15f, "CMEX10");
+        PdfTextGlyph limit = Glyph("k", 204f, 86f, 5f, 5f, 6f, "Times-Italic");
+        PdfTextGlyph prose = Glyph("for", 199f, 116f, 15f, 5f, 6f, "Times-Roman");
+        PdfTextGlyph article = Glyph("a", 204f, 86f, 5f, 5f, 6f, "Times-Roman");
+        PdfTextLine sumLine = LayoutLine([sum]);
+        PdfTextLine limitLine = LayoutLine([limit]);
+        PdfTextLine proseLine = LayoutLine([prose]);
+        PdfTextLine articleLine = LayoutLine([article]);
+        PdfTextRun sumRun = Assert.Single(sumLine.Runs);
+        PdfTextRun limitRun = Assert.Single(limitLine.Runs);
+        PdfTextRun proseRun = Assert.Single(proseLine.Runs);
+        PdfTextRun articleRun = Assert.Single(articleLine.Runs);
+        PdfLayoutRectangle pageBounds = new(0f, 0f, 612f, 792f);
+        PdfLayoutPage page = new(
+            1,
+            pageBounds,
+            pageBounds,
+            pageBounds.Width,
+            pageBounds.Height,
+            0,
+            [sum, limit, prose, article],
+            [sumRun, limitRun, proseRun, articleRun],
+            [sumLine, limitLine, proseLine, articleLine],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
+        PdfLayoutRectangle formulaBounds = new(190f, 92f, 36f, 30f);
+
+        Assert.True(PdfHtmlConverter.IsFormulaOperatorLimitRun(page, formulaBounds, limitRun));
+        Assert.False(PdfHtmlConverter.IsFormulaOperatorLimitRun(page, formulaBounds, proseRun));
+        Assert.False(PdfHtmlConverter.IsFormulaOperatorLimitRun(page, formulaBounds, articleRun));
+    }
+
+    [Fact]
     public void TryCreate_IgnoresUnpaintedAndTinyLatexitPayloads()
     {
         PdfTextGlyph[] glyphs =
@@ -630,7 +670,6 @@ public class PdfMathMlFormulaTest
         Assert.DoesNotContain("(2)", math.Value, StringComparison.Ordinal);
 
         XElement[] tables = dom.Descendants("table").ToArray();
-        Assert.NotEmpty(tables);
         Assert.DoesNotContain(tables, table => table.Value.Contains("(2)", StringComparison.Ordinal));
         Assert.DoesNotContain(tables, table => table.Value.Contains("∏", StringComparison.Ordinal));
         Assert.Single(dom.Descendants(), element => element.Value == "(2)");
@@ -645,6 +684,146 @@ public class PdfMathMlFormulaTest
             equationThree.Descendants(),
             element => HasClass(element, "pdf-semantic-formula-run") &&
                 element.Attribute("style")?.Value.Contains("left:", StringComparison.Ordinal) == true);
+    }
+
+    [Fact]
+    public void Convert_JmlrLdaPageFour_EmitsTwoIsolatedNumberedFormulaBlocks()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("jmlr-lda-page-4.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+        _ = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement[] formulas = dom.Descendants()
+            .Where(static element => element.Name.LocalName == "div" && HasClass(element, "pdf-semantic-formula"))
+            .ToArray();
+        Assert.Equal(2, formulas.Length);
+        XElement equationOne = Assert.Single(formulas, static formula =>
+            formula.Attribute("data-equation-number")?.Value == "(1)");
+        XElement equationTwo = Assert.Single(formulas, static formula =>
+            formula.Attribute("data-equation-number")?.Value == "(2)");
+        Assert.All(formulas, static formula =>
+        {
+            Assert.True(HasClass(formula, "pdf-semantic-formula-native"));
+            Assert.True(HasClass(formula, "pdf-semantic-formula-numbered"));
+            Assert.Single(formula.Elements("math"));
+        });
+        Assert.Contains("p(θ|α)", equationOne.Attribute("aria-label")?.Value, StringComparison.Ordinal);
+        Assert.Contains("p(θ,z,w|α,β)", equationTwo.Attribute("aria-label")?.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("We refer to the latent", equationTwo.Value, StringComparison.Ordinal);
+
+        XElement footnote = Assert.Single(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.StartsWith("1. We refer to the latent", StringComparison.Ordinal));
+        Assert.DoesNotContain(footnote.AncestorsAndSelf(), static element =>
+            HasClass(element, "pdf-semantic-formula"));
+        Assert.DoesNotContain(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.Trim() == "()" ||
+            paragraph.Value.TrimStart().StartsWith("∏", StringComparison.Ordinal));
+        Assert.DoesNotContain(dom.Descendants(), static element =>
+            HasClass(element, "pdf-semantic-formula-run"));
+    }
+
+    [Fact]
+    public void Convert_JmlrLdaPageEleven_EmitsTwoIsolatedUnnumberedFormulaBlocks()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("jmlr-lda-page-11.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+        _ = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement[] formulas = dom.Descendants()
+            .Where(static element => element.Name.LocalName == "div" && HasClass(element, "pdf-semantic-formula"))
+            .ToArray();
+        Assert.Equal(2, formulas.Length);
+        XElement posterior = Assert.Single(formulas, static formula =>
+            formula.Attribute("aria-label")?.Value.Contains("p(θ,z|w,α,β)", StringComparison.Ordinal) == true);
+        Assert.True(HasClass(posterior, "pdf-semantic-formula-native"));
+        Assert.Single(posterior.Elements("math"));
+        Assert.Contains("p(θ,z,w|α,β)", posterior.Attribute("aria-label")?.Value, StringComparison.Ordinal);
+
+        XElement marginal = Assert.Single(formulas, static formula =>
+            formula.Attribute("aria-label")?.Value.Contains("p(w|α,β)", StringComparison.Ordinal) == true &&
+            formula.Attribute("aria-label")?.Value.Contains('∫') == true);
+        Assert.DoesNotContain("coupling between", marginal.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "couplingbetween",
+            marginal.Value.Replace(" ", "", StringComparison.Ordinal),
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("a function which is intractable", marginal.Value, StringComparison.Ordinal);
+
+        XElement introduction = Assert.Single(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.StartsWith("The key inferential problem", StringComparison.Ordinal));
+        Assert.EndsWith("given a document:", introduction.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("p(θ", introduction.Value, StringComparison.Ordinal);
+        XElement followingProse = Assert.Single(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.StartsWith("a function which is intractable", StringComparison.Ordinal));
+        Assert.Contains("coupling between θ and β", followingProse.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain(followingProse.AncestorsAndSelf(), static element =>
+            HasClass(element, "pdf-semantic-formula"));
+        Assert.DoesNotContain(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.Trim() is "(" or ")" or "()" or ")(" or "∫");
+    }
+
+    [Fact]
+    public void Convert_JmlrLdaPageTwelve_EmitsAdjacentEquationsOnceAsFormulaBlocks()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("jmlr-lda-page-12.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+        _ = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement[] formulas = dom.Descendants()
+            .Where(static element => element.Name.LocalName == "div" && HasClass(element, "pdf-semantic-formula"))
+            .ToArray();
+        foreach (string equationNumber in new[] { "(4)", "(5)", "(6)", "(7)", "(8)" })
+        {
+            Assert.Single(formulas, formula =>
+                formula.Attribute("data-equation-number")?.Value == equationNumber ||
+                formula.Attribute("aria-label")?.Value.Contains(equationNumber, StringComparison.Ordinal) == true);
+        }
+
+        Assert.DoesNotContain(dom.Descendants("table"), static table =>
+            table.Value.Contains("(6)", StringComparison.Ordinal) ||
+            table.Value.Contains("(7)", StringComparison.Ordinal));
     }
 
     private static string Render(
@@ -769,6 +948,23 @@ public class PdfMathMlFormulaTest
             glyphs[0].FontSize,
             glyphs[0].Direction,
             glyphs[0].Color,
+            runs);
+    }
+
+    private static PdfTextLine LayoutLine(IReadOnlyList<PdfTextGlyph> glyphs)
+    {
+        PdfTextRun[] runs = glyphs.Select(glyph => new PdfTextRun(
+            glyph.Text,
+            glyph.FontName,
+            glyph.FontSize,
+            glyph.Direction,
+            glyph.Bounds,
+            glyph.Color,
+            [glyph],
+            glyph.PageBounds)).ToArray();
+        return new PdfTextLine(
+            string.Concat(glyphs.Select(static glyph => glyph.Text)),
+            Bounds(glyphs.Select(static glyph => glyph.Bounds)),
             runs);
     }
 

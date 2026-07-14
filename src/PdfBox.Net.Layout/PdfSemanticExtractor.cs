@@ -973,6 +973,15 @@ public static class PdfSemanticExtractor
             }
         }
 
+        foreach (PdfSemanticElement formula in ExtractNumberedDisplayFormulas(
+            lines,
+            bodyFontSize,
+            consumed,
+            options))
+        {
+            elements.Add(formula);
+        }
+
         foreach (PdfSemanticElement table in ExtractTextTables(page, lines, bodyFontSize, lineStep, consumed, options))
         {
             elements.Add(table);
@@ -981,6 +990,15 @@ public static class PdfSemanticExtractor
         foreach (PdfSemanticElement list in ExtractLists(lines, bodyFontSize, lineStep, consumed))
         {
             elements.Add(list);
+        }
+
+        foreach (PdfSemanticElement formula in ExtractUnnumberedDisplayFormulas(
+            lines,
+            bodyFontSize,
+            consumed,
+            options))
+        {
+            elements.Add(formula);
         }
 
         foreach (PdfSemanticElement paragraph in ExtractParagraphs(lines, bodyFontSize, lineStep, consumed, options))
@@ -1594,6 +1612,11 @@ public static class PdfSemanticExtractor
             return false;
         }
 
+        if (HasNumberedFormulaLine(previous) || HasNumberedFormulaLine(current))
+        {
+            return false;
+        }
+
         float verticalGap = MathF.Max(0f, current.Bounds.Y - previous.Bounds.Bottom);
         if (IsFormulaFragmentElement(previous, bodyFontSize) &&
             IsDisplayFormulaElement(current, bodyFontSize) &&
@@ -1675,7 +1698,12 @@ public static class PdfSemanticExtractor
         }
 
         bool centeredEnough = line.Bounds.X >= 150f && line.Bounds.Width >= 80f;
-        return centeredEnough && line.DominantFontSize <= bodyFontSize + 1f && CountWords(line.Text) <= 4;
+        int wordCount = CountWords(line.Text);
+        return centeredEnough &&
+            !IsProseDominantFormulaLine(line.Text, line.Runs) &&
+            (wordCount <= 4 && line.DominantFontSize <= bodyFontSize + 1f ||
+                wordCount <= 12 &&
+                HasLargeFormulaOperator(line.Runs));
     }
 
     private static bool StartsFormulaClause(string text)
@@ -4133,6 +4161,401 @@ public static class PdfSemanticExtractor
         {
             yield return CreateParagraph(current, consumed, options);
         }
+    }
+
+    private static IEnumerable<PdfSemanticElement> ExtractNumberedDisplayFormulas(
+        IReadOnlyList<LineCandidate> lines,
+        float bodyFontSize,
+        HashSet<int> consumed,
+        PdfSemanticExtractionOptions options)
+    {
+        LineCandidate[] numberedAnchors = lines
+            .Where(line => !consumed.Contains(line.Index))
+            .Where(line => TryGetNumberedFormulaRow(line, out _))
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X)
+            .ToArray();
+        foreach (LineCandidate anchor in numberedAnchors)
+        {
+            if (consumed.Contains(anchor.Index) ||
+                !TryGetNumberedFormulaRow(anchor, out PdfLayoutRectangle expressionBounds))
+            {
+                continue;
+            }
+
+            float verticalPadding = MathF.Max(18f, MathF.Max(bodyFontSize, anchor.FontSize) * 2.4f);
+            LineCandidate[] formulaLines = lines
+                .Where(line => !consumed.Contains(line.Index))
+                .Where(line => ReferenceEquals(line, anchor) ||
+                    IsFormulaRegionSourceLine(
+                        line,
+                        anchor,
+                        expressionBounds,
+                        verticalPadding,
+                        numberedAnchors))
+                .ToArray();
+            yield return CreateParagraph(formulaLines, consumed, options);
+        }
+    }
+
+    private static IEnumerable<PdfSemanticElement> ExtractUnnumberedDisplayFormulas(
+        IReadOnlyList<LineCandidate> lines,
+        float bodyFontSize,
+        HashSet<int> consumed,
+        PdfSemanticExtractionOptions options)
+    {
+        foreach (LineCandidate anchor in lines
+            .OrderBy(static line => line.Bounds.Y)
+            .ThenBy(static line => line.Bounds.X))
+        {
+            if (consumed.Contains(anchor.Index) ||
+                !IsDisplayFormulaLine(anchor, bodyFontSize) ||
+                IsFormulaLineEmbeddedInProse(anchor, lines))
+            {
+                continue;
+            }
+
+            float verticalPadding = MathF.Max(18f, MathF.Max(bodyFontSize, anchor.FontSize) * 2.4f);
+            LineCandidate[] formulaLines = lines
+                .Where(line => !consumed.Contains(line.Index))
+                .Where(line => ReferenceEquals(line, anchor) ||
+                    IsFormulaRegionSourceLine(line, anchor, anchor.Bounds, verticalPadding))
+                .ToArray();
+            yield return CreateParagraph(formulaLines, consumed, options);
+        }
+    }
+
+    private static bool TryGetNumberedFormulaRow(
+        LineCandidate line,
+        out PdfLayoutRectangle expressionBounds)
+    {
+        expressionBounds = default;
+        PdfTextGlyph[] glyphs = line.Source.Runs
+            .SelectMany(static run => run.Glyphs)
+            .Where(static glyph => glyph.IsPainted && !string.IsNullOrWhiteSpace(glyph.Text))
+            .OrderBy(static glyph => glyph.Bounds.X)
+            .ThenBy(static glyph => glyph.Bounds.Y)
+            .ToArray();
+        for (int start = glyphs.Length - 1; start > 0; start--)
+        {
+            PdfTextGlyph[] numberGlyphs = glyphs[start..];
+            string number = string.Concat(numberGlyphs.Select(static glyph => glyph.Text)).Trim();
+            if (!IsEquationNumberText(number))
+            {
+                continue;
+            }
+
+            PdfTextGlyph[] expressionGlyphs = glyphs[..start];
+            int equationNumberStart = line.Text.LastIndexOf("(", StringComparison.Ordinal);
+            if (equationNumberStart <= 0)
+            {
+                continue;
+            }
+
+            string expression = line.Text[..equationNumberStart];
+            float fontSize = numberGlyphs.Max(static glyph => glyph.FontSize);
+            float numberBaseline = numberGlyphs.Average(static glyph => glyph.Bounds.Bottom);
+            bool sharesExpressionBaseline = expressionGlyphs.Any(glyph =>
+                MathF.Abs(glyph.Bounds.Bottom - numberBaseline) <= MathF.Max(1.2f, glyph.FontSize * 0.18f));
+            bool hasFormulaFont = expressionGlyphs.Any(static glyph =>
+            {
+                string fontName = NormalizeFontName(glyph.FontName);
+                return IsFormulaMathFont(fontName) ||
+                    fontName.StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase) ||
+                    fontName.Contains("ITAL", StringComparison.OrdinalIgnoreCase) ||
+                    fontName.Contains("OBLIQUE", StringComparison.OrdinalIgnoreCase);
+            });
+            if (!sharesExpressionBaseline ||
+                numberGlyphs[0].Bounds.X - expressionGlyphs.Max(static glyph => glyph.Bounds.Right) < fontSize * 1.4f ||
+                !hasFormulaFont ||
+                !HasFormulaOperator(expression))
+            {
+                continue;
+            }
+
+            expressionBounds = PdfLayoutRectangle.Union(expressionGlyphs.Select(static glyph => glyph.Bounds));
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsFormulaRegionSourceLine(
+        LineCandidate candidate,
+        LineCandidate anchor,
+        PdfLayoutRectangle regionBounds,
+        float verticalPadding,
+        IReadOnlyList<LineCandidate>? numberedAnchors = null)
+    {
+        if (!ReferenceEquals(candidate, anchor) &&
+            (TryGetNumberedFormulaRow(candidate, out _) ||
+                IsCloserToAnotherNumberedFormula(candidate, anchor, numberedAnchors)))
+        {
+            return false;
+        }
+
+        float verticalGap = MathF.Max(0f, MathF.Max(
+            candidate.Bounds.Y - anchor.Bounds.Bottom,
+            anchor.Bounds.Y - candidate.Bounds.Bottom));
+        if (verticalGap > verticalPadding ||
+            candidate.Text.Length > 220 ||
+            CountWords(candidate.Text) > 8)
+        {
+            return false;
+        }
+
+        float horizontalPadding = MathF.Max(8f, anchor.FontSize * 1.25f);
+        if (candidate.Bounds.Right < regionBounds.X - horizontalPadding ||
+            candidate.Bounds.X > regionBounds.Right + horizontalPadding)
+        {
+            return false;
+        }
+
+        if (IsProseDominantFormulaRegionLine(candidate) &&
+            !IsOptimizationFormulaClause(candidate))
+        {
+            return false;
+        }
+
+        if (HasFormulaOperator(candidate.Text))
+        {
+            return true;
+        }
+
+        return candidate.Text.Trim().Length <= 8 ||
+            candidate.Source.Runs.Any(static run =>
+                IsFormulaMathFont(run.FontName) ||
+                NormalizeFontName(run.FontName).StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool IsCloserToAnotherNumberedFormula(
+        LineCandidate candidate,
+        LineCandidate anchor,
+        IReadOnlyList<LineCandidate>? numberedAnchors)
+    {
+        if (numberedAnchors == null || numberedAnchors.Count < 2)
+        {
+            return false;
+        }
+
+        float currentGap = VerticalGap(candidate.Bounds, anchor.Bounds);
+        foreach (LineCandidate other in numberedAnchors)
+        {
+            if (ReferenceEquals(other, anchor))
+            {
+                continue;
+            }
+
+            float horizontalPadding = MathF.Max(8f, other.FontSize * 1.25f);
+            float candidateCenter = candidate.CenterX;
+            if (candidateCenter < other.Bounds.X - horizontalPadding ||
+                candidateCenter > other.Bounds.Right + horizontalPadding)
+            {
+                continue;
+            }
+
+            if (VerticalGap(candidate.Bounds, other.Bounds) + 0.5f < currentGap)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static float VerticalGap(PdfLayoutRectangle first, PdfLayoutRectangle second)
+    {
+        return MathF.Max(0f, MathF.Max(
+            first.Y - second.Bottom,
+            second.Y - first.Bottom));
+    }
+
+    private static bool IsProseDominantFormulaRegionLine(LineCandidate candidate)
+    {
+        return IsProseDominantFormulaLine(candidate.Text, candidate.Source.Runs);
+    }
+
+    private static bool IsOptimizationFormulaClause(LineCandidate candidate)
+    {
+        bool hasFormulaFont = candidate.Source.Runs.Any(static run =>
+            IsFormulaMathFont(run.FontName) ||
+            NormalizeFontName(run.FontName).StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase));
+        if (!hasFormulaFont ||
+            !TryGetOptimizationExpression(candidate.Text, out string expression))
+        {
+            return false;
+        }
+
+        return !HasSentenceLikeOptimizationTail(expression);
+    }
+
+    private static bool TryGetOptimizationExpression(string text, out string expression)
+    {
+        string trimmed = text.TrimStart();
+        if (TryConsumeLeadingWord(trimmed, "minimize", out expression) ||
+            TryConsumeLeadingWord(trimmed, "maximize", out expression))
+        {
+            return true;
+        }
+
+        if (TryConsumeLeadingWord(trimmed, "subject", out string afterSubject) &&
+            TryConsumeLeadingWord(afterSubject, "to", out expression))
+        {
+            return true;
+        }
+
+        expression = string.Empty;
+        return false;
+    }
+
+    private static bool TryConsumeLeadingWord(
+        string text,
+        string expected,
+        out string remainder)
+    {
+        if (!text.StartsWith(expected, StringComparison.OrdinalIgnoreCase) ||
+            text.Length <= expected.Length ||
+            !char.IsWhiteSpace(text[expected.Length]))
+        {
+            remainder = string.Empty;
+            return false;
+        }
+
+        remainder = text[expected.Length..].TrimStart();
+        return remainder.Length > 0;
+    }
+
+    private static bool HasSentenceLikeOptimizationTail(string expression)
+    {
+        int proseWords = 0;
+        for (int index = 0; index < expression.Length;)
+        {
+            if (!char.IsLetter(expression[index]))
+            {
+                index++;
+                continue;
+            }
+
+            int start = index;
+            while (index < expression.Length && char.IsLetter(expression[index]))
+            {
+                index++;
+            }
+
+            int length = index - start;
+            if (length <= 1)
+            {
+                continue;
+            }
+
+            char previous = start > 0 ? expression[start - 1] : '\0';
+            char next = index < expression.Length ? expression[index] : '\0';
+            if (IsFormulaWordBoundary(previous) || IsFormulaWordBoundary(next))
+            {
+                continue;
+            }
+
+            proseWords++;
+            if (proseWords >= 2)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsFormulaWordBoundary(char value)
+    {
+        return value is '=' or '<' or '>' or '≤' or '≥' or '∈' or '×' or '√' or
+            '∑' or '∝' or '·' or '∗' or '*' or '/' or '^' or '_' or '(' or ')' or
+            '[' or ']' or '{' or '}' or '|' or ',' or ';' or ':';
+    }
+
+    private static bool IsProseDominantFormulaLine(
+        string text,
+        IReadOnlyList<PdfTextRun> runs)
+    {
+        int totalLetters = runs.Sum(static run => run.Text.Count(char.IsLetter));
+        int proseLetters = runs
+            .Where(static run =>
+            {
+                string fontName = NormalizeFontName(run.FontName);
+                return !IsFormulaMathFont(fontName) &&
+                    !fontName.StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase) &&
+                    !fontName.Contains("ITAL", StringComparison.OrdinalIgnoreCase) &&
+                    !fontName.Contains("OBLIQUE", StringComparison.OrdinalIgnoreCase);
+            })
+            .Sum(static run => run.Text.Count(char.IsLetter));
+        if (totalLetters == 0 || proseLetters * 3 < totalLetters * 2)
+        {
+            return false;
+        }
+
+        return proseLetters >= 8 || StartsWithProseWord(text);
+    }
+
+    private static bool StartsWithProseWord(string text)
+    {
+        string leadingWord = new(text
+            .TrimStart()
+            .TakeWhile(char.IsLetter)
+            .ToArray());
+        return leadingWord.Equals("a", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("an", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("the", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("if", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("for", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("use", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("using", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("where", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("when", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("then", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("thus", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("let", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("suppose", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("assume", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("because", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("since", StringComparison.OrdinalIgnoreCase) ||
+            leadingWord.Equals("subject", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static int FormulaRegionWordCount(
+        string text,
+        IReadOnlyList<PdfTextRun> runs)
+    {
+        int lexicalRuns = runs.Count(static run =>
+        {
+            string fontName = NormalizeFontName(run.FontName);
+            return run.Text.Count(char.IsLetter) >= 2 &&
+                !IsFormulaMathFont(fontName) &&
+                !fontName.StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase) &&
+                !fontName.Contains("ITAL", StringComparison.OrdinalIgnoreCase) &&
+                !fontName.Contains("OBLIQUE", StringComparison.OrdinalIgnoreCase);
+        });
+        return Math.Max(CountWords(text), lexicalRuns);
+    }
+
+    private static bool IsFormulaLineEmbeddedInProse(
+        LineCandidate candidate,
+        IReadOnlyList<LineCandidate> lines)
+    {
+        float candidateCenter = candidate.Bounds.X + candidate.Bounds.Width / 2f;
+        return lines.Any(line =>
+        {
+            if (ReferenceEquals(line, candidate) ||
+                FormulaRegionWordCount(line.Text, line.Source.Runs) < 8 ||
+                line.Bounds.Width < MathF.Max(180f, candidate.Bounds.Width * 1.75f) ||
+                candidateCenter < line.Bounds.X - 4f ||
+                candidateCenter > line.Bounds.Right + 4f)
+            {
+                return false;
+            }
+
+            float verticalOverlap = MathF.Min(candidate.Bounds.Bottom, line.Bounds.Bottom) -
+                MathF.Max(candidate.Bounds.Y, line.Bounds.Y);
+            return verticalOverlap >= MathF.Min(candidate.Bounds.Height, line.Bounds.Height) * 0.30f;
+        });
     }
 
     private static IEnumerable<PdfSemanticElement> ExtractLists(
@@ -6692,7 +7115,12 @@ public static class PdfSemanticExtractor
         }
 
         bool centeredEnough = line.Bounds.X >= 150f && line.Bounds.Width >= 80f;
-        return centeredEnough && line.FontSize <= bodyFontSize + 1f && CountWords(line.Text) <= 4;
+        int wordCount = CountWords(line.Text);
+        return centeredEnough &&
+            !IsProseDominantFormulaLine(line.Text, line.Source.Runs) &&
+            (wordCount <= 4 && line.FontSize <= bodyFontSize + 1f ||
+                wordCount <= 12 &&
+                HasLargeFormulaOperator(line.Source.Runs));
     }
 
     private static bool IsMathDominantFormulaLine(
@@ -6809,6 +7237,13 @@ public static class PdfSemanticExtractor
         return compact && hasMathFont;
     }
 
+    private static bool HasLargeFormulaOperator(IReadOnlyList<PdfTextRun> runs)
+    {
+        return runs.Any(static run =>
+            run.Text.IndexOfAny(['∑', '∏', '∫']) >= 0 ||
+            NormalizeFontName(run.FontName).StartsWith("CMEX", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static bool IsEquationNumberText(string text)
     {
         string trimmed = text.Trim();
@@ -6818,9 +7253,20 @@ public static class PdfSemanticExtractor
             trimmed[1..^1].All(static character => char.IsDigit(character));
     }
 
+    private static bool HasNumberedFormulaLine(PdfSemanticElement element)
+    {
+        return element.Lines.Any(static line =>
+        {
+            int open = line.Text.LastIndexOf("(", StringComparison.Ordinal);
+            return open > 0 &&
+                IsEquationNumberText(line.Text[open..]) &&
+                HasFormulaOperator(line.Text[..open]);
+        });
+    }
+
     private static bool HasFormulaOperator(string text)
     {
-        return text.IndexOfAny(['=', '∈', '×', '√', '∑', '·']) >= 0 ||
+        return text.IndexOfAny(['=', '∈', '×', '√', '∑', '∝', '·']) >= 0 ||
             HasFormulaFunction(text);
     }
 
