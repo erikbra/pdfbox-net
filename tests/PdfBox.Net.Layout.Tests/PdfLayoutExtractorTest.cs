@@ -310,6 +310,30 @@ public class PdfLayoutExtractorTest
     }
 
     [Fact]
+    public void Extract_OpaqueShapeAlphaPath_DoesNotReportAnHtmlFallback()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+        PDExtendedGraphicsState graphicsState = new();
+        graphicsState.SetAlphaSourceFlag(true);
+        graphicsState.SetNonStrokingAlphaConstant(1f);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.SetGraphicsStateParameters(graphicsState);
+            content.SetNonStrokingColor(0f, 0f, 0f);
+            content.AddRect(72, 700, 120, 24);
+            content.Fill();
+        }
+
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document);
+
+        PdfLayoutPage layoutPage = Assert.Single(layout.Pages);
+        Assert.True(Assert.Single(layoutPage.Paths).UsesShapeAlpha);
+        Assert.DoesNotContain(layoutPage.Diagnostics, diagnostic => diagnostic.Code == "shape-alpha-vector-unsupported");
+    }
+
+    [Fact]
     public void Extract_AxialShading_CapturesSvgGradientGeometryAndStops()
     {
         using PDDocument document = new();

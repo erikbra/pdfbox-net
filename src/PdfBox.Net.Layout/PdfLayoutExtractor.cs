@@ -2506,7 +2506,10 @@ public static class PdfLayoutExtractor
                 usesSoftMask: graphicsState.GetSoftMask() is not null,
                 clipPaths: AdditionalPathClipPaths(graphicsState)));
             _paintOperations.Add(new PdfLayoutPaintOperation(PdfLayoutPaintOperationKind.Path, index));
-            if (usesShapeAlpha && !_reportedShapeAlphaPath)
+            bool requiresShapeAlphaFallback = usesShapeAlpha &&
+                ((includeFill && graphicsState.GetNonStrokeAlphaConstant() < 0.999f) ||
+                    (includeStroke && graphicsState.GetAlphaConstant() < 0.999f));
+            if (requiresShapeAlphaFallback && !_reportedShapeAlphaPath)
             {
                 _diagnostics.Add(new PdfLayoutDiagnostic(
                     PdfLayoutDiagnosticSeverity.Warning,
