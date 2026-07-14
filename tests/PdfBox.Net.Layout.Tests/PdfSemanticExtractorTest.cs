@@ -272,6 +272,199 @@ public sealed class PdfSemanticExtractorTest
     }
 
     [Fact]
+    public void Extract_JmlrLdaPageFour_SeparatesNumberedDisplayFormulasFromProse()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(
+            AppContext.BaseDirectory,
+            "Fixtures",
+            "jmlr-lda-page-4.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement equationOne = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Lines.Any(static line => line.Text.TrimEnd().EndsWith("(1)", StringComparison.Ordinal)));
+        PdfSemanticElement equationTwo = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Lines.Any(static line => line.Text.TrimEnd().EndsWith("(2)", StringComparison.Ordinal)));
+
+        Assert.InRange(equationOne.Bounds.Height, 35f, 55f);
+        Assert.InRange(equationTwo.Bounds.Height, 20f, 35f);
+        Assert.Contains("p(θ", equationOne.Text, StringComparison.Ordinal);
+        Assert.Contains("p(θ,z,w|α,β)", equationTwo.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("where the parameter", equationOne.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("Given the parameters", equationTwo.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("We refer to the latent", equationTwo.Text, StringComparison.Ordinal);
+
+        PdfSemanticElement simplexProse = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.Contains("probability density on this", StringComparison.Ordinal));
+        Assert.Contains("simplex:", simplexProse.Text, StringComparison.Ordinal);
+        Assert.Contains(simplexProse.Lines, static line =>
+            line.Text.Contains('≥') && line.Text.Contains('k'));
+        Assert.Contains(simplexProse.Lines, static line =>
+            line.Text.Replace(" ", "", StringComparison.Ordinal).Contains("i=1", StringComparison.Ordinal));
+        Assert.True(simplexProse.Bounds.Bottom <= equationOne.Bounds.Y + 1f);
+
+        PdfSemanticElement interveningProse = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("where the parameter", StringComparison.Ordinal));
+        Assert.Contains("a set of N words w is given by:", interveningProse.Text, StringComparison.Ordinal);
+        Assert.True(equationOne.Bounds.Bottom < interveningProse.Bounds.Y);
+        Assert.True(interveningProse.Bounds.Bottom < equationTwo.Bounds.Y);
+
+        PdfSemanticElement footnote = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("1. We refer to the latent", StringComparison.Ordinal));
+        Assert.True(equationTwo.Bounds.Bottom < footnote.Bounds.Y);
+
+        AssertTrailingEquationNumber(equationOne, "(1)");
+        AssertTrailingEquationNumber(equationTwo, "(2)");
+
+        PdfTextGlyph[] formulaGlyphs = equationOne.Lines.Concat(equationTwo.Lines)
+            .SelectMany(static line => line.Runs)
+            .SelectMany(static run => run.Glyphs)
+            .ToArray();
+        Assert.All(formulaGlyphs, glyph =>
+            Assert.Equal(1, formulaGlyphs.Count(candidate => ReferenceEquals(candidate, glyph))));
+        PdfTextGlyph[] numberedSourceGlyphs = Assert.Single(layout.Pages).Lines
+            .Where(static line => line.Text.EndsWith("(1)", StringComparison.Ordinal) ||
+                line.Text.EndsWith("(2)", StringComparison.Ordinal))
+            .SelectMany(static line => line.Runs)
+            .SelectMany(static run => run.Glyphs)
+            .ToArray();
+        Assert.All(numberedSourceGlyphs, glyph =>
+            Assert.Equal(1, formulaGlyphs.Count(candidate => ReferenceEquals(candidate, glyph))));
+
+        static void AssertTrailingEquationNumber(PdfSemanticElement formula, string number)
+        {
+            PdfSemanticLine line = Assert.Single(formula.Lines, line =>
+                line.Text.TrimEnd().EndsWith(number, StringComparison.Ordinal));
+            PdfTextGlyph[] glyphs = line.Runs
+                .SelectMany(static run => run.Glyphs)
+                .OrderBy(static glyph => glyph.Bounds.X)
+                .ThenBy(static glyph => glyph.Bounds.Y)
+                .ToArray();
+            PdfTextGlyph[] numberGlyphs = glyphs[^number.Length..];
+            Assert.Equal(number, string.Concat(numberGlyphs.Select(static glyph => glyph.Text)));
+            Assert.True(
+                numberGlyphs[0].Bounds.X - glyphs[..^number.Length].Max(static glyph => glyph.Bounds.Right) >=
+                numberGlyphs.Max(static glyph => glyph.FontSize) * 1.4f);
+        }
+    }
+
+    [Fact]
+    public void Extract_JmlrLdaPageEleven_SeparatesUnnumberedDisplayFormulasFromProse()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(
+            AppContext.BaseDirectory,
+            "Fixtures",
+            "jmlr-lda-page-11.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        PdfSemanticElement introduction = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("The key inferential problem", StringComparison.Ordinal));
+        Assert.EndsWith("given a document:", introduction.Text, StringComparison.Ordinal);
+        Assert.Equal(2, introduction.Lines.Count);
+        Assert.DoesNotContain("p(θ", introduction.Text, StringComparison.Ordinal);
+
+        PdfSemanticElement posterior = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Lines.Any(static line =>
+                line.Text.StartsWith("p(θ,z", StringComparison.Ordinal) && line.Text.Contains('=')));
+        Assert.Contains("p(θ,z,w", posterior.Text, StringComparison.Ordinal);
+        Assert.Contains("p(w", posterior.Text, StringComparison.Ordinal);
+        Assert.InRange(posterior.Bounds.Height, 18f, 30f);
+
+        PdfSemanticElement interveningProse = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("Unfortunately, this distribution", StringComparison.Ordinal));
+        Assert.EndsWith("model parameters:", interveningProse.Text, StringComparison.Ordinal);
+        Assert.Equal(2, interveningProse.Lines.Count);
+
+        PdfSemanticElement marginal = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Lines.Any(static line =>
+                line.Text.StartsWith("p(w|", StringComparison.Ordinal) && line.Text.Contains('=')));
+        Assert.Contains(marginal.Lines, static line => line.Text.Contains('∫'));
+        Assert.Contains(marginal.Lines, static line => line.Text.Contains("i−", StringComparison.Ordinal));
+        Assert.InRange(marginal.Bounds.Height, 35f, 55f);
+        Assert.DoesNotContain("coupling between", marginal.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("a function which is intractable", marginal.Text, StringComparison.Ordinal);
+
+        PdfSemanticElement followingProse = Assert.Single(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Paragraph &&
+            element.Text.StartsWith("a function which is intractable", StringComparison.Ordinal));
+        Assert.Contains("coupling between θ and β", followingProse.Text, StringComparison.Ordinal);
+
+        Assert.True(introduction.Bounds.Bottom < posterior.Bounds.Y);
+        Assert.True(posterior.Bounds.Bottom < interveningProse.Bounds.Y);
+        Assert.True(interveningProse.Bounds.Y < marginal.Bounds.Y);
+        Assert.True(marginal.Bounds.Bottom < followingProse.Bounds.Y);
+
+        PdfTextGlyph[] formulaGlyphs = posterior.Lines.Concat(marginal.Lines)
+            .SelectMany(static line => line.Runs)
+            .SelectMany(static run => run.Glyphs)
+            .ToArray();
+        PdfTextGlyph[] semanticGlyphs = page.Elements
+            .SelectMany(static element => element.Lines)
+            .SelectMany(static line => line.Runs)
+            .SelectMany(static run => run.Glyphs)
+            .ToArray();
+        Assert.All(formulaGlyphs, glyph =>
+            Assert.Equal(1, semanticGlyphs.Count(candidate => ReferenceEquals(candidate, glyph))));
+    }
+
+    [Fact]
+    public void Extract_JmlrLdaPageTwelve_SeparatesAdjacentNumberedEquationsFromTables()
+    {
+        using PDDocument document = Loader.LoadPDF(Path.Combine(
+            AppContext.BaseDirectory,
+            "Fixtures",
+            "jmlr-lda-page-12.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+
+        PdfSemanticPage page = Assert.Single(PdfSemanticExtractor.Extract(layout).Pages);
+        string[] equationNumbers = ["(4)", "(5)", "(6)", "(7)", "(8)"];
+        PdfSemanticElement[] formulas = equationNumbers
+            .Select(number => Assert.Single(page.Elements, element =>
+                element.Kind == PdfSemanticElementKind.Paragraph &&
+                element.Lines.Any(line => line.Text.TrimEnd().EndsWith(number, StringComparison.Ordinal))))
+            .ToArray();
+
+        Assert.Equal(formulas.Length, formulas.Distinct(ReferenceEqualityComparer.Instance).Count());
+        for (int index = 1; index < formulas.Length; index++)
+        {
+            Assert.True(formulas[index - 1].Bounds.Y < formulas[index].Bounds.Y);
+        }
+        Assert.DoesNotContain(page.Elements, static element =>
+            element.Kind == PdfSemanticElementKind.Table &&
+            (element.Text.Contains("(6)", StringComparison.Ordinal) ||
+                element.Text.Contains("(7)", StringComparison.Ordinal)));
+        Assert.Contains("φ", formulas[2].Text, StringComparison.Ordinal);
+        Assert.Contains("γ", formulas[3].Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("zero, we obtain", formulas[2].Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("zero, we obtain", formulas[3].Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Extract_LineBreakHyphenation_UsesParagraphEdgesAndPreservesAuthoredCompounds()
     {
         PdfLayoutDocument layout = CreateSemanticPassageFixture(

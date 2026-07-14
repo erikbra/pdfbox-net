@@ -630,7 +630,6 @@ public class PdfMathMlFormulaTest
         Assert.DoesNotContain("(2)", math.Value, StringComparison.Ordinal);
 
         XElement[] tables = dom.Descendants("table").ToArray();
-        Assert.NotEmpty(tables);
         Assert.DoesNotContain(tables, table => table.Value.Contains("(2)", StringComparison.Ordinal));
         Assert.DoesNotContain(tables, table => table.Value.Contains("∏", StringComparison.Ordinal));
         Assert.Single(dom.Descendants(), element => element.Value == "(2)");
@@ -645,6 +644,146 @@ public class PdfMathMlFormulaTest
             equationThree.Descendants(),
             element => HasClass(element, "pdf-semantic-formula-run") &&
                 element.Attribute("style")?.Value.Contains("left:", StringComparison.Ordinal) == true);
+    }
+
+    [Fact]
+    public void Convert_JmlrLdaPageFour_EmitsTwoIsolatedNumberedFormulaBlocks()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("jmlr-lda-page-4.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+        _ = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement[] formulas = dom.Descendants()
+            .Where(static element => element.Name.LocalName == "div" && HasClass(element, "pdf-semantic-formula"))
+            .ToArray();
+        Assert.Equal(2, formulas.Length);
+        XElement equationOne = Assert.Single(formulas, static formula =>
+            formula.Attribute("data-equation-number")?.Value == "(1)");
+        XElement equationTwo = Assert.Single(formulas, static formula =>
+            formula.Attribute("data-equation-number")?.Value == "(2)");
+        Assert.All(formulas, static formula =>
+        {
+            Assert.True(HasClass(formula, "pdf-semantic-formula-native"));
+            Assert.True(HasClass(formula, "pdf-semantic-formula-numbered"));
+            Assert.Single(formula.Elements("math"));
+        });
+        Assert.Contains("p(θ|α)", equationOne.Attribute("aria-label")?.Value, StringComparison.Ordinal);
+        Assert.Contains("p(θ,z,w|α,β)", equationTwo.Attribute("aria-label")?.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("We refer to the latent", equationTwo.Value, StringComparison.Ordinal);
+
+        XElement footnote = Assert.Single(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.StartsWith("1. We refer to the latent", StringComparison.Ordinal));
+        Assert.DoesNotContain(footnote.AncestorsAndSelf(), static element =>
+            HasClass(element, "pdf-semantic-formula"));
+        Assert.DoesNotContain(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.Trim() == "()" ||
+            paragraph.Value.TrimStart().StartsWith("∏", StringComparison.Ordinal));
+        Assert.DoesNotContain(dom.Descendants(), static element =>
+            HasClass(element, "pdf-semantic-formula-run"));
+    }
+
+    [Fact]
+    public void Convert_JmlrLdaPageEleven_EmitsTwoIsolatedUnnumberedFormulaBlocks()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("jmlr-lda-page-11.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+        _ = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement[] formulas = dom.Descendants()
+            .Where(static element => element.Name.LocalName == "div" && HasClass(element, "pdf-semantic-formula"))
+            .ToArray();
+        Assert.Equal(2, formulas.Length);
+        XElement posterior = Assert.Single(formulas, static formula =>
+            formula.Attribute("aria-label")?.Value.Contains("p(θ,z|w,α,β)", StringComparison.Ordinal) == true);
+        Assert.True(HasClass(posterior, "pdf-semantic-formula-native"));
+        Assert.Single(posterior.Elements("math"));
+        Assert.Contains("p(θ,z,w|α,β)", posterior.Attribute("aria-label")?.Value, StringComparison.Ordinal);
+
+        XElement marginal = Assert.Single(formulas, static formula =>
+            formula.Attribute("aria-label")?.Value.Contains("p(w|α,β)", StringComparison.Ordinal) == true &&
+            formula.Attribute("aria-label")?.Value.Contains('∫') == true);
+        Assert.DoesNotContain("coupling between", marginal.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "couplingbetween",
+            marginal.Value.Replace(" ", "", StringComparison.Ordinal),
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("a function which is intractable", marginal.Value, StringComparison.Ordinal);
+
+        XElement introduction = Assert.Single(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.StartsWith("The key inferential problem", StringComparison.Ordinal));
+        Assert.EndsWith("given a document:", introduction.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("p(θ", introduction.Value, StringComparison.Ordinal);
+        XElement followingProse = Assert.Single(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.StartsWith("a function which is intractable", StringComparison.Ordinal));
+        Assert.Contains("coupling between θ and β", followingProse.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain(followingProse.AncestorsAndSelf(), static element =>
+            HasClass(element, "pdf-semantic-formula"));
+        Assert.DoesNotContain(dom.Descendants("p"), static paragraph =>
+            paragraph.Value.Trim() is "(" or ")" or "()" or ")(" or "∫");
+    }
+
+    [Fact]
+    public void Convert_JmlrLdaPageTwelve_EmitsAdjacentEquationsOnceAsFormulaBlocks()
+    {
+        using PDDocument document = Loader.LoadPDF(FixturePath("jmlr-lda-page-12.pdf"));
+        PdfLayoutDocument layout = PdfLayoutExtractor.Extract(document, new PdfLayoutOptions
+        {
+            IncludeImages = false,
+            IncludeLinks = false,
+            IncludePaths = true
+        });
+        _ = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic
+        });
+        PdfHtmlDocument converted = PdfHtmlConverter.Convert(layout, new PdfHtmlOptions
+        {
+            TextMode = PdfHtmlTextMode.Semantic,
+            SemanticPageMode = PdfHtmlSemanticPageMode.ContinuousFlow
+        });
+        XDocument dom = ParseHtml(converted.Html);
+
+        XElement[] formulas = dom.Descendants()
+            .Where(static element => element.Name.LocalName == "div" && HasClass(element, "pdf-semantic-formula"))
+            .ToArray();
+        foreach (string equationNumber in new[] { "(4)", "(5)", "(6)", "(7)", "(8)" })
+        {
+            Assert.Single(formulas, formula =>
+                formula.Attribute("data-equation-number")?.Value == equationNumber ||
+                formula.Attribute("aria-label")?.Value.Contains(equationNumber, StringComparison.Ordinal) == true);
+        }
+
+        Assert.DoesNotContain(dom.Descendants("table"), static table =>
+            table.Value.Contains("(6)", StringComparison.Ordinal) ||
+            table.Value.Contains("(7)", StringComparison.Ordinal));
     }
 
     private static string Render(

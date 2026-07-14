@@ -8878,7 +8878,17 @@ public static class PdfHtmlConverter
             return;
         }
 
-        bool[] formulaLines = DisplayFormulaSourceLines(element.Lines);
+        bool numberedFormula = element.Lines.Any(static line =>
+            TryGetTrailingEquationNumber(line.Text.Trim(), out _) &&
+            HasFormulaSignal(line.Text));
+        bool formulaOnly = element.Lines.All(IsFormulaOnlySourceLine);
+        bool[] formulaLines = numberedFormula
+            ? element.Lines.Select(static line =>
+                TryGetTrailingEquationNumber(line.Text.Trim(), out _) ||
+                !IsProseLikeFormulaSourceLine(line)).ToArray()
+            : formulaOnly
+                ? element.Lines.Select(static _ => true).ToArray()
+                : DisplayFormulaSourceLines(element.Lines);
         if (!formulaLines.Any(static isFormula => isFormula))
         {
             formulaLines = element.Lines
@@ -9345,12 +9355,12 @@ public static class PdfHtmlConverter
                 PdfMathMlFormula.IsEligibleGlyph(glyph) &&
                 !IsClaimedFormulaGlyph(glyph, claimedFormulaGlyphs)))
             .Where(run => sourceRuns.Contains(run) ||
+                IsFormulaOperatorLimitRun(page, bounds, run) ||
                 !IsRunOnProseLine(page, run) &&
                 (RectanglesIntersect(run.Bounds, bounds, 0.75f) &&
                         (IsFormulaRunCandidate(run) ||
                             hasMathFontContext && IsCompactFormulaContextRun(run)) ||
-                    IsFormulaAdjacentRun(page, bounds, run) ||
-                    IsFormulaOperatorLimitRun(page, bounds, run)));
+                    IsFormulaAdjacentRun(page, bounds, run)));
     }
 
     internal static IReadOnlyList<PdfTextRun> FormulaSourceRuns(PdfSemanticElement element)
@@ -9410,7 +9420,9 @@ public static class PdfHtmlConverter
     {
         HashSet<PdfTextGlyph> runGlyphs = run.Glyphs
             .ToHashSet((IEqualityComparer<PdfTextGlyph>)ReferenceEqualityComparer.Instance);
-        return page.Lines.Any(line => IsProseLikeFormulaSourceLine(line) &&
+        return page.Lines.Any(line =>
+            (IsProseLikeFormulaSourceLine(line) ||
+                IsShortProseDominantFormulaSourceLine(line.Text, line.Runs)) &&
             line.Runs
                 .SelectMany(static lineRun => lineRun.Glyphs)
                 .Any(runGlyphs.Contains));
@@ -9426,20 +9438,76 @@ public static class PdfHtmlConverter
         return IsProseLikeFormulaSourceLine(line.Text, line.Runs);
     }
 
+    private static bool IsFormulaOnlySourceLine(PdfSemanticLine line)
+    {
+        if (!IsProseLikeFormulaSourceLine(line))
+        {
+            return true;
+        }
+
+        string text = line.Text.Trim();
+        return FormulaSourceWordCount(text, line.Runs) <= 12 &&
+            HasFormulaSignal(text) &&
+            text.IndexOfAny(['∑', '∏', '∫']) >= 0 &&
+            line.Runs.Any(static run => HasMathFont(run.FontName));
+    }
+
     private static bool IsProseLikeFormulaSourceLine(
         string text,
         IReadOnlyList<PdfTextRun> runs)
     {
-        if (CountWords(text) < 5)
+        if (FormulaSourceWordCount(text, runs) < 5)
         {
             return false;
         }
 
         int totalLetters = runs.Sum(static run => run.Text.Count(char.IsLetter));
         int proseLetters = runs
-            .Where(static run => !HasMathFont(run.FontName))
+            .Where(static run =>
+                !HasMathFont(run.FontName) &&
+                !NormalizeFontName(run.FontName).StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase) &&
+                !IsItalicFont(run.FontName))
             .Sum(static run => run.Text.Count(char.IsLetter));
         return proseLetters >= 12 && proseLetters * 3 >= totalLetters * 2;
+    }
+
+    private static bool IsShortProseDominantFormulaSourceLine(
+        string text,
+        IReadOnlyList<PdfTextRun> runs)
+    {
+        if (FormulaSourceWordCount(text, runs) < 2 || HasFormulaSignal(text))
+        {
+            return false;
+        }
+
+        int totalLetters = runs.Sum(static run => run.Text.Count(char.IsLetter));
+        int proseLetters = runs
+            .Where(static run =>
+            {
+                string fontName = NormalizeFontName(run.FontName);
+                return !HasMathFont(fontName) &&
+                    !fontName.StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase) &&
+                    !IsItalicFont(fontName);
+            })
+            .Sum(static run => run.Text.Count(char.IsLetter));
+        return proseLetters >= 8 &&
+            totalLetters > 0 &&
+            proseLetters * 3 >= totalLetters * 2;
+    }
+
+    private static int FormulaSourceWordCount(
+        string text,
+        IReadOnlyList<PdfTextRun> runs)
+    {
+        int lexicalRuns = runs.Count(static run =>
+        {
+            string fontName = NormalizeFontName(run.FontName);
+            return run.Text.Count(char.IsLetter) >= 2 &&
+                !HasMathFont(fontName) &&
+                !fontName.StartsWith("SYMBOL", StringComparison.OrdinalIgnoreCase) &&
+                !IsItalicFont(fontName);
+        });
+        return Math.Max(CountWords(text), lexicalRuns);
     }
 
     private static IEnumerable<PdfTextGlyph> FormulaGlyphs(
@@ -9525,6 +9593,14 @@ public static class PdfHtmlConverter
         PdfLayoutRectangle bounds,
         PdfTextRun run)
     {
+        string text = run.Text.Trim();
+        if (text.Length is 0 or > 16 ||
+            run.Bounds.Width > MathF.Max(48f, run.FontSize * 8f) ||
+            !HasMathFont(run.FontName) && text.Any(char.IsLetter) && text.Length > 3)
+        {
+            return false;
+        }
+
         foreach (PdfTextGlyph limit in run.Glyphs.Where(PdfMathMlFormula.IsEligibleGlyph))
         {
             foreach (PdfTextGlyph largeOperator in page.Glyphs.Where(static glyph =>
@@ -12801,8 +12877,38 @@ public static class PdfHtmlConverter
             !IsFigureCaption(element) &&
             !IsFormulaDecorationElement(element) &&
             !IsInlineFormulaFragment(element) &&
-            (element.Lines.Any(IsDisplayFormulaLine) ||
+            (element.Lines.Any(line =>
+                IsDisplayFormulaLine(line) &&
+                !IsFormulaLineEmbeddedInProse(element, line)) ||
                 IsCompactCenteredFormulaElement(element));
+    }
+
+    private static bool IsFormulaLineEmbeddedInProse(
+        PdfSemanticElement element,
+        PdfSemanticLine candidate)
+    {
+        if (element.Lines.Any(static line =>
+            TryGetTrailingEquationNumber(line.Text.Trim(), out _)))
+        {
+            return false;
+        }
+
+        float candidateCenter = candidate.Bounds.X + candidate.Bounds.Width / 2f;
+        return element.Lines.Any(line =>
+        {
+            if (ReferenceEquals(line, candidate) ||
+                !IsProseLikeFormulaSourceLine(line) ||
+                line.Bounds.Width < MathF.Max(180f, candidate.Bounds.Width * 1.75f) ||
+                candidateCenter < line.Bounds.X - 4f ||
+                candidateCenter > line.Bounds.Right + 4f)
+            {
+                return false;
+            }
+
+            float verticalOverlap = MathF.Min(candidate.Bounds.Bottom, line.Bounds.Bottom) -
+                MathF.Max(candidate.Bounds.Y, line.Bounds.Y);
+            return verticalOverlap >= MathF.Min(candidate.Bounds.Height, line.Bounds.Height) * 0.30f;
+        });
     }
 
     private static bool IsFormulaDecorationElement(PdfSemanticElement element)
@@ -12849,10 +12955,12 @@ public static class PdfHtmlConverter
     private static bool IsDisplayFormulaLine(PdfSemanticLine line)
     {
         string text = line.Text.Trim();
-        if (!line.Runs.Any(static run => HasMathFont(run.FontName)) ||
+        bool hasMathFont = line.Runs.Any(static run => HasMathFont(run.FontName));
+        bool hasEquationNumber = TryGetTrailingEquationNumber(text, out _);
+        if ((!hasMathFont && !(hasEquationNumber && HasFormulaSignal(text))) ||
             !(HasFormulaSignal(text) ||
                 HasOptimizationProgramSignal(text) ||
-                TryGetTrailingEquationNumber(text, out _)) ||
+                hasEquationNumber) ||
             !line.Runs.SelectMany(static run => run.Glyphs).Any(PdfMathMlFormula.IsEligibleGlyph))
         {
             return false;
@@ -12945,7 +13053,7 @@ public static class PdfHtmlConverter
 
     private static bool HasFormulaSignal(string text)
     {
-        return text.IndexOfAny(['=', '∈', '×', '√', '∑', '·', '∗', '≥', '≤']) >= 0 ||
+        return text.IndexOfAny(['=', '∈', '×', '√', '∑', '∝', '·', '∗', '≥', '≤']) >= 0 ||
             HasFormulaFunction(text);
     }
 
