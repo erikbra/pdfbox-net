@@ -722,12 +722,12 @@
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateEmbeddedTimeStamp.java",
     "target_path": "src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "mechanical",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T16:09:20Z",
-    "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs"
+    "last_checked_utc": "2026-07-14T19:12:39Z",
+    "note": "Reviewed PDFBOX-6218 Bouncy Castle 1.85 stream-constructor change. The .NET TSAClient API accepts byte arrays directly, so no runtime code change is required."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateEmptySignatureForm.java",
@@ -792,12 +792,12 @@
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java",
     "target_path": "src/PdfBox.Net.Examples/Signature/ShowSignature.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "mechanical",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T16:09:20Z",
-    "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/ShowSignature.cs"
+    "last_checked_utc": "2026-07-14T19:12:39Z",
+    "note": "Reviewed PDFBOX-6218 Bouncy Castle 1.85 stream-constructor change. SignedCms is the native .NET replacement and already consumes byte arrays without the Java workaround."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
@@ -892,22 +892,22 @@
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/AddValidationInformation.java",
     "target_path": "src/PdfBox.Net.Examples/Signature/Validation/AddValidationInformation.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "mechanical",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T16:09:20Z",
-    "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Validation/AddValidationInformation.cs"
+    "last_checked_utc": "2026-07-14T19:12:39Z",
+    "note": "Reviewed PDFBOX-6218 Bouncy Castle 1.85 stream-constructor change. SignedCms is the native .NET replacement and already consumes byte arrays without the Java workaround."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/CertInformationCollector.java",
     "target_path": "src/PdfBox.Net.Examples/Signature/Validation/CertInformationCollector.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "mechanical",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T16:09:20Z",
-    "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/Validation/CertInformationCollector.cs"
+    "last_checked_utc": "2026-07-14T19:12:39Z",
+    "note": "Reviewed PDFBOX-6218 Bouncy Castle 1.85 stream-constructor change. SignedCms is the native .NET replacement and already consumes byte arrays without the Java workaround."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/validation/CertInformationHelper.java",
@@ -1322,12 +1322,12 @@
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T07:49:01Z",
-    "note": "TTF parser now reads table directories for core mandatory tables, validates mandatory-table presence, and supports table-header extraction used by downstream font flows and regression tests."
+    "last_checked_utc": "2026-07-14T19:12:39Z",
+    "note": "Reviewed PDFBOX-5660; the upstream batch changes Javadoc links only. Existing parser behavior and tests remain applicable."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
@@ -4320,13 +4320,13 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-25T21:12:00Z",
-    "note": "Issue #51: added CIDSystemInfo access for descendant CJK/UCS2 integration heuristics in PDType0Font."
+    "last_checked_utc": "2026-07-14T19:12:39Z",
+    "note": "Updated stale split-file target. The upstream getParent deprecation has no .NET counterpart because the adapted CID font model intentionally does not retain or expose a parent accessor."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
@@ -4340,13 +4340,13 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-25T16:44:05Z",
-    "note": "CIDToGIDMap support (Identity and stream), CodeToGID method, TTF advance-width fallback in GetWidth, ToUnicodeFallback via reverse cmap. Vertical metrics deferred."
+    "last_checked_utc": "2026-07-14T19:12:39Z",
+    "note": "Updated stale split-file target and aligned HasGlyph with upstream GID-zero semantics used by the debugger Type0 mapping update."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
@@ -4440,13 +4440,13 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType0Font.cs",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-25T21:12:00Z",
-    "note": "Issue #51: added Type0 /Encoding CMap integration (stream + predefined identity fallback), CodeToCID via Type0 CMap, and ToUnicode fallback chaining to UCS2/descendant mapping."
+    "last_checked_utc": "2026-07-14T19:12:39Z",
+    "note": "Updated stale split-file target and aligned HasGlyph with upstream GID-zero semantics while preserving parent-owned CMap resolution in the adapted .NET model."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -7991,12 +7991,12 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type0Font.java",
     "target_path": "src/PdfBox.Net.Debugger/Fontencodingpane/Type0Font.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-07-14T19:12:39Z",
+    "note": "PDFBOX-6175: debugger Type0 mappings now resolve glyph availability, CID, GID, and Unicode through the parent Type0 font so custom encoding CMaps are honored."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type3Font.java",

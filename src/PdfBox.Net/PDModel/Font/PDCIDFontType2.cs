@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java
- * PDFBOX_SOURCE_COMMIT: 853e0761ff9db37ee8ed1e63fe4823d8afea21e4
+ * PDFBOX_SOURCE_COMMIT: 10950c29006e36cfba48e74d4031784e31562cbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 853e0761ff9db37ee8ed1e63fe4823d8afea21e4
+ * PORT_LAST_SYNC_COMMIT: 10950c29006e36cfba48e74d4031784e31562cbf
  */
 
 /*
@@ -195,8 +195,7 @@ public partial class PDCIDFontType2 : PDCIDFont
 
     public bool HasGlyph(int code)
     {
-        int gid = CodeToGID(code);
-        return _trueTypeFont.GetGlyph()?.GetGlyph(gid) != null;
+        return CodeToGID(code) != 0;
     }
 
     public GeneralPath GetNormalizedPath(int code)

@@ -3088,11 +3088,11 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Issue #51: added CIDSystemInfo accessor for composite Type0 CMap/UCS2 integration paths."
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "conversion_notes": "Split-file target corrected. The Java parent accessor is intentionally absent from the adapted .NET model, so its new deprecation requires no API change."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
@@ -3104,11 +3104,11 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Implemented CIDFontType2 wrapper for embedded TrueType fonts with shared CID width default handling."
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "conversion_notes": "Split-file target corrected; HasGlyph now matches upstream by treating GID 0 as unavailable."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
@@ -3184,11 +3184,11 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType0Font.cs",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Issue #51: wired Type0 /Encoding CMap parsing (stream and predefined identity fallback), CodeToCID via Type0 CMap, and composite ToUnicode fallback chaining to UCS2/preferred descendant mapping."
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "conversion_notes": "Split-file target corrected; parent-owned CMap resolution is preserved and HasGlyph now matches upstream GID-zero semantics."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -6278,13 +6278,13 @@
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "TTF parser now reads table directories for core mandatory tables, validates mandatory-table presence, and supports table-header extraction used by downstream font flows and regression tests.",
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "conversion_notes": "Parser behavior remains current; PDFBOX-5660 changes Javadoc links only.",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T07:49:01Z",
-    "note": "TTF parser now reads table directories for core mandatory tables, validates mandatory-table presence, and supports table-header extraction used by downstream font flows and regression tests."
+    "last_checked_utc": "2026-07-14T19:12:39Z",
+    "note": "Reviewed against upstream 10950c29006e36cfba48e74d4031784e31562cbf; no runtime change was present."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
@@ -6902,10 +6902,10 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type0Font.java",
     "target_path": "src/PdfBox.Net.Debugger/Fontencodingpane/Type0Font.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
     "port_mode": "adapted",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "conversion_notes": "PDFBOX-6175: Type0 debugger rows now obtain glyph availability, CID, GID, and Unicode through the parent Type0 font so encoding CMaps are honored."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type3Font.java",

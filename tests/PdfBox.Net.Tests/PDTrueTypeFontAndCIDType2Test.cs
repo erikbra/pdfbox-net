@@ -419,6 +419,7 @@ public class PDTrueTypeFontAndCIDType2Test
 
         // GID 1 has a box glyph (non-null in the glyph table).
         Assert.True(type0Font.HasGlyph(1));
+        Assert.False(type0Font.HasGlyph(0));
     }
 
     [Fact]
