@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.Layout;
 
@@ -201,7 +202,7 @@ public sealed class PdfSemanticSectionTree
     {
         StringBuilder slug = new();
         bool pendingSeparator = false;
-        foreach (char character in text.Normalize(NormalizationForm.FormKD))
+        foreach (char character in PdfStringNormalization.Normalize(text, NormalizationForm.FormKD))
         {
             UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(character);
             if (category == UnicodeCategory.NonSpacingMark)

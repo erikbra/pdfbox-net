@@ -27,6 +27,7 @@
 
 using System.Globalization;
 using System.Text;
+using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Encryption;
 
@@ -75,7 +76,7 @@ internal static class SaslPrep
             mappedBuilder.Append(char.ConvertFromUtf32(codepoint));
         }
 
-        string normalized = mappedBuilder.ToString().Normalize(NormalizationForm.FormKC);
+        string normalized = PdfStringNormalization.Normalize(mappedBuilder.ToString(), NormalizationForm.FormKC);
 
         bool containsRandALCat = false;
         bool containsLCat = false;

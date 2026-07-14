@@ -9,6 +9,37 @@ namespace PdfBox.Net.Html.Tests;
 public sealed class WasmBrowserSmokeTest
 {
     [Fact(Timeout = 120_000)]
+    public async Task BrowserLite_UsesBrowserCompatibilityNormalization()
+    {
+        string repositoryRoot = FindRepositoryRoot();
+        int port = ReservePort();
+        using Process server = StartServer(repositoryRoot, port);
+
+        try
+        {
+            Uri appUri = new($"http://127.0.0.1:{port}");
+            await WaitForServerAsync(appUri, server);
+
+            using IPlaywright playwright = await Playwright.CreateAsync();
+            await using IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+            {
+                Headless = true
+            });
+            IPage page = await browser.NewPageAsync();
+            await page.GotoAsync(appUri.ToString(), new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+
+            Assert.Equal("unpdf - PDF to HTML", await page.TitleAsync());
+            Assert.Equal(
+                "fi",
+                await page.EvaluateAsync<string>("() => window.unpdf.normalizeCompatibility('\\uFB01', 'NFKC')"));
+        }
+        finally
+        {
+            StopServer(server);
+        }
+    }
+
+    [Fact(Timeout = 120_000)]
     public async Task BrowserLite_UploadedPdf_IsConvertedWithoutNetworkRequests()
     {
         string repositoryRoot = FindRepositoryRoot();
