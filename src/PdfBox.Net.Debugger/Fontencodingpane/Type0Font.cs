@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type0Font.java
- * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PDFBOX_SOURCE_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
  */
 
 /*
@@ -72,7 +72,7 @@ public sealed class Type0Font : FontPane
         }
         else
         {
-            TableData = ReadMap(descendantFont, parentFont, glyphList);
+            TableData = ReadMap(parentFont, glyphList);
             ColumnNames = ["Code", "CID", "GID", "Unicode Character"];
             if (TableData != null)
             {
@@ -116,18 +116,13 @@ public sealed class Type0Font : FontPane
         return table;
     }
 
-    private object[][]? ReadMap(PDCIDFont descendantFont, PDType0Font parentFont, GlyphList glyphList)
+    private object[][]? ReadMap(PDType0Font parentFont, GlyphList glyphList)
     {
-        // Only PDCIDFontType2 supports CodeToGID; other subtypes fall back to CID == GID.
-        var t2 = descendantFont as PDCIDFontType2;
-
-        // Count codes that map to a non-zero GID.
+        // Count codes for which the composite font can resolve a glyph.
         int codes = 0;
         for (int code = 0; code < 65535; code++)
         {
-            int cid = descendantFont.CodeToCID(code);
-            int gid = t2 != null ? t2.CodeToGID(cid) : cid;
-            if (gid != 0)
+            if (parentFont.HasGlyph(code))
             {
                 codes++;
             }
@@ -142,13 +137,13 @@ public sealed class Type0Font : FontPane
         int index = 0;
         for (int code = 0; code < 65535 && index < codes; code++)
         {
-            int cid = descendantFont.CodeToCID(code);
-            int gid = t2 != null ? t2.CodeToGID(cid) : cid;
-            if (gid == 0)
+            if (!parentFont.HasGlyph(code))
             {
                 continue;
             }
 
+            int cid = parentFont.CodeToCID(code);
+            int gid = parentFont.CodeToGID(code);
             string? unicode = parentFont.ToUnicode(code, glyphList);
             TotalAvailableGlyph++;
             tab[index++] = [code, cid, gid, unicode ?? NoGlyph];
