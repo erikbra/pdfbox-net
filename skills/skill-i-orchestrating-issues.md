@@ -40,3 +40,6 @@ Use this process to run issues in strict sequence, one at a time.
 - Single active issue at a time.
 - Keep a clear pass/fail checklist record per issue.
 - If scope ambiguity appears, pause and clarify before proceeding.
+- Publish completed issue work by default: push the branch, open a ready-for-review PR, apply Skill H, monitor all required CI checks, and merge when every check passes.
+- Do not wait for separate push, PR, or merge authorization unless the user explicitly requested local-only or unpublished work.
+- If CI or review fails, keep the issue active, fix only in-scope failures, and rerun the affected gates before merging.
