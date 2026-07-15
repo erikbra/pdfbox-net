@@ -45,6 +45,7 @@ using PdfBox.Net.PDModel.Graphics.Patterns;
 using PdfBox.Net.PDModel.Graphics.Shading;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Util;
 using PdfBox.Net.Util.Geometry;
 using SkiaSharp;
@@ -63,6 +64,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     private readonly Dictionary<PDVectorFont, GlyphCache> _glyphCaches = new();
     private readonly Dictionary<COSDictionary, PDTrueTypeFont?> _mappedTrueTypeFonts = new();
     private readonly Dictionary<FallbackTypefaceKey, SKTypeface?> _fallbackTypefaces = new();
+    private readonly Dictionary<COSStream, bool> _blendModeCache = new();
     private readonly TilingPaintFactory _tilingPaintFactory;
     private AnnotationFilter _annotationFilter = _ => true;
     private Graphics2D? _graphics;
@@ -86,7 +88,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     private long _fallbackTypefaceLookupTicks;
     private long _fallbackTypefaceCacheHits;
     private long _fallbackTypefaceCacheMisses;
-    private KnockoutGroupCompositor? _knockoutGroupCompositor;
+    private ITransparencyGroupCompositor? _transparencyGroupCompositor;
     private bool _disposed;
 
     private readonly record struct FallbackTypefaceKey(string FontName, string Family, bool Bold, bool Italic);
@@ -1080,9 +1082,10 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             return;
         }
 
-        if (_knockoutGroupCompositor is not null)
+        if (_transparencyGroupCompositor is not null)
         {
-            _knockoutGroupCompositor.Draw(
+            _transparencyGroupCompositor.Draw(
+                canvas,
                 canvas.TotalMatrix,
                 target => DrawWithCurrentClipCore(target, draw),
                 target => DrawShapeWithCurrentClipCore(target, drawShape ?? draw));
@@ -2569,7 +2572,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         Graphics2D groupGraphics,
         bool isSoftMask,
         Matrix ctm,
-        KnockoutGroupCompositor? knockoutCompositor)
+        ITransparencyGroupCompositor? groupCompositor)
     {
         Graphics2D? savedGraphics = _graphics;
         PDGraphicsState graphicsState = GetGraphicsState();
@@ -2582,12 +2585,12 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         PDColorSpace savedNonStrokingColorSpace = graphicsState.GetNonStrokingColorSpace();
         PDColor savedStrokingColor = graphicsState.GetStrokingColor();
         PDColor savedNonStrokingColor = graphicsState.GetNonStrokingColor();
-        KnockoutGroupCompositor? savedKnockoutCompositor = _knockoutGroupCompositor;
+        ITransparencyGroupCompositor? savedGroupCompositor = _transparencyGroupCompositor;
 
         _graphics = groupGraphics;
         try
         {
-            _knockoutGroupCompositor = knockoutCompositor;
+            _transparencyGroupCompositor = groupCompositor;
             graphicsState.SetCurrentTransformationMatrix(ctm);
             graphicsState.SetBlendMode(BlendMode.NORMAL);
             graphicsState.SetAlphaConstant(1f);
@@ -2618,10 +2621,66 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             graphicsState.SetNonStrokingColorSpace(savedNonStrokingColorSpace);
             graphicsState.SetStrokingColor(savedStrokingColor);
             graphicsState.SetNonStrokingColor(savedNonStrokingColor);
-            knockoutCompositor?.Complete();
-            _knockoutGroupCompositor = savedKnockoutCompositor;
+            groupCompositor?.Complete();
+            _transparencyGroupCompositor = savedGroupCompositor;
             _graphics = savedGraphics;
         }
+    }
+
+    private bool HasBlendMode(PDTransparencyGroup group, HashSet<COSStream> groupsInProgress)
+    {
+        COSStream? groupStream = group.GetCOSObject();
+        if (groupStream is null)
+        {
+            return false;
+        }
+
+        if (!groupsInProgress.Add(groupStream))
+        {
+            return false;
+        }
+
+        if (_blendModeCache.TryGetValue(groupStream, out bool cached))
+        {
+            return cached;
+        }
+
+        PDResources? resources = group.GetResources();
+        if (resources is null)
+        {
+            _blendModeCache[groupStream] = false;
+            return false;
+        }
+
+        foreach (COSName name in resources.GetExtGStateNames())
+        {
+            PDExtendedGraphicsState? extGState = resources.GetExtGState(name);
+            if (extGState is not null && extGState.GetBlendMode() != BlendMode.NORMAL)
+            {
+                _blendModeCache[groupStream] = true;
+                return true;
+            }
+        }
+
+        foreach (COSName name in resources.GetXObjectNames())
+        {
+            try
+            {
+                if (resources.GetXObject(name) is PDTransparencyGroup nestedGroup &&
+                    HasBlendMode(nestedGroup, groupsInProgress))
+                {
+                    _blendModeCache[groupStream] = true;
+                    return true;
+                }
+            }
+            catch (IOException)
+            {
+                // Match PDFBox's best-effort resource traversal for malformed XObjects.
+            }
+        }
+
+        _blendModeCache[groupStream] = false;
+        return false;
     }
 
     private static SKBlendMode ToSkiaBlendMode(BlendMode blendMode)
@@ -2656,7 +2715,113 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         public void Dispose() => Image.Dispose();
     }
 
-    private sealed class KnockoutGroupCompositor : IDisposable
+    private interface ITransparencyGroupCompositor : IDisposable
+    {
+        void Draw(
+            SKCanvas targetCanvas,
+            SKMatrix matrix,
+            Action<SKCanvas> draw,
+            Action<SKCanvas> drawShape);
+
+        void Complete();
+    }
+
+    private sealed class NonIsolatedGroupCompositor : ITransparencyGroupCompositor
+    {
+        private readonly SKBitmap _target;
+        private readonly SKBitmap _backdrop;
+        private readonly SKBitmap _groupAlpha;
+        private readonly SKCanvas _groupAlphaCanvas;
+        private readonly int _left;
+        private readonly int _top;
+        private readonly int _right;
+        private readonly int _bottom;
+
+        public NonIsolatedGroupCompositor(
+            Graphics2D targetGraphics,
+            Graphics2D parentGraphics,
+            Rectangle2D bounds)
+        {
+            _target = targetGraphics.GetSkiaBitmap()
+                ?? throw new InvalidOperationException("Transparency groups require a bitmap-backed target.");
+            SKBitmap parent = parentGraphics.GetSkiaBitmap()
+                ?? throw new InvalidOperationException("Non-isolated groups require a bitmap-backed backdrop.");
+            _backdrop = CreateBitmap(_target.Width, _target.Height);
+            _groupAlpha = CreateBitmap(_target.Width, _target.Height);
+            _groupAlphaCanvas = new SKCanvas(_groupAlpha);
+            _left = Math.Clamp((int)Math.Floor(bounds.X), 0, _target.Width);
+            _top = Math.Clamp((int)Math.Floor(bounds.Y), 0, _target.Height);
+            _right = Math.Clamp((int)Math.Ceiling(bounds.X + bounds.Width), _left, _target.Width);
+            _bottom = Math.Clamp((int)Math.Ceiling(bounds.Y + bounds.Height), _top, _target.Height);
+
+            CopyBitmap(parent, _backdrop);
+            CopyBitmap(_backdrop, _target);
+            _groupAlpha.Erase(SKColors.Transparent);
+        }
+
+        public void Draw(
+            SKCanvas targetCanvas,
+            SKMatrix matrix,
+            Action<SKCanvas> draw,
+            Action<SKCanvas> drawShape)
+        {
+            draw(targetCanvas);
+            _groupAlphaCanvas.SetMatrix(matrix);
+            draw(_groupAlphaCanvas);
+        }
+
+        public void Complete()
+        {
+            _groupAlphaCanvas.Flush();
+            for (int y = _top; y < _bottom; y++)
+            {
+                for (int x = _left; x < _right; x++)
+                {
+                    byte groupAlpha = _groupAlpha.GetPixel(x, y).Alpha;
+                    if (groupAlpha == 0)
+                    {
+                        _target.SetPixel(x, y, SKColors.Transparent);
+                        continue;
+                    }
+
+                    SKColor groupColor = _target.GetPixel(x, y);
+                    SKColor backdropColor = _backdrop.GetPixel(x, y);
+                    float alphaFactor = backdropColor.Alpha / (float)groupAlpha - backdropColor.Alpha / 255f;
+                    _target.SetPixel(x, y, new SKColor(
+                        RemoveBackdrop(groupColor.Red, backdropColor.Red, alphaFactor),
+                        RemoveBackdrop(groupColor.Green, backdropColor.Green, alphaFactor),
+                        RemoveBackdrop(groupColor.Blue, backdropColor.Blue, alphaFactor),
+                        groupAlpha));
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            _groupAlphaCanvas.Dispose();
+            _groupAlpha.Dispose();
+            _backdrop.Dispose();
+        }
+
+        private static SKBitmap CreateBitmap(int width, int height)
+        {
+            return new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
+        }
+
+        private static void CopyBitmap(SKBitmap source, SKBitmap target)
+        {
+            using SKCanvas canvas = new(target);
+            using SKPaint paint = new() { BlendMode = SKBlendMode.Src };
+            canvas.DrawBitmap(source, 0, 0, SkiaRenderingBackend.ImageSamplingOptions, paint);
+        }
+
+        private static byte RemoveBackdrop(byte group, byte backdrop, float alphaFactor)
+        {
+            return (byte)Math.Clamp((int)MathF.Round(group + ((group - backdrop) * alphaFactor)), 0, 255);
+        }
+    }
+
+    private sealed class KnockoutGroupCompositor : ITransparencyGroupCompositor
     {
         // Each knockout child blends with the original backdrop, then replaces prior group content
         // within its independent shape while group alpha accumulates separately.
@@ -2710,6 +2875,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         }
 
         public void Draw(
+            SKCanvas targetCanvas,
             SKMatrix matrix,
             Action<SKCanvas> draw,
             Action<SKCanvas> drawShape)
@@ -2917,14 +3083,14 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
             groupCanvas.SetMatrix(deviceMatrix);
             PDTransparencyGroupAttributes? groupAttributes = form.GetGroup();
-            using KnockoutGroupCompositor? knockoutCompositor = !isSoftMask && groupAttributes?.IsKnockout() == true
-                ? new KnockoutGroupCompositor(
-                    groupGraphics,
-                    drawer._graphics,
-                    groupAttributes.IsIsolated(),
-                    _bounds)
-                : null;
-            drawer.RenderTransparencyGroupContent(form, groupGraphics, isSoftMask, ctm, knockoutCompositor);
+            using ITransparencyGroupCompositor? groupCompositor = CreateGroupCompositor(
+                drawer,
+                form,
+                groupGraphics,
+                groupAttributes,
+                isSoftMask,
+                _bounds);
+            drawer.RenderTransparencyGroupContent(form, groupGraphics, isSoftMask, ctm, groupCompositor);
         }
 
         public Rectangle2D GetBounds() => _bounds;
@@ -2934,6 +3100,39 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         public BufferedImage? GetImage() => _image;
 
         public void Dispose() => _image?.Dispose();
+
+        private static ITransparencyGroupCompositor? CreateGroupCompositor(
+            SkiaPageDrawerPeer drawer,
+            PDTransparencyGroup form,
+            Graphics2D groupGraphics,
+            PDTransparencyGroupAttributes? attributes,
+            bool isSoftMask,
+            Rectangle2D bounds)
+        {
+            if (isSoftMask || attributes is null)
+            {
+                return null;
+            }
+
+            if (attributes.IsKnockout())
+            {
+                return new KnockoutGroupCompositor(
+                    groupGraphics,
+                    drawer._graphics,
+                    attributes.IsIsolated(),
+                    bounds);
+            }
+
+            if (!attributes.IsIsolated() &&
+                drawer._graphics is not null &&
+                drawer._graphics.GetSkiaBitmap() is not null &&
+                drawer.HasBlendMode(form, []))
+            {
+                return new NonIsolatedGroupCompositor(groupGraphics, drawer._graphics, bounds);
+            }
+
+            return null;
+        }
 
         private static SKPoint ToPoint((float x, float y) point) => new(point.x, point.y);
 
