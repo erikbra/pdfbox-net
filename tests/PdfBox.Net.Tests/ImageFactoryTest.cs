@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using ImageMagick;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Image;
 using PdfBox.Net.PDModel.Resources;
@@ -494,6 +495,67 @@ public class ImageFactoryTest
     }
 
     [Fact]
+    public void SampledImageReader_GetRGBImage_CachesRepeatedSeparationSamples()
+    {
+        PDFunctionType2 placeholder = CreateType2Function(
+            c0: [1f, 1f, 1f],
+            c1: [0f, 0f, 0f],
+            exponent: 1f);
+        PDSeparation separation = new("Spot", PDDeviceRGB.Instance, placeholder);
+        CountingTintFunction tintTransform = new();
+        separation.SetTintTransform(tintTransform);
+
+        byte[] rgb = SampledImageReader.GetRGBImage(
+            8,
+            1,
+            8,
+            separation,
+            [0, 128, 255, 128, 0, 255, 128, 0],
+            null);
+
+        Assert.Equal(
+            [
+                255, 0, 64,
+                127, 64, 128,
+                0, 255, 191,
+                127, 64, 128,
+                255, 0, 64,
+                0, 255, 191,
+                127, 64, 128,
+                255, 0, 64
+            ],
+            rgb);
+        Assert.Equal(3, tintTransform.EvaluationCount);
+    }
+
+    [Fact]
+    public void SampledImageReader_GetRGBImage_AppliesDecodeBeforeNontrivialSeparationTintTransform()
+    {
+        PDFunctionType2 tintTransform = CreateType2Function(
+            c0: [0.1f, 0.2f, 0.3f],
+            c1: [0.9f, 0.4f, 0.8f],
+            exponent: 2f);
+        PDSeparation separation = new("Spot", PDDeviceRGB.Instance, tintTransform);
+
+        byte[] rgb = SampledImageReader.GetRGBImage(
+            4,
+            1,
+            2,
+            separation,
+            [0x1B],
+            COSArray.Of([1f, 0f]));
+
+        Assert.Equal(
+            [
+                230, 102, 204,
+                116, 74, 133,
+                48, 57, 91,
+                26, 51, 76
+            ],
+            rgb);
+    }
+
+    [Fact]
     public void SampledImageReader_GetRGBImage_UnpacksTwoBitGraySamples()
     {
         using PDDocument doc = new();
@@ -554,6 +616,41 @@ public class ImageFactoryTest
         array.Add(COSName.GetPDFName("ICCBased"));
         array.Add(profileStream);
         return Assert.IsType<PDICCBased>(PDColorSpace.Create(array));
+    }
+
+    private static PDFunctionType2 CreateType2Function(float[] c0, float[] c1, float exponent)
+    {
+        COSDictionary dictionary = new();
+        dictionary.SetInt(COSName.FUNCTION_TYPE, 2);
+        dictionary.SetItem(COSName.DOMAIN, COSArray.Of([0f, 1f]));
+        dictionary.SetItem(
+            COSName.RANGE,
+            COSArray.Of(Enumerable.Repeat(new[] { 0f, 1f }, c0.Length)
+                .SelectMany(static value => value)
+                .ToArray()));
+        dictionary.SetItem(COSName.C0, COSArray.Of(c0));
+        dictionary.SetItem(COSName.C1, COSArray.Of(c1));
+        dictionary.SetFloat(COSName.N, exponent);
+        return new PDFunctionType2(dictionary);
+    }
+
+    private sealed class CountingTintFunction : PDFunction
+    {
+        internal CountingTintFunction()
+            : base(new COSDictionary())
+        {
+        }
+
+        internal int EvaluationCount { get; private set; }
+
+        public override int GetFunctionType() => 2;
+
+        public override float[] Eval(float[] input)
+        {
+            EvaluationCount++;
+            float tint = input[0];
+            return [1f - tint, tint * tint, 0.25f + (tint * 0.5f)];
+        }
     }
 
     private static void AssertPng(PdfImageExportResult result)
