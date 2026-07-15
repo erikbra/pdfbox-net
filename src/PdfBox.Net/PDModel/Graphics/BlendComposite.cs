@@ -99,16 +99,29 @@ public sealed class BlendComposite
         }
         else
         {
-            Span<float> rgbResult = stackalloc float[3];
-            BlendMode.Blend(src[..3], dst[..3], rgbResult);
+            Span<float> sourceBlend = stackalloc float[3];
+            Span<float> backdropBlend = stackalloc float[3];
+            for (int i = 0; i < 3; i++)
+            {
+                sourceBlend[i] = subtractive ? 1f - Clamp01(src[i]) : Clamp01(src[i]);
+                backdropBlend[i] = subtractive ? 1f - Clamp01(dst[i]) : Clamp01(dst[i]);
+            }
+
+            Span<float> blendResult = stackalloc float[3];
+            BlendMode.Blend(sourceBlend, backdropBlend, blendResult);
 
             for (int i = 0; i < 3; i++)
             {
-                float srcValue = Clamp01(src[i]);
-                float dstValue = Clamp01(dst[i]);
-                float value = Clamp01(rgbResult[i]);
+                float srcValue = sourceBlend[i];
+                float dstValue = backdropBlend[i];
+                float value = Clamp01(blendResult[i]);
                 value = srcValue + dstAlpha * (value - srcValue);
                 value = dstValue + srcAlphaRatio * (value - dstValue);
+                if (subtractive)
+                {
+                    value = 1f - value;
+                }
+
                 result[i] = Clamp01(value);
             }
 

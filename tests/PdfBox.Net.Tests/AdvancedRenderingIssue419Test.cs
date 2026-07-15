@@ -447,6 +447,41 @@ public class AdvancedRenderingIssue419Test
     }
 
     [Fact]
+    public void RenderImage_IsolatedDeviceCmykGroup_BlendsChildrenInComponentSpace()
+    {
+        PDResources groupResources = new();
+        PDExtendedGraphicsState multiply = new();
+        multiply.SetBlendMode(BlendMode.MULTIPLY);
+        groupResources.Put(COSName.GetPDFName("Multiply"), multiply);
+
+        PDTransparencyGroup actualGroup = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "0.2 0.4 0.6 0.1 k\n0 0 20 20 re\nf\n" +
+            "/Multiply gs\n0.8 0.3 0.1 0.2 k\n0 0 20 20 re\nf\n");
+        actualGroup.SetResources(groupResources);
+        SetDeviceCmykGroupAttributes(actualGroup, isolated: true);
+        actualGroup.SetMatrix(new Matrix(1, 0, 0, 1, 20, 300));
+
+        PDTransparencyGroup expectedGroup = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "0.84 0.58 0.64 0.28 k\n0 0 20 20 re\nf\n");
+        SetDeviceCmykGroupAttributes(expectedGroup, isolated: true);
+        expectedGroup.SetMatrix(new Matrix(1, 0, 0, 1, 50, 300));
+
+        PDResources pageResources = new();
+        pageResources.Put(COSName.GetPDFName("Actual"), actualGroup);
+        pageResources.Put(COSName.GetPDFName("Expected"), expectedGroup);
+        using PDDocument document = CreateDocument("/Actual Do\n/Expected Do\n", pageResources);
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        (int actualRed, int actualGreen, int actualBlue) = GetRgb(image.GetRgb(30, 482));
+        (int expectedRed, int expectedGreen, int expectedBlue) = GetRgb(image.GetRgb(60, 482));
+        Assert.InRange(Math.Abs(actualRed - expectedRed), 0, 2);
+        Assert.InRange(Math.Abs(actualGreen - expectedGreen), 0, 2);
+        Assert.InRange(Math.Abs(actualBlue - expectedBlue), 0, 2);
+    }
+
+    [Fact]
     public void RenderImage_ZeroOpacityKnockoutChild_ClearsEarlierObjectUsingGeometryShape()
     {
         PDResources groupResources = new();
