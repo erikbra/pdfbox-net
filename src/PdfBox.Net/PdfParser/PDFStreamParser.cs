@@ -169,6 +169,12 @@ public sealed class PDFStreamParser
 
     private object TryReadNumberOrOperator(string token)
     {
+        char firstCharacter = token[0];
+        if (firstCharacter is not (>= '0' and <= '9' or '+' or '-' or '.'))
+        {
+            return Operator.GetOperator(token);
+        }
+
         try
         {
             return COSNumber.Get(token);
