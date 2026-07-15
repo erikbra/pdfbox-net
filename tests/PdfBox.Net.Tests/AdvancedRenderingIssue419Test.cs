@@ -309,6 +309,58 @@ public class AdvancedRenderingIssue419Test
     }
 
     [Fact]
+    public void RenderImage_NonIsolatedBlendGroup_UsesPageBackdrop()
+    {
+        PDTransparencyGroup group = CreateNonIsolatedMultiplyGroup(
+            new PDRectangle(0, 0, 40, 40),
+            "1 0 0 rg\n0 0 40 40 re\nf\n");
+        group.SetMatrix(new Matrix(1, 0, 0, 1, 100, 300));
+        PDResources resources = new();
+        resources.Put(COSName.GetPDFName("Group"), group);
+
+        using PDDocument document = CreateDocument(
+            "0 0 1 rg\n100 300 40 40 re\nf\n/Group Do\n",
+            resources);
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        (int red, int green, int blue) = GetRgb(image.GetRgb(120, 472));
+        Assert.True(red < 20 && green < 20 && blue < 20,
+            $"Expected red multiplied with the blue page backdrop to be black, got RGB({red},{green},{blue}).");
+    }
+
+    [Fact]
+    public void RenderImage_LuminositySoftMask_NestedNonIsolatedBlendGroupUsesMaskBackdrop()
+    {
+        PDTransparencyGroup nestedGroup = CreateNonIsolatedMultiplyGroup(
+            new PDRectangle(100, 300, 50, 40),
+            "1 0 0 rg\n100 300 50 40 re\nf\n");
+        PDResources maskResources = new();
+        maskResources.Put(COSName.GetPDFName("Nested"), nestedGroup);
+
+        PDTransparencyGroup maskGroup = CreateTransparencyGroup(
+            new PDRectangle(100, 300, 100, 40),
+            "0 0 1 rg\n100 300 100 40 re\nf\n/Nested Do\n");
+        maskGroup.SetResources(maskResources);
+        maskGroup.GetGroup()!.GetCOSObject().SetItem(COSName.CS, PDDeviceRGB.Instance.GetCOSObject());
+
+        COSDictionary softMaskDictionary = new();
+        softMaskDictionary.SetItem(COSName.GetPDFName("S"), COSName.GetPDFName("Luminosity"));
+        softMaskDictionary.SetItem(COSName.GetPDFName("G"), maskGroup.GetCOSObject());
+        PDExtendedGraphicsState extGState = new();
+        extGState.SetSoftMask(new PDSoftMask(softMaskDictionary));
+        PDResources pageResources = new();
+        pageResources.Put(COSName.GetPDFName("GsMask"), extGState);
+
+        using PDDocument document = CreateDocument(
+            "/GsMask gs\n1 0 0 rg\n100 300 100 40 re\nf\n",
+            pageResources);
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        AssertWhitePixel(image.GetRgb(120, 472),
+            "where the nested multiply group produces a black luminosity mask");
+    }
+
+    [Fact]
     public void RenderImage_DeviceCmykKnockoutGroup_BlendsChildAgainstOriginalBackdrop()
     {
         using PDDocument withEarlierObject = CreateDeviceCmykKnockoutDocument(includeEarlierObject: true);
@@ -608,6 +660,23 @@ public class AdvancedRenderingIssue419Test
         group.SetResources(resources);
         group.GetGroup()!.GetCOSObject().SetBoolean(COSName.GetPDFName("I"), true);
         group.GetGroup()!.GetCOSObject().SetBoolean(COSName.K, knockout);
+        return group;
+    }
+
+    private static PDTransparencyGroup CreateNonIsolatedMultiplyGroup(
+        PDRectangle bbox,
+        string contentStream)
+    {
+        PDResources resources = new();
+        PDExtendedGraphicsState multiply = new();
+        multiply.SetBlendMode(BlendMode.MULTIPLY);
+        resources.Put(COSName.GetPDFName("Multiply"), multiply);
+
+        PDTransparencyGroup group = CreateTransparencyGroup(
+            bbox,
+            "/Multiply gs\n" + contentStream);
+        group.SetResources(resources);
+        group.GetGroup()!.GetCOSObject().SetBoolean(COSName.GetPDFName("I"), false);
         return group;
     }
 
