@@ -125,6 +125,8 @@ public sealed class PDICCBased : PDColorSpace
         return _colorTransform?.TryConvert(samples, width, height, out rgb) ?? Fail(out rgb);
     }
 
+    internal override bool SupportsBatchConversion => _colorTransform is not null;
+
     internal int GetColorTransformOperationCount() => _colorTransform?.OperationCount ?? 0;
 
     internal bool IsSrgb() => _isSrgb;

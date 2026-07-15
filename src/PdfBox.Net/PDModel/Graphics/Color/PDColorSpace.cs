@@ -135,6 +135,8 @@ public abstract class PDColorSpace : COSObjectable
         return false;
     }
 
+    internal virtual bool SupportsBatchConversion => false;
+
     public virtual COSBase GetCOSObject() => _cosObject;
 
     protected static float Clamp(float value)

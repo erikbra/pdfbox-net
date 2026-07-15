@@ -340,6 +340,30 @@ public class ImageFactoryTest
     }
 
     [Fact]
+    public void PdfImageExporter_CmykOutputIntentMapsDeviceGrayBlackToCmykBlack()
+    {
+        using PDDocument document = new();
+        using MemoryStream profile = new(ColorProfiles.CoatedFOGRA39.ToByteArray());
+        document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, profile));
+        PDColorManagementContext context = PDColorManagementContext.Create(document)!;
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, [0], 1, 1, 8, 1);
+
+        PdfImageExportResult result = PdfImageExporter.ExportPng(image, context);
+
+        using BufferedImage exported = RenderingBackend.Current.ImageCodec.Decode(result.Data)
+            ?? throw new InvalidOperationException("The exported PNG could not be decoded.");
+        int actual = exported.GetRgb(0, 0) & 0xFFFFFF;
+        float[] expectedRgb = context.ResolveDeviceColorSpace(PDDeviceCMYK.Instance).ToRGB([0f, 0f, 0f, 1f]);
+        int expected = ((int)MathF.Round(expectedRgb[0] * 255f) << 16) |
+                       ((int)MathF.Round(expectedRgb[1] * 255f) << 8) |
+                       (int)MathF.Round(expectedRgb[2] * 255f);
+        Assert.NotEqual(0, actual);
+        Assert.InRange((actual >> 16) & 0xFF, ((expected >> 16) & 0xFF) - 1, ((expected >> 16) & 0xFF) + 1);
+        Assert.InRange((actual >> 8) & 0xFF, ((expected >> 8) & 0xFF) - 1, ((expected >> 8) & 0xFF) + 1);
+        Assert.InRange(actual & 0xFF, (expected & 0xFF) - 1, (expected & 0xFF) + 1);
+    }
+
+    [Fact]
     public void PdfImageExporter_ExportPng_PreservesXObjectSoftMaskAlpha()
     {
         using PDDocument doc = new();

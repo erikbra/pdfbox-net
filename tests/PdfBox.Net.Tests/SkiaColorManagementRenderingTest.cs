@@ -66,6 +66,35 @@ public class SkiaColorManagementRenderingTest
     }
 
     [Fact]
+    public void RenderImage_CmykOutputIntentMakesDeviceGrayBlackAndCmykBlackConverge()
+    {
+        using PDDocument document = new();
+        using MemoryStream profile = new(ColorProfiles.CoatedFOGRA39.ToByteArray());
+        document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, profile));
+
+        PDPage page = new(new PDRectangle(20, 10));
+        document.AddPage(page);
+        PDImageXObject image = LosslessFactory.CreateFromRawData(document, [0], 1, 1, 8, 1);
+        using (PDPageContentStream content = new(document, page))
+        {
+            content.SetNonStrokingColor(0f, 0f, 0f, 1f);
+            content.AddRect(0, 0, 10, 10);
+            content.Fill();
+            content.DrawImage(image, 10, 0, 10, 10);
+        }
+
+        PDColorManagementContext context = PDColorManagementContext.Create(document)!;
+        int expected = ToPackedRgb(context.ResolveDeviceColorSpace(PDDeviceCMYK.Instance).ToRGB([0f, 0f, 0f, 1f]));
+        using BufferedImage rendered = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+        int vectorPixel = rendered.GetRgb(5, 5) & 0xFFFFFF;
+        int imagePixel = rendered.GetRgb(15, 5) & 0xFFFFFF;
+
+        Assert.NotEqual(0, imagePixel);
+        AssertRgbClose(expected, vectorPixel, 1);
+        AssertRgbClose(vectorPixel, imagePixel, 1);
+    }
+
+    [Fact]
     public void RenderImage_OutputIntentMakesIndexedIccVectorAndImageConverge()
     {
         using PDDocument document = new();
