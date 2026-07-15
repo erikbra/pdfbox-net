@@ -22,6 +22,14 @@ internal interface IIccColorTransformFactory
         int expectedComponents,
         PdfRenderingIntent renderingIntent,
         out IIccColorTransform? transform);
+
+    bool TryCreateProofing(
+        byte[] sourceProfileData,
+        int sourceComponents,
+        byte[] outputProfileData,
+        int outputComponents,
+        PdfRenderingIntent renderingIntent,
+        out IIccColorTransform? transform);
 }
 
 internal sealed class MissingIccColorTransformFactory : IIccColorTransformFactory
@@ -35,6 +43,18 @@ internal sealed class MissingIccColorTransformFactory : IIccColorTransformFactor
     public bool TryCreate(
         byte[] profileData,
         int expectedComponents,
+        PdfRenderingIntent renderingIntent,
+        out IIccColorTransform? transform)
+    {
+        transform = null;
+        return false;
+    }
+
+    public bool TryCreateProofing(
+        byte[] sourceProfileData,
+        int sourceComponents,
+        byte[] outputProfileData,
+        int outputComponents,
         PdfRenderingIntent renderingIntent,
         out IIccColorTransform? transform)
     {

@@ -291,6 +291,24 @@ public class ImageFactoryTest
     }
 
     [Fact]
+    public void PdfImageExporter_ExportForBrowser_ConvertsSrgbIccJpegWhenOutputIntentRequiresProofing()
+    {
+        using PDDocument document = new();
+        using FileStream input = File.OpenRead(ImageFixture("test-2x1-rgb.jpg"));
+        PDImageXObject image = JPEGFactory.CreateFromStream(document, input);
+        image.GetCOSObject()!.SetItem(
+            COSName.COLORSPACE,
+            CreateIccColorSpace(ColorProfiles.SRGB.ToByteArray(), 3).GetCOSObject());
+        using MemoryStream profile = new(ColorProfiles.CoatedFOGRA39.ToByteArray());
+        document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, profile));
+        PDColorManagementContext context = PDColorManagementContext.Create(document)!;
+
+        PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image, context);
+
+        AssertPng(result);
+    }
+
+    [Fact]
     public void PdfImageExporter_OutputIntentDeviceCmyk_UsesSingleBatchTransform()
     {
         using PDDocument document = new();

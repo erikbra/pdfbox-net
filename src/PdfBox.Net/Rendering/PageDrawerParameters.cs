@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Graphics.Color;
+using PdfBox.Net.PDModel.Graphics.State;
 
 namespace PdfBox.Net.Rendering;
 
@@ -41,6 +43,7 @@ public sealed class PageDrawerParameters
     private readonly RenderDestination _destination;
     private readonly RenderingHints? _renderingHints;
     private readonly float _imageDownscalingOptimizationThreshold;
+    private readonly Dictionary<RenderingIntent, PDColorManagementContext?> _colorManagementContexts = [];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PageDrawerParameters"/> class.
@@ -79,6 +82,17 @@ public sealed class PageDrawerParameters
     internal PDFRenderer GetRenderer()
     {
         return _renderer;
+    }
+
+    internal PDColorManagementContext? GetColorManagementContext(RenderingIntent renderingIntent)
+    {
+        if (!_colorManagementContexts.TryGetValue(renderingIntent, out PDColorManagementContext? context))
+        {
+            context = PDColorManagementContext.Create(_renderer.GetDocument(), renderingIntent);
+            _colorManagementContexts[renderingIntent] = context;
+        }
+
+        return context;
     }
 
     /// <summary>
