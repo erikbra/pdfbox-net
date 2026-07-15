@@ -153,16 +153,27 @@ internal static class SampledImageReader
 
         byte[] rgb = new byte[checked(width * height * 3)];
         float[] componentValues = new float[components];
+        // Separation has one component, and its decoded tint is deterministic for each raw sample.
+        // Cache after the normal decode/conversion path so no precision or rounding behavior changes.
+        int separationSampleCount = colorSpace is PDSeparation ? 1 << bitsPerComponent : 0;
+        byte[]? separationRgb = separationSampleCount == 0 ? null : new byte[checked(separationSampleCount * 3)];
+        bool[]? convertedSeparationSamples = separationSampleCount == 0 ? null : new bool[separationSampleCount];
         int dst = 0;
         for (int y = 0; y < height; y++)
         {
             int bitOffset = y * rowBytes * 8;
             for (int x = 0; x < width; x++)
             {
+                int firstSample = 0;
                 for (int component = 0; component < components; component++)
                 {
                     int sample = ReadBits(imageData, bitOffset, bitsPerComponent);
                     bitOffset += bitsPerComponent;
+                    if (component == 0)
+                    {
+                        firstSample = sample;
+                    }
+
                     float dMin = decode[component * 2];
                     float dMax = decode[(component * 2) + 1];
                     float decoded = dMin + (sample * ((dMax - dMin) / sampleMax));
@@ -171,10 +182,29 @@ internal static class SampledImageReader
                         : decoded;
                 }
 
-                float[] converted = colorSpace.ToRGB(componentValues);
-                rgb[dst++] = ToByte(converted, 0);
-                rgb[dst++] = ToByte(converted, 1);
-                rgb[dst++] = ToByte(converted, 2);
+                if (separationRgb is not null && convertedSeparationSamples is not null)
+                {
+                    int lookupOffset = firstSample * 3;
+                    if (!convertedSeparationSamples[firstSample])
+                    {
+                        float[] converted = colorSpace.ToRGB(componentValues);
+                        separationRgb[lookupOffset] = ToByte(converted, 0);
+                        separationRgb[lookupOffset + 1] = ToByte(converted, 1);
+                        separationRgb[lookupOffset + 2] = ToByte(converted, 2);
+                        convertedSeparationSamples[firstSample] = true;
+                    }
+
+                    rgb[dst++] = separationRgb[lookupOffset];
+                    rgb[dst++] = separationRgb[lookupOffset + 1];
+                    rgb[dst++] = separationRgb[lookupOffset + 2];
+                }
+                else
+                {
+                    float[] converted = colorSpace.ToRGB(componentValues);
+                    rgb[dst++] = ToByte(converted, 0);
+                    rgb[dst++] = ToByte(converted, 1);
+                    rgb[dst++] = ToByte(converted, 2);
+                }
             }
         }
 
