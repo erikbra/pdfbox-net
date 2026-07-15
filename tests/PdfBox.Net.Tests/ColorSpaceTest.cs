@@ -179,6 +179,30 @@ public class ColorSpaceTest
     }
 
     [Fact]
+    public void ColorManagementContext_ExposesIccSourceComponentsInCmykOutputSpace()
+    {
+        using PDDocument document = new();
+        using MemoryStream cmykProfile = new(ColorProfiles.CoatedFOGRA39.ToByteArray());
+        document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, cmykProfile));
+        PDColorManagementContext context = PDColorManagementContext.Create(
+            document,
+            PdfRenderingIntent.SATURATION)!;
+        PDICCBased sourceColorSpace = CreateIccColorSpace(ColorProfiles.SRGB.ToByteArray(), 3);
+        PDColor source = new([0.969f, 0.639f, 0.6f], sourceColorSpace);
+
+        bool converted = context.TryConvertToOutput(source, out float[] cmyk);
+
+        Assert.True(converted);
+        Assert.Equal(4, cmyk.Length);
+        Assert.All(cmyk, component => Assert.InRange(component, 0f, 1f));
+        float[] proofedRgb = context.ResolveColorSpace(sourceColorSpace).ToRGB(source.GetComponents());
+        float[] outputRgb = context.ResolveDeviceColorSpace(PDDeviceCMYK.Instance).ToRGB(cmyk);
+        Assert.All(
+            proofedRgb.Zip(outputRgb),
+            pair => Assert.InRange(Math.Abs(pair.First - pair.Second), 0f, 0.03f));
+    }
+
+    [Fact]
     public void PDColorSpaceFactory_ResolvesResourceColorSpaces()
     {
         var colorSpaces = new COSDictionary();

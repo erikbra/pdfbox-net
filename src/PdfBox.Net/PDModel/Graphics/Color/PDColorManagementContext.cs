@@ -127,6 +127,26 @@ public sealed class PDColorManagementContext
 
     internal int GetColorTransformOperationCount() => _outputColorSpace.GetColorTransformOperationCount();
 
+    internal bool TryConvertToOutput(PDColor color, out float[] output)
+    {
+        ArgumentNullException.ThrowIfNull(color);
+        PDColorSpace? sourceColorSpace = color.GetColorSpace();
+        if (sourceColorSpace is null)
+        {
+            output = [];
+            return false;
+        }
+
+        PDColorSpace resolved = ResolveColorSpace(sourceColorSpace);
+        if (resolved is PDICCBased iccBased)
+        {
+            return iccBased.TryConvertToOutput(color.GetComponents(), out output);
+        }
+
+        output = [];
+        return false;
+    }
+
     private static bool IsSupportedSubtype(PDOutputIntent outputIntent)
     {
         string? subtype = ((COSDictionary)outputIntent.GetCOSObject())

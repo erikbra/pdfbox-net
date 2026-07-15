@@ -13,6 +13,8 @@ internal interface IIccColorTransform
     float[] ToRgb(float[] values);
 
     bool TryConvert(byte[] samples, int width, int height, out byte[] rgb);
+
+    bool TryConvertToOutput(float[] values, out float[] output);
 }
 
 internal interface IIccColorTransformFactory
