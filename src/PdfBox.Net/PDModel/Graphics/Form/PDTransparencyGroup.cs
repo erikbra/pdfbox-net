@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 
 namespace PdfBox.Net.PDModel.Graphics.Form;
@@ -39,6 +40,14 @@ public class PDTransparencyGroup : PDFormXObject
 
     public PDTransparencyGroup(COSStream stream)
         : base(stream)
+    {
+    }
+
+    /// <summary>Creates a transparency group for reading with a cache for its resources.</summary>
+    /// <param name="stream">The XObject stream.</param>
+    /// <param name="resourceCache">The cache to use for the group resources.</param>
+    public PDTransparencyGroup(COSStream stream, ResourceCache? resourceCache)
+        : base(stream, resourceCache)
     {
     }
 }
