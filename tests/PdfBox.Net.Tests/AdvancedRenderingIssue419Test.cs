@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Native regression coverage for issue #419 advanced rendering paths.
+ * Native regression coverage for advanced rendering paths (issues #419 and #891).
  *
  * PORT_MODE: native-test
  */
@@ -476,6 +476,53 @@ public class AdvancedRenderingIssue419Test
 
         (int actualRed, int actualGreen, int actualBlue) = GetRgb(image.GetRgb(30, 482));
         (int expectedRed, int expectedGreen, int expectedBlue) = GetRgb(image.GetRgb(60, 482));
+        Assert.InRange(Math.Abs(actualRed - expectedRed), 0, 2);
+        Assert.InRange(Math.Abs(actualGreen - expectedGreen), 0, 2);
+        Assert.InRange(Math.Abs(actualBlue - expectedBlue), 0, 2);
+    }
+
+    [Fact]
+    public void RenderImage_TranslatedNestedDeviceCmykGroup_PreservesComponentCoordinates()
+    {
+        PDResources childResources = new();
+        PDExtendedGraphicsState childMultiply = new();
+        childMultiply.SetBlendMode(BlendMode.MULTIPLY);
+        childResources.Put(COSName.GetPDFName("Multiply"), childMultiply);
+
+        PDTransparencyGroup child = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "0.2 0.4 0.6 0.1 k\n0 0 20 20 re\nf\n" +
+            "/Multiply gs\n0.8 0.3 0.1 0.2 k\n0 0 20 20 re\nf\n");
+        child.SetResources(childResources);
+        SetDeviceCmykGroupAttributes(child, isolated: true);
+        child.SetMatrix(new Matrix(1, 0, 0, 1, 10, 5));
+
+        PDResources parentResources = new();
+        parentResources.Put(COSName.GetPDFName("Child"), child);
+        PDExtendedGraphicsState parentMultiply = new();
+        parentMultiply.SetBlendMode(BlendMode.MULTIPLY);
+        parentResources.Put(COSName.GetPDFName("Multiply"), parentMultiply);
+        PDTransparencyGroup parent = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 40, 40),
+            "/Multiply gs\n/Child Do\n");
+        parent.SetResources(parentResources);
+        SetDeviceCmykGroupAttributes(parent, isolated: true);
+        parent.SetMatrix(new Matrix(1, 0, 0, 1, 100, 300));
+
+        PDTransparencyGroup expected = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "0.84 0.58 0.64 0.28 k\n0 0 20 20 re\nf\n");
+        SetDeviceCmykGroupAttributes(expected, isolated: true);
+        expected.SetMatrix(new Matrix(1, 0, 0, 1, 140, 305));
+
+        PDResources pageResources = new();
+        pageResources.Put(COSName.GetPDFName("Actual"), parent);
+        pageResources.Put(COSName.GetPDFName("Expected"), expected);
+        using PDDocument document = CreateDocument("/Actual Do\n/Expected Do\n", pageResources);
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        (int actualRed, int actualGreen, int actualBlue) = GetRgb(image.GetRgb(120, 477));
+        (int expectedRed, int expectedGreen, int expectedBlue) = GetRgb(image.GetRgb(150, 477));
         Assert.InRange(Math.Abs(actualRed - expectedRed), 0, 2);
         Assert.InRange(Math.Abs(actualGreen - expectedGreen), 0, 2);
         Assert.InRange(Math.Abs(actualBlue - expectedBlue), 0, 2);

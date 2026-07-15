@@ -903,13 +903,17 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             sourcePaint.BlendMode = SKBlendMode.SrcOver;
             using SKPaint shapePaint = CreateShapePaint(paint);
             ComponentSource? componentSource = group.GetComponentSource();
+            // ResetMatrix() addresses the scratch bitmap directly, whose origin is the active
+            // group bounds for a bounded compositor rather than the page origin.
+            float imageX = -(_transparencyGroupCompositor?.DeviceLeft ?? 0);
+            float imageY = -(_transparencyGroupCompositor?.DeviceTop ?? 0);
             DrawWithCurrentClip(targetCanvas =>
             {
                 targetCanvas.ResetMatrix();
                 targetCanvas.DrawBitmap(
                     image.GetSkiaBitmap(),
-                    0,
-                    0,
+                    imageX,
+                    imageY,
                     SkiaRenderingBackend.ImageSamplingOptions,
                     paint);
             }, targetCanvas =>
@@ -917,8 +921,8 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                 targetCanvas.ResetMatrix();
                 targetCanvas.DrawBitmap(
                     image.GetSkiaBitmap(),
-                    0,
-                    0,
+                    imageX,
+                    imageY,
                     SkiaRenderingBackend.ImageSamplingOptions,
                     shapePaint);
             }, drawSource: targetCanvas =>
@@ -926,8 +930,8 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                 targetCanvas.ResetMatrix();
                 targetCanvas.DrawBitmap(
                     image.GetSkiaBitmap(),
-                    0,
-                    0,
+                    imageX,
+                    imageY,
                     SkiaRenderingBackend.ImageSamplingOptions,
                     sourcePaint);
             }, componentSource: componentSource);
@@ -1172,7 +1176,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         }
     }
 
-    private static void ApplySoftMaskToCurrentLayer(SKCanvas canvas, SoftMaskData? mask)
+    private void ApplySoftMaskToCurrentLayer(SKCanvas canvas, SoftMaskData? mask)
     {
         if (mask is null)
         {
@@ -1184,10 +1188,12 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         {
             canvas.ResetMatrix();
             using SKPaint maskPaint = new() { BlendMode = SKBlendMode.DstIn, IsAntialias = true };
+            float imageX = -(_transparencyGroupCompositor?.DeviceLeft ?? 0);
+            float imageY = -(_transparencyGroupCompositor?.DeviceTop ?? 0);
             canvas.DrawBitmap(
                 mask.Image.GetSkiaBitmap(),
-                0,
-                0,
+                imageX,
+                imageY,
                 SkiaRenderingBackend.ImageSamplingOptions,
                 maskPaint);
         }
@@ -2836,6 +2842,8 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     private sealed record ComponentSource(
         float[] Components,
         byte[] Alpha,
+        int Left,
+        int Top,
         int Width,
         int Height,
         int ComponentCount);
@@ -2843,6 +2851,10 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     private interface ITransparencyGroupCompositor : IDisposable
     {
         bool UsesComponents { get; }
+
+        int DeviceLeft { get; }
+
+        int DeviceTop { get; }
 
         void Draw(
             SKCanvas targetCanvas,
@@ -2893,6 +2905,10 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         }
 
         public bool UsesComponents => false;
+
+        public int DeviceLeft => 0;
+
+        public int DeviceTop => 0;
 
         public void Draw(
             SKCanvas targetCanvas,
@@ -2986,8 +3002,8 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         private readonly bool _knockout;
         private readonly int _left;
         private readonly int _top;
-        private readonly int _right;
-        private readonly int _bottom;
+        private readonly int _width;
+        private readonly int _height;
 
         public KnockoutGroupCompositor(
             Graphics2D targetGraphics,
@@ -3002,20 +3018,24 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                 ?? throw new InvalidOperationException("Knockout groups require a bitmap-backed target.");
             _isolated = isolated || parentGraphics?.GetSkiaBitmap() is not SKBitmap;
             _knockout = knockout;
-            _backdrop = CreateBitmap(_target.Width, _target.Height);
-            _objectColor = CreateBitmap(_target.Width, _target.Height);
-            _objectAlpha = CreateBitmap(_target.Width, _target.Height);
-            _objectShape = CreateBitmap(_target.Width, _target.Height);
+            _left = Math.Clamp((int)Math.Floor(bounds.X), 0, _target.Width);
+            _top = Math.Clamp((int)Math.Floor(bounds.Y), 0, _target.Height);
+            int right = Math.Clamp((int)Math.Ceiling(bounds.X + bounds.Width), _left, _target.Width);
+            int bottom = Math.Clamp((int)Math.Ceiling(bounds.Y + bounds.Height), _top, _target.Height);
+            _width = right - _left;
+            _height = bottom - _top;
+            // Keep the public group image full-sized for existing composition semantics, but make
+            // every temporary knockout surface and component plane proportional to its active bounds.
+            _backdrop = CreateBitmap(_width, _height);
+            _objectColor = CreateBitmap(_width, _height);
+            _objectAlpha = CreateBitmap(_width, _height);
+            _objectShape = CreateBitmap(_width, _height);
             _objectColorCanvas = new SKCanvas(_objectColor);
             _objectAlphaCanvas = new SKCanvas(_objectAlpha);
             _objectShapeCanvas = new SKCanvas(_objectShape);
-            _groupAlpha = new byte[_target.Width * _target.Height];
+            _groupAlpha = new byte[checked(_width * _height)];
             _componentToRgb = componentToRgb;
             _sourceToComponents = sourceToComponents;
-            _left = Math.Clamp((int)Math.Floor(bounds.X), 0, _target.Width);
-            _top = Math.Clamp((int)Math.Floor(bounds.Y), 0, _target.Height);
-            _right = Math.Clamp((int)Math.Ceiling(bounds.X + bounds.Width), _left, _target.Width);
-            _bottom = Math.Clamp((int)Math.Ceiling(bounds.Y + bounds.Height), _top, _target.Height);
 
             if (_isolated)
             {
@@ -3024,21 +3044,26 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             }
             else
             {
-                CopyBitmap(parentGraphics!.GetSkiaBitmap()!, _backdrop);
-                CopyBitmap(_backdrop, _target);
+                SKBitmap parent = parentGraphics!.GetSkiaBitmap()!;
+                CopyBitmap(parent, _backdrop, -_left, -_top);
+                CopyBitmap(parent, _target);
             }
 
             if (_componentToRgb is not null)
             {
-                _componentBackdrop = new float[checked(_target.Width * _target.Height * 4)];
+                _componentBackdrop = new float[checked(_width * _height * 4)];
                 _componentTarget = new float[_componentBackdrop.Length];
-                _componentTargetAlpha = new float[checked(_target.Width * _target.Height)];
+                _componentTargetAlpha = new float[checked(_width * _height)];
                 _componentOutput = new float[_componentBackdrop.Length];
                 InitializeComponentBackdrop();
             }
         }
 
         public bool UsesComponents => _componentToRgb is not null;
+
+        public int DeviceLeft => _left;
+
+        public int DeviceTop => _top;
 
         public void Draw(
             SKCanvas targetCanvas,
@@ -3066,9 +3091,10 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             CopyBitmap(_backdrop, _objectColor);
             _objectAlpha.Erase(SKColors.Transparent);
             _objectShape.Erase(SKColors.Transparent);
-            _objectColorCanvas.SetMatrix(matrix);
-            _objectAlphaCanvas.SetMatrix(matrix);
-            _objectShapeCanvas.SetMatrix(matrix);
+            SKMatrix localMatrix = ToLocalMatrix(matrix);
+            _objectColorCanvas.SetMatrix(localMatrix);
+            _objectAlphaCanvas.SetMatrix(localMatrix);
+            _objectShapeCanvas.SetMatrix(localMatrix);
             draw(_objectColorCanvas);
             draw(_objectAlphaCanvas);
             drawShape(_objectShapeCanvas);
@@ -3076,10 +3102,12 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             _objectAlphaCanvas.Flush();
             _objectShapeCanvas.Flush();
 
-            for (int y = _top; y < _bottom; y++)
+            for (int y = 0; y < _height; y++)
             {
-                for (int x = _left; x < _right; x++)
+                int targetY = y + _top;
+                for (int x = 0; x < _width; x++)
                 {
+                    int targetX = x + _left;
                     SKColor sourceAlphaColor = _objectAlpha.GetPixel(x, y);
                     float sourceAlpha = sourceAlphaColor.Alpha / 255f;
                     float shape = _objectShape.GetPixel(x, y).Alpha / 255f;
@@ -3088,11 +3116,11 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                         continue;
                     }
 
-                    SKColor previous = _target.GetPixel(x, y);
+                    SKColor previous = _target.GetPixel(targetX, targetY);
                     SKColor current = _objectColor.GetPixel(x, y);
-                    _target.SetPixel(x, y, InterpolatePremultiplied(previous, current, shape));
+                    _target.SetPixel(targetX, targetY, InterpolatePremultiplied(previous, current, shape));
 
-                    int index = x + y * _target.Width;
+                    int index = x + y * _width;
                     float previousGroupAlpha = _groupAlpha[index] / 255f;
                     float groupAlpha = sourceAlpha + ((1f - shape) * previousGroupAlpha);
                     _groupAlpha[index] = ToByte(groupAlpha);
@@ -3108,31 +3136,33 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                 return;
             }
 
-            for (int y = _top; y < _bottom; y++)
+            for (int y = 0; y < _height; y++)
             {
-                for (int x = _left; x < _right; x++)
+                int targetY = y + _top;
+                for (int x = 0; x < _width; x++)
                 {
-                    int index = x + y * _target.Width;
+                    int targetX = x + _left;
+                    int index = x + y * _width;
                     byte groupAlpha = _groupAlpha[index];
                     if (groupAlpha == 0)
                     {
-                        _target.SetPixel(x, y, SKColors.Transparent);
+                        _target.SetPixel(targetX, targetY, SKColors.Transparent);
                         continue;
                     }
 
                     if (_isolated)
                     {
-                        SKColor color = _target.GetPixel(x, y);
-                        _target.SetPixel(x, y, new SKColor(color.Red, color.Green, color.Blue, groupAlpha));
+                        SKColor color = _target.GetPixel(targetX, targetY);
+                        _target.SetPixel(targetX, targetY, new SKColor(color.Red, color.Green, color.Blue, groupAlpha));
                         continue;
                     }
 
                     // PDF 32000-1 section 11.4.4 removes the copied backdrop before the group is
                     // composited back into its parent.
-                    SKColor groupColor = _target.GetPixel(x, y);
+                    SKColor groupColor = _target.GetPixel(targetX, targetY);
                     SKColor backdropColor = _backdrop.GetPixel(x, y);
                     float alphaFactor = backdropColor.Alpha / (float)groupAlpha - backdropColor.Alpha / 255f;
-                    _target.SetPixel(x, y, new SKColor(
+                    _target.SetPixel(targetX, targetY, new SKColor(
                         RemoveBackdrop(groupColor.Red, backdropColor.Red, alphaFactor),
                         RemoveBackdrop(groupColor.Green, backdropColor.Green, alphaFactor),
                         RemoveBackdrop(groupColor.Blue, backdropColor.Blue, alphaFactor),
@@ -3148,8 +3178,10 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                 : new ComponentSource(
                     _componentOutput,
                     _groupAlpha,
-                    _target.Width,
-                    _target.Height,
+                    _left,
+                    _top,
+                    _width,
+                    _height,
                     4);
         }
 
@@ -3158,11 +3190,11 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             float[] backdrop = _componentBackdrop!;
             float[] target = _componentTarget!;
             float[] targetAlpha = _componentTargetAlpha!;
-            for (int y = _top; y < _bottom; y++)
+            for (int y = 0; y < _height; y++)
             {
-                for (int x = _left; x < _right; x++)
+                for (int x = 0; x < _width; x++)
                 {
-                    int pixel = x + y * _target.Width;
+                    int pixel = x + y * _width;
                     if (_isolated)
                     {
                         targetAlpha[pixel] = 0f;
@@ -3191,9 +3223,10 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             _objectColor.Erase(SKColors.Transparent);
             _objectAlpha.Erase(SKColors.Transparent);
             _objectShape.Erase(SKColors.Transparent);
-            _objectColorCanvas.SetMatrix(matrix);
-            _objectAlphaCanvas.SetMatrix(matrix);
-            _objectShapeCanvas.SetMatrix(matrix);
+            SKMatrix localMatrix = ToLocalMatrix(matrix);
+            _objectColorCanvas.SetMatrix(localMatrix);
+            _objectAlphaCanvas.SetMatrix(localMatrix);
+            _objectShapeCanvas.SetMatrix(localMatrix);
             if (sourceColor is null)
             {
                 drawSource(_objectColorCanvas);
@@ -3212,10 +3245,12 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             float[] targetAlpha = _componentTargetAlpha!;
             BlendComposite composite = BlendComposite.GetInstance(blendMode, 1f);
             Span<float> blended = stackalloc float[4];
-            for (int y = _top; y < _bottom; y++)
+            for (int y = 0; y < _height; y++)
             {
-                for (int x = _left; x < _right; x++)
+                int targetY = y + _top;
+                for (int x = 0; x < _width; x++)
                 {
+                    int targetX = x + _left;
                     float shape = _objectShape.GetPixel(x, y).Alpha / 255f;
                     if (shape <= 0f)
                     {
@@ -3226,19 +3261,16 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                         (_objectAlpha.GetPixel(x, y).Alpha / 255f) / shape,
                         0f,
                         1f);
-                    int pixel = x + y * _target.Width;
+                    int pixel = x + y * _width;
                     int offset = pixel * 4;
                     ReadOnlySpan<float> sourceComponents;
                     if (uniformSourceComponents is not null)
                     {
                         sourceComponents = uniformSourceComponents;
                     }
-                    else if (componentSource is not null &&
-                        componentSource.ComponentCount == 4 &&
-                        componentSource.Width == _target.Width &&
-                        componentSource.Height == _target.Height)
+                    else if (TryGetComponentOffset(componentSource, targetX, targetY, out int sourceOffset))
                     {
-                        sourceComponents = componentSource.Components.AsSpan(offset, 4);
+                        sourceComponents = componentSource!.Components.AsSpan(sourceOffset, 4);
                     }
                     else
                     {
@@ -3428,16 +3460,18 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             float[] target = _componentTarget!;
             float[] componentOutput = _componentOutput!;
             float[] output = new float[4];
-            for (int y = _top; y < _bottom; y++)
+            for (int y = 0; y < _height; y++)
             {
-                for (int x = _left; x < _right; x++)
+                int targetY = y + _top;
+                for (int x = 0; x < _width; x++)
                 {
-                    int pixel = x + y * _target.Width;
+                    int targetX = x + _left;
+                    int pixel = x + y * _width;
                     byte groupAlpha = _groupAlpha[pixel];
                     if (groupAlpha == 0)
                     {
                         componentOutput.AsSpan(pixel * 4, 4).Clear();
-                        _target.SetPixel(x, y, SKColors.Transparent);
+                        _target.SetPixel(targetX, targetY, SKColors.Transparent);
                         continue;
                     }
 
@@ -3463,7 +3497,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                     output.AsSpan().CopyTo(componentOutput.AsSpan(offset, 4));
 
                     int rgb = _componentToRgb!(output);
-                    _target.SetPixel(x, y, new SKColor(
+                    _target.SetPixel(targetX, targetY, new SKColor(
                         (byte)((rgb >> 16) & 0xFF),
                         (byte)((rgb >> 8) & 0xFF),
                         (byte)(rgb & 0xFF),
@@ -3496,11 +3530,41 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             return new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
         }
 
-        private static void CopyBitmap(SKBitmap source, SKBitmap target)
+        private static void CopyBitmap(SKBitmap source, SKBitmap target, float x = 0, float y = 0)
         {
             using SKCanvas canvas = new(target);
             using SKPaint paint = new() { BlendMode = SKBlendMode.Src };
-            canvas.DrawBitmap(source, 0, 0, SkiaRenderingBackend.ImageSamplingOptions, paint);
+            canvas.DrawBitmap(source, x, y, SkiaRenderingBackend.ImageSamplingOptions, paint);
+        }
+
+        private SKMatrix ToLocalMatrix(SKMatrix matrix)
+        {
+            matrix.TransX -= _left;
+            matrix.TransY -= _top;
+            return matrix;
+        }
+
+        private static bool TryGetComponentOffset(
+            ComponentSource? source,
+            int targetX,
+            int targetY,
+            out int offset)
+        {
+            offset = 0;
+            if (source is null || source.ComponentCount != 4)
+            {
+                return false;
+            }
+
+            int x = targetX - source.Left;
+            int y = targetY - source.Top;
+            if ((uint)x >= (uint)source.Width || (uint)y >= (uint)source.Height)
+            {
+                return false;
+            }
+
+            offset = checked((x + y * source.Width) * source.ComponentCount);
+            return true;
         }
 
         private static SKColor InterpolatePremultiplied(SKColor previous, SKColor current, float shape)
