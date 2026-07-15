@@ -197,28 +197,55 @@ public static class PdfImageExporter
             throw new IOException("Image width and height must be positive.");
         }
 
-        if (rgb.Length < width * height * 3)
+        int pixelCount;
+        int rgbLength;
+        try
+        {
+            pixelCount = checked(width * height);
+            rgbLength = checked(pixelCount * 3);
+        }
+        catch (OverflowException exception)
+        {
+            throw new IOException("Image dimensions are too large to export.", exception);
+        }
+
+        if (rgb.Length < rgbLength)
         {
             throw new IOException("Decoded image data is shorter than expected.");
         }
 
-        bool hasAlpha = alpha is { Length: var alphaLength } && alphaLength >= width * height;
-        using BufferedImage bitmap = new(width, height, hasAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-        int offset = 0;
-        int alphaOffset = 0;
-        for (int y = 0; y < height; y++)
+        bool hasAlpha = alpha is { Length: var alphaLength } && alphaLength >= pixelCount;
+        InterleavedPixelData pixels;
+        if (hasAlpha)
         {
-            for (int x = 0; x < width; x++)
+            byte[] rgba;
+            try
             {
-                int red = rgb[offset++];
-                int green = rgb[offset++];
-                int blue = rgb[offset++];
-                int opacity = hasAlpha ? alpha![alphaOffset++] : 0xFF;
-                bitmap.SetRgb(x, y, (opacity << 24) | (red << 16) | (green << 8) | blue);
+                rgba = GC.AllocateUninitializedArray<byte>(checked(pixelCount * 4));
             }
+            catch (OverflowException exception)
+            {
+                throw new IOException("Image dimensions are too large to export.", exception);
+            }
+
+            int rgbOffset = 0;
+            int rgbaOffset = 0;
+            for (int pixel = 0; pixel < pixelCount; pixel++)
+            {
+                rgba[rgbaOffset++] = rgb[rgbOffset++];
+                rgba[rgbaOffset++] = rgb[rgbOffset++];
+                rgba[rgbaOffset++] = rgb[rgbOffset++];
+                rgba[rgbaOffset++] = alpha![pixel];
+            }
+
+            pixels = new InterleavedPixelData(rgba, width, height, checked(width * 4), InterleavedPixelFormat.Rgba32);
+        }
+        else
+        {
+            pixels = new InterleavedPixelData(rgb, width, height, checked(width * 3), InterleavedPixelFormat.Rgb24);
         }
 
-        byte[] data = RenderingBackend.Current.ImageCodec.Encode(bitmap, EncodedImageFormat.Png, 100);
+        byte[] data = RenderingBackend.Current.ImageCodec.EncodePng(pixels);
         return new PdfImageExportResult("image/png", "png", data);
     }
 

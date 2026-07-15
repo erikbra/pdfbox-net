@@ -6,6 +6,7 @@
  */
 
 using PdfBox.Net.PDModel.Common;
+using System.Runtime.InteropServices;
 using SkiaSharp;
 
 namespace PdfBox.Net.Rendering;
@@ -205,10 +206,71 @@ internal sealed class SkiaImageCodecPeer : IImageCodecPeer
         return data.ToArray();
     }
 
+    public byte[] EncodePng(InterleavedPixelData pixels)
+    {
+        using SKBitmap bitmap = CreateBitmap(pixels);
+        using SKImage image = SKImage.FromBitmap(bitmap);
+        using SKData data = image.Encode(SKEncodedImageFormat.Png, 100);
+        return data.ToArray();
+    }
+
     internal static BufferedImage CreateBufferedImage(SKBitmap bitmap)
     {
         int type = bitmap.AlphaType == SKAlphaType.Opaque ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
         return new BufferedImage(new SkiaBufferedImagePeer(bitmap, type));
+    }
+
+    private static SKBitmap CreateBitmap(InterleavedPixelData pixels)
+    {
+        SKAlphaType alphaType = pixels.PixelFormat == InterleavedPixelFormat.Rgba32
+            ? SKAlphaType.Unpremul
+            : SKAlphaType.Opaque;
+        var bitmap = new SKBitmap(
+            new SKImageInfo(pixels.Width, pixels.Height, SKColorType.Rgba8888, alphaType));
+        IntPtr destination = bitmap.GetPixels();
+        if (destination == IntPtr.Zero)
+        {
+            bitmap.Dispose();
+            throw new IOException("SkiaSharp could not allocate the image pixel buffer.");
+        }
+
+        byte[] source = pixels.Data;
+        if (pixels.PixelFormat == InterleavedPixelFormat.Rgba32)
+        {
+            for (int y = 0; y < pixels.Height; y++)
+            {
+                Marshal.Copy(
+                    source,
+                    y * pixels.RowStride,
+                    IntPtr.Add(destination, y * bitmap.RowBytes),
+                    pixels.RowByteCount);
+            }
+        }
+        else
+        {
+            byte[] rgbaRow = GC.AllocateUninitializedArray<byte>(checked(pixels.Width * 4));
+            for (int y = 0; y < pixels.Height; y++)
+            {
+                int sourceOffset = y * pixels.RowStride;
+                int destinationOffset = 0;
+                for (int x = 0; x < pixels.Width; x++)
+                {
+                    rgbaRow[destinationOffset++] = source[sourceOffset++];
+                    rgbaRow[destinationOffset++] = source[sourceOffset++];
+                    rgbaRow[destinationOffset++] = source[sourceOffset++];
+                    rgbaRow[destinationOffset++] = byte.MaxValue;
+                }
+
+                Marshal.Copy(
+                    rgbaRow,
+                    0,
+                    IntPtr.Add(destination, y * bitmap.RowBytes),
+                    rgbaRow.Length);
+            }
+        }
+
+        bitmap.NotifyPixelsChanged();
+        return bitmap;
     }
 }
 
