@@ -148,7 +148,7 @@ public class ColorSpaceTest
     }
 
     [Fact]
-    public void ColorManagementContext_SelectsFirstUsableOutputIntentAndMatchesDeviceComponents()
+    public void ColorManagementContext_SelectsFirstUsableOutputIntentAndMapsDeviceGrayToCmykBlack()
     {
         using PDDocument document = new();
         using MemoryStream malformedProfile = new([1, 2, 3]);
@@ -168,7 +168,14 @@ public class ColorSpaceTest
         Assert.Equal(PdfRenderingIntent.PERCEPTUAL, context.RenderingIntent);
         Assert.IsType<PDICCBased>(context.ResolveDeviceColorSpace(PDDeviceCMYK.Instance));
         Assert.Same(PDDeviceRGB.Instance, context.ResolveDeviceColorSpace(PDDeviceRGB.Instance));
-        Assert.Same(PDDeviceGray.Instance, context.ResolveDeviceColorSpace(PDDeviceGray.Instance));
+        PDColorSpace managedGray = context.ResolveDeviceColorSpace(PDDeviceGray.Instance);
+        Assert.NotSame(PDDeviceGray.Instance, managedGray);
+        Assert.Equal(1, managedGray.GetNumberOfComponents());
+        float[] managedBlack = managedGray.ToRGB([0f]);
+        Assert.All(managedBlack, component => Assert.True(component > 0f));
+        Assert.Equal(
+            context.ResolveDeviceColorSpace(PDDeviceCMYK.Instance).ToRGB([0f, 0f, 0f, 1f]),
+            managedBlack);
     }
 
     [Fact]

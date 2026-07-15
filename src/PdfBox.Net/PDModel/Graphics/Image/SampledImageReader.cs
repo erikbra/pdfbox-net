@@ -134,7 +134,7 @@ internal static class SampledImageReader
         bool isIndexed = colorSpace is PDIndexed;
         float sampleMax = (1 << bitsPerComponent) - 1f;
         float[] decode = GetDecodeArray(colorSpace, bitsPerComponent, components, decodeArray);
-        if (colorSpace is PDICCBased)
+        if (colorSpace.SupportsBatchConversion)
         {
             byte[] profileSamples = UnpackSamples(
                 imageData,

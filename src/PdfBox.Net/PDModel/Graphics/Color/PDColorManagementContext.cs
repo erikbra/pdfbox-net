@@ -18,6 +18,7 @@ public sealed class PDColorManagementContext
     private readonly PDICCBased _outputColorSpace;
     private readonly byte[] _outputProfileData;
     private readonly Dictionary<COSBase, PDColorSpace> _resolvedColorSpaces = [];
+    private readonly PDColorSpace? _deviceGrayOutputColorSpace;
 
     private PDColorManagementContext(
         PDOutputIntent outputIntent,
@@ -28,6 +29,9 @@ public sealed class PDColorManagementContext
         _outputColorSpace = outputColorSpace;
         _outputProfileData = ReadProfile(outputIntent.GetDestOutputIntent());
         RenderingIntent = renderingIntent;
+        _deviceGrayOutputColorSpace = outputColorSpace.GetNumberOfComponents() == 4
+            ? new DeviceGrayToCmykOutputColorSpace(outputColorSpace)
+            : null;
     }
 
     /// <summary>Gets the selected output intent.</summary>
@@ -69,11 +73,17 @@ public sealed class PDColorManagementContext
 
     /// <summary>
     /// Resolves a device color space through the selected profile when their component counts match.
+    /// DeviceGray is mapped to the black channel of a CMYK output profile.
     /// Other color spaces are returned unchanged.
     /// </summary>
     public PDColorSpace ResolveDeviceColorSpace(PDColorSpace colorSpace)
     {
         ArgumentNullException.ThrowIfNull(colorSpace);
+        if (colorSpace is PDDeviceGray && _deviceGrayOutputColorSpace is not null)
+        {
+            return _deviceGrayOutputColorSpace;
+        }
+
         bool isDeviceColorSpace = colorSpace is PDDeviceGray or PDDeviceRGB or PDDeviceCMYK;
         return isDeviceColorSpace && colorSpace.GetNumberOfComponents() == _outputColorSpace.GetNumberOfComponents()
             ? _outputColorSpace
@@ -135,5 +145,52 @@ public sealed class PDColorManagementContext
         using MemoryStream output = new();
         input.CopyTo(output);
         return output.ToArray();
+    }
+
+    private sealed class DeviceGrayToCmykOutputColorSpace : PDColorSpace
+    {
+        private readonly PDICCBased _outputColorSpace;
+        private readonly PDColor _initialColor;
+
+        internal DeviceGrayToCmykOutputColorSpace(PDICCBased outputColorSpace)
+            : base(PDDeviceGray.Instance.GetCOSObject())
+        {
+            _outputColorSpace = outputColorSpace;
+            _initialColor = new PDColor([0f], this);
+        }
+
+        public override string GetName() => PDDeviceGray.Instance.GetName();
+
+        public override int GetNumberOfComponents() => 1;
+
+        public override float[] GetDefaultDecode(int bitsPerComponent) => [0f, 1f];
+
+        public override PDColor GetInitialColor() => _initialColor;
+
+        public override float[] ToRGB(float[] value)
+        {
+            float gray = Clamp(value.Length > 0 ? value[0] : 0f);
+            return _outputColorSpace.ToRGB([0f, 0f, 0f, 1f - gray]);
+        }
+
+        internal override bool TryConvertToRgb8(byte[] samples, int width, int height, out byte[] rgb)
+        {
+            rgb = [];
+            int pixelCount = checked(width * height);
+            if (samples.Length != pixelCount)
+            {
+                return false;
+            }
+
+            byte[] cmyk = new byte[checked(pixelCount * 4)];
+            for (int pixel = 0; pixel < pixelCount; pixel++)
+            {
+                cmyk[(pixel * 4) + 3] = (byte)(byte.MaxValue - samples[pixel]);
+            }
+
+            return _outputColorSpace.TryConvertToRgb8(cmyk, width, height, out rgb);
+        }
+
+        internal override bool SupportsBatchConversion => true;
     }
 }
