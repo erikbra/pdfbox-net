@@ -248,6 +248,44 @@ internal sealed class MagickIccColorTransform : IIccColorTransform
         return TryTransform(samples, width, height, out rgb);
     }
 
+    public bool TryConvertToOutput(float[] values, out float[] output)
+    {
+        output = [];
+        if (_outputProfile is null || _outputComponents <= 0 || values.Length < _components)
+        {
+            return false;
+        }
+
+        byte[] samples = new byte[_components];
+        for (int component = 0; component < _components; component++)
+        {
+            samples[component] = (byte)MathF.Round(
+                Math.Clamp(values[component], 0f, 1f) * byte.MaxValue);
+        }
+
+        try
+        {
+            Interlocked.Increment(ref _operationCount);
+            if (!TryTransformToOutput(samples, 1, 1, out byte[] outputSamples))
+            {
+                return false;
+            }
+
+            output = new float[_outputComponents];
+            for (int component = 0; component < _outputComponents; component++)
+            {
+                output[component] = outputSamples[component] / (float)byte.MaxValue;
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (ex is MagickException or ArgumentException or OverflowException)
+        {
+            output = [];
+            return false;
+        }
+    }
+
     private byte[]? CreateLookupTable()
     {
         int levels = GetLevels();
@@ -293,35 +331,27 @@ internal sealed class MagickIccColorTransform : IIccColorTransform
         try
         {
             Interlocked.Increment(ref _operationCount);
-            PixelReadSettings settings = new((uint)width, (uint)height, StorageType.Char, _pixelMapping);
-            using MagickImage image = new(samples, settings);
-            image.RenderingIntent = ToMagickRenderingIntent(_renderingIntent);
-            if (_outputProfile is null)
+            if (_outputProfile is not null)
             {
-                if (!image.TransformColorSpace(_sourceProfile, ColorProfiles.SRGB, ColorTransformMode.HighRes))
+                if (!TryTransformToOutput(samples, width, height, out byte[] outputSamples))
                 {
                     return false;
                 }
 
-                using IPixelCollection<byte> pixels = image.GetPixels();
-                rgb = pixels.ToByteArray("RGB") ?? [];
-                return rgb.Length == checked(width * height * 3);
+                return _outputDisplayTransform!.TryConvertUsingLookup(outputSamples, width, height, out rgb);
             }
 
-            image.BlackPointCompensation = true;
-            if (!image.TransformColorSpace(_sourceProfile, _outputProfile, ColorTransformMode.HighRes))
+            PixelReadSettings settings = new((uint)width, (uint)height, StorageType.Char, _pixelMapping);
+            using MagickImage image = new(samples, settings);
+            image.RenderingIntent = ToMagickRenderingIntent(_renderingIntent);
+            if (!image.TransformColorSpace(_sourceProfile, ColorProfiles.SRGB, ColorTransformMode.HighRes))
             {
                 return false;
             }
 
-            using IPixelCollection<byte> outputPixels = image.GetPixels();
-            byte[] outputSamples = outputPixels.ToByteArray(_outputPixelMapping!) ?? [];
-            if (outputSamples.Length != checked(width * height * _outputComponents))
-            {
-                return false;
-            }
-
-            return _outputDisplayTransform!.TryConvertUsingLookup(outputSamples, width, height, out rgb);
+            using IPixelCollection<byte> pixels = image.GetPixels();
+            rgb = pixels.ToByteArray("RGB") ?? [];
+            return rgb.Length == checked(width * height * 3);
         }
         catch (MagickException)
         {
@@ -335,6 +365,23 @@ internal sealed class MagickIccColorTransform : IIccColorTransform
         {
             return false;
         }
+    }
+
+    private bool TryTransformToOutput(byte[] samples, int width, int height, out byte[] outputSamples)
+    {
+        outputSamples = [];
+        PixelReadSettings settings = new((uint)width, (uint)height, StorageType.Char, _pixelMapping);
+        using MagickImage image = new(samples, settings);
+        image.RenderingIntent = ToMagickRenderingIntent(_renderingIntent);
+        image.BlackPointCompensation = true;
+        if (!image.TransformColorSpace(_sourceProfile, _outputProfile!, ColorTransformMode.HighRes))
+        {
+            return false;
+        }
+
+        using IPixelCollection<byte> outputPixels = image.GetPixels();
+        outputSamples = outputPixels.ToByteArray(_outputPixelMapping!) ?? [];
+        return outputSamples.Length == checked(width * height * _outputComponents);
     }
 
     private bool TryConvertUsingLookup(byte[] samples, int width, int height, out byte[] rgb)

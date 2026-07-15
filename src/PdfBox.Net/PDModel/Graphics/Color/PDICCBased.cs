@@ -129,6 +129,17 @@ public sealed class PDICCBased : PDColorSpace
 
     internal int GetColorTransformOperationCount() => _colorTransform?.OperationCount ?? 0;
 
+    internal bool TryConvertToOutput(float[] values, out float[] output)
+    {
+        if (_colorTransform is not null)
+        {
+            return _colorTransform.TryConvertToOutput(values, out output);
+        }
+
+        output = [];
+        return false;
+    }
+
     internal bool IsSrgb() => _isSrgb;
 
     internal static bool TryCreateFromProfile(
