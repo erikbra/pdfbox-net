@@ -86,13 +86,14 @@ public class PDXObject : COSObjectable
 
         if (string.Equals(subtype, FormName.GetName(), StringComparison.Ordinal))
         {
+            ResourceCache? resourceCache = resources?.GetResourceCache();
             COSDictionary? group = stream.GetCOSDictionary(GroupName);
             if (group is not null && group.GetCOSName(SName)?.Equals(TransparencyName) == true)
             {
-                return new PDTransparencyGroup(stream);
+                return new PDTransparencyGroup(stream, resourceCache);
             }
 
-            return new PDFormXObject(stream);
+            return new PDFormXObject(stream, resourceCache);
         }
 
         if (string.Equals(subtype, PsName.GetName(), StringComparison.Ordinal))

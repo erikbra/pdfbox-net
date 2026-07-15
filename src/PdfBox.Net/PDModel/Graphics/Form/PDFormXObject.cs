@@ -44,6 +44,8 @@ public partial class PDFormXObject : PDXObject, PDContentStream
     private static readonly COSName OptionalContentName = COSName.GetPDFName("OC");
 
     private PDTransparencyGroupAttributes? _group;
+    private readonly ResourceCache? _resourceCache;
+    private PDResources? _resources;
 
     public PDFormXObject(PDStream stream)
         : base(stream)
@@ -52,8 +54,17 @@ public partial class PDFormXObject : PDXObject, PDContentStream
     }
 
     public PDFormXObject(COSStream stream)
+        : this(stream, null)
+    {
+    }
+
+    /// <summary>Creates a Form XObject for reading with a cache for its resources.</summary>
+    /// <param name="stream">The XObject stream.</param>
+    /// <param name="resourceCache">The cache to use for the form resources.</param>
+    public PDFormXObject(COSStream stream, ResourceCache? resourceCache)
         : base(stream)
     {
+        _resourceCache = resourceCache;
         InitializeSubtype();
     }
 
@@ -93,13 +104,23 @@ public partial class PDFormXObject : PDXObject, PDContentStream
         COSDictionary? resources = GetCOSObject()?.GetCOSDictionary(COSName.RESOURCES);
         if (resources is not null)
         {
-            return new PDResources(resources);
+            if (_resources is null || !ReferenceEquals(_resources.GetCOSObject(), resources))
+            {
+                _resources = new PDResources(resources, _resourceCache);
+            }
+
+            return _resources;
         }
 
+        _resources = null;
         return GetCOSObject()?.ContainsKey(COSName.RESOURCES) == true ? new PDResources() : null;
     }
 
-    public void SetResources(PDResources? resources) => GetCOSObject()?.SetItem(COSName.RESOURCES, resources?.GetCOSObject());
+    public void SetResources(PDResources? resources)
+    {
+        _resources = null;
+        GetCOSObject()?.SetItem(COSName.RESOURCES, resources?.GetCOSObject());
+    }
 
     public PDRectangle? GetBBox()
     {
