@@ -58,6 +58,33 @@ public class GraphicsBlendStateCloseoutTest
     }
 
     [Fact]
+    public void BlendComposite_ComplementsSubtractiveNonSeparableComponents()
+    {
+        BlendComposite hue = BlendComposite.GetInstance(BlendMode.HUE, 1f);
+        float[] hueResult = new float[4];
+        hue.Compose(
+            new[] { 0f, 0f, 0f, 0f },
+            1f,
+            new[] { 0f, 0.5f, 0f, 0f },
+            1f,
+            hueResult,
+            subtractive: true);
+
+        BlendComposite luminosity = BlendComposite.GetInstance(BlendMode.LUMINOSITY, 1f);
+        float[] luminosityResult = new float[4];
+        luminosity.Compose(
+            new[] { 1f, 0f, 1f, 0f },
+            1f,
+            new[] { 0f, 1f, 0f, 0f },
+            1f,
+            luminosityResult,
+            subtractive: true);
+
+        Assert.Equal(new[] { 0.294f, 0.294f, 0.294f, 0f }, hueResult, new FloatArrayComparer(0.002f));
+        Assert.Equal(new[] { 0f, 0.7f, 0f, 0f }, luminosityResult, new FloatArrayComparer(0.03f));
+    }
+
+    [Fact]
     public void PDTransparencyGroupAttributes_ExposesFlagsAndColorSpace()
     {
         COSDictionary dictionary = new();
