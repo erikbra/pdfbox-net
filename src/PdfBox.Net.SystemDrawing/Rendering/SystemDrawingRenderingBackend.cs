@@ -7,6 +7,7 @@
 
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using PdfBox.Net.PDModel.Annotations;
 using PdfBox.Net.PDModel.Common;
@@ -242,6 +243,53 @@ internal sealed class SystemDrawingImageCodecPeer : IImageCodecPeer
             bitmap.Save(stream, GdiImageFormat.Png);
         }
 
+        return stream.ToArray();
+    }
+
+    public byte[] EncodePng(InterleavedPixelData pixels)
+    {
+        PixelFormat pixelFormat = pixels.PixelFormat == InterleavedPixelFormat.Rgba32
+            ? PixelFormat.Format32bppArgb
+            : PixelFormat.Format24bppRgb;
+        using var bitmap = new GdiBitmap(pixels.Width, pixels.Height, pixelFormat);
+        System.Drawing.Rectangle bounds = new(0, 0, pixels.Width, pixels.Height);
+        BitmapData bitmapData = bitmap.LockBits(bounds, ImageLockMode.WriteOnly, pixelFormat);
+        try
+        {
+            int destinationBytesPerPixel = pixels.PixelFormat == InterleavedPixelFormat.Rgba32 ? 4 : 3;
+            byte[] destinationRow = GC.AllocateUninitializedArray<byte>(checked(pixels.Width * destinationBytesPerPixel));
+            for (int y = 0; y < pixels.Height; y++)
+            {
+                int sourceOffset = y * pixels.RowStride;
+                int destinationOffset = 0;
+                for (int x = 0; x < pixels.Width; x++)
+                {
+                    byte red = pixels.Data[sourceOffset++];
+                    byte green = pixels.Data[sourceOffset++];
+                    byte blue = pixels.Data[sourceOffset++];
+                    destinationRow[destinationOffset++] = blue;
+                    destinationRow[destinationOffset++] = green;
+                    destinationRow[destinationOffset++] = red;
+                    if (pixels.PixelFormat == InterleavedPixelFormat.Rgba32)
+                    {
+                        destinationRow[destinationOffset++] = pixels.Data[sourceOffset++];
+                    }
+                }
+
+                Marshal.Copy(
+                    destinationRow,
+                    0,
+                    IntPtr.Add(bitmapData.Scan0, y * bitmapData.Stride),
+                    destinationRow.Length);
+            }
+        }
+        finally
+        {
+            bitmap.UnlockBits(bitmapData);
+        }
+
+        using var stream = new MemoryStream();
+        bitmap.Save(stream, GdiImageFormat.Png);
         return stream.ToArray();
     }
 

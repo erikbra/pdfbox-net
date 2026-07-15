@@ -438,6 +438,45 @@ internal sealed class ImageSharpImageCodecPeer : IImageCodecPeer
             }
         }
     }
+
+    public byte[] EncodePng(InterleavedPixelData pixels)
+    {
+        byte[] packed = GetPackedPixelData(pixels);
+        using var stream = new MemoryStream();
+        if (pixels.PixelFormat == InterleavedPixelFormat.Rgba32)
+        {
+            using var image = ImageSharpImage.LoadPixelData<Rgba32>(packed, pixels.Width, pixels.Height);
+            image.Save(stream, new PngEncoder());
+        }
+        else
+        {
+            using var image = ImageSharpImage.LoadPixelData<Rgb24>(packed, pixels.Width, pixels.Height);
+            image.Save(stream, new PngEncoder());
+        }
+
+        return stream.ToArray();
+    }
+
+    private static byte[] GetPackedPixelData(InterleavedPixelData pixels)
+    {
+        if (pixels.RowStride == pixels.RowByteCount)
+        {
+            return pixels.Data;
+        }
+
+        byte[] packed = GC.AllocateUninitializedArray<byte>(checked(pixels.RowByteCount * pixels.Height));
+        for (int y = 0; y < pixels.Height; y++)
+        {
+            Buffer.BlockCopy(
+                pixels.Data,
+                y * pixels.RowStride,
+                packed,
+                y * pixels.RowByteCount,
+                pixels.RowByteCount);
+        }
+
+        return packed;
+    }
 }
 
 internal sealed class ImageSharpPageDrawerPeer : IPageDrawerPeer

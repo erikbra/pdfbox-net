@@ -173,6 +173,36 @@ public class ImageFactoryTest
         Assert.Equal(0x89504E47u, BinaryPrimitives.ReadUInt32BigEndian(result.Data.AsSpan(0, 4)));
         Assert.Equal(2, BinaryPrimitives.ReadInt32BigEndian(result.Data.AsSpan(16, 4)));
         Assert.Equal(1, BinaryPrimitives.ReadInt32BigEndian(result.Data.AsSpan(20, 4)));
+        using BufferedImage exported = RenderingBackend.Current.ImageCodec.Decode(result.Data)
+            ?? throw new InvalidOperationException("The exported PNG could not be decoded.");
+        Assert.Equal(unchecked((int)0xFFFF0000), exported.GetRgb(0, 0));
+        Assert.Equal(unchecked((int)0xFF00FF00), exported.GetRgb(1, 0));
+    }
+
+    [Fact]
+    public void ImageCodec_EncodePng_HonorsRgbAndRgbaRowStride()
+    {
+        byte[] rgb =
+        [
+            255, 0, 0, 0, 255, 0, 91, 92,
+            0, 0, 255, 255, 255, 255, 93, 94
+        ];
+        byte[] rgbPng = RenderingBackend.Current.ImageCodec.EncodePng(
+            new InterleavedPixelData(rgb, 2, 2, 8, InterleavedPixelFormat.Rgb24));
+        using BufferedImage rgbImage = RenderingBackend.Current.ImageCodec.Decode(rgbPng)
+            ?? throw new InvalidOperationException("The RGB PNG could not be decoded.");
+        Assert.Equal(unchecked((int)0xFFFF0000), rgbImage.GetRgb(0, 0));
+        Assert.Equal(unchecked((int)0xFF00FF00), rgbImage.GetRgb(1, 0));
+        Assert.Equal(unchecked((int)0xFF0000FF), rgbImage.GetRgb(0, 1));
+        Assert.Equal(unchecked((int)0xFFFFFFFF), rgbImage.GetRgb(1, 1));
+
+        byte[] rgba = [64, 32, 16, 128, 8, 16, 24, 255, 95, 96];
+        byte[] rgbaPng = RenderingBackend.Current.ImageCodec.EncodePng(
+            new InterleavedPixelData(rgba, 2, 1, 10, InterleavedPixelFormat.Rgba32));
+        using BufferedImage rgbaImage = RenderingBackend.Current.ImageCodec.Decode(rgbaPng)
+            ?? throw new InvalidOperationException("The RGBA PNG could not be decoded.");
+        Assert.Equal(unchecked((int)0x80402010), rgbaImage.GetRgb(0, 0));
+        Assert.Equal(unchecked((int)0xFF081018), rgbaImage.GetRgb(1, 0));
     }
 
     [Fact]
@@ -367,16 +397,16 @@ public class ImageFactoryTest
     public void PdfImageExporter_ExportPng_PreservesXObjectSoftMaskAlpha()
     {
         using PDDocument doc = new();
-        PDImageXObject image = LosslessFactory.CreateFromRawData(doc, [255, 0, 0, 255, 0, 0], 2, 1, 8, 3);
-        PDImageXObject softMask = LosslessFactory.CreateFromRawData(doc, [255, 0], 2, 1, 8, 1);
+        PDImageXObject image = LosslessFactory.CreateFromRawData(doc, [255, 0, 0, 0, 255, 0], 2, 1, 8, 3);
+        PDImageXObject softMask = LosslessFactory.CreateFromRawData(doc, [255, 128], 2, 1, 8, 1);
         image.GetCOSObject()!.SetItem(COSName.SMASK, softMask.GetCOSObject());
 
         PdfImageExportResult result = PdfImageExporter.ExportForBrowser(image);
 
         using BufferedImage exported = RenderingBackend.Current.ImageCodec.Decode(result.Data)
             ?? throw new InvalidOperationException("The exported PNG could not be decoded.");
-        Assert.Equal(0xFF, (exported.GetRgb(0, 0) >> 24) & 0xFF);
-        Assert.Equal(0x00, (exported.GetRgb(1, 0) >> 24) & 0xFF);
+        Assert.Equal(unchecked((int)0xFFFF0000), exported.GetRgb(0, 0));
+        Assert.Equal(unchecked((int)0x8000FF00), exported.GetRgb(1, 0));
     }
 
     [Fact]

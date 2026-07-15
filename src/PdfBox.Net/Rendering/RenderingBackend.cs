@@ -20,6 +20,85 @@ public enum EncodedImageFormat
     Jpeg
 }
 
+/// <summary>
+/// Describes the channel layout of interleaved image pixels supplied to an image codec.
+/// </summary>
+public enum InterleavedPixelFormat
+{
+    /// <summary>Three bytes per pixel in red, green, blue order.</summary>
+    Rgb24,
+
+    /// <summary>Four bytes per pixel in red, green, blue, alpha order.</summary>
+    Rgba32
+}
+
+/// <summary>
+/// Validated backend-neutral interleaved pixel data for bulk image encoding.
+/// </summary>
+public readonly struct InterleavedPixelData
+{
+    public InterleavedPixelData(
+        byte[] data,
+        int width,
+        int height,
+        int rowStride,
+        InterleavedPixelFormat pixelFormat)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        if (width <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(width), "Image width must be positive.");
+        }
+
+        if (height <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(height), "Image height must be positive.");
+        }
+
+        int bytesPerPixel = pixelFormat switch
+        {
+            InterleavedPixelFormat.Rgb24 => 3,
+            InterleavedPixelFormat.Rgba32 => 4,
+            _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat))
+        };
+        int rowByteCount = checked(width * bytesPerPixel);
+        if (rowStride < rowByteCount)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(rowStride),
+                "Image row stride must include every pixel in the row.");
+        }
+
+        long requiredLength = ((long)(height - 1) * rowStride) + rowByteCount;
+        if (data.LongLength < requiredLength)
+        {
+            throw new ArgumentException("Pixel data is shorter than the declared image dimensions and row stride.", nameof(data));
+        }
+
+        Data = data;
+        Width = width;
+        Height = height;
+        RowStride = rowStride;
+        PixelFormat = pixelFormat;
+        BytesPerPixel = bytesPerPixel;
+        RowByteCount = rowByteCount;
+    }
+
+    public byte[] Data { get; }
+
+    public int Width { get; }
+
+    public int Height { get; }
+
+    public int RowStride { get; }
+
+    public InterleavedPixelFormat PixelFormat { get; }
+
+    public int BytesPerPixel { get; }
+
+    public int RowByteCount { get; }
+}
+
 public interface IBufferedImagePeer : IDisposable
 {
     int Width { get; }
@@ -59,6 +138,38 @@ public interface IImageCodecPeer
     BufferedImage? Decode(byte[] data);
 
     byte[] Encode(BufferedImage image, EncodedImageFormat format, int quality);
+
+    /// <summary>
+    /// Encodes interleaved RGB or RGBA pixels directly as PNG without requiring per-pixel
+    /// calls through <see cref="BufferedImage"/>.
+    /// </summary>
+    /// <remarks>
+    /// Bundled backends override this method with a native bulk path. The default implementation
+    /// preserves compatibility for third-party codec peers while they adopt the optimized API.
+    /// </remarks>
+    byte[] EncodePng(InterleavedPixelData pixels)
+    {
+        bool hasAlpha = pixels.PixelFormat == InterleavedPixelFormat.Rgba32;
+        using BufferedImage image = new(
+            pixels.Width,
+            pixels.Height,
+            hasAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
+        byte[] data = pixels.Data;
+        for (int y = 0; y < pixels.Height; y++)
+        {
+            int sourceOffset = y * pixels.RowStride;
+            for (int x = 0; x < pixels.Width; x++)
+            {
+                int red = data[sourceOffset++];
+                int green = data[sourceOffset++];
+                int blue = data[sourceOffset++];
+                int alpha = hasAlpha ? data[sourceOffset++] : byte.MaxValue;
+                image.SetRgb(x, y, (alpha << 24) | (red << 16) | (green << 8) | blue);
+            }
+        }
+
+        return Encode(image, EncodedImageFormat.Png, 100);
+    }
 }
 
 public interface IPageDrawerPeer : IDisposable
