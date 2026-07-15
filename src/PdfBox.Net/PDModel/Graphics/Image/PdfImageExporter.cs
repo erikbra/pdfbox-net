@@ -108,8 +108,9 @@ public static class PdfImageExporter
         }
 
         PDColorSpace sourceColorSpace = image.GetColorSpace();
-        PDColorSpace effectiveColorSpace = colorManagementContext?.ResolveDeviceColorSpace(sourceColorSpace) ?? sourceColorSpace;
+        PDColorSpace effectiveColorSpace = colorManagementContext?.ResolveColorSpace(sourceColorSpace) ?? sourceColorSpace;
         bool browserSafeColorSpace = sourceColorSpace.GetNumberOfComponents() == 3 &&
+                                     ReferenceEquals(effectiveColorSpace, sourceColorSpace) &&
                                      (effectiveColorSpace is PDDeviceRGB ||
                                       effectiveColorSpace is PDICCBased iccBased && iccBased.IsSrgb());
         if (!browserSafeColorSpace)

@@ -16,6 +16,8 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 public sealed class PDColorManagementContext
 {
     private readonly PDICCBased _outputColorSpace;
+    private readonly byte[] _outputProfileData;
+    private readonly Dictionary<COSBase, PDColorSpace> _resolvedColorSpaces = [];
 
     private PDColorManagementContext(
         PDOutputIntent outputIntent,
@@ -24,6 +26,7 @@ public sealed class PDColorManagementContext
     {
         OutputIntent = outputIntent;
         _outputColorSpace = outputColorSpace;
+        _outputProfileData = ReadProfile(outputIntent.GetDestOutputIntent());
         RenderingIntent = renderingIntent;
     }
 
@@ -77,6 +80,35 @@ public sealed class PDColorManagementContext
             : colorSpace;
     }
 
+    internal PDColorSpace ResolveColorSpace(PDColorSpace colorSpace)
+    {
+        PDColorSpace deviceResolved = ResolveDeviceColorSpace(colorSpace);
+        if (!ReferenceEquals(deviceResolved, colorSpace) || ReferenceEquals(colorSpace, _outputColorSpace))
+        {
+            return deviceResolved;
+        }
+
+        COSBase key = colorSpace.GetCOSObject();
+        if (_resolvedColorSpaces.TryGetValue(key, out PDColorSpace? resolved))
+        {
+            return resolved;
+        }
+
+        resolved = colorSpace switch
+        {
+            PDICCBased iccBased when iccBased.TryCreateProofing(
+                _outputProfileData,
+                _outputColorSpace.GetNumberOfComponents(),
+                RenderingIntent,
+                out PDICCBased? proofed)
+                => proofed!,
+            PDIndexed indexed => indexed.WithBaseColorSpace(ResolveColorSpace(indexed.GetBaseColorSpace())),
+            _ => colorSpace,
+        };
+        _resolvedColorSpaces[key] = resolved;
+        return resolved;
+    }
+
     /// <summary>Creates a color space and applies this context to device spaces.</summary>
     public PDColorSpace CreateColorSpace(COSBase colorSpace, PDResources? resources = null)
     {
@@ -90,5 +122,18 @@ public sealed class PDColorManagementContext
         string? subtype = ((COSDictionary)outputIntent.GetCOSObject())
             .GetNameAsString(COSName.GetPDFName("S"));
         return subtype is "GTS_PDFX" or "GTS_PDFA1" or "ISO_PDFE1";
+    }
+
+    private static byte[] ReadProfile(COSStream? profile)
+    {
+        if (profile is null)
+        {
+            return [];
+        }
+
+        using Stream input = profile.CreateInputStream();
+        using MemoryStream output = new();
+        input.CopyTo(output);
+        return output.ToArray();
     }
 }

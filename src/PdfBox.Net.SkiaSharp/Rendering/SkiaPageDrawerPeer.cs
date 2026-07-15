@@ -1342,7 +1342,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     private void DrawImage(PDImage image, Matrix matrix)
     {
         DrawDecodedImage(
-            SampledImageReader.GetRGBImage(image),
+            SampledImageReader.GetRGBImage(image, GetColorManagementContext()),
             image.GetWidth(),
             image.GetHeight(),
             matrix,
@@ -1353,7 +1353,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     {
         int width = image.GetWidth();
         int height = image.GetHeight();
-        byte[] rgb = SampledImageReader.GetRGBImage(image);
+        byte[] rgb = SampledImageReader.GetRGBImage(image, GetColorManagementContext());
         byte[]? alpha = CreateSoftMaskAlpha(image, width, height);
 
         DrawDecodedImage(
@@ -2266,7 +2266,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         };
     }
 
-    private static int ResolveUncoloredPatternColor(PDPattern patternColorSpace, PDColor color)
+    private int ResolveUncoloredPatternColor(PDPattern patternColorSpace, PDColor color)
     {
         PDColorSpace? underlying = patternColorSpace.GetUnderlyingColorSpace();
         if (underlying is null)
@@ -2277,18 +2277,18 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         return SafeToRgb(new PDColor(color.GetComponents(), underlying), 0);
     }
 
-    private static int ResolveShadingColor(PDShading shading)
+    private int ResolveShadingColor(PDShading shading, PDGraphicsState? graphicsState = null)
     {
         COSArray? background = shading.GetBackground();
         if (background is not null && background.Size() > 0)
         {
-            return SafeToRgb(new PDColor(background, shading.GetColorSpace()), 0);
+            return SafeToRgb(new PDColor(background, shading.GetColorSpace()), 0, graphicsState);
         }
 
         try
         {
             float[] color = shading.EvalFunction([0.5f]);
-            return SafeToRgb(new PDColor(color, shading.GetColorSpace()), 0);
+            return SafeToRgb(new PDColor(color, shading.GetColorSpace()), 0, graphicsState);
         }
         catch (Exception ex) when (IsRecoverableRenderingException(ex))
         {
@@ -2296,10 +2296,21 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         }
     }
 
-    private static int SafeToRgb(PDColor color, int fallback)
+    private int SafeToRgb(PDColor color, int fallback, PDGraphicsState? graphicsState = null)
     {
         try
         {
+            PDColorSpace? colorSpace = color.GetColorSpace();
+            if (colorSpace is not null)
+            {
+                PDColorSpace effectiveColorSpace = GetColorManagementContext(graphicsState)
+                    ?.ResolveColorSpace(colorSpace) ?? colorSpace;
+                if (!ReferenceEquals(effectiveColorSpace, colorSpace))
+                {
+                    color = new PDColor(color.GetComponents(), effectiveColorSpace);
+                }
+            }
+
             return color.ToRGB();
         }
         catch (Exception ex) when (IsRecoverableRenderingException(ex))
@@ -2324,7 +2335,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
     private SKPaint CreateShadingPaint(PDShading shading, PDGraphicsState graphicsState)
     {
-        int rgb = ResolveShadingColor(shading);
+        int rgb = ResolveShadingColor(shading, graphicsState);
         byte r = (byte)((rgb >> 16) & 0xFF);
         byte g = (byte)((rgb >> 8) & 0xFF);
         byte b = (byte)(rgb & 0xFF);
@@ -2417,7 +2428,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             SKShaderTileMode.Clamp);
     }
 
-    private static (SKColor[] Colors, float[] Positions) CreateShadingGradientStops(
+    private (SKColor[] Colors, float[] Positions) CreateShadingGradientStops(
         PDShadingType2 shading,
         PDGraphicsState graphicsState)
     {
@@ -2432,7 +2443,10 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         {
             float position = index / (float)(stopCount - 1);
             float input = domainStart + ((domainEnd - domainStart) * position);
-            int rgb = SafeToRgb(new PDColor(shading.EvalFunction(input), shading.GetColorSpace()), 0);
+            int rgb = SafeToRgb(
+                new PDColor(shading.EvalFunction(input), shading.GetColorSpace()),
+                0,
+                graphicsState);
             colors[index] = new SKColor(
                 (byte)((rgb >> 16) & 0xFF),
                 (byte)((rgb >> 8) & 0xFF),
@@ -2442,6 +2456,12 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         }
 
         return (colors, positions);
+    }
+
+    private PDColorManagementContext? GetColorManagementContext(PDGraphicsState? graphicsState = null)
+    {
+        RenderingIntent renderingIntent = (graphicsState ?? GetGraphicsState()).GetRenderingIntentInstance();
+        return _parameters.GetColorManagementContext(renderingIntent);
     }
 
     private static bool IsRecoverableRenderingException(Exception ex)

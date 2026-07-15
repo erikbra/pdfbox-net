@@ -113,6 +113,13 @@ public sealed class PDIndexed : PDColorSpace
         return _baseColorSpace.ToRGB(components);
     }
 
+    internal PDIndexed WithBaseColorSpace(PDColorSpace baseColorSpace)
+    {
+        return ReferenceEquals(baseColorSpace, _baseColorSpace)
+            ? this
+            : new PDIndexed(baseColorSpace, _highValue, _lookup, (COSArray)GetCOSObject());
+    }
+
     private static byte[] ReadLookupTable(COSBase? baseValue)
     {
         if (baseValue is COSString str)

@@ -62,6 +62,66 @@ internal sealed class MagickIccColorTransformFactory : IIccColorTransformFactory
             return false;
         }
     }
+
+    public bool TryCreateProofing(
+        byte[] sourceProfileData,
+        int sourceComponents,
+        byte[] outputProfileData,
+        int outputComponents,
+        PdfRenderingIntent renderingIntent,
+        out IIccColorTransform? transform)
+    {
+        transform = null;
+        if (!TryCreateColorProfile(sourceProfileData, sourceComponents, out ColorProfile? sourceProfile) ||
+            !TryCreateColorProfile(outputProfileData, outputComponents, out ColorProfile? outputProfile))
+        {
+            return false;
+        }
+
+        transform = new MagickIccColorTransform(
+            sourceProfile!,
+            sourceComponents,
+            renderingIntent,
+            outputProfile,
+            outputComponents);
+        return true;
+    }
+
+    private static bool TryCreateColorProfile(
+        byte[] profileData,
+        int expectedComponents,
+        out ColorProfile? profile)
+    {
+        profile = null;
+        if (!IccProfileInspector.TryGetProfileComponents(profileData, out int profileComponents) ||
+            profileComponents != expectedComponents)
+        {
+            return false;
+        }
+
+        try
+        {
+            ColorProfile candidate = new(profileData);
+            int magickComponents = candidate.ColorSpace switch
+            {
+                ColorSpace.Gray or ColorSpace.LinearGray => 1,
+                ColorSpace.RGB or ColorSpace.sRGB => 3,
+                ColorSpace.CMYK => 4,
+                _ => 0,
+            };
+            if (magickComponents != expectedComponents)
+            {
+                return false;
+            }
+
+            profile = candidate;
+            return true;
+        }
+        catch (Exception ex) when (ex is MagickException or ArgumentException or InvalidOperationException)
+        {
+            return false;
+        }
+    }
 }
 
 internal sealed class MagickIccColorTransform : IIccColorTransform
@@ -74,10 +134,19 @@ internal sealed class MagickIccColorTransform : IIccColorTransform
     private readonly int _components;
     private readonly string _pixelMapping;
     private readonly PdfRenderingIntent _renderingIntent;
+    private readonly ColorProfile? _outputProfile;
+    private readonly int _outputComponents;
+    private readonly string? _outputPixelMapping;
+    private readonly MagickIccColorTransform? _outputDisplayTransform;
     private readonly Lazy<byte[]?> _lookupTable;
     private int _operationCount;
 
-    internal MagickIccColorTransform(ColorProfile sourceProfile, int components, PdfRenderingIntent renderingIntent)
+    internal MagickIccColorTransform(
+        ColorProfile sourceProfile,
+        int components,
+        PdfRenderingIntent renderingIntent,
+        ColorProfile? outputProfile = null,
+        int outputComponents = 0)
     {
         _sourceProfile = sourceProfile;
         _components = components;
@@ -89,6 +158,19 @@ internal sealed class MagickIccColorTransform : IIccColorTransform
             _ => throw new ArgumentOutOfRangeException(nameof(components)),
         };
         _renderingIntent = renderingIntent;
+        _outputProfile = outputProfile;
+        _outputComponents = outputComponents;
+        _outputPixelMapping = outputComponents switch
+        {
+            0 => null,
+            1 => "I",
+            3 => "RGB",
+            4 => "CMYK",
+            _ => throw new ArgumentOutOfRangeException(nameof(outputComponents)),
+        };
+        _outputDisplayTransform = outputProfile is null
+            ? null
+            : new MagickIccColorTransform(outputProfile, outputComponents, renderingIntent);
         _lookupTable = new Lazy<byte[]?>(CreateLookupTable, LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
@@ -102,6 +184,13 @@ internal sealed class MagickIccColorTransform : IIccColorTransform
             return [];
         }
 
+        Span<float> rgb = stackalloc float[3];
+        InterpolateLookup(table, values, rgb);
+        return [rgb[0], rgb[1], rgb[2]];
+    }
+
+    private void InterpolateLookup(byte[] table, ReadOnlySpan<float> values, Span<float> rgb)
+    {
         int levels = GetLevels();
         Span<int> lower = stackalloc int[4];
         Span<float> fractions = stackalloc float[4];
@@ -114,7 +203,7 @@ internal sealed class MagickIccColorTransform : IIccColorTransform
             fractions[component] = scaled - floor;
         }
 
-        Span<float> rgb = stackalloc float[3];
+        rgb.Clear();
         int corners = 1 << _components;
         for (int corner = 0; corner < corners; corner++)
         {
@@ -132,8 +221,6 @@ internal sealed class MagickIccColorTransform : IIccColorTransform
             rgb[1] += weight * table[offset + 1] / 255f;
             rgb[2] += weight * table[offset + 2] / 255f;
         }
-
-        return [rgb[0], rgb[1], rgb[2]];
     }
 
     public bool TryConvert(byte[] samples, int width, int height, out byte[] rgb)
@@ -209,14 +296,32 @@ internal sealed class MagickIccColorTransform : IIccColorTransform
             PixelReadSettings settings = new((uint)width, (uint)height, StorageType.Char, _pixelMapping);
             using MagickImage image = new(samples, settings);
             image.RenderingIntent = ToMagickRenderingIntent(_renderingIntent);
-            if (!image.TransformColorSpace(_sourceProfile, ColorProfiles.SRGB, ColorTransformMode.HighRes))
+            if (_outputProfile is null)
+            {
+                if (!image.TransformColorSpace(_sourceProfile, ColorProfiles.SRGB, ColorTransformMode.HighRes))
+                {
+                    return false;
+                }
+
+                using IPixelCollection<byte> pixels = image.GetPixels();
+                rgb = pixels.ToByteArray("RGB") ?? [];
+                return rgb.Length == checked(width * height * 3);
+            }
+
+            image.BlackPointCompensation = true;
+            if (!image.TransformColorSpace(_sourceProfile, _outputProfile, ColorTransformMode.HighRes))
             {
                 return false;
             }
 
-            using IPixelCollection<byte> pixels = image.GetPixels();
-            rgb = pixels.ToByteArray("RGB") ?? [];
-            return rgb.Length == checked(width * height * 3);
+            using IPixelCollection<byte> outputPixels = image.GetPixels();
+            byte[] outputSamples = outputPixels.ToByteArray(_outputPixelMapping!) ?? [];
+            if (outputSamples.Length != checked(width * height * _outputComponents))
+            {
+                return false;
+            }
+
+            return _outputDisplayTransform!.TryConvertUsingLookup(outputSamples, width, height, out rgb);
         }
         catch (MagickException)
         {
@@ -230,6 +335,34 @@ internal sealed class MagickIccColorTransform : IIccColorTransform
         {
             return false;
         }
+    }
+
+    private bool TryConvertUsingLookup(byte[] samples, int width, int height, out byte[] rgb)
+    {
+        rgb = [];
+        byte[]? table = _lookupTable.Value;
+        if (table is null || samples.Length != checked(width * height * _components))
+        {
+            return false;
+        }
+
+        rgb = new byte[checked(width * height * 3)];
+        Span<float> values = stackalloc float[4];
+        Span<float> converted = stackalloc float[3];
+        for (int pixel = 0; pixel < width * height; pixel++)
+        {
+            for (int component = 0; component < _components; component++)
+            {
+                values[component] = samples[(pixel * _components) + component] / 255f;
+            }
+
+            InterpolateLookup(table, values, converted);
+            rgb[(pixel * 3)] = (byte)MathF.Round(Math.Clamp(converted[0], 0f, 1f) * 255f);
+            rgb[(pixel * 3) + 1] = (byte)MathF.Round(Math.Clamp(converted[1], 0f, 1f) * 255f);
+            rgb[(pixel * 3) + 2] = (byte)MathF.Round(Math.Clamp(converted[2], 0f, 1f) * 255f);
+        }
+
+        return true;
     }
 
     private int GetLevels() => _components switch

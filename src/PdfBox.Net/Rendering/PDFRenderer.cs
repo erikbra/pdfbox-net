@@ -61,6 +61,8 @@ public partial class PDFRenderer
         _pageTree = document.GetPages();
     }
 
+    internal PDDocument GetDocument() => document;
+
     public AnnotationFilter GetAnnotationsFilter() => _annotationFilter;
 
     public void SetAnnotationsFilter(AnnotationFilter annotationsFilter)

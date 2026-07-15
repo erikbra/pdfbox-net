@@ -40,25 +40,45 @@ public sealed class PDICCBased : PDColorSpace
     private readonly PDColor _initialColor;
     private readonly IIccColorTransform? _colorTransform;
     private readonly bool _isSrgb;
+    private readonly byte[] _profileData;
 
     private PDICCBased(
         COSArray array,
         PDResources? resources,
-        RenderingIntent renderingIntent = RenderingIntent.RELATIVE_COLORIMETRIC) : base(array)
+        RenderingIntent renderingIntent = RenderingIntent.RELATIVE_COLORIMETRIC,
+        byte[]? outputProfileData = null,
+        int outputComponents = 0) : base(array)
     {
         COSStream? profile = array.Size() > 1 ? array.GetObject(1) as COSStream : null;
-        byte[] profileData = ReadProfile(profile);
+        _profileData = ReadProfile(profile);
         int declaredComponents = profile?.GetInt(COSName.GetPDFName("N"), 0) ?? 0;
         _numberOfComponents = declaredComponents > 0
             ? declaredComponents
-            : IccProfileInspector.TryGetProfileComponents(profileData, out int profileComponents)
+            : IccProfileInspector.TryGetProfileComponents(_profileData, out int profileComponents)
                 ? profileComponents
                 : 3;
         COSBase? alternateBase = profile?.GetDictionaryObject(COSName.GetPDFName("Alternate"));
         _alternate = alternateBase is not null ? Create(alternateBase, resources) : GetDeviceFallback(_numberOfComponents);
         _initialColor = new PDColor(new float[_numberOfComponents], this);
-        _isSrgb = IccProfileInspector.IsSrgb(profileData);
-        PdfBoxNetImageServices.IccColorTransformFactory.TryCreate(profileData, _numberOfComponents, renderingIntent, out _colorTransform);
+        _isSrgb = IccProfileInspector.IsSrgb(_profileData);
+        if (outputProfileData is null)
+        {
+            PdfBoxNetImageServices.IccColorTransformFactory.TryCreate(
+                _profileData,
+                _numberOfComponents,
+                renderingIntent,
+                out _colorTransform);
+        }
+        else
+        {
+            PdfBoxNetImageServices.IccColorTransformFactory.TryCreateProofing(
+                _profileData,
+                _numberOfComponents,
+                outputProfileData,
+                outputComponents,
+                renderingIntent,
+                out _colorTransform);
+        }
     }
 
     public static PDICCBased Create(COSArray array, PDResources? resources)
@@ -118,6 +138,22 @@ public sealed class PDICCBased : PDColorSpace
         array.Add(ICCBased);
         array.Add(profile);
         var candidate = new PDICCBased(array, null, renderingIntent);
+        colorSpace = candidate._colorTransform is null ? null : candidate;
+        return colorSpace is not null;
+    }
+
+    internal bool TryCreateProofing(
+        byte[] outputProfileData,
+        int outputComponents,
+        RenderingIntent renderingIntent,
+        out PDICCBased? colorSpace)
+    {
+        var candidate = new PDICCBased(
+            (COSArray)GetCOSObject(),
+            null,
+            renderingIntent,
+            outputProfileData,
+            outputComponents);
         colorSpace = candidate._colorTransform is null ? null : candidate;
         return colorSpace is not null;
     }

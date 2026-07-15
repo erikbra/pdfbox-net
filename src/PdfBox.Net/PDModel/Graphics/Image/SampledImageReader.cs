@@ -54,7 +54,7 @@ internal static class SampledImageReader
         (byte[] data, DecodeResult decodeResult) = image.DecodeImageData();
         COSDictionary decodeParameters = decodeResult.GetParameters();
         PDColorSpace colorSpace = decodeResult.GetJPXColorSpace() as PDColorSpace ?? image.GetColorSpace();
-        colorSpace = colorManagementContext?.ResolveDeviceColorSpace(colorSpace) ?? colorSpace;
+        colorSpace = colorManagementContext?.ResolveColorSpace(colorSpace) ?? colorSpace;
 
         return GetRGBImage(
             decodeParameters.GetInt(COSName.WIDTH, image.GetWidth()),
@@ -77,7 +77,7 @@ internal static class SampledImageReader
     {
         ArgumentNullException.ThrowIfNull(image);
         PDColorSpace colorSpace = image.GetColorSpace();
-        colorSpace = colorManagementContext?.ResolveDeviceColorSpace(colorSpace) ?? colorSpace;
+        colorSpace = colorManagementContext?.ResolveColorSpace(colorSpace) ?? colorSpace;
         return GetRGBImage(
             image.GetWidth(),
             image.GetHeight(),
