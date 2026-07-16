@@ -377,6 +377,162 @@ public class AdvancedRenderingIssue419Test
     }
 
     [Fact]
+    public void RenderImage_ColorManagedDeviceCmykKnockoutGroup_BlendsInComponentSpace()
+    {
+        PDResources groupResources = new();
+        PDExtendedGraphicsState multiply = new();
+        multiply.SetBlendMode(BlendMode.MULTIPLY);
+        groupResources.Put(COSName.GetPDFName("Multiply"), multiply);
+
+        PDTransparencyGroup actualGroup = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "/Multiply gs\n0.8 0.3 0.1 0.2 k\n0 0 20 20 re\nf\n");
+        actualGroup.SetResources(groupResources);
+        actualGroup.GetGroup()!.GetCOSObject().SetBoolean(COSName.GetPDFName("I"), false);
+        actualGroup.GetGroup()!.GetCOSObject().SetBoolean(COSName.K, true);
+        actualGroup.GetGroup()!.GetCOSObject().SetItem(COSName.CS, PDDeviceCMYK.Instance.GetCOSObject());
+        actualGroup.SetMatrix(new Matrix(1, 0, 0, 1, 20, 300));
+
+        PDTransparencyGroup expectedGroup = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "0.84 0.58 0.64 0.28 k\n0 0 20 20 re\nf\n");
+        expectedGroup.GetGroup()!.GetCOSObject().SetItem(COSName.CS, PDDeviceCMYK.Instance.GetCOSObject());
+        expectedGroup.SetMatrix(new Matrix(1, 0, 0, 1, 50, 300));
+
+        PDResources pageResources = new();
+        pageResources.Put(COSName.GetPDFName("Actual"), actualGroup);
+        pageResources.Put(COSName.GetPDFName("Expected"), expectedGroup);
+        using PDDocument document = CreateDocument(
+            "0.2 0.4 0.6 0.1 k\n20 300 20 20 re\n50 300 20 20 re\nf\n" +
+            "/Actual Do\n/Expected Do\n",
+            pageResources);
+        using (MemoryStream profile = new(ColorProfiles.CoatedFOGRA39.ToByteArray()))
+        {
+            document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, profile));
+        }
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        (int actualRed, int actualGreen, int actualBlue) = GetRgb(image.GetRgb(30, 482));
+        (int expectedRed, int expectedGreen, int expectedBlue) = GetRgb(image.GetRgb(60, 482));
+        Assert.InRange(Math.Abs(actualRed - expectedRed), 0, 5);
+        Assert.InRange(Math.Abs(actualGreen - expectedGreen), 0, 5);
+        Assert.InRange(Math.Abs(actualBlue - expectedBlue), 0, 5);
+    }
+
+    [Fact]
+    public void RenderImage_NestedDeviceCmykKnockoutGroup_UsesParentComponentBackdrop()
+    {
+        PDResources childResources = new();
+        PDExtendedGraphicsState multiply = new();
+        multiply.SetBlendMode(BlendMode.MULTIPLY);
+        childResources.Put(COSName.GetPDFName("Multiply"), multiply);
+
+        PDTransparencyGroup child = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "/Multiply gs\n0.8 0.3 0.1 0.2 k\n0 0 20 20 re\nf\n");
+        child.SetResources(childResources);
+        child.GetGroup()!.GetCOSObject().SetBoolean(COSName.GetPDFName("I"), false);
+        child.GetGroup()!.GetCOSObject().SetBoolean(COSName.K, true);
+        child.GetGroup()!.GetCOSObject().SetItem(COSName.CS, PDDeviceCMYK.Instance.GetCOSObject());
+
+        PDResources parentResources = new();
+        parentResources.Put(COSName.GetPDFName("Child"), child);
+        PDTransparencyGroup actualParent = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "0.2 0.4 0.6 0.1 k\n0 0 20 20 re\nf\n/Child Do\n");
+        actualParent.SetResources(parentResources);
+        SetDeviceCmykGroupAttributes(actualParent, isolated: true);
+        actualParent.SetMatrix(new Matrix(1, 0, 0, 1, 20, 300));
+
+        PDTransparencyGroup expected = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "0.84 0.58 0.64 0.28 k\n0 0 20 20 re\nf\n");
+        SetDeviceCmykGroupAttributes(expected, isolated: true);
+        expected.SetMatrix(new Matrix(1, 0, 0, 1, 50, 300));
+
+        PDResources pageResources = new();
+        pageResources.Put(COSName.GetPDFName("Actual"), actualParent);
+        pageResources.Put(COSName.GetPDFName("Expected"), expected);
+        using PDDocument document = CreateDocument("/Actual Do\n/Expected Do\n", pageResources);
+        using (MemoryStream profile = new(ColorProfiles.CoatedFOGRA39.ToByteArray()))
+        {
+            document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, profile));
+        }
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        (int actualRed, int actualGreen, int actualBlue) = GetRgb(image.GetRgb(30, 482));
+        (int expectedRed, int expectedGreen, int expectedBlue) = GetRgb(image.GetRgb(60, 482));
+        Assert.True(
+            Math.Abs(actualRed - expectedRed) <= 2 &&
+            Math.Abs(actualGreen - expectedGreen) <= 2 &&
+            Math.Abs(actualBlue - expectedBlue) <= 2,
+            $"Expected RGB({expectedRed},{expectedGreen},{expectedBlue}), " +
+            $"got RGB({actualRed},{actualGreen},{actualBlue}).");
+    }
+
+    [Fact]
+    public void RenderImage_DeviceCmykKnockoutBlend_ReplacesAntialiasedPreviousShape()
+    {
+        PDResources groupResources = new();
+        PDExtendedGraphicsState darken = new();
+        darken.SetBlendMode(BlendMode.DARKEN);
+        groupResources.Put(COSName.GetPDFName("Darken"), darken);
+
+        const string diagonal = "3 w\n2 2 m\n18 18 l\nS\n";
+        PDTransparencyGroup knockoutChild = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "0 1 0 0 K\n" + diagonal +
+            "/Darken gs\n0 0 0 0 K\n" + diagonal);
+        knockoutChild.SetResources(groupResources);
+        knockoutChild.GetGroup()!.GetCOSObject().SetBoolean(COSName.GetPDFName("I"), false);
+        knockoutChild.GetGroup()!.GetCOSObject().SetBoolean(COSName.K, true);
+        knockoutChild.GetGroup()!.GetCOSObject().SetItem(COSName.CS, PDDeviceCMYK.Instance.GetCOSObject());
+
+        PDResources parentResources = new();
+        parentResources.Put(COSName.GetPDFName("Child"), knockoutChild);
+        PDTransparencyGroup actualGroup = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "0.8 0.1 0.45 0 k\n0 0 20 20 re\nf\n/Child Do\n");
+        actualGroup.SetResources(parentResources);
+        SetDeviceCmykGroupAttributes(actualGroup, isolated: true);
+        actualGroup.SetMatrix(new Matrix(1, 0, 0, 1, 20, 300));
+
+        PDTransparencyGroup expectedGroup = CreateTransparencyGroup(
+            new PDRectangle(0, 0, 20, 20),
+            "0.8 0.1 0.45 0 k\n0 0 20 20 re\nf\n");
+        SetDeviceCmykGroupAttributes(expectedGroup, isolated: true);
+        expectedGroup.SetMatrix(new Matrix(1, 0, 0, 1, 50, 300));
+
+        PDResources pageResources = new();
+        pageResources.Put(COSName.GetPDFName("Actual"), actualGroup);
+        pageResources.Put(COSName.GetPDFName("Expected"), expectedGroup);
+        using PDDocument document = CreateDocument("/Actual Do\n/Expected Do\n", pageResources);
+        using (MemoryStream profile = new(ColorProfiles.CoatedFOGRA39.ToByteArray()))
+        {
+            document.GetDocumentCatalog().AddOutputIntent(new PDOutputIntent(document, profile));
+        }
+
+        using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
+
+        for (int y = 472; y < 492; y++)
+        {
+            for (int x = 0; x < 20; x++)
+            {
+                (int actualRed, int actualGreen, int actualBlue) = GetRgb(image.GetRgb(20 + x, y));
+                (int expectedRed, int expectedGreen, int expectedBlue) = GetRgb(image.GetRgb(50 + x, y));
+                Assert.True(
+                    Math.Abs(actualRed - expectedRed) <= 2 &&
+                    Math.Abs(actualGreen - expectedGreen) <= 2 &&
+                    Math.Abs(actualBlue - expectedBlue) <= 2,
+                    $"Expected backdrop RGB({expectedRed},{expectedGreen},{expectedBlue}) at ({x},{y}), " +
+                    $"got RGB({actualRed},{actualGreen},{actualBlue}).");
+            }
+        }
+    }
+
+    [Fact]
     public void RenderImage_IccRgbChildrenBlendInDeviceCmykGroupColorSpace()
     {
         PDICCBased sourceColorSpace = CreateIccColorSpace(ColorProfiles.SRGB.ToByteArray(), 3);
