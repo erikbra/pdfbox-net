@@ -132,6 +132,7 @@ internal static class SampledImageReader
         }
 
         bool isIndexed = colorSpace is PDIndexed;
+        bool isDeviceCmyk = colorSpace is PDDeviceCMYK;
         float sampleMax = (1 << bitsPerComponent) - 1f;
         float[] decode = GetDecodeArray(colorSpace, bitsPerComponent, components, decodeArray);
         if (colorSpace.SupportsBatchConversion)
@@ -182,7 +183,20 @@ internal static class SampledImageReader
                         : decoded;
                 }
 
-                if (separationRgb is not null && convertedSeparationSamples is not null)
+                if (isDeviceCmyk)
+                {
+                    // Avoid allocating the three-element array returned by the Java-shaped
+                    // scalar ToRGB API for every DeviceCMYK pixel. The color space is sealed,
+                    // so this is exactly PDDeviceCMYK.ToRGB written directly to the output.
+                    float c = Clamp(componentValues[0]);
+                    float m = Clamp(componentValues[1]);
+                    float yellow = Clamp(componentValues[2]);
+                    float blackScale = 1f - Clamp(componentValues[3]);
+                    rgb[dst++] = ToByte((1f - c) * blackScale);
+                    rgb[dst++] = ToByte((1f - m) * blackScale);
+                    rgb[dst++] = ToByte((1f - yellow) * blackScale);
+                }
+                else if (separationRgb is not null && convertedSeparationSamples is not null)
                 {
                     int lookupOffset = firstSample * 3;
                     if (!convertedSeparationSamples[firstSample])
@@ -283,6 +297,11 @@ internal static class SampledImageReader
     private static byte ToByte(float[] values, int index)
     {
         float value = index < values.Length ? values[index] : 0f;
-        return (byte)Math.Clamp((int)MathF.Round(value * 255f), 0, 255);
+        return ToByte(value);
     }
+
+    private static float Clamp(float value) => Math.Max(0f, Math.Min(1f, value));
+
+    private static byte ToByte(float value) =>
+        (byte)Math.Clamp((int)MathF.Round(value * 255f), 0, 255);
 }
