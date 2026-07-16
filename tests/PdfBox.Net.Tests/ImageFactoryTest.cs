@@ -474,6 +474,59 @@ public class ImageFactoryTest
         Assert.Equal([255, 0, 0], rgb);
     }
 
+    public static TheoryData<int, int, int, byte[], float[]?> DeviceCmykPackedSampleCases =>
+        new()
+        {
+            // Representative samples at every supported packed-sample depth.
+            { 2, 1, 1, [0xA5], null },
+            { 2, 1, 2, [0x1B, 0xE4], null },
+            { 2, 1, 4, [0x01, 0x23, 0xFE, 0xDC], null },
+            { 2, 1, 8, [0, 64, 128, 255, 255, 128, 64, 0], null },
+            { 2, 1, 16, [0, 0, 0x40, 0, 0x80, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0x80, 0, 0x40, 0, 0, 0], null },
+
+            // One four-bit pixel per byte verifies that each row restarts after padding.
+            { 1, 2, 1, [0xA0, 0x50], null },
+
+            // Decode arrays may reverse, narrow, or extend component ranges.
+            { 1, 1, 8, [0, 64, 128, 255], [1, 0, 1, 0, 1, 0, 1, 0] },
+            { 1, 1, 8, [0, 64, 128, 255], [0.2f, 0.8f, 0.1f, 0.6f, 0.3f, 0.9f, 0f, 0.5f] },
+            { 1, 1, 8, [0, 64, 128, 255], [-1, 2, -0.5f, 1.5f, 2, -1, 1.25f, -0.25f] },
+            { 2, 1, 2, [0x1B, 0xE4], [1, 0, 0, 1, 0.75f, 0.25f, -1, 2] },
+            { 2, 1, 4, [0x01, 0x23, 0xFE, 0xDC], [0.1f, 0.9f, 0.8f, 0.2f, -0.2f, 1.2f, 0.25f, 0.75f] },
+
+            // Values around half-byte boundaries protect the 16-bit float/rounding path.
+            { 2, 1, 16, [0x7F, 0xFF, 0x80, 0, 0x80, 1, 0, 1, 0x80, 1, 0x7F, 0xFF, 0x80, 0, 0, 0], null }
+        };
+
+    [Theory]
+    [MemberData(nameof(DeviceCmykPackedSampleCases))]
+    public void SampledImageReader_GetRGBImage_DeviceCmykPackedSamplesMatchScalarConversion(
+        int width,
+        int height,
+        int bitsPerComponent,
+        byte[] samples,
+        float[]? decode)
+    {
+        COSArray? decodeArray = decode is null ? null : COSArray.Of(decode);
+
+        byte[] actual = SampledImageReader.GetRGBImage(
+            width,
+            height,
+            bitsPerComponent,
+            PDDeviceCMYK.Instance,
+            samples,
+            decodeArray);
+
+        Assert.Equal(
+            ConvertCmykPackedSamplesWithScalarApi(
+                width,
+                height,
+                bitsPerComponent,
+                samples,
+                decode ?? PDDeviceCMYK.Instance.GetDefaultDecode(bitsPerComponent)),
+            actual);
+    }
+
     [Fact]
     public void SampledImageReader_GetRGBImage_TransformsIccRasterAsSingleBatch()
     {
@@ -602,6 +655,53 @@ public class ImageFactoryTest
     }
 
     // ─── CCITTFactory ─────────────────────────────────────────────────────────
+
+    private static byte[] ConvertCmykPackedSamplesWithScalarApi(
+        int width,
+        int height,
+        int bitsPerComponent,
+        byte[] samples,
+        float[] decode)
+    {
+        const int components = 4;
+        int rowBytes = ((width * components * bitsPerComponent) + 7) / 8;
+        int sampleMax = (1 << bitsPerComponent) - 1;
+        byte[] expected = new byte[width * height * 3];
+        float[] values = new float[components];
+        int destination = 0;
+
+        for (int row = 0; row < height; row++)
+        {
+            int bitOffset = row * rowBytes * 8;
+            for (int pixel = 0; pixel < width; pixel++)
+            {
+                for (int component = 0; component < components; component++)
+                {
+                    int sample = 0;
+                    for (int bit = 0; bit < bitsPerComponent; bit++)
+                    {
+                        int absoluteBit = bitOffset++;
+                        sample = (sample << 1) |
+                            ((samples[absoluteBit / 8] >> (7 - (absoluteBit % 8))) & 1);
+                    }
+
+                    float minimum = decode[component * 2];
+                    float maximum = decode[(component * 2) + 1];
+                    values[component] = minimum + (sample * ((maximum - minimum) / sampleMax));
+                }
+
+                float[] converted = PDDeviceCMYK.Instance.ToRGB(values);
+                expected[destination++] = ToByte(converted[0]);
+                expected[destination++] = ToByte(converted[1]);
+                expected[destination++] = ToByte(converted[2]);
+            }
+        }
+
+        return expected;
+    }
+
+    private static byte ToByte(float value) =>
+        (byte)Math.Clamp((int)MathF.Round(value * 255f), 0, 255);
 
     private static PDICCBased CreateIccColorSpace(byte[] profile, int components)
     {
