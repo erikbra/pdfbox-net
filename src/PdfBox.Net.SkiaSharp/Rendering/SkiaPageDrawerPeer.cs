@@ -2807,6 +2807,59 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         return false;
     }
 
+    private static bool HasNestedKnockoutDeviceCmykBlend(
+        PDTransparencyGroup group,
+        HashSet<COSStream> groupsInProgress)
+    {
+        if (group.GetCOSObject() is not COSStream groupStream || !groupsInProgress.Add(groupStream))
+        {
+            return false;
+        }
+
+        try
+        {
+            PDResources? resources = group.GetResources();
+            if (resources is null)
+            {
+                return false;
+            }
+
+            foreach (COSName name in resources.GetXObjectNames())
+            {
+                try
+                {
+                    if (resources.GetXObject(name) is not PDTransparencyGroup nestedGroup)
+                    {
+                        continue;
+                    }
+
+                    PDTransparencyGroupAttributes? nestedAttributes = nestedGroup.GetGroup();
+                    if (nestedAttributes?.IsKnockout() == true &&
+                        nestedAttributes.GetColorSpace(nestedGroup.GetResources()) is PDDeviceCMYK &&
+                        HasDirectBlendMode(nestedGroup))
+                    {
+                        return true;
+                    }
+
+                    if (HasNestedKnockoutDeviceCmykBlend(nestedGroup, groupsInProgress))
+                    {
+                        return true;
+                    }
+                }
+                catch (IOException)
+                {
+                    // Match PDFBox's best-effort resource traversal for malformed XObjects.
+                }
+            }
+
+            return false;
+        }
+        finally
+        {
+            groupsInProgress.Remove(groupStream);
+        }
+    }
+
     private static SKBlendMode ToSkiaBlendMode(BlendMode blendMode)
     {
         return blendMode switch
@@ -2869,6 +2922,8 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         void Complete();
 
         ComponentSource? GetComponentSource();
+
+        ComponentSource? GetCurrentComponentSource();
     }
 
     private sealed class NonIsolatedGroupCompositor : ITransparencyGroupCompositor
@@ -2953,6 +3008,8 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
         public ComponentSource? GetComponentSource() => null;
 
+        public ComponentSource? GetCurrentComponentSource() => null;
+
         public void Dispose()
         {
             _groupAlphaCanvas.Dispose();
@@ -2992,6 +3049,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         private readonly SKCanvas _objectShapeCanvas;
         private readonly byte[] _groupAlpha;
         private readonly float[]? _componentBackdrop;
+        private readonly float[]? _componentBackdropAlpha;
         private readonly float[]? _componentTarget;
         private readonly float[]? _componentTargetAlpha;
         private readonly float[]? _componentOutput;
@@ -3012,7 +3070,8 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             Rectangle2D bounds,
             bool knockout = true,
             Func<float[], int>? componentToRgb = null,
-            Func<PDColor, float[]?>? sourceToComponents = null)
+            Func<PDColor, float[]?>? sourceToComponents = null,
+            ComponentSource? parentComponentSource = null)
         {
             _target = targetGraphics.GetSkiaBitmap()
                 ?? throw new InvalidOperationException("Knockout groups require a bitmap-backed target.");
@@ -3052,10 +3111,11 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             if (_componentToRgb is not null)
             {
                 _componentBackdrop = new float[checked(_width * _height * 4)];
+                _componentBackdropAlpha = new float[checked(_width * _height)];
                 _componentTarget = new float[_componentBackdrop.Length];
                 _componentTargetAlpha = new float[checked(_width * _height)];
                 _componentOutput = new float[_componentBackdrop.Length];
-                InitializeComponentBackdrop();
+                InitializeComponentBackdrop(parentComponentSource);
             }
         }
 
@@ -3185,9 +3245,24 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                     4);
         }
 
-        private void InitializeComponentBackdrop()
+        public ComponentSource? GetCurrentComponentSource()
+        {
+            return _componentTarget is null
+                ? null
+                : new ComponentSource(
+                    _componentTarget,
+                    _groupAlpha,
+                    _left,
+                    _top,
+                    _width,
+                    _height,
+                    4);
+        }
+
+        private void InitializeComponentBackdrop(ComponentSource? parentComponentSource)
         {
             float[] backdrop = _componentBackdrop!;
+            float[] backdropAlpha = _componentBackdropAlpha!;
             float[] target = _componentTarget!;
             float[] targetAlpha = _componentTargetAlpha!;
             for (int y = 0; y < _height; y++)
@@ -3197,16 +3272,35 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                     int pixel = x + y * _width;
                     if (_isolated)
                     {
+                        backdropAlpha[pixel] = 0f;
                         targetAlpha[pixel] = 0f;
+                        continue;
+                    }
+
+                    int targetX = x + _left;
+                    int targetY = y + _top;
+                    int offset = pixel * 4;
+                    if (TryGetComponentOffset(
+                        parentComponentSource,
+                        targetX,
+                        targetY,
+                        out int sourceOffset))
+                    {
+                        parentComponentSource!.Components.AsSpan(sourceOffset, 4)
+                            .CopyTo(backdrop.AsSpan(offset, 4));
+                        parentComponentSource.Components.AsSpan(sourceOffset, 4)
+                            .CopyTo(target.AsSpan(offset, 4));
+                        backdropAlpha[pixel] = parentComponentSource.Alpha[sourceOffset / 4] / 255f;
+                        targetAlpha[pixel] = backdropAlpha[pixel];
                         continue;
                     }
 
                     SKColor color = _backdrop.GetPixel(x, y);
                     float[] components = ConvertRgbToComponents(color);
-                    int offset = pixel * 4;
                     components.CopyTo(backdrop, offset);
                     components.CopyTo(target, offset);
-                    targetAlpha[pixel] = color.Alpha / 255f;
+                    backdropAlpha[pixel] = color.Alpha / 255f;
+                    targetAlpha[pixel] = backdropAlpha[pixel];
                 }
             }
         }
@@ -3280,7 +3374,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                         ? backdrop.AsSpan(offset, 4)
                         : target.AsSpan(offset, 4);
                     float blendBackdropAlpha = _knockout
-                        ? (_isolated ? 0f : _backdrop.GetPixel(x, y).Alpha / 255f)
+                        ? _componentBackdropAlpha![pixel]
                         : targetAlpha[pixel];
                     float blendedAlpha = ComposeComponentBlend(
                         composite,
@@ -3289,10 +3383,9 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                         blendBackdrop,
                         blendBackdropAlpha,
                         blended);
-
                     if (_knockout)
                     {
-                        float previousAlpha = targetAlpha[pixel];
+                        float previousAlpha = _componentBackdropAlpha![pixel];
                         float inverseShape = 1f - shape;
                         float interpolatedAlpha = (shape * blendedAlpha) + (inverseShape * previousAlpha);
                         for (int component = 0; component < 4; component++)
@@ -3301,7 +3394,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                                 ? 0f
                                 : Math.Clamp(
                                     ((shape * blended[component] * blendedAlpha) +
-                                     (inverseShape * target[offset + component] * previousAlpha)) /
+                                     (inverseShape * backdrop[offset + component] * previousAlpha)) /
                                     interpolatedAlpha,
                                     0f,
                                     1f);
@@ -3482,7 +3575,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                     }
                     else
                     {
-                        float backdropAlpha = _backdrop.GetPixel(x, y).Alpha / 255f;
+                        float backdropAlpha = _componentBackdropAlpha![pixel];
                         float alphaFactor = backdropAlpha / (groupAlpha / 255f) - backdropAlpha;
                         for (int component = 0; component < 4; component++)
                         {
@@ -3716,7 +3809,9 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             {
                 PDColorSpace? blendColorSpace = attributes.GetColorSpace(form.GetResources());
                 Func<float[], int>? componentToRgb = blendColorSpace is PDDeviceCMYK &&
-                    (requiresIccComponentBlending || drawer._transparencyGroupCompositor?.UsesComponents == true)
+                    (requiresIccComponentBlending ||
+                     drawer._transparencyGroupCompositor?.UsesComponents == true ||
+                     HasDirectBlendMode(form))
                     ? components => drawer.SafeToRgb(new PDColor(components, blendColorSpace), 0)
                     : null;
                 return new KnockoutGroupCompositor(
@@ -3726,14 +3821,16 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                     bounds,
                     knockout: true,
                     componentToRgb: componentToRgb,
-                    sourceToComponents: CreateSourceToComponents(drawer, componentToRgb));
+                    sourceToComponents: CreateSourceToComponents(drawer, componentToRgb),
+                    parentComponentSource: drawer._transparencyGroupCompositor?.GetCurrentComponentSource());
             }
 
             PDColorSpace? groupColorSpace = attributes.GetColorSpace(form.GetResources());
             bool requiresDeviceCmykComponentBlending =
                 requiresIccComponentBlending ||
                 drawer._transparencyGroupCompositor?.UsesComponents == true ||
-                (attributes.IsIsolated() && HasDirectBlendMode(form));
+                (attributes.IsIsolated() &&
+                 (HasDirectBlendMode(form) || HasNestedKnockoutDeviceCmykBlend(form, [])));
             if (groupColorSpace is PDDeviceCMYK && requiresDeviceCmykComponentBlending)
             {
                 Func<float[], int> componentToRgb = components =>
@@ -3745,7 +3842,8 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                     bounds,
                     knockout: false,
                     componentToRgb: componentToRgb,
-                    sourceToComponents: CreateSourceToComponents(drawer, componentToRgb));
+                    sourceToComponents: CreateSourceToComponents(drawer, componentToRgb),
+                    parentComponentSource: drawer._transparencyGroupCompositor?.GetCurrentComponentSource());
             }
 
             if (!attributes.IsIsolated() &&
