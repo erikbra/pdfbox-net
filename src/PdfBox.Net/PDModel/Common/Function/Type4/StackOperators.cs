@@ -50,17 +50,21 @@ internal static class StackOperators
     {
         public void Execute(ExecutionContext context)
         {
-            int j = Convert.ToInt32(context.GetStack().Pop());
-            int n = Convert.ToInt32(context.GetStack().Pop());
+            ExecutionStack stack = context.GetStack();
+            int j = Convert.ToInt32(stack.Pop());
+            int n = Convert.ToInt32(stack.Pop());
             if (j == 0) return;
             if (n < 0) throw new ArgumentException($"rangecheck: {n}");
             j %= n;
             if (j < 0) j += n;
-            int start = context.GetStack().Count - n;
-            List<object> segment = context.GetStack().GetRange(start, n);
-            context.GetStack().RemoveRange(start, n);
-            List<object> rolled = [.. segment.Skip(n - j), .. segment.Take(n - j)];
-            context.GetStack().AddRange(rolled);
+            int start = stack.Count - n;
+            if (start < 0) throw new ArgumentOutOfRangeException("index");
+            if (j == 0) return;
+
+            Span<object> segment = System.Runtime.InteropServices.CollectionsMarshal.AsSpan(stack).Slice(start, n);
+            segment.Reverse();
+            segment[..j].Reverse();
+            segment[j..].Reverse();
         }
     }
 }
