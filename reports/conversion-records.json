@@ -2137,18 +2137,18 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
     "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
     "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout: introduced shared content-stream writer foundation for form/pattern streams."
+    "sync_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
+    "conversion_notes": "Issue #93 pdmodel resource/content stream gap closeout introduced the shared writer foundation. Issue #908 reviewed PDFBOX-6220: this adapted stream writes named font operators and does not construct GSUB workers, so the Java per-PDType0Font worker cache has no direct .NET runtime equivalent."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
     "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
     "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Extended PDDocument lifecycle parity by exposing the underlying COSDocument, restoring upstream header/catalog version behavior, and allowing /Info replacement while keeping parser-produced COSDocument integration and disposal semantics."
+    "sync_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
+    "conversion_notes": "Extended PDDocument lifecycle parity by exposing the underlying COSDocument, restoring upstream header/catalog version behavior, and allowing /Info replacement while keeping parser-produced COSDocument integration and disposal semantics. Issue #908 reviewed PDFBOX-6219; the .NET type has no Java AWT class-loading probe, so the additional NoClassDefFoundError catch is not applicable."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
