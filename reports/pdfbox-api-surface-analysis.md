@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-07-14T19:24:15Z
-Apache PDFBox source commit: `10950c29006e36cfba48e74d4031784e31562cbf`
-PdfBox.Net commit: `63ab24bd954b3316089e1333185b00f7141ce85e`
+Generated (UTC): 2026-07-18T09:50:41Z
+Apache PDFBox source commit: `a1685ce5bccd2397737b056663fcf4697686fea3`
+PdfBox.Net commit: `adbb7efa7be3175377db823a542c7a8c8fbfebe5`
 
 ## Scope
 
