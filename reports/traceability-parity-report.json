@@ -3021,22 +3021,22 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
     "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "source_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
+    "sync_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-07-06T20:22:42Z",
-    "note": "Synced glyph-layout content stream surface: processor registration plus raw glyph code, glyph-position array, and text-rise operators."
+    "last_checked_utc": "2026-07-18T09:23:30Z",
+    "note": "Reviewed upstream per-font GsubWorker caching. The adapted .NET content stream delegates shaping to GlyphLayoutProcessorInterface and constructs no GsubWorker, so no runtime change is applicable."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
     "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "source_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
+    "sync_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-07-06T20:22:42Z",
-    "note": "Reviewed upstream Graal/AWT UnsatisfiedLinkError catch; no .NET behavior required, so this is accepted as a reviewed no-op adaptation."
+    "last_checked_utc": "2026-07-18T09:23:30Z",
+    "note": "Reviewed upstream Graal/AWT UnsatisfiedLinkError and NoClassDefFoundError catches. The .NET port performs no AWT class loading, so no runtime change is applicable."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
