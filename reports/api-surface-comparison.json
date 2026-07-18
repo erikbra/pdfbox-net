@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-07-14T19:24:15Z",
-  "upstream_root": "/private/tmp/pdfbox-upstream-issue-670",
-  "upstream_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
-  "pdfbox_net_commit": "63ab24bd954b3316089e1333185b00f7141ce85e",
+  "generated_at_utc": "2026-07-18T09:50:41Z",
+  "upstream_root": "/private/tmp/apache-pdfbox-3.0-sync",
+  "upstream_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
+  "pdfbox_net_commit": "adbb7efa7be3175377db823a542c7a8c8fbfebe5",
   "scope": {
     "modules": [
       "io",

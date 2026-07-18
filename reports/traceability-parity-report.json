@@ -3021,22 +3021,22 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
     "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
+    "sync_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T18:45:00Z",
-    "note": "Issue #93 pdmodel foundation closeout: shared content-stream writing foundation added for form/pattern wrappers."
+    "last_checked_utc": "2026-07-18T09:47:11Z",
+    "note": "Issue #908 reviewed PDFBOX-6220. The adapted stream writes named font operators and does not construct GSUB workers, so the Java per-PDType0Font worker cache is not applicable; the cache-focused upstream test is deferred for the same architectural reason."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
     "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
+    "sync_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T10:25:06Z",
-    "note": "PDDocument now exposes the underlying COSDocument, aligns header-versus-catalog version semantics, supports replacing the /Info dictionary, and preserves upstream file-load/dispose lifecycle behavior covered by targeted regression tests."
+    "last_checked_utc": "2026-07-18T09:47:11Z",
+    "note": "Issue #908 reviewed PDFBOX-6219. The .NET document type has no Java AWT class-loading probe or static initializer, so the additional NoClassDefFoundError catch has no runtime equivalent."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
