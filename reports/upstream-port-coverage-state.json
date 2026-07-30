@@ -1,9 +1,9 @@
 {
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
-  "upstream_head_commit": "5c330ce65aed808a511fcdb870aa21630767645f",
+  "upstream_head_commit": "dfa440c94e03a3ee0fa011c3da1d186e6021135a",
   "tracked_parity_baseline_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
-  "last_scan_utc": "2026-07-28T07:51:49.072Z",
+  "last_scan_utc": "2026-07-30T07:48:25.560Z",
   "upstream_java_files_total": 1073,
   "mapped_java_files_total": 1073,
   "missing_java_files_total": 0,
