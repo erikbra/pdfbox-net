@@ -1,13 +1,13 @@
 {
-  "generated_at_utc": "2026-07-30T07:48:25.560Z",
+  "generated_at_utc": "2026-07-31T07:59:25.654Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
-  "upstream_head": "dfa440c94e03a3ee0fa011c3da1d186e6021135a",
+  "upstream_head": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
   "tracked_parity_baseline_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "total": 1073,
+  "total": 1077,
   "mapped": 1073,
-  "missing": 0,
+  "missing": 4,
   "modules": [
     {
       "module": "benchmark",
@@ -57,6 +57,13 @@
       "mapped": 3,
       "missing": 0,
       "pct": 100.0
+    },
+    {
+      "module": "pdfbox-layout-fop",
+      "java_files": 4,
+      "mapped": 0,
+      "missing": 4,
+      "pct": 0.0
     },
     {
       "module": "tools",
@@ -257,6 +264,13 @@
       "pct": 100.0
     },
     {
+      "family": "pdfbox-layout-fop:glyphlayout",
+      "java_files": 4,
+      "mapped": 0,
+      "missing": 4,
+      "pct": 0.0
+    },
+    {
       "family": "tools:tools",
       "java_files": 26,
       "mapped": 26,
@@ -298,5 +312,12 @@
     "partially-in-sync": 0,
     "partial": 0
   },
-  "top_missing_modules": {}
+  "top_missing_modules": {
+    "pdfbox-layout-fop": [
+      "pdfbox-layout-fop/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorldFOP.java",
+      "pdfbox-layout-fop/src/main/java/org/apache/pdfbox/glyphlayout/fop/FopStringTextFragment.java",
+      "pdfbox-layout-fop/src/main/java/org/apache/pdfbox/glyphlayout/fop/GlyphLayoutFontLoaderFop.java",
+      "pdfbox-layout-fop/src/main/java/org/apache/pdfbox/glyphlayout/fop/GlyphLayoutProcessorFop.java"
+    ]
+  }
 }
