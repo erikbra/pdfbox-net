@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
+ * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  */
 
 using PdfBox.Net.ContentStream.Operator;
@@ -99,7 +99,13 @@ internal sealed class AppearanceGeneratorHelper
             PDAppearanceDictionary appearance = widget.GetAppearance() ?? new PDAppearanceDictionary();
             widget.SetAppearance(appearance);
 
-            PDAppearanceStream stream = widget.GetNormalAppearanceStream() ?? PrepareNormalAppearanceStream(widget);
+            PDAppearanceCharacteristicsDictionary? characteristics = widget.GetAppearanceCharacteristics();
+            int rotation = ResolveRotation(characteristics);
+            PDRectangle bbox = ComputeBBox(widget, rotation);
+            PDAppearanceStream? existingStream = widget.GetNormalAppearanceStream();
+            PDAppearanceStream stream = existingStream != null && IsValidAppearanceStream(existingStream, bbox)
+                ? existingStream
+                : PrepareNormalAppearanceStream(bbox, rotation);
             appearance.SetNormalAppearance(stream);
             PDDefaultAppearanceString? defaultAppearance = ResolveDefaultAppearance(widget);
             if (defaultAppearance?.Font == null)
@@ -147,15 +153,19 @@ internal sealed class AppearanceGeneratorHelper
         return value ?? string.Empty;
     }
 
-    private PDAppearanceStream PrepareNormalAppearanceStream(PDAnnotationWidget widget)
+    private static bool IsValidAppearanceStream(PDAppearanceStream stream, PDRectangle newBBox)
+    {
+        PDRectangle? bbox = stream.GetBBox();
+        return bbox != null &&
+               Math.Abs(newBBox.GetWidth() - bbox.GetWidth()) <= 1 &&
+               Math.Abs(newBBox.GetHeight() - bbox.GetHeight()) <= 1 &&
+               Math.Abs(bbox.GetWidth()) > 0 &&
+               Math.Abs(bbox.GetHeight()) > 0;
+    }
+
+    private PDAppearanceStream PrepareNormalAppearanceStream(PDRectangle bbox, int rotation)
     {
         PDAppearanceStream stream = new(_field.GetAcroForm().GetDocument());
-        int rotation = ResolveRotation(widget);
-        PDRectangle rectangle = widget.GetRectangle()!;
-        Matrix rotationMatrix = Matrix.GetRotateInstance(Math.PI * rotation / 180.0, 0, 0);
-        Vector transformedUpperRight = rotationMatrix.TransformPoint(rectangle.GetWidth(), rectangle.GetHeight());
-
-        PDRectangle bbox = new(Math.Abs(transformedUpperRight.GetX()), Math.Abs(transformedUpperRight.GetY()));
         stream.SetBBox(bbox);
         if (rotation != 0)
         {
@@ -166,9 +176,17 @@ internal sealed class AppearanceGeneratorHelper
         return stream;
     }
 
-    private static int ResolveRotation(PDAnnotationWidget widget)
+    private static PDRectangle ComputeBBox(PDAnnotationWidget widget, int rotation)
     {
-        return widget.GetAppearanceCharacteristics()?.GetRotation() ?? 0;
+        PDRectangle rectangle = widget.GetRectangle()!;
+        Matrix rotationMatrix = Matrix.GetRotateInstance(Math.PI * rotation / 180.0, 0, 0);
+        Vector transformedUpperRight = rotationMatrix.TransformPoint(rectangle.GetWidth(), rectangle.GetHeight());
+        return new PDRectangle(Math.Abs(transformedUpperRight.GetX()), Math.Abs(transformedUpperRight.GetY()));
+    }
+
+    private static int ResolveRotation(PDAppearanceCharacteristicsDictionary? characteristics)
+    {
+        return characteristics?.GetRotation() ?? 0;
     }
 
     private static Matrix CalculateMatrix(PDRectangle bbox, int rotation)

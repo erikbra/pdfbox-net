@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDRadioButton.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  */
 
 /*
@@ -52,6 +52,17 @@ public sealed class PDRadioButton : PDButton
     public bool IsRadiosInUnison()
     {
         return dictionary.GetFlag(COSName.GetPDFName("FF"), FlagRadiosInUnison);
+    }
+
+    /// <summary>
+    /// Sets whether the selected radio button may be toggled off.
+    /// </summary>
+    /// <param name="noToggleToOff">
+    /// <see langword="true"/> to require one selected button at all times.
+    /// </param>
+    public void SetNoToggleToOff(bool noToggleToOff)
+    {
+        dictionary.SetFlag(COSName.GetPDFName("FF"), FlagNoToggleToOff, noToggleToOff);
     }
 
     public bool IsNoToggleToOff()

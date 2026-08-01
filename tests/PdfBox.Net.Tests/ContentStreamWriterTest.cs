@@ -21,6 +21,7 @@
  * limitations under the License.
  */
 
+using System.Reflection;
 using System.Text;
 using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.COS;
@@ -31,6 +32,25 @@ namespace PdfBox.Net.Tests;
 
 public class ContentStreamWriterTest
 {
+    [Fact]
+    public void OperatorNamesExposeCachedAsciiBytes()
+    {
+        IEnumerable<string> names = typeof(OperatorName)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(field => field.IsLiteral && field.FieldType == typeof(string))
+            .Select(field => (string)field.GetRawConstantValue()!);
+
+        foreach (string name in names)
+        {
+            byte[] first = OperatorName.GetNameAsBytes(name);
+            byte[] second = OperatorName.GetNameAsBytes(name);
+            Assert.Same(first, second);
+            Assert.Equal(name, Encoding.ASCII.GetString(first));
+        }
+
+        Assert.Throws<ArgumentException>(() => OperatorName.GetNameAsBytes("not-an-operator"));
+    }
+
     [Fact]
     public void WriteTokensListWritesOperandsAndOperator()
     {
@@ -86,5 +106,16 @@ public class ContentStreamWriterTest
         using MemoryStream output = new();
         COSWriter.WriteString([(byte)'A', (byte)'\n', (byte)'B'], output);
         Assert.Equal("<410A42>", Encoding.ASCII.GetString(output.ToArray()));
+    }
+
+    [Fact]
+    public void WriteTokenUsesCanonicalNullBytes()
+    {
+        using MemoryStream output = new();
+        ContentStreamWriter writer = new(output);
+
+        writer.WriteToken(COSNull.NULL);
+
+        Assert.Equal("null ", Encoding.ASCII.GetString(output.ToArray()));
     }
 }

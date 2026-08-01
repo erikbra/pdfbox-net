@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java
- * PDFBOX_SOURCE_COMMIT: 6bc8c17f16ce5c5c8ad3b45387a579fe010e658d
+ * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 6bc8c17f16ce5c5c8ad3b45387a579fe010e658d
+ * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  */
 
 /*

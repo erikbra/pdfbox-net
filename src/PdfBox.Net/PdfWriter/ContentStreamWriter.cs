@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/ContentStreamWriter.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  */
 
 /*
@@ -25,7 +25,6 @@
  * limitations under the License.
  */
 
-using System.Text;
 using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.COS;
 
@@ -132,7 +131,7 @@ public sealed class ContentStreamWriter
     {
         if (op.GetName().Equals(OperatorName.BEGIN_INLINE_IMAGE, StringComparison.Ordinal))
         {
-            output.Write(Encoding.Latin1.GetBytes(OperatorName.BEGIN_INLINE_IMAGE));
+            output.Write(OperatorName.GetNameAsBytes(OperatorName.BEGIN_INLINE_IMAGE));
             output.Write(EOL);
             COSDictionary imageParameters = op.GetImageParameters() ?? throw new IOException("Error:Missing inline image parameters");
             foreach (COSName key in imageParameters.KeySet())
@@ -144,16 +143,16 @@ public sealed class ContentStreamWriter
                 output.Write(EOL);
             }
 
-            output.Write(Encoding.Latin1.GetBytes(OperatorName.BEGIN_INLINE_IMAGE_DATA));
+            output.Write(OperatorName.GetNameAsBytes(OperatorName.BEGIN_INLINE_IMAGE_DATA));
             output.Write(EOL);
             output.Write(op.GetImageData() ?? []);
             output.Write(EOL);
-            output.Write(Encoding.Latin1.GetBytes(OperatorName.END_INLINE_IMAGE));
+            output.Write(OperatorName.GetNameAsBytes(OperatorName.END_INLINE_IMAGE));
             output.Write(EOL);
         }
         else
         {
-            output.Write(Encoding.Latin1.GetBytes(op.GetName()));
+            output.Write(OperatorName.GetNameAsBytes(op.GetName()));
             output.Write(EOL);
         }
     }
@@ -207,7 +206,7 @@ public sealed class ContentStreamWriter
                 output.Write(SPACE);
                 break;
             case COSNull:
-                output.Write(Encoding.ASCII.GetBytes("null"));
+                output.Write(COSNull.NULL_BYTES);
                 output.Write(SPACE);
                 break;
             default:

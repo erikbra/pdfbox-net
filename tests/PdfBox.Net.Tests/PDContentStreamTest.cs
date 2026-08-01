@@ -470,6 +470,14 @@ public class PDContentStreamTest
     }
 
     [Fact]
+    public void GlyphSubListConvertsToIntArray()
+    {
+        GlyphsAndPositions.GlyphSubList glyphs = [7, 11, 13];
+
+        Assert.Equal([7, 11, 13], glyphs.ToIntArray());
+    }
+
+    [Fact]
     public void PDPageContentStream_ColorOverloads_EmitDeviceColorOperators()
     {
         using PDDocument document = new();
