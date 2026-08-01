@@ -25,11 +25,16 @@
  */
 
 using System.IO.Compression;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Filter;
 
 public sealed class FlateFilterDecoderStream : Stream
 {
+    private static ILogger<FlateFilterDecoderStream> LOG =>
+        PdfBoxLogging.CreateLogger<FlateFilterDecoderStream>();
+
     private readonly Stream _input;
     private readonly DeflateStream _inflater;
 
@@ -60,18 +65,33 @@ public sealed class FlateFilterDecoderStream : Stream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        return _inflater.Read(buffer, offset, count);
+        return ReadInflated(buffer.AsSpan(offset, count));
     }
 
     public override int Read(Span<byte> buffer)
     {
-        return _inflater.Read(buffer);
+        return ReadInflated(buffer);
     }
 
     public override int ReadByte()
     {
         Span<byte> one = stackalloc byte[1];
-        return _inflater.Read(one) == 0 ? -1 : one[0];
+        return ReadInflated(one) == 0 ? -1 : one[0];
+    }
+
+    private int ReadInflated(Span<byte> buffer)
+    {
+        try
+        {
+            return _inflater.Read(buffer);
+        }
+        catch (InvalidDataException exception)
+        {
+            LOG.LogWarning(
+                "FlateFilter: premature end of stream due to a DataFormatException = {Message}",
+                exception.Message);
+            return 0;
+        }
     }
 
     public override void Flush()

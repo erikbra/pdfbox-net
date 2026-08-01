@@ -33,8 +33,14 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 /// <summary>
 /// Factory for creating a PDImageXObject containing a JPEG compressed image.
 /// </summary>
-public static class JPEGFactory
+public sealed class JPEGFactory
 {
+    private static ILogger<JPEGFactory> LOG => PdfBoxLogging.CreateLogger<JPEGFactory>();
+
+    private JPEGFactory()
+    {
+    }
+
     /// <summary>
     /// Creates a new image XObject from a JPEG stream.
     /// The raw JPEG bytes are embedded directly in the PDF stream using the DCTDecode filter.

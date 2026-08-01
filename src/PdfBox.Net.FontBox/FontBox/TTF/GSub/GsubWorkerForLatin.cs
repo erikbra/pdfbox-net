@@ -27,6 +27,9 @@
 
 using PdfBox.Net.FontBox.TTF.Model;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF.GSub;
 
 /// <summary>
@@ -34,6 +37,8 @@ namespace PdfBox.Net.FontBox.TTF.GSub;
 /// </summary>
 public class GsubWorkerForLatin : IGsubWorker
 {
+    private static ILogger<GsubWorkerForLatin> LOG => PdfBoxLogging.CreateLogger<GsubWorkerForLatin>();
+
     /// <summary>
     /// This sequence is very important. This has been taken from
     /// https://docs.microsoft.com/en-us/typography/script-development/standard
@@ -57,9 +62,11 @@ public class GsubWorkerForLatin : IGsubWorker
         {
             if (!_gsubData.IsFeatureSupported(feature))
             {
+                LOG.LogDebug("The feature {Feature} was not found", feature);
                 continue;
             }
 
+            LOG.LogDebug("Applying the feature {Feature}", feature);
             IScriptFeature scriptFeature = _gsubData.GetFeature(feature);
             intermediateGlyphsFromGsub = ApplyGsubFeature(scriptFeature, intermediateGlyphsFromGsub);
         }
@@ -71,6 +78,7 @@ public class GsubWorkerForLatin : IGsubWorker
     {
         if (scriptFeature.GetAllGlyphIdsForSubstitution().Count == 0)
         {
+            LOG.LogDebug("GetAllGlyphIdsForSubstitution() for {FeatureName} is empty", scriptFeature.GetName());
             return originalGlyphs;
         }
 
@@ -97,6 +105,8 @@ public class GsubWorkerForLatin : IGsubWorker
             }
         }
 
+        LOG.LogDebug("OriginalGlyphs: {OriginalGlyphs}, GsubProcessedGlyphs: {ProcessedGlyphs}",
+            originalGlyphs, gsubProcessedGlyphs);
         return gsubProcessedGlyphs;
     }
 }

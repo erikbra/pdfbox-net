@@ -26,6 +26,10 @@
  */
 
 using System.IO;
+using System.Text;
+
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.FontBox.CMap;
 
@@ -34,6 +38,8 @@ namespace PdfBox.Net.FontBox.CMap;
 /// </summary>
 public class CMap
 {
+    private static ILogger<CMap> LOG => PdfBoxLogging.CreateLogger<CMap>();
+
     private const string Space = " ";
 
     private int _wMode;
@@ -150,13 +156,26 @@ public class CMap
             }
         }
 
+        if (LOG.IsEnabled(LogLevel.Warning))
+        {
+            StringBuilder sequence = new();
+            for (int i = 0; i < _maxCodeLength; i++)
+            {
+                sequence.Append($"0x{bytes[i]:X2} ({Convert.ToString(bytes[i], 8)!.PadLeft(4, '0')}) ");
+            }
+
+            LOG.LogWarning("Invalid character code sequence {Sequence} in CMap {CMapName}",
+                sequence, _cmapName);
+        }
+
         if (input.CanSeek && resetPosition >= 0)
         {
             input.Position = resetPosition;
         }
         else
         {
-            Console.Error.WriteLine($"mark() and reset() not supported, {_maxCodeLength - 1} bytes have been skipped");
+            LOG.LogWarning("Mark and reset are not supported, {SkippedByteCount} bytes have been skipped",
+                _maxCodeLength - 1);
         }
 
         return ToInt(bytes, _minCodeLength);
@@ -280,7 +299,8 @@ public class CMap
                 _unicodeToByteCodes[unicode] = [.. codes];
                 break;
             default:
-                Console.Error.WriteLine($"Mappings with more than 4 bytes (here: {codes.Length}) aren't supported yet");
+                LOG.LogWarning("Mappings with more than 4 bytes (here: {CodeLength}) aren't supported yet",
+                    codes.Length);
                 break;
         }
 

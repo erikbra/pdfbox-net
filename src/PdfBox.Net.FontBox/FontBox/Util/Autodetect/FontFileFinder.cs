@@ -29,6 +29,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.Util.Autodetect;
 
 /// <summary>
@@ -36,6 +39,8 @@ namespace PdfBox.Net.FontBox.Util.Autodetect;
 /// </summary>
 public class FontFileFinder
 {
+    private static ILogger<FontFileFinder> LOG => PdfBoxLogging.CreateLogger<FontFileFinder>();
+
     private FontDirFinder? _fontDirFinder;
 
     /// <summary>
@@ -139,14 +144,29 @@ public class FontFileFinder
             {
                 if (IsHidden(childDirectory))
                 {
+                    if (LOG.IsEnabled(LogLevel.Debug))
+                    {
+                        LOG.LogDebug("skip hidden directory {Directory}", childDirectory);
+                    }
                     continue;
                 }
 
                 Walk(childDirectory, results);
             }
-            else if (file is FileInfo fontFile && CheckFontfile(fontFile))
+            else if (file is FileInfo fontFile)
             {
-                results.Add(new Uri(fontFile.FullName));
+                if (LOG.IsEnabled(LogLevel.Debug))
+                {
+                    LOG.LogDebug("checkFontfile check {File}", fontFile);
+                }
+                if (CheckFontfile(fontFile))
+                {
+                    if (LOG.IsEnabled(LogLevel.Debug))
+                    {
+                        LOG.LogDebug("checkFontfile found {File}", fontFile);
+                    }
+                    results.Add(new Uri(fontFile.FullName));
+                }
             }
         }
     }

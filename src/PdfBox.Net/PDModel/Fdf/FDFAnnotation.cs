@@ -36,6 +36,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public abstract partial class FDFAnnotation : COSObjectable
 {
+    private static ILogger<FDFAnnotation> LOG => PdfBoxLogging.CreateLogger<FDFAnnotation>();
+
     private const int FlagInvisible = 1;
     private const int FlagHidden = 1 << 1;
     private const int FlagPrinted = 1 << 2;
@@ -140,7 +142,13 @@ public abstract partial class FDFAnnotation : COSObjectable
 
     public static FDFAnnotation? Create(COSDictionary? dictionary)
     {
-        return dictionary?.GetNameAsString(COSName.SUBTYPE) switch
+        if (dictionary is null)
+        {
+            return null;
+        }
+
+        string? subtype = dictionary.GetNameAsString(COSName.SUBTYPE);
+        return subtype switch
         {
             FDFAnnotationText.Subtype => new FDFAnnotationText(dictionary),
             FDFAnnotationCaret.Subtype => new FDFAnnotationCaret(dictionary),
@@ -159,8 +167,14 @@ public abstract partial class FDFAnnotation : COSObjectable
             FDFAnnotationStamp.Subtype => new FDFAnnotationStamp(dictionary),
             FDFAnnotationStrikeOut.Subtype => new FDFAnnotationStrikeOut(dictionary),
             FDFAnnotationUnderline.Subtype => new FDFAnnotationUnderline(dictionary),
-            _ => null
+            _ => UnknownAnnotationType(subtype)
         };
+    }
+
+    private static FDFAnnotation? UnknownAnnotationType(string? subtype)
+    {
+        LOG.LogWarning("Unknown or unsupported annotation type '{AnnotationType}'", subtype);
+        return null;
     }
 
     public static FDFAnnotation? CreateFromXFDF(XmlElement element)

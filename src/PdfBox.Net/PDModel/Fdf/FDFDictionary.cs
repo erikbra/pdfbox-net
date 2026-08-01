@@ -34,6 +34,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public partial class FDFDictionary : COSObjectable
 {
+    private static ILogger<FDFDictionary> LOG => PdfBoxLogging.CreateLogger<FDFDictionary>();
+
     private static readonly COSName IdName = COSName.GetPDFName("ID");
     private static readonly COSName FieldsName = COSName.GetPDFName("Fields");
     private static readonly COSName PagesName = COSName.GetPDFName("Pages");
@@ -70,15 +72,23 @@ public partial class FDFDictionary : COSObjectable
                     break;
                 case "ids":
                     COSArray ids = new();
-                    AddHexId(ids, child.GetAttribute("original"));
-                    AddHexId(ids, child.GetAttribute("modified"));
+                    AddHexId(ids, child.GetAttribute("original"), "original");
+                    AddHexId(ids, child.GetAttribute("modified"), "modified");
                     SetID(ids);
                     break;
                 case "fields":
                     List<FDFField> fieldList = [];
                     foreach (XmlElement field in ChildElements(child, "field"))
                     {
-                        fieldList.Add(new FDFField(field));
+                        try
+                        {
+                            fieldList.Add(new FDFField(field));
+                        }
+                        catch (IOException ex)
+                        {
+                            LOG.LogWarning(ex,
+                                "Error parsing field entry [{FieldValue}]. Field ignored.", field.Value);
+                        }
                     }
 
                     SetFields(fieldList);
@@ -87,10 +97,24 @@ public partial class FDFDictionary : COSObjectable
                     List<FDFAnnotation> annotationList = [];
                     foreach (XmlElement annotationElement in ChildElements(child))
                     {
-                        FDFAnnotation? annotation = FDFAnnotation.CreateFromXFDF(annotationElement);
-                        if (annotation is not null)
+                        try
                         {
-                            annotationList.Add(annotation);
+                            FDFAnnotation? annotation = FDFAnnotation.CreateFromXFDF(annotationElement);
+                            if (annotation is not null)
+                            {
+                                annotationList.Add(annotation);
+                            }
+                            else
+                            {
+                                LOG.LogWarning("Unknown or unsupported annotation type '{AnnotationType}'",
+                                    annotationElement.LocalName);
+                            }
+                        }
+                        catch (IOException ex)
+                        {
+                            LOG.LogWarning(ex,
+                                "Error parsing annotation information [{AnnotationValue}]. Annotation ignored",
+                                annotationElement.Value);
                         }
                     }
 
@@ -319,14 +343,17 @@ public partial class FDFDictionary : COSObjectable
         _fdf.SetItem(JavaScriptName, javaScript);
     }
 
-    private static void AddHexId(COSArray ids, string hex)
+    private static void AddHexId(COSArray ids, string hex, string attributeName)
     {
         try
         {
             ids.Add(COSString.ParseHex(hex));
         }
-        catch (IOException)
+        catch (IOException ex)
         {
+            LOG.LogWarning(ex,
+                "Error parsing ID entry for attribute '{AttributeName}' [{Id}]. ID entry ignored.",
+                attributeName, hex);
             // Match upstream behavior: malformed XFDF ID entries are ignored.
         }
     }

@@ -27,6 +27,9 @@
 
 using PdfBox.Net.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 /// <summary>
@@ -34,6 +37,8 @@ namespace PdfBox.Net.FontBox.TTF;
 /// </summary>
 public class TTFParser
 {
+    private static ILogger<TTFParser> LOG => PdfBoxLogging.CreateLogger<TTFParser>();
+
     private readonly bool _isEmbedded;
     private readonly bool _allowOpenType;
 
@@ -106,6 +111,12 @@ public class TTFParser
                 if ((long)table.GetOffset() + table.GetLength() <= font.GetOriginalDataSize())
                 {
                     font.AddTable(table);
+                }
+                else
+                {
+                    LOG.LogWarning(
+                        "Skip table '{TableTag}' which goes past the file size; offset: {TableOffset}, size: {TableLength}, font size: {FontSize}",
+                        table.GetTag(), table.GetOffset(), table.GetLength(), font.GetOriginalDataSize());
                 }
             }
         }

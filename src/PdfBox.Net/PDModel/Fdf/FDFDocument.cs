@@ -38,6 +38,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public sealed partial class FDFDocument : IDisposable
 {
+    private static ILogger<FDFDocument> LOG => PdfBoxLogging.CreateLogger<FDFDocument>();
+
     private const string DefaultVersion = "1.2";
 
     private static readonly byte[] PdfHeaderBytes = Encoding.ASCII.GetBytes("%PDF-");
@@ -253,8 +255,17 @@ public sealed partial class FDFDocument : IDisposable
         }
 
         _disposed = true;
-        _source?.Dispose();
-        _document.Dispose();
+        IOException? firstException = null;
+        firstException = IOUtils.CloseAndLogException(_document, LOG, "COSDocument", firstException);
+        if (_source is not null)
+        {
+            firstException = IOUtils.CloseAndLogException(
+                _source, LOG, "RandomAccessRead pdfSource", firstException);
+        }
+        if (firstException is not null)
+        {
+            throw firstException;
+        }
     }
 
     private static List<(COSObjectKey Key, COSBase Inner)> CollectIndirectObjects(COSDictionary trailer)

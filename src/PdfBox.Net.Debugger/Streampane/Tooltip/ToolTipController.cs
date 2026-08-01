@@ -25,7 +25,9 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.ContentStream.Operator;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.Debugger.Streampane.Tooltip;
@@ -38,6 +40,8 @@ namespace PdfBox.Net.Debugger.Streampane.Tooltip;
 /// </summary>
 public sealed class ToolTipController
 {
+    private static ILogger<ToolTipController> LOG => PdfBoxLogging.CreateLogger<ToolTipController>();
+
     private readonly PDResources? _resources;
 
     /// <param name="resources">Page/form resource dictionary; may be null.</param>

@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible;
 
 public class PDFTemplateCreator
 {
+    private static ILogger<PDFTemplateCreator> LOG => PdfBoxLogging.CreateLogger<PDFTemplateCreator>();
+
     private readonly PDFTemplateBuilder _pdfBuilder;
 
     public PDFTemplateCreator(PDFTemplateBuilder templateBuilder)
@@ -23,6 +25,9 @@ public class PDFTemplateCreator
 
     public Stream BuildPDF(PDVisibleSignDesigner properties)
     {
-        return _pdfBuilder.BuildPDF(properties);
+        LOG.LogInformation("pdf building has been started");
+        Stream stream = _pdfBuilder.BuildPDF(properties);
+        LOG.LogInformation("stream returning started, size= {Size}", stream.CanSeek ? stream.Length : -1);
+        return stream;
     }
 }

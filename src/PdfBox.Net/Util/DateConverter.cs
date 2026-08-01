@@ -49,7 +49,9 @@
 */
 
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Util;
 
@@ -63,8 +65,14 @@ namespace PdfBox.Net.Util;
 /// that preserve the original Java semantics needed by DateConverter.
 /// Authors: Ben Litchfield, Fred Hansen
 /// </remarks>
-public static class DateConverter
+public sealed class DateConverter
 {
+    private static ILogger<DateConverter> LOG => PdfBoxLogging.CreateLogger<DateConverter>();
+
+    private DateConverter()
+    {
+    }
+
     // milliseconds/1000 = seconds; seconds / 60 = minutes; minutes/60 = hours
     private const int MinutesPerHour = 60;
     private const int SecondsPerMinute = 60;
@@ -498,8 +506,10 @@ public static class DateConverter
             // trigger limit tests
             _ = dest.GetTimeInMillis();
         }
-        catch (ArgumentException)
+        catch (ArgumentException exception)
         {
+            LOG.LogDebug(exception, "Couldn't parse arguments text:{Text} initialWhere:{InitialWhere}",
+                text, initialWhere);
             return null;
         }
         initialWhere.Index = where.Index;

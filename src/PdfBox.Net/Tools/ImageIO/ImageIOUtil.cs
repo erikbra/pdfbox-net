@@ -25,12 +25,20 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Tools.ImageIO;
 
-public static class ImageIOUtil
+public sealed class ImageIOUtil
 {
+    private static ILogger<ImageIOUtil> LOG => PdfBoxLogging.CreateLogger<ImageIOUtil>();
+
+    private ImageIOUtil()
+    {
+    }
+
     public static bool WriteImage(BufferedImage image, string filename, int dpi, int quality = 100)
     {
         ArgumentNullException.ThrowIfNull(image);

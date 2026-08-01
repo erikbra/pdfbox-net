@@ -34,6 +34,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public partial class FDFAnnotationFreeText : FDFAnnotation
 {
+    private static ILogger<FDFAnnotationFreeText> LOG => PdfBoxLogging.CreateLogger<FDFAnnotationFreeText>();
+
     private static readonly COSName ClName = COSName.GetPDFName("CL");
     private static readonly COSName QName = COSName.GetPDFName("Q");
     private static readonly COSName DaName = COSName.GetPDFName("DA");

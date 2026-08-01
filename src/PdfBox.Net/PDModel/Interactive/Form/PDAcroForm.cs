@@ -37,6 +37,8 @@ namespace PdfBox.Net.PDModel.Interactive.Form;
 
 public sealed partial class PDAcroForm : COSObjectable
 {
+    private static ILogger<PDAcroForm> LOG => PdfBoxLogging.CreateLogger<PDAcroForm>();
+
     private readonly PDDocument _document;
     private readonly COSDictionary _dictionary;
     private GlyphLayoutProcessorInterface? _glyphLayoutProcessor;
@@ -193,6 +195,7 @@ public sealed partial class PDAcroForm : COSObjectable
     {
         if (XfaIsDynamic())
         {
+            LOG.LogWarning("Flatten for a dynamix XFA form is not supported");
             return;
         }
 

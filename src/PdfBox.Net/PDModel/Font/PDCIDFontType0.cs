@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public partial class PDCIDFontType0 : PDCIDFont
 {
+    private static ILogger<PDCIDFontType0> LOG => PdfBoxLogging.CreateLogger<PDCIDFontType0>();
+
     public PDCIDFontType0(COSDictionary dictionary)
         : base(dictionary)
     {

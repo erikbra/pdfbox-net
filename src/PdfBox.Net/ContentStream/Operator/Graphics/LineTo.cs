@@ -9,11 +9,15 @@
  */
 
 using PdfBox.Net.COS;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.ContentStream.Operator.Graphics;
 
 public sealed class LineTo : OperatorProcessor
 {
+    private static ILogger<LineTo> LOG => PdfBoxLogging.CreateLogger<LineTo>();
+
     public LineTo(PDFStreamEngine context) : base(OperatorName.LINE_TO, context) { }
 
     public override string GetName()
@@ -24,6 +28,12 @@ public sealed class LineTo : OperatorProcessor
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 2 || operands[0] is not COSNumber x || operands[1] is not COSNumber y) return;
+        if (Context.GetCurrentPoint() is null)
+        {
+            LOG.LogWarning("LineTo ({X},{Y}) without initial MoveTo", x.FloatValue(),
+                y.FloatValue());
+            return;
+        }
         Context.LineTo(x.FloatValue(), y.FloatValue());
     }
 }

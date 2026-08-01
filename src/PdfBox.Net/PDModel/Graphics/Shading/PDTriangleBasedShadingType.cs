@@ -38,6 +38,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 /// </summary>
 public abstract partial class PDTriangleBasedShadingType : PDShading
 {
+    private static ILogger<PDTriangleBasedShadingType> LOG => PdfBoxLogging.CreateLogger<PDTriangleBasedShadingType>();
+
     // an array of 2^n numbers specifying the linear mapping of sample values
     // into the range appropriate for the function's output values. Default
     // value: same as the value of Range
@@ -62,6 +64,7 @@ public abstract partial class PDTriangleBasedShadingType : PDShading
         if (_bitsPerColorComponent == -1)
         {
             _bitsPerColorComponent = GetCOSObject().GetInt(COSName.BITS_PER_COMPONENT, -1);
+            LOG.LogDebug("bitsPerColorComponent: {BitsPerColorComponent}", _bitsPerColorComponent);
         }
         return _bitsPerColorComponent;
     }
@@ -83,6 +86,8 @@ public abstract partial class PDTriangleBasedShadingType : PDShading
         if (_bitsPerCoordinate == -1)
         {
             _bitsPerCoordinate = GetCOSObject().GetInt(COSName.BITS_PER_COORDINATE, -1);
+            LOG.LogDebug("bitsPerCoordinate: {MaximumCoordinate}",
+                Math.Pow(2, _bitsPerCoordinate) - 1);
         }
         return _bitsPerCoordinate;
     }
@@ -106,6 +111,8 @@ public abstract partial class PDTriangleBasedShadingType : PDShading
         {
             _numberOfColorComponents = GetFunction() != null ? 1
                     : GetColorSpace().GetNumberOfComponents();
+            LOG.LogDebug("numberOfColorComponents: {NumberOfColorComponents}",
+                _numberOfColorComponents);
         }
         return _numberOfColorComponents;
     }

@@ -25,10 +25,15 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.COS;
 
 public class COSDictionary : COSBase, COSUpdateInfo
 {
+    private static ILogger<COSDictionary> LOG => PdfBoxLogging.CreateLogger<COSDictionary>();
+
     private const string PathSeparator = "/";
     /// <summary>
     /// The name-value pairs of this dictionary. Like Java PDFBox's LinkedHashMap, entries are
@@ -671,7 +676,16 @@ public class COSDictionary : COSBase, COSUpdateInfo
 
     public override string ToString()
     {
-        return $"COSDictionary{{{string.Join(";", items.Select(kvp => $"{kvp.Key}:{kvp.Value}"))}}}";
+        try
+        {
+            return $"COSDictionary{{{string.Join(";", items.Select(kvp => $"{kvp.Key}:{kvp.Value}"))}}}";
+        }
+        catch (Exception exception)
+        {
+            LOG.LogDebug(exception,
+                "An exception occurred trying - returning error message instead");
+            return $"COSDictionary{{{exception.Message}}}";
+        }
     }
 
     public override void Accept(ICOSVisitor visitor)

@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Common;
 
 public abstract partial class PDNameTreeNode<T> : COSObjectable where T : COSObjectable
 {
+    private static ILogger<PDNameTreeNode<T>> LOG => PdfBoxLogging.CreateLogger<PDNameTreeNode<T>>();
+
     private readonly COSDictionary _node;
     private PDNameTreeNode<T>? _parent;
 
@@ -70,6 +72,10 @@ public abstract partial class PDNameTreeNode<T> : COSObjectable where T : COSObj
         for (int i = 0; i < kids.Size(); i++)
         {
             COSBase? childBase = kids.GetObject(i);
+            if (childBase is not COSDictionary)
+            {
+                LOG.LogWarning("Bad child node at position {Position}", i);
+            }
             PDNameTreeNode<T> childNode = childBase is COSDictionary dictionary
                 ? CreateChildNode(dictionary)
                 : CreateChildNode(new COSDictionary());
@@ -129,6 +135,10 @@ public abstract partial class PDNameTreeNode<T> : COSObjectable where T : COSObj
                 }
             }
         }
+        else
+        {
+            LOG.LogWarning("NameTreeNode does not have \"names\" nor \"kids\" objects.");
+        }
 
         return default;
     }
@@ -142,6 +152,10 @@ public abstract partial class PDNameTreeNode<T> : COSObjectable where T : COSObj
         }
 
         int size = namesArray.Size();
+        if (size % 2 != 0)
+        {
+            LOG.LogWarning("Names array has odd size: {Size}", size);
+        }
         SortedDictionary<string, T> names = new(StringComparer.Ordinal);
         for (int i = 0; i + 1 < size; i += 2)
         {
@@ -211,16 +225,24 @@ public abstract partial class PDNameTreeNode<T> : COSObjectable where T : COSObj
             return;
         }
 
-        IReadOnlyDictionary<string, T>? names = GetNames();
-        if (names is not null && names.Count > 0)
+        try
         {
-            string[] keys = names.Keys.ToArray();
-            SetLowerLimit(keys[0]);
-            SetUpperLimit(keys[^1]);
+            IReadOnlyDictionary<string, T>? names = GetNames();
+            if (names is not null && names.Count > 0)
+            {
+                string[] keys = names.Keys.ToArray();
+                SetLowerLimit(keys[0]);
+                SetUpperLimit(keys[^1]);
+            }
+            else
+            {
+                _node.SetItem(limitsName, (COSBase?)null);
+            }
         }
-        else
+        catch (IOException ex)
         {
             _node.SetItem(limitsName, (COSBase?)null);
+            LOG.LogError(ex, "Error while calculating the Limits of a PageNameTreeNode:");
         }
     }
 

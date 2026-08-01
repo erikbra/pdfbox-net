@@ -28,10 +28,15 @@
 using System;
 using System.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 public class KerningSubtable
 {
+    private static ILogger<KerningSubtable> LOG => PdfBoxLogging.CreateLogger<KerningSubtable>();
+
     private const int CoverageHorizontal = 0x0001;
     private const int CoverageMinimums = 0x0002;
     private const int CoverageCrossStream = 0x0004;
@@ -79,6 +84,7 @@ public class KerningSubtable
     {
         if (pairs == null)
         {
+            LOG.LogWarning("No kerning subtable data available due to an unsupported kerning subtable version");
             return null;
         }
 
@@ -106,7 +112,13 @@ public class KerningSubtable
 
     public int GetKerning(int l, int r)
     {
-        return pairs?.GetKerning(l, r) ?? 0;
+        if (pairs == null)
+        {
+            LOG.LogWarning("No kerning subtable data available due to an unsupported kerning subtable version");
+            return 0;
+        }
+
+        return pairs.GetKerning(l, r);
     }
 
     private void ReadSubtable0(TTFDataStream data)
@@ -114,12 +126,14 @@ public class KerningSubtable
         int version = data.ReadUnsignedShort();
         if (version != 0)
         {
+            LOG.LogInformation("Unsupported kerning sub-table version: {Version}", version);
             return;
         }
 
         int length = data.ReadUnsignedShort();
         if (length < 6)
         {
+            LOG.LogWarning("Kerning sub-table too short, got {Length} bytes, expect 6 or more", length);
             return;
         }
 
@@ -146,6 +160,10 @@ public class KerningSubtable
             case 2:
                 ReadSubtable0Format2(data);
                 break;
+            default:
+                LOG.LogDebug("Skipped kerning subtable due to an unsupported kerning subtable version: {Format}",
+                    format);
+                break;
         }
     }
 
@@ -157,10 +175,12 @@ public class KerningSubtable
 
     private static void ReadSubtable0Format2(TTFDataStream data)
     {
+        LOG.LogInformation("Kerning subtable format 2 not yet supported");
     }
 
     private static void ReadSubtable1(TTFDataStream data)
     {
+        LOG.LogInformation("Kerning subtable format 1 not yet supported");
     }
 
     private static bool IsBitsSet(int bits, int mask, int shift)

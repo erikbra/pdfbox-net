@@ -25,6 +25,9 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF.GSub;
 
 /// <summary>
@@ -34,8 +37,13 @@ namespace PdfBox.Net.FontBox.TTF.GSub;
 /// </summary>
 internal sealed class DefaultGsubWorker : IGsubWorker
 {
+    private static ILogger<DefaultGsubWorker> LOG => PdfBoxLogging.CreateLogger<DefaultGsubWorker>();
+
     public IList<int> ApplyTransforms(IList<int> originalGlyphIds)
     {
+        LOG.LogWarning(
+            "{WorkerType} class does not perform actual GSUB substitutions. Perhaps the selected language is not yet supported by the FontBox library.",
+            GetType().Name);
         // Return a read-only view to prevent accidental modifications of the source list
         return originalGlyphIds.ToList().AsReadOnly();
     }

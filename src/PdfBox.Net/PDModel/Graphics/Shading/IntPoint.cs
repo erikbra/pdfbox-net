@@ -35,6 +35,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 [Obsolete("The map in question was replaced with an array, so that this class is no longer needed.")]
 internal sealed class IntPoint : Point2D
 {
+    private static ILogger<IntPoint> LOG => PdfBoxLogging.CreateLogger<IntPoint>();
+
     internal IntPoint(int x, int y)
         : base(x, y)
     {
@@ -57,6 +59,10 @@ internal sealed class IntPoint : Point2D
         }
         if (obj.GetType() != GetType())
         {
+            if (obj is Point2D)
+            {
+                LOG.LogError("IntPoint should not be used together with its base class");
+            }
             return false;
         }
         IntPoint other = (IntPoint)obj;

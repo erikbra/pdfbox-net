@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public sealed class FontMapperImpl : FontMapper
 {
+    private static ILogger<FontMapperImpl> LOG => PdfBoxLogging.CreateLogger<FontMapperImpl>();
+
     private readonly DefaultFontProvider _provider = new();
 
     public string? FindFontFile(string postScriptName)

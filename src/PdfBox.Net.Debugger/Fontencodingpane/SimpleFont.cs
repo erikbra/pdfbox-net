@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Font.Encoding;
 using PdfBox.Net.Util.Geometry;
@@ -38,6 +40,8 @@ namespace PdfBox.Net.Debugger.Fontencodingpane;
 /// </summary>
 public sealed class SimpleFont : FontPane
 {
+    private static ILogger<SimpleFont> LOG => PdfBoxLogging.CreateLogger<SimpleFont>();
+
     public const string NoGlyph = "None";
 
     /// <summary>
@@ -77,8 +81,11 @@ public sealed class SimpleFont : FontPane
                 {
                     path = font.GetNormalizedPath(code);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LOG.LogError(ex,
+                        "Couldn't render code {Code} ('{GlyphName}') of font {FontName}",
+                        code, font.CodeToName(code), font.GetName());
                     path = new GeneralPath();
                 }
 

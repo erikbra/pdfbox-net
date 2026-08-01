@@ -30,10 +30,15 @@ using System.Text;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.CFF;
 
 public sealed class CFFParser
 {
+    private static ILogger<CFFParser> LOG => PdfBoxLogging.CreateLogger<CFFParser>();
+
     private const string TagOtto = "OTTO";
     private const string TagTtcf = "ttcf";
     private static readonly byte[] TtfOnlyTag = [0x00, 0x01, 0x00, 0x00];
@@ -113,6 +118,18 @@ public sealed class CFFParser
         }
 
         byte[][] charStrings = ReadIndexData(new Reader(cffBytes, charStringsOffset));
+        if (charStrings.Length == 0)
+        {
+            if (isCid)
+            {
+                LOG.LogDebug("Couldn't read CharStrings index - parsing CIDFontDicts with number of char strings set to 0");
+            }
+            else
+            {
+                LOG.LogDebug("Couldn't read CharStrings index - returning empty charset instead");
+            }
+        }
+
         font.SetCharStrings(charStrings);
         font.SetCharset(ReadCharset(cffBytes, topDict, strings, charStrings.Length, isCid));
 
@@ -817,6 +834,10 @@ public sealed class CFFParser
                                 exponentMissing = true;
                                 hasExponent = true;
                             }
+                            else
+                            {
+                                LOG.LogWarning("Duplicate 'E' ignored after {Number}", sb);
+                            }
                             break;
                         case 0xC:
                             if (!hasExponent)
@@ -824,6 +845,10 @@ public sealed class CFFParser
                                 sb.Append("E-");
                                 exponentMissing = true;
                                 hasExponent = true;
+                            }
+                            else
+                            {
+                                LOG.LogWarning("Duplicate 'E-' ignored after {Number}", sb);
                             }
                             break;
                         case 0xD:

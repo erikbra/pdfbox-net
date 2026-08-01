@@ -27,10 +27,15 @@
 
 using System.Text;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.Pfb;
 
 public sealed class PfbParser
 {
+    private static ILogger<PfbParser> LOG => PdfBoxLogging.CreateLogger<PfbParser>();
+
     private const int PfbHeaderLength = 18;
     private const int StartMarker = 0x80;
     private const int AsciiMarker = 0x01;
@@ -111,6 +116,10 @@ public sealed class PfbParser
             }
 
             int size = ReadLittleEndianInt(stream);
+            if (LOG.IsEnabled(LogLevel.Debug))
+            {
+                LOG.LogDebug("Record type: {RecordType}, segment size: {SegmentSize}", recordType, size);
+            }
             if (size < 0)
             {
                 throw new IOException($"record size {size} is negative");

@@ -27,10 +27,15 @@
 
 using System.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 public class GlyfSimpleDescript : GlyfDescript
 {
+    private static ILogger<GlyfSimpleDescript> LOG => PdfBoxLogging.CreateLogger<GlyfSimpleDescript>();
+
     private int[] _endPtsOfContours = [];
     private byte[] _flags = [];
     private short[] _xCoordinates = [];

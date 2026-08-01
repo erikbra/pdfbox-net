@@ -26,7 +26,9 @@
  */
 
 using System.Text;
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.PdfWriter;
 
@@ -36,6 +38,8 @@ namespace PdfBox.Net.PdfWriter;
 /// </summary>
 public sealed class COSWriter : ICOSVisitor
 {
+    private static ILogger<COSWriter> LOG => PdfBoxLogging.CreateLogger<COSWriter>();
+
     public static readonly byte[] DICT_OPEN = Encoding.ASCII.GetBytes("<<");
     public static readonly byte[] DICT_CLOSE = Encoding.ASCII.GetBytes(">>");
     public static readonly byte[] SPACE = [(byte)' '];

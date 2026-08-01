@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Patterns;
@@ -35,6 +37,8 @@ namespace PdfBox.Net.Rendering;
 
 internal class TilingPaint : IContextPaint
 {
+    private static ILogger<TilingPaint> LOG => PdfBoxLogging.CreateLogger<TilingPaint>();
+
     private const int MAXEDGE = 3000;
     private readonly TexturePaint _paint;
     private readonly Matrix _patternMatrix;
@@ -90,12 +94,14 @@ internal class TilingPaint : IContextPaint
         float xStep = pattern.GetXStep();
         if (xStep == 0)
         {
+            LOG.LogWarning("/XStep is 0, using pattern /BBox width");
             xStep = bbox.GetWidth();
         }
 
         float yStep = pattern.GetYStep();
         if (yStep == 0)
         {
+            LOG.LogWarning("/YStep is 0, using pattern /BBox height");
             yStep = bbox.GetHeight();
         }
 
@@ -106,6 +112,14 @@ internal class TilingPaint : IContextPaint
 
         if (Math.Abs(width * height) > MAXEDGE * MAXEDGE)
         {
+            LOG.LogWarning("Pattern surface larger than {MaxEdge} x {MaxEdge}, will be clipped",
+                MAXEDGE, MAXEDGE);
+            LOG.LogWarning("width: {Width}, height: {Height}", width, height);
+            LOG.LogWarning("XStep: {XStep}, YStep: {YStep}", xStep, yStep);
+            LOG.LogWarning("bbox: {BoundingBox}", bbox);
+            LOG.LogWarning("pattern matrix: {PatternMatrix}", pattern.GetMatrix());
+            LOG.LogWarning("concatenated matrix: {ConcatenatedMatrix}", _patternMatrix);
+            LOG.LogWarning("increase the property 'pdfbox.rendering.tilingpaint.maxedge'");
             width = Math.Min(MAXEDGE, Math.Abs(width)) * Math.Sign(width);
             height = Math.Min(MAXEDGE, Math.Abs(height)) * Math.Sign(height);
         }

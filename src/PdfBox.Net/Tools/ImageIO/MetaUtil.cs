@@ -25,10 +25,18 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Tools.ImageIO;
 
-public static class MetaUtil
+public sealed class MetaUtil
 {
+    private static ILogger<MetaUtil> LOG => PdfBoxLogging.CreateLogger<MetaUtil>();
+
+    private MetaUtil()
+    {
+    }
+
     public static string GetMetadataSummary() => "Metadata inspection is not yet implemented in the .NET tools port.";
 }

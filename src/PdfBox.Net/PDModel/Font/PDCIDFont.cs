@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public abstract partial class PDCIDFont : PDFont
 {
+    private static ILogger<PDCIDFont> LOG => PdfBoxLogging.CreateLogger<PDCIDFont>();
+
     private static readonly COSName WidthsKey = COSName.GetPDFName("Widths");
     private static readonly COSName WKey = COSName.GetPDFName("W");
     private static readonly COSName W2Key = COSName.GetPDFName("W2");
@@ -221,6 +223,7 @@ public abstract partial class PDCIDFont : PDFont
         {
             if (widths.GetObject(index) is not COSNumber startNumber)
             {
+                LOG.LogWarning("Expected a number array member, got {Value}", widths.GetObject(index));
                 index++;
                 continue;
             }
@@ -229,6 +232,7 @@ public abstract partial class PDCIDFont : PDFont
             index++;
             if (index >= widths.Size())
             {
+                LOG.LogWarning("premature end of widths array");
                 break;
             }
 
@@ -239,6 +243,11 @@ public abstract partial class PDCIDFont : PDFont
                     if (rangeWidths.GetObject(offset) is COSNumber widthNumber)
                     {
                         widthsByCid[startCid + offset] = widthNumber.FloatValue();
+                    }
+                    else
+                    {
+                        LOG.LogWarning("Expected a number array member, got {Value}",
+                            rangeWidths.GetObject(offset));
                     }
                 }
 
@@ -261,6 +270,10 @@ public abstract partial class PDCIDFont : PDFont
                 continue;
             }
 
+            COSBase? secondCode = widths.GetObject(index);
+            COSBase? rangeWidth = index + 1 < widths.Size() ? widths.GetObject(index + 1) : null;
+            LOG.LogWarning("Expected two numbers, got {SecondCode} and {RangeWidth}",
+                secondCode, rangeWidth);
             index++;
         }
     }

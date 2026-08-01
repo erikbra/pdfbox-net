@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.Util;
@@ -33,6 +35,8 @@ namespace PdfBox.Net.Rendering;
 
 internal class SoftMask : IPaint
 {
+    private static ILogger<SoftMask> LOG => PdfBoxLogging.CreateLogger<SoftMask>();
+
     private readonly IPaint _paint;
     private readonly BufferedImage _mask;
     private readonly Rectangle2D _bboxDevice;
@@ -88,8 +92,9 @@ internal class SoftMask : IPaint
             int b = rgb & 0xFF;
             return ((299 * r) + (587 * g) + (114 * b)) / 1000;
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            LOG.LogDebug(exception, "Couldn't convert backdropColor to RGB - keeping default");
             return 0;
         }
     }
@@ -189,8 +194,9 @@ internal class SoftMask : IPaint
 
                 return (int)MathF.Round(alpha * factor);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
+                LOG.LogDebug(exception, "Couldn't apply transferFunction - treating as outside");
                 return (int)MathF.Round(alpha * (_backdropComponent / 255f));
             }
         }

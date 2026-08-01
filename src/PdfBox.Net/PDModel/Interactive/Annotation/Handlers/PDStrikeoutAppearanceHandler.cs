@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDStrikeoutAppearanceHandler : PDAbstractAppearanceHandler
 {
+    private static ILogger<PDStrikeoutAppearanceHandler> LOG => PdfBoxLogging.CreateLogger<PDStrikeoutAppearanceHandler>();
+
     public PDStrikeoutAppearanceHandler(PDAnnotationStrikeOut annotation)
         : this(annotation, null)
     {
@@ -24,27 +26,35 @@ public sealed class PDStrikeoutAppearanceHandler : PDAbstractAppearanceHandler
 
     public override void GenerateNormalAppearance()
     {
-        float[]? quadPoints = ((PDAnnotationStrikeOut)Annotation).GetQuadPoints();
-        if (quadPoints == null || quadPoints.Length < 8 || Color == null)
+        try
         {
-            WriteDefaultNormalAppearance("PDStrikeoutAppearance");
-            return;
+            float[]? quadPoints = ((PDAnnotationStrikeOut)Annotation).GetQuadPoints();
+            if (quadPoints == null || quadPoints.Length < 8 || Color == null)
+            {
+                WriteDefaultNormalAppearance("PDStrikeoutAppearance");
+                return;
+            }
+
+            using PDAppearanceContentStream contents = OpenNormalAppearanceContentStream();
+            contents.SetStrokingColor(Color);
+            contents.SetLineWidth(1f);
+
+            for (int i = 0; i + 7 < quadPoints.Length; i += 8)
+            {
+                float startX = quadPoints[i + 4];
+                float endX = quadPoints[i + 6];
+                float bottomY = Math.Min(quadPoints[i + 5], quadPoints[i + 7]);
+                float topY = Math.Max(quadPoints[i + 1], quadPoints[i + 3]);
+                float y = bottomY + (topY - bottomY) * 0.5f;
+                contents.MoveTo(startX, y);
+                contents.LineTo(endX, y);
+                contents.Stroke();
+            }
+
         }
-
-        using PDAppearanceContentStream contents = OpenNormalAppearanceContentStream();
-        contents.SetStrokingColor(Color);
-        contents.SetLineWidth(1f);
-
-        for (int i = 0; i + 7 < quadPoints.Length; i += 8)
+        catch (IOException ex)
         {
-            float startX = quadPoints[i + 4];
-            float endX = quadPoints[i + 6];
-            float bottomY = Math.Min(quadPoints[i + 5], quadPoints[i + 7]);
-            float topY = Math.Max(quadPoints[i + 1], quadPoints[i + 3]);
-            float y = bottomY + (topY - bottomY) * 0.5f;
-            contents.MoveTo(startX, y);
-            contents.LineTo(endX, y);
-            contents.Stroke();
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
         }
     }
 

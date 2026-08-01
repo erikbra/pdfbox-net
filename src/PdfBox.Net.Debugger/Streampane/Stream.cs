@@ -25,11 +25,16 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.Debugger.Streampane;
 
 /// <summary>Provides decoded and partially decoded views of a COS stream.</summary>
 public sealed class Stream
 {
+    private static ILogger<Stream> LOG => PdfBoxLogging.CreateLogger<Stream>();
+
     public const string DECODED = "Decoded (Plain Text)";
     public const string IMAGE = "Image";
 
@@ -72,8 +77,9 @@ public sealed class Stream
                 ? new PdfBox.Net.PDModel.Common.PDStream(_stream).CreateInputStream(stopFilters)
                 : null;
         }
-        catch
+        catch (Exception ex)
         {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
             return null;
         }
     }

@@ -36,6 +36,8 @@ namespace PdfBox.Net.PDModel.Encryption;
 /// </summary>
 public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
 {
+    private static ILogger<StandardSecurityHandler> LOG => PdfBoxLogging.CreateLogger<StandardSecurityHandler>();
+
     private const int Revision2 = 2;
     private const int Revision3 = 3;
     private const int Revision4 = 4;
@@ -91,6 +93,22 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
         int keyLengthBits = encryption.GetLength();
         int keyLengthBytes = keyLengthBits / 8;
 
+        if (encryption.GetStdCryptFilterDictionary()?.GetCryptFilterMethod() is COSName cryptFilterMethod)
+        {
+            int expectedLength = cryptFilterMethod.GetName() switch
+            {
+                "AESV2" => 16,
+                "AESV3" => 32,
+                _ => 0,
+            };
+            if (expectedLength > 0 && keyLengthBytes < expectedLength)
+            {
+                LOG.LogWarning(
+                    "Using {ActualLength} bytes key length instead of {ExpectedLength} in {EncryptionMethod} encryption?!",
+                    keyLengthBytes, expectedLength, cryptFilterMethod.GetName());
+            }
+        }
+
         // For revision 5/6 the key is always 256-bit AES.
         if (revision == 5 || revision == 6)
         {
@@ -135,6 +153,12 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
             throw new InvalidPasswordException("Cannot decrypt PDF, the password is incorrect.");
         }
 
+        if (revision == Revision4 && fileKey.Length < 16)
+        {
+            LOG.LogInformation("PDFBOX-5955: padding RC4 key to length 16");
+            Array.Resize(ref fileKey, 16);
+        }
+
         // Set up the security handler state.
         SetEncryptionKey(fileKey);
         SetKeyLength(keyLengthBytes * 8);
@@ -166,6 +190,48 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
 
         ap.SetReadOnly();
         SetCurrentAccessPermission(ap);
+
+    }
+
+    private static void ValidatePerms(
+        PDEncryption encryption,
+        int dictionaryPermissions,
+        bool encryptMetadata,
+        byte[] fileKey)
+    {
+        byte[]? encryptedPerms = encryption.GetPerms();
+        if (encryptedPerms is null || encryptedPerms.Length != 16)
+        {
+            return;
+        }
+
+        byte[] perms = AesDecryptPermissions(fileKey, encryptedPerms);
+        if (perms[9] != (byte)'a' || perms[10] != (byte)'d' || perms[11] != (byte)'b')
+        {
+            LOG.LogWarning("Verification of permissions failed (constant)");
+        }
+
+        int permsP = BitConverter.ToInt32(perms, 0);
+        if (permsP != dictionaryPermissions)
+        {
+            LOG.LogWarning("Verification of permissions failed ({ActualPermissions} != {ExpectedPermissions})",
+                permsP.ToString("X8"), dictionaryPermissions.ToString("X8"));
+        }
+
+        if (encryptMetadata && perms[8] != (byte)'T' || !encryptMetadata && perms[8] != (byte)'F')
+        {
+            LOG.LogWarning("Verification of permissions failed (EncryptMetadata)");
+        }
+    }
+
+    private static byte[] AesDecryptPermissions(byte[] key, byte[] data)
+    {
+        using Aes aes = Aes.Create();
+        aes.Key = key;
+        aes.Mode = CipherMode.ECB;
+        aes.Padding = PaddingMode.None;
+        using ICryptoTransform decryptor = aes.CreateDecryptor();
+        return decryptor.TransformFinalBlock(data, 0, data.Length);
     }
 
     /// <inheritdoc/>
@@ -425,6 +491,7 @@ public sealed class StandardSecurityHandler : SecurityHandler<ProtectionPolicy>
         AccessPermission ap = isOwner ? AccessPermission.GetOwnerAccessPermission() : new AccessPermission(encryption.GetPermissions());
         ap.SetReadOnly();
         SetCurrentAccessPermission(ap);
+        ValidatePerms(encryption, encryption.GetPermissions(), encryption.IsEncryptMetaData(), fileKey);
     }
 
     // -----------------------------------------------------------------------

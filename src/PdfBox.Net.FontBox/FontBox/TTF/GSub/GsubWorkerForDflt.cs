@@ -27,6 +27,9 @@
 
 using PdfBox.Net.FontBox.TTF.Model;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF.GSub;
 
 /// <summary>
@@ -45,6 +48,8 @@ namespace PdfBox.Net.FontBox.TTF.GSub;
 /// </summary>
 public class GsubWorkerForDflt : IGsubWorker
 {
+    private static ILogger<GsubWorkerForDflt> LOG => PdfBoxLogging.CreateLogger<GsubWorkerForDflt>();
+
     /// <summary>
     /// Script-neutral features in recommended processing order.
     /// ccmp - Glyph Composition/Decomposition (must be first)
@@ -71,9 +76,11 @@ public class GsubWorkerForDflt : IGsubWorker
         {
             if (!_gsubData.IsFeatureSupported(feature))
             {
+                LOG.LogDebug("The feature {Feature} was not found", feature);
                 continue;
             }
 
+            LOG.LogDebug("Applying the feature {Feature}", feature);
             IScriptFeature scriptFeature = _gsubData.GetFeature(feature);
             intermediateGlyphsFromGsub = ApplyGsubFeature(scriptFeature, intermediateGlyphsFromGsub);
         }
@@ -85,6 +92,7 @@ public class GsubWorkerForDflt : IGsubWorker
     {
         if (scriptFeature.GetAllGlyphIdsForSubstitution().Count == 0)
         {
+            LOG.LogDebug("GetAllGlyphIdsForSubstitution() for {FeatureName} is empty", scriptFeature.GetName());
             return originalGlyphs;
         }
 
@@ -111,6 +119,8 @@ public class GsubWorkerForDflt : IGsubWorker
             }
         }
 
+        LOG.LogDebug("OriginalGlyphs: {OriginalGlyphs}, GsubProcessedGlyphs: {ProcessedGlyphs}",
+            originalGlyphs, gsubProcessedGlyphs);
         return gsubProcessedGlyphs;
     }
 }

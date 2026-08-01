@@ -33,6 +33,8 @@ namespace PdfBox.Net.PDModel.Encryption;
 public abstract class SecurityHandler<TPolicy>
     where TPolicy : ProtectionPolicy
 {
+    private static ILogger<SecurityHandler<TPolicy>> LOG => PdfBoxLogging.CreateLogger<SecurityHandler<TPolicy>>();
+
     private const short DefaultKeyLength = 40;
 
     /// <summary>The 4-byte AES salt appended to per-object key material when using AES.</summary>
@@ -199,7 +201,15 @@ public abstract class SecurityHandler<TPolicy>
 
         if (_useAes)
         {
-            DecryptAes(objKey, input, output);
+            try
+            {
+                DecryptAes(objKey, input, output);
+            }
+            catch (CryptographicException ex)
+            {
+                LOG.LogDebug(ex,
+                    "A GeneralSecurityException occurred when decrypting some stream data");
+            }
         }
         else
         {
@@ -231,10 +241,19 @@ public abstract class SecurityHandler<TPolicy>
     public void DecryptString(long objNumber, long genNumber, COSString cosString)
     {
         byte[] cipherBytes = cosString.GetBytes();
-        using MemoryStream input = new(cipherBytes);
-        using MemoryStream output = new();
-        DecryptData(objNumber, genNumber, input, output);
-        cosString.ResetWith(output.ToArray());
+        try
+        {
+            using MemoryStream input = new(cipherBytes);
+            using MemoryStream output = new();
+            DecryptData(objNumber, genNumber, input, output);
+            cosString.ResetWith(output.ToArray());
+        }
+        catch (Exception ex) when (ex is IOException or CryptographicException)
+        {
+            LOG.LogError(ex,
+                "Failed to decrypt COSString of length {Length} in object {ObjectNumber}: {ErrorMessage}",
+                cipherBytes.Length, objNumber, ex.Message);
+        }
     }
 
     public COSString EncryptString(long objNumber, long genNumber, COSString cosString)

@@ -34,6 +34,8 @@ namespace PdfBox.Net.PDModel.Common;
 
 public partial class PDStream : COSObjectable
 {
+    private static ILogger<PDStream> LOG => PdfBoxLogging.CreateLogger<PDStream>();
+
     private readonly COSStream _stream;
     private static readonly COSName DlName = COSName.GetPDFName("DL");
 
@@ -209,6 +211,10 @@ public partial class PDStream : COSObjectable
                     {
                         actuals.Add(map);
                     }
+                }
+                else
+                {
+                    LOG.LogWarning("Expected COSDictionary, got {Value}, ignored", array.GetObject(i));
                 }
             }
 

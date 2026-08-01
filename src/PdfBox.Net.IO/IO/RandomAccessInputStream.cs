@@ -28,6 +28,9 @@
 using System;
 using System.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.IO;
 
 /// <summary>
@@ -35,6 +38,8 @@ namespace PdfBox.Net.IO;
 /// </summary>
 public class RandomAccessInputStream : Stream
 {
+    private static ILogger<RandomAccessInputStream> LOG => PdfBoxLogging.CreateLogger<RandomAccessInputStream>();
+
     private readonly RandomAccessRead _input;
     private long _position;
 
@@ -108,6 +113,13 @@ public class RandomAccessInputStream : Stream
         {
             _position += n;
         }
+        else if (n == -1)
+        {
+            // should never happen due to prior IsEOF() check
+            // unless there is an unsynchronized concurrent access
+            LOG.LogError("Read returns -1, assumed position: {AssumedPosition}, actual position: {ActualPosition}",
+                _position, _input.GetPosition());
+        }
 
         return n > -1 ? n : 0;
     }
@@ -124,6 +136,13 @@ public class RandomAccessInputStream : Stream
         if (b != -1)
         {
             _position++;
+        }
+        else
+        {
+            // should never happen due to prior IsEOF() check
+            // unless there is an unsynchronized concurrent access
+            LOG.LogError("Read returns -1, assumed position: {AssumedPosition}, actual position: {ActualPosition}",
+                _position, _input.GetPosition());
         }
 
         return b;

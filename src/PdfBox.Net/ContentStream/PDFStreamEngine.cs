@@ -32,6 +32,7 @@ using PdfBox.Net.ContentStream.Operator.MarkedContent;
 using PdfBox.Net.ContentStream.Operator.State;
 using PdfBox.Net.ContentStream.Operator.Text;
 using PdfBox.Net.COS;
+using PdfBox.Net.Filter;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
@@ -44,6 +45,8 @@ using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.PdfParser;
 using PdfBox.Net.Rendering;
 using PdfBox.Net.Util;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using ContentOperator = PdfBox.Net.ContentStream.Operator.Operator;
 
 namespace PdfBox.Net.ContentStream;
@@ -55,6 +58,8 @@ namespace PdfBox.Net.ContentStream;
 /// </summary>
 public class PDFStreamEngine
 {
+    private static ILogger<PDFStreamEngine> LOG => PdfBoxLogging.CreateLogger<PDFStreamEngine>();
+
     private static readonly PDFont DefaultFont = new PDType1Font(PDType1Font.FontName.HELVETICA);
 
     protected internal enum PathSegmentType
@@ -226,7 +231,39 @@ public class PDFStreamEngine
     {
         if (_operatorsByName.TryGetValue(op.GetName(), out OperatorProcessor? processor))
         {
-            processor.Process(op, operands);
+            try
+            {
+                processor.Process(op, operands);
+            }
+            catch (IOException exception)
+            {
+                OperatorException(op, operands, exception);
+            }
+        }
+    }
+
+    protected virtual void OperatorException(ContentOperator op, IList<COSBase> operands,
+        IOException exception)
+    {
+        if (exception is MissingOperandException or MissingResourceException or MissingImageReaderException)
+        {
+            LOG.LogError(exception, "{Message}", exception.Message);
+        }
+        else if (exception is EmptyGraphicsStackException)
+        {
+            LOG.LogWarning(exception, "{Message}", exception.Message);
+        }
+        else if (op.GetName() == "Do")
+        {
+            LOG.LogWarning(exception, "{Message}", exception.Message);
+        }
+        else if (exception.InnerException is InvalidDataException)
+        {
+            LOG.LogWarning(exception, "{Message}", exception.Message);
+        }
+        else
+        {
+            throw exception;
         }
     }
 
@@ -441,7 +478,12 @@ public class PDFStreamEngine
         float horizontalScaling = textState.GetHorizontalScaling() / 100f;
         float charSpacing = textState.GetCharacterSpacing();
         float rise = textState.GetRise();
-        PDFont font = textState.GetFont() ?? DefaultFont;
+        PDFont? currentFont = textState.GetFont();
+        if (currentFont is null)
+        {
+            LOG.LogWarning("No current font, will use default");
+        }
+        PDFont font = currentFont ?? DefaultFont;
         Matrix parameters = new Matrix(fontSize * horizontalScaling, 0, 0, fontSize, 0, rise);
 
         using MemoryStream input = new(bytes, writable: false);
@@ -486,6 +528,20 @@ public class PDFStreamEngine
             }
 
             _textMatrix = _textMatrix.Translate(tx, ty);
+        }
+    }
+
+    internal void LogInvalidTextAdjustmentObject(COSBase? obj)
+    {
+        if (obj is COSArray)
+        {
+            LOG.LogError("Nested arrays are not allowed in an array for TJ operation: {Object}",
+                obj);
+        }
+        else
+        {
+            LOG.LogError("Unknown type {TypeName} in array for TJ operation: {Object}",
+                obj?.GetType().Name ?? "null", obj);
         }
     }
 

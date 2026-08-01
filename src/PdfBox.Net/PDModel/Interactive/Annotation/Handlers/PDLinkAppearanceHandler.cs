@@ -16,6 +16,8 @@ using PdfBox.Net.PDModel.Graphics.Color;
 
 public sealed class PDLinkAppearanceHandler : PDAbstractAppearanceHandler
 {
+    private static ILogger<PDLinkAppearanceHandler> LOG => PdfBoxLogging.CreateLogger<PDLinkAppearanceHandler>();
+
     public PDLinkAppearanceHandler(PDAnnotation annotation)
         : this(annotation, null)
     {
@@ -28,70 +30,81 @@ public sealed class PDLinkAppearanceHandler : PDAbstractAppearanceHandler
 
     public override void GenerateNormalAppearance()
     {
-        PDAnnotationLink annotation = (PDAnnotationLink)Annotation;
-        PDRectangle? rect = annotation.GetRectangle();
-        if (rect == null)
+        try
         {
-            return;
-        }
-
-        float lineWidth = GetLineWidth(annotation);
-        using PDAppearanceContentStream contents = OpenNormalAppearanceContentStream();
-        PDColor color = annotation.GetColor() ?? new PDColor([0f], PDDeviceGray.Instance);
-        bool hasStroke = contents.SetStrokingColorOnDemand(color);
-        contents.SetBorderLine(lineWidth, annotation.GetBorderStyle(), annotation.GetBorder());
-
-        PDRectangle borderEdge = GetPaddedRectangle(Rectangle, lineWidth / 2f);
-        float[]? pathsArray = annotation.GetQuadPoints();
-        if (pathsArray != null)
-        {
-            for (int i = 0; i < pathsArray.Length / 2; i++)
+            PDAnnotationLink annotation = (PDAnnotationLink)Annotation;
+            PDRectangle? rect = annotation.GetRectangle();
+            if (rect == null)
             {
-                if (!rect.Contains(pathsArray[i * 2], pathsArray[i * 2 + 1]))
+                return;
+            }
+
+            float lineWidth = GetLineWidth(annotation);
+            using PDAppearanceContentStream contents = OpenNormalAppearanceContentStream();
+            PDColor color = annotation.GetColor() ?? new PDColor([0f], PDDeviceGray.Instance);
+            bool hasStroke = contents.SetStrokingColorOnDemand(color);
+            contents.SetBorderLine(lineWidth, annotation.GetBorderStyle(), annotation.GetBorder());
+
+            PDRectangle borderEdge = GetPaddedRectangle(Rectangle, lineWidth / 2f);
+            float[]? pathsArray = annotation.GetQuadPoints();
+            if (pathsArray != null)
+            {
+                for (int i = 0; i < pathsArray.Length / 2; i++)
                 {
-                    pathsArray = null;
-                    break;
+                    if (!rect.Contains(pathsArray[i * 2], pathsArray[i * 2 + 1]))
+                    {
+                        LOG.LogWarning(
+                            "At least one /QuadPoints entry ({X};{Y}) is outside of rectangle, {Rectangle}, /QuadPoints are ignored and /Rect is used instead",
+                            pathsArray[i * 2], pathsArray[i * 2 + 1], rect);
+                        pathsArray = null;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (pathsArray == null)
-        {
-            pathsArray =
-            [
-                borderEdge.GetLowerLeftX(),
-                borderEdge.GetLowerLeftY(),
-                borderEdge.GetUpperRightX(),
-                borderEdge.GetLowerLeftY(),
-                borderEdge.GetUpperRightX(),
-                borderEdge.GetUpperRightY(),
-                borderEdge.GetLowerLeftX(),
-                borderEdge.GetUpperRightY()
-            ];
-        }
-
-        bool underlined = false;
-        if (pathsArray.Length >= 8 && annotation.GetBorderStyle() is { } borderStyle)
-        {
-            underlined = string.Equals(borderStyle.GetStyle(), PDBorderStyleDictionary.STYLE_UNDERLINE, StringComparison.Ordinal);
-        }
-
-        int offset = 0;
-        while (offset + 7 < pathsArray.Length)
-        {
-            contents.MoveTo(pathsArray[offset], pathsArray[offset + 1]);
-            contents.LineTo(pathsArray[offset + 2], pathsArray[offset + 3]);
-            if (!underlined)
+            if (pathsArray == null)
             {
-                contents.LineTo(pathsArray[offset + 4], pathsArray[offset + 5]);
-                contents.LineTo(pathsArray[offset + 6], pathsArray[offset + 7]);
-                contents.ClosePath();
+                pathsArray =
+                [
+                    borderEdge.GetLowerLeftX(),
+                    borderEdge.GetLowerLeftY(),
+                    borderEdge.GetUpperRightX(),
+                    borderEdge.GetLowerLeftY(),
+                    borderEdge.GetUpperRightX(),
+                    borderEdge.GetUpperRightY(),
+                    borderEdge.GetLowerLeftX(),
+                    borderEdge.GetUpperRightY()
+                ];
             }
 
-            offset += 8;
-        }
+            bool underlined = false;
+            if (pathsArray.Length >= 8 && annotation.GetBorderStyle() is { } borderStyle)
+            {
+                underlined = string.Equals(borderStyle.GetStyle(), PDBorderStyleDictionary.STYLE_UNDERLINE, StringComparison.Ordinal);
+            }
 
-        contents.DrawShape(lineWidth, hasStroke, hasFill: false);
+            int offset = 0;
+            while (offset + 7 < pathsArray.Length)
+            {
+                contents.MoveTo(pathsArray[offset], pathsArray[offset + 1]);
+                contents.LineTo(pathsArray[offset + 2], pathsArray[offset + 3]);
+                if (!underlined)
+                {
+                    contents.LineTo(pathsArray[offset + 4], pathsArray[offset + 5]);
+                    contents.LineTo(pathsArray[offset + 6], pathsArray[offset + 7]);
+                    contents.ClosePath();
+                }
+
+                offset += 8;
+            }
+
+            contents.DrawShape(lineWidth, hasStroke, hasFill: false);
+
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
+        }
     }
 
     public override void GenerateRolloverAppearance()

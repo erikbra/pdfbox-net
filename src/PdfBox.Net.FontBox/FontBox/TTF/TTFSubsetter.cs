@@ -30,6 +30,9 @@ using System.Linq;
 using System.Text;
 using TextEncoding = System.Text.Encoding;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 /// <summary>
@@ -37,6 +40,8 @@ namespace PdfBox.Net.FontBox.TTF;
 /// </summary>
 public sealed class TTFSubsetter
 {
+    private static ILogger<TTFSubsetter> LOG => PdfBoxLogging.CreateLogger<TTFSubsetter>();
+
     private static readonly byte[] PadBuf = [0, 0, 0, 0];
     private static readonly TextEncoding BigEndianUnicode = new UnicodeEncoding(bigEndian: true, byteOrderMark: false);
 
@@ -405,16 +410,31 @@ public sealed class TTFSubsetter
         {
             SortedSet<int>? glyphIdsToAdd = null;
             using Stream input = ttf.GetOriginalData();
-            SkipBytes(input, g.GetOffset());
+            long skipped = SkipBytes(input, g.GetOffset());
+            if (skipped != g.GetOffset())
+            {
+                LOG.LogDebug("Tried skipping {RequestedByteCount} bytes but skipped only {SkippedByteCount} bytes",
+                    g.GetOffset(), skipped);
+            }
 
             long lastOff = 0L;
             foreach (int gid in glyphIds)
             {
                 long offset = offsets[gid];
                 long length = offsets[gid + 1] - offset;
-                SkipBytes(input, offset - lastOff);
+                skipped = SkipBytes(input, offset - lastOff);
+                if (skipped != offset - lastOff)
+                {
+                    LOG.LogDebug("Tried skipping {RequestedByteCount} bytes but skipped only {SkippedByteCount} bytes",
+                        offset - lastOff, skipped);
+                }
                 byte[] buf = new byte[(int)length];
-                ReadFully(input, buf, 0, buf.Length);
+                int bytesRead = ReadFully(input, buf, 0, buf.Length);
+                if (bytesRead != buf.Length)
+                {
+                    LOG.LogDebug("Tried reading {RequestedByteCount} bytes but only {ReadByteCount} bytes read",
+                        buf.Length, bytesRead);
+                }
 
                 if (buf.Length >= 2 && buf[0] == 0xff && buf[1] == 0xff)
                 {
@@ -475,7 +495,12 @@ public sealed class TTFSubsetter
         GlyphTable g = ttf.GetGlyph() ?? throw new IOException("Could not get glyf table");
         long[] offsets = ttf.GetIndexToLocation()?.GetOffsets() ?? throw new IOException("Could not get loca table");
         using Stream input = ttf.GetOriginalData();
-        SkipBytes(input, g.GetOffset());
+        long skipped = SkipBytes(input, g.GetOffset());
+        if (skipped != g.GetOffset())
+        {
+            LOG.LogDebug("Tried skipping {RequestedByteCount} bytes but skipped only {SkippedByteCount} bytes",
+                g.GetOffset(), skipped);
+        }
 
         long lastOff = 0;
         long newOffset = 0;
@@ -485,7 +510,12 @@ public sealed class TTFSubsetter
             long offset = offsets[gid];
             long length = offsets[gid + 1] - offset;
             newOffsets[newGid++] = newOffset;
-            SkipBytes(input, offset - lastOff);
+            skipped = SkipBytes(input, offset - lastOff);
+            if (skipped != offset - lastOff)
+            {
+                LOG.LogDebug("Tried skipping {RequestedByteCount} bytes but skipped only {SkippedByteCount} bytes",
+                    offset - lastOff, skipped);
+            }
 
             if (invisibleGlyphIds.Contains(gid))
             {
@@ -494,7 +524,12 @@ public sealed class TTFSubsetter
             }
 
             byte[] buf = new byte[(int)length];
-            ReadFully(input, buf, 0, buf.Length);
+            int bytesRead = ReadFully(input, buf, 0, buf.Length);
+            if (bytesRead != buf.Length)
+            {
+                LOG.LogDebug("Tried reading {RequestedByteCount} bytes but only {ReadByteCount} bytes read",
+                    buf.Length, bytesRead);
+            }
             if (buf.Length >= 2 && buf[0] == 0xff && buf[1] == 0xff)
             {
                 int off = 2 * 5;
@@ -733,7 +768,12 @@ public sealed class TTFSubsetter
 
         int lastgid = h.NumberOfHMetrics - 1;
         bool needLastGidWidth = glyphIds.Max > lastgid && !glyphIds.Contains(lastgid);
-        SkipBytes(input, hm.GetOffset());
+        long skipped = SkipBytes(input, hm.GetOffset());
+        if (skipped != hm.GetOffset())
+        {
+            LOG.LogDebug("Tried skipping {RequestedByteCount} bytes but only {SkippedByteCount} bytes skipped",
+                hm.GetOffset(), skipped);
+        }
 
         long lastOffset = 0;
         foreach (int gid in glyphIds)
@@ -788,6 +828,11 @@ public sealed class TTFSubsetter
 
     public void WriteToStream(Stream os)
     {
+        if (glyphIds.Count == 0 && uniToGID.Count == 0)
+        {
+            LOG.LogInformation("Font subset is empty");
+        }
+
         AddCompoundReferences();
         using Stream output = os;
         long[] newLoca = new long[glyphIds.Count + 1];

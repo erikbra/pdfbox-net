@@ -27,6 +27,9 @@
 
 using PdfBox.Net.FontBox.TTF.Model;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF.GSub;
 
 /// <summary>
@@ -34,6 +37,8 @@ namespace PdfBox.Net.FontBox.TTF.GSub;
 /// </summary>
 public class GsubWorkerFactory
 {
+    private static ILogger<GsubWorkerFactory> LOG => PdfBoxLogging.CreateLogger<GsubWorkerFactory>();
+
     public IGsubWorker GetGsubWorker(CmapLookup cmapLookup, IGsubData gsubData)
     {
         //TODO this needs to be redesigned / improved because if a font supports several languages,
@@ -41,6 +46,10 @@ public class GsubWorkerFactory
         // See also PDFBOX-5700 and PDFBOX-5729
         // For example, NotoSans-Regular hits Devanagari first
         // See also GlyphSubstitutionDataExtractor.GetSupportedLanguage() which decides the language?!
+        if (LOG.IsEnabled(LogLevel.Debug))
+        {
+            LOG.LogDebug("Language: {Language}", gsubData.GetLanguage());
+        }
         switch (gsubData.GetLanguage())
         {
             case Language.Bengali:

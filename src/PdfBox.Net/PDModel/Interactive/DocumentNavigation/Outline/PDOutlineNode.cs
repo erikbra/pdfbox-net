@@ -36,6 +36,8 @@ namespace PdfBox.Net.PDModel.Interactive.DocumentNavigation.Outline;
 /// <remarks>Ported from Apache PDFBox <c>PDOutlineNode</c>.</remarks>
 public abstract class PDOutlineNode : PDDictionaryWrapper
 {
+    private static ILogger<PDOutlineNode> LOG => PdfBoxLogging.CreateLogger<PDOutlineNode>();
+
     /// <summary>
     /// Default Constructor.
     /// </summary>
@@ -275,6 +277,7 @@ public abstract class PDOutlineNode : PDDictionaryWrapper
             if (ReferenceEquals(GetCOSObject(), parent.GetCOSObject()))
             {
                 // PDFBOX-5939: outline parent points to itself
+                LOG.LogWarning("Outline parent points to itself");
                 return;
             }
             if (parent.IsNodeOpen())

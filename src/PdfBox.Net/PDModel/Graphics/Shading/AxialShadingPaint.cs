@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class AxialShadingPaint : ShadingPaint
 {
+    private static ILogger<AxialShadingPaint> LOG => PdfBoxLogging.CreateLogger<AxialShadingPaint>();
+
     private readonly PDShadingType2 _shading;
 
     public AxialShadingPaint(PDShadingType2 shading, Matrix matrix)
@@ -42,6 +44,14 @@ public sealed class AxialShadingPaint : ShadingPaint
 
     public override PaintContext CreateContext()
     {
-        return new AxialShadingContext(_shading, Matrix);
+        try
+        {
+            return new AxialShadingContext(_shading, Matrix);
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "An error occurred while painting");
+            return CreateTransparentContext();
+        }
     }
 }

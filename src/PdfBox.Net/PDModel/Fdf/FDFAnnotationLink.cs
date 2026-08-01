@@ -33,6 +33,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public partial class FDFAnnotationLink : FDFAnnotation
 {
+    private static ILogger<FDFAnnotationLink> LOG => PdfBoxLogging.CreateLogger<FDFAnnotationLink>();
+
     public const string Subtype = "Link";
 
     public FDFAnnotationLink()

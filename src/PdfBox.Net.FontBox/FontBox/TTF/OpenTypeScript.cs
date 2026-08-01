@@ -29,10 +29,19 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
-public static class OpenTypeScript
+public sealed class OpenTypeScript
 {
+    private static ILogger<OpenTypeScript> LOG => PdfBoxLogging.CreateLogger<OpenTypeScript>();
+
+    private OpenTypeScript()
+    {
+    }
+
     public const string INHERITED = "Inherited";
     public const string UNKNOWN = "Unknown";
     public const string TAG_DEFAULT = "DFLT";
@@ -193,7 +202,16 @@ public static class OpenTypeScript
         }
 
         using BufferedStream input = new(resourceAsStream);
-        ParseScriptsFile(input);
+        try
+        {
+            ParseScriptsFile(input);
+        }
+        catch (IOException exception)
+        {
+            LOG.LogWarning(exception,
+                "Could not parse Scripts.txt, mirroring char map will be empty: {Message}",
+                exception.Message);
+        }
     }
 
     private static void ParseScriptsFile(Stream inputStream)

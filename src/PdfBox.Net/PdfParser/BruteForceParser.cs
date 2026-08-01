@@ -24,10 +24,15 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.PdfParser;
 
 public sealed class BruteForceParser
 {
+    private static ILogger<BruteForceParser> LOG => PdfBoxLogging.CreateLogger<BruteForceParser>();
+
     private readonly PDFParser _parser;
 
     public BruteForceParser(Stream input)
