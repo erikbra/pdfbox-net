@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class Type4ShadingContext : TriangleBasedShadingContext
 {
+    private static ILogger<Type4ShadingContext> LOG => PdfBoxLogging.CreateLogger<Type4ShadingContext>();
+
     /// <summary>
     /// Creates a context used for free-form Gouraud-shaded triangle meshes.
     /// </summary>
@@ -39,5 +41,7 @@ public sealed class Type4ShadingContext : TriangleBasedShadingContext
     public Type4ShadingContext(PDShadingType4 shading, Matrix matrix)
         : base(shading)
     {
+        LOG.LogDebug("Type4ShadingContext");
+        LOG.LogDebug("bitsPerFlag: {BitsPerFlag}", shading.GetBitsPerFlag());
     }
 }

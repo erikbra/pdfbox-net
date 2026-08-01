@@ -25,6 +25,9 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
@@ -35,8 +38,14 @@ namespace PdfBox.Net.Examples.Signature;
 /// <summary>
 /// Utility methods for working with PDF digital signatures.
 /// </summary>
-public static class SigUtils
+public sealed class SigUtils
 {
+    private static ILogger<SigUtils> LOG => PdfBoxLogging.CreateLogger<SigUtils>();
+
+    private SigUtils()
+    {
+    }
+
     /// <summary>MDP (certify) permission levels.</summary>
     public const int MDPPermissionNoChanges = 1;
     public const int MDPPermissionFillForms = 2;
@@ -155,9 +164,31 @@ public static class SigUtils
 
             if (!hasDigitalSignature)
             {
+                LOG.LogError(
+                    "Certificate key usage does not include digitalSignature nor nonRepudiation");
                 throw new InvalidOperationException(
                     $"Certificate '{certificate.Subject}' does not have the DigitalSignature " +
                     "or NonRepudiation key usage flag required for PDF signing.");
+            }
+        }
+
+        X509EnhancedKeyUsageExtension? extendedKeyUsage = certificate.Extensions
+            .OfType<X509EnhancedKeyUsageExtension>()
+            .FirstOrDefault();
+        if (extendedKeyUsage != null)
+        {
+            HashSet<string?> usages = extendedKeyUsage.EnhancedKeyUsages
+                .Cast<Oid>()
+                .Select(static oid => oid.Value)
+                .ToHashSet(StringComparer.Ordinal);
+            if (!usages.Contains("1.3.6.1.5.5.7.3.4") &&
+                !usages.Contains("1.3.6.1.5.5.7.3.3") &&
+                !usages.Contains("2.5.29.37.0") &&
+                !usages.Contains("1.2.840.113583.1.1.5") &&
+                !usages.Contains("1.3.6.1.4.1.311.10.3.12"))
+            {
+                LOG.LogError(
+                    "Certificate extended key usage does not include emailProtection, nor codeSigning, nor anyExtendedKeyUsage, nor 'Adobe Authentic Documents Trust'");
             }
         }
     }

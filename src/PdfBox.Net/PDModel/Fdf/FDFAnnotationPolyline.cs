@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public partial class FDFAnnotationPolyline : FDFAnnotation
 {
+    private static ILogger<FDFAnnotationPolyline> LOG => PdfBoxLogging.CreateLogger<FDFAnnotationPolyline>();
+
     private const string LineEndingNone = "None";
     private static readonly COSName VerticesName = COSName.GetPDFName("Vertices");
     private static readonly COSName LeName = COSName.GetPDFName("LE");

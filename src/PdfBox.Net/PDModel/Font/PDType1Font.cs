@@ -37,6 +37,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public partial class PDType1Font : PDSimpleFont
 {
+    private static ILogger<PDType1Font> LOG => PdfBoxLogging.CreateLogger<PDType1Font>();
+
     public enum FontName
     {
         TIMES_ROMAN,
@@ -57,6 +59,7 @@ public partial class PDType1Font : PDSimpleFont
 
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
     private static readonly COSName FontFileKey = COSName.GetPDFName("FontFile");
+    private static readonly COSName FontFile3Key = COSName.GetPDFName("FontFile3");
     private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
     private static readonly COSName FirstCharKey = COSName.GetPDFName("FirstChar");
     private static readonly COSName LastCharKey = COSName.GetPDFName("LastChar");
@@ -86,7 +89,15 @@ public partial class PDType1Font : PDSimpleFont
     {
         _type1Font = type1Font;
         _isStandard14 = Standard14Fonts.IsStandard14Font(GetName());
-        _fontBoxFont = fontBoxFont ?? type1Font as FontBoxFont ?? TryLoadMappedFont(dictionary.GetNameAsString(BaseFontKey));
+        FontBoxFont? mappedFont = fontBoxFont is null && type1Font is null
+            ? TryLoadMappedFont(dictionary.GetNameAsString(BaseFontKey))
+            : null;
+        _fontBoxFont = fontBoxFont ?? type1Font as FontBoxFont ?? mappedFont;
+        if (mappedFont is not null && !_isStandard14)
+        {
+            LOG.LogWarning("Using fallback font {FallbackFont} for {BaseFont}",
+                mappedFont.GetName(), GetBaseFont());
+        }
     }
 
     public PDType1Font(PDDocument document, Stream pfbStream)
@@ -107,12 +118,20 @@ public partial class PDType1Font : PDSimpleFont
                 using MemoryStream buffer = new();
                 stream.CopyTo(buffer);
                 byte[] bytes = buffer.ToArray();
-                font = TryCreateType1Font(bytes, fontFile);
+                font = TryCreateType1Font(bytes, fontFile,
+                    dictionary.GetNameAsString(BaseFontKey));
                 fontBoxFont = font;
             }
+            else if (dictionary.GetDictionaryObject(FontDescriptorKey) is COSDictionary fontDescriptor &&
+                     fontDescriptor.ContainsKey(FontFile3Key))
+            {
+                LOG.LogWarning("/FontFile3 for Type1 font not supported");
+            }
         }
-        catch
+        catch (Exception ex)
         {
+            LOG.LogError(ex, "Can't read the embedded Type1 font {FontName}",
+                dictionary.GetCOSDictionary(FontDescriptorKey)?.GetNameAsString(FontNameKey));
             // Keep dictionary-driven fallback behavior.
         }
 
@@ -293,7 +312,7 @@ public partial class PDType1Font : PDSimpleFont
         return DictionaryEncoding.ResolveStandard14FallbackEncoding(dictionary.GetNameAsString(BaseFontKey));
     }
 
-    private static Type1Font? TryCreateType1Font(byte[] bytes, COSStream fontFile)
+    private static Type1Font? TryCreateType1Font(byte[] bytes, COSStream fontFile, string? fontName)
     {
         if (bytes.Length == 0)
         {
@@ -312,6 +331,17 @@ public partial class PDType1Font : PDSimpleFont
             byte[] segment1 = bytes[..length1];
             byte[] segment2 = bytes[length1..(length1 + length2)];
             return Type1Font.CreateWithSegments(segment1, segment2);
+        }
+
+        if (length1 <= 0 || length1 > bytes.Length)
+        {
+            LOG.LogWarning("Ignored invalid Length1 {Length1} for Type 1 font {FontName}",
+                length1, fontName);
+        }
+        if (length2 < 0 || length1 > bytes.Length || length2 > bytes.Length - Math.Max(0, length1))
+        {
+            LOG.LogWarning("Ignored invalid Length2 {Length2} for Type 1 font {FontName}",
+                length2, fontName);
         }
 
         return null;

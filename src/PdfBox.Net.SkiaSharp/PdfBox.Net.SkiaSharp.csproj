@@ -15,6 +15,7 @@
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
     <PackageReference Include="Unicode.Bidi" />

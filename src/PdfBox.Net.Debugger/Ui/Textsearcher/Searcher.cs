@@ -25,9 +25,14 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.Debugger.Ui.Textsearcher;
 
 public sealed class Searcher
 {
+    private static ILogger<Searcher> LOG => PdfBoxLogging.CreateLogger<Searcher>();
+
     public static int Find(string text, string query) => new SearchEngine().Find(text, query);
  }

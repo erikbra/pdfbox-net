@@ -36,6 +36,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public abstract class PDFont : PDFontLike
 {
+    private static ILogger<PDFont> LOG => PdfBoxLogging.CreateLogger<PDFont>();
+
     private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
     private static readonly COSName FirstCharKey = COSName.GetPDFName("FirstChar");
     private static readonly COSName LastCharKey = COSName.GetPDFName("LastChar");
@@ -241,8 +243,9 @@ public abstract class PDFont : PDFontLike
                 {
                     _fontWidthOfSpace = GetStringWidth(" ");
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    LOG.LogDebug(ex, "{ErrorMessage}", ex.Message);
                     // Keep Java PDFBox's fallback path when a font cannot encode a space.
                 }
 
@@ -257,10 +260,15 @@ public abstract class PDFont : PDFontLike
                 _fontWidthOfSpace = GetAverageFontWidth();
             }
         }
-        catch
+        catch (Exception ex)
         {
+            LOG.LogError(ex,
+                "Can't determine the width of the space character for font {FontName}, assuming 250",
+                GetName());
             _fontWidthOfSpace = 250f;
         }
+
+        LOG.LogDebug("Space width for font {FontName} is {SpaceWidth}", GetName(), _fontWidthOfSpace);
 
         return _fontWidthOfSpace;
     }
@@ -377,28 +385,41 @@ public abstract class PDFont : PDFontLike
         return result;
     }
 
-    private static CMap? ReadToUnicodeMap(COSBase? toUnicode)
+    private CMap? ReadToUnicodeMap(COSBase? toUnicode)
     {
         try
         {
+            CMap? cmap = null;
             if (toUnicode is COSName name)
             {
-                CMap cmap = new CMapParser().ParsePredefined(name.GetName());
-                return cmap.HasUnicodeMappings() || IsIdentityCMap(cmap) ? cmap : null;
+                cmap = new CMapParser().ParsePredefined(name.GetName());
             }
-
-            if (toUnicode is COSStream stream)
+            else if (toUnicode is COSStream stream)
             {
                 using Stream input = stream.CreateInputStream();
                 using MemoryStream buffer = new();
                 input.CopyTo(buffer);
                 RandomAccessRead randomAccess = new RandomAccessReadBuffer(buffer.ToArray());
-                CMap cmap = new CMapParser().Parse(randomAccess);
-                return cmap.HasUnicodeMappings() || IsIdentityCMap(cmap) ? cmap : null;
+                cmap = new CMapParser().Parse(randomAccess);
             }
+
+            if (cmap != null && !cmap.HasUnicodeMappings())
+            {
+                LOG.LogWarning("Invalid ToUnicode CMap in font {FontName}", GetName());
+                if (!IsIdentityCMap(cmap) &&
+                    FontDictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is COSName encoding &&
+                    IsIdentityCMapName(encoding.GetName()))
+                {
+                    cmap = new CMapParser().ParsePredefined("Identity-H");
+                    LOG.LogWarning("Using predefined identity CMap instead");
+                }
+            }
+
+            return cmap;
         }
-        catch
+        catch (Exception ex)
         {
+            LOG.LogError(ex, "Could not read ToUnicode CMap in font {FontName}", GetName());
             // Preserve non-throwing font access behavior for malformed or unsupported ToUnicode maps.
         }
 

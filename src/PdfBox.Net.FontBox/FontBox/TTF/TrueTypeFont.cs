@@ -30,6 +30,9 @@ using PdfBox.Net.FontBox.TTF.Model;
 using PdfBox.Net.FontBox.Util;
 using PdfBox.Net.Util.Geometry;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 /// <summary>
@@ -37,6 +40,8 @@ namespace PdfBox.Net.FontBox.TTF;
 /// </summary>
 public class TrueTypeFont : FontBoxFont, IDisposable
 {
+    private static ILogger<TrueTypeFont> LOG => PdfBoxLogging.CreateLogger<TrueTypeFont>();
+
     private float _version;
     private int _numberOfGlyphs = -1;
     private int _unitsPerEm = -1;
@@ -397,6 +402,7 @@ public class TrueTypeFont : FontBoxFont, IDisposable
         }
         catch (IOException e)
         {
+            LOG.LogDebug(e, "Error getting the NamingTable for the font");
             return $"(null - {e.Message})";
         }
     }

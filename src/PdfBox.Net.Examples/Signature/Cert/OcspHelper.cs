@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using System.Security.Cryptography.X509Certificates;
 using PdfBox.Net.Cryptography.Signature.Cert;
 
@@ -43,6 +45,8 @@ namespace PdfBox.Net.Examples.Signature.Cert;
 /// </remarks>
 public sealed class OcspHelper
 {
+    private static ILogger<OcspHelper> LOG => PdfBoxLogging.CreateLogger<OcspHelper>();
+
     private readonly X509Certificate2 _certToCheck;
     private readonly DateTime _signDate;
     private readonly X509Certificate2 _issuerCert;

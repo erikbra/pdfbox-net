@@ -1,0 +1,40 @@
+{
+  "upstream_repository": "apache/pdfbox",
+  "upstream_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+  "excluded_modules": [
+    "pdfbox-layout-fop"
+  ],
+  "production_java_files_scanned": 1073,
+  "inventory_rows": 1074,
+  "logger_fields_by_api": {
+    "Log4j2": 208
+  },
+  "logger_fields_by_name": {
+    "LOG": 208
+  },
+  "summary": {
+    "declaration_absent-region": 2,
+    "declaration_migrated": 206,
+    "java_call": 842,
+    "java_guard": 8,
+    "java_helper-pass": 10,
+    "java_level_debug": 226,
+    "java_level_error": 213,
+    "java_level_info": 83,
+    "java_level_trace": 7,
+    "java_level_warn": 313,
+    "java_lock": 4,
+    "parameter_migrated": 2,
+    "usage_absent-region": 389,
+    "usage_migrated": 475
+  },
+  "direct_calls_by_module": {
+    "debugger": 30,
+    "examples": 87,
+    "fontbox": 138,
+    "io": 12,
+    "pdfbox": 569,
+    "tools": 6
+  },
+  "unaccounted_rows": 0
+}

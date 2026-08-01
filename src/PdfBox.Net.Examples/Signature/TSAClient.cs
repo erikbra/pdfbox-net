@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
@@ -38,6 +40,8 @@ namespace PdfBox.Net.Examples.Signature;
 /// </summary>
 public class TSAClient
 {
+    private static ILogger<TSAClient> LOG => PdfBoxLogging.CreateLogger<TSAClient>();
+
     private static readonly HttpClient SharedHttpClient = new();
 
     private readonly string _tsaUrl;
@@ -84,7 +88,20 @@ public class TSAClient
         byte[] responseBytes = PostTimestampRequest(requestBytes);
 
         // Parse the response and extract the token.
-        Rfc3161TimestampToken token = ParseTimestampResponse(request, responseBytes);
+        Rfc3161TimestampToken token;
+        try
+        {
+            token = ParseTimestampResponse(request, responseBytes);
+        }
+        catch (Exception)
+        {
+            if (LOG.IsEnabled(LogLevel.Error))
+            {
+                LOG.LogError("request: {Request}", Convert.ToHexString(requestBytes));
+                LOG.LogError("response: {Response}", Convert.ToHexString(responseBytes));
+            }
+            throw;
+        }
         return token.AsSignedCms().Encode();
     }
 
@@ -131,6 +148,8 @@ public class TSAClient
 
     private byte[] PostTimestampRequest(byte[] requestBytes)
     {
+        LOG.LogDebug("Opening connection to TSA server");
+
         using HttpRequestMessage req = new(HttpMethod.Post, _tsaUrl)
         {
             Content = new ByteArrayContent(requestBytes)
@@ -147,8 +166,21 @@ public class TSAClient
                     System.Text.Encoding.ASCII.GetBytes($"{_username}:{_password}")));
         }
 
-        using HttpResponseMessage resp =
-            SharedHttpClient.SendAsync(req).GetAwaiter().GetResult();
+        LOG.LogDebug("Established connection to TSA server");
+        LOG.LogDebug("Waiting for response from TSA server");
+
+        HttpResponseMessage response;
+        try
+        {
+            response = SharedHttpClient.SendAsync(req).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            LOG.LogError(ex, "Exception when writing to {TsaUrl}", _tsaUrl);
+            throw;
+        }
+
+        using HttpResponseMessage resp = response;
 
         if (!resp.IsSuccessStatusCode)
         {
@@ -156,7 +188,17 @@ public class TSAClient
                 $"TSA request to '{_tsaUrl}' failed with HTTP {(int)resp.StatusCode}.");
         }
 
-        return resp.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+        try
+        {
+            byte[] responseBytes = resp.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+            LOG.LogDebug("Received response from TSA server");
+            return responseBytes;
+        }
+        catch (Exception ex)
+        {
+            LOG.LogError(ex, "Exception when reading from {TsaUrl}", _tsaUrl);
+            throw;
+        }
     }
 
     private static Rfc3161TimestampToken ParseTimestampResponse(

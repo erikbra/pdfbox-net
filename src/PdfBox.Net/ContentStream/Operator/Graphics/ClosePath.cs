@@ -9,15 +9,24 @@
  */
 
 using PdfBox.Net.COS;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.ContentStream.Operator.Graphics;
 
 public sealed class ClosePath : OperatorProcessor
 {
+    private static ILogger<ClosePath> LOG => PdfBoxLogging.CreateLogger<ClosePath>();
+
     public ClosePath(PDFStreamEngine context) : base(OperatorName.CLOSE_PATH, context) { }
 
     public override void Process(Operator op, IList<COSBase> operands)
     {
+        if (Context.GetCurrentPoint() is null)
+        {
+            LOG.LogWarning("ClosePath without initial MoveTo");
+            return;
+        }
         Context.ClosePath();
     }
 }

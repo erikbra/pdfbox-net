@@ -27,10 +27,15 @@
 
 using System.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 public partial class OS2WindowsMetricsTable() : TTFTable(TAG)
 {
+    private static ILogger<OS2WindowsMetricsTable> LOG => PdfBoxLogging.CreateLogger<OS2WindowsMetricsTable>();
+
     public const int WEIGHT_CLASS_THIN = 100;
     public const int WEIGHT_CLASS_ULTRA_LIGHT = 200;
     public const int WEIGHT_CLASS_LIGHT = 300;
@@ -218,6 +223,7 @@ public int SxHeight { get; set; }
         }
         catch (EndOfStreamException)
         {
+            LOG.LogDebug("EOF, probably some legacy TrueType font");
             initialized = true;
             return;
         }
@@ -229,9 +235,11 @@ public int SxHeight { get; set; }
                 CodePageRange1 = data.ReadUnsignedInt();
                 CodePageRange2 = data.ReadUnsignedInt();
             }
-            catch (EndOfStreamException)
+            catch (EndOfStreamException exception)
             {
                 Version = 0;
+                LOG.LogWarning(exception,
+                    "Could not read all expected parts of version >= 1, setting version to 0");
                 initialized = true;
                 return;
             }
@@ -247,9 +255,11 @@ public int SxHeight { get; set; }
                 UsBreakChar = data.ReadUnsignedShort();
                 UsMaxContext = data.ReadUnsignedShort();
             }
-            catch (EndOfStreamException)
+            catch (EndOfStreamException exception)
             {
                 Version = 1;
+                LOG.LogWarning(exception,
+                    "Could not read all expected parts of version >= 2, setting version to 1");
                 initialized = true;
                 return;
             }

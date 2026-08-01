@@ -38,11 +38,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Text;
 
 public partial class PDFTextStripper : LegacyPDFStreamEngine
 {
+    private static ILogger<PDFTextStripper> LOG => PdfBoxLogging.CreateLogger<PDFTextStripper>();
+
     private static float _defaultIndentThreshold = 2.0f;
     private static float _defaultDropThreshold = 2.5f;
     protected static readonly string LINE_SEPARATOR = Environment.NewLine;
@@ -92,14 +96,35 @@ public partial class PDFTextStripper : LegacyPDFStreamEngine
 
     static PDFTextStripper()
     {
-        if (float.TryParse(Environment.GetEnvironmentVariable("pdftextstripper.indent"), out float indent))
+        try
         {
-            _defaultIndentThreshold = indent;
+            if (float.TryParse(Environment.GetEnvironmentVariable("pdftextstripper.indent"), out float indent))
+            {
+                _defaultIndentThreshold = indent;
+            }
+
+            if (float.TryParse(Environment.GetEnvironmentVariable("pdftextstripper.drop"), out float drop))
+            {
+                _defaultDropThreshold = drop;
+            }
+        }
+        catch (System.Security.SecurityException exception)
+        {
+            LOG.LogDebug(exception, "Couldn't read system properties - using defaults");
         }
 
-        if (float.TryParse(Environment.GetEnvironmentVariable("pdftextstripper.drop"), out float drop))
+        try
         {
-            _defaultDropThreshold = drop;
+            const string resourceName = "PdfBox.Net.Resources.Text.BidiMirroring.txt";
+            using Stream input = typeof(PDFTextStripper).Assembly.GetManifestResourceStream(resourceName)
+                ?? throw new IOException($"Resource not found: {resourceName}");
+            ParseBidiFile(input);
+        }
+        catch (IOException exception)
+        {
+            LOG.LogWarning(exception,
+                "Could not parse BidiMirroring.txt, mirroring char map will be empty: {Message}",
+                exception.Message);
         }
     }
 
@@ -1173,6 +1198,31 @@ public partial class PDFTextStripper : LegacyPDFStreamEngine
 
     private static void ParseBidiFile(Stream inputStream)
     {
+        using StreamReader reader = new(inputStream, Encoding.ASCII, false, leaveOpen: true);
+        while (reader.ReadLine() is string line)
+        {
+            int comment = line.IndexOf('#');
+            if (comment != -1)
+            {
+                line = line[..comment];
+            }
+            if (line.Length < 2)
+            {
+                continue;
+            }
+
+            string[] fields = line.Split(';', StringSplitOptions.TrimEntries |
+                StringSplitOptions.RemoveEmptyEntries);
+            if (fields.Length == 2 &&
+                int.TryParse(fields[0], NumberStyles.HexNumber, CultureInfo.InvariantCulture,
+                    out int source) &&
+                int.TryParse(fields[1], NumberStyles.HexNumber, CultureInfo.InvariantCulture,
+                    out int target) &&
+                source <= char.MaxValue && target <= char.MaxValue)
+            {
+                MIRRORING_CHAR_MAP[(char)source] = (char)target;
+            }
+        }
     }
 
     private WordWithTextPositions CreateWord(string word, List<TextPosition> wordPositions)

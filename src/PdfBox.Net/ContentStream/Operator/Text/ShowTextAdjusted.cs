@@ -82,6 +82,10 @@ public sealed class ShowTextAdjusted : OperatorProcessor
 
                 Context.SetTextMatrix(Context.GetTextMatrix().Translate(tx, ty));
             }
+            else
+            {
+                Context.LogInvalidTextAdjustmentObject(obj);
+            }
         }
     }
 }

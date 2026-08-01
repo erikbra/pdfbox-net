@@ -23,7 +23,14 @@ namespace PdfBox.Net.PDModel.Interactive.DigitalSignature.Visible;
 
 public class PDVisibleSigBuilder : PDFTemplateBuilder
 {
+    private static ILogger<PDVisibleSigBuilder> LOG => PdfBoxLogging.CreateLogger<PDVisibleSigBuilder>();
+
     private readonly PDFTemplateStructure _structure = new();
+
+    public PDVisibleSigBuilder()
+    {
+        LOG.LogInformation("PDF Structure has been created");
+    }
 
     public PDFTemplateStructure GetStructure() => _structure;
 
@@ -31,6 +38,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
     {
         ArgumentNullException.ThrowIfNull(properties);
         _structure.SetPage(new PDPage(new PDRectangle(properties.GetPageWidth(), properties.GetPageHeight())));
+        LOG.LogInformation("PDF page has been created");
     }
 
     public void CreateTemplate(PDPage page)
@@ -47,12 +55,14 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         PDAcroForm acroForm = new(template);
         template.GetDocumentCatalog().SetAcroForm(acroForm);
         _structure.SetAcroForm(acroForm);
+        LOG.LogInformation("AcroForm has been created");
     }
 
     public void CreateSignatureField(PDAcroForm acroForm)
     {
         ArgumentNullException.ThrowIfNull(acroForm);
         _structure.SetSignatureField(new PDSignatureField(acroForm));
+        LOG.LogInformation("Signature field has been created");
     }
 
     public void CreateSignature(PDSignatureField pdSignatureField, PDPage page, string signerName)
@@ -71,6 +81,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         }
 
         _structure.SetPdSignature(signature);
+        LOG.LogInformation("PDSignature has been created");
     }
 
     public void CreateAcroFormDictionary(PDAcroForm acroForm, PDSignatureField signatureField)
@@ -87,6 +98,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         acroForm.SetDefaultAppearance("/Helv 0 Tf 0 g");
         _structure.SetAcroFormFields(fields);
         _structure.SetAcroFormDictionary(acroFormDictionary);
+        LOG.LogInformation("AcroForm dictionary has been created");
     }
 
     public void CreateSignatureRectangle(PDSignatureField signatureField, PDVisibleSignDesigner properties)
@@ -101,12 +113,14 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
             properties.GetHeight());
         signatureField.GetWidgets()[0].SetRectangle(rectangle);
         _structure.SetSignatureRectangle(rectangle);
+        LOG.LogInformation("Signature rectangle has been created");
     }
 
     public void CreateAffineTransform(AffineTransform affineTransform)
     {
         ArgumentNullException.ThrowIfNull(affineTransform);
         _structure.SetAffineTransform(affineTransform.Clone());
+        LOG.LogInformation("Matrix has been added");
     }
 
     public void CreateProcSetArray()
@@ -118,6 +132,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         procSet.Add(COSName.GetPDFName("ImageC"));
         procSet.Add(COSName.GetPDFName("ImageI"));
         _structure.SetProcSet(procSet);
+        LOG.LogInformation("ProcSet array has been created");
     }
 
     public void CreateSignatureImage(PDDocument template, PDImageXObject image)
@@ -125,6 +140,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         ArgumentNullException.ThrowIfNull(template);
         ArgumentNullException.ThrowIfNull(image);
         _structure.SetImage(image);
+        LOG.LogInformation("Visible Signature Image has been created");
     }
 
     public void CreateFormatterRectangle(int[] parameters)
@@ -141,17 +157,20 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
             Math.Abs(parameters[2] - parameters[0]),
             Math.Abs(parameters[3] - parameters[1]));
         _structure.SetFormatterRectangle(rectangle);
+        LOG.LogInformation("Formatter rectangle has been created");
     }
 
     public void CreateHolderFormStream(PDDocument template)
     {
         ArgumentNullException.ThrowIfNull(template);
         _structure.SetHolderFormStream(new PDStream(template));
+        LOG.LogInformation("Holder form stream has been created");
     }
 
     public void CreateHolderFormResources()
     {
         _structure.SetHolderFormResources(new PDResources());
+        LOG.LogInformation("Holder form resources have been created");
     }
 
     public void CreateHolderForm(PDResources holderFormResources, PDStream holderFormStream, PDRectangle bbox)
@@ -165,6 +184,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         holderForm.SetBBox(bbox);
         holderForm.SetFormType(1);
         _structure.SetHolderForm(holderForm);
+        LOG.LogInformation("Holder form has been created");
     }
 
     public void CreateAppearanceDictionary(PDFormXObject holderForm, PDSignatureField signatureField)
@@ -178,17 +198,22 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         appearance.SetNormalAppearance(new PDAppearanceStream(holderStream));
         signatureField.GetWidgets()[0].SetAppearance(appearance);
         _structure.SetAppearanceDictionary(appearance);
+        LOG.LogInformation("PDF appearance dictionary has been created");
     }
 
     public void CreateInnerFormStream(PDDocument template)
     {
         ArgumentNullException.ThrowIfNull(template);
         _structure.SetInnterFormStream(new PDStream(template));
+        LOG.LogInformation(
+            "Stream of another form (inner form - it will be inside holder form) has been created");
     }
 
     public void CreateInnerFormResource()
     {
         _structure.SetInnerFormResources(new PDResources());
+        LOG.LogInformation(
+            "Resources of another form (inner form - it will be inside holder form)have been created");
     }
 
     public void CreateInnerForm(PDResources innerFormResources, PDStream innerFormStream, PDRectangle bbox)
@@ -202,6 +227,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         innerForm.SetBBox(bbox);
         innerForm.SetFormType(1);
         _structure.SetInnerForm(innerForm);
+        LOG.LogInformation("Another form (inner form - it will be inside holder form) has been created");
     }
 
     public void InsertInnerFormToHolderResources(PDFormXObject innerForm, PDResources holderFormResources)
@@ -212,17 +238,20 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         COSName formName = COSName.GetPDFName("FRM");
         holderFormResources.Put(formName, innerForm);
         _structure.SetInnerFormName(formName);
+        LOG.LogInformation("Now inserted inner form inside holder form");
     }
 
     public void CreateImageFormStream(PDDocument template)
     {
         ArgumentNullException.ThrowIfNull(template);
         _structure.SetImageFormStream(new PDStream(template));
+        LOG.LogInformation("Created image form stream");
     }
 
     public void CreateImageFormResources()
     {
         _structure.SetImageFormResources(new PDResources());
+        LOG.LogInformation("Created image form resources");
     }
 
     public void CreateImageForm(PDResources imageFormResources, PDResources innerFormResource, PDStream imageFormStream, PDRectangle bbox, AffineTransform affineTransform, PDImageXObject img)
@@ -247,6 +276,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         _structure.SetImageForm(imageForm);
         _structure.SetImageFormName(imageFormName);
         _structure.SetImageName(imageName);
+        LOG.LogInformation("Created image form");
     }
 
     public void CreateBackgroundLayerForm(PDResources innerFormResource, PDRectangle bbox)
@@ -261,6 +291,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         background.SetResources(new PDResources());
         background.SetFormType(1);
         innerFormResource.Put(COSName.GetPDFName("n0"), background);
+        LOG.LogInformation("Created background layer form");
     }
 
     public void InjectProcSetArray(PDFormXObject innerForm, PDPage page, PDResources innerFormResources, PDResources imageFormResources, PDResources holderFormResources, COSArray procSet)
@@ -278,6 +309,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         innerFormResources.GetCOSObject().SetItem(procSetName, procSet);
         imageFormResources.GetCOSObject().SetItem(procSetName, procSet);
         holderFormResources.GetCOSObject().SetItem(procSetName, procSet);
+        LOG.LogInformation("Inserted ProcSet to PDF");
     }
 
     public void InjectAppearanceStreams(PDStream holderFormStream, PDStream innerFormStream, PDStream imageFormStream, COSName imageFormName, COSName imageName, COSName innerFormName, PDVisibleSignDesigner properties)
@@ -302,6 +334,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         WriteRawCommands(holderFormStream, holderFormContent);
         WriteRawCommands(innerFormStream, innerFormContent);
         WriteRawCommands(imageFormStream, imageFormContent);
+        LOG.LogInformation("Injected appearance stream to pdf");
     }
 
     public void WriteRawCommands(PDStream stream, string commands)
@@ -326,6 +359,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
     {
         ArgumentNullException.ThrowIfNull(template);
         _structure.SetVisualSignature(template.GetDocument());
+        LOG.LogInformation("Visible signature has been created");
     }
 
     public void CreateWidgetDictionary(PDSignatureField signatureField, PDResources holderFormResources)
@@ -337,6 +371,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         widgetDictionary.SetNeedToBeUpdated(true);
         widgetDictionary.SetItem(COSName.GetPDFName("DR"), holderFormResources.GetCOSObject());
         _structure.SetWidgetDictionary(widgetDictionary);
+        LOG.LogInformation("WidgetDictionary has been created");
     }
 
     public void CloseTemplate(PDDocument template)

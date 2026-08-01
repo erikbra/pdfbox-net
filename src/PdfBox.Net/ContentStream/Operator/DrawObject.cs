@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.ContentStream.Operator;
 
@@ -37,6 +39,8 @@ namespace PdfBox.Net.ContentStream.Operator;
 /// </summary>
 public sealed class DrawObject : OperatorProcessor
 {
+    private static ILogger<DrawObject> LOG => PdfBoxLogging.CreateLogger<DrawObject>();
+
     public DrawObject(PDFStreamEngine context)
         : base(OperatorName.DRAW_OBJECT, context)
     {

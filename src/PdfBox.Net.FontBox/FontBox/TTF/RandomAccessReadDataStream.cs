@@ -27,6 +27,9 @@
 
 using PdfBox.Net.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 /// <summary>
@@ -36,6 +39,8 @@ namespace PdfBox.Net.FontBox.TTF;
 /// </summary>
 internal class RandomAccessReadDataStream : TTFDataStream
 {
+    private static ILogger<RandomAccessReadDataStream> LOG => PdfBoxLogging.CreateLogger<RandomAccessReadDataStream>();
+
     private readonly long _length;
     private readonly byte[] _data;
     private int _currentPosition;
@@ -157,8 +162,9 @@ internal class RandomAccessReadDataStream : TTFDataStream
             var buffer = new RandomAccessReadBuffer(_data);
             return buffer.CreateView(_currentPosition, length);
         }
-        catch
+        catch (Exception exception)
         {
+            LOG.LogWarning(exception, "Could not create a SubView");
             return null;
         }
     }

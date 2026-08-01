@@ -28,6 +28,9 @@
 using System.IO;
 using System.Security;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.Util.Autodetect;
 
 /// <summary>
@@ -35,6 +38,8 @@ namespace PdfBox.Net.FontBox.Util.Autodetect;
 /// </summary>
 public abstract class NativeFontDirFinder : FontDirFinder
 {
+    private static ILogger<NativeFontDirFinder> LOG => PdfBoxLogging.CreateLogger<NativeFontDirFinder>();
+
     /// <summary>
     /// Generic method used by Mac and Unix font finders.
     /// </summary>
@@ -58,8 +63,9 @@ public abstract class NativeFontDirFinder : FontDirFinder
                 catch (IOException)
                 {
                 }
-                catch (SecurityException)
+                catch (SecurityException exception)
                 {
+                    LOG.LogDebug(exception, "Couldn't get native font directories - ignoring");
                 }
                 catch (UnauthorizedAccessException)
                 {

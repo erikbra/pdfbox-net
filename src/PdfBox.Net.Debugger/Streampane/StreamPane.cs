@@ -25,10 +25,15 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.Debugger.Streampane;
 
 public sealed class StreamPane
 {
+    private static ILogger<StreamPane> LOG => PdfBoxLogging.CreateLogger<StreamPane>();
+
     public Stream? CurrentStream { get; private set; }
 
     public void SetStream(Stream stream) => CurrentStream = stream;

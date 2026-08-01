@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using System.Formats.Asn1;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -45,6 +47,8 @@ namespace PdfBox.Net.Examples.Signature.Cert;
 /// </remarks>
 public sealed class CRLVerifier
 {
+    private static ILogger<CRLVerifier> LOG => PdfBoxLogging.CreateLogger<CRLVerifier>();
+
     private static readonly HttpClient _http = new(new HttpClientHandler
     {
         AllowAutoRedirect = true,
@@ -77,6 +81,8 @@ public sealed class CRLVerifier
 
             foreach (string url in urls)
             {
+                LOG.LogInformation("Checking distribution point URL: {CrlUrl}", url);
+
                 byte[] crlBytes;
                 try
                 {
@@ -84,8 +90,9 @@ public sealed class CRLVerifier
                 }
                 catch (Exception ex)
                 {
-                    Console.Error.WriteLine(
-                        $"[CRLVerifier] Could not download CRL from {url}: {ex.Message}");
+                    LOG.LogWarning(
+                        "Caught {ExceptionType} downloading CRL, will try next distribution point if available",
+                        ex.GetType().Name);
                     firstException ??= ex;
                     continue;
                 }

@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class RadialShadingPaint : ShadingPaint
 {
+    private static ILogger<RadialShadingPaint> LOG => PdfBoxLogging.CreateLogger<RadialShadingPaint>();
+
     private readonly PDShadingType3 _shading;
 
     public RadialShadingPaint(PDShadingType3 shading, Matrix matrix)
@@ -42,6 +44,14 @@ public sealed class RadialShadingPaint : ShadingPaint
 
     public override PaintContext CreateContext()
     {
-        return new RadialShadingContext(_shading, Matrix);
+        try
+        {
+            return new RadialShadingContext(_shading, Matrix);
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "An error occurred while painting");
+            return CreateTransparentContext();
+        }
     }
 }

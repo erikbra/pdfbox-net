@@ -44,6 +44,12 @@ public abstract class ShadingPaint : IContextPaint
 
     public abstract PaintContext CreateContext();
 
+    protected static PaintContext CreateTransparentContext()
+    {
+        return PdfBox.Net.Rendering.Color.Transparent.CreateContext(
+            new ColorModel(), new Rectangle(), new Rectangle2D(), new AffineTransform(), new RenderingHints());
+    }
+
     public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
     {
         return CreateContext();

@@ -191,17 +191,42 @@ Use `Microsoft.Extensions.Logging` through the application-wide factory in
 | Java | C# |
 |---|---|
 | `private static final Logger LOG = LogManager.getLogger(X.class)` | `private static ILogger<X> LOG => PdfBoxLogging.CreateLogger<X>();` |
+| `LOG.trace("msg {}", val)` | `LOG.LogTrace("msg {Value}", val);` |
 | `LOG.debug("msg {}", val)` | `LOG.LogDebug("msg {Value}", val);` |
 | `LOG.info("msg {}", val)` | `LOG.LogInformation("msg {Value}", val);` |
 | `LOG.warn("msg {}", val)` | `LOG.LogWarning("msg {Value}", val);` |
 | `LOG.warn("msg", ex)` | `LOG.LogWarning(ex, "msg");` |
 | `LOG.error("msg", ex)` | `LOG.LogError(ex, "msg");` |
+| `LOG.isDebugEnabled()` | `LOG.IsEnabled(LogLevel.Debug)` |
+| `LOG.isWarnEnabled()` | `LOG.IsEnabled(LogLevel.Warning)` |
+| a `Logger` method parameter | an `ILogger` method parameter |
 
 Use named message-template placeholders rather than string interpolation. The static
 logger is a property, not a captured `static readonly` instance: resolving it at the
 point of use ensures a logger factory installed after type initialization is observed.
 No constructor propagation is required. Keep the logging field and imports structurally
 aligned with the upstream logger declarations during re-syncs.
+
+Additional rules:
+
+- Preserve the Java log level, exception attachment, enabled-level guard, and control flow.
+  In MEL, the exception is the first argument after the level method: use
+  `LOG.LogWarning(exception, "message {Value}", value)`. If Java logs only an exception
+  as both message and throwable, use a named template such as
+  `LOG.LogWarning(exception, "{Message}", exception.Message)`.
+- Log4j supplier/lambda arguments are lazy, but MEL arguments are evaluated eagerly. Retain
+  or introduce the matching `LOG.IsEnabled(LogLevel.X)` guard when translating an expensive
+  supplier expression.
+- Use stable, descriptive property names in message templates. Do not retain anonymous `{}`
+  placeholders, interpolate strings, or concatenate values into the template.
+- A C# `static class` cannot be used as `ILogger<T>`. When the upstream Java type is a final
+  utility class with a private constructor, prefer a C# `sealed class` with a private
+  constructor and static members so the Java-shaped typed logger category remains available.
+- Do not translate `synchronized (LOG)` to `lock (LOG)`: the dynamic logger property can
+  resolve to a different instance after factory replacement. Use a dedicated
+  `private static readonly object` lock and keep the synchronized region otherwise intact.
+- When upstream passes `LOG` into a helper, preserve that flow with `ILogger`; do not replace
+  it with `null`, a callback, or a concrete logging-provider type.
 
 ---
 

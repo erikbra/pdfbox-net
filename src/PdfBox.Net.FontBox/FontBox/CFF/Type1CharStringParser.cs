@@ -25,6 +25,9 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.CFF;
 
 /// <summary>
@@ -32,6 +35,8 @@ namespace PdfBox.Net.FontBox.CFF;
 /// </summary>
 public class Type1CharStringParser
 {
+    private static ILogger<Type1CharStringParser> LOG => PdfBoxLogging.CreateLogger<Type1CharStringParser>();
+
     private const int CallsubrOpcode = 10;
     private const int TwoByteOpcode = 12;
     private const int CallOtherSubrOpcode = 16;
@@ -91,7 +96,9 @@ public class Type1CharStringParser
         sequence.RemoveAt(sequence.Count - 1);
         if (obj is not int operand)
         {
-            // warn: parameter is not an integer - skip
+            LOG.LogWarning(
+                "Parameter {Parameter} for CALLSUBR is ignored, integer expected in glyph '{GlyphName}' of font {FontName}",
+                obj, _currentGlyph, _fontName);
             return;
         }
 
@@ -108,7 +115,9 @@ public class Type1CharStringParser
         }
         else
         {
-            // warn: CALLSUBR operand out of range - remove trailing integer params
+            LOG.LogWarning(
+                "CALLSUBR is ignored, operand: {Operand}, subrs.size(): {SubroutineCount} in glyph '{GlyphName}' of font {FontName}",
+                operand, subrs.Count, _currentGlyph, _fontName);
             while (sequence.Count > 0 && sequence[sequence.Count - 1] is int)
             {
                 sequence.RemoveAt(sequence.Count - 1);
@@ -156,6 +165,12 @@ public class Type1CharStringParser
             input.ReadByte();
             input.ReadByte();
             sequence.Add(results.Pop());
+        }
+
+        if (results.Count > 0)
+        {
+            LOG.LogWarning("Value left on the PostScript stack in glyph {GlyphName} of font {FontName}",
+                _currentGlyph, _fontName);
         }
     }
 

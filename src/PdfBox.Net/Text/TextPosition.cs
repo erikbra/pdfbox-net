@@ -29,6 +29,8 @@ using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.Util;
 using System.Text;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Text;
 
@@ -37,6 +39,8 @@ namespace PdfBox.Net.Text;
 /// </summary>
 public sealed partial class TextPosition
 {
+    private static ILogger<TextPosition> LOG => PdfBoxLogging.CreateLogger<TextPosition>();
+
     private const float Tolerance = 1E-07f;
     private static readonly Dictionary<int, string> Diacritics = CreateDiacritics();
 
@@ -588,6 +592,9 @@ public sealed partial class TextPosition
         {
             if (i >= currentWidths.Length)
             {
+                LOG.LogInformation(
+                    "diacritic {Diacritic} on ligature {Ligature} is not supported yet and is ignored (PDFBOX-2831)",
+                    textPosition.GetUnicode(), _unicode);
                 break;
             }
 

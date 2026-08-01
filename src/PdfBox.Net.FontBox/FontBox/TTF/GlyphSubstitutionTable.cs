@@ -31,10 +31,15 @@ using PdfBox.Net.FontBox.TTF.Model;
 using PdfBox.Net.FontBox.TTF.Table.Common;
 using PdfBox.Net.FontBox.TTF.Table.GSub;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 public class GlyphSubstitutionTable() : TTFTable(TAG)
 {
+    private static ILogger<GlyphSubstitutionTable> LOG => PdfBoxLogging.CreateLogger<GlyphSubstitutionTable>();
+
     public const string TAG = "GSUB";
 
     private IReadOnlyDictionary<string, ScriptTable> scriptList = new Dictionary<string, ScriptTable>(StringComparer.Ordinal);
@@ -64,7 +69,40 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
 
         scriptList = ReadScriptList(data, start + scriptListOffset);
         featureListTable = ReadFeatureList(data, start + featureListOffset);
-        lookupListTable = lookupListOffset > 0 ? ReadLookupList(data, start + lookupListOffset) : new LookupListTable(0, []);
+        if (lookupListOffset > 0)
+        {
+            lookupListTable = ReadLookupList(data, start + lookupListOffset);
+        }
+        else
+        {
+            LOG.LogWarning("LookupListOffset is 0, LookupListTable is considered empty");
+            lookupListTable = new LookupListTable(0, []);
+        }
+
+        LookupTable[] lookupTables = lookupListTable.GetLookups();
+        foreach (FeatureRecord featureRecord in featureListTable.GetFeatureRecords())
+        {
+            int[] indices = featureRecord.GetFeatureTable().GetLookupListIndices();
+            for (int i = 0; i < indices.Length; i++)
+            {
+                int index = indices[i];
+                if (index < 0 || index >= lookupTables.Length)
+                {
+                    LOG.LogDebug(
+                        "LookupListIndex {Position}:{LookupListIndex} for tag '{FeatureTag}' invalid, lookupTable length is {LookupTableLength}",
+                        i, index, featureRecord.GetFeatureTag(), lookupTables.Length);
+                    break;
+                }
+
+                LookupTable lookupTable = lookupTables[index];
+                LookupSubTable[] subTables = lookupTable.GetSubTables();
+                if (subTables.Length == 0)
+                {
+                    LOG.LogDebug("Type {LookupType} GSUB feature '{FeatureTag}' at index {LookupListIndex} unavailable",
+                        lookupTable.GetLookupType(), featureRecord.GetFeatureTag(), index);
+                }
+            }
+        }
         _ = featureVariationsOffset;
         gsubData = IGsubData.NoDataFound;
         initialized = true;
@@ -83,6 +121,9 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
             scriptOffsets[i] = data.ReadUnsignedShort();
             if (scriptOffsets[i] < data.GetCurrentPosition() - offset)
             {
+                LOG.LogError(
+                    "ScriptOffsets[{Index}]: {ScriptOffset} implausible: data.GetCurrentPosition() - offset = {MinimumOffset}",
+                    i, scriptOffsets[i], data.GetCurrentPosition() - offset);
                 return resultScriptList;
             }
         }
@@ -114,10 +155,15 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
             langSysOffsets[i] = data.ReadUnsignedShort();
             if (langSysOffsets[i] < data.GetCurrentPosition() - offset)
             {
+                LOG.LogError(
+                    "LangSysOffsets[{Index}]: {LangSysOffset} implausible: data.GetCurrentPosition() - offset = {MinimumOffset}",
+                    i, langSysOffsets[i], data.GetCurrentPosition() - offset);
                 return new ScriptTable(null, new Dictionary<string, LangSysTable>(StringComparer.Ordinal));
             }
             if (i > 0 && string.CompareOrdinal(langSysTags[i], langSysTags[i - 1]) < 0)
             {
+                LOG.LogError("LangSysRecords not alphabetically sorted by LangSys tag: {CurrentTag} < {PreviousTag}",
+                    langSysTags[i], langSysTags[i - 1]);
                 return new ScriptTable(null, new Dictionary<string, LangSysTable>(StringComparer.Ordinal));
             }
         }
@@ -162,8 +208,13 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
             {
                 if (!IS_4_CHAR_WORD.IsMatch(featureTags[i]) || !IS_4_CHAR_WORD.IsMatch(featureTags[i - 1]))
                 {
+                    LOG.LogWarning("FeatureRecord array not alphabetically sorted by FeatureTag: {CurrentTag} < {PreviousTag}",
+                        featureTags[i], featureTags[i - 1]);
                     return new FeatureListTable(0, []);
                 }
+
+                LOG.LogDebug("FeatureRecord array not alphabetically sorted by FeatureTag: {CurrentTag} < {PreviousTag}",
+                    featureTags[i], featureTags[i - 1]);
             }
             featureOffsets[i] = data.ReadUnsignedShort();
         }
@@ -199,6 +250,15 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
         for (int i = 0; i < lookupCount; i++)
         {
             lookups[i] = data.ReadUnsignedShort();
+            if (lookups[i] == 0)
+            {
+                LOG.LogError("Lookups[{Index}] is 0 at offset {Offset}", i, data.GetCurrentPosition() - 2);
+            }
+            else if (offset + lookups[i] > data.GetOriginalDataSize())
+            {
+                LOG.LogError("Lookup address {LookupAddress} is past the original data size {OriginalDataSize}",
+                    offset + lookups[i], data.GetOriginalDataSize());
+            }
         }
 
         LookupTable[] lookupTables = new LookupTable[lookupCount];
@@ -218,13 +278,19 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
 
     private LookupSubTable? ReadLookupSubtable(TTFDataStream data, long offset, int lookupType)
     {
+        if (lookupType is < 1 or > 4)
+        {
+            LOG.LogDebug("Type {LookupType} GSUB lookup table is not supported and will be ignored", lookupType);
+            return null;
+        }
+
         return lookupType switch
         {
             1 => ReadSingleLookupSubTable(data, offset),
             2 => ReadMultipleSubstitutionSubtable(data, offset),
             3 => ReadAlternateSubstitutionSubtable(data, offset),
             4 => ReadLigatureSubstitutionSubtable(data, offset),
-            _ => null,
+            _ => null
         };
     }
 
@@ -238,8 +304,16 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
         for (int i = 0; i < subTableCount; i++)
         {
             subTableOffsets[i] = data.ReadUnsignedShort();
-            if (subTableOffsets[i] == 0 || offset + subTableOffsets[i] > data.GetOriginalDataSize())
+            if (subTableOffsets[i] == 0)
             {
+                LOG.LogError("SubTableOffsets[{Index}] is 0 at offset {Offset}",
+                    i, data.GetCurrentPosition() - 2);
+                return new LookupTable(lookupType, lookupFlag, 0, []);
+            }
+            if (offset + subTableOffsets[i] > data.GetOriginalDataSize())
+            {
+                LOG.LogError("Subtable address {SubtableAddress} is past the original data size {OriginalDataSize}",
+                    offset + subTableOffsets[i], data.GetOriginalDataSize());
                 return new LookupTable(lookupType, lookupFlag, 0, []);
             }
         }
@@ -268,9 +342,18 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
                     int substFormat = data.ReadUnsignedShort();
                     if (substFormat != 1)
                     {
+                        LOG.LogError(
+                            "The expected SubstFormat for ExtensionSubstFormat1 subtable is {SubstitutionFormat} but should be 1 at offset {Offset}",
+                            substFormat, offset + subTableOffsets[i]);
                         continue;
                     }
                     int extensionLookupType = data.ReadUnsignedShort();
+                    if (lookupType != 7 && lookupType != extensionLookupType)
+                    {
+                        LOG.LogError("ExtensionLookupType changed from {LookupType} to {ExtensionLookupType} at offset {Offset}",
+                            lookupType, extensionLookupType, offset + subTableOffsets[i] + 2);
+                        continue;
+                    }
                     lookupType = extensionLookupType;
                     long extensionOffset = data.ReadUnsignedInt();
                     long extensionLookupTableAddress = offset + subTableOffsets[i] + extensionOffset;
@@ -280,6 +363,9 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
                         subTables.Add(subTable);
                     }
                 }
+                break;
+            default:
+                LOG.LogDebug("Type {LookupType} GSUB lookup table is not supported and will be ignored", lookupType);
                 break;
         }
 
@@ -312,6 +398,7 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
                 return new LookupTypeSingleSubstFormat2(substFormat, coverageTable, substituteGlyphIDs);
             }
             default:
+                LOG.LogWarning("Unknown substitution format: {SubstitutionFormat}", substFormat);
                 return null;
         }
     }
@@ -606,11 +693,16 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
         {
             if (lookupListIndex < 0 || lookupListIndex >= lookups.Length)
             {
+                LOG.LogWarning("Skipping GSUB feature '{FeatureTag}' with invalid lookupListIndex {LookupListIndex} (len: {LookupCount})",
+                    featureRecord.GetFeatureTag(), lookupListIndex, lookups.Length);
                 continue;
             }
             LookupTable lookupTable = lookups[lookupListIndex];
             if (lookupTable.GetLookupType() != 1)
             {
+                LOG.LogWarning(
+                    "Skipping GSUB feature '{FeatureTag}' because it requires unsupported lookup table type {LookupType}",
+                    featureRecord.GetFeatureTag(), lookupTable.GetLookupType());
                 continue;
             }
             lookupResult = DoLookup(lookupTable, lookupResult);
@@ -657,7 +749,13 @@ public class GlyphSubstitutionTable() : TTFTable(TAG)
 
     public int GetUnsubstitution(int sgid)
     {
-        return reverseLookup.TryGetValue(sgid, out int gid) ? gid : sgid;
+        if (reverseLookup.TryGetValue(sgid, out int gid))
+        {
+            return gid;
+        }
+
+        LOG.LogWarning("Trying to un-substitute a never-before-seen gid: {SubstitutedGlyphId}", sgid);
+        return sgid;
     }
 
     public IGsubData GetGsubData() => gsubData;

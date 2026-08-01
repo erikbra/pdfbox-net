@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDFreeTextAppearanceHandler : PDAbstractAppearanceHandler
 {
+    private static ILogger<PDFreeTextAppearanceHandler> LOG => PdfBoxLogging.CreateLogger<PDFreeTextAppearanceHandler>();
+
     public PDFreeTextAppearanceHandler(PDAnnotation annotation)
         : this(annotation, null)
     {
@@ -24,7 +26,15 @@ public sealed class PDFreeTextAppearanceHandler : PDAbstractAppearanceHandler
 
     public override void GenerateNormalAppearance()
     {
-        WriteDefaultNormalAppearance("PDFreeTextAppearance");
+        try
+        {
+            WriteDefaultNormalAppearance("PDFreeTextAppearance");
+
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
+        }
     }
 
     public override void GenerateRolloverAppearance()

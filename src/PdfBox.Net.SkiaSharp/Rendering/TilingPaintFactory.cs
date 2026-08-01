@@ -25,7 +25,9 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Graphics.Patterns;
 using PdfBox.Net.Util;
@@ -34,6 +36,8 @@ namespace PdfBox.Net.Rendering;
 
 internal class TilingPaintFactory
 {
+    private static ILogger<TilingPaintFactory> LOG => PdfBoxLogging.CreateLogger<TilingPaintFactory>();
+
     private readonly SkiaPageDrawerPeer _drawer;
     private readonly Dictionary<TilingPaintParameter, WeakReference<IPaint>> _weakCache = [];
 

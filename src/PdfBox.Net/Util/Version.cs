@@ -32,14 +32,22 @@
  */
 
 using System.Reflection;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Util;
 
 /// <summary>
 /// Exposes the PdfBox.Net assembly version.
 /// </summary>
-public static class Version
+public sealed class Version
 {
+    private static ILogger<Version> LOG => PdfBoxLogging.CreateLogger<Version>();
+
+    private Version()
+    {
+    }
+
     /// <summary>
     /// Returns the version of PdfBox.Net.
     /// </summary>
@@ -56,8 +64,9 @@ public static class Version
             }
             return assembly.GetName().Version?.ToString();
         }
-        catch
+        catch (Exception exception)
         {
+            LOG.LogDebug(exception, "Unable to read version from properties - returning null");
             return null;
         }
     }

@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Fixup.Processor;
 
 public class AcroFormGenerateAppearancesProcessor : AbstractProcessor
 {
+    private static ILogger<AcroFormGenerateAppearancesProcessor> LOG => PdfBoxLogging.CreateLogger<AcroFormGenerateAppearancesProcessor>();
+
     public AcroFormGenerateAppearancesProcessor(PDDocument document)
         : base(document)
     {
@@ -48,15 +50,15 @@ public class AcroFormGenerateAppearancesProcessor : AbstractProcessor
 
         try
         {
+            LOG.LogDebug(
+                "trying to generate appearance streams for fields as NeedAppearances is true()");
             acroForm.RefreshAppearances();
             acroForm.SetNeedAppearances(false);
         }
-        catch (IOException)
+        catch (Exception ex) when (ex is IOException or ArgumentException)
         {
-            // Keep fixup processing best-effort, matching PDFBox behavior for malformed fields.
-        }
-        catch (ArgumentException)
-        {
+            LOG.LogDebug("couldn't generate appearance stream for some fields - check output");
+            LOG.LogDebug("{ErrorMessage}", ex.Message);
             // Keep fixup processing best-effort, matching PDFBox behavior for malformed fields.
         }
     }

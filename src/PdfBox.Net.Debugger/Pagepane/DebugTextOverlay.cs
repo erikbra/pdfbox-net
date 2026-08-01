@@ -25,9 +25,14 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.Debugger.Pagepane;
 
 public sealed class DebugTextOverlay
 {
+    private static ILogger<DebugTextOverlay> LOG => PdfBoxLogging.CreateLogger<DebugTextOverlay>();
+
     public System.Collections.Generic.List<string> Items { get; } = new();
  }

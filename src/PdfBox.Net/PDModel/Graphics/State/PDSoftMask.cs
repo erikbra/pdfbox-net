@@ -34,6 +34,8 @@ namespace PdfBox.Net.PDModel.Graphics.State;
 
 public sealed partial class PDSoftMask : COSObjectable
 {
+    private static ILogger<PDSoftMask> LOG => PdfBoxLogging.CreateLogger<PDSoftMask>();
+
     private static readonly COSName NoneName = COSName.GetPDFName("None");
     private static readonly COSName SName = COSName.GetPDFName("S");
     private static readonly COSName GName = COSName.GetPDFName("G");
@@ -64,7 +66,13 @@ public sealed partial class PDSoftMask : COSObjectable
             return null;
         }
 
-        return dictionary is COSDictionary dict ? new PDSoftMask(dict) : null;
+        if (dictionary is COSDictionary dict)
+        {
+            return new PDSoftMask(dict);
+        }
+
+        LOG.LogWarning("Invalid SMask {SoftMask}", dictionary);
+        return null;
     }
 
     public COSDictionary GetCOSObject() => _dictionary;

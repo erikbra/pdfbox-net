@@ -25,7 +25,9 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Resources;
 
@@ -38,6 +40,8 @@ namespace PdfBox.Net.Debugger.Fontencodingpane;
 /// </summary>
 public sealed class FontEncodingPaneController
 {
+    private static ILogger<FontEncodingPaneController> LOG => PdfBoxLogging.CreateLogger<FontEncodingPaneController>();
+
     /// <summary>
     /// The resolved font data model, or <c>null</c> if the font type is not supported
     /// or an error occurred during loading.
@@ -65,6 +69,7 @@ public sealed class FontEncodingPaneController
         }
         catch (Exception ex)
         {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
             ErrorMessage = ex.Message;
         }
     }

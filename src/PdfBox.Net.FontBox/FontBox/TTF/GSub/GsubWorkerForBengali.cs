@@ -27,6 +27,9 @@
 
 using PdfBox.Net.FontBox.TTF.Model;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF.GSub;
 
 /// <summary>
@@ -34,6 +37,8 @@ namespace PdfBox.Net.FontBox.TTF.GSub;
 /// </summary>
 public class GsubWorkerForBengali : IGsubWorker
 {
+    private static ILogger<GsubWorkerForBengali> LOG => PdfBoxLogging.CreateLogger<GsubWorkerForBengali>();
+
     private const string InitFeature = "init";
 
     /// <summary>
@@ -77,9 +82,11 @@ public class GsubWorkerForBengali : IGsubWorker
         {
             if (!_gsubData.IsFeatureSupported(feature))
             {
+                LOG.LogDebug("The feature {Feature} was not found", feature);
                 continue;
             }
 
+            LOG.LogDebug("Applying the feature {Feature}", feature);
             IScriptFeature scriptFeature = _gsubData.GetFeature(feature);
             intermediateGlyphsFromGsub = ApplyGsubFeature(scriptFeature, intermediateGlyphsFromGsub);
         }
@@ -133,6 +140,7 @@ public class GsubWorkerForBengali : IGsubWorker
         var allGlyphIdsForSubstitution = scriptFeature.GetAllGlyphIdsForSubstitution();
         if (allGlyphIdsForSubstitution.Count == 0)
         {
+            LOG.LogDebug("GetAllGlyphIdsForSubstitution() for {FeatureName} is empty", scriptFeature.GetName());
             return originalGlyphs;
         }
 
@@ -158,6 +166,8 @@ public class GsubWorkerForBengali : IGsubWorker
             }
         }
 
+        LOG.LogDebug("OriginalGlyphs: {OriginalGlyphs}, GsubProcessedGlyphs: {ProcessedGlyphs}",
+            originalGlyphs, gsubProcessedGlyphs);
         return gsubProcessedGlyphs;
     }
 

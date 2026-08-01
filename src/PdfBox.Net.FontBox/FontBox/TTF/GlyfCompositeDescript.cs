@@ -27,10 +27,15 @@
 
 using System.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 public class GlyfCompositeDescript : GlyfDescript
 {
+    private static ILogger<GlyfCompositeDescript> LOG => PdfBoxLogging.CreateLogger<GlyfCompositeDescript>();
+
     private readonly List<GlyfCompositeComp> _components = [];
     private readonly Dictionary<int, GlyphDescription> _descriptions = [];
     private readonly GlyphTable? _glyphTable;
@@ -67,7 +72,7 @@ public class GlyfCompositeDescript : GlyfDescript
 
         if (_beingResolved)
         {
-            Console.Error.WriteLine("Circular reference in GlyfCompositeDesc");
+            LOG.LogError("Circular reference in GlyfCompositeDesc");
             return;
         }
 
@@ -146,7 +151,7 @@ public class GlyfCompositeDescript : GlyfDescript
     {
         if (!_resolved)
         {
-            Console.Error.WriteLine("getPointCount called on unresolved GlyfCompositeDescript");
+            LOG.LogError("GetPointCount called on unresolved GlyfCompositeDescript");
         }
 
         if (_pointCount < 0 && _components.Count > 0)
@@ -158,7 +163,7 @@ public class GlyfCompositeDescript : GlyfDescript
             }
             else
             {
-                Console.Error.WriteLine($"GlyphDescription for index {c.GlyphIndex} is null, returning 0");
+                LOG.LogError("GlyphDescription for index {GlyphIndex} is null, returning 0", c.GlyphIndex);
                 _pointCount = 0;
             }
         }
@@ -170,7 +175,7 @@ public class GlyfCompositeDescript : GlyfDescript
     {
         if (!_resolved)
         {
-            Console.Error.WriteLine("getContourCount called on unresolved GlyfCompositeDescript");
+            LOG.LogError("GetContourCount called on unresolved GlyfCompositeDescript");
         }
 
         if (_contourCount < 0 && _components.Count > 0)
@@ -182,7 +187,7 @@ public class GlyfCompositeDescript : GlyfDescript
             }
             else
             {
-                Console.Error.WriteLine($"missing glyph description for index {c.GlyphIndex}");
+                LOG.LogError("Missing glyph description for index {GlyphIndex}", c.GlyphIndex);
                 _contourCount = 0;
             }
         }
@@ -240,7 +245,7 @@ public class GlyfCompositeDescript : GlyfDescript
             }
             catch (IOException ex)
             {
-                Console.Error.WriteLine(ex);
+                LOG.LogError(ex, "Could not resolve glyph description");
             }
         }
     }

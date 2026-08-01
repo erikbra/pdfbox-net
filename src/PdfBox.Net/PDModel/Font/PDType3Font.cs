@@ -38,6 +38,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public sealed class PDType3Font : PDSimpleFont
 {
+    private static ILogger<PDType3Font> LOG => PdfBoxLogging.CreateLogger<PDType3Font>();
+
     private static readonly COSName NameKey = COSName.NAME;
     private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
     private static readonly COSName CharProcsKey = COSName.GetPDFName("CharProcs");
@@ -55,6 +57,14 @@ public sealed class PDType3Font : PDSimpleFont
     public PDType3Font(COSDictionary dictionary)
         : base(dictionary, ResolveEncoding(dictionary))
     {
+        if (dictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is COSName encodingName &&
+            encodingName.GetName() is not ("MacRomanEncoding" or "MacOSRomanEncoding" or
+                "MacExpertEncoding" or "StandardEncoding" or "WinAnsiEncoding" or
+                "SymbolEncoding" or "ZapfDingbatsEncoding"))
+        {
+            LOG.LogWarning("Unknown encoding: {EncodingName}", encodingName.GetName());
+        }
+
         if (dictionary.GetCOSDictionary(ResourcesKey) is COSDictionary resourcesDictionary)
         {
             _resources = new PDResources(resourcesDictionary);
@@ -143,6 +153,10 @@ public sealed class PDType3Font : PDSimpleFont
         }
 
         PDRectangle? rect = GetFontBBox();
+        if (rect is null)
+        {
+            LOG.LogWarning("FontBBox missing, returning empty rectangle");
+        }
         if (rect != null && (rect.GetWidth() != 0 || rect.GetHeight() != 0))
         {
             _fontBBox = new BoundingBox(rect.GetLowerLeftX(), rect.GetLowerLeftY(), rect.GetUpperRightX(), rect.GetUpperRightY());
@@ -164,7 +178,17 @@ public sealed class PDType3Font : PDSimpleFont
                     continue;
                 }
 
-                PDRectangle? glyphBox = new PDType3CharProc(this, glyphStream).GetGlyphBBox();
+                PDRectangle? glyphBox;
+                try
+                {
+                    glyphBox = new PDType3CharProc(this, glyphStream).GetGlyphBBox();
+                }
+                catch (IOException ex)
+                {
+                    LOG.LogDebug(ex,
+                        "error getting the glyph bounding box - font bounding box will be used");
+                    continue;
+                }
                 if (glyphBox == null)
                 {
                     continue;

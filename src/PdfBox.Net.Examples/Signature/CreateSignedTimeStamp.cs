@@ -25,7 +25,9 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
@@ -42,6 +44,8 @@ namespace PdfBox.Net.Examples.Signature;
 /// </remarks>
 public class CreateSignedTimeStamp : SignatureInterface
 {
+    private static ILogger<CreateSignedTimeStamp> LOG => PdfBoxLogging.CreateLogger<CreateSignedTimeStamp>();
+
     private readonly string _tsaUrl;
 
     /// <summary>Initialises the timestamp creator with the TSA endpoint URL.</summary>
@@ -104,7 +108,7 @@ public class CreateSignedTimeStamp : SignatureInterface
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"[CreateSignedTimeStamp] TSA error: {ex.Message}");
+            LOG.LogError(ex, "Hashing-Algorithm not found for TimeStamping");
             return [];
         }
     }

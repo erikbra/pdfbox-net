@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.MultiPdf;
 
@@ -35,6 +37,8 @@ namespace PdfBox.Net.MultiPdf;
 /// </summary>
 public class Splitter
 {
+    private static ILogger<Splitter> LOG => PdfBoxLogging.CreateLogger<Splitter>();
+
     private int _splitLength = 1;
     private int _startPage = int.MinValue;
     private int _endPage = int.MaxValue;

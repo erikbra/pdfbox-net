@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDCaretAppearanceHandler : PDAbstractAppearanceHandler
 {
+    private static ILogger<PDCaretAppearanceHandler> LOG => PdfBoxLogging.CreateLogger<PDCaretAppearanceHandler>();
+
     public PDCaretAppearanceHandler(PDAnnotation annotation)
         : this(annotation, null)
     {
@@ -24,7 +26,15 @@ public sealed class PDCaretAppearanceHandler : PDAbstractAppearanceHandler
 
     public override void GenerateNormalAppearance()
     {
-        WriteDefaultNormalAppearance("PDCaretAppearance");
+        try
+        {
+            WriteDefaultNormalAppearance("PDCaretAppearance");
+
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
+        }
     }
 
     public override void GenerateRolloverAppearance()

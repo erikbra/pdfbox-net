@@ -25,11 +25,20 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.Debugger;
 
 /// <summary>PDF document structure inspector.</summary>
-public static class PDFDebugger
+public sealed class PDFDebugger
 {
+    private static ILogger<PDFDebugger> LOG => PdfBoxLogging.CreateLogger<PDFDebugger>();
+
+    private PDFDebugger()
+    {
+    }
+
     public static string? GetPageLabel(PdfBox.Net.PDModel.PDDocument doc, int pageIndex)
     {
         string[]? labels = doc.GetDocumentCatalog().GetPageLabels()?.GetLabelsByPageIndices();

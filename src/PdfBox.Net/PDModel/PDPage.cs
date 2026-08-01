@@ -47,6 +47,8 @@ namespace PdfBox.Net.PDModel;
 /// </remarks>
 public sealed partial class PDPage : COSObjectable, PDContentStream
 {
+    private static ILogger<PDPage> LOG => PdfBoxLogging.CreateLogger<PDPage>();
+
     private readonly COSDictionary _page;
     private readonly ResourceCache? _resourceCache;
     private PDRectangle? _mediaBox;
@@ -121,6 +123,7 @@ public sealed partial class PDPage : COSObjectable, PDContentStream
             }
             else
             {
+                LOG.LogDebug("Can't find MediaBox, will use U.S. Letter");
                 _mediaBox = PDRectangle.LETTER;
             }
         }
@@ -413,7 +416,14 @@ public sealed partial class PDPage : COSObjectable, PDContentStream
             COSBase? item = annots.GetObject(i);
             if (item is COSDictionary dictionary)
             {
-                annotations.Add(PDAnnotation.CreateAnnotation(dictionary));
+                try
+                {
+                    annotations.Add(PDAnnotation.CreateAnnotation(dictionary));
+                }
+                catch (IOException ex)
+                {
+                    LOG.LogError(ex, "{ErrorMessage}", ex.Message);
+                }
             }
         }
         return new COSArrayList<PDAnnotation>(annotations, annots);
@@ -637,6 +647,11 @@ public sealed partial class PDPage : COSObjectable, PDContentStream
             if (viewports.GetObject(i) is COSDictionary dictionary)
             {
                 result.Add(new PDViewportDictionary(dictionary));
+            }
+            else
+            {
+                LOG.LogWarning("Array element {Viewport} is skipped, must be a (viewport) dictionary",
+                    viewports.GetObject(i));
             }
         }
 

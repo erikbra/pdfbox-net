@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Common.Function;
 
 public partial class PDFunctionType0 : PDFunction
 {
+    private static ILogger<PDFunctionType0> LOG => PdfBoxLogging.CreateLogger<PDFunctionType0>();
+
     private COSArray? _encode;
     private COSArray? _decode;
     private COSArray? _size;
@@ -160,15 +162,22 @@ public partial class PDFunctionType0 : PDFunction
             _samples[i] = new int[nOut];
         }
 
-        using Stream input = GetPDStream()?.CreateInputStream() ?? Stream.Null;
-        using BitStreamReader reader = new(input);
-        int bitsPerSample = GetBitsPerSample();
-        for (int i = 0; i < arraySize; i++)
+        try
         {
-            for (int k = 0; k < nOut; k++)
+            using Stream input = GetPDStream()?.CreateInputStream() ?? Stream.Null;
+            using BitStreamReader reader = new(input);
+            int bitsPerSample = GetBitsPerSample();
+            for (int i = 0; i < arraySize; i++)
             {
-                _samples[i][k] = reader.ReadBits(bitsPerSample);
+                for (int k = 0; k < nOut; k++)
+                {
+                    _samples[i][k] = reader.ReadBits(bitsPerSample);
+                }
             }
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "IOException while reading the sample values of this function.");
         }
 
         return _samples;

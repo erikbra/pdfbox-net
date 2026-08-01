@@ -29,6 +29,8 @@ namespace PdfBox.Net.PDModel.Graphics;
 
 public sealed class BlendComposite
 {
+    private static ILogger<BlendComposite> LOG => PdfBoxLogging.CreateLogger<BlendComposite>();
+
     private BlendComposite(BlendMode blendMode, float constantAlpha)
     {
         BlendMode = blendMode;
@@ -41,6 +43,14 @@ public sealed class BlendComposite
 
     public static BlendComposite GetInstance(BlendMode blendMode, float constantAlpha)
     {
+        if (constantAlpha < 0)
+        {
+            LOG.LogWarning("using 0 instead of incorrect Alpha {Alpha}", constantAlpha);
+        }
+        else if (constantAlpha > 1)
+        {
+            LOG.LogWarning("using 1 instead of incorrect Alpha {Alpha}", constantAlpha);
+        }
         return new BlendComposite(blendMode, Clamp01(constantAlpha));
     }
 

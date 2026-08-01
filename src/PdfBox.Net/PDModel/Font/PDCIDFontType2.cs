@@ -34,6 +34,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public partial class PDCIDFontType2 : PDCIDFont
 {
+    private static ILogger<PDCIDFontType2> LOG => PdfBoxLogging.CreateLogger<PDCIDFontType2>();
+
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
     private static readonly COSName FontFileKey = COSName.GetPDFName("FontFile");
     private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
@@ -94,31 +96,69 @@ public partial class PDCIDFontType2 : PDCIDFont
             return null;
         }
 
-        return preferOpenType
-            ? TryParseOpenType(bytes) ?? TryParseTrueType(bytes)
-            : TryParseTrueType(bytes) ?? TryParseOpenType(bytes);
+        TrueTypeFont? parsed;
+        Exception? parseException;
+        if (preferOpenType)
+        {
+            parsed = TryParseOpenType(bytes, out parseException);
+            if (parsed == null)
+            {
+                parsed = TryParseTrueType(bytes, out Exception? fallbackException);
+                parseException ??= fallbackException;
+            }
+        }
+        else
+        {
+            parsed = TryParseTrueType(bytes, out parseException);
+            if (parsed == null)
+            {
+                parsed = TryParseOpenType(bytes, out Exception? fallbackException);
+                parseException ??= fallbackException;
+            }
+        }
+        if (parsed is OpenTypeFont openType && !openType.IsSupportedOTF())
+        {
+            LOG.LogWarning("Found an OpenType font using CFF2 outlines which are not supported {FontName}",
+                descriptor.GetNameAsString(COSName.GetPDFName("FontName")));
+            return null;
+        }
+        if (parsed is null)
+        {
+            string? fontName = descriptor.GetNameAsString(COSName.GetPDFName("FontName"));
+            LOG.LogWarning(parseException, "Could not read embedded OTF for font {FontName}",
+                fontName);
+        }
+        return parsed;
     }
 
-    private static TrueTypeFont? TryParseTrueType(byte[] bytes)
+    private static TrueTypeFont? TryParseTrueType(byte[] bytes, out Exception? exception)
     {
         try
         {
-            return new TTFParser(isEmbedded: true).ParseEmbedded(new MemoryStream(bytes, writable: false));
+            TrueTypeFont font = new TTFParser(isEmbedded: true)
+                .ParseEmbedded(new MemoryStream(bytes, writable: false));
+            exception = null;
+            return font;
         }
-        catch
+        catch (Exception ex)
         {
+            exception = ex;
             return null;
         }
     }
 
-    private static TrueTypeFont? TryParseOpenType(byte[] bytes)
+    private static TrueTypeFont? TryParseOpenType(byte[] bytes, out Exception? exception)
     {
         try
         {
-            return new OTFParser(isEmbedded: true).ParseEmbedded(new MemoryStream(bytes, writable: false));
+            TrueTypeFont font = new OTFParser(isEmbedded: true)
+                .ParseEmbedded(new MemoryStream(bytes, writable: false));
+            exception = null;
+            return font;
         }
-        catch
+        catch (Exception ex)
         {
+            exception = ex;
             return null;
         }
     }
@@ -140,6 +180,10 @@ public partial class PDCIDFontType2 : PDCIDFont
     {
         if (_cidToGid != null)
         {
+            if (!_isEmbedded)
+            {
+                LOG.LogWarning("Using non-embedded GIDs in font {FontName}", GetName());
+            }
             return (cid >= 0 && cid < _cidToGid.Length) ? _cidToGid[cid] : 0;
         }
 

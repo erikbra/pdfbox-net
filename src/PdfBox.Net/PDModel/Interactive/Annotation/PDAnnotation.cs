@@ -39,6 +39,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 /// <remarks>Ported from Apache PDFBox <c>PDAnnotation</c>.</remarks>
 public abstract partial class PDAnnotation : COSObjectable
 {
+    private static ILogger<PDAnnotation> LOG => PdfBoxLogging.CreateLogger<PDAnnotation>();
+
     private static readonly COSName AppearanceName = COSName.GetPDFName("AP");
     private static readonly COSName BorderName = COSName.GetPDFName("Border");
 
@@ -78,6 +80,7 @@ public abstract partial class PDAnnotation : COSObjectable
             string? subtype = annotDic.GetNameAsString(COSName.SUBTYPE);
             if (subtype == null)
             {
+                LOG.LogDebug("Unknown annotation subtype");
                 return new PDAnnotationUnknown(annotDic);
             }
             return subtype switch
@@ -101,13 +104,19 @@ public abstract partial class PDAnnotation : COSObjectable
                 PDAnnotationFileAttachment.SUB_TYPE => new PDAnnotationFileAttachment(annotDic),
                 PDAnnotationStamp.SUB_TYPE => new PDAnnotationStamp(annotDic),
                 PDAnnotationWidget.SUB_TYPE => new PDAnnotationWidget(annotDic),
-                _ => new PDAnnotationUnknown(annotDic)
+                _ => CreateUnknownAnnotation(annotDic, subtype)
             };
         }
         else
         {
             throw new IOException("Error: Unknown annotation type " + @base);
         }
+    }
+
+    private static PDAnnotation CreateUnknownAnnotation(COSDictionary dictionary, string subtype)
+    {
+        LOG.LogDebug("Unknown or unsupported annotation subtype {Subtype}", subtype);
+        return new PDAnnotationUnknown(dictionary);
     }
 
     /// <summary>
@@ -130,6 +139,10 @@ public abstract partial class PDAnnotation : COSObjectable
         if (type == null)
         {
             _dictionary.SetItem(COSName.TYPE, COSName.ANNOT);
+        }
+        else if (!COSName.ANNOT.Equals(type))
+        {
+            LOG.LogWarning("Annotation has type {Type}, further mayhem may follow", type);
         }
     }
 
@@ -191,6 +204,8 @@ public abstract partial class PDAnnotation : COSObjectable
             {
                 return new PDRectangle(rectArray);
             }
+
+            LOG.LogWarning("{RectangleArray} is not a rectangle array, returning null", rectArray);
         }
         return null;
     }

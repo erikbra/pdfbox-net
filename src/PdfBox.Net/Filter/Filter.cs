@@ -27,11 +27,15 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.IO;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Filter;
 
 public abstract class Filter
 {
+    private static ILogger<Filter> LOG => PdfBoxLogging.CreateLogger<Filter>();
+
     public const string SyspropDeflateLevel = "org.apache.pdfbox.filter.deflatelevel";
     public const string SyspropCcittFaxMaxBytes = "org.apache.pdfbox.filter.ccittmaxbytes";
 
@@ -54,6 +58,23 @@ public abstract class Filter
             CopyTo(input, passthrough);
             passthrough.Seek(0);
             return passthrough;
+        }
+
+        if (filters.Count > 1)
+        {
+            List<Filter> reducedFilters = [];
+            foreach (Filter filter in filters)
+            {
+                if (!reducedFilters.Contains(filter))
+                {
+                    reducedFilters.Add(filter);
+                }
+            }
+            if (reducedFilters.Count != filters.Count)
+            {
+                filters = reducedFilters;
+                LOG.LogWarning("Removed duplicated filter entries");
+            }
         }
 
         Stream currentInput = input;
@@ -105,6 +126,11 @@ public abstract class Filter
                 return decodeParamDictionary;
             }
         }
+        else if (decodeParams is not null && filter is not COSArray && decodeParams is not COSArray)
+        {
+            LOG.LogError("Expected DecodeParams to be an Array or Dictionary but found {TypeName}",
+                decodeParams.GetType().FullName);
+        }
 
         return new COSDictionary();
     }
@@ -112,8 +138,15 @@ public abstract class Filter
     protected static int GetCompressionLevel()
     {
         string? value = Environment.GetEnvironmentVariable(SyspropDeflateLevel);
-        if (value is null || !int.TryParse(value, out int level))
+        if (value is null)
         {
+            return -1;
+        }
+
+        if (!int.TryParse(value, out int level))
+        {
+            FormatException exception = new($"The input string '{value}' was not in a correct format.");
+            LOG.LogWarning(exception, "{Message}", exception.Message);
             return -1;
         }
 

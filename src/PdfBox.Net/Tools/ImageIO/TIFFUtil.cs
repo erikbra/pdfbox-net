@@ -25,12 +25,20 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Tools.ImageIO;
 
-public static class TIFFUtil
+public sealed class TIFFUtil
 {
+    private static ILogger<TIFFUtil> LOG => PdfBoxLogging.CreateLogger<TIFFUtil>();
+
+    private TIFFUtil()
+    {
+    }
+
     public static bool WriteImage(BufferedImage image, string filename)
     {
         return ImageIOUtil.WriteImage(image, filename, 300);

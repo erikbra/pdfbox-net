@@ -35,6 +35,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public sealed class PDType1CFont : PDSimpleFont
 {
+    private static ILogger<PDType1CFont> LOG => PdfBoxLogging.CreateLogger<PDType1CFont>();
+
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
     private static readonly COSName FontFile3Key = COSName.GetPDFName("FontFile3");
 
@@ -56,15 +58,27 @@ public sealed class PDType1CFont : PDSimpleFont
                 using Stream stream = fontFile3.CreateInputStream();
                 using MemoryStream buffer = new();
                 stream.CopyTo(buffer);
-                CFFFont parsed = new CFFParser().Parse(buffer.ToArray())[0];
+                IList<CFFFont> parsedFonts = new CFFParser().Parse(buffer.ToArray());
+                if (parsedFonts.Count == 0)
+                {
+                    LOG.LogError("Invalid data for embedded Type1C font {FontName}",
+                        dictionary.GetNameAsString(COSName.GetPDFName("BaseFont")));
+                    return null;
+                }
+
+                CFFFont parsed = parsedFonts[0];
                 if (parsed is CFFType1Font cffType1Font)
                 {
                     return new PDType1CFont(dictionary, cffType1Font);
                 }
+
+                LOG.LogError("Expected CFFType1Font, got {FontType}", parsed.GetType().Name);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            LOG.LogError(ex, "Can't read the embedded Type1C font {FontName}",
+                dictionary.GetNameAsString(COSName.GetPDFName("BaseFont")));
             // Preserve non-throwing factory behavior.
         }
 

@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public class FDFAnnotationInk : FDFAnnotation
 {
+    private static ILogger<FDFAnnotationInk> LOG => PdfBoxLogging.CreateLogger<FDFAnnotationInk>();
+
     private static readonly COSName InkListName = COSName.GetPDFName("InkList");
 
     public const string Subtype = "Ink";

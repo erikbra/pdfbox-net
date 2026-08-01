@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Interactive.Form;
 
 public sealed class PDFieldTree : IEnumerable<PDField>
 {
+    private static ILogger<PDFieldTree> LOG => PdfBoxLogging.CreateLogger<PDFieldTree>();
+
     private readonly PDAcroForm _acroForm;
 
     public PDFieldTree(PDAcroForm acroForm)
@@ -55,8 +57,14 @@ public sealed class PDFieldTree : IEnumerable<PDField>
 
         void Enqueue(PDField field)
         {
-            if (field.GetCOSObject() is not COSDictionary dict || !seen.Add(dict))
+            if (field.GetCOSObject() is not COSDictionary dict)
             {
+                return;
+            }
+            if (!seen.Add(dict))
+            {
+                LOG.LogError("Child of field '{FieldName}' already exists elsewhere, ignored to avoid recursion",
+                    field.GetFullyQualifiedName());
                 return;
             }
 
