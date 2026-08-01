@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForTamil.java
- * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  */
 
 /*
@@ -49,6 +49,7 @@ public class GsubWorkerForTamil : IGsubWorker
 
     private readonly CmapLookup _cmapLookup;
     private readonly IGsubData _gsubData;
+    private readonly Dictionary<string, IGlyphArraySplitter> _glyphArraySplitters = new();
     private readonly IList<int> _rephGlyphIds;
     private readonly IList<int> _beforeRephGlyphIds;
     private readonly IList<int> _beforeHalfGlyphIds;
@@ -137,13 +138,17 @@ public class GsubWorkerForTamil : IGsubWorker
         return rephAdjustedList;
     }
 
-    private static IList<int> ApplyGsubFeature(IScriptFeature scriptFeature, IList<int> originalGlyphs)
+    private IList<int> ApplyGsubFeature(IScriptFeature scriptFeature, IList<int> originalGlyphs)
     {
         var allGlyphIdsForSubstitution = scriptFeature.GetAllGlyphIdsForSubstitution();
         if (allGlyphIdsForSubstitution.Count == 0)
             return originalGlyphs;
 
-        IGlyphArraySplitter glyphArraySplitter = new GlyphArraySplitterRegexImpl(allGlyphIdsForSubstitution);
+        if (!_glyphArraySplitters.TryGetValue(scriptFeature.GetName(), out var glyphArraySplitter))
+        {
+            glyphArraySplitter = new GlyphArraySplitterRegexImpl(allGlyphIdsForSubstitution);
+            _glyphArraySplitters.Add(scriptFeature.GetName(), glyphArraySplitter);
+        }
         var tokens = glyphArraySplitter.Split(originalGlyphs);
         var gsubProcessedGlyphs = new List<int>(tokens.Count);
 

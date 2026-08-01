@@ -4179,14 +4179,6 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|constructor|PDCIDFontType0|2|arity-drift",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
-      "reviewed_by": "Codex"
-    },
-    {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getFontMatrix|0|missing",
       "disposition": "behavior-covered",
       "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
@@ -4227,51 +4219,43 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getPath|1|missing",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getPath|2|missing",
       "disposition": "intentional-dotnet-adaptation",
-      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "note": "PDFBOX-6175 now passes the parent PDType0Font into this protected Java method. PdfBox.Net keeps parent CMap/delegation behavior on PDType0Font, so the existing parentless descendant-font surface provides the same behavior without the extra parameter.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getNormalizedPath|1|missing",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getNormalizedPath|2|missing",
       "disposition": "intentional-dotnet-adaptation",
-      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "note": "PDFBOX-6175 now passes the parent PDType0Font into this protected Java method. PdfBox.Net keeps parent CMap/delegation behavior on PDType0Font, so the existing parentless descendant-font surface provides the same behavior without the extra parameter.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|hasGlyph|1|missing",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|hasGlyph|2|missing",
       "disposition": "intentional-dotnet-adaptation",
-      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "note": "PDFBOX-6175 now passes the parent PDType0Font into this protected Java method. PdfBox.Net keeps parent CMap/delegation behavior on PDType0Font, so the existing parentless descendant-font surface provides the same behavior without the extra parameter.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|codeToCID|1|missing",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|codeToCID|2|missing",
       "disposition": "behavior-covered",
-      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "note": "PDFBOX-6175 now passes the parent PDType0Font into this protected Java method. PdfBox.Net keeps parent CMap/delegation behavior on PDType0Font, so the existing parentless descendant-font surface provides the same behavior without the extra parameter.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|codeToGID|1|missing",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|codeToGID|2|missing",
       "disposition": "intentional-dotnet-adaptation",
-      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|encode|1|missing",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "Full CFF CIDFontType0 font-program integration is not implemented in this port yet; exposing the Java CFF glyph/path/encoding APIs or parent-bound constructor would imply unsupported behavior.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "note": "PDFBOX-6175 now passes the parent PDType0Font into this protected Java method. PdfBox.Net keeps parent CMap/delegation behavior on PDType0Font, so the existing parentless descendant-font surface provides the same behavior without the extra parameter.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
       "reviewed_by": "Codex"
     },
     {
@@ -4283,49 +4267,25 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getWidthFromFont|1|missing",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getWidthFromFont|2|missing",
       "disposition": "behavior-covered",
-      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "note": "PDFBOX-6175 now passes the parent PDType0Font into this protected Java method. PdfBox.Net keeps parent CMap/delegation behavior on PDType0Font, so the existing parentless descendant-font surface provides the same behavior without the extra parameter.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|isEmbedded|0|missing",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getHeight|2|missing",
       "disposition": "behavior-covered",
-      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|isDamaged|0|missing",
-      "disposition": "behavior-covered",
-      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getHeight|1|missing",
-      "disposition": "behavior-covered",
-      "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "note": "PDFBOX-6175 now passes the parent PDType0Font into this protected Java method. PdfBox.Net keeps parent CMap/delegation behavior on PDType0Font, so the existing parentless descendant-font surface provides the same behavior without the extra parameter.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
       "reviewed_by": "Codex"
     },
     {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getAverageFontWidth|0|missing",
       "disposition": "behavior-covered",
       "note": "PDCIDFontType0 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; the report only counts members declared directly on the concrete class.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|constructor|PDCIDFontType2|3|arity-drift",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "The C# constructor accepts the optional TrueTypeFont directly and keeps parent Type0 CMap behavior in PDType0Font instead of storing the Java parent reference.",
       "issue": 508,
       "reviewed_at_utc": "2026-06-27T02:17:45Z",
       "reviewed_by": "Codex"
@@ -4347,19 +4307,19 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|codeToCID|1|missing",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|codeToCID|2|missing",
       "disposition": "behavior-covered",
-      "note": "PDCIDFontType2 inherits the dictionary-level CID font behavior from PDCIDFont/PDFont; #508 tests cover the added glyph/path helpers while the report counts declared concrete members only.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "note": "PDFBOX-6175 now passes the parent PDType0Font into this protected Java method. PdfBox.Net keeps parent CMap/delegation behavior on PDType0Font, so the existing parentless descendant-font surface provides the same behavior without the extra parameter.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|encode|1|missing",
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|encode|2|missing",
       "disposition": "intentional-dotnet-adaptation",
-      "note": "Java content-stream encoding hooks are not exposed on the current .NET font surface; CID/GID path and EncodeGlyphId behavior covered by #508 tests are available without adding the protected encode pipeline.",
-      "issue": 508,
-      "reviewed_at_utc": "2026-06-27T02:17:45Z",
+      "note": "PDFBOX-6175 now passes the parent PDType0Font into this protected Java method. PdfBox.Net keeps parent CMap/delegation behavior on PDType0Font, so the existing parentless descendant-font surface provides the same behavior without the extra parameter.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
       "reviewed_by": "Codex"
     },
     {
@@ -5014,22 +4974,6 @@
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java|org.apache.pdfbox.pdmodel.graphics.color.PDSeparation|method|toRawImage|1|missing",
       "disposition": "intentional-dotnet-adaptation",
       "note": "Separation metadata and tint-transform APIs are exposed; Java raster conversion helpers depend on AWT WritableRaster/BufferedImage and are not part of the .NET image pipeline.",
-      "issue": 509,
-      "reviewed_at_utc": "2026-06-27T03:22:00Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDFormXObject.java|org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject|constructor|PDFormXObject|2|arity-drift",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "The ResourceCache constructor overload is collapsed in .NET; form resources are resolved through PDResources without exposing Java cache-specific constructor shape.",
-      "issue": 509,
-      "reviewed_at_utc": "2026-06-27T03:22:00Z",
-      "reviewed_by": "Codex"
-    },
-    {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/form/PDTransparencyGroup.java|org.apache.pdfbox.pdmodel.graphics.form.PDTransparencyGroup|constructor|PDTransparencyGroup|2|arity-drift",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "The ResourceCache constructor overload is collapsed in .NET; transparency groups keep the stream constructor surface and resource caching remains an internal resource concern.",
       "issue": 509,
       "reviewed_at_utc": "2026-06-27T03:22:00Z",
       "reviewed_by": "Codex"
@@ -6840,6 +6784,62 @@
       "note": "PDFMergerUtility uses a .NET property-oriented merge API; Java merge mode, metadata override, stream-cache, and compression-parameter entry points are reviewed adaptations over the current C# merge/save pipeline.",
       "issue": 511,
       "reviewed_at_utc": "2026-06-27T03:47:07Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|constructor|PDCIDFontType2|1|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFBOX-6175 removed the stored Java parent-font reference and now passes PDType0Font through descendant-font constructors and protected methods. PdfBox.Net already keeps CMap/delegation state on PDType0Font, so its parentless descendant-font signatures remain intentional.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|codeToGID|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFBOX-6175 removed the stored Java parent-font reference and now passes PDType0Font through descendant-font constructors and protected methods. PdfBox.Net already keeps CMap/delegation state on PDType0Font, so its parentless descendant-font signatures remain intentional.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|getHeight|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFBOX-6175 removed the stored Java parent-font reference and now passes PDType0Font through descendant-font constructors and protected methods. PdfBox.Net already keeps CMap/delegation state on PDType0Font, so its parentless descendant-font signatures remain intentional.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|getNormalizedPath|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFBOX-6175 removed the stored Java parent-font reference and now passes PDType0Font through descendant-font constructors and protected methods. PdfBox.Net already keeps CMap/delegation state on PDType0Font, so its parentless descendant-font signatures remain intentional.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|getPath|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFBOX-6175 removed the stored Java parent-font reference and now passes PDType0Font through descendant-font constructors and protected methods. PdfBox.Net already keeps CMap/delegation state on PDType0Font, so its parentless descendant-font signatures remain intentional.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|getWidthFromFont|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFBOX-6175 removed the stored Java parent-font reference and now passes PDType0Font through descendant-font constructors and protected methods. PdfBox.Net already keeps CMap/delegation state on PDType0Font, so its parentless descendant-font signatures remain intentional.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
+      "reviewed_by": "Codex"
+    },
+    {
+      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|hasGlyph|2|arity-drift",
+      "disposition": "intentional-dotnet-adaptation",
+      "note": "PDFBOX-6175 removed the stored Java parent-font reference and now passes PDType0Font through descendant-font constructors and protected methods. PdfBox.Net already keeps CMap/delegation state on PDType0Font, so its parentless descendant-font signatures remain intentional.",
+      "issue": 912,
+      "reviewed_at_utc": "2026-08-01T11:22:52Z",
       "reviewed_by": "Codex"
     }
   ]

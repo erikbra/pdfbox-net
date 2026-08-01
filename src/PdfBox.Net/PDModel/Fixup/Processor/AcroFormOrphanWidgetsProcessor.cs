@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormOrphanWidgetsProcessor.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  */
 
 /*
@@ -141,8 +141,14 @@ public class AcroFormOrphanWidgetsProcessor : AbstractProcessor
         Dictionary<string, PDField> nonTerminalFieldsMap)
     {
         COSDictionary? rootParent = parent;
+        HashSet<COSDictionary> visited = [];
         while (rootParent != null && rootParent.ContainsKey(COSName.PARENT))
         {
+            if (!visited.Add(rootParent))
+            {
+                return null;
+            }
+
             rootParent = rootParent.GetCOSDictionary(COSName.PARENT);
         }
 

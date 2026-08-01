@@ -2681,12 +2681,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCIIHexFilter.java",
     "target_path": "src/PdfBox.Net/Filter/ASCIIHexFilter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "ASCIIHex decode/encode implemented."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "ASCIIHex decode/encode implemented. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxFilter.java",
@@ -2921,12 +2921,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
     "target_path": "src/PdfBox.Net/PdfParser/PDFXrefStreamParser.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T16:30:07Z",
-    "note": "Issue #92 core operator/parser/writer parity closeout mapping entry."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Issue #92 core operator/parser/writer parity closeout mapping entry. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
@@ -3021,12 +3021,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
     "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
-    "source_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
-    "sync_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-07-18T09:23:30Z",
-    "note": "Reviewed upstream per-font GsubWorker caching. The adapted .NET content stream delegates shaping to GlyphLayoutProcessorInterface and constructs no GsubWorker, so no runtime change is applicable."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed upstream per-font GsubWorker caching. The adapted .NET content stream delegates shaping to GlyphLayoutProcessorInterface and constructs no GsubWorker, so no runtime change is applicable. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
@@ -3431,12 +3431,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType4.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType4.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T20:48:52Z",
-    "note": "Mechanical PostScript calculator function port over the new type4 helper stack."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Mechanical PostScript calculator function port over the new type4 helper stack. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionTypeIdentity.java",
@@ -3601,12 +3601,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureElement.java",
     "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureElement.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "note": "Attribute CRUD (GetAttributes, SetAttributes, AddAttribute, RemoveAttribute, AttributeChanged) added in issue #45. Class-name, marked-content, and parent traversal helpers already present from issue #43.",
-    "last_checked_utc": "2026-05-25T12:37:50Z"
+    "note": "Attribute CRUD (GetAttributes, SetAttributes, AddAttribute, RemoveAttribute, AttributeChanged) added in issue #45. Class-name, marked-content, and parent traversal helpers already present from issue #43. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md.",
+    "last_checked_utc": "2026-08-01T11:13:46Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureNode.java",
@@ -4151,12 +4151,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFOptionElement.java",
     "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFOptionElement.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-28T04:38:47Z",
-    "note": "PDModel FDF milestone closeout parity row for issue #72."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPage.java",
@@ -4251,12 +4251,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormOrphanWidgetsProcessor.java",
     "target_path": "src/PdfBox.Net/PDModel/Fixup/Processor/AcroFormOrphanWidgetsProcessor.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-28T07:50:20Z",
-    "note": "PDModel fixup milestone parity row for issue #73."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "PDModel fixup milestone parity row for issue #73. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/PDDocumentProcessor.java",
@@ -4320,43 +4320,43 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-25T21:12:00Z",
-    "note": "Issue #51: added CIDSystemInfo access for descendant CJK/UCS2 integration heuristics in PDType0Font."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Issue #51: added CIDSystemInfo access for descendant CJK/UCS2 integration heuristics in PDType0Font. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType0.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-25T21:12:00Z",
-    "note": "Issue #51: CIDFontType0 descendant behavior validated for Type0 CMap CID resolution and inherited width handling."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Issue #51: CIDFontType0 descendant behavior validated for Type0 CMap CID resolution and inherited width handling. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-25T16:44:05Z",
-    "note": "CIDToGIDMap support (Identity and stream), CodeToGID method, TTF advance-width fallback in GetWidth, ToUnicodeFallback via reverse cmap. Vertical metrics deferred."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "CIDToGIDMap support (Identity and stream), CodeToGID method, TTF advance-width fallback in GetWidth, ToUnicodeFallback via reverse cmap. Vertical metrics deferred. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2Embedder.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 PDCIDFontType2 embedding deferred pending PDFontDescriptor setters and CMap/ToUnicode support."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Adapted stub \u2013 PDCIDFontType2 embedding deferred pending PDFontDescriptor setters and CMap/ToUnicode support. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",
@@ -4391,12 +4391,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T16:03:16Z",
-    "note": "Added font factory dispatch based on PDF font subtype."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Added font factory dispatch based on PDF font subtype. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDPanose.java",
@@ -4440,13 +4440,13 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType0Font.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-25T21:12:00Z",
-    "note": "Issue #51: added Type0 /Encoding CMap integration (stream + predefined identity fallback), CodeToCID via Type0 CMap, and ToUnicode fallback chaining to UCS2/descendant mapping."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Issue #51: added Type0 /Encoding CMap integration (stream + predefined identity fallback), CodeToCID via Type0 CMap, and ToUnicode fallback chaining to UCS2/descendant mapping. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -4761,12 +4761,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CCITTFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 CCITT/TIFF imaging requires platform-specific APIs not yet available."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Adapted stub \u2013 CCITT/TIFF imaging requires platform-specific APIs not yet available. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CustomFactory.java",
@@ -4821,12 +4821,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PNGConverter.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PNGConverter.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 PNG converter requires platform-specific imaging APIs."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Adapted stub \u2013 PNG converter requires platform-specific imaging APIs. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/SampledImageReader.java",
@@ -5901,12 +5901,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAbstractAppearanceHandler.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDAbstractAppearanceHandler.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAppearanceHandler.java",
@@ -6231,12 +6231,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigBuilder.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/Visible/PDVisibleSigBuilder.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigProperties.java",
@@ -6381,12 +6381,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/AppearanceGeneratorHelper.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-07-06T20:22:42Z",
-    "note": "Synced form appearance glyph-layout propagation from PDAcroForm into appearance content streams."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Synced form appearance glyph-layout propagation from PDAcroForm into appearance content streams. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/FieldUtils.java",
@@ -6531,12 +6531,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDRadioButton.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDRadioButton.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDSignatureField.java",
@@ -7871,12 +7871,12 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/EncryptFlag.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/EncryptFlag.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FieldFlag.java",
@@ -7901,12 +7901,12 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPane.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/FlagBitsPane.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPaneView.java",
@@ -7921,32 +7921,32 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FontFlag.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/FontFlag.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/PanoseFlag.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/PanoseFlag.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/SigFlag.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/SigFlag.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontEncodingPaneController.java",
@@ -7991,12 +7991,12 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type0Font.java",
     "target_path": "src/PdfBox.Net.Debugger/Fontencodingpane/Type0Font.cs",
-    "source_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
-    "sync_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-07-14T18:35:49.300Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/Type3Font.java",
@@ -8721,12 +8721,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphsAndPositions.java",
     "target_path": "src/PdfBox.Net/PDModel/GlyphsAndPositions.cs",
-    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
-    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted-minimal",
     "status": "in-sync",
-    "last_checked_utc": "2026-07-06T20:22:42Z",
-    "note": "Ported the upstream glyph and positioning container used by glyph-layout processors."
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Ported the upstream glyph and positioning container used by glyph-layout processors. Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutFontLoaderAwt.java",
@@ -8767,5 +8767,125 @@
     "status": "in-sync",
     "last_checked_utc": "2026-07-06T20:22:42Z",
     "note": "Added regression coverage for glyph-layout content stream hooks emitting hexadecimal Tj/TJ operands and Ts text rise."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForBengali.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForBengali.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForDevanagari.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForDevanagari.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForDflt.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForDflt.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForGujarati.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForGujarati.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForLatin.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForLatin.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForTamil.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForTamil.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/OperatorName.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/OperatorName.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/ContentStreamWriter.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/ContentStreamWriter.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceN.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceN.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDSeparation.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/optionalcontent/PDOptionalContentGroup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/OptionalContent/PDOptionalContentGroup.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/optionalcontent/PDOptionalContentMembershipDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/OptionalContent/PDOptionalContentMembershipDictionary.cs",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:13:46Z",
+    "note": "Reviewed and synchronized with upstream through issue #912; detailed applicability decisions are recorded in reports/issue-912-upstream-sync-assessment.md."
   }
 ]

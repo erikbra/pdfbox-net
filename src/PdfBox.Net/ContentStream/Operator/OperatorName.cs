@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/OperatorName.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  */
 
 /*
@@ -25,10 +25,20 @@
  * limitations under the License.
  */
 
+using System.Reflection;
+using System.Text;
+
 namespace PdfBox.Net.ContentStream.Operator;
 
 public static class OperatorName
 {
+    private static readonly IReadOnlyDictionary<string, byte[]> NamesAsBytes =
+        typeof(OperatorName)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(field => field.IsLiteral && field.FieldType == typeof(string))
+            .Select(field => (string)field.GetRawConstantValue()!)
+            .ToDictionary(name => name, Encoding.ASCII.GetBytes, StringComparer.Ordinal);
+
     // non stroking color
     public const string NON_STROKING_COLOR = "sc";
     public const string NON_STROKING_COLOR_N = "scn";
@@ -117,4 +127,21 @@ public static class OperatorName
     // compatibility section
     public const string BEGIN_COMPATIBILITY_SECTION = "BX";
     public const string END_COMPATIBILITY_SECTION = "EX";
+
+    /// <summary>
+    /// Returns the cached ASCII representation of an operator name.
+    /// </summary>
+    /// <param name="operatorName">The operator name.</param>
+    /// <returns>The cached ASCII bytes.</returns>
+    /// <exception cref="ArgumentException">The name is not a known PDF operator.</exception>
+    public static byte[] GetNameAsBytes(string operatorName)
+    {
+        ArgumentNullException.ThrowIfNull(operatorName);
+        if (!NamesAsBytes.TryGetValue(operatorName, out byte[]? bytes))
+        {
+            throw new ArgumentException($"Unknown operator {operatorName}", nameof(operatorName));
+        }
+
+        return bytes;
+    }
 }

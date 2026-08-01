@@ -1,13 +1,19 @@
 {
-  "generated_at_utc": "2026-07-31T07:59:25.654Z",
+  "generated_at_utc": "2026-08-01T11:16:25.869Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
+  "excluded_upstream_modules": [
+    "pdfbox-layout-fop"
+  ],
+  "excluded_upstream_module_counts": {
+    "pdfbox-layout-fop": 4
+  },
   "upstream_head": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
-  "tracked_parity_baseline_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
+  "tracked_parity_baseline_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "total": 1077,
+  "total": 1073,
   "mapped": 1073,
-  "missing": 4,
+  "missing": 0,
   "modules": [
     {
       "module": "benchmark",
@@ -57,13 +63,6 @@
       "mapped": 3,
       "missing": 0,
       "pct": 100.0
-    },
-    {
-      "module": "pdfbox-layout-fop",
-      "java_files": 4,
-      "mapped": 0,
-      "missing": 4,
-      "pct": 0.0
     },
     {
       "module": "tools",
@@ -264,13 +263,6 @@
       "pct": 100.0
     },
     {
-      "family": "pdfbox-layout-fop:glyphlayout",
-      "java_files": 4,
-      "mapped": 0,
-      "missing": 4,
-      "pct": 0.0
-    },
-    {
       "family": "tools:tools",
       "java_files": 26,
       "mapped": 26,
@@ -307,17 +299,10 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 803,
-    "in-sync": 803,
+    "total_rows": 815,
+    "in-sync": 815,
     "partially-in-sync": 0,
     "partial": 0
   },
-  "top_missing_modules": {
-    "pdfbox-layout-fop": [
-      "pdfbox-layout-fop/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorldFOP.java",
-      "pdfbox-layout-fop/src/main/java/org/apache/pdfbox/glyphlayout/fop/FopStringTextFragment.java",
-      "pdfbox-layout-fop/src/main/java/org/apache/pdfbox/glyphlayout/fop/GlyphLayoutFontLoaderFop.java",
-      "pdfbox-layout-fop/src/main/java/org/apache/pdfbox/glyphlayout/fop/GlyphLayoutProcessorFop.java"
-    ]
-  }
+  "top_missing_modules": {}
 }

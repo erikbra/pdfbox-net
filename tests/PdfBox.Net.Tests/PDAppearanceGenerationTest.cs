@@ -6,6 +6,7 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.PdfParser;
@@ -84,6 +85,29 @@ public class PDAppearanceGenerationTest
     }
 
     [Fact]
+    public void TextFieldReplacesAppearanceWhoseBoundsDoNotMatchWidget()
+    {
+        using PDDocument document = new();
+        PDAcroForm acroForm = CreateAcroFormWithHelvetica(document);
+        PDTextField field = new(acroForm);
+        field.SetDefaultAppearance("/F1 10 Tf 0 g");
+        PDAnnotationWidget widget = CreateWidget(new PDRectangle(10, 20, 120, 24));
+        PDAppearanceStream staleAppearance = new(document);
+        staleAppearance.SetBBox(new PDRectangle(10, 10));
+        PDAppearanceDictionary appearances = new();
+        appearances.SetNormalAppearance(staleAppearance);
+        widget.SetAppearance(appearances);
+        field.SetWidgets([widget]);
+
+        field.SetValue("Updated");
+
+        PDAppearanceStream generated = widget.GetNormalAppearanceStream()!;
+        Assert.NotSame(staleAppearance.GetCOSObject(), generated.GetCOSObject());
+        Assert.Equal(120, generated.GetBBox()!.GetWidth(), precision: 3);
+        Assert.Equal(24, generated.GetBBox()!.GetHeight(), precision: 3);
+    }
+
+    [Fact]
     public void TextFieldConstructAppearancesPreservesGeneratedBorderWhenWritingValue()
     {
         using PDDocument document = new();
@@ -156,6 +180,18 @@ public class PDAppearanceGenerationTest
             IList<object> tokens = ParseAppearance(stream);
             Assert.DoesNotContain(tokens, token => token is COSNull);
         }
+    }
+
+    [Fact]
+    public void BaseAppearanceHandlerShouldTolerateMissingAnnotationRectangle()
+    {
+        PDAnnotationText annotation = new();
+        TestAppearanceHandler handler = new(annotation);
+
+        handler.GenerateNormalAppearance();
+
+        Assert.NotNull(annotation.GetNormalAppearanceStream());
+        Assert.Null(annotation.GetNormalAppearanceStream()!.GetBBox());
     }
 
     [Fact]
@@ -234,6 +270,19 @@ public class PDAppearanceGenerationTest
         PDAnnotationWidget widget = new();
         widget.SetRectangle(rectangle);
         return widget;
+    }
+
+    private sealed class TestAppearanceHandler : PDAbstractAppearanceHandler
+    {
+        public TestAppearanceHandler(PDAnnotation annotation)
+            : base(annotation)
+        {
+        }
+
+        public override void GenerateNormalAppearance()
+        {
+            WriteDefaultNormalAppearance("test");
+        }
     }
 
     private static IList<object> ParseAppearance(PDAppearanceStream stream)

@@ -92,6 +92,48 @@ public class PDDocumentFixupTest
         Assert.NotNull(resolvedWidget.GetNormalAppearanceStream());
     }
 
+    [Fact]
+    public void DefaultFixupIgnoresCyclicOrphanWidgetParents()
+    {
+        using PDDocument document = new();
+        PDPage page = new();
+        document.AddPage(page);
+
+        PDAcroForm acroForm = new(document);
+        acroForm.SetNeedAppearances(true);
+        acroForm.SetFields([]);
+        document.GetDocumentCatalog().SetAcroForm(acroForm);
+
+        COSDictionary widgetDictionary = new();
+        widgetDictionary.SetName(COSName.SUBTYPE, PDAnnotationWidget.SUB_TYPE);
+        widgetDictionary.SetName(COSName.GetPDFName("FT"), "Tx");
+        widgetDictionary.SetString(COSName.T, "cyclic");
+        widgetDictionary.SetItem(COSName.PARENT, widgetDictionary);
+        widgetDictionary.SetItem(COSName.RECT, new PDRectangle(20, 20, 120, 24).GetCOSArray());
+        page.SetAnnotations([new PDAnnotationWidget(widgetDictionary)]);
+
+        PDAcroForm fixedUp = document.GetDocumentCatalog().GetAcroForm()!;
+
+        Assert.Empty(fixedUp.GetFields());
+    }
+
+    [Fact]
+    public void RadioButtonNoToggleToOffFlagRoundTrips()
+    {
+        using PDDocument document = new();
+        PDRadioButton radioButton = new(new PDAcroForm(document));
+
+        Assert.False(radioButton.IsNoToggleToOff());
+
+        radioButton.SetNoToggleToOff(true);
+        Assert.True(radioButton.IsNoToggleToOff());
+        COSDictionary radioDictionary = Assert.IsType<COSDictionary>(radioButton.GetCOSObject());
+        Assert.Equal(1 << 14, radioDictionary.GetInt(COSName.GetPDFName("FF")) & (1 << 14));
+
+        radioButton.SetNoToggleToOff(false);
+        Assert.False(radioButton.IsNoToggleToOff());
+    }
+
     private sealed class CountingFixup : AbstractFixup
     {
         public int ApplyCount { get; private set; }

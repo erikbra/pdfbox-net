@@ -31,6 +31,7 @@ jobs:
 
           owner, repo = os.environ["REPO"].split("/", 1)
           token = os.environ["GITHUB_TOKEN"]
+          issue_labels = ["upstream-sync"]
           headers = {
               "Authorization": f"Bearer {token}",
               "Accept": "application/vnd.github+json",
@@ -130,15 +131,23 @@ jobs:
                   created = request_json(
                       create_url,
                       method="POST",
-                      payload={"title": issue_title, "body": issue_body},
+                      payload={
+                          "title": issue_title,
+                          "body": issue_body,
+                          "labels": issue_labels,
+                      },
                   )
                   print(f"Created upstream-sync issue #{created['number']} for {check['label']}.")
               else:
                   update_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{existing['number']}"
+                  existing_labels = [label["name"] for label in existing.get("labels", [])]
                   updated = request_json(
                       update_url,
                       method="PATCH",
-                      payload={"body": issue_body},
+                      payload={
+                          "body": issue_body,
+                          "labels": sorted(set(existing_labels + issue_labels)),
+                      },
                   )
                   print(f"Updated upstream-sync issue #{updated['number']} for {check['label']}.")
 
