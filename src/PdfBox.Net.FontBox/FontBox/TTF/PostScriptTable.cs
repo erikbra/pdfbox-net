@@ -61,20 +61,16 @@ public sealed class PostScriptTable() : TTFTable(TAG)
         MinMemType1 = data.ReadUnsignedInt();
         MaxMemType1 = data.ReadUnsignedInt();
 
-        if (FormatType == 1.0f)
-        {
-            GlyphNames = WGL4Names.GetAllNames();
-        }
-        else if (FormatType == 3.0f)
-        {
-            LOG.LogDebug("No PostScript name information is provided for the font {FontName}",
-                font.GetName());
-        }
-        else if (data.GetCurrentPosition() >= Offset + Length ||
-                 data.GetCurrentPosition() == data.GetOriginalDataSize())
+        if (FormatType != 1.0f && FormatType != 3.0f &&
+            (data.GetCurrentPosition() >= Offset + Length ||
+             data.GetCurrentPosition() == data.GetOriginalDataSize()))
         {
             LOG.LogWarning("No PostScript name data is provided for the font {FontName}",
                 font.GetName());
+        }
+        else if (FormatType == 1.0f)
+        {
+            GlyphNames = WGL4Names.GetAllNames();
         }
         else if (FormatType == 2.0f)
         {
@@ -157,6 +153,11 @@ public sealed class PostScriptTable() : TTFTable(TAG)
                     }
                 }
             }
+        }
+        else if (FormatType == 3.0f)
+        {
+            LOG.LogDebug("No PostScript name information is provided for the font {FontName}",
+                font.GetName());
         }
         Initialized = true;
     }
