@@ -13,7 +13,7 @@
     <PackageVersion Include="JBig2Decoder.NETStandard" Version="1.5.2" />
     <PackageVersion Include="Lucene.Net" Version="4.8.0-beta00016" />
     <PackageVersion Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00016" />
-    <PackageVersion Include="Magick.NET-Q8-AnyCPU" Version="14.14.0" />
+    <PackageVersion Include="Magick.NET-Q8-AnyCPU" Version="14.16.0" />
     <PackageVersion Include="Microsoft.Playwright" Version="1.61.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.7.1" />
@@ -26,7 +26,7 @@
     <PackageVersion Include="System.Drawing.Common" Version="9.0.4" />
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="9.0.4" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="4.148.0" />
-    <PackageVersion Include="Unicode.Bidi" Version="0.3.18-preview.1" />
+    <PackageVersion Include="Unicode.Bidi" Version="0.3.18" />
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
   </ItemGroup>
