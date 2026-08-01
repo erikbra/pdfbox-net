@@ -69,39 +69,29 @@ positions; reshaping it would risk changing the author's content.
 |---|---:|---:|
 | Core glyph-layout interfaces and content-stream hooks | Yes | Yes |
 | Upstream-compatible AWT-facing API adaptation | Yes | Yes |
-| SkiaSharp/HarfBuzz shaping backend | Yes | Not yet |
+| SkiaSharp/HarfBuzz shaping backend | Yes | Yes |
 | Literal Apache FOP runtime dependency | No, intentionally replaced | No, intentionally replaced |
 
-The AWT-facing adaptation on `release/3.0` currently provides the compatible
-registration/content-stream surface but only a conservative Identity-H glyph
-code path. Full complex-script shaping on that branch requires backporting the
-existing SkiaSharp/HarfBuzz backend.
+The `release/3.0` branch includes the same optional SkiaSharp/HarfBuzz shaping
+backend as `main`. Applications can therefore opt into complex-script shaping
+without adding Apache FOP or exposing SkiaSharp/HarfBuzzSharp types through the
+core PDFBox.Net API.
 
-## Backport scope for `release/3.0`
+## `release/3.0` backport status
 
-The backport does not require designing a new shaping engine. The core
-interfaces it consumes are already present on `release/3.0`. The remaining
-work is bounded to:
+The backend was backported in [issue #929](https://github.com/erikbra/pdfbox-net/issues/929)
+and merged through [PR #931](https://github.com/erikbra/pdfbox-net/pull/931).
+The backport includes:
 
-1. Backport `SkiaGlyphLayoutProcessor` and `BidiTextRunResolver`.
-2. Add the HarfBuzzSharp native-asset and `Unicode.Bidi` package references to
-   `PdfBox.Net.SkiaSharp`.
-3. Backport the generated-content tests for Latin kerning, Bengali
+1. `SkiaGlyphLayoutProcessor` and `BidiTextRunResolver`.
+2. HarfBuzzSharp native assets for Linux, macOS, and Windows plus
+   `Unicode.Bidi` references in `PdfBox.Net.SkiaSharp`.
+3. Generated-content tests for Latin kerning, Bengali
    substitution, Thai mark positioning, missing glyphs, and representative
-   LTR/RTL visual runs.
-4. Run the normal solution, package, API-surface, and Java runtime-parity gates
-   on `release/3.0`, including all supported native runtime packages.
+   LTR/RTL visual runs, including font-stream lifetime coverage.
 
-A disposable backport rehearsal against `release/3.0` applied the production
-and test changes without any source-code conflicts. The only conflict was in a
-generated upstream-sync state report, which should not be copied from `main`.
-The backported project restored and built successfully, and all six focused
-`SkiaGlyphLayoutProcessorTest` cases passed on the first run.
-
-Based on that rehearsal, the expected effort is approximately four to eight
-focused engineering hours, normally one calendar day including the full test,
-package, API-surface, runtime-parity, and CI gates. The main remaining risks are
-native-package packaging across Linux, macOS, and Windows, and keeping
-`Unicode.Bidi` behavior aligned with the Java `java.text.Bidi` fixtures. The
-shaping implementation itself is already exercised on `main` and does not
-appear to require branch-specific adaptation.
+Before merge, all eight focused glyph-layout tests passed, the full solution
+reported 1,462 passing and 7 skipped tests, package inspection confirmed the
+native runtime dependencies, and the API-surface gate passed. The Java/.NET
+runtime-parity suite reported 1,027 matches across 161 PDFs with no unexpected
+divergences; the same build, test, package, API, and runtime gates passed in CI.
