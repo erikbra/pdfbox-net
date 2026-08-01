@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5.4.0
@@ -37,7 +37,7 @@ jobs:
         run: dotnet test PdfBoxNet.slnx --configuration Release --no-build --nologo
 
       - name: Checkout Apache PDFBox for API surface gate
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           repository: apache/pdfbox
           ref: ${{ env.PDFBOX_API_SURFACE_PDFBOX_REF }}
@@ -64,10 +64,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       - name: Checkout Apache PDFBox
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           repository: apache/pdfbox
           ref: ${{ env.PDFBOX_PARITY_PDFBOX_REF }}
