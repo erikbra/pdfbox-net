@@ -10,6 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Utilities;
 using PdfBox.Net.Cryptography.Certificates;
 using PdfBox.Net.PDModel.Encryption;
 using BcX509Certificate = Org.BouncyCastle.X509.X509Certificate;
@@ -56,6 +57,17 @@ public sealed class BouncyCastlePublicKeySecurityProvider : IPublicKeySecurityPr
             {
                 if (recipient.RecipientID.Match(bcCertificate))
                 {
+                    if (data.EncryptionAlgOid == CmsEnvelopedGenerator.RC2Cbc)
+                    {
+                        // PDF public-key recipient fields use a variable-length RC2 content key. BouncyCastle 2.7
+                        // requires an explicit, narrowly scoped opt-in because constant-time RSA unwrap needs a
+                        // fixed key size. Keep the compatibility setting thread-local and restore it after this call.
+                        return Properties.WithThreadProperty(
+                            Properties.CmsAllowLenientRsaPkcs1,
+                            bool.TrueString,
+                            () => recipient.GetContent(bcPrivateKey));
+                    }
+
                     return recipient.GetContent(bcPrivateKey);
                 }
             }
