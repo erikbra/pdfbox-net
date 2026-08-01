@@ -1,20 +1,22 @@
 {
-  "generated_at_utc": "2026-07-18T09:48:39.871Z",
+  "generated_at_utc": "2026-08-01T11:57:09.388Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "origin/3.0",
   "excluded_upstream_modules": [
+    "pdfbox-layout-fop",
     "preflight",
     "preflight-app"
   ],
   "excluded_upstream_module_counts": {
+    "pdfbox-layout-fop": 4,
     "preflight": 116,
     "preflight-app": 0
   },
-  "upstream_head": "a1685ce5bccd2397737b056663fcf4697686fea3",
-  "tracked_parity_baseline_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
+  "upstream_head": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+  "tracked_parity_baseline_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "total": 1071,
-  "mapped": 1071,
+  "total": 1077,
+  "mapped": 1077,
   "missing": 0,
   "modules": [
     {
@@ -54,8 +56,15 @@
     },
     {
       "module": "pdfbox",
-      "java_files": 621,
-      "mapped": 621,
+      "java_files": 624,
+      "mapped": 624,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "module": "pdfbox-layout-awt",
+      "java_files": 3,
+      "mapped": 3,
       "missing": 0,
       "pct": 100.0
     },
@@ -217,8 +226,8 @@
     },
     {
       "family": "pdfbox:pdmodel",
-      "java_files": 431,
-      "mapped": 431,
+      "java_files": 434,
+      "mapped": 434,
       "missing": 0,
       "pct": 100.0
     },
@@ -247,6 +256,13 @@
       "family": "pdfbox:util",
       "java_files": 13,
       "mapped": 13,
+      "missing": 0,
+      "pct": 100.0
+    },
+    {
+      "family": "pdfbox-layout-awt:glyphlayout",
+      "java_files": 3,
+      "mapped": 3,
       "missing": 0,
       "pct": 100.0
     },
@@ -287,8 +303,8 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 800,
-    "in-sync": 800,
+    "total_rows": 819,
+    "in-sync": 819,
     "partially-in-sync": 0,
     "partial": 0
   },

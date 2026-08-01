@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java
- * PDFBOX_SOURCE_COMMIT: a1685ce5bccd2397737b056663fcf4697686fea3
+ * PDFBOX_SOURCE_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: a1685ce5bccd2397737b056663fcf4697686fea3
+ * PORT_LAST_SYNC_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  */
 
 /*

@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
- * Adapted from Apache PDFBox Java source with AI assistance.
+ * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
- * PDFBOX_SOURCE_PATH: debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FontFlag.java
+ * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ContentStreamForGlyphLayoutInterface.java
  * PDFBOX_SOURCE_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
- * PORT_MODE: adapted
+ * PORT_MODE: adapted-minimal
  * PORT_LAST_SYNC_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  */
 
@@ -25,14 +25,25 @@
  * limitations under the License.
  */
 
-namespace PdfBox.Net.Debugger.Flagbitspane;
+namespace PdfBox.Net.PDModel;
 
-public sealed class FontFlag : BitFlagBase
+public interface ContentStreamForGlyphLayoutInterface
 {
-    public FontFlag()
-        : base("Font descriptor flags",
-        ["FixedPitch", "Serif", "Symbolic", "Script", "Nonsymbolic", "Italic", "AllCap", "SmallCap", "ForceBold"],
-        [1, 2, 3, 4, 6, 7, 17, 18, 19])
-    {
-    }
+    /// <summary>
+    /// Show the given glyphs at the specified positions.
+    /// </summary>
+    /// <param name="glyphsAndPositions">List of glyphs and positions.</param>
+    void ShowGlyphsWithPositioning(GlyphsAndPositions glyphsAndPositions);
+
+    /// <summary>
+    /// Shows the glyphs for the given glyph codes.
+    /// </summary>
+    /// <param name="glyphCodes">Array of glyph codes of the content font.</param>
+    void ShowGlyphCodes(int[] glyphCodes);
+
+    /// <summary>
+    /// Set the text rise value, i.e. move the baseline up or down.
+    /// </summary>
+    /// <param name="rise">Distance in unscaled text space units to move the baseline.</param>
+    void SetTextRise(float rise);
 }

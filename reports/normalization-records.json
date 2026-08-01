@@ -319,7 +319,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "TTF parser now handles table-directory parsing and mandatory-table validation for downstream font flows, with focused parser regression tests for header and mandatory-table handling."
+    "note": "TTF parser now handles table-directory parsing and mandatory-table validation for downstream font flows, with focused parser regression tests for header and mandatory-table handling. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
@@ -338,7 +338,7 @@
     "normalization_applied": true,
     "change_categories": [
       "Java syntax leftovers -> C# syntax equivalents",
-      "Adapted port \u2014 not full parity"
+      "Adapted port — not full parity"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
@@ -755,7 +755,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Fixture-driven load\u2192save\u2192reload smoke checks for classic xref, flate-content, xref-stream, and object-stream paths. Validates page count, title, and author are preserved after the basic save/reload cycle."
+    "note": "Fixture-driven load→save→reload smoke checks for classic xref, flate-content, xref-stream, and object-stream paths. Validates page count, title, and author are preserved after the basic save/reload cycle."
   },
   {
     "source_path": "n/a",
@@ -1310,7 +1310,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
@@ -1424,7 +1424,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Introduced shared subset writer foundation reused by new form/pattern content stream wrappers."
+    "note": "Introduced shared subset writer foundation reused by new form/pattern content stream wrappers. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
@@ -1437,7 +1437,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Implements the PDDocument lifecycle parity slice over the existing parser/writer envelope, including COSDocument access, /Info replacement, and upstream version behavior."
+    "note": "Implements the PDDocument lifecycle parity slice over the existing parser/writer envelope, including COSDocument access, /Info replacement, and upstream version behavior. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -1868,7 +1868,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Mechanical PostScript calculator function port over the new type4 helper stack."
+    "note": "Mechanical PostScript calculator function port over the new type4 helper stack. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionTypeIdentity.java",
@@ -2450,7 +2450,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice."
+    "note": "Issue #72 closeout normalization audit for PDModel/FDF parity slice. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPage.java",
@@ -3542,7 +3542,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+    "note": "Interactive mapping normalized and validated during issue #68 closeout. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAppearanceHandler.java",
@@ -3905,7 +3905,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+    "note": "Interactive mapping normalized and validated during issue #68 closeout. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigProperties.java",
@@ -4070,7 +4070,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+    "note": "Interactive mapping normalized and validated during issue #68 closeout. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/FieldUtils.java",
@@ -4092,7 +4092,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+    "note": "Interactive mapping normalized and validated during issue #68 closeout. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDButton.java",
@@ -4147,7 +4147,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+    "note": "Interactive mapping normalized and validated during issue #68 closeout. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDField.java",
@@ -4235,7 +4235,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+    "note": "Interactive mapping normalized and validated during issue #68 closeout. Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDSignatureField.java",
@@ -5004,5 +5004,364 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Added Apache license header and XML doc comments explaining the .NET split-operator architecture. No semantic logic changed."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/EncryptFlag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/EncryptFlag.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/FlagBitsPane.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FontFlag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/FontFlag.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/PanoseFlag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/PanoseFlag.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/SigFlag.java",
+    "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/SigFlag.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForBengali.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForBengali.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForDevanagari.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForDevanagari.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForDflt.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForDflt.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForGujarati.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForGujarati.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForLatin.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForLatin.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/OperatorName.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/OperatorName.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCIIHexFilter.java",
+    "target_path": "src/PdfBox.Net/Filter/ASCIIHexFilter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutFontLoaderAwt.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutFontLoaderAwt.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutProcessorAwt.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutProcessorAwt.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorldAWT.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Examples/GlyphLayoutHelloWorldAWT.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ContentStreamForGlyphLayoutInterface.java",
+    "target_path": "src/PdfBox.Net/PDModel/ContentStreamForGlyphLayoutInterface.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureElement.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureElement.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormOrphanWidgetsProcessor.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fixup/Processor/AcroFormOrphanWidgetsProcessor.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphLayoutProcessorInterface.java",
+    "target_path": "src/PdfBox.Net/PDModel/GlyphLayoutProcessorInterface.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphsAndPositions.java",
+    "target_path": "src/PdfBox.Net/PDModel/GlyphsAndPositions.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceN.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceN.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDSeparation.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CCITTFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PNGConverter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PNGConverter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/optionalcontent/PDOptionalContentGroup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/OptionalContent/PDOptionalContentGroup.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/optionalcontent/PDOptionalContentMembershipDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/OptionalContent/PDOptionalContentMembershipDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAppearanceContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDAppearanceContentStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPageContentStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/ContentStreamWriter.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/ContentStreamWriter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "Upstream package/module mapped into PdfBox.Net namespace"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Compile-oriented adaptation reviewed for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": null,
+    "target_path": "src/PdfBox.Net/PDModel/GlyphLayoutContentStreamSupport.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Port-local COS operand helper"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Port-local helper reviewed and compiled for Apache PDFBox 3.0 synchronization issue #913."
   }
 ]

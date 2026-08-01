@@ -1322,12 +1322,12 @@
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
-    "source_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
-    "sync_commit": "10950c29006e36cfba48e74d4031784e31562cbf",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-07-14T19:12:39Z",
-    "note": "Reviewed PDFBOX-5660; the upstream batch changes Javadoc links only. Existing parser behavior and tests remain applicable."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Reviewed PDFBOX-5660; the upstream batch changes Javadoc links only. Existing parser behavior and tests remain applicable. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
@@ -1795,7 +1795,7 @@
     "port_mode": "native-test",
     "status": "in-sync",
     "last_checked_utc": "2026-05-25T07:40:00Z",
-    "note": "Roundtrip smoke checks for all parser-integrated paths: load fixture \u2192 save to MemoryStream \u2192 reload \u2192 assert page count, title, and author are preserved. Closes issue #41 regression and roundtrip scope."
+    "note": "Roundtrip smoke checks for all parser-integrated paths: load fixture → save to MemoryStream → reload → assert page count, title, and author are preserved. Closes issue #41 regression and roundtrip scope."
   },
   {
     "source_path": "n/a",
@@ -1905,7 +1905,7 @@
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-30T22:42:27Z",
-    "note": "PDF byte-array, file-path, RandomAccessRead, and streamCache entry points are in-sync. Public-key encryption overloads (keyStore, alias) are present in the API surface; key-store parameters are accepted but not applied \u2014 public-key security is deferred. XFDF loading is present as NotSupportedException stubs (XFDF XML parsing deferred). Adapted port."
+    "note": "PDF byte-array, file-path, RandomAccessRead, and streamCache entry points are in-sync. Public-key encryption overloads (keyStore, alias) are present in the API surface; key-store parameters are accepted but not applied — public-key security is deferred. XFDF loading is present as NotSupportedException stubs (XFDF XML parsing deferred). Adapted port."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
@@ -2681,12 +2681,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/ASCIIHexFilter.java",
     "target_path": "src/PdfBox.Net/Filter/ASCIIHexFilter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T15:10:16Z",
-    "note": "ASCIIHex decode/encode implemented."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "ASCIIHex decode/encode implemented. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxFilter.java",
@@ -2921,12 +2921,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java",
     "target_path": "src/PdfBox.Net/PdfParser/PDFXrefStreamParser.cs",
-    "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T16:30:07Z",
-    "note": "Issue #92 core operator/parser/writer parity closeout mapping entry."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Issue #92 core operator/parser/writer parity closeout mapping entry. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
@@ -3021,22 +3021,22 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
     "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
-    "source_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
-    "sync_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-07-18T09:47:11Z",
-    "note": "Issue #908 reviewed PDFBOX-6220. The adapted stream writes named font operators and does not construct GSUB workers, so the Java per-PDType0Font worker cache is not applicable; the cache-focused upstream test is deferred for the same architectural reason."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Issue #908 reviewed PDFBOX-6220. The adapted stream writes named font operators and does not construct GSUB workers, so the Java per-PDType0Font worker cache is not applicable; the cache-focused upstream test is deferred for the same architectural reason. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
     "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
-    "source_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
-    "sync_commit": "a1685ce5bccd2397737b056663fcf4697686fea3",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-07-18T09:47:11Z",
-    "note": "Issue #908 reviewed PDFBOX-6219. The .NET document type has no Java AWT class-loading probe or static initializer, so the additional NoClassDefFoundError catch has no runtime equivalent."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Issue #908 reviewed PDFBOX-6219. The .NET document type has no Java AWT class-loading probe or static initializer, so the additional NoClassDefFoundError catch has no runtime equivalent. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -3431,12 +3431,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType4.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType4.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T20:48:52Z",
-    "note": "Mechanical PostScript calculator function port over the new type4 helper stack."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Mechanical PostScript calculator function port over the new type4 helper stack. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionTypeIdentity.java",
@@ -3601,12 +3601,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureElement.java",
     "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureElement.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "note": "Attribute CRUD (GetAttributes, SetAttributes, AddAttribute, RemoveAttribute, AttributeChanged) added in issue #45. Class-name, marked-content, and parent traversal helpers already present from issue #43.",
-    "last_checked_utc": "2026-05-25T12:37:50Z"
+    "note": "Attribute CRUD (GetAttributes, SetAttributes, AddAttribute, RemoveAttribute, AttributeChanged) added in issue #45. Class-name, marked-content, and parent traversal helpers already present from issue #43. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md.",
+    "last_checked_utc": "2026-08-01T11:53:27Z"
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureNode.java",
@@ -4151,12 +4151,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFOptionElement.java",
     "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFOptionElement.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-28T04:38:47Z",
-    "note": "PDModel FDF milestone closeout parity row for issue #72."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "PDModel FDF milestone closeout parity row for issue #72. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFPage.java",
@@ -4251,12 +4251,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormOrphanWidgetsProcessor.java",
     "target_path": "src/PdfBox.Net/PDModel/Fixup/Processor/AcroFormOrphanWidgetsProcessor.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-28T07:50:20Z",
-    "note": "PDModel fixup milestone parity row for issue #73."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "PDModel fixup milestone parity row for issue #73. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/PDDocumentProcessor.java",
@@ -4356,7 +4356,7 @@
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 PDCIDFontType2 embedding deferred pending PDFontDescriptor setters and CMap/ToUnicode support."
+    "note": "Adapted stub – PDCIDFontType2 embedding deferred pending PDFontDescriptor setters and CMap/ToUnicode support."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",
@@ -4436,7 +4436,7 @@
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 PDTrueTypeFont embedding deferred pending PDFontDescriptor setters."
+    "note": "Adapted stub – PDTrueTypeFont embedding deferred pending PDFontDescriptor setters."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
@@ -4466,7 +4466,7 @@
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 PDType1Font embedding deferred pending PfbParser port and PDFontDescriptor setters."
+    "note": "Adapted stub – PDType1Font embedding deferred pending PfbParser port and PDFontDescriptor setters."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
@@ -4496,7 +4496,7 @@
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 full font subsetting requires PDFontDescriptor setter APIs and document-writing layer, deferred."
+    "note": "Adapted stub – full font subsetting requires PDFontDescriptor setter APIs and document-writing layer, deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
@@ -4761,12 +4761,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CCITTFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 CCITT/TIFF imaging requires platform-specific APIs not yet available."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Adapted stub – CCITT/TIFF imaging requires platform-specific APIs not yet available. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CustomFactory.java",
@@ -4776,7 +4776,7 @@
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 custom raster factory requires platform-specific imaging APIs."
+    "note": "Adapted stub – custom raster factory requires platform-specific imaging APIs."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
@@ -4786,7 +4786,7 @@
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 JPEG image factory requires platform-specific imaging APIs."
+    "note": "Adapted stub – JPEG image factory requires platform-specific imaging APIs."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/LosslessFactory.java",
@@ -4796,7 +4796,7 @@
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 lossless image factory requires platform-specific imaging APIs."
+    "note": "Adapted stub – lossless image factory requires platform-specific imaging APIs."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImage.java",
@@ -4821,12 +4821,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PNGConverter.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PNGConverter.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 PNG converter requires platform-specific imaging APIs."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Adapted stub – PNG converter requires platform-specific imaging APIs. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/SampledImageReader.java",
@@ -4836,7 +4836,7 @@
     "port_mode": "adapted",
     "status": "in-sync",
     "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub \u2013 sampled image reader requires platform-specific imaging APIs."
+    "note": "Adapted stub – sampled image reader requires platform-specific imaging APIs."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java",
@@ -5901,12 +5901,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAbstractAppearanceHandler.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDAbstractAppearanceHandler.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAppearanceHandler.java",
@@ -6231,12 +6231,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigBuilder.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/Visible/PDVisibleSigBuilder.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigProperties.java",
@@ -6381,12 +6381,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/AppearanceGeneratorHelper.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/FieldUtils.java",
@@ -6401,12 +6401,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDAcroForm.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDButton.java",
@@ -6451,12 +6451,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDDefaultAppearanceString.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDDefaultAppearanceString.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDField.java",
@@ -6531,12 +6531,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDRadioButton.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDRadioButton.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDSignatureField.java",
@@ -6995,7 +6995,7 @@
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "native-test",
     "status": "in-sync",
-    "note": "29 issue-46 tests covering parent-tree set/get round-trip, single-element lookup, array-value lookup, missing-key guard, end-to-end catalog\u2192StructTreeRoot\u2192ParentTree traversal, multi-page stability, Layout/List/Table attribute object subtypes, and PDAttributeObject.Create factory dispatch.",
+    "note": "29 issue-46 tests covering parent-tree set/get round-trip, single-element lookup, array-value lookup, missing-key guard, end-to-end catalog→StructTreeRoot→ParentTree traversal, multi-page stability, Layout/List/Table attribute object subtypes, and PDAttributeObject.Create factory dispatch.",
     "last_checked_utc": "2026-05-25T13:18:00Z"
   },
   {
@@ -7871,12 +7871,12 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/EncryptFlag.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/EncryptFlag.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FieldFlag.java",
@@ -7901,12 +7901,12 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPane.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/FlagBitsPane.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FlagBitsPaneView.java",
@@ -7921,32 +7921,32 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/FontFlag.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/FontFlag.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/PanoseFlag.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/PanoseFlag.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/SigFlag.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/SigFlag.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-31T23:08:14Z",
-    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart."
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported debugger module file into PdfBox.Net.Debugger as a .NET mechanical/adapted counterpart. Reviewed and synchronized with Apache PDFBox 3.0 through issue #913; applicability and test decisions are recorded in reports/issue-913-upstream-sync-assessment.md."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/fontencodingpane/FontEncodingPaneController.java",
@@ -8797,5 +8797,205 @@
     "status": "in-sync",
     "last_checked_utc": "2026-06-30T00:00:00Z",
     "note": "Apache PDFBox 3.0 missing-source reconciliation for issue #588."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForBengali.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForBengali.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForDevanagari.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForDevanagari.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForDflt.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForDflt.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForGujarati.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForGujarati.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForLatin.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GSub/GsubWorkerForLatin.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/OperatorName.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/OperatorName.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutFontLoaderAwt.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutFontLoaderAwt.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutProcessorAwt.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutProcessorAwt.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorldAWT.java",
+    "target_path": "src/PdfBox.Net/GlyphLayout/Examples/GlyphLayoutHelloWorldAWT.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ContentStreamForGlyphLayoutInterface.java",
+    "target_path": "src/PdfBox.Net/PDModel/ContentStreamForGlyphLayoutInterface.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted-minimal",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphLayoutProcessorInterface.java",
+    "target_path": "src/PdfBox.Net/PDModel/GlyphLayoutProcessorInterface.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted-minimal",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphsAndPositions.java",
+    "target_path": "src/PdfBox.Net/PDModel/GlyphsAndPositions.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted-minimal",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceN.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceN.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDSeparation.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/optionalcontent/PDOptionalContentGroup.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/OptionalContent/PDOptionalContentGroup.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/optionalcontent/PDOptionalContentMembershipDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/OptionalContent/PDOptionalContentMembershipDictionary.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAppearanceContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDAppearanceContentStream.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageContentStream.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPageContentStream.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/ContentStreamWriter.java",
+    "target_path": "src/PdfBox.Net/PdfWriter/ContentStreamWriter.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": null,
+    "target_path": "src/PdfBox.Net/PDModel/GlyphLayoutContentStreamSupport.cs",
+    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "port_mode": "port-local-helper",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-01T11:53:27Z",
+    "note": "Port-local COS operand helper supporting the Apache PDFBox 3.0 glyph-layout content-stream port in issue #913."
   }
 ]

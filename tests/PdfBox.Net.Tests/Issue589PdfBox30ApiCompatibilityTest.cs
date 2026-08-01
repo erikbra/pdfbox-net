@@ -60,6 +60,7 @@ public class Issue589PdfBox30ApiCompatibilityTest
     {
         using COSDocument document = new();
         COSStream stream = new();
+        stream.SetItem(COSName.GetPDFName("W"), COSArray.Of(1, 4, 2));
 
         PDFXRefStream xrefStream = new PDFXrefStreamParser(stream, document).Parse();
 

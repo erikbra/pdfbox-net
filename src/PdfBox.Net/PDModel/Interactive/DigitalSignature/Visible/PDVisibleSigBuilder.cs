@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/digitalsignature/visible/PDVisibleSigBuilder.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  */
 
 using System.Text;
@@ -84,7 +84,7 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         acroForm.SetAppendOnly(true);
         acroFormDictionary.SetDirect(true);
         fields.Add(signatureField);
-        acroForm.SetDefaultAppearance("/sylfaen 0 Tf 0 g");
+        acroForm.SetDefaultAppearance("/Helv 0 Tf 0 g");
         _structure.SetAcroFormFields(fields);
         _structure.SetAcroFormDictionary(acroFormDictionary);
     }
@@ -299,18 +299,26 @@ public class PDVisibleSigBuilder : PDFTemplateBuilder
         string holderFormContent = $"q 1 0 0 1 0 0 cm /{innerFormName.GetName()} Do Q\n";
         string innerFormContent = $"q 1 0 0 1 0 0 cm /n0 Do Q q 1 0 0 1 0 0 cm /{imageFormName.GetName()} Do Q\n";
 
-        AppendRawCommands(holderFormStream.CreateOutputStream(), holderFormContent);
-        AppendRawCommands(innerFormStream.CreateOutputStream(), innerFormContent);
-        AppendRawCommands(imageFormStream.CreateOutputStream(), imageFormContent);
+        WriteRawCommands(holderFormStream, holderFormContent);
+        WriteRawCommands(innerFormStream, innerFormContent);
+        WriteRawCommands(imageFormStream, imageFormContent);
     }
 
-    public void AppendRawCommands(Stream os, string commands)
+    public void WriteRawCommands(PDStream stream, string commands)
     {
-        ArgumentNullException.ThrowIfNull(os);
+        ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(commands);
-        using (os)
+        using Stream output = stream.CreateOutputStream();
+        output.Write(Encoding.UTF8.GetBytes(commands));
+    }
+
+    public void AppendRawCommands(Stream output, string commands)
+    {
+        ArgumentNullException.ThrowIfNull(output);
+        ArgumentNullException.ThrowIfNull(commands);
+        using (output)
         {
-            os.Write(Encoding.UTF8.GetBytes(commands));
+            output.Write(Encoding.UTF8.GetBytes(commands));
         }
     }
 
