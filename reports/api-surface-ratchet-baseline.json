@@ -8,7 +8,7 @@
   },
   "maxTotals": {
     "missing_members": 867,
-    "arity_drift_members": 45,
+    "arity_drift_members": 44,
     "type_name_or_visibility_gaps": 8,
     "missing_types": 0,
     "nonpublic_or_replacement_types": 2,
@@ -20,12 +20,12 @@
   },
   "maxDispositionCounts": {
     "behavior-covered": 116,
-    "intentional-dotnet-adaptation": 710,
+    "intentional-dotnet-adaptation": 709,
     "internal-by-design": 69,
     "not-applicable": 25
   },
   "minCoverage": {
-    "matched_or_arity_members": 5377,
-    "member_coverage_percent": 86.1147
+    "matched_or_arity_members": 5387,
+    "member_coverage_percent": 86.1369
   }
 }

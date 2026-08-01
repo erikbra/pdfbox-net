@@ -2,9 +2,9 @@
  * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFXrefStreamParser.java
- * PDFBOX_SOURCE_COMMIT: a71c5679d69bc3fd3ab15e248b69441ee91dca6c
+ * PDFBOX_SOURCE_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: a71c5679d69bc3fd3ab15e248b69441ee91dca6c
+ * PORT_LAST_SYNC_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  */
 
 /*
@@ -35,6 +35,7 @@ public sealed class PDFXrefStreamParser
     public PDFXrefStreamParser(COSStream stream)
     {
         _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+        ValidateFieldWidths(stream);
     }
 
     public PDFXrefStreamParser(COSStream stream, COSDocument document)
@@ -45,5 +46,28 @@ public sealed class PDFXrefStreamParser
     public PDFXRefStream Parse()
     {
         return new PDFXRefStream(_stream);
+    }
+
+    private static void ValidateFieldWidths(COSStream stream)
+    {
+        COSArray? widths = stream.GetCOSArray(COSName.GetPDFName("W"));
+        if (widths is null)
+        {
+            throw new IOException("/W array is missing in XRef stream");
+        }
+
+        if (widths.Size() != 3)
+        {
+            throw new IOException("Wrong number of values for /W array in XRef");
+        }
+
+        int first = widths.GetInt(0, 0);
+        int second = widths.GetInt(1, 0);
+        int third = widths.GetInt(2, 0);
+        int lineSize = first + second + third;
+        if (first < 0 || second < 0 || third < 0 || lineSize == 0 || lineSize > 20)
+        {
+            throw new IOException($"Incorrect /W array in XRef: [{first}, {second}, {third}]");
+        }
     }
 }

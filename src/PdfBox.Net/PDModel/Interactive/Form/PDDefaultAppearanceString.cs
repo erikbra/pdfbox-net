@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDDefaultAppearanceString.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  */
 
 /*
@@ -152,7 +152,14 @@ public sealed class PDDefaultAppearanceString
             throw new IOException("Default appearance string is missing a font.");
         }
 
-        contents.SetFont(FontName, fontSize);
+        if (Font != null)
+        {
+            contents.SetFont(FontName, Font, fontSize);
+        }
+        else
+        {
+            contents.SetFont(FontName, fontSize);
+        }
         if (FontColor != null)
         {
             contents.SetNonStrokingColor(FontColor);

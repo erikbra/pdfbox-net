@@ -1,9 +1,9 @@
 # PDFBox Upstream Java Gap Analysis (All Modules)
 
-Datetime (UTC): 2026-07-18T09:48:39.871Z
+Datetime (UTC): 2026-08-01T11:57:09.388Z
 Reference upstream Java repository: Apache PDFBox `origin/3.0`
-Tracked parity baseline commit: `a1685ce5bccd2397737b056663fcf4697686fea3`
-Latest upstream head scanned: `a1685ce5bccd2397737b056663fcf4697686fea3`
+Tracked parity baseline commit: `ddb7e78992bebc36140ba0d864c8212ec5da697b`
+Latest upstream head scanned: `ddb7e78992bebc36140ba0d864c8212ec5da697b`
 
 ## Scope and method
 
@@ -13,6 +13,7 @@ Latest upstream head scanned: `a1685ce5bccd2397737b056663fcf4697686fea3`
   - `source_path` rows in `reports/traceability-parity-report.json`.
 
 Excluded upstream modules:
+- `pdfbox-layout-fop`: 4 Java files
 - `preflight`: 116 Java files
 - `preflight-app`: 0 Java files
 
@@ -25,17 +26,18 @@ Excluded upstream modules:
 | `examples` | 94 | 94 | 0 | 100.0% |
 | `fontbox` | 143 | 143 | 0 | 100.0% |
 | `io` | 18 | 18 | 0 | 100.0% |
-| `pdfbox` | 621 | 621 | 0 | 100.0% |
+| `pdfbox` | 624 | 624 | 0 | 100.0% |
+| `pdfbox-layout-awt` | 3 | 3 | 0 | 100.0% |
 | `tools` | 26 | 26 | 0 | 100.0% |
 | `xmpbox` | 74 | 74 | 0 | 100.0% |
-| **TOTAL** | **1071** | **1071** | **0** | **100.0%** |
+| **TOTAL** | **1077** | **1077** | **0** | **100.0%** |
 
-Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **856 / 856 = 100.0%**.
+Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **859 / 859 = 100.0%**.
 
 ## Traceability status for mapped upstream source rows
 
-Among **800** rows with scoped upstream `source_path`:
-- `in-sync`: **800**
+Among **819** rows with scoped upstream `source_path`:
+- `in-sync`: **819**
 - `partially-in-sync`: **0**
 - `partial`: **0**
 
@@ -53,15 +55,14 @@ The generated `reports/upstream-file-comparison.json` contains one row for each 
 |---|---:|
 | `missing-port` | 0 |
 | `missing-provenance-marker` | 1 |
-| `missing-traceability-row` | 277 |
-| `none` | 793 |
+| `missing-traceability-row` | 264 |
+| `none` | 812 |
 
 | Gap category | Module | Files |
 |---|---|---:|
 | `missing-provenance-marker` | `pdfbox` | 1 |
 | `missing-traceability-row` | `benchmark` | 3 |
-| `missing-traceability-row` | `fontbox` | 99 |
+| `missing-traceability-row` | `fontbox` | 94 |
 | `missing-traceability-row` | `io` | 8 |
-| `missing-traceability-row` | `pdfbox` | 141 |
+| `missing-traceability-row` | `pdfbox` | 133 |
 | `missing-traceability-row` | `tools` | 26 |
-

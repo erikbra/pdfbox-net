@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDAbstractAppearanceHandler.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  */
 
 using PdfBox.Net.COS;
@@ -41,8 +41,13 @@ public abstract class PDAbstractAppearanceHandler : PDAppearanceHandler
 
         PDAppearanceStream stream = _annotation.GetNormalAppearanceStream()
             ?? (_document != null ? new PDAppearanceStream(_document) : new PDAppearanceStream(new COSStream()));
-        stream.SetBBox(Rectangle);
-        stream.SetMatrix(Matrix.GetTranslateInstance(-Rectangle.GetLowerLeftX(), -Rectangle.GetLowerLeftY()));
+        PDRectangle? rectangle = _annotation.GetRectangle();
+        stream.SetBBox(rectangle);
+        if (rectangle != null)
+        {
+            stream.SetMatrix(Matrix.GetTranslateInstance(
+                -rectangle.GetLowerLeftX(), -rectangle.GetLowerLeftY()));
+        }
         if (stream.GetResources() == null)
         {
             stream.SetResources(new PDModel.Resources.PDResources());

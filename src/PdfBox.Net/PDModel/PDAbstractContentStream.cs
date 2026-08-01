@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java
- * PDFBOX_SOURCE_COMMIT: a1685ce5bccd2397737b056663fcf4697686fea3
+ * PDFBOX_SOURCE_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: a1685ce5bccd2397737b056663fcf4697686fea3
+ * PORT_LAST_SYNC_COMMIT: ddb7e78992bebc36140ba0d864c8212ec5da697b
  */
 
 /*
@@ -38,12 +38,13 @@ namespace PdfBox.Net.PDModel;
 /// <summary>
 /// Base class for PDModel content stream writers.
 /// </summary>
-public abstract class PDAbstractContentStream : IDisposable
+public abstract class PDAbstractContentStream : ContentStreamForGlyphLayoutInterface, IDisposable
 {
     private readonly Stream _output;
     private readonly bool _ownsStream;
     private readonly ContentStreamWriter _writer;
     private bool _disposed;
+    private GlyphLayoutProcessorInterface? _glyphLayoutProcessor;
 
     protected PDResources? Resources { get; }
 
@@ -75,6 +76,29 @@ public abstract class PDAbstractContentStream : IDisposable
     public void ShowText(string text) => WriteOperator("Tj", new COSString(text ?? string.Empty));
     public void NewLineAtOffset(float tx, float ty) => WriteOperator("Td", tx, ty);
     public void SetFont(COSName fontName, float fontSize) => WriteOperator("Tf", fontName, fontSize);
+
+    public void SetGlyphLayoutProcessor(GlyphLayoutProcessorInterface? glyphLayoutProcessor)
+    {
+        _glyphLayoutProcessor = glyphLayoutProcessor;
+    }
+
+    public GlyphLayoutProcessorInterface? GetGlyphLayoutProcessor()
+    {
+        return _glyphLayoutProcessor;
+    }
+
+    public void ShowGlyphsWithPositioning(GlyphsAndPositions glyphsAndPositions)
+    {
+        WriteOperator("TJ", GlyphLayoutContentStreamSupport.ToGlyphsAndPositionsArray(glyphsAndPositions));
+    }
+
+    public void ShowGlyphCodes(int[] glyphCodes)
+    {
+        ArgumentNullException.ThrowIfNull(glyphCodes);
+        WriteOperator("Tj", GlyphLayoutContentStreamSupport.ToGlyphCodeString(glyphCodes));
+    }
+
+    public void SetTextRise(float rise) => WriteOperator("Ts", rise);
 
     public void MoveTo(float x, float y) => WriteOperator("m", x, y);
     public void LineTo(float x, float y) => WriteOperator("l", x, y);
