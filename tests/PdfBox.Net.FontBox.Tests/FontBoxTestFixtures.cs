@@ -189,15 +189,25 @@ internal static class FontBoxTestFixtures
         return CreateMinimalTrueTypeWithUpm(1000);
     }
 
+    public static byte[] CreateMinimalTrueTypeWithPostVersion(uint postVersion, string fontName)
+    {
+        return CreateMinimalTrueType(1000, postVersion, fontName);
+    }
+
     /// <summary>Creates a minimal TrueType with a custom unitsPerEm value and a fixed advance width of 500 design units.</summary>
     public static byte[] CreateMinimalTrueTypeWithUpm(int unitsPerEm)
     {
+        return CreateMinimalTrueType(unitsPerEm, 0x00030000, "MiniTTF");
+    }
+
+    private static byte[] CreateMinimalTrueType(int unitsPerEm, uint postVersion, string fontName)
+    {
         byte[] head = CreateHeadTable(unitsPerEm);
         byte[] maxp = CreateMaxpTable();
-        byte[] name = CreateNameTable("MiniTTF");
+        byte[] name = CreateNameTable(fontName);
         byte[] hhea = CreateHheaTable(numHMetrics: 2);
         byte[] hmtx = CreateHmtxTable(numGlyphs: 2);
-        byte[] post = CreatePostTable();
+        byte[] post = CreatePostTable(postVersion);
         byte[] cmap = CreateCmapTable();
         // 2 glyphs: GID 0 = empty, GID 1 = single contour box
         byte[] glyf = CreateGlyfTable();
@@ -276,10 +286,10 @@ internal static class FontBoxTestFixtures
         return stream.ToArray();
     }
 
-    private static byte[] CreatePostTable()
+    private static byte[] CreatePostTable(uint version = 0x00030000)
     {
         using MemoryStream stream = new();
-        WriteUInt32(stream, 0x00030000); // version 3.0 (no glyph names)
+        WriteUInt32(stream, version);
         WriteUInt32(stream, 0);          // italicAngle
         WriteInt16(stream, -100);        // underlinePosition
         WriteInt16(stream, 50);          // underlineThickness

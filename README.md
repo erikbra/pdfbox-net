@@ -76,6 +76,22 @@ mapping between Apache PDFBox's new AWT/FOP glyph-layout modules and the
 SkiaSharp/HarfBuzz implementation in PDFBox.Net, including branch support and
 the `release/3.0` backport scope.
 
+## Logging
+
+PdfBox.Net exposes provider-neutral logging through `Microsoft.Extensions.Logging`
+and does not select a logging provider. Logging routed through this API is disabled by
+default. Applications can install their configured factory during startup:
+
+```csharp
+using PdfBox.Net.Logging;
+
+PdfBoxLogging.LoggerFactory = configuredLoggerFactory;
+```
+
+The application owns the supplied factory and remains responsible for its configuration
+and disposal. Logger categories use the fully qualified PdfBox.Net type name, so providers
+such as Serilog retain the same per-class context as the upstream Java loggers.
+
 ## Build and test
 
 ```sh

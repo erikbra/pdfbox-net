@@ -183,16 +183,25 @@ reuse the buffer instead of allocating.
 
 ## 11. Logging – Log4j / SLF4J
 
-Log4j has no direct .NET equivalent in this codebase yet.  For now:
+Use `Microsoft.Extensions.Logging` through the application-wide factory in
+`PdfBox.Net.Logging.PdfBoxLogging`. Applications configure
+`PdfBoxLogging.LoggerFactory` during startup; it defaults to
+`NullLoggerFactory.Instance`.
 
 | Java | C# |
 |---|---|
-| `private static final Logger LOG = LogManager.getLogger(X.class)` | **remove** — no logging infrastructure yet |
-| `LOG.error(() -> "msg: " + e, e)` | **remove** — document as `PORT-LOCAL` region if added later |
-| `LOG.warn("msg {}", val)` | **remove** |
+| `private static final Logger LOG = LogManager.getLogger(X.class)` | `private static ILogger<X> LOG => PdfBoxLogging.CreateLogger<X>();` |
+| `LOG.debug("msg {}", val)` | `LOG.LogDebug("msg {Value}", val);` |
+| `LOG.info("msg {}", val)` | `LOG.LogInformation("msg {Value}", val);` |
+| `LOG.warn("msg {}", val)` | `LOG.LogWarning("msg {Value}", val);` |
+| `LOG.warn("msg", ex)` | `LOG.LogWarning(ex, "msg");` |
+| `LOG.error("msg", ex)` | `LOG.LogError(ex, "msg");` |
 
-Add a `// PORT-LOCAL-START / PORT-LOCAL-END` region when logging is added
-post-conversion so it is preserved across re-syncs.
+Use named message-template placeholders rather than string interpolation. The static
+logger is a property, not a captured `static readonly` instance: resolving it at the
+point of use ensures a logger factory installed after type initialization is observed.
+No constructor propagation is required. Keep the logging field and imports structurally
+aligned with the upstream logger declarations during re-syncs.
 
 ---
 
