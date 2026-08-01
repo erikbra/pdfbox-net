@@ -57,7 +57,9 @@ small backend/provider contracts so the mechanical Java port stays portable.
   registers the supported SkiaSharp renderer plus ImageMagick image/color
   providers.
 - `PdfBox.Net.SkiaSharp` is the complete page rendering backend if you only
-  want the renderer without the heavier ImageMagick providers.
+  want the renderer without the heavier ImageMagick providers. It also
+  provides the optional SkiaSharp/HarfBuzz glyph-layout backend for shaping
+  Unicode text written into new PDF content streams and form appearances.
 - `PdfBox.Net.ImageMagick` provides JPX/JPEG2000, CMYK JPEG, TIFF import, and
   ICC color conversion support.
 - `PdfBox.Net.Cryptography` provides BouncyCastle-backed public-key encryption
@@ -68,6 +70,11 @@ small backend/provider contracts so the mechanical Java port stays portable.
 
 See [`reports/printing-backend-policy-2026-06-28.md`](reports/printing-backend-policy-2026-06-28.md)
 for the printing support matrix and platform limitations.
+
+See [`docs/glyph-layout-backends.md`](docs/glyph-layout-backends.md) for the
+mapping between Apache PDFBox's new AWT/FOP glyph-layout modules and the
+SkiaSharp/HarfBuzz implementation in PDFBox.Net, including branch support and
+the `release/3.0` backport scope.
 
 ## Logging
 
